@@ -1,0 +1,1 @@
+export const URL_API_BACKEND = 'https://capstone.caucalamdev.io.vn';

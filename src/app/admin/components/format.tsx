@@ -5,6 +5,7 @@ import type { MenuProps } from 'antd';
 import { Col, Menu, Row } from 'antd';
 import Header from './header';
 import { useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -60,7 +61,8 @@ const items: MenuItem[] = [
 
 export default function Format({ children }: { children: React.ReactNode }) {
 
-    const router = useRouter()
+    const router = useRouter();
+    const pathname = usePathname()
 
     const onClick: MenuProps['onClick'] = (e) => {
         console.log('click ', e);
@@ -90,7 +92,7 @@ export default function Format({ children }: { children: React.ReactNode }) {
                     <Menu
                         onClick={onClick}
                         style={{ width: 256, height: '100%', backgroundColor: '#f0f2f5', userSelect: 'none'}}
-                        defaultSelectedKeys={['1']}
+                        defaultSelectedKeys={[pathname]}
                         defaultOpenKeys={['sub1', 'sub2', 'sub3']}
                         mode="inline"
                         items={items}

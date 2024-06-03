@@ -1,64 +1,149 @@
-'use client';
-import React from 'react';
-import type { FormProps } from 'antd';
-import { Button, Form, Input } from 'antd';
-import { loginApi } from './api/login.api';
+"use client"
+
+import { App, Button, Card, Form, Input, Spin, Typography } from "antd"
+import { useMutation } from "@tanstack/react-query"
+import LoginCredentials from "@/app/login/_api/login-credentials.api"
+import { NotFoundError } from "@/common/error/not-found.error"
+import { useRouter, useSearchParams } from "next/navigation"
+import { decodeJwt } from "@/common/util/decodeJwt.util"
+import { Role } from "@/common/enum/role.enum"
+import Cookies from "js-cookie"
+import { Suspense, useEffect } from "react"
 
 type FieldType = {
-  username: string;
-  password: string;
-};
+   username: string
+   password: string
+}
 
-const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-  loginApi(values);
-};
+// component uses useSearchParams so it must be wrapped in Suspense
+export default function Page_Login() {
+   return (
+      <Suspense fallback={<Spin fullscreen={true} />}>
+         <Login />
+      </Suspense>
+   )
+}
 
-const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-  console.log('Failed:', errorInfo);
-};
+function Login() {
+   const { message } = App.useApp()
+   const router = useRouter()
+   const params = useSearchParams()
+   const [form] = Form.useForm<FieldType>()
 
-const style = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  height: '100vh',
-};
+   const mutate_loginCredentials = useMutation({
+      mutationFn: LoginCredentials,
+      onMutate: async () => {
+         message.open({ content: "Logging in...", type: "loading", key: "loading" })
+      },
+      onSettled: async () => {
+         message.destroy("loading")
+      },
+      onSuccess: async () => {
+         message.open({ content: "Login successful", type: "success" })
+      },
+      onError: async (error) => {
+         form.resetFields()
+         if (error instanceof NotFoundError) {
+            message.error("Login failed. Account not found.")
+            return
+         }
 
-const App: React.FC = () => (
-  <div style={style}>
-    <Form
-      name="basic"
-      labelCol={{ span: 8 }}
-      wrapperCol={{ span: 16 }}
-      style={{ maxWidth: 600 }}
-      initialValues={{ remember: true }}
-      onFinish={onFinish}
-      onFinishFailed={onFinishFailed}
-      autoComplete="off"
-    >
-      <Form.Item<FieldType>
-        label="Username"
-        name="username"
-        rules={[{ required: true, message: 'Please input your username!' }]}
-      >
-        <Input />
-      </Form.Item>
+         message.error("Login failed. Please try again.")
+      },
+   })
 
-      <Form.Item<FieldType>
-        label="Password"
-        name="password"
-        rules={[{ required: true, message: 'Please input your password!' }]}
-      >
-        <Input.Password />
-      </Form.Item>
+   function handleFinish(values: FieldType) {
+      mutate_loginCredentials.mutate(values, {
+         onSuccess: async (token: string) => {
+            Cookies.set("token", token)
+            const payload = decodeJwt(token)
+            switch (payload.role) {
+               case Role.admin: {
+                  router.push("/admin")
+                  break
+               }
+               case Role.staff: {
+                  router.push("/staff")
+                  break
+               }
+               case Role.headstaff: {
+                  router.push("/head-staff")
+                  break
+               }
+               case Role.head: {
+                  router.push("/head")
+                  break
+               }
+               case Role.manager: {
+                  router.push("/manager")
+                  break
+               }
+               case Role.stockkeeper: {
+                  router.push("/stockkeeper")
+                  break
+               }
+               default: {
+                  message.info("This account has not been assigned a role. Please contact the administrator.")
+               }
+            }
+         },
+      })
+   }
 
-      <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-        <Button type="primary" htmlType="submit">
-          Submit
-        </Button>
-      </Form.Item>
-    </Form>
-  </div>
-);
+   useEffect(() => {
+      const error = params.get("error")
+      if (error === "unauthenticated") {
+         message
+            .open({
+               content: "You are not allowed to access this page. Please login again.",
+               key: "error",
+               type: "error",
+            })
+            .then()
+      }
 
-export default App;
+      return () => {
+         message.destroy("error")
+      }
+   }, [message, params])
+
+   return (
+      <div className="grid h-full place-content-center gap-3">
+         <Card>
+            <Typography.Title level={4}>Login</Typography.Title>
+            <Typography.Text>Enter your username and password to log in.</Typography.Text>
+         </Card>
+         <Card className="min-w-96">
+            <Form
+               name="Login_Form"
+               form={form}
+               layout="vertical"
+               onFinish={handleFinish}
+               disabled={mutate_loginCredentials.isPending}
+            >
+               <Form.Item<FieldType>
+                  name="username"
+                  label="Username"
+                  tooltip="What's your username?"
+                  rules={[{ required: true }]}
+               >
+                  <Input size="large" placeholder="e.g., account" autoFocus />
+               </Form.Item>
+               <Form.Item<FieldType>
+                  name="password"
+                  label="Password"
+                  tooltip="What's your password?"
+                  rules={[{ required: true }]}
+               >
+                  <Input.Password placeholder="e.g., ********" size="large" />
+               </Form.Item>
+               <Form.Item>
+                  <Button type="primary" htmlType="submit" size="large" className="w-full">
+                     Login
+                  </Button>
+               </Form.Item>
+            </Form>
+         </Card>
+      </div>
+   )
+}

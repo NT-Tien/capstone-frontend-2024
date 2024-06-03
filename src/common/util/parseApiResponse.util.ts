@@ -1,4 +1,5 @@
 import { ApiErrorResponse, ApiResponse, ApiSuccessResponse } from "@/common/types/ApiResponse"
+import { UnauthorizedError } from "@/common/error/unauthorized.error"
 
 /**
  * This function adds typing to the response and error handling of an API call.
@@ -20,6 +21,10 @@ export function parseApiResponse<T extends ApiResponse<T>>(
       // Response was successful
       return onSuccess(parsedResponse as ApiSuccessResponse<T>)
    } else {
+      if ((parsedResponse as ApiErrorResponse).statusCode === 403) {
+         throw new UnauthorizedError()
+      }
+
       // error response
       return onError(parsedResponse as ApiErrorResponse)
    }

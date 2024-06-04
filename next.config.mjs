@@ -7,6 +7,11 @@ const nextConfig = {
             destination: "/login",
             permanent: true,
          },
+         {
+            source: "/admin",
+            destination: "/admin/dashboard",
+            permanent: true,
+         },
       ]
    },
    reactStrictMode: true,

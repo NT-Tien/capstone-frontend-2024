@@ -12,11 +12,9 @@ import {
    InfoCircleFilled,
    LaptopOutlined,
    LogoutOutlined,
-   PlusOutlined,
    QuestionCircleFilled,
    RobotOutlined,
    SettingOutlined,
-   UnorderedListOutlined,
    UserOutlined,
 } from "@ant-design/icons"
 import Link from "next/link"
@@ -139,58 +137,19 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         key: "machine models",
                         name: "Machine Models",
                         icon: <RobotOutlined />,
-                        children: [
-                           {
-                              key: "machine model list",
-                              path: "/admin/machine-models/list",
-                              name: "List",
-                              icon: <UnorderedListOutlined />,
-                           },
-                           {
-                              key: "create machine model",
-                              path: "/admin/machine-models/new",
-                              name: "Create",
-                              icon: <PlusOutlined />,
-                           },
-                        ],
+                        path: "/admin/machine-models",
                      },
                      {
                         key: "devices",
                         name: "Devices",
                         icon: <LaptopOutlined />,
-                        children: [
-                           {
-                              key: "device list",
-                              path: "/admin/devices/list",
-                              name: "List",
-                              icon: <UnorderedListOutlined />,
-                           },
-                           {
-                              key: "create device",
-                              path: "/admin/devices/new",
-                              name: "Create",
-                              icon: <PlusOutlined />,
-                           },
-                        ],
+                        path: "/admin/devices",
                      },
                      {
                         key: "spare parts",
                         name: "Spare Parts",
                         icon: <ApiOutlined />,
-                        children: [
-                           {
-                              key: "spare part list",
-                              path: "/admin/spare-parts/list",
-                              name: "List",
-                              icon: <UnorderedListOutlined />,
-                           },
-                           {
-                              key: "create spare part",
-                              path: "/admin/spare-parts/new",
-                              name: "Create",
-                              icon: <PlusOutlined />,
-                           },
-                        ],
+                        path: "/admin/spare-parts",
                      },
                   ],
                },

@@ -4,54 +4,62 @@ import { PageContainer } from "@ant-design/pro-layout"
 import { ProTable, TableDropdown } from "@ant-design/pro-components"
 import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
-import Users_All from "@/app/admin/_api/users/all.api"
 import { Button } from "antd"
-import { Role } from "@/common/enum/role.enum"
 import { useMemo, useRef, useState } from "react"
 import dayjs from "dayjs"
-import { UserDto } from "@/common/dto/User.dto"
-import CreateUserDrawer from "@/app/admin/users/_components/create-user.drawer"
+import { MachineModelDto } from "@/common/dto/MachineModel.dto"
+import MachineModel_All from "@/app/admin/_api/machine-model/all.api"
+import CreateMachineModelDrawer from "@/app/admin/machine-models/_components/create-machine-model.drawer"
 import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
 
-export default function UsersListPage() {
-   const [query, setQuery] = useState<Partial<UserDto>>({})
+export default function MachineModelsListPage() {
+   const [query, setQuery] = useState<Partial<MachineModelDto>>({})
    const response = useQuery({
-      queryKey: qk.users.all(),
-      queryFn: () => Users_All(),
+      queryKey: qk.machineModels.all(),
+      queryFn: () => MachineModel_All(),
    })
    const actionRef = useRef()
 
    const responseData = useMemo(() => {
       return (
-         response.data?.filter((user) => {
+         response.data?.filter((area) => {
             let result = false
             const queryEntries = Object.entries(query)
             if (queryEntries.length === 0) return true
             for (const [key, value] of queryEntries) {
                switch (key) {
                   case "id":
-                     result = result || user.id.includes(value as string)
+                     result = result || area.id.includes(value as string)
                      break
-                  case "username":
-                     result = result || user.username.includes(value as string)
+                  case "name":
+                     result = result || area.name.includes(value as string)
                      break
-                  case "phone":
-                     result = result || user.phone.includes(value as string)
+                  case "description":
+                     result = result || area.description.includes(value as string)
                      break
-                  case "role":
-                     result = result || user.role === value
+                  case "manufacturer":
+                     result = result || area.manufacturer.includes(value as string)
+                     break
+                  case "yearOfProduction":
+                     result = result || Number(area.yearOfProduction) === Number(value)
+                     break
+                  case "dateOfReceipt":
+                     result = result || dayjs(area.dateOfReceipt).isSame(value, "day")
+                     break
+                  case "warrantyTerm":
+                     result = result || dayjs(area.warrantyTerm).isSame(value, "day")
                      break
                   case "createdAt":
-                     result = result || dayjs(user.createdAt).isSame(value, "day")
+                     result = result || dayjs(area.createdAt).isSame(value, "day")
                      break
                   case "updatedAt":
-                     result = result || dayjs(user.updatedAt).isSame(value, "day")
+                     result = result || dayjs(area.updatedAt).isSame(value, "day")
                      break
                   case "deletedAt":
                      result =
                         result || value === null
-                           ? user.deletedAt === null
-                           : dayjs(user.deletedAt).isSame(dayjs(value as string), "day")
+                           ? area.deletedAt === null
+                           : dayjs(area.deletedAt).isSame(dayjs(value as string), "day")
                }
             }
             return result
@@ -65,18 +73,18 @@ export default function UsersListPage() {
 
    return (
       <PageContainer
-         title="Users List"
-         subTitle={`Total ${responseData?.length ?? "..."} user(s) found.`}
+         title="Machine Models List"
+         subTitle={`Total ${responseData?.length ?? "..."} machine models(s) found.`}
+         loading={response.isLoading}
          extra={
-            <CreateUserDrawer>
+            <CreateMachineModelDrawer>
                {(handleOpen) => (
-                  <Button key="create-user-btn" type="primary" onClick={handleOpen}>
+                  <Button key="create-area-btn" type="primary" onClick={handleOpen}>
                      Create
                   </Button>
                )}
-            </CreateUserDrawer>
+            </CreateMachineModelDrawer>
          }
-         loading={response.isLoading}
       >
          <ProTable
             actionRef={actionRef}
@@ -88,11 +96,11 @@ export default function UsersListPage() {
                },
             }}
             form={{
+               layout: "vertical",
                syncToUrl: (values, type) => {
                   if (type === "get") {
                      return {
                         ...values,
-                        created_at: [values.startTime, values.endTime],
                      }
                   }
                   return values
@@ -104,6 +112,7 @@ export default function UsersListPage() {
             onReset={() => {
                setQuery({})
             }}
+            virtual
             pagination={{
                pageSize: 10,
                showQuickJumper: true,
@@ -123,40 +132,61 @@ export default function UsersListPage() {
                   valueType: "text",
                },
                {
-                  title: "Username",
-                  dataIndex: "username",
+                  title: "Name",
+                  dataIndex: "name",
                   width: 200,
                   ellipsis: {
                      showTitle: true,
                   },
                   valueType: "text",
-                  sorter: (a, b) => a.username.localeCompare(b.username),
+                  sorter: (a, b) => a.name.localeCompare(b.name),
                },
                {
-                  title: "Phone",
-                  dataIndex: "phone",
+                  title: "Description",
+                  dataIndex: "description",
                   width: 200,
                   ellipsis: {
                      showTitle: true,
                   },
-                  valueType: "phone",
+                  valueType: "textarea",
+                  sorter: (a, b) => a.description.localeCompare(b.description),
                },
                {
-                  title: "Role",
-                  dataIndex: "role",
-                  width: 100,
-                  valueType: "select",
-                  valueEnum: Role,
+                  title: "Year of Production",
+                  dataIndex: "yearOfProduction",
+                  width: 200,
+                  ellipsis: {
+                     showTitle: true,
+                  },
+                  render: (_, record) => record.yearOfProduction,
+                  valueType: "dateYear",
+                  sorter: (a, b) => a.yearOfProduction - b.yearOfProduction,
+               },
+               {
+                  title: "Date of Receipt",
+                  dataIndex: "dateOfReceipt",
+                  width: 150,
+                  valueType: "date",
+                  sorter: (a, b) => dayjs(a.dateOfReceipt).unix() - dayjs(b.dateOfReceipt).unix(),
+               },
+               {
+                  title: "Warranty Term",
+                  dataIndex: "warrantyTerm",
+                  width: 150,
+                  valueType: "date",
+                  sorter: (a, b) => dayjs(a.warrantyTerm).unix() - dayjs(b.warrantyTerm).unix(),
                },
                {
                   title: "Created At",
                   dataIndex: "createdAt",
+                  width: 150,
                   valueType: "date",
                   sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
                },
                {
                   title: "Updated At",
                   dataIndex: "updatedAt",
+                  width: 150,
                   valueType: "date",
                   sorter: (a, b) => dayjs(a.updatedAt).unix() - dayjs(b.updatedAt).unix(),
                   defaultSortOrder: "descend",
@@ -164,12 +194,15 @@ export default function UsersListPage() {
                {
                   title: "Deleted At",
                   dataIndex: "deletedAt",
+                  width: 150,
                   valueType: "date",
                   sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).unix() - dayjs(b.deletedAt ?? dayjs()).unix(),
                },
                {
                   title: "Options",
                   valueType: "option",
+                  width: 100,
+                  key: "option",
                   render: (text, record, _, action) => [
                      <a
                         key="editable"

@@ -1,5 +1,3 @@
-import { UserDto } from "@/common/dto/User.dto"
-
 const qk = {
    users: {
       all: () => ["users"],
@@ -10,6 +8,15 @@ const qk = {
    },
    positions: {
       all: () => ["positions"],
+   },
+   machineModels: {
+      all: () => ["machine-model"],
+   },
+   devices: {
+      all: () => ["devices"],
+   },
+   spareParts: {
+      all: () => ["spare-parts"],
    },
 }
 

@@ -10,6 +10,7 @@ import dayjs from "dayjs"
 import { AreaDto } from "@/common/dto/Area.dto"
 import Areas_All from "@/app/admin/_api/areas/all.api"
 import CreateAreaDrawer from "@/app/admin/area/_components/create-area.drawer"
+import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
 
 export default function AreasListPage() {
    const [query, setQuery] = useState<Partial<AreaDto>>({})
@@ -191,7 +192,7 @@ export default function AreasListPage() {
                      <TableDropdown
                         key="actionGroup"
                         onSelect={() => action?.reload()}
-                        menus={[{ key: "copy", name: "Copy" }]}
+                        menus={[CopyToClipboard({ value: record.id })]}
                      />,
                   ],
                },

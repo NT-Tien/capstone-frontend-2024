@@ -10,6 +10,7 @@ import { PositionDto } from "@/common/dto/Position.dto"
 import Positions_All from "@/app/admin/_api/positions/all.api"
 import CreatePositionDrawer from "@/app/admin/positions/_components/create-position.drawer"
 import { Button } from "antd"
+import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
 
 export default function PositionsListPage() {
    const [query, setQuery] = useState<Partial<PositionDto>>({})
@@ -177,7 +178,7 @@ export default function PositionsListPage() {
                      <TableDropdown
                         key="actionGroup"
                         onSelect={() => action?.reload()}
-                        menus={[{ key: "copy", name: "Copy" }]}
+                        menus={[CopyToClipboard({ value: record.id })]}
                      />,
                   ],
                },

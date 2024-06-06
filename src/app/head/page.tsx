@@ -6,11 +6,13 @@ import ScanQR from "./_component/ScanQrScreen";
 import ScanResults from "./_component/ScanResults";
 import DashBoard from "./_component/DashBoard";
 
-export default function HeadHomePage({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function HeadHomePage() {
    return (
       <AntdRegistry>
-         <DashBoard></DashBoard>
-         {/* <ScanResults></ScanResults> */}
+         {/* <DashBoard>
+         </DashBoard> */}
+         <ScanQR/>
+         {/* <ScanResults/> */}
       </AntdRegistry>
    )
 }

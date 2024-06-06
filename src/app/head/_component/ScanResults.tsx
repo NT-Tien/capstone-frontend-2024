@@ -3,7 +3,11 @@ import { Button, Card, Footer, List, NavBar, Space, Toast } from "antd-mobile"
 import { SearchOutline, MoreOutline, CloseOutline, AntOutline, RightOutline, AddOutline } from "antd-mobile-icons"
 import CreateIssueReport from "./CreateIssueReportFloatingPanel"
 
-const ScanResults = () => {
+interface ScanResultProps {
+   isDirect: boolean
+}
+
+const ScanResults: React.FC<ScanResultProps> = ({ isDirect }) => {
    const [isPanelVisible, setIsPanelVisible] = useState(false)
 
    const handleButtonClick = () => {
@@ -103,7 +107,7 @@ const ScanResults = () => {
                </List.Item>
             </List>
          </div>
-         <div style={{ position: "relative", minHeight: "100vh" }}>
+         <div style={{ position: "relative", minHeight: "" }}>
             <div style={{ paddingBottom: "50px" /* Adjust based on the Footer height */ }}>
                {/* Your main content here */}
             </div>
@@ -143,7 +147,7 @@ const ScanResults = () => {
                   position: "fixed",
                   bottom: 0,
                   width: "100%",
-                  backgroundColor: "white", // Optional: Adjust based on your Footer style
+                  backgroundColor: "white",
                }}
             />
          </div>

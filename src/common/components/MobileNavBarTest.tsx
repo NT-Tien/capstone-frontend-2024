@@ -1,12 +1,14 @@
+"use client"
 import { Badge, TabBar } from "antd-mobile"
 import { AppstoreOutline, ClockCircleOutline, SetOutline, SystemQRcodeOutline } from "antd-mobile-icons"
-import { useRouter } from 'next/navigation';
 import { ReactNode } from "react";
 import TabBarItem from "./TabBarItem";
+import { useRouter } from "next/navigation";
+import ScanQrScreen from "@/app/head/_component/ScanQrScreen";
 
 
 const MobileNavBarTest = () => {
-    const router = useRouter()
+   const router = useRouter()
    const tabs = [
       {
          key: "home",
@@ -24,7 +26,7 @@ const MobileNavBarTest = () => {
          key: "scan",
          title: "Scan",
          icon: <SystemQRcodeOutline />,
-         onClick: () => router.push('/head/ScanQrScreen')
+         onClick: () => router.push('/head/ScanQrScreen.tsx')
       },
       {
          key: "settings",

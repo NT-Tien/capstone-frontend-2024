@@ -6,7 +6,11 @@ import { ClockCircleOutline } from "antd-mobile-icons"
 import { useState } from "react"
 import MobileNavBarTest from "@/common/components/MobileNavBarTest"
 
-const DashBoard = () => {
+interface DashBoardProps {
+   children: React.ReactNode
+}
+
+const DashBoard: React.FC<DashBoardProps> = ({children}) => {
    const [currentRoute, setCurrentRoute] = useState("home")
 
    const cardStyle = {

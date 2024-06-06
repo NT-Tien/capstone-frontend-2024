@@ -3,11 +3,8 @@ import { Button, Card, Footer, List, NavBar, Space, Toast } from "antd-mobile"
 import { SearchOutline, MoreOutline, CloseOutline, AntOutline, RightOutline, AddOutline } from "antd-mobile-icons"
 import CreateIssueReport from "./CreateIssueReportFloatingPanel"
 
-interface ScanResultProps {
-   isDirect: boolean
-}
 
-const ScanResults: React.FC<ScanResultProps> = ({ isDirect }) => {
+const ScanResults = () => {
    const [isPanelVisible, setIsPanelVisible] = useState(false)
 
    const handleButtonClick = () => {

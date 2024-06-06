@@ -6,7 +6,7 @@ interface TabBarItemProps {
    icon: ReactNode;
    title: string;
    badge?: ReactNode;
-   onClick: () => void;
+   onClick: () => void
 }
 
 const TabBarItem = ({ key, icon, title, badge, onClick }: TabBarItemProps) => {

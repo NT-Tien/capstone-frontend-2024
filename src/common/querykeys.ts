@@ -18,6 +18,10 @@ const qk = {
    spareParts: {
       all: () => ["spare-parts"],
    },
+   issueRequests: {
+      all: () => ["issue-requests"],
+      byId: (id: string) => ["issue-requests", id],
+   },
 }
 
 export default qk

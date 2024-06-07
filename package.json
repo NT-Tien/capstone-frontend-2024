@@ -16,13 +16,15 @@
     "antd-mobile": "^5.36.1",
     "antd-mobile-icons": "^0.3.0",
     "axios": "^1.7.2",
+    "clsx": "^2.1.1",
     "dayjs": "^1.11.11",
     "js-cookie": "^3.0.5",
     "next": "14.2.3",
     "react": "^18",
     "react-dom": "^18",
     "react-highlight-words": "^0.20.0",
-    "react-qr-scanner": "^1.0.0-alpha.11"
+    "react-qr-scanner": "^1.0.0-alpha.11",
+    "tailwind-merge": "^2.3.0"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.35.6",

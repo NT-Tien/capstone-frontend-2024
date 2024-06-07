@@ -3,7 +3,7 @@
 import { cloneElement, ReactElement } from "react"
 import { Badge } from "antd"
 
-export type NavbarMenuItem = {
+type NavbarMenuItem = {
    key: string
    name: string
    icon: ReactElement
@@ -11,7 +11,7 @@ export type NavbarMenuItem = {
    countBadge?: number
 }
 
-export type MobileNavbarProps = {
+type MobileNavbarProps = {
    items: NavbarMenuItem[]
    currentActive?: string
 }
@@ -33,7 +33,7 @@ export default function MobileNavbar(props: MobileNavbarProps) {
    )
 }
 
-export type NavbarItemProps = {
+type NavbarItemProps = {
    name: string
    icon: ReactElement
    onClick?: () => void

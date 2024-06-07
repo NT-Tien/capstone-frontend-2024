@@ -6,8 +6,8 @@ import { CapsuleTabs } from "antd-mobile"
 
 export default function DashboardPage() {
    return (
-      <div className="p-4">
-         <HeadStaffDashboardHeader />
+      <div>
+         <HeadStaffDashboardHeader className="p-4 pb-2" />
          <CapsuleTabs>
             <CapsuleTabs.Tab title="Tab 1" key="1">
                <div className="grid grid-cols-1 gap-5 overflow-y-auto">

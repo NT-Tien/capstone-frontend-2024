@@ -3,7 +3,7 @@
 import { cloneElement, ReactElement } from "react"
 import { Badge } from "antd"
 
-type NavbarMenuItem = {
+export type NavbarMenuItem = {
    key: string
    name: string
    icon: ReactElement
@@ -11,14 +11,14 @@ type NavbarMenuItem = {
    countBadge?: number
 }
 
-type MobileNavbarProps = {
+export type MobileNavbarProps = {
    items: NavbarMenuItem[]
    currentActive?: string
 }
 
 export default function MobileNavbar(props: MobileNavbarProps) {
    return (
-      <div className="fixed bottom-0 left-0 flex h-24 w-full justify-evenly bg-[#F3EDF7] pb-2">
+      <div className="fixed bottom-0 left-0 flex h-20 w-full justify-evenly bg-[#F3EDF7]">
          {props.items.map((item) => (
             <NavbarItem
                key={item.key}
@@ -33,7 +33,7 @@ export default function MobileNavbar(props: MobileNavbarProps) {
    )
 }
 
-type NavbarItemProps = {
+export type NavbarItemProps = {
    name: string
    icon: ReactElement
    onClick?: () => void

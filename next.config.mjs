@@ -12,6 +12,11 @@ const nextConfig = {
             destination: "/admin/dashboard",
             permanent: true,
          },
+         {
+            source: "/head-staff",
+            destination: "/head-staff/dashboard",
+            permanent: true,
+         },
       ]
    },
    reactStrictMode: true,

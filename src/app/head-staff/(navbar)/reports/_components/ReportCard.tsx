@@ -17,7 +17,7 @@ export default function ReportCard(props: Props) {
 
    return (
       <Card
-         title={props.issueRequest.device.machineModel.name}
+         title={props.issueRequest.device.description}
          className="bg-[#F3EDF7]"
          bordered={true}
          type="inner"
@@ -26,7 +26,7 @@ export default function ReportCard(props: Props) {
          size="small"
          onClick={() => router.push(`/head-staff/reports/${props.issueRequest.id}`)}
       >
-         <Typography.Text ellipsis={true}>{props.issueRequest.description}</Typography.Text>
+         <Typography.Text ellipsis={true}>{props.issueRequest.requester_note}</Typography.Text>
          <div className="mt-3 flex items-center justify-between gap-3">
             <Tag color="default">{props.issueRequest.status}</Tag>
             <Typography.Text className="mt-0 text-xs">

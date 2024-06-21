@@ -3,7 +3,7 @@ import { DrawerForm, ProForm, ProFormDatePicker, ProFormText, ProFormTextArea } 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { App } from "antd"
 import qk from "@/common/querykeys"
-import MachineModels_Create, { Request } from "@/app/admin/_api/machine-model/create.api"
+import Admin_MachineModels_Create, { Request } from "@/app/admin/_api/machine-model/create.api"
 import dayjs from "dayjs"
 
 type FieldType = Request
@@ -15,7 +15,7 @@ export default function CreateMachineModelDrawer({ children }: { children: (hand
    const queryClient = useQueryClient()
 
    const mutate_createMachineModel = useMutation({
-      mutationFn: MachineModels_Create,
+      mutationFn: Admin_MachineModels_Create,
       onMutate: async () => {
          message.open({
             content: "Creating Machine Model...",

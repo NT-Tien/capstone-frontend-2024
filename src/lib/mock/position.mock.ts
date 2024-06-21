@@ -1,7 +1,6 @@
-import { PositionDto } from "@/common/dto/Position.dto"
 import { AreaMock } from "@/lib/mock/area.mock"
 
-export let PositionMock: PositionDto[] = [
+export let PositionMock = [
    // Positions for Area 61
    {
       id: "379103af-8c2a-4f6e-808c-a6d954f49eb0",

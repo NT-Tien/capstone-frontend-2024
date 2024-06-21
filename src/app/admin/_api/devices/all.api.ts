@@ -5,10 +5,10 @@ import { DeviceDto } from "@/common/dto/Device.dto"
 
 type Response = DeviceDto[]
 
-Devices_All.URL = "/device"
-export default async function Devices_All(): Promise<Response> {
+Admin_Devices_All.URL = "/admin/device"
+export default async function Admin_Devices_All(): Promise<Response> {
    return api
-      .get<Response>(Devices_All.URL, {
+      .get<Response>(Admin_Devices_All.URL, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,

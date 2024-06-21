@@ -3,10 +3,9 @@ import { DrawerForm, ProForm, ProFormDigit, ProFormSelect, ProFormTextArea } fro
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { App } from "antd"
 import qk from "@/common/querykeys"
-import Devices_Create, { Request } from "@/app/admin/_api/devices/create.api"
-import Positions_All from "@/app/admin/_api/positions/all.api"
-import Areas_All from "@/app/admin/_api/areas/all.api"
-import MachineModel_All from "@/app/admin/_api/machine-model/all.api"
+import Admin_Devices_Create, { Request } from "@/app/admin/_api/devices/create.api"
+import Admin_Areas_All from "@/app/admin/_api/areas/all.api"
+import Admin_MachineModel_All from "@/app/admin/_api/machine-model/all.api"
 
 type FieldType = Request & {
    area: string
@@ -14,13 +13,12 @@ type FieldType = Request & {
 
 export default function CreateDeviceDrawer({ children }: { children: (handleOpen: () => void) => ReactNode }) {
    const [open, setOpen] = useState(false)
-   const [positionStore, setPositionStore] = useState<string | undefined>(undefined)
    const [form] = ProForm.useForm()
    const { message } = App.useApp()
    const queryClient = useQueryClient()
 
    const mutate_createDevice = useMutation({
-      mutationFn: Devices_Create,
+      mutationFn: Admin_Devices_Create,
       onMutate: async () => {
          message.open({
             content: "Creating device...",
@@ -50,12 +48,10 @@ export default function CreateDeviceDrawer({ children }: { children: (handleOpen
    function handleClose() {
       setOpen(false)
       form.resetFields()
-      setPositionStore(undefined)
    }
 
    async function handleSubmit(props: FieldType) {
-      const { area, ...data } = props
-      mutate_createDevice.mutate(data, {
+      mutate_createDevice.mutate(props, {
          onSuccess: () => {
             handleClose()
          },
@@ -90,7 +86,7 @@ export default function CreateDeviceDrawer({ children }: { children: (handleOpen
                request={async () => {
                   const data = await queryClient.ensureQueryData({
                      queryKey: qk.machineModels.all(),
-                     queryFn: () => MachineModel_All(),
+                     queryFn: () => Admin_MachineModel_All(),
                   })
 
                   return data.map((model) => ({
@@ -104,45 +100,29 @@ export default function CreateDeviceDrawer({ children }: { children: (handleOpen
                label="Area"
                shouldUpdate
                showSearch
-               onChange={(e: any) => {
-                  setPositionStore(e)
-               }}
                placeholder="Select an area"
                rules={[{ required: true }]}
                request={async () => {
                   const data = await queryClient.ensureQueryData({
                      queryKey: qk.areas.all(),
-                     queryFn: () => Areas_All(),
+                     queryFn: () => Admin_Areas_All(),
                   })
 
                   return data.map((position) => ({
-                     label: position.name,
+                     label: `${position.name} (${position.width}x${position.height})`,
                      value: position.id,
                   }))
                }}
             />
-            <ProFormSelect
-               name="position"
-               label="Position"
-               shouldUpdate
-               showSearch
-               dependencies={["area"]}
-               disabled={positionStore === undefined}
-               placeholder="Select a position"
-               rules={[{ required: true }]}
-               request={async () => {
-                  const data = await queryClient.ensureQueryData({
-                     queryKey: qk.positions.all(),
-                     queryFn: () => Positions_All(),
-                  })
-
-                  return data
-                     .filter((position) => position.area.id === form.getFieldValue("area"))
-                     .map((position) => ({
-                        label: `Position (${position.positionX}, ${position.positionY})`,
-                        value: position.id,
-                     }))
-               }}
+            <ProFormDigit
+               name="positionX"
+               label="Position X"
+               rules={[{ required: true }, { transform: (value) => Number(value), type: "number" }]}
+            />
+            <ProFormDigit
+               name="positionY"
+               label="Position Y"
+               rules={[{ required: true }, { transform: (value) => Number(value), type: "number" }]}
             />
          </DrawerForm>
       </>

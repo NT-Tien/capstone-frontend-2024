@@ -10,8 +10,8 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { App } from "antd"
 import qk from "@/common/querykeys"
-import SpareParts_Create, { Request } from "@/app/admin/_api/spare-parts/create.api"
-import MachineModel_All from "@/app/admin/_api/machine-model/all.api"
+import Admin_SpareParts_Create, { Request } from "@/app/admin/_api/spare-parts/create.api"
+import Admin_MachineModel_All from "@/app/admin/_api/machine-model/all.api"
 
 type FieldType = Request
 
@@ -22,7 +22,7 @@ export default function CreateSparePartDrawer({ children }: { children: (handleO
    const queryClient = useQueryClient()
 
    const mutate_createPosition = useMutation({
-      mutationFn: SpareParts_Create,
+      mutationFn: Admin_SpareParts_Create,
       onMutate: async () => {
          message.open({
             content: "Creating Spare Part...",
@@ -37,7 +37,7 @@ export default function CreateSparePartDrawer({ children }: { children: (handleO
       onSuccess: async () => {
          message.success("Create Spare Part successful")
          await queryClient.invalidateQueries({
-            queryKey: qk.spareParts.all(),
+            queryKey: qk.spareParts.allRaw(),
          })
       },
       onSettled: async () => {
@@ -98,7 +98,7 @@ export default function CreateSparePartDrawer({ children }: { children: (handleO
                request={async () => {
                   const data = await queryClient.ensureQueryData({
                      queryKey: qk.machineModels.all(),
-                     queryFn: () => MachineModel_All(),
+                     queryFn: () => Admin_MachineModel_All(),
                   })
 
                   return data.map((model) => ({

@@ -2,58 +2,132 @@
 
 import { PageContainer } from "@ant-design/pro-layout"
 import { ProTable, TableDropdown } from "@ant-design/pro-components"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import { useMemo, useRef, useState } from "react"
 import dayjs from "dayjs"
-import { Button } from "antd"
+import { App, Button } from "antd"
 import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
-import { SparePartDto } from "@/common/dto/SparePart.dto"
-import SpareParts_All from "@/app/admin/_api/spare-parts/all.api"
+import { DeleteOutlined, RollbackOutlined } from "@ant-design/icons"
+import Link from "next/link"
+import Admin_SpareParts_AllWithDeleted from "@/app/admin/_api/spare-parts/all-withDeleted.api"
+import Admin_SpareParts_DeleteSoft from "@/app/admin/_api/spare-parts/delete-soft.api"
+import Admin_SpareParts_Restore from "@/app/admin/_api/spare-parts/restore.api"
 import CreateSparePartDrawer from "@/app/admin/spare-parts/_components/create-spare-part.drawer"
+import { SparePartDto } from "@/common/dto/SparePart.dto"
+import Admin_SpareParts_All from "@/app/admin/_api/spare-parts/all.api"
 
-export default function SparePartsListPage() {
-   const [query, setQuery] = useState<Partial<SparePartDto>>({})
+type types = {
+   dto: SparePartDto
+}
+
+const values = {
+   nameSingle: "spare part",
+   nameSingleCapitalized: "Spare Part",
+   namePlural: "spare parts",
+   namePluralCapitalized: "Spare Parts",
+   namePluralCapitalizedOptional: "Spare Parts(s)",
+   mainQueryFn: Admin_SpareParts_All,
+   mainQueryKey: qk.spareParts.all,
+   deleteMutationFn: Admin_SpareParts_DeleteSoft,
+   restoreMutationFn: Admin_SpareParts_Restore,
+   CreateDrawer: CreateSparePartDrawer,
+   detailsHref: (id: string) => `/admin/spare-parts/${id}`,
+}
+
+export default function DevicesListPage() {
+   const { message } = App.useApp()
+   const [query, setQuery] = useState<Partial<types["dto"]>>({})
    const response = useQuery({
-      queryKey: qk.spareParts.all(),
-      queryFn: () => SpareParts_All(),
+      queryKey: values.mainQueryKey(1, 100),
+      queryFn: () => values.mainQueryFn({ page: 1, limit: 100 }),
    })
    const actionRef = useRef()
 
+   const mutate_delete = useMutation({
+      mutationFn: values.deleteMutationFn,
+      onMutate: async () => {
+         message.open({
+            type: "loading",
+            content: `Deleting ${values.nameSingleCapitalized}...`,
+            key: `delete-${values.nameSingle}`,
+         })
+      },
+      onError: async (error) => {
+         message.error({
+            content: `Failed to delete ${values.nameSingleCapitalized}. See logs.`,
+         })
+      },
+      onSuccess: async () => {
+         message.success({
+            content: `${values.nameSingleCapitalized} deleted successfully.`,
+         })
+         await response.refetch()
+      },
+      onSettled: () => {
+         message.destroy(`delete-${values.nameSingle}`)
+      },
+   })
+
+   const mutate_restore = useMutation({
+      mutationFn: values.restoreMutationFn,
+      onMutate: async () => {
+         message.open({
+            type: "loading",
+            content: `Restoring ${values.nameSingleCapitalized}...`,
+            key: `restore-${values.nameSingle}`,
+         })
+      },
+      onError: async (error) => {
+         message.error({
+            content: `Failed to restore ${values.nameSingleCapitalized}. See logs.`,
+         })
+      },
+      onSuccess: async () => {
+         message.success({
+            content: `${values.nameSingleCapitalized} restored successfully.`,
+         })
+         await response.refetch()
+      },
+      onSettled: () => {
+         message.destroy(`restore-${values.nameSingle}`)
+      },
+   })
+
    const responseData = useMemo(() => {
       return (
-         response.data?.filter((sparePart) => {
+         response.data?.list.filter((data) => {
             let result = false
             const queryEntries = Object.entries(query)
             if (queryEntries.length === 0) return true
             for (const [key, value] of queryEntries) {
                switch (key) {
                   case "id":
-                     result = result || sparePart.id.includes(value as string)
+                     result = result || data.id.includes(value as string)
                      break
                   case "name":
-                     result = result || sparePart.name.includes(value as string)
+                     result = result || data.name.includes(value as string)
                      break
                   case "quantity":
-                     result = result || Number(sparePart.quantity) === Number(value)
+                     result = result || Number(data.quantity) === Number(value)
                      break
                   // case "machineModel":
-                  //    result = result || sparePart.machineModel.name.includes(value as string)
+                  //    result = result || data.machineModel.name.includes(value as string)
                   //    break
                   case "expirationDate":
-                     result = result || dayjs(sparePart.expirationDate).isSame(value as string, "day")
+                     result = result || dayjs(data.expirationDate).isSame(value as string, "day")
                      break
                   case "createdAt":
-                     result = result || dayjs(sparePart.createdAt).isSame(value as string, "day")
+                     result = result || dayjs(data.createdAt).isSame(value as string, "day")
                      break
                   case "updatedAt":
-                     result = result || dayjs(sparePart.updatedAt).isSame(value as string, "day")
+                     result = result || dayjs(data.updatedAt).isSame(value as string, "day")
                      break
                   case "deletedAt":
                      result =
                         result || value === null
-                           ? sparePart.deletedAt === null
-                           : dayjs(sparePart.deletedAt).isSame(dayjs(value as string), "day")
+                           ? data.deletedAt === null
+                           : dayjs(data.deletedAt).isSame(dayjs(value as string), "day")
                }
             }
             return result
@@ -67,17 +141,17 @@ export default function SparePartsListPage() {
 
    return (
       <PageContainer
-         title="Spare Parts List"
-         subTitle={`Total ${responseData?.length ?? "..."} spare part(s) found.`}
+         title={`${values.namePluralCapitalized} List`}
+         subTitle={`Total ${responseData?.length ?? "..."} ${values.namePluralCapitalizedOptional}(s) found.`}
          loading={response.isLoading}
          extra={
-            <CreateSparePartDrawer>
+            <values.CreateDrawer>
                {(handleOpen) => (
                   <Button key="create-position-btn" type="primary" onClick={handleOpen}>
                      Create
                   </Button>
                )}
-            </CreateSparePartDrawer>
+            </values.CreateDrawer>
          }
       >
          <ProTable
@@ -89,6 +163,7 @@ export default function SparePartsListPage() {
                   await response.refetch()
                },
             }}
+            virtual
             form={{
                syncToUrl: (values, type) => {
                   if (type === "get") {
@@ -176,20 +251,29 @@ export default function SparePartsListPage() {
                {
                   title: "Options",
                   valueType: "option",
+                  width: 100,
                   key: "option",
                   render: (text, record, _, action) => [
-                     <a
-                        key="editable"
-                        onClick={() => {
-                           action?.startEditable?.(record.id)
-                        }}
-                     >
-                        View/Edit
-                     </a>,
+                     <Link key={"View"} href={values.detailsHref(record.id)}>
+                        View
+                     </Link>,
                      <TableDropdown
                         key="actionGroup"
                         onSelect={() => action?.reload()}
-                        menus={[CopyToClipboard({ value: record.id })]}
+                        menus={[
+                           CopyToClipboard({ value: record.id }),
+                           {
+                              key: record.deletedAt ? "restore" : "delete",
+                              icon: record.deletedAt ? <RollbackOutlined /> : <DeleteOutlined />,
+                              name: record.deletedAt ? "Restore" : "Delete",
+                              danger: true,
+                              onClick: async () => {
+                                 record.deletedAt
+                                    ? await mutate_restore.mutateAsync({ id: record.id })
+                                    : await mutate_delete.mutateAsync({ id: record.id })
+                              },
+                           },
+                        ]}
                      />,
                   ],
                },

@@ -1,13 +1,13 @@
 "use client"
 
-import HeadStaffDashboardHeader from "@/app/head-staff/_components/HeadStaffDashboardHeader"
 import { Skeleton } from "antd"
 import { CapsuleTabs } from "antd-mobile"
+import HomeHeader from "@/common/components/HomeHeader"
 
 export default function DashboardPage() {
    return (
       <div>
-         <HeadStaffDashboardHeader className="p-4 pb-2" />
+         <HomeHeader className="p-4 pb-2" />
          <CapsuleTabs>
             <CapsuleTabs.Tab title="Tab 1" key="1">
                <div className="grid grid-cols-1 gap-5 overflow-y-auto">

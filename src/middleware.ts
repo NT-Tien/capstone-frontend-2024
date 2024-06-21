@@ -8,11 +8,6 @@ export function middleware(request: NextRequest) {
       return NextResponse.next()
    }
 
-   if (request.nextUrl.pathname.startsWith("/head-staff")) {
-      // TODO remove this when all pages are implemented
-      return NextResponse.next()
-   }
-
    if (request.nextUrl.pathname === "/login") {
       // check if user is already logged in
       return NextResponse.next()

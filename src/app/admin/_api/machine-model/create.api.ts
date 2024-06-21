@@ -9,10 +9,10 @@ export type Request = Pick<
 >
 export type Response = MachineModelDto
 
-MachineModels_Create.URL = "/machine-model"
-export default async function MachineModels_Create(req: Request): Promise<Response> {
+Admin_MachineModels_Create.URL = "/admin/machine-model"
+export default async function Admin_MachineModels_Create(req: Request): Promise<Response> {
    return api
-      .post<Response>(MachineModels_Create.URL, req, {
+      .post<Response>(Admin_MachineModels_Create.URL, req, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,

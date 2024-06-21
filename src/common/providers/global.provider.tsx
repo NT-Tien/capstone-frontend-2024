@@ -26,7 +26,7 @@ export default function GlobalProvider({ children }: Readonly<{ children: ReactN
          </AntdRegistry>
 
          {/* React Query Devtools */}
-         {/*<ReactQueryDevtools buttonPosition={"bottom-left"} />*/}
+         <ReactQueryDevtools buttonPosition={"bottom-left"} />
       </QueryClientProvider>
    )
 }

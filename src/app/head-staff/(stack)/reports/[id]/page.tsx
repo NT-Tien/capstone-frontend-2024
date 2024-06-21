@@ -1,42 +1,31 @@
 "use client"
 
-import HeadStaffRootHeader from "@/app/head-staff/_components/HeadStaffRootHeader"
+import RootHeader from "@/common/components/RootHeader"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import { IssueRequestMock, setIssueRequestMock } from "@/lib/mock/issue-request.mock"
-import { mockQuery } from "@/common/util/mock-query.util"
 import { ProDescriptions } from "@ant-design/pro-components"
-import { NotFoundError } from "@/common/error/not-found.error"
 import { LeftOutlined } from "@ant-design/icons"
 import { useRouter } from "next/navigation"
 import dayjs from "dayjs"
-import { App, Button, Card, Tag, Typography } from "antd"
+import { App, Button, Card, Tag } from "antd"
 import BottomBar from "@/common/components/BottomBar"
 import { Modal } from "antd-mobile"
 import { mockMutation } from "@/common/util/mock-mutation.util"
+import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
+import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
 
 export default function ReportDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
    const { message } = App.useApp()
    const result = useQuery({
       queryKey: qk.issueRequests.byId(params.id),
-      queryFn: async () => {
-         const response = await mockQuery(IssueRequestMock.find((req) => req.id === params.id))
-         if (!response) {
-            throw new NotFoundError("Report not found")
-         }
-         return response
-      },
+      queryFn: () => HeadStaff_Request_OneById({ id: params.id }),
    })
 
    const mutate_rejectRequest = useMutation({
-      mutationFn: () =>
-         mockMutation(() => {
-            const current = IssueRequestMock
-            const index = current.findIndex((val) => val.id === params.id)
-            current[index].status = "rejected"
-            setIssueRequestMock(current)
-         }),
+      mutationFn: HeadStaff_Request_UpdateStatus,
       onMutate: async () => {
          message.open({
             type: "loading",
@@ -58,7 +47,7 @@ export default function ReportDetails({ params }: { params: { id: string } }) {
 
    return (
       <div>
-         <HeadStaffRootHeader
+         <RootHeader
             title="Report Details"
             icon={<LeftOutlined />}
             onIconClick={() => router.back()}
@@ -69,15 +58,9 @@ export default function ReportDetails({ params }: { params: { id: string } }) {
          <div className="p-4">
             <ProDescriptions
                loading={result.isLoading}
-               bordered
                dataSource={result.data}
                size="small"
                columns={[
-                  {
-                     key: "description",
-                     title: "Issue",
-                     dataIndex: "description",
-                  },
                   {
                      key: "createdAt",
                      title: "Reported Date",
@@ -85,15 +68,28 @@ export default function ReportDetails({ params }: { params: { id: string } }) {
                      render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
                   },
                   {
-                     key: "account-name",
-                     title: "Reported By",
-                     render: (_, e) => e.account.username,
-                  },
-                  {
                      key: "status",
                      title: "Status",
                      dataIndex: "status",
                      render: (_, e) => <Tag color="default">{e.status}</Tag>,
+                  },
+                  {
+                     key: "account-name",
+                     title: "Reported By",
+                     render: (_, e) => e.requester.username,
+                  },
+               ]}
+            />
+            <ProDescriptions
+               loading={result.isLoading}
+               dataSource={result.data}
+               size="small"
+               layout="vertical"
+               columns={[
+                  {
+                     key: "description",
+                     title: "Requester Note",
+                     render: (_, e) => e.requester_note,
                   },
                ]}
             />
@@ -115,37 +111,26 @@ export default function ReportDetails({ params }: { params: { id: string } }) {
                         copyable: true,
                      },
                      {
-                        key: "device-name",
-                        title: "Device Machine Model",
-                        render: (_, e) => e.machineModel.name,
-                     },
-                     {
-                        key: "device-production-date",
-                        title: "Production Date",
-                        render: (_, e) => dayjs(e.machineModel.dateOfReceipt).format("DD/MM/YYYY"),
-                     },
-                     {
-                        key: "device-warranty-date",
-                        title: "Warranty Date",
-                        render: (_, e) => dayjs(e.machineModel.warrantyTerm).format("DD/MM/YYYY"),
-                     },
-                     {
-                        key: "device-manufacturer",
-                        title: "Manufacturer",
-                        render: (_, e) => e.machineModel.manufacturer,
+                        key: "device-description",
+                        title: "Device Description",
+                        render: (_, e) => e.description,
                      },
                      {
                         key: "device-positioning",
                         title: "Position",
-                        render: (_, e) =>
-                           `${e.position.area.name} - (${e.position.positionX}, ${e.position.positionY})`,
+                        render: (_, e) => `${e.area.name} - (${e.positionX}, ${e.positionY})`,
                      },
                   ]}
                />
             </Card>
          </div>
          {result.data?.status.toLowerCase() === "pending" && (
-            <BottomBar className="flex items-center justify-end gap-3 p-4">
+            <BottomBar className="flex items-center gap-3 p-3">
+               <div className="flex-grow">
+                  <Button size="large" onClick={() => router.push("/head-staff/reports")}>
+                     Back
+                  </Button>
+               </div>
                <Button
                   danger={true}
                   type="primary"
@@ -156,7 +141,11 @@ export default function ReportDetails({ params }: { params: { id: string } }) {
                         title: "Reject Report",
                         confirmText: "Reject",
                         cancelText: "Cancel",
-                        onConfirm: () => mutate_rejectRequest.mutate(),
+                        onConfirm: () =>
+                           mutate_rejectRequest.mutate({
+                              id: params.id,
+                              status: IssueRequestStatus.REJECTED,
+                           }),
                      })
                   }
                >

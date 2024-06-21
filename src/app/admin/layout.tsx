@@ -128,12 +128,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         path: "/admin/area",
                      },
                      {
-                        key: "positions",
-                        name: "Positions",
-                        icon: <HeatMapOutlined />,
-                        path: "/admin/positions",
-                     },
-                     {
                         key: "machine models",
                         name: "Machine Models",
                         icon: <RobotOutlined />,

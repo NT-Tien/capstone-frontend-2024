@@ -1,16 +1,15 @@
 "use client"
 
-import HeadStaffRootHeader from "@/app/head-staff/_components/HeadStaffRootHeader"
-import { SearchBar } from "antd-mobile"
-import { Card, Collapse, Tag } from "antd"
+import RootHeader from "@/common/components/RootHeader"
+import { Card, Collapse, Tabs, Tag } from "antd"
 import ReportCard from "@/app/head-staff/(navbar)/reports/_components/ReportCard"
-import { IssueRequestMock } from "@/lib/mock/issue-request.mock"
 import dayjs from "dayjs"
-import { useMemo, useRef, useState } from "react"
+import { useMemo } from "react"
 import { IssueRequestDto } from "@/common/dto/IssueRequest.dto"
 import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
-import { mockQuery } from "@/common/util/mock-query.util"
+import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
+import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
 
 type GroupType = {
    today: IssueRequestDto[]
@@ -21,32 +20,53 @@ type GroupType = {
 }
 
 export default function ReportsPage() {
-   const [searchInput, setSearchInput] = useState("")
-   const [searchResults, setSearchResults] = useState<IssueRequestDto[] | undefined>(undefined)
-   const timeoutRef = useRef<NodeJS.Timeout>(null)
+   return (
+      <div className="overflow-y-auto">
+         <RootHeader
+            title="Reports"
+            style={{
+               padding: "16px",
+            }}
+         />
+         <Tabs
+            type="card"
+            className="mt-4 px-4"
+            items={[
+               {
+                  key: "pending",
+                  label: "Pending",
+                  children: <ReportsTab status={IssueRequestStatus.PENDING} />,
+               },
+               {
+                  key: "approved",
+                  label: "Approved",
+                  children: <ReportsTab status={IssueRequestStatus.APPROVED} />,
+               },
+               {
+                  key: "rejected",
+                  label: "Rejected",
+                  children: <ReportsTab status={IssueRequestStatus.REJECTED} />,
+               },
+            ]}
+         />
+      </div>
+   )
+}
 
+type ReportsTabProps = {
+   status: IssueRequestStatus
+}
+
+function ReportsTab(props: ReportsTabProps) {
    const results = useQuery({
-      queryKey: qk.issueRequests.all(),
-      queryFn: () => mockQuery(IssueRequestMock),
+      queryKey: qk.issueRequests.all(1, 50, props.status),
+      queryFn: () =>
+         HeadStaff_Request_All30Days({
+            page: 1,
+            limit: 50,
+            status: props.status,
+         }),
    })
-
-   function handleSearchInputChange(value: string) {
-      setSearchInput(value)
-      clearTimeout(timeoutRef.current ?? undefined)
-
-      if (value === "") {
-         setSearchResults(undefined)
-         return
-      }
-
-      // @ts-ignore
-      timeoutRef.current = setTimeout(() => {
-         setSearchResults(
-            IssueRequestMock.filter((req) => req.device.machineModel.name.toLowerCase().includes(value.toLowerCase())),
-         )
-      }, 500)
-   }
-
    const groups: GroupType = useMemo(() => {
       const base: GroupType = {
          today: [],
@@ -63,7 +83,7 @@ export default function ReportsPage() {
       const thisWeek = dayjs().startOf("week")
       const lastWeek = dayjs().subtract(1, "week").startOf("week")
 
-      results.data.forEach((req) => {
+      results.data.list.forEach((req) => {
          const createdAt = dayjs(req.createdAt)
 
          if (createdAt.isSame(today, "day")) {
@@ -83,153 +103,120 @@ export default function ReportsPage() {
    }, [results.data, results.isSuccess])
 
    return (
-      <div className="overflow-y-auto">
-         <HeadStaffRootHeader
-            title="Reports"
-            style={{
-               padding: "16px",
-            }}
+      <Card
+         bordered={false}
+         loading={results.isLoading}
+         styles={{
+            body: {
+               padding: results.isLoading ? "16px" : 0,
+            },
+         }}
+      >
+         <Collapse
+            ghost
+            size="middle"
+            bordered={false}
+            defaultActiveKey={groups.today.length > 0 ? ["today"] : undefined}
+            collapsible={groups.today.length > 0 ? undefined : "disabled"}
+            items={[
+               {
+                  key: "today",
+                  label: "Today",
+                  children: (
+                     <div className="grid grid-cols-1 gap-3">
+                        {groups.today.map((req) => (
+                           <ReportCard key={req.id} issueRequest={req} />
+                        ))}
+                     </div>
+                  ),
+                  extra: <Tag color="default">{groups.today.length} Reports</Tag>,
+               },
+            ]}
          />
-         <div className="mt-6">
-            <SearchBar
-               placeholder="Search by Device Name"
-               showCancelButton={true}
-               style={{
-                  padding: "16px",
-               }}
-               value={searchInput}
-               onChange={handleSearchInputChange}
-               onCancel={() => setSearchResults(undefined)}
-            />
-            {searchResults ? (
-               <div className="mt-2">
-                  <div className="px-4">{searchResults.length} Report(s) found</div>
-                  <div className="mt-2 grid grid-cols-1 gap-3 px-4">
-                     {searchResults.map((result) => (
-                        <ReportCard key={result.id} issueRequest={result} />
-                     ))}
-                  </div>
-               </div>
-            ) : (
-               <Card
-                  className="mt-2"
-                  bordered={false}
-                  loading={results.isLoading}
-                  styles={{
-                     body: {
-                        padding: results.isLoading ? "16px" : 0,
-                     },
-                  }}
-               >
-                  <Collapse
-                     ghost
-                     size="middle"
-                     bordered={false}
-                     className="mt-3"
-                     defaultActiveKey="today"
-                     collapsible={groups.today.length > 0 ? undefined : "disabled"}
-                     items={[
-                        {
-                           key: "today",
-                           label: "Today",
-                           children: (
-                              <div className="grid grid-cols-1 gap-3">
-                                 {groups.today.map((req) => (
-                                    <ReportCard key={req.id} issueRequest={req} />
-                                 ))}
-                              </div>
-                           ),
-                           extra: <Tag color="default">{groups.today.length} Reports</Tag>,
-                        },
-                     ]}
-                  />
-                  <Collapse
-                     ghost
-                     size="middle"
-                     bordered={false}
-                     className="mt-3"
-                     collapsible={groups.yesterday.length > 0 ? undefined : "disabled"}
-                     items={[
-                        {
-                           key: "yesterday",
-                           label: "Yesterday",
-                           children: (
-                              <div className="grid grid-cols-1 gap-3">
-                                 {groups.yesterday.map((req) => (
-                                    <ReportCard key={req.id} issueRequest={req} />
-                                 ))}
-                              </div>
-                           ),
-                           extra: <Tag color="default">{groups.yesterday.length} Reports</Tag>,
-                        },
-                     ]}
-                  />
-                  <Collapse
-                     ghost
-                     size="middle"
-                     bordered={false}
-                     className="mt-3"
-                     collapsible={groups.thisWeekRemaining.length > 0 ? undefined : "disabled"}
-                     items={[
-                        {
-                           key: "thisWeekRemaining",
-                           label: "Remaining this Week",
-                           children: (
-                              <div className="grid grid-cols-1 gap-3">
-                                 {groups.thisWeekRemaining.map((req) => (
-                                    <ReportCard key={req.id} issueRequest={req} />
-                                 ))}
-                              </div>
-                           ),
-                           extra: <Tag color="default">{groups.thisWeekRemaining.length} Reports</Tag>,
-                        },
-                     ]}
-                  />
-                  <Collapse
-                     ghost
-                     size="middle"
-                     bordered={false}
-                     className="mt-3"
-                     collapsible={groups.lastWeek.length > 0 ? undefined : "disabled"}
-                     items={[
-                        {
-                           key: "lastWeek",
-                           label: "Last Week",
-                           children: (
-                              <div className="grid grid-cols-1 gap-3">
-                                 {groups.lastWeek.map((req) => (
-                                    <ReportCard key={req.id} issueRequest={req} />
-                                 ))}
-                              </div>
-                           ),
-                           extra: <Tag color="default">{groups.lastWeek.length} Reports</Tag>,
-                        },
-                     ]}
-                  />
-                  <Collapse
-                     ghost
-                     size="middle"
-                     bordered={false}
-                     className="mt-3"
-                     collapsible={groups.earlier.length > 0 ? undefined : "disabled"}
-                     items={[
-                        {
-                           key: "earlier",
-                           label: "Earlier",
-                           children: (
-                              <div className="grid grid-cols-1 gap-3">
-                                 {groups.earlier.map((req) => (
-                                    <ReportCard key={req.id} issueRequest={req} />
-                                 ))}
-                              </div>
-                           ),
-                           extra: <Tag color="default">{groups.earlier.length} Reports</Tag>,
-                        },
-                     ]}
-                  />
-               </Card>
-            )}
-         </div>
-      </div>
+         <Collapse
+            ghost
+            size="middle"
+            bordered={false}
+            className="mt-3"
+            collapsible={groups.yesterday.length > 0 ? undefined : "disabled"}
+            items={[
+               {
+                  key: "yesterday",
+                  label: "Yesterday",
+                  children: (
+                     <div className="grid grid-cols-1 gap-3">
+                        {groups.yesterday.map((req) => (
+                           <ReportCard key={req.id} issueRequest={req} />
+                        ))}
+                     </div>
+                  ),
+                  extra: <Tag color="default">{groups.yesterday.length} Reports</Tag>,
+               },
+            ]}
+         />
+         <Collapse
+            ghost
+            size="middle"
+            bordered={false}
+            className="mt-3"
+            collapsible={groups.thisWeekRemaining.length > 0 ? undefined : "disabled"}
+            items={[
+               {
+                  key: "thisWeekRemaining",
+                  label: "Remaining this Week",
+                  children: (
+                     <div className="grid grid-cols-1 gap-3">
+                        {groups.thisWeekRemaining.map((req) => (
+                           <ReportCard key={req.id} issueRequest={req} />
+                        ))}
+                     </div>
+                  ),
+                  extra: <Tag color="default">{groups.thisWeekRemaining.length} Reports</Tag>,
+               },
+            ]}
+         />
+         <Collapse
+            ghost
+            size="middle"
+            bordered={false}
+            className="mt-3"
+            collapsible={groups.lastWeek.length > 0 ? undefined : "disabled"}
+            items={[
+               {
+                  key: "lastWeek",
+                  label: "Last Week",
+                  children: (
+                     <div className="grid grid-cols-1 gap-3">
+                        {groups.lastWeek.map((req) => (
+                           <ReportCard key={req.id} issueRequest={req} />
+                        ))}
+                     </div>
+                  ),
+                  extra: <Tag color="default">{groups.lastWeek.length} Reports</Tag>,
+               },
+            ]}
+         />
+         <Collapse
+            ghost
+            size="middle"
+            bordered={false}
+            className="mt-3"
+            collapsible={groups.earlier.length > 0 ? undefined : "disabled"}
+            items={[
+               {
+                  key: "earlier",
+                  label: "Earlier",
+                  children: (
+                     <div className="grid grid-cols-1 gap-3">
+                        {groups.earlier.map((req) => (
+                           <ReportCard key={req.id} issueRequest={req} />
+                        ))}
+                     </div>
+                  ),
+                  extra: <Tag color="default">{groups.earlier.length} Reports</Tag>,
+               },
+            ]}
+         />
+      </Card>
    )
 }

@@ -1,3 +1,6 @@
+import { SparePartDto } from "@/common/dto/SparePart.dto"
+import { TypeErrorDto } from "@/common/dto/TypeError.dto"
+
 export type MachineModelDto = {
    name: string
    description: string
@@ -9,4 +12,6 @@ export type MachineModelDto = {
    createdAt: string
    updatedAt: string
    deletedAt: null | string
+   spareParts: SparePartDto[]
+   typeErrors: TypeErrorDto[]
 }

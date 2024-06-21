@@ -1,0 +1,22 @@
+import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import api from "@/config/axios.config"
+import Cookies from "js-cookie"
+import { parseApiResponse } from "@/common/util/parseApiResponse.util"
+
+export type Request = {
+   id: string
+   status: IssueRequestStatus
+}
+export type Response = {}
+
+HeadStaff_Request_UpdateStatus.URL = (req: Request) => `/head-staff/request/${req.id}/${req.status}`
+export default async function HeadStaff_Request_UpdateStatus(req: Request): Promise<Response> {
+   return api
+      .put<Response>(HeadStaff_Request_UpdateStatus.URL(req), undefined, {
+         transformResponse: (data) => parseApiResponse(data),
+         headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+         },
+      })
+      .then((res) => res.data)
+}

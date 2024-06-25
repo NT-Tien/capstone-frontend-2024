@@ -1,7 +1,7 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { LeftOutlined } from "@ant-design/icons"
@@ -11,12 +11,11 @@ import { App, Button, Card, Tag } from "antd"
 import BottomBar from "@/common/components/BottomBar"
 import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
-import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
 import RejectTaskDrawer from "@/app/head-staff/(stack)/requests/[id]/_components/RejectTask.drawer"
 import AcceptTaskDrawer from "@/app/head-staff/(stack)/requests/[id]/_components/AcceptTask.drawer"
 
-export default function ReportDetails({ params }: { params: { id: string } }) {
+export default function RequestDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
    const { message } = App.useApp()
    const result = useQuery({
@@ -28,27 +27,6 @@ export default function ReportDetails({ params }: { params: { id: string } }) {
       queryKey: qk.devices.one_byId(result.data?.device.id ?? ""),
       queryFn: () => HeadStaff_Device_OneById({ id: result.data?.device.id ?? "" }),
       enabled: result.isSuccess,
-   })
-
-   const mutate_rejectRequest = useMutation({
-      mutationFn: HeadStaff_Request_UpdateStatus,
-      onMutate: async () => {
-         message.open({
-            type: "loading",
-            key: "rejecting-report",
-            content: "Rejecting report...",
-         })
-      },
-      onError: async (err) => {
-         message.error("Failed to reject report")
-      },
-      onSuccess: async () => {
-         message.success("Report rejected")
-         await result.refetch()
-      },
-      onSettled: () => {
-         message.destroy("rejecting-report")
-      },
    })
 
    return (

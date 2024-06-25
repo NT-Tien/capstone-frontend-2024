@@ -1,7 +1,6 @@
 import api from "@/config/axios.config"
 import { parseApiResponse } from "@/common/util/parseApiResponse.util"
 import Cookies from "js-cookie"
-import { SparePartDto } from "@/common/dto/SparePart.dto"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 

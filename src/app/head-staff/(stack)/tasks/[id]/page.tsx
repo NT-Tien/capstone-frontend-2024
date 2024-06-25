@@ -9,13 +9,14 @@ import { useRouter } from "next/navigation"
 import { ProDescriptions } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 import { App, Avatar, Button, Card, Collapse, Descriptions, List, Tabs, Tag, Typography } from "antd"
-import CreateIssueDrawer from "@/app/head-staff/(stack)/tasks/[id]/_components/CreateIssue.drawer"
 import { FixType } from "@/common/enum/fix-type.enum"
 import SelectSparePartDrawer from "@/app/head-staff/(stack)/tasks/[id]/_components/SelectSparePart.drawer"
 import HeadStaff_SparePart_Create from "@/app/head-staff/_api/spare-part/create.api"
 import HeadStaff_SparePart_Delete from "@/app/head-staff/_api/spare-part/delete.api"
 import AssignFixerDrawer from "@/app/head-staff/(stack)/tasks/[id]/_components/AssignFixer.drawer"
 import HeadStaff_Task_UpdateAssignFixer from "@/app/head-staff/_api/task/update-assignFixer.api"
+import { TaskStatus } from "@/common/enum/task-status.enum"
+import CreateIssueDrawer from "@/app/head-staff/(stack)/tasks/[id]/_components/CreateIssue.drawer"
 
 export default function TaskDetails({ params }: { params: { id: string } }) {
    const result = useQuery({
@@ -232,43 +233,53 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                                                          <List
                                                             className={"w-full"}
                                                             dataSource={item.issueSpareParts}
-                                                            extra={<Button>Hi</Button>}
                                                             itemLayout={"horizontal"}
                                                             renderItem={(sp) => (
                                                                <List.Item
                                                                   itemID={sp.id}
                                                                   key={sp.id}
                                                                   extra={
-                                                                     <Button
-                                                                        danger
-                                                                        type="text"
-                                                                        size={"small"}
-                                                                        icon={<DeleteOutlined />}
-                                                                        onClick={() => {
-                                                                           mutate_deleteSparePart.mutate({
-                                                                              id: sp.id,
-                                                                           })
-                                                                        }}
-                                                                     ></Button>
+                                                                     result.data?.status ===
+                                                                        TaskStatus.AWAITING_FIXER && (
+                                                                        <Button
+                                                                           danger
+                                                                           type="text"
+                                                                           size={"small"}
+                                                                           icon={<DeleteOutlined />}
+                                                                           onClick={() => {
+                                                                              mutate_deleteSparePart.mutate({
+                                                                                 id: sp.id,
+                                                                              })
+                                                                           }}
+                                                                        />
+                                                                     )
                                                                   }
                                                                >
                                                                   <List.Item.Meta
-                                                                     title={sp.name}
-                                                                     description={sp.quantity}
+                                                                     title={sp.sparePart.name}
+                                                                     description={`Qty: ${sp.quantity}`}
                                                                   ></List.Item.Meta>
                                                                </List.Item>
                                                             )}
                                                          />
-                                                         <Button
-                                                            className="w-full"
-                                                            type="dashed"
-                                                            size="large"
-                                                            onClick={() =>
-                                                               result.isSuccess && handleOpen(result.data.device.id)
-                                                            }
-                                                         >
-                                                            Add Spare Part
-                                                         </Button>
+                                                         {result.data?.status === TaskStatus.AWAITING_FIXER && (
+                                                            <Button
+                                                               className="w-full"
+                                                               type="dashed"
+                                                               size="large"
+                                                               onClick={() =>
+                                                                  result.isSuccess &&
+                                                                  handleOpen(
+                                                                     result.data.device.id,
+                                                                     result.data.issues
+                                                                        .filter((t) => t.id === item.id)[0]
+                                                                        ?.issueSpareParts.map((m) => m.sparePart.id),
+                                                                  )
+                                                               }
+                                                            >
+                                                               Add Spare Part
+                                                            </Button>
+                                                         )}
                                                       </div>
                                                    )}
                                                 </SelectSparePartDrawer>
@@ -280,13 +291,19 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                               ),
                            }))}
                         />
-                        <CreateIssueDrawer>
-                           {(handleOpen) => (
-                              <Button type="dashed" className="my-3 h-14 w-full" onClick={() => handleOpen(params.id)}>
-                                 Add Issue
-                              </Button>
-                           )}
-                        </CreateIssueDrawer>
+                        {result.data?.status === TaskStatus.AWAITING_FIXER && (
+                           <CreateIssueDrawer>
+                              {(handleOpen) => (
+                                 <Button
+                                    type="dashed"
+                                    className="my-3 h-14 w-full"
+                                    onClick={() => handleOpen(params.id)}
+                                 >
+                                    Add Issue
+                                 </Button>
+                              )}
+                           </CreateIssueDrawer>
+                        )}
                      </div>
                   ),
                },

@@ -5,19 +5,11 @@ import { HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined } from "@ant-d
 import React, { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
-import { mockQuery } from "@/common/util/mock-query.util"
-import { DeviceMock } from "@/lib/mock/device.mock"
 import { NotFoundError } from "@/common/error/not-found.error"
 import { ProDescriptions, ProFormTextArea } from "@ant-design/pro-components"
 import { DeviceDto } from "@/common/dto/Device.dto"
 import { App, Button, Drawer, Empty, Form, Typography } from "antd"
 import { useRouter } from "next/navigation"
-import { mockMutation } from "@/common/util/mock-mutation.util"
-import { IssueRequestMock, setIssueRequestMock } from "@/lib/mock/issue-request.mock"
-import { IssueRequestDto } from "@/common/dto/IssueRequest.dto"
-import { v4 as uuidv4 } from "uuid"
-import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
-import { UserMock } from "@/lib/mock/user.mock"
 import Head_Device_OneById from "@/app/head/_api/device/oneById.api"
 import Head_Request_Create from "@/app/head/_api/request/create.api"
 
@@ -70,7 +62,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   form.resetFields()
                   setOpenCreateIssue(false)
                   await queryClient.invalidateQueries({
-                     queryKey: qk.issueRequests.all(),
+                     queryKey: qk.issueRequests.allRaw(),
                   })
                   router.push("/head/dashboard")
                },

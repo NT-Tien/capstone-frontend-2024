@@ -48,7 +48,7 @@ export default function RejectTaskDrawer({ children }: { children: (handleOpen: 
             id,
             payload: {
                status: IssueRequestStatus.REJECTED,
-               requester_note: values.rejectMsg,
+               checker_note: values.rejectMsg,
             },
          },
          {

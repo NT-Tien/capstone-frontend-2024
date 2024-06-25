@@ -7,6 +7,7 @@ import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/update
 import { UploadOutlined } from "@ant-design/icons"
 import qk from "@/common/querykeys"
 import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { useRouter } from "next/navigation"
 
 type FieldType = {
    name: string
@@ -25,6 +26,7 @@ export default function AcceptTaskDrawer({
    const [form] = Form.useForm()
    const { message } = App.useApp()
    const queryClient = useQueryClient()
+   const router = useRouter()
 
    const mutate_acceptReport = useMutation({
       mutationFn: async (req: CreateRequest) => {
@@ -49,6 +51,7 @@ export default function AcceptTaskDrawer({
       },
       onSuccess: async () => {
          message.success("Task created successfully")
+         router.push("/head-staff/tasks")
          await queryClient.invalidateQueries({
             queryKey: qk.task.all(),
          })

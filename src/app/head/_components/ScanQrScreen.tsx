@@ -1,12 +1,11 @@
 "use client"
-import { useRouter } from 'next/navigation'; // Import the useRouter hook
+import { useRouter } from "next/navigation" // Import the useRouter hook
 import React, { useState } from "react"
 import { Button, Card, Footer, NavBar, Space, Toast } from "antd-mobile"
 import { MoreOutline } from "antd-mobile-icons"
 // @ts-ignore
 import QrReader from "react-qr-scanner"
-import ScanResults from "./ScanResults"
-import { Avatar } from 'antd';
+import { Avatar } from "antd"
 
 const ScanQrScreen: React.FC = () => {
    const router = useRouter(); // Use the useRouter hook to get the router object

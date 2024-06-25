@@ -11,12 +11,10 @@ import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
 import { DeleteOutlined, DownloadOutlined, QrcodeOutlined, RollbackOutlined } from "@ant-design/icons"
 import Link from "next/link"
 import { DeviceDto } from "@/common/dto/Device.dto"
-import Admin_Devices_AllWithDeleted from "@/app/admin/_api/devices/all-withDeleted.api"
 import Admin_Devices_DeleteSoft from "@/app/admin/_api/devices/delete-soft.api"
 import Admin_Devices_Restore from "@/app/admin/_api/devices/restore.api"
 import CreateDeviceDrawer from "@/app/admin/devices/_components/create-device.drawer"
 import QrCodeModal from "@/app/admin/devices/_components/QrCode.modal"
-import { Space } from "antd-mobile"
 import Admin_Devices_All from "@/app/admin/_api/devices/all.api"
 
 type types = {

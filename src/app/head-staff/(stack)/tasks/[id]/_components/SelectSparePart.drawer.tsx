@@ -11,26 +11,33 @@ import SelectSparePartDetailsDrawer, {
 } from "@/app/head-staff/(stack)/tasks/[id]/_components/SelectSparePartDetails.drawer"
 
 export default function SelectSparePartDrawer(props: {
-   children: (handleOpen: (deviceId: string) => void) => ReactNode
+   children: (handleOpen: (deviceId: string, ignoreIdList?: string[]) => void) => ReactNode
    onFinish: (values: FieldType) => void
 }) {
    const [open, setOpen] = useState(false)
    const [device, setDevice] = useState<undefined | string>()
+   const [ignoreIdList, setIgnoreIdList] = useState<string[]>([])
 
    const response = useQuery({
       queryKey: ["head-staff", ...qk.devices.one_byId(device ?? "")],
       queryFn: () => HeadStaff_Device_OneById({ id: device ?? "" }),
       enabled: !!device,
+      select: (data) =>
+         !!ignoreIdList
+            ? data.machineModel.spareParts.filter((sp) => !ignoreIdList.includes(sp.id))
+            : data.machineModel.spareParts,
    })
 
-   function handleOpen(deviceId: string) {
+   function handleOpen(deviceId: string, ignoreIdList?: string[]) {
       setOpen(true)
       setDevice(deviceId)
+      setIgnoreIdList(ignoreIdList ?? [])
    }
 
    function handleClose() {
       setOpen(false)
       setDevice(undefined)
+      setIgnoreIdList([])
    }
 
    return (
@@ -46,10 +53,10 @@ export default function SelectSparePartDrawer(props: {
          >
             {response.isSuccess ? (
                <>
-                  {response.data.machineModel.spareParts.length === 0 && (
+                  {response.data.length === 0 && (
                      <Empty description="No spare parts for this machine have been found" />
                   )}
-                  {response.data.machineModel.spareParts.length > 0 && (
+                  {response.data.length > 0 && (
                      <>
                         <Input.Search size="large" className="mb-4" placeholder="Search for Spare Parts" />
                         <SelectSparePartDetailsDrawer
@@ -60,7 +67,7 @@ export default function SelectSparePartDrawer(props: {
                         >
                            {(handleOpenDetails) => (
                               <div className="grid grid-cols-2 gap-3 overflow-y-auto pb-6">
-                                 {response.data.machineModel.spareParts.map((sparePart) => (
+                                 {response.data.map((sparePart) => (
                                     <div key={`MAIN_CONTAINER_${sparePart.id}`} className="relative">
                                        <Card
                                           key={"MAIN_" + sparePart.id}

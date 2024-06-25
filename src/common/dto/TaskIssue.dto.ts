@@ -1,5 +1,6 @@
 import { TypeErrorDto } from "@/common/dto/TypeError.dto"
 import { SparePartDto } from "@/common/dto/SparePart.dto"
+import { IssueSparePartDto } from "@/common/dto/IssueSparePart.dto"
 
 export type TaskIssueDto = {
    description: string
@@ -10,5 +11,5 @@ export type TaskIssueDto = {
    createdAt: string
    updatedAt: string
    typeError: TypeErrorDto
-   issueSpareParts: SparePartDto[]
+   issueSpareParts: IssueSparePartDto[]
 }

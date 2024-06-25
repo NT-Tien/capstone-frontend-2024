@@ -12,7 +12,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
       if (error instanceof UnauthorizedError) {
          router.push("/login?error=unauthenticated")
       }
-   }, [])
+   }, [error, router])
 
    return <Spin fullscreen={true} />
 }

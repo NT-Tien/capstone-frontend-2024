@@ -1,14 +1,11 @@
 "use client"
 
-import { Card, Empty, Flex, Skeleton, Tag, Typography } from "antd"
-import { Button } from "antd"
+import { Button, Card, Empty, Flex, Skeleton, Typography } from "antd"
 import { ClockCircleOutline } from "antd-mobile-icons"
 import React from "react"
 import HomeHeader from "@/common/components/HomeHeader"
 import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
-import { mockQuery } from "@/common/util/mock-query.util"
-import { IssueRequestMock } from "@/lib/mock/issue-request.mock"
 import { PlusOutlined, RightOutlined } from "@ant-design/icons"
 import dayjs from "dayjs"
 import { IssueRequestStatusTag } from "@/common/enum/issue-request-status.enum"
@@ -19,7 +16,7 @@ import Head_Request_All from "@/app/head/_api/request/all.api"
 export default function HeadDashboardPage() {
    const router = useRouter()
    const result = useQuery({
-      queryKey: qk.issueRequests.all(),
+      queryKey: qk.issueRequests.allRaw(),
       queryFn: () => Head_Request_All(),
       select: (data) => data.sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt))).slice(0, 4),
    })

@@ -2,21 +2,19 @@
 
 import RootHeader from "@/common/components/RootHeader"
 import { ClockCircleOutlined, RightOutlined } from "@ant-design/icons"
-import { Button, Card, Empty, Flex, Skeleton, Tabs, Typography } from "antd"
+import { Button, Card, Empty, Flex, Tabs, Typography } from "antd"
 import React from "react"
 import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
-import { IssueRequestMock } from "@/lib/mock/issue-request.mock"
-import { mockQuery } from "@/common/util/mock-query.util"
 import { IssueRequestDto } from "@/common/dto/IssueRequest.dto"
-import { IssueRequestStatus, IssueRequestStatusTag } from "@/common/enum/issue-request-status.enum"
+import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import Head_Request_All from "@/app/head/_api/request/all.api"
 
 export default function HistoryPage() {
    const results = useQuery({
-      queryKey: qk.issueRequests.all(),
+      queryKey: qk.issueRequests.allRaw(),
       queryFn: () => Head_Request_All(),
    })
 

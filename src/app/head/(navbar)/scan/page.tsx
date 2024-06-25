@@ -5,7 +5,7 @@ import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
 import React, { useRef, useState } from "react"
 import RootHeader from "@/common/components/RootHeader"
 import { useRouter } from "next/navigation"
-import { InfoCircleFilled, InfoOutlined, QrcodeOutlined, RightOutlined } from "@ant-design/icons"
+import { InfoCircleFilled, QrcodeOutlined, RightOutlined } from "@ant-design/icons"
 import { isUUID } from "@/common/util/isUUID.util"
 
 type FieldType = {

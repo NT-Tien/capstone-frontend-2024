@@ -9,7 +9,6 @@ import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
 import qk from "@/common/querykeys"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { RightOutlined } from "@ant-design/icons"
-import ProList from "@ant-design/pro-list"
 import { ProDescriptions } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 

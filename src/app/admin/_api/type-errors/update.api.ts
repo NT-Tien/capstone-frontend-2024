@@ -1,8 +1,6 @@
-import { AreaDto } from "@/common/dto/Area.dto"
 import api from "@/config/axios.config"
 import { parseApiResponse } from "@/common/util/parseApiResponse.util"
 import Cookies from "js-cookie"
-import { DeviceDto } from "@/common/dto/Device.dto"
 import { SparePartDto } from "@/common/dto/SparePart.dto"
 
 export type Request = {

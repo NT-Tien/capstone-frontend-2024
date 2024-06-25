@@ -1,8 +1,7 @@
 "use client"
 
-import { Card, Typography } from "antd"
+import { Button, Card, Typography } from "antd"
 import { IssueRequestDto } from "@/common/dto/IssueRequest.dto"
-import { Button } from "antd"
 import { CaretRightOutlined } from "@ant-design/icons"
 import { useRouter } from "next/navigation"
 import dayjs from "dayjs"

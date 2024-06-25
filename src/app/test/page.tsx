@@ -1,6 +1,6 @@
 "use client"
 
-import MobileNavbar from "@/common/components/MobileNavbar"
+import MobileNavbar from "@/common/components/MobileNavBar"
 import { BellFilled, HomeFilled, PhoneFilled, SettingFilled } from "@ant-design/icons"
 import { useState } from "react"
 

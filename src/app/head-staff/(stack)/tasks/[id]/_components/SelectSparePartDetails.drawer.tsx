@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react"
 import { SparePartDto } from "@/common/dto/SparePart.dto"
-import { Button, Divider, Drawer, Form, InputNumber } from "antd"
+import { Button, Divider, Drawer, Form } from "antd"
 import { ProDescriptions, ProFormDigit } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 

@@ -8,7 +8,6 @@ import {
    AreaChartOutlined,
    DashboardOutlined,
    GithubFilled,
-   HeatMapOutlined,
    InfoCircleFilled,
    LaptopOutlined,
    LogoutOutlined,

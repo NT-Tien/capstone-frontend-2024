@@ -1,6 +1,6 @@
 import React, { useState } from "react"
-import { Button, Card, Footer, List, NavBar, Space, Toast } from "antd-mobile"
-import { SearchOutline, MoreOutline, CloseOutline, AntOutline, RightOutline, AddOutline } from "antd-mobile-icons"
+import { Button, Footer, List, NavBar, Space, Toast } from "antd-mobile"
+import { MoreOutline } from "antd-mobile-icons"
 import CreateIssueReport from "./CreateIssueReportFloatingPanel"
 
 

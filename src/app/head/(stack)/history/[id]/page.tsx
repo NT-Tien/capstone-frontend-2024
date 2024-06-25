@@ -3,7 +3,6 @@
 import RootHeader from "@/common/components/RootHeader"
 import { LeftOutlined } from "@ant-design/icons"
 import { useRouter } from "next/navigation"
-import { PageContainer } from "@ant-design/pro-layout"
 import { Tag, Typography } from "antd"
 import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"

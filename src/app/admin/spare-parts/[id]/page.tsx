@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation"
 
-export default function () {
+export default function SparePartsDetailsPage() {
    const params = useParams()
    return `One spare part ${params.id}`
 }

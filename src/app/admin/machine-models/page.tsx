@@ -10,7 +10,6 @@ import { App, Button } from "antd"
 import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
 import { DeleteOutlined, RollbackOutlined } from "@ant-design/icons"
 import Link from "next/link"
-import Admin_MachineModel_AllWithDeleted from "@/app/admin/_api/machine-model/all-withDeleted.api"
 import Admin_MachineModel_DeleteSoft from "@/app/admin/_api/machine-model/delete-soft.api"
 import Admin_MachineModel_Restore from "@/app/admin/_api/machine-model/restore.api"
 import CreateMachineModelDrawer from "@/app/admin/machine-models/_components/create-machine-model.drawer"
@@ -118,16 +117,16 @@ export default function MachineModelListPage() {
                      result = result || Number(area.yearOfProduction) === Number(value)
                      break
                   case "dateOfReceipt":
-                     result = result || dayjs(area.dateOfReceipt).isSame(value, "day")
+                     result = result || dayjs(area.dateOfReceipt).isSame(dayjs(value as any), "day")
                      break
                   case "warrantyTerm":
-                     result = result || dayjs(area.warrantyTerm).isSame(value, "day")
+                     result = result || dayjs(area.warrantyTerm).isSame(dayjs(value as any), "day")
                      break
                   case "createdAt":
-                     result = result || dayjs(area.createdAt).isSame(value, "day")
+                     result = result || dayjs(area.createdAt).isSame(dayjs(value as any), "day")
                      break
                   case "updatedAt":
-                     result = result || dayjs(area.updatedAt).isSame(value, "day")
+                     result = result || dayjs(area.updatedAt).isSame(dayjs(value as any), "day")
                      break
                   case "deletedAt":
                      result =

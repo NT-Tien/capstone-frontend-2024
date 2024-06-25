@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react"
-import { Button, FloatingPanel, Footer, Result } from "antd-mobile"
+import React, { useEffect, useRef } from "react"
+import { Button, FloatingPanel } from "antd-mobile"
 import { CheckCircleFill, ClockCircleOutline } from "antd-mobile-icons"
 
 interface FloatingPanelsProps {

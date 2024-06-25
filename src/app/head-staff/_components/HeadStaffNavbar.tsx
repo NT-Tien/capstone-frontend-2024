@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavBar"
-import { ContainerFilled, DashboardFilled, UserOutlined } from "@ant-design/icons"
+import { CheckOutlined, ContainerFilled, DashboardFilled, UserOutlined } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
 import { TeamFill } from "antd-mobile-icons"
 
@@ -27,16 +27,16 @@ export default function HeadStaffNavbar() {
          onClick: () => setCurrentActive("dashboard"),
       },
       {
-         name: "Reports",
-         key: "reports",
+         name: "Requests",
+         key: "requests",
          icon: <ContainerFilled />,
-         onClick: () => setCurrentActive("reports"),
+         onClick: () => setCurrentActive("requests"),
       },
       {
-         name: "Staff",
-         key: "staff",
-         icon: <TeamFill />,
-         onClick: () => setCurrentActive("staff"),
+         name: "Tasks",
+         key: "tasks",
+         icon: <CheckOutlined />,
+         onClick: () => setCurrentActive("tasks"),
       },
       {
          name: "Profile",

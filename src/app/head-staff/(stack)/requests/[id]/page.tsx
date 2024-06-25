@@ -3,15 +3,12 @@
 import RootHeader from "@/common/components/RootHeader"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
-import { IssueRequestMock, setIssueRequestMock } from "@/lib/mock/issue-request.mock"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { LeftOutlined } from "@ant-design/icons"
 import { useRouter } from "next/navigation"
 import dayjs from "dayjs"
 import { App, Button, Card, Tag } from "antd"
 import BottomBar from "@/common/components/BottomBar"
-import { Modal } from "antd-mobile"
-import { mockMutation } from "@/common/util/mock-mutation.util"
 import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
@@ -166,6 +163,11 @@ export default function ReportDetails({ params }: { params: { id: string } }) {
                   )}
                </AcceptTaskDrawer>
             </BottomBar>
+         )}
+         {result.data?.status === IssueRequestStatus.APPROVED && (
+            <Button size="large" className="fixed bottom-0 left-0 m-4 w-[calc(100%-32px)]" type="primary">
+               Goto Task
+            </Button>
          )}
       </div>
    )

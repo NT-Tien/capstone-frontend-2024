@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
-import SelectSparePartDrawer from "@/app/head-staff/(stack)/reports/[id]/(start-report)/_components/SelectSparePart.drawer"
+import SelectSparePartDrawer from "@/app/head-staff/(stack)/tasks/[id]/_components/SelectSparePart.drawer"
 import useStartContext from "@/app/head-staff/(stack)/reports/[id]/(start-report)/_hooks/useStartContext"
 import { FixType } from "@/common/enum/fix-type.enum"
 

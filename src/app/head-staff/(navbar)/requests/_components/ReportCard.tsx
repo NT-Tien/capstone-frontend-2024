@@ -24,7 +24,7 @@ export default function ReportCard(props: Props) {
          hoverable
          extra={<Button icon={<CaretRightOutlined />} type="text" size="small" />}
          size="small"
-         onClick={() => router.push(`/head-staff/reports/${props.issueRequest.id}`)}
+         onClick={() => router.push(`/head-staff/requests/${props.issueRequest.id}`)}
       >
          <Typography.Text ellipsis={true}>{props.issueRequest.requester_note}</Typography.Text>
          <div className="mt-3 flex items-center justify-between gap-3">

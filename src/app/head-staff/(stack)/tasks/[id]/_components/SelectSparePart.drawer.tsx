@@ -1,43 +1,41 @@
+"use client"
+
 import { ReactNode, useState } from "react"
-import { Spin, Card, Drawer, Empty, Input, Button } from "antd"
+import { Button, Card, Drawer, Empty, Input, Spin } from "antd"
 import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
-import dayjs from "dayjs"
 import { RightOutlined } from "@ant-design/icons"
-import SelectSparePartDetailsDrawer from "@/app/head-staff/(stack)/reports/[id]/(start-report)/_components/SelectSparePartDetails.drawer"
-import useStartContext from "@/app/head-staff/(stack)/reports/[id]/(start-report)/_hooks/useStartContext"
+import SelectSparePartDetailsDrawer, {
+   FieldType,
+} from "@/app/head-staff/(stack)/tasks/[id]/_components/SelectSparePartDetails.drawer"
 
-export default function SelectSparePartDrawer({
-   children,
-}: {
-   children: (handleOpen: (deviceId: string, issueId: string) => void) => ReactNode
+export default function SelectSparePartDrawer(props: {
+   children: (handleOpen: (deviceId: string) => void) => ReactNode
+   onFinish: (values: FieldType) => void
 }) {
    const [open, setOpen] = useState(false)
    const [device, setDevice] = useState<undefined | string>()
-   const [issueId, setIssueId] = useState<undefined | string>(undefined)
-   const { setSpareParts } = useStartContext()
 
    const response = useQuery({
       queryKey: ["head-staff", ...qk.devices.one_byId(device ?? "")],
       queryFn: () => HeadStaff_Device_OneById({ id: device ?? "" }),
+      enabled: !!device,
    })
 
-   function handleOpen(deviceId: string, issueId: string) {
+   function handleOpen(deviceId: string) {
       setOpen(true)
       setDevice(deviceId)
-      setIssueId(issueId)
    }
 
    function handleClose() {
       setOpen(false)
       setDevice(undefined)
-      setIssueId(undefined)
    }
 
    return (
       <>
-         {children(handleOpen)}
+         {props.children(handleOpen)}
          <Drawer
             open={open}
             onClose={handleClose}
@@ -57,14 +55,7 @@ export default function SelectSparePartDrawer({
                         <SelectSparePartDetailsDrawer
                            onFinish={(values) => {
                               handleClose()
-                              setSpareParts((prev) => [
-                                 ...prev,
-                                 {
-                                    sparePart: values.sparePartId,
-                                    quantity: values.quantity,
-                                    issue: issueId!,
-                                 },
-                              ])
+                              props.onFinish(values)
                            }}
                         >
                            {(handleOpenDetails) => (

@@ -3,6 +3,7 @@ import { TaskStatus } from "@/common/enum/task-status.enum"
 import { DeviceDto } from "@/common/dto/Device.dto"
 import { IssueRequestDto } from "@/common/dto/IssueRequest.dto"
 import { UserDto } from "@/common/dto/User.dto"
+import { TaskIssueDto } from "@/common/dto/TaskIssue.dto"
 
 export type TaskDto = {
    id: string
@@ -21,4 +22,5 @@ export type TaskDto = {
    device: DeviceDto
    request: IssueRequestDto
    fixer: UserDto
+   issues: TaskIssueDto[]
 }

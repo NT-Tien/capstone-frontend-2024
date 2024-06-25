@@ -16,4 +16,5 @@ export type IssueRequestDto = {
    tasks: TaskDto[]
    type: RequestType
    checker_note: string | null
+   checker: UserDto
 }

@@ -5,10 +5,10 @@ import Cookies from "js-cookie"
 
 export type Response = UserDto[]
 
-HeadStaff_Users_All.URL = "/head-staff/account"
-export default async function HeadStaff_Users_All(): Promise<Response> {
+HeadStaff_Users_AllStaff.URL = "/head-staff/account"
+export default async function HeadStaff_Users_AllStaff(): Promise<Response> {
    return api
-      .get<Response>(HeadStaff_Users_All.URL, {
+      .get<Response>(HeadStaff_Users_AllStaff.URL, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,

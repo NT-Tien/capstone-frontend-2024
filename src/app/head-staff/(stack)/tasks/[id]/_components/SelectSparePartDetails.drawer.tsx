@@ -4,7 +4,7 @@ import { Button, Divider, Drawer, Form, InputNumber } from "antd"
 import { ProDescriptions, ProFormDigit } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 
-type FieldType = {
+export type FieldType = {
    quantity: number
    sparePartId: string
 }

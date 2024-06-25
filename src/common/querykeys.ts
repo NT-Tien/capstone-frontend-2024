@@ -1,4 +1,5 @@
 import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 
 const qk = {
    users: {
@@ -33,6 +34,10 @@ const qk = {
       all: (page: number, limit: number, status: IssueRequestStatus) => ["issue-requests", { page, limit, status }],
       allRaw: () => ["issue-requests"],
       byId: (id: string) => ["issue-requests", id],
+   },
+   task: {
+      all: (page?: number, limit?: number, status?: TaskStatus) => ["task", { page, limit, status }],
+      one_byId: (id: string) => ["task", id],
    },
 }
 

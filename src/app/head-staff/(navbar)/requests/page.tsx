@@ -2,7 +2,7 @@
 
 import RootHeader from "@/common/components/RootHeader"
 import { Card, Collapse, Tabs, Tag } from "antd"
-import ReportCard from "@/app/head-staff/(navbar)/reports/_components/ReportCard"
+import ReportCard from "@/app/head-staff/(navbar)/requests/_components/ReportCard"
 import dayjs from "dayjs"
 import { useMemo } from "react"
 import { IssueRequestDto } from "@/common/dto/IssueRequest.dto"

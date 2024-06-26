@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavBar"
+import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
 import { DashboardFilled, UserOutlined } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
 import { ClockCircleOutline, SystemQRcodeOutline } from "antd-mobile-icons"

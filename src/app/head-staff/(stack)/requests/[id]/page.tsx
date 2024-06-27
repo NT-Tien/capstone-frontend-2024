@@ -14,6 +14,7 @@ import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
 import RejectTaskDrawer from "@/app/head-staff/(stack)/requests/[id]/_components/RejectTask.drawer"
 import AcceptTaskDrawer from "@/app/head-staff/(stack)/requests/[id]/_components/AcceptTask.drawer"
+import { useTranslation } from "react-i18next"
 
 export default function RequestDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -28,6 +29,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
       queryFn: () => HeadStaff_Device_OneById({ id: result.data?.device.id ?? "" }),
       enabled: result.isSuccess,
    })
+   const { t } = useTranslation()
 
    return (
       <div>
@@ -47,13 +49,13 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                columns={[
                   {
                      key: "createdAt",
-                     title: "Reported Date",
+                     title: t('Created'),
                      dataIndex: "createdAt",
                      render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
                   },
                   {
                      key: "status",
-                     title: "Status",
+                     title: t('Status'),
                      dataIndex: "status",
                      render: (_, e) => <Tag color="default">{e.status}</Tag>,
                   },

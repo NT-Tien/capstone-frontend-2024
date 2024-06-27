@@ -5,11 +5,14 @@ import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
 import { DashboardFilled, UserOutlined } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
 import { ClockCircleOutline, SystemQRcodeOutline } from "antd-mobile-icons"
+import { useTranslation } from "react-i18next"
 
 export default function HeadNavbar() {
    const current = usePathname()
    const [currentActive, setCurrentActive] = useState<string | undefined>()
    const router = useRouter()
+   const { t } = useTranslation();
+
 
    useEffect(() => {
       setCurrentActive(current.split("/")[2])
@@ -21,25 +24,25 @@ export default function HeadNavbar() {
 
    const items: NavbarMenuItem[] = [
       {
-         name: "Dashboard",
+         name: t('Dashboard'),
          key: "dashboard",
          icon: <DashboardFilled />,
          onClick: () => setCurrentActive("dashboard"),
       },
       {
-         name: "Scan",
+         name: t('Scan'),
          key: "scan",
          icon: <SystemQRcodeOutline />,
          onClick: () => setCurrentActive("scan"),
       },
       {
-         name: "History",
+         name: t('History'),
          key: "history",
          icon: <ClockCircleOutline />,
          onClick: () => setCurrentActive("history"),
       },
       {
-         name: "Profile",
+         name: t('Profile'),
          key: "profile",
          icon: <UserOutlined />,
          onClick: () => setCurrentActive("profile"),

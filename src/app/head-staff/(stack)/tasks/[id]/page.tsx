@@ -17,6 +17,9 @@ import AssignFixerDrawer from "@/app/head-staff/(stack)/tasks/[id]/_components/A
 import HeadStaff_Task_UpdateAssignFixer from "@/app/head-staff/_api/task/update-assignFixer.api"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 import CreateIssueDrawer from "@/app/head-staff/(stack)/tasks/[id]/_components/CreateIssue.drawer"
+import { useTranslation } from "react-i18next"
+import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
+import { TaskIssueDto } from "@/common/dto/TaskIssue.dto"
 
 export default function TaskDetails({ params }: { params: { id: string } }) {
    const result = useQuery({
@@ -25,6 +28,8 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
    })
    const router = useRouter()
    const { message } = App.useApp()
+   const { t } = useTranslation()
+   const { getFixTypeTranslation } = useIssueRequestStatusTranslation()
 
    const mutate_addSparePart = useMutation({
       mutationFn: HeadStaff_SparePart_Create,
@@ -117,33 +122,33 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
             columns={[
                {
                   key: "name",
-                  label: "Task Name",
+                  label: t('TaskName'),
                   dataIndex: "name",
                },
                {
                   key: "created",
-                  label: "Created At",
+                  label: t('Created'),
                   dataIndex: "createdAt",
                   render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
                },
                {
                   key: "status",
-                  label: "Status",
+                  label: t('Status'),
                   dataIndex: "status",
                },
                {
                   key: "priority",
-                  label: "Priority",
-                  render: (_, e) => (e.priority ? <Tag color="red">High</Tag> : <Tag color="green">Low</Tag>),
+                  label: t('Priority'),
+                  render: (_, e) => (e.priority ? <Tag color="red">{t('High')}</Tag> : <Tag color="green">{t('Low')}</Tag>),
                },
                {
                   key: "totalTime",
-                  label: "Total Time",
+                  label: t('TotalTime'),
                   dataIndex: "totalTime",
                },
                {
                   key: "operator",
-                  label: "Operator",
+                  label: t('operator'),
                   dataIndex: "operator",
                },
             ]}
@@ -156,7 +161,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
             items={[
                {
                   key: "machine",
-                  label: "Device",
+                  label: t('Device'),
                   children: (
                      <ProDescriptions
                         dataSource={result.data?.device}
@@ -165,17 +170,17 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                         columns={[
                            {
                               key: "machineModel",
-                              label: "Machine Model",
+                              label: t('MachineModel'),
                               render: (_, e) => e.machineModel?.name ?? "-",
                            },
                            {
                               key: "position",
-                              label: "Position",
+                              label: t('Position'),
                               render: (_, e) => `${e.area?.name ?? "-"} - (${e.positionX} : ${e.positionY})`,
                            },
                            {
                               key: "description",
-                              label: "Description",
+                              label: t('Description'),
                               dataIndex: "description",
                            },
                         ]}
@@ -184,16 +189,16 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                },
                {
                   key: "issues",
-                  label: "Issues",
+                  label: t('Issues'),
                   children: (
                      <div>
                         <Collapse
                            expandIconPosition="end"
-                           items={result.data?.issues.map((item) => ({
+                           items={result.data?.issues.map((item: TaskIssueDto) => ({
                               key: item.id,
                               label: (
                                  <div>
-                                    <Tag color={item.fixType === FixType.REPAIR ? "red" : "blue"}>{item.fixType}</Tag>
+                                    <Tag color={item.fixType === FixType.REPAIR ? "red" : "blue"}>{getFixTypeTranslation(item.fixType)}</Tag>
                                     <Typography.Text className="w-40">{item.typeError.name}</Typography.Text>
                                  </div>
                               ),
@@ -203,7 +208,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                                        size="small"
                                        items={[
                                           {
-                                             label: "Description",
+                                             label: t('Description'),
                                              children: item.description,
                                           },
                                        ]}
@@ -213,7 +218,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                                        layout="vertical"
                                        items={[
                                           {
-                                             label: "Spare Parts",
+                                             label: t('SpareParts'),
                                              span: 10,
                                              contentStyle: {
                                                 width: "100%",
@@ -257,7 +262,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                                                                >
                                                                   <List.Item.Meta
                                                                      title={sp.sparePart.name}
-                                                                     description={`Qty: ${sp.quantity}`}
+                                                                     description={`${t('Qty')}: ${sp.quantity}`}
                                                                   ></List.Item.Meta>
                                                                </List.Item>
                                                             )}
@@ -309,7 +314,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                },
                {
                   key: "assign_fixer",
-                  label: "Fixer",
+                  label: t('Fixer'),
                   children: (
                      <div>
                         {result.isSuccess && result.data.fixer !== null ? (

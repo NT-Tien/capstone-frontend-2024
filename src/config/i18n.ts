@@ -17,7 +17,7 @@ if (typeof window !== 'undefined') {
     .use(initReactI18next)
     .init({
       resources,
-      fallbackLng: 'eng',
+      fallbackLng: 'vie',
       debug: true,
       interpolation: {
         escapeValue: false,

@@ -26,7 +26,7 @@ export default function HeadStaffNavbar() {
 
    const items: NavbarMenuItem[] = [
       {
-         name: t('dashboardNav'),
+         name: t('Dashboard'),
          key: "dashboard",
          icon: <DashboardFilled />,
          onClick: () => setCurrentActive("dashboard"),
@@ -44,7 +44,7 @@ export default function HeadStaffNavbar() {
          onClick: () => setCurrentActive("tasks"),
       },
       {
-         name: t('profileNav'),
+         name: t('Profile'),
          key: "profile",
          icon: <UserOutlined />,
          onClick: () => setCurrentActive("profile"),

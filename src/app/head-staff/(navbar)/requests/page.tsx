@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
 import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { useTranslation } from "react-i18next"
 
 type GroupType = {
    today: IssueRequestDto[]
@@ -20,6 +21,8 @@ type GroupType = {
 }
 
 export default function ReportsPage() {
+   const { t } = useTranslation();
+
    return (
       <div className="overflow-y-auto">
          <RootHeader
@@ -34,17 +37,17 @@ export default function ReportsPage() {
             items={[
                {
                   key: "pending",
-                  label: "Pending",
+                  label: t('pending'),
                   children: <ReportsTab status={IssueRequestStatus.PENDING} />,
                },
                {
                   key: "approved",
-                  label: "Approved",
+                  label: t('approved'),
                   children: <ReportsTab status={IssueRequestStatus.APPROVED} />,
                },
                {
                   key: "rejected",
-                  label: "Rejected",
+                  label: t('rejected'),
                   children: <ReportsTab status={IssueRequestStatus.REJECTED} />,
                },
             ]}
@@ -58,6 +61,7 @@ type ReportsTabProps = {
 }
 
 function ReportsTab(props: ReportsTabProps) {
+   const { t } = useTranslation();
    const results = useQuery({
       queryKey: qk.issueRequests.all(1, 50, props.status),
       queryFn: () =>
@@ -121,7 +125,7 @@ function ReportsTab(props: ReportsTabProps) {
             items={[
                {
                   key: "today",
-                  label: "Today",
+                  label: t('today'),
                   children: (
                      <div className="grid grid-cols-1 gap-3">
                         {groups.today.map((req) => (
@@ -129,7 +133,7 @@ function ReportsTab(props: ReportsTabProps) {
                         ))}
                      </div>
                   ),
-                  extra: <Tag color="default">{groups.today.length} Reports</Tag>,
+                  extra: <Tag color="default">{groups.today.length} {t('Reports')}</Tag>,
                },
             ]}
          />
@@ -142,7 +146,7 @@ function ReportsTab(props: ReportsTabProps) {
             items={[
                {
                   key: "yesterday",
-                  label: "Yesterday",
+                  label: t('yesterday'),
                   children: (
                      <div className="grid grid-cols-1 gap-3">
                         {groups.yesterday.map((req) => (
@@ -150,7 +154,7 @@ function ReportsTab(props: ReportsTabProps) {
                         ))}
                      </div>
                   ),
-                  extra: <Tag color="default">{groups.yesterday.length} Reports</Tag>,
+                  extra: <Tag color="default">{groups.yesterday.length} {t('Reports')}</Tag>,
                },
             ]}
          />
@@ -163,7 +167,7 @@ function ReportsTab(props: ReportsTabProps) {
             items={[
                {
                   key: "thisWeekRemaining",
-                  label: "Remaining this Week",
+                  label: t('remainingThisWeek'),
                   children: (
                      <div className="grid grid-cols-1 gap-3">
                         {groups.thisWeekRemaining.map((req) => (
@@ -171,7 +175,7 @@ function ReportsTab(props: ReportsTabProps) {
                         ))}
                      </div>
                   ),
-                  extra: <Tag color="default">{groups.thisWeekRemaining.length} Reports</Tag>,
+                  extra: <Tag color="default">{groups.thisWeekRemaining.length} {t('Reports')}</Tag>,
                },
             ]}
          />
@@ -184,7 +188,7 @@ function ReportsTab(props: ReportsTabProps) {
             items={[
                {
                   key: "lastWeek",
-                  label: "Last Week",
+                  label: t('lastWeek'),
                   children: (
                      <div className="grid grid-cols-1 gap-3">
                         {groups.lastWeek.map((req) => (
@@ -192,7 +196,7 @@ function ReportsTab(props: ReportsTabProps) {
                         ))}
                      </div>
                   ),
-                  extra: <Tag color="default">{groups.lastWeek.length} Reports</Tag>,
+                  extra: <Tag color="default">{groups.lastWeek.length} {t('Reports')}</Tag>,
                },
             ]}
          />
@@ -205,7 +209,7 @@ function ReportsTab(props: ReportsTabProps) {
             items={[
                {
                   key: "earlier",
-                  label: "Earlier",
+                  label: t('earlier'),
                   children: (
                      <div className="grid grid-cols-1 gap-3">
                         {groups.earlier.map((req) => (
@@ -213,7 +217,7 @@ function ReportsTab(props: ReportsTabProps) {
                         ))}
                      </div>
                   ),
-                  extra: <Tag color="default">{groups.earlier.length} Reports</Tag>,
+                  extra: <Tag color="default">{groups.earlier.length} {t('Reports')}</Tag>,
                },
             ]}
          />

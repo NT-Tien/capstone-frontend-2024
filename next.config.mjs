@@ -33,6 +33,10 @@ const nextConfig = {
       loader: "custom",
       loaderFile: "./src/common/util/backendImageLoader.util.ts",
    },
+   i18n: {
+      locales: ['vie', 'eng'],
+      defaultLocale: 'vie',
+    },
 }
 
 export default nextConfig

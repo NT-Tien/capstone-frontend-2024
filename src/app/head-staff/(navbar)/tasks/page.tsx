@@ -11,6 +11,7 @@ import { TaskDto } from "@/common/dto/Task.dto"
 import { RightOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import dayjs from "dayjs"
+import { useTranslation } from "react-i18next"
 
 export default function TasksPage() {
    const searchParams = useSearchParams()
@@ -18,6 +19,7 @@ export default function TasksPage() {
    const page = Number(searchParams.get("page")) ?? 1
    const limit = 5
    const router = useRouter()
+   const { t } = useTranslation()
 
    const result = useInfiniteQuery({
       queryKey: qk.task.all(page, limit, status),
@@ -53,7 +55,7 @@ export default function TasksPage() {
             items={[
                {
                   key: TaskStatus.AWAITING_FIXER,
-                  label: "Inbox",
+                  label: t('Inbox'),
                   children: (
                      <ListView
                         total={result.data?.pages[0].total ?? 0}
@@ -65,7 +67,7 @@ export default function TasksPage() {
                },
                {
                   key: TaskStatus.ASSIGNED,
-                  label: "Assigned",
+                  label: t('Assigned'),
                   children: (
                      <ListView
                         total={result.data?.pages[0].total ?? 0}
@@ -77,7 +79,7 @@ export default function TasksPage() {
                },
                {
                   key: TaskStatus.IN_PROGRESS,
-                  label: "In Progress",
+                  label: t('Progressing'),
                   children: (
                      <ListView
                         total={result.data?.pages[0].total ?? 0}
@@ -89,7 +91,7 @@ export default function TasksPage() {
                },
                {
                   key: TaskStatus.COMPLETED,
-                  label: "Completed",
+                  label: t('Completed'),
                   children: (
                      <ListView
                         total={result.data?.pages[0].total ?? 0}
@@ -113,6 +115,7 @@ type ListViewType = {
 }
 
 function ListView(props: ListViewType) {
+   const { t } = useTranslation()
    const router = useRouter()
    return (
       <List
@@ -120,7 +123,7 @@ function ListView(props: ListViewType) {
          loadMore={
             props.items.length !== 0 &&
             (props.total === props.items.length ? (
-               <Divider className="text-sm">You&apos;re at the end of the list</Divider>
+               <Divider className="text-sm">{t('endList')}</Divider>
             ) : (
                <Button onClick={props.loadMore}>Load More</Button>
             ))
@@ -144,18 +147,18 @@ function ListView(props: ListViewType) {
                   columns={[
                      {
                         key: "mm",
-                        label: "Machine Model",
+                        label: t('MachineModel'),
                         render: (_, e) => e.device?.machineModel.name ?? "-",
                      },
                      {
                         key: "Created",
-                        label: "Created",
+                        label: t('Created'),
                         render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
                      },
                      {
                         key: "priority",
-                        label: "Priority",
-                        render: (_, e) => (e.priority ? <Tag color="red">High</Tag> : <Tag color="green">Low</Tag>),
+                        label: t('Priority'),
+                        render: (_, e) => (e.priority ? <Tag color="red">{t('High')}</Tag> : <Tag color="green">{t('Low')}</Tag>),
                      },
                   ]}
                />

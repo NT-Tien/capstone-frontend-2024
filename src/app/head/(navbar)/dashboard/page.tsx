@@ -12,8 +12,13 @@ import { IssueRequestStatusTag } from "@/common/enum/issue-request-status.enum"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import Head_Request_All from "@/app/head/_api/request/all.api"
+import { useTranslation } from "react-i18next"
+import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
+import { IssueRequestDto } from "@/common/dto/IssueRequest.dto"
 
 export default function HeadDashboardPage() {
+   const { t } = useTranslation();
+   const { getStatusTranslation } = useIssueRequestStatusTranslation();
    const router = useRouter()
    const result = useQuery({
       queryKey: qk.issueRequests.allRaw(),
@@ -53,12 +58,12 @@ export default function HeadDashboardPage() {
             <div className="flex items-center gap-2">
                <ClockCircleOutline />
                <Typography.Title level={5} className="mb-0">
-                  Your Previous Reports
+                  {t('PrevReports')}
                </Typography.Title>
             </div>
             <Link href="/head/history">
                <Button type="link" className="p-0">
-                  See More
+                  {t('SeeMore')}
                </Button>
             </Link>
          </div>
@@ -96,7 +101,7 @@ export default function HeadDashboardPage() {
                            onClick={() => router.push(`/head/history/${req.id}`)}
                            extra={
                               <div className="flex items-center gap-1">
-                                 <IssueRequestStatusTag status={req.status} />
+                                 <IssueRequestStatusTag status={getStatusTranslation(req.status)} />
                                  <Button type="text" size="small" ghost icon={<RightOutlined />} />
                               </div>
                            }

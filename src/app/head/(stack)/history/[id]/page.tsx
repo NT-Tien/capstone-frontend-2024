@@ -12,10 +12,12 @@ import { IssueRequestStatusTag } from "@/common/enum/issue-request-status.enum"
 import { ProDescriptions } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 import Head_Device_OneById from "@/app/head/_api/device/oneById.api"
+import { useTranslation } from "react-i18next"
+import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
 
 export default function HistoryDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
-
+   const { t } = useTranslation()
    const response = useQuery({
       queryKey: qk.issueRequests.allRaw(),
       queryFn: () => Head_Request_All(),
@@ -25,6 +27,7 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
          return issue
       },
    })
+   const { getStatusTranslation } = useIssueRequestStatusTranslation();
 
    const device = useQuery({
       queryKey: qk.devices.one_byId(response.data?.device.id ?? ""),
@@ -58,9 +61,9 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
             }}
          >
             <Typography.Title level={4} className="mb-0">
-               Issue Details
+               {t('IssueDetails')}
             </Typography.Title>
-            {response.isSuccess ? <IssueRequestStatusTag status={response.data.status} /> : <Tag>...</Tag>}
+            {response.isSuccess ? <IssueRequestStatusTag status={getStatusTranslation(response.data.status)} /> : <Tag>...</Tag>}
          </div>
          <ProDescriptions
             className="mt-2"
@@ -73,17 +76,17 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
             columns={[
                {
                   key: "machineModel",
-                  label: "Machine Model",
+                  label: t('MachineModel'),
                   render: (_, e) => e.machineModel?.name ?? "-",
                },
                {
                   key: "deviceDescription",
-                  label: "Device Description",
+                  label: t('DeviceDescription'),
                   render: (_, e) => e.description,
                },
                {
                   key: "devicePosition",
-                  label: "Device Position",
+                  label: t('Position'),
                   render: (_, e) => e.area?.name + ` (${e.positionX} : ${e.positionY})`,
                },
             ]}
@@ -98,12 +101,12 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
             columns={[
                {
                   key: "createdAt",
-                  label: "Created At",
+                  label: t('Created'),
                   render: (_, e) => dayjs(e.createdAt).format("YYYY-MM-DD HH:mm:ss"),
                },
                {
                   key: "updatedAt",
-                  label: "Last Updated At",
+                  label: t('LastUpdated'),
                   render: (_, e) => dayjs(e.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
                },
             ]}
@@ -119,7 +122,7 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
             columns={[
                {
                   key: "attachedNote",
-                  label: "Attached Note",
+                  label: t('RequesterNote'),
                   render: (_, e) => e.requester_note,
                   span: 2,
                },

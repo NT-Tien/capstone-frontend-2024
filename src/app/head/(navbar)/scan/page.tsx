@@ -7,6 +7,7 @@ import RootHeader from "@/common/components/RootHeader"
 import { useRouter } from "next/navigation"
 import { InfoCircleFilled, QrcodeOutlined, RightOutlined } from "@ant-design/icons"
 import { isUUID } from "@/common/util/isUUID.util"
+import { useTranslation } from "react-i18next"
 
 type FieldType = {
    deviceId: string
@@ -18,6 +19,7 @@ export default function ScanPage() {
    const [form] = Form.useForm<FieldType>()
    const { message } = App.useApp()
    const timeoutRef = useRef<NodeJS.Timeout>()
+   const { t } = useTranslation()
 
    async function handleScan(e: IDetectedBarcode[]) {
       if (e.length === 0) return
@@ -41,7 +43,7 @@ export default function ScanPage() {
 
       if (!isUUID(id)) {
          await message.open({
-            content: "Invalid Device ID",
+            content: t('invalidDeviceId'),
             duration: 0,
             type: "error",
             key: "messenger",
@@ -50,7 +52,7 @@ export default function ScanPage() {
       }
 
       await message.open({
-         content: "Device ID Scanned",
+         content: t('deviceIdScanned'),
          duration: 0,
          type: "success",
          key: "messenger",
@@ -84,8 +86,8 @@ export default function ScanPage() {
                            AI
                         </Avatar>
                         <div className="flex-grow">
-                           <p className="text-base font-bold">Input Manually</p>
-                           <p className="text-xs">Click here if you cannot scan the QR Code</p>
+                           <p className="text-base font-bold">{t('InputManually')}</p>
+                           <p className="text-xs">{t('CannotScan')}</p>
                         </div>
                         <div>
                            <Button type="text" icon={<RightOutlined />} />
@@ -97,7 +99,7 @@ export default function ScanPage() {
          </div>
          <Form<FieldType> form={form} onFinish={(e) => finishHandler(e.deviceId)} layout="horizontal">
             <Drawer
-               title="Manual Input"
+               title={t('ManuallyInput')}
                placement="bottom"
                onClose={() => setManualOpen(false)}
                open={manualOpen}
@@ -105,7 +107,7 @@ export default function ScanPage() {
                size="default"
                extra={[
                   <Button key="submit-btn" type="primary" htmlType="submit" onClick={form.submit}>
-                     Submit
+                     {t('Submit')}
                   </Button>,
                ]}
                classNames={{
@@ -114,7 +116,7 @@ export default function ScanPage() {
             >
                <Form.Item<FieldType>
                   name="deviceId"
-                  label="Device ID"
+                  label={t('DeviceId')}
                   labelAlign="left"
                   labelCol={{
                      span: 24,
@@ -134,7 +136,7 @@ export default function ScanPage() {
                <Card size="small" hoverable>
                   <div className="flex gap-3">
                      <InfoCircleFilled />
-                     <div className="text-xs">Please input the Device ID manually if you cannot scan the QR Code</div>
+                     <div className="text-xs">{t('inputDeviceId')}</div>
                   </div>
                </Card>
             </Drawer>

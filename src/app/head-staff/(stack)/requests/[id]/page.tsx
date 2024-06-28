@@ -14,6 +14,7 @@ import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
 import RejectTaskDrawer from "@/app/head-staff/(stack)/requests/[id]/_components/RejectTask.drawer"
 import AcceptTaskDrawer from "@/app/head-staff/(stack)/requests/[id]/_components/AcceptTask.drawer"
+import { useTranslation } from "react-i18next"
 
 export default function RequestDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -28,6 +29,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
       queryFn: () => HeadStaff_Device_OneById({ id: result.data?.device.id ?? "" }),
       enabled: result.isSuccess,
    })
+   const { t } = useTranslation()
 
    return (
       <div>
@@ -47,19 +49,19 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                columns={[
                   {
                      key: "createdAt",
-                     title: "Reported Date",
+                     title: t('Created'),
                      dataIndex: "createdAt",
                      render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
                   },
                   {
                      key: "status",
-                     title: "Status",
+                     title: t('Status'),
                      dataIndex: "status",
                      render: (_, e) => <Tag color="default">{e.status}</Tag>,
                   },
                   {
                      key: "account-name",
-                     title: "Reported By",
+                     title: t('ReportedBy'),
                      render: (_, e) => e.requester?.username ?? "-",
                   },
                ]}
@@ -72,12 +74,12 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                columns={[
                   {
                      key: "description",
-                     title: "Requester Note",
+                     title: t('RequesterNote'),
                      render: (_, e) => e.requester_note,
                   },
                ]}
             />
-            <Card size="small" className="mt-4" title="Device Details">
+            <Card size="small" className="mt-4" title={t('DeviceDetails')}>
                <ProDescriptions
                   // bordered={true}
                   dataSource={device.data}
@@ -86,7 +88,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                   columns={[
                      {
                         key: "device-id",
-                        title: "Device ID",
+                        title: t('DeviceId'),
                         dataIndex: "id",
                         render: (_, e) => {
                            if (!e.id) return "-"
@@ -97,22 +99,22 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                      },
                      {
                         key: "device-description",
-                        title: "Device Description",
+                        title: t('DeviceDescription'),
                         render: (_, e) => e.description,
                      },
                      {
                         key: "device-positioning",
-                        title: "Position",
+                        title: t('Position'),
                         render: (_, e) => `${e.area?.name ?? "..."} - (${e.positionX} : ${e.positionY})`,
                      },
                      {
                         key: "device-machine-model",
-                        title: "Machine Model",
+                        title: t('MachineModel'),
                         render: (_, e) => e.machineModel?.name ?? "-",
                      },
                      {
                         key: "manufacturer",
-                        title: "Manufacturer",
+                        title: t('Manufacturer'),
                         render: (_, e) => e.machineModel?.manufacturer ?? "-",
                      },
                   ]}

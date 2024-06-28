@@ -11,13 +11,14 @@ import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import Head_Request_All from "@/app/head/_api/request/all.api"
+import { useTranslation } from "react-i18next"
 
 export default function HistoryPage() {
    const results = useQuery({
       queryKey: qk.issueRequests.allRaw(),
       queryFn: () => Head_Request_All(),
    })
-
+   const { t } = useTranslation()
    return (
       <div
          style={{
@@ -42,7 +43,7 @@ export default function HistoryPage() {
             items={[
                {
                   key: "pending",
-                  label: "Pending",
+                  label: t('pending'),
                   children: (
                      <IssueList
                         statusName="pending"
@@ -53,7 +54,7 @@ export default function HistoryPage() {
                },
                {
                   key: "completed",
-                  label: "Completed",
+                  label: t('Completed'),
                   children: (
                      <IssueList
                         statusName="completed"
@@ -64,7 +65,7 @@ export default function HistoryPage() {
                },
                {
                   key: "rejected",
-                  label: "Rejected",
+                  label: t('rejected'),
                   children: (
                      <IssueList
                         statusName="rejected"

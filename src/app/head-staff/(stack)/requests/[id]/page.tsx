@@ -61,7 +61,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                   },
                   {
                      key: "account-name",
-                     title: "Reported By",
+                     title: t('ReportedBy'),
                      render: (_, e) => e.requester?.username ?? "-",
                   },
                ]}
@@ -74,12 +74,12 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                columns={[
                   {
                      key: "description",
-                     title: "Requester Note",
+                     title: t('RequesterNote'),
                      render: (_, e) => e.requester_note,
                   },
                ]}
             />
-            <Card size="small" className="mt-4" title="Device Details">
+            <Card size="small" className="mt-4" title={t('DeviceDetails')}>
                <ProDescriptions
                   // bordered={true}
                   dataSource={device.data}
@@ -88,7 +88,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                   columns={[
                      {
                         key: "device-id",
-                        title: "Device ID",
+                        title: t('DeviceId'),
                         dataIndex: "id",
                         render: (_, e) => {
                            if (!e.id) return "-"
@@ -99,22 +99,22 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                      },
                      {
                         key: "device-description",
-                        title: "Device Description",
+                        title: t('DeviceDescription'),
                         render: (_, e) => e.description,
                      },
                      {
                         key: "device-positioning",
-                        title: "Position",
+                        title: t('Position'),
                         render: (_, e) => `${e.area?.name ?? "..."} - (${e.positionX} : ${e.positionY})`,
                      },
                      {
                         key: "device-machine-model",
-                        title: "Machine Model",
+                        title: t('MachineModel'),
                         render: (_, e) => e.machineModel?.name ?? "-",
                      },
                      {
                         key: "manufacturer",
-                        title: "Manufacturer",
+                        title: t('Manufacturer'),
                         render: (_, e) => e.machineModel?.manufacturer ?? "-",
                      },
                   ]}

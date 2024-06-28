@@ -5,7 +5,7 @@ import { FixType } from './fix-type.enum';
 export const useIssueRequestStatusTranslation = () => {
   const { t } = useTranslation();
 
-  const getStatusTranslation = (status: IssueRequestStatus) => {
+  const getStatusTranslation = (status: string): IssueRequestStatus => {
     switch (status) {
       case IssueRequestStatus.PENDING:
         return t('status.pending');
@@ -14,8 +14,8 @@ export const useIssueRequestStatusTranslation = () => {
       case IssueRequestStatus.REJECTED:
         return t('status.rejected');
       default:
-        return status;
-    }
+        throw new Error(`Unknown status: ${status}`);
+      }
   };
 
   const getFixTypeTranslation = (type: FixType) => {

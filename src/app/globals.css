@@ -5,3 +5,14 @@
 html, body {
     height: 100%;
 }
+
+.ant-tabs-nav-list {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+.ant-tabs-tab {
+    width: 50%;
+    justify-content: center;
+}

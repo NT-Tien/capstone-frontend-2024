@@ -8,6 +8,7 @@ import { App, ConfigProvider } from "antd"
 import { AntdRegistry } from "@ant-design/nextjs-registry"
 import en_US from "antd/lib/locale/en_US"
 import { enUSIntl, ProConfigProvider } from "@ant-design/pro-provider"
+import I18NProvider from "@/common/providers/i18n.provider"
 
 export default function GlobalProvider({ children }: Readonly<{ children: ReactNode }>) {
    const queryClient = makeQueryClient()
@@ -20,7 +21,9 @@ export default function GlobalProvider({ children }: Readonly<{ children: ReactN
                {/* Config for Ant Design Pro-components (Set language to ENGLISH - packaged default is Chinese)*/}
                <ProConfigProvider intl={enUSIntl}>
                   {/* Config for Ant Design (Set language to ENGLISH) */}
-                  <ConfigProvider locale={en_US}>{children}</ConfigProvider>
+                  <ConfigProvider locale={en_US}>
+                     <I18NProvider>{children}</I18NProvider>
+                  </ConfigProvider>
                </ProConfigProvider>
             </App>
          </AntdRegistry>

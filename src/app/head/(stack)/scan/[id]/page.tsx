@@ -42,10 +42,10 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
          })
       },
       onError: async () => {
-         message.error(t('failedCreateReport'))
+         message.error(t("failedCreateReport"))
       },
       onSuccess: async () => {
-         message.success(t('createReportIssueSuccess'))
+         message.success(t("createReportIssueSuccess"))
       },
       onSettled: () => {
          message.destroy("submitIssue")
@@ -99,7 +99,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                      loading={results.isLoading}
                      columns={[
                         {
-                           title: t('DeviceId'),
+                           title: t("DeviceId"),
                            dataIndex: "id",
                            render: (_, e) => (
                               <Typography.Text ellipsis={true} className="w-32">
@@ -108,23 +108,23 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                            ),
                         },
                         {
-                           title: t('MachineModel'),
+                           title: t("MachineModel"),
                            render: (_, e) => e.machineModel.name,
                         },
                         {
-                           title: t('DeviceDescription'),
+                           title: t("DeviceDescription"),
                            dataIndex: "description",
                         },
                         {
-                           title: t('Position'),
+                           title: t("Position"),
                            render: (_, e) => e.area.name + ` (${e.positionX} : ${e.positionY})`,
                         },
                         {
-                           title: t('YearOfProduction'),
+                           title: t("YearOfProduction"),
                            render: (_, e) => e.machineModel.yearOfProduction,
                         },
                         {
-                           title: t('Manufacturer'),
+                           title: t("Manufacturer"),
                            render: (_, e) => e.machineModel.manufacturer,
                         },
                      ]}
@@ -158,7 +158,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
          </div>
          <div className="item-center fixed bottom-0 left-0 flex h-max w-full gap-3 bg-white p-5">
             <Button className="px-8" size="large" onClick={() => router.push("/head/scan")}>
-               {t('Back')}
+               {t("Back")}
             </Button>
             <Button
                className="flex-grow"
@@ -171,7 +171,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                }}
                onClick={() => setOpenCreateIssue(true)}
             >
-               {t('CreateIssueReport')}
+               {t("CreateIssueReport")}
             </Button>
          </div>
          <Drawer
@@ -182,15 +182,15 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                setOpenCreateIssue(false)
                form.resetFields()
             }}
-            title="Create Issue Report"
+            title={t("CreateIssueReport")}
             extra={
                <Button type="primary" onClick={() => form.submit()}>
-                  {t('Submit')}
+                  {t("Submit")}
                </Button>
             }
          >
             <Form<FieldType> form={form} onFinish={handleSubmit_createIssue} layout="vertical">
-               <ProFormTextArea name="description" label={t('Description')} rules={[{ required: true }]} />
+               <ProFormTextArea name="description" label={t("Description")} rules={[{ required: true }]} />
             </Form>
          </Drawer>
       </>

@@ -8,9 +8,9 @@ import { useRouter } from "next/navigation"
 export default function ProfilePage() {
    const router = useRouter()
    return (
-      <div className="p-4">
-         <RootHeader title="Profile" />
-         <div className="mt-4">
+      <div>
+         <RootHeader title="Profile" className="p-4" />
+         <div className="mt-4 px-4">
             <Button
                className="w-full"
                onClick={() => {

@@ -7,9 +7,10 @@ import { useRouter } from "next/navigation"
 import dayjs from "dayjs"
 import { Tag } from "antd-mobile"
 import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
+import { SparePartDto } from "@/common/dto/SparePart.dto"
 
 type Props = {
-   issueRequest: IssueRequestDto
+   sparePartIssue: SparePartDto
 }
 
 export default function ReportCard(props: Props) {
@@ -18,7 +19,7 @@ export default function ReportCard(props: Props) {
 
    return (
       <Card
-         title={props.issueRequest.device.description}
+         title={props.sparePartIssue.name}
          className="bg-[#F3EDF7]"
          bordered={true}
          type="inner"

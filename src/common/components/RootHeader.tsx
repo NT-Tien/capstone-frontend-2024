@@ -2,7 +2,7 @@
 
 import { Button, ButtonProps } from "antd"
 import { ContainerFilled } from "@ant-design/icons"
-import { CSSProperties, useEffect, useState } from "react"
+import { CSSProperties, ReactNode, useEffect, useState } from "react"
 import { cn } from "@/common/util/cn.util"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
@@ -14,6 +14,7 @@ type Props = {
    style?: CSSProperties
    buttonProps?: Omit<ButtonProps, "onClick">
    className?: string
+   children?: ReactNode
 }
 
 export default function RootHeader({
@@ -23,6 +24,7 @@ export default function RootHeader({
    buttonProps,
    icon = <ContainerFilled className="text-lg" />,
    className,
+   children,
 }: Props) {
    const { i18n } = useTranslation()
    const router = useRouter()
@@ -47,7 +49,8 @@ export default function RootHeader({
 
    return (
       <div className={cn("flex h-min w-full items-center justify-between bg-[#FEF7FF]", className)} style={style}>
-         <span className="mb-0 flex items-center gap-3 text-xl font-semibold">
+         <div className="flex items-center justify-between bg-[#FEF7FF] p-4">
+         <span className="flex items-center gap-3 text-xl font-semibold">
             {onIconClick ? <Button icon={icon} type="text" onClick={onIconClick} {...buttonProps} /> : icon}
             {title}
          </span>
@@ -162,6 +165,8 @@ export default function RootHeader({
                </Button>
             )}
          </div>
+         </div>
+         <div className="flex-1">{children}</div>{" "}
       </div>
    )
 }

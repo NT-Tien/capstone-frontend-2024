@@ -89,7 +89,7 @@ function ListView(props: ListViewType) {
                size="small"
                className="mb-3"
                hoverable={true}
-               onClick={() => router.push(`/stockkeeper/spare-part/${item.id}`)}
+               onClick={() => router.push(`/stockkeeper/machine-model/${item.id}`)}
             >
                <ProDescriptions
                   size="small"

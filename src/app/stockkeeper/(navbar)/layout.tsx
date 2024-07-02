@@ -1,11 +1,11 @@
 import { ReactNode } from "react"
-import HeadStaffNavbar from "@/app/head-staff/_components/HeadStaffNavbar"
+import StockkeeperNavbar from "../_components/StockkeeperNavbar"
 
 export default function NavbarTabs({ children }: { children: ReactNode }) {
    return (
       <div className="pb-24">
          {children}
-         <HeadStaffNavbar />
+         <StockkeeperNavbar />
       </div>
    )
 }

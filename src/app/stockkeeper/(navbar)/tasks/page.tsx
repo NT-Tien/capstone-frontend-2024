@@ -41,7 +41,7 @@ export default function TasksPage() {
             style={{
                gridColumn: "outer-start / outer-end",
             }}
-         />
+         >
          <div
             onChange={(e) => {
                router.push(`/stockkeeper/tasks=${e}`)
@@ -54,6 +54,7 @@ export default function TasksPage() {
                items={result.data?.pages.flatMap((res) => res.list) ?? []}
             />
          </div>
+         </RootHeader>
       </div>
    )
 }

@@ -1,5 +1,5 @@
 const vie = {
-   Dashboard: "Dashboard",
+   Dashboard: "Trang chủ",
    requestsNav: "Yêu cầu",
    tasksNav: "Công việc",
    Profile: "Cài đặt",
@@ -66,6 +66,12 @@ const vie = {
    CreateIssueReport: "Tạo báo cáo",
    failedCreateReport: "Tạo báo cáo thất bại",
    createReportIssueSuccess: "Tạo báo cáo thành công",
+   machineModelNav: 'Kho hàng',
+   Name: 'Tên',
+   dateOfReceipt: 'Ngày nhận',
+   warrantyTerm: 'Thời hạn bảo hành',
+   ExpirationDate: 'Ngày hết hạn',
+   Note: 'Ghi chú',
 }
 
 export default vie

@@ -29,19 +29,14 @@ export default function TasksPage() {
    })
 
    return (
-      <div
-         style={{
-            display: "grid",
-            gridTemplateColumns: "[outer-start] 16px [inner-start] 1fr [inner-end] 16px [outer-end] 0",
-         }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
          <RootHeader
             title="Tasks"
             className="p-4"
             style={{
                gridColumn: "outer-start / outer-end",
             }}
-         >
+         />
          <div
             onChange={(e) => {
                router.push(`/stockkeeper/tasks=${e}`)
@@ -54,7 +49,6 @@ export default function TasksPage() {
                items={result.data?.pages.flatMap((res) => res.list) ?? []}
             />
          </div>
-         </RootHeader>
       </div>
    )
 }

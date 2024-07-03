@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next"
 import Stockkeeper_MachineModel_All from "../../_api/machine-model/getAll.api"
 import { MachineModelDto } from "@/common/dto/MachineModel.dto"
 
-export default function TasksPage() {
+export default function MachineModelPage() {
    const searchParams = useSearchParams()
    const page = Number(searchParams.get("page")) ?? 1
    const limit = 5
@@ -29,10 +29,7 @@ export default function TasksPage() {
 
    return (
       <div
-         style={{
-            display: "grid",
-            gridTemplateColumns: "[outer-start] 16px [inner-start] 1fr [inner-end] 16px [outer-end] 0",
-         }}
+      style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
       >
          <RootHeader
             title="Tasks"
@@ -102,12 +99,12 @@ function ListView(props: ListViewType) {
                      },
                      {
                         key: "manufacturer",
-                        label: t("Manufaturer"),
+                        label: t("Manufacturer"),
                         render: (_, e) => e.manufacturer ?? "-",
                      },
                      {
                         key: "yearOfProduction",
-                        label: t("Year of Production"),
+                        label: t("YearOfProduction"),
                         render: (_, e) => e.yearOfProduction ?? "-"
                      },
                   ]}

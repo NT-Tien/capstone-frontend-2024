@@ -21,12 +21,7 @@ import { useTranslation } from "react-i18next"
 import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
 import { TaskIssueDto } from "@/common/dto/TaskIssue.dto"
 import Stockkeeper_Task_GetById from "../../../_api/task/getById.api"
-import { SparePartDto } from "@/common/dto/SparePart.dto"
-import { useMemo } from "react"
 
-type GroupType = {
-   spareparts: SparePartDto[]
-}
 
 export default function TaskDetails({ params }: { params: { id: string } }) {
    const result = useQuery({
@@ -37,20 +32,11 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
    const { message } = App.useApp()
    const { t } = useTranslation()
    const { getFixTypeTranslation } = useIssueRequestStatusTranslation()
-   const groups: GroupType = useMemo(() => {
-      const base: GroupType = {
-         spareparts: []
-      }
-      // if (!result.isSuccess) return base
-      return base
-   }, [result.data, result.isSuccess])
+
 
    return (
       <div
-         style={{
-            display: "grid",
-            gridTemplateColumns: "[outer-start] 16px [inner-start] 1fr [inner-end] 16px [outer-end] 0",
-         }}
+      style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
       >
          <RootHeader
             title="Task Details"
@@ -104,26 +90,29 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                },
             ]}
          />
-          <Collapse
+                   <Collapse
             ghost
             size="middle"
             bordered={false}
-            // defaultActiveKey={groups.today.length > 0 ? ["today"] : undefined}
-            // collapsible={groups.today.length > 0 ? undefined : "disabled"}
-            items={[
-               {
-                  key: "today",
-                  label: t('today'),
-                  children: (
-                     <div className="grid grid-cols-1 gap-3">
-                        {groups.spareparts.map((req) => (
-                           // <ReportCard key={req.id} issueRequest={req} />
-                        ))}
-                     </div>
-                  ),
-                  // extra: <Tag color="default">{groups.today.length} {t('Reports')}</Tag>,
-               },
-            ]}
+            items={result.data?.issues.map((issue: any) => ({
+               key: issue.id,
+               label: issue.description,
+               children: (
+                  <Card>
+                     {issue.issueSpareParts.map((part: any) => (
+                        <Card
+                           key={part.id}
+                           type="inner"
+                           title={part.sparePart.name}
+                        >
+                           <p>{t('Qty')}: {part.quantity}</p>
+                           <p>{t('Note')}: {part.note || 'No note available'}</p>
+                           <p>{t('ExpirationDate')}: {dayjs(part.sparePart.expirationDate).format('DD/MM/YYYY')}</p>
+                        </Card>
+                     ))}
+                  </Card>
+               )
+            }))}
          />
          </div>
    )

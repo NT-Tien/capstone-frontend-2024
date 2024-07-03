@@ -32,7 +32,7 @@ export default function StockkeeperNavbar() {
          onClick: () => setCurrentActive("dashboard"),
       },
       {
-         name: t('requestsNav'),
+         name: t('machineModelNav'),
          key: "machine-model",
          icon: <ContainerFilled />,
          onClick: () => setCurrentActive("machine-model"),

@@ -26,6 +26,11 @@ const nextConfig = {
             source: "/staff",
             destination: "/staff/dashboard",
             permanent: true
+         },
+         {
+            source: "/stockkeeper",
+            destination: "/stockkeeper/dashboard",
+            permanent: true
          }
       ]
    },

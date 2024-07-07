@@ -1,5 +1,5 @@
 export default {
-    Dashboard: 'Dashboard',
+    Dashboard: 'Home',
     requestsNav: 'Requests',
     tasksNav: 'Tasks',
     Profile: 'Settings',
@@ -66,4 +66,10 @@ export default {
     CreateIssueReport: 'Create Issue Report',
     failedCreateReport: 'Failed to create issue report',
     createReportIssueSuccess: 'Issue report created successfully',
+    machineModelNav: 'Warehouse',
+    Name: 'Name',
+    dateOfReceipt: 'Date of Receipt',
+    warrantyTerm: 'Warranty Term',
+    ExpirationDate: 'Expiration Date',
+    Note: 'Note',
 }

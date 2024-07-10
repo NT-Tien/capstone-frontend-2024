@@ -2,7 +2,7 @@ import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
 import { parseApiResponse } from "@/common/util/parseApiResponse.util"
-import { IssueRequestDto } from "@/common/dto/IssueRequest.dto"
+import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 
 export type Request = {
    id: string
@@ -11,7 +11,7 @@ export type Request = {
       checker_note: string
    }
 }
-export type Response = IssueRequestDto
+export type Response = FixRequestDto
 
 HeadStaff_Request_UpdateStatus.URL = (req: Request) => `/head-staff/request/${req.id}/{status}`
 export default async function HeadStaff_Request_UpdateStatus(req: Request): Promise<Response> {

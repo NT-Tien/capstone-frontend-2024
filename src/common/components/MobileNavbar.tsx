@@ -2,6 +2,7 @@
 
 import { cloneElement, ReactElement } from "react"
 import { Badge } from "antd"
+import { cn } from "@/common/util/cn.util"
 
 export type NavbarMenuItem = {
    key: string
@@ -18,7 +19,7 @@ export type MobileNavbarProps = {
 
 export default function MobileNavbar(props: MobileNavbarProps) {
    return (
-      <div className="fixed bottom-0 left-0 flex h-24 w-full justify-evenly bg-[#F3EDF7] pb-2">
+      <div className="fixed bottom-0 left-0 flex h-max w-full justify-between gap-2 border-t-2 border-t-slate-100 bg-white px-2">
          {props.items.map((item) => (
             <NavbarItem
                key={item.key}
@@ -44,30 +45,39 @@ export type NavbarItemProps = {
 function NavbarItem({ name, icon, active = false, countBadge = 0, onClick }: NavbarItemProps) {
    const displayIcon = cloneElement(icon, {
       style: {
-         fontSize: "1.07rem",
-         color: "#49454F",
+         fontSize: "18px",
+         color: active ? "var(--primary-700)" : "#49454F",
+         opacity: active ? 1 : 0.7,
       },
    })
 
    return (
       <div
-         className="flex aspect-square h-full flex-col items-center justify-center gap-[2px] px-2"
+         className="flex h-full w-full flex-col items-center justify-center gap-2 pb-5 pt-4"
          style={{
             cursor: onClick ? "pointer" : "default",
          }}
          onClick={onClick}
       >
          <div
-            className="relative grid w-full place-items-center rounded-full py-[6px] transition-all"
-            style={{
-               backgroundColor: active ? "#E8DEF8" : "transparent",
-            }}
+            className={cn(
+               "relative grid w-16 place-items-center self-center rounded-full px-5 py-1 text-center transition-all",
+               active ? "bg-primary-300" : "bg-transparent",
+            )}
          >
             <Badge count={countBadge} size="small">
                {displayIcon}
             </Badge>
          </div>
-         <span className="text-[13px] font-semibold text-[#49454F]">{name}</span>
+         <span
+            className={cn(
+               "text-[14px] font-[600] leading-[16px] tracking-[0.15px] text-[#49454F]",
+               active === false && "opacity-70",
+               active === true && "text-primary-500",
+            )}
+         >
+            {name}
+         </span>
       </div>
    )
 }

@@ -13,15 +13,31 @@ import I18NProvider from "@/common/providers/i18n.provider"
 export default function GlobalProvider({ children }: Readonly<{ children: ReactNode }>) {
    const queryClient = makeQueryClient()
 
+   const primaryColor: string = "#3c6cf5"
+
    return (
       <QueryClientProvider client={queryClient}>
          {/* This avoids TailwindCSS weird bugs, flashes, and missing utilities */}
          <AntdRegistry>
             <App className="h-full">
                {/* Config for Ant Design Pro-components (Set language to ENGLISH - packaged default is Chinese)*/}
-               <ProConfigProvider intl={enUSIntl}>
+               <ProConfigProvider
+                  intl={enUSIntl}
+                  token={{
+                     colorPrimary: primaryColor,
+                     colorInfo: primaryColor,
+                  }}
+               >
                   {/* Config for Ant Design (Set language to ENGLISH) */}
-                  <ConfigProvider locale={en_US}>
+                  <ConfigProvider
+                     locale={en_US}
+                     theme={{
+                        token: {
+                           colorPrimary: primaryColor,
+                           colorInfo: primaryColor,
+                        },
+                     }}
+                  >
                      <I18NProvider>{children}</I18NProvider>
                   </ConfigProvider>
                </ProConfigProvider>
@@ -29,7 +45,7 @@ export default function GlobalProvider({ children }: Readonly<{ children: ReactN
          </AntdRegistry>
 
          {/* React Query Devtools */}
-         <ReactQueryDevtools buttonPosition={"bottom-left"} />
+         <ReactQueryDevtools buttonPosition={"top-right"} />
       </QueryClientProvider>
    )
 }

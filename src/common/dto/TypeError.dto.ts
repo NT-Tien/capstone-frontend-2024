@@ -6,5 +6,4 @@ export type TypeErrorDto = {
    name: string
    duration: number
    description: string
-   count: number
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
-import { App, Button, Card, Checkbox, List, Spin, Tabs, Tag, Tooltip, Typography } from "antd"
+import { App, Button, Card, Checkbox, Form, List, Spin, Tabs, Tag, Tooltip, Typography, Upload } from "antd"
 import { CSSProperties, useEffect, useMemo, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import staff_qk from "@/app/staff/_api/qk"
@@ -9,16 +9,22 @@ import Staff_Task_OneById from "@/app/staff/_api/task/one-byId.api"
 import BottomBar from "@/common/components/BottomBar"
 import { useRouter } from "next/navigation"
 import { CheckCard } from "@ant-design/pro-card"
-import { TaskIssueDto } from "@/common/dto/TaskIssue.dto"
+import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 import { cn } from "@/common/util/cn.util"
 import Staff_Task_ReceiveSpareParts from "@/app/staff/_api/task/receive-spare-parts.api"
-import { ProDescriptions } from "@ant-design/pro-components"
+import { ProDescriptions, ProFormTextArea } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 import { TaskDto } from "@/common/dto/Task.dto"
 import ProList from "@ant-design/pro-list/lib"
-import { RightOutlined } from "@ant-design/icons"
+import { HomeOutlined, RightOutlined } from "@ant-design/icons"
 import IssueDetailsDrawer from "@/app/staff/_components/IssueDetails.drawer"
 import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
+import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
+import ImageWithCrop from "@/common/components/ImageWithCrop"
+import { File_Upload } from "@/_api/file/upload_image.api"
+import { clientEnv } from "@/env"
+import { RcFile } from "antd/es/upload"
+import checkImageUrl from "@/common/util/checkImageUrl.util"
 
 export default function StartTask({ params }: { params: { id: string } }) {
    const [currentStep, setCurrentStep] = useState<number>(-1)
@@ -40,19 +46,8 @@ export default function StartTask({ params }: { params: { id: string } }) {
    }, [response.data, response.isSuccess])
 
    return (
-      <div
-         style={{
-            display: "grid",
-            gridTemplateColumns: "[outer-start] 16px [inner-start] 1fr [inner-end] 16px [outer-end]",
-         }}
-      >
-         <RootHeader
-            title="Start Task"
-            className="p-4"
-            style={{
-               gridColumn: "outer-start / outer-end",
-            }}
-         />
+      <div className="std-layout">
+         <RootHeader title="Start Task" className="std-layout-outer p-4" />
          {currentStep === -1 && <Spin fullscreen={true} />}
          {currentStep === 0 && (
             <Step1
@@ -60,10 +55,6 @@ export default function StartTask({ params }: { params: { id: string } }) {
                id={params.id}
                handleBack={() => router.push("/staff/tasks")}
                handleNext={() => setCurrentStep((prev) => prev + 1)}
-               className="mt-4"
-               style={{
-                  gridColumn: "inner-start / inner-end",
-               }}
                confirmReceipt={response.data?.confirmReceipt ?? false}
             />
          )}
@@ -71,21 +62,12 @@ export default function StartTask({ params }: { params: { id: string } }) {
             <Step2
                handleBack={() => setCurrentStep((prev) => prev - 1)}
                handleNext={() => setCurrentStep((prev) => prev + 1)}
-               style={{
-                  gridColumn: "inner-start / inner-end",
-               }}
                data={response.data}
                loading={response.isLoading}
                id={params.id}
             />
          )}
-         {currentStep === 2 && (
-            <Step3
-               style={{
-                  gridColumn: "inner-start / inner-end",
-               }}
-            />
-         )}
+         {currentStep === 2 && <Step3 handleBack={() => setCurrentStep((prev) => prev - 1)} />}
       </div>
    )
 }
@@ -98,7 +80,7 @@ type GeneralProps = {
 }
 
 type Step1Props = GeneralProps & {
-   data: TaskIssueDto[]
+   data: FixRequestIssueDto[]
    id: string
    confirmReceipt: boolean
 }
@@ -222,7 +204,7 @@ function Step1(props: Step1Props) {
                )}
             />
          ))}
-         <BottomBar className="flex items-center justify-between gap-4">
+         <div className="fixed bottom-0 left-0 flex items-center justify-between gap-4 bg-white p-layout">
             <Button size="large" onClick={props.handleBack} type="dashed">
                Back
             </Button>
@@ -248,7 +230,7 @@ function Step1(props: Step1Props) {
                   Next
                </Button>
             </Tooltip>
-         </BottomBar>
+         </div>
       </div>
    )
 }
@@ -261,6 +243,7 @@ type Step2Props = GeneralProps & {
 
 function Step2(props: Step2Props) {
    const queryClient = useQueryClient()
+   const router = useRouter()
 
    if (!props.data) {
       return <div style={props.style}>Loading...</div>
@@ -269,20 +252,13 @@ function Step2(props: Step2Props) {
    return (
       <>
          <Tabs
-            style={{
-               gridColumn: "outer-start / outer-end",
-            }}
-            tabBarStyle={{
-               display: "flex",
-               justifyContent: "space-between",
-               background: "#fef7ff",
-            }}
+            className="std-layout-outer main-tabs"
             items={[
                {
                   key: "1",
                   label: "Task Details",
                   children: (
-                     <div className="px-4">
+                     <div>
                         <ProDescriptions
                            column={1}
                            loading={props.loading}
@@ -316,40 +292,7 @@ function Step2(props: Step2Props) {
                               },
                            ]}
                         />
-                        <Card title={"Current Device"} size="small" className="mt-3">
-                           <ProDescriptions
-                              size="small"
-                              dataSource={props.data?.device}
-                              loading={props.loading}
-                              columns={[
-                                 {
-                                    key: "device-3",
-                                    label: "Machine Model",
-                                    render: (_, e) => e.machineModel.name,
-                                 },
-                                 {
-                                    key: "device-1",
-                                    label: "Device Description",
-                                    render: (_, e) => e.description,
-                                 },
-                                 {
-                                    key: "device-2",
-                                    label: "Area",
-                                    render: (_, e) => `${e.area.name}`,
-                                 },
-                                 {
-                                    key: "device-5",
-                                    label: "Position",
-                                    render: (_, e) => `${e.positionX}:${e.positionY}`,
-                                 },
-                                 {
-                                    key: "device-4",
-                                    label: "Manufacturer",
-                                    render: (_, e) => e.machineModel.manufacturer,
-                                 },
-                              ]}
-                           />
-                        </Card>
+                        <DeviceDetailsCard device={props.data?.device} className="mt-2" />
                      </div>
                   ),
                },
@@ -357,7 +300,7 @@ function Step2(props: Step2Props) {
                   key: "2",
                   label: "Issues",
                   children: (
-                     <div className="px-4 pt-1">
+                     <div className="pt-1">
                         <IssueDetailsDrawer
                            afterSuccess={() => {
                               queryClient
@@ -369,7 +312,9 @@ function Step2(props: Step2Props) {
                         >
                            {(handleOpen) => (
                               <List
-                                 dataSource={props.data?.issues}
+                                 dataSource={props.data?.issues.sort((a, b) =>
+                                    a.status === b.status ? 0 : a.status === IssueStatusEnum.PENDING ? -1 : 1,
+                                 )}
                                  split={false}
                                  renderItem={(item) => (
                                     <Card
@@ -403,30 +348,170 @@ function Step2(props: Step2Props) {
                },
             ]}
          />
-         <div style={props.style}>
-            <BottomBar className="flex items-center justify-between gap-4">
-               <Button size="large" onClick={props.handleBack} type="dashed">
-                  Back
-               </Button>
-               <Button
-                  size="large"
-                  type="primary"
-                  className="w-full"
-                  disabled={!props.data.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
-                  onClick={() => {
-                     props.handleNext?.()
-                  }}
-               >
-                  Next
-               </Button>
-            </BottomBar>
+         <div className="fixed bottom-0 left-0 flex w-full gap-3 bg-white p-layout">
+            <Button
+               icon={<HomeOutlined />}
+               size="large"
+               className="aspect-square w-16"
+               onClick={() => {
+                  router.push("/staff/dashboard")
+               }}
+            />
+            <Button
+               size="large"
+               type="primary"
+               className="w-full"
+               disabled={!props.data.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
+               onClick={() => {
+                  props.handleNext?.()
+               }}
+            >
+               Next
+            </Button>
          </div>
       </>
    )
 }
 
+type SubmitFieldType = {
+   fixerNote: string
+   imagesVerify: string[]
+   videosVerify: string
+}
+
 type Step3Props = GeneralProps & {}
 
 function Step3(props: Step3Props) {
-   return <div style={props.style}>Step 3</div>
+   const router = useRouter()
+   const [loadingImage, setLoadingImage] = useState(false)
+   const { message } = App.useApp()
+   const [form] = Form.useForm<SubmitFieldType>()
+
+   return (
+      <div style={props.style}>
+         <Card size="small" className="mt-layout">
+            You have successfully fixed all issues in this task. Please take photo and video proof of the fix to
+            finalize the task!
+         </Card>
+         <Form form={form} className="mt-3">
+            <Form.Item<SubmitFieldType> name="imagesVerify" label="Verification Images">
+               <ImageWithCrop
+                  name="image"
+                  action={clientEnv.BACKEND_URL + File_Upload.URL}
+                  accept=".jpg,.jpeg,.png,.gif,.bmp,.svg,.webp"
+                  customRequest={async (props) => {
+                     const file = props.file as RcFile
+                     const response = await File_Upload({ file })
+                     if (response.status === 201) props.onSuccess?.(response.data.path)
+                     else props.onError?.(new Error("Failed to upload file."), response)
+                  }}
+                  showUploadList={true}
+                  listType="picture"
+                  multiple={false}
+                  maxCount={1}
+                  method="POST"
+                  isImageUrl={checkImageUrl}
+                  className="w-full"
+                  onChange={(info) => {
+                     setLoadingImage(false)
+                     if (info.file.status === "done") {
+                        form.setFieldsValue({ imagesVerify: [info.file.response.path] })
+                     }
+                     if (info.file.status === "uploading") {
+                        setLoadingImage(true)
+                     }
+                     if (info.file.status === "error") {
+                        message.error("Failed to upload image")
+                     }
+                     if (info.file.status === "removed") {
+                        form.setFieldsValue({ imagesVerify: [] })
+                        message.success("Image removed")
+                     }
+                  }}
+               >
+                  <div className="flex flex-col items-center justify-center">
+                     <Typography.Title level={5}>Click here</Typography.Title>
+                     <p>Please upload an image.</p>
+                  </div>
+               </ImageWithCrop>
+            </Form.Item>
+            <Form.Item<SubmitFieldType> name="videosVerify" label="Verification Video">
+               <Upload.Dragger
+                  action={clientEnv.BACKEND_URL + File_Upload.URL}
+                  accept=".jpg,.jpeg,.png,.gif,.bmp,.svg,.webp"
+                  customRequest={async (props) => {
+                     const file = props.file as RcFile
+                     const response = await File_Upload({ file })
+                     if (response.status === 201) props.onSuccess?.(response.data.path)
+                     else props.onError?.(new Error("Failed to upload file."), response)
+                  }}
+                  showUploadList={true}
+                  listType="picture"
+                  multiple={false}
+                  maxCount={1}
+                  method="POST"
+                  isImageUrl={checkImageUrl}
+                  className="w-full"
+                  onChange={(info) => {
+                     setLoadingImage(false)
+                     if (info.file.status === "done") {
+                        form.setFieldsValue({ imagesVerify: [info.file.response.path] })
+                     }
+                     if (info.file.status === "uploading") {
+                        setLoadingImage(true)
+                     }
+                     if (info.file.status === "error") {
+                        message.error("Failed to upload image")
+                     }
+                     if (info.file.status === "removed") {
+                        form.setFieldsValue({ imagesVerify: [] })
+                        message.success("Image removed")
+                     }
+                  }}
+               >
+                  <div className="flex flex-col items-center justify-center">
+                     <Typography.Title level={5}>Click here</Typography.Title>
+                     <p>Please upload a video.</p>
+                  </div>
+               </Upload.Dragger>
+            </Form.Item>
+            <ProFormTextArea
+               label="Notes"
+               name="fixerNote"
+               fieldProps={{
+                  placeholder: "Add some notes about the fix",
+               }}
+            />
+         </Form>
+         <div className="fixed bottom-0 left-0 flex w-full gap-3 bg-white p-layout">
+            <Button
+               icon={<HomeOutlined />}
+               size="large"
+               className="aspect-square w-16"
+               onClick={() => {
+                  router.push("/staff/dashboard")
+               }}
+            />
+            <Button
+               size="large"
+               className="w-52"
+               onClick={() => {
+                  props.handleBack?.()
+               }}
+            >
+               Back
+            </Button>
+            <Button
+               size="large"
+               type="primary"
+               className="w-full"
+               onClick={() => {
+                  props.handleNext?.()
+               }}
+            >
+               Finish Task
+            </Button>
+         </div>
+      </div>
+   )
 }

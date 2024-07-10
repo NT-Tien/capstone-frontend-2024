@@ -2,17 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
-    height: 100%;
+:root {
+    /*    Primary */
+    --primary-50: #eff4ff;
+    --primary-100: #dbe6fe;
+    --primary-200: #bfd4fe;
+    --primary-300: #93b9fd;
+    --primary-400: #6193f9;
+    --primary-500: #3c6cf5;
+    --primary-600: #2f54eb;
+    --primary-700: #1e38d7;
+    --primary-800: #1f2fae;
+    --primary-900: #1e2d8a;
+    --primary-950: #171e54;
+    --std-layout-padding: 20px;
 }
 
-.ant-tabs-nav-list {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
+html, body {
+    height: 100%;
+    @apply bg-gray-100;
 }
-.ant-tabs-tab {
-    width: 50%;
-    justify-content: center;
+
+.select-pill > .ant-select-selector {
+    border-radius: 20px !important;
 }
+
+.std-layout {
+    display: grid;
+    grid-template-columns: [outer-start] var(--std-layout-padding) [inner-start] 1fr [inner-end] var(--std-layout-padding) [outer-end];
+
+    & > * {
+        grid-column: inner-start / inner-end;
+    }
+
+    & > .std-layout-outer {
+        grid-column: outer-start / outer-end;
+    }
+
+    & > .std-layout-inner {
+        grid-column: inner-start / inner-end;
+    }
+
+    & > .std-layout-grow {
+        grid-row: span 100;
+    }
+}
+
+.main-tabs {
+    .ant-tabs-nav {
+        width: 100% !important;
+        background: white;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 var(--std-layout-padding);
+    }
+
+    .ant-tabs-tab {
+        display: flex;
+        justify-content: center;
+        flex: 1;
+        text-align: center;
+    }
+
+    .ant-tabs-nav > div:nth-of-type(1) {
+        display: unset !important;
+        width: 100% !important;
+    }
+
+    .ant-tabs-content-holder {
+        padding: 0 var(--std-layout-padding);
+    }
+}
+

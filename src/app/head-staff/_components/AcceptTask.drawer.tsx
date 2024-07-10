@@ -1,24 +1,27 @@
-import { ReactNode, useState } from "react"
+import { ReactNode, useMemo, useState } from "react"
 import { App, Button, Card, Drawer, Form, Switch } from "antd"
 import { ProFormDigit, ProFormText } from "@ant-design/pro-components"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import HeadStaff_Task_Create, { Request as CreateRequest } from "@/app/head-staff/_api/task/create.api"
 import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
-import { UploadOutlined } from "@ant-design/icons"
+import { PlusOutlined, UploadOutlined } from "@ant-design/icons"
 import qk from "@/common/querykeys"
 import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
 import { useRouter } from "next/navigation"
+import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
+import { TaskDto } from "@/common/dto/Task.dto"
 
 type FieldType = {
    name: string
    operator: number
-   totalTime: number
 }
 
 export default function AcceptTaskDrawer({
    children,
+   onSuccess,
 }: {
    children: (handleOpen: (requestId: string) => void) => ReactNode
+   onSuccess?: (task: TaskDto) => void
 }) {
    const [open, setOpen] = useState(false)
    const [id, setId] = useState<undefined | string>()
@@ -27,6 +30,12 @@ export default function AcceptTaskDrawer({
    const { message } = App.useApp()
    const queryClient = useQueryClient()
    const router = useRouter()
+
+   const request = useQuery({
+      queryKey: qk.issueRequests.byId(id ?? ""),
+      queryFn: () => HeadStaff_Request_OneById({ id: id ?? "" }),
+      enabled: !!id,
+   })
 
    const mutate_acceptReport = useMutation({
       mutationFn: async (req: CreateRequest) => {
@@ -77,8 +86,14 @@ export default function AcceptTaskDrawer({
       mutationFn: HeadStaff_Request_UpdateStatus,
    })
 
+   const totalTime = useMemo(() => {
+      if (!request.isSuccess) return null
+
+      return request.data.issues.reduce((acc, curr) => acc + curr.typeError.duration, 0)
+   }, [request.isSuccess, request.data])
+
    function handleFinish(values: FieldType) {
-      if (!id) return
+      if (!id || !totalTime) return
 
       mutate_acceptReport.mutate(
          {
@@ -86,11 +101,12 @@ export default function AcceptTaskDrawer({
             priority: isPriority,
             operator: values.operator,
             request: id,
-            totalTime: values.totalTime,
+            totalTime: totalTime,
          },
          {
-            onSuccess: () => {
+            onSuccess: (response) => {
                handleClose()
+               onSuccess?.(response)
             },
          },
       )
@@ -125,17 +141,26 @@ export default function AcceptTaskDrawer({
             </Card>
             <Form form={form} onFinish={handleFinish}>
                <ProFormText
+                  extra={
+                     request.isSuccess && (
+                        <Button
+                           type="link"
+                           icon={<PlusOutlined />}
+                           onClick={() => {
+                              form.setFieldsValue({
+                                 name: `${request.data.device.machineModel.name}-${request.data.device.area.name}-${request.data.device.positionX}-${request.data.device.positionY}`,
+                              })
+                           }}
+                        >
+                           Generate Task Name
+                        </Button>
+                     )
+                  }
+                  allowClear
                   name="name"
                   rules={[{ required: true }]}
                   label={"Task Name"}
                   fieldProps={{ size: "large" }}
-               />
-               <ProFormDigit
-                  name="totalTime"
-                  label="Time to Complete Request (minutes)"
-                  rules={[{ required: true }]}
-                  fieldProps={{ size: "large" }}
-                  initialValue={0}
                />
                <div className="flex gap-6">
                   <ProFormDigit
@@ -145,7 +170,7 @@ export default function AcceptTaskDrawer({
                      fieldProps={{ size: "large" }}
                      initialValue={0}
                   />
-                  <Form.Item label="How important is this issue?">
+                  <Form.Item label="Task Priority">
                      <Switch
                         checked={isPriority}
                         onChange={(e) => setIsPriority(e)}
@@ -156,16 +181,22 @@ export default function AcceptTaskDrawer({
                   </Form.Item>
                </div>
             </Form>
-            <Button
-               className="w-full"
-               type="primary"
-               size="large"
-               loading={mutate_acceptReport.isPending}
-               icon={<UploadOutlined />}
-               onClick={() => form.submit()}
-            >
-               Submit
-            </Button>
+            <div>
+               <div className="mb-2 flex justify-end gap-2">
+                  <span className="font-semibold text-gray-500">Estimated time to complete:</span>
+                  <span>{totalTime ?? "-"} minutes</span>
+               </div>
+               <Button
+                  className="w-full"
+                  type="primary"
+                  size="large"
+                  loading={mutate_acceptReport.isPending}
+                  icon={<UploadOutlined />}
+                  onClick={() => form.submit()}
+               >
+                  Approve Request
+               </Button>
+            </div>
          </Drawer>
       </>
    )

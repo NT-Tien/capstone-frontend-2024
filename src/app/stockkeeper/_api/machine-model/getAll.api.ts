@@ -7,20 +7,13 @@ export type Request = {
    page: number
    limit: number
 }
-export type Response = {
-   list: MachineModelDto[]
-   total: number
-}
+export type Response = MachineModelDto[]
 
 Stockkeeper_MachineModel_All.URL = (req: Request) => `/stockkeeper/machine-model/${req.page}/${req.limit}`
 export default async function Stockkeeper_MachineModel_All(req: Request): Promise<Response> {
    return api
       .get<Response>(Stockkeeper_MachineModel_All.URL(req), {
-         transformResponse: (data) =>
-            parseApiResponse<any>(data, (res) => ({
-               list: res.data[0],
-               total: res.data[1],
-            })),
+         transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,
          },

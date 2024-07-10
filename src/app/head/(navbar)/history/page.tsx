@@ -3,76 +3,80 @@
 import RootHeader from "@/common/components/RootHeader"
 import { ClockCircleOutlined, RightOutlined } from "@ant-design/icons"
 import { Button, Card, Empty, Flex, Tabs, Typography } from "antd"
-import React from "react"
+import React, { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
-import { IssueRequestDto } from "@/common/dto/IssueRequest.dto"
+import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import Head_Request_All from "@/app/head/_api/request/all.api"
 import { useTranslation } from "react-i18next"
+import head_qk from "@/app/head/_api/qk"
+import ReportCard from "@/app/head/_components/ReportCard"
+import extended_dayjs from "@/config/dayjs.config"
 
-export default function HistoryPage() {
+export default function RequestsPage() {
    const results = useQuery({
-      queryKey: qk.issueRequests.allRaw(),
+      queryKey: head_qk.requests.all(),
       queryFn: () => Head_Request_All(),
    })
    const { t } = useTranslation()
+
+   const datasets = useMemo(() => {
+      const result: {
+         PENDING: FixRequestDto[]
+         APPROVED: FixRequestDto[]
+         REJECTED: FixRequestDto[]
+      } = {
+         PENDING: [],
+         APPROVED: [],
+         REJECTED: [],
+      }
+
+      if (!results.isSuccess) return result
+
+      results.data.forEach((req) => {
+         result[req.status].push(req)
+      })
+
+      return result
+   }, [results.isSuccess, results.data])
+
    return (
-      <div
-         style={{
-            display: "grid",
-            gridTemplateColumns: "[outer-start] 16px [inner-start] 1fr [inner-end] 16px [outer-end] 0",
-         }}
-      >
-         <RootHeader
-            title="History"
-            className="p-4"
-            icon={<ClockCircleOutlined />}
-            style={{
-               gridColumn: "outer-start / outer-end",
-            }}
-         />
+      <div className="std-layout">
+         <RootHeader title={t("MyRequests")} className="std-layout-outer p-4" icon={<ClockCircleOutlined />} />
          <Tabs
-            style={{
-               gridColumn: "inner-start / inner-end",
-            }}
-            rootClassName="mt-4"
-            type="card"
+            rootClassName="std-layout-outer"
+            className="main-tabs"
+            type="line"
             items={[
                {
-                  key: "pending",
-                  label: t('pending'),
-                  children: (
-                     <IssueList
-                        statusName="pending"
-                        isLoading={results.isLoading}
-                        data={results.data?.filter((req) => req.status === IssueRequestStatus.PENDING) || []}
-                     />
+                  key: "tab-pending",
+                  label: (
+                     <div>
+                        {t("pending")} <span className="text-sm text-gray-600">({datasets.PENDING.length})</span>
+                     </div>
                   ),
+                  children: <IssueList statusName="pending" isLoading={results.isLoading} data={datasets.PENDING} />,
                },
                {
-                  key: "completed",
-                  label: t('Completed'),
-                  children: (
-                     <IssueList
-                        statusName="completed"
-                        isLoading={results.isLoading}
-                        data={results.data?.filter((req) => req.status === IssueRequestStatus.APPROVED) || []}
-                     />
+                  key: "tab-completed",
+                  label: (
+                     <div>
+                        {t("Completed")} <span className="text-sm text-gray-600">({datasets.APPROVED.length})</span>
+                     </div>
                   ),
+                  children: <IssueList statusName="completed" isLoading={results.isLoading} data={datasets.APPROVED} />,
                },
                {
-                  key: "rejected",
-                  label: t('rejected'),
-                  children: (
-                     <IssueList
-                        statusName="rejected"
-                        isLoading={results.isLoading}
-                        data={results.data?.filter((req) => req.status === IssueRequestStatus.REJECTED) || []}
-                     />
+                  key: "tab-rejected",
+                  label: (
+                     <div>
+                        {t("rejected")} <span className="text-sm text-gray-600">({datasets.REJECTED.length})</span>
+                     </div>
                   ),
+                  children: <IssueList statusName="rejected" isLoading={results.isLoading} data={datasets.REJECTED} />,
                },
             ]}
          />
@@ -83,7 +87,7 @@ export default function HistoryPage() {
 type IssueListProps =
    | {
         statusName: string
-        data: IssueRequestDto[]
+        data: FixRequestDto[]
         isLoading: false | boolean
      }
    | {
@@ -96,7 +100,7 @@ function IssueList({ data, isLoading, statusName }: IssueListProps) {
    const router = useRouter()
 
    return (
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-1 gap-2">
          {isLoading && <Card loading />}
          {!isLoading && (
             <>
@@ -107,30 +111,16 @@ function IssueList({ data, isLoading, statusName }: IssueListProps) {
                )}
                {data.length > 0 &&
                   data.map((req) => (
-                     <Card
+                     <ReportCard
                         key={req.id}
-                        size="small"
-                        title={req.device.description}
-                        bordered={true}
-                        hoverable
-                        type="inner"
-                        classNames={{
-                           header: "bg-[#FEF7FF]",
-                        }}
-                        onClick={() => router.push(`/head/history/${req.id}`)}
-                        extra={
-                           <div className="flex items-center gap-1">
-                              <Button type="text" size="small" ghost icon={<RightOutlined />} />
-                           </div>
-                        }
-                     >
-                        <Flex justify="space-between" align="center">
-                           <Typography.Text ellipsis={true}>{req.requester_note}</Typography.Text>
-                           <Typography.Text className="text-xs">
-                              {dayjs(req.createdAt).format("DD/MM/YYYY")}
-                           </Typography.Text>
-                        </Flex>
-                     </Card>
+                        id={req.id}
+                        positionX={req.device.positionX}
+                        positionY={req.device.positionY}
+                        area={req.device.area.name}
+                        machineModelName={req.device.machineModel.name}
+                        createdDate={extended_dayjs(req.createdAt).fromNow()}
+                        onClick={(id: string) => router.push(`/head/history/${id}`)}
+                     />
                   ))}
             </>
          )}

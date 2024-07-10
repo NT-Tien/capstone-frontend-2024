@@ -1,9 +1,9 @@
 import { TypeErrorDto } from "@/common/dto/TypeError.dto"
 import { SparePartDto } from "@/common/dto/SparePart.dto"
-import { IssueSparePartDto } from "@/common/dto/IssueSparePart.dto"
+import { FixRequestIssueSparePartDto } from "@/common/dto/FixRequestIssueSparePart.dto"
 import { FixType } from "../enum/fix-type.enum"
 
-export type TaskIssueDto = {
+export type FixRequestIssueDto = {
    description: string
    fixType: FixType
    status: string
@@ -12,5 +12,5 @@ export type TaskIssueDto = {
    createdAt: string
    updatedAt: string
    typeError: TypeErrorDto
-   issueSpareParts: IssueSparePartDto[]
+   issueSpareParts: FixRequestIssueSparePartDto[]
 }

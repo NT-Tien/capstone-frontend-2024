@@ -3,13 +3,13 @@ import { parseApiResponse } from "@/common/util/parseApiResponse.util"
 import Cookies from "js-cookie"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
-import { TaskIssueDto } from "@/common/dto/TaskIssue.dto"
+import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 
 export type Request = {
    id: string
    status: IssueStatusEnum
 }
-export type Response = TaskIssueDto
+export type Response = FixRequestIssueDto
 
 Staff_Task_UpdateIssueStatus.URL = (req: Request) => `/staff/task/issue/${req.id}/${req.status}`
 export default async function Staff_Task_UpdateIssueStatus(req: Request): Promise<Response> {

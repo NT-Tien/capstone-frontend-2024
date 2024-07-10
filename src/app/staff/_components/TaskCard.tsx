@@ -40,7 +40,7 @@ export default function TaskCard(props: Props) {
                className={props.priority ? "bg-red-500" : "bg-blue-500"}
             />
             <div className="ml-4 flex flex-grow flex-col">
-               <Typography.Title level={5} className="mb-0">
+               <Typography.Title level={5} className="mb-0 w-48" ellipsis={true}>
                   {props.title}
                </Typography.Title>
                <Typography.Text>{props.description}</Typography.Text>

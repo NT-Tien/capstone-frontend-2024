@@ -27,7 +27,7 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
          return issue
       },
    })
-   const { getStatusTranslation } = useIssueRequestStatusTranslation();
+   const { getStatusTranslation } = useIssueRequestStatusTranslation()
 
    const device = useQuery({
       queryKey: qk.devices.one_byId(response.data?.device.id ?? ""),
@@ -36,85 +36,62 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
    })
 
    return (
-      <div
-         style={{
-            display: "grid",
-            gridTemplateColumns: "[outer-start] 16px [inner-start] 1fr [inner-end] 16px [outer-end] 0",
-         }}
-      >
+      <div className="std-layout">
          <RootHeader
             title="History Details"
-            style={{
-               gridColumn: "outer-start / outer-end",
-            }}
-            className="p-4"
-            icon={<LeftOutlined className="text-base" />}
+            className="std-layout-outer p-4"
+            icon={<LeftOutlined />}
             onIconClick={() => router.back()}
             buttonProps={{
                type: "text",
             }}
          />
-         <div
-            className="mt-3 flex items-center justify-between"
-            style={{
-               gridColumn: "inner-start / inner-end",
-            }}
-         >
+         <div className="std-layout-inner mt-3 flex items-center justify-between">
             <Typography.Title level={4} className="mb-0">
-               {t('IssueDetails')}
+               {t("IssueDetails")}
             </Typography.Title>
-            {response.isSuccess ? <IssueRequestStatusTag status={getStatusTranslation(response.data.status)} /> : <Tag>...</Tag>}
+            {response.isSuccess ? (
+               <IssueRequestStatusTag status={getStatusTranslation(response.data.status)} />
+            ) : (
+               <Tag>...</Tag>
+            )}
          </div>
          <ProDescriptions
-            className="mt-2"
+            className="std-layout-inner mt-2"
             dataSource={device.data}
             loading={device.isLoading}
             size="small"
-            style={{
-               gridColumn: "inner-start / inner-end",
-            }}
             columns={[
                {
                   key: "machineModel",
-                  label: t('MachineModel'),
+                  label: t("MachineModel"),
+
                   render: (_, e) => e.machineModel?.name ?? "-",
                },
                {
                   key: "deviceDescription",
-                  label: t('DeviceDescription'),
+                  label: t("DeviceDescription"),
                   render: (_, e) => e.description,
                },
                {
                   key: "devicePosition",
-                  label: t('Position'),
+                  label: t("Position"),
                   render: (_, e) => e.area?.name + ` (${e.positionX} : ${e.positionY})`,
                },
-            ]}
-         />
-         <ProDescriptions
-            style={{
-               gridColumn: "inner-start / inner-end",
-            }}
-            dataSource={response.data}
-            loading={response.isLoading}
-            size="small"
-            columns={[
                {
                   key: "createdAt",
-                  label: t('Created'),
+                  label: t("Created"),
                   render: (_, e) => dayjs(e.createdAt).format("YYYY-MM-DD HH:mm:ss"),
                },
                {
                   key: "updatedAt",
-                  label: t('LastUpdated'),
+                  label: t("LastUpdated"),
                   render: (_, e) => dayjs(e.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
                },
             ]}
          />
          <ProDescriptions
-            style={{
-               gridColumn: "inner-start / inner-end",
-            }}
+            className="std-layout-inner"
             dataSource={response.data}
             loading={response.isLoading}
             size="small"
@@ -122,7 +99,7 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
             columns={[
                {
                   key: "attachedNote",
-                  label: t('RequesterNote'),
+                  label: t("RequesterNote"),
                   render: (_, e) => e.requester_note,
                   span: 2,
                },

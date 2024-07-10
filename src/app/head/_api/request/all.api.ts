@@ -1,9 +1,9 @@
 import api from "@/config/axios.config"
 import { parseApiResponse } from "@/common/util/parseApiResponse.util"
 import Cookies from "js-cookie"
-import { IssueRequestDto } from "@/common/dto/IssueRequest.dto"
+import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 
-export type Response = IssueRequestDto[]
+export type Response = FixRequestDto[]
 
 Head_Request_All.URL = "/head/request"
 export default async function Head_Request_All(): Promise<Response> {

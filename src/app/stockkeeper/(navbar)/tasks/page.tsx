@@ -29,15 +29,10 @@ export default function TasksPage() {
    })
 
    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-         <RootHeader
-            title="Tasks"
-            className="p-4"
-            style={{
-               gridColumn: "outer-start / outer-end",
-            }}
-         />
+      <div className="std-layout">
+         <RootHeader title="Tasks" className="std-layout-outer p-4" />
          <div
+            className="mt-3"
             onChange={(e) => {
                router.push(`/stockkeeper/tasks=${e}`)
             }}

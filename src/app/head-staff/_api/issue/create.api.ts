@@ -1,15 +1,15 @@
 import api from "@/config/axios.config"
 import { parseApiResponse } from "@/common/util/parseApiResponse.util"
 import Cookies from "js-cookie"
-import { TaskIssueDto } from "@/common/dto/TaskIssue.dto"
+import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 
 export type Request = {
-   task: string
+   request: string
    typeError: string
    description: string
    fixType: string
 }
-export type Response = TaskIssueDto
+export type Response = FixRequestIssueDto
 
 HeadStaff_Issue_Create.URL = "/head-staff/issue"
 export default async function HeadStaff_Issue_Create(req: Request): Promise<Response> {

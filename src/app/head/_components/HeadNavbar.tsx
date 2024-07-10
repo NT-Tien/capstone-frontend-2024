@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from "react"
 import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
-import { DashboardFilled, UserOutlined } from "@ant-design/icons"
+import {
+   DashboardFilled,
+   EllipsisOutlined,
+   HistoryOutlined,
+   HomeFilled,
+   MoreOutlined,
+   SearchOutlined,
+   SecurityScanFilled,
+   UserOutlined,
+} from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
 import { ClockCircleOutline, SystemQRcodeOutline } from "antd-mobile-icons"
 import { useTranslation } from "react-i18next"
@@ -11,41 +20,41 @@ export default function HeadNavbar() {
    const current = usePathname()
    const [currentActive, setCurrentActive] = useState<string | undefined>()
    const router = useRouter()
-   const { t } = useTranslation();
+   const { t } = useTranslation()
 
+   function handleClick(path: string) {
+      setCurrentActive(path)
+      router.push(`/head/${path}`)
+   }
 
    useEffect(() => {
       setCurrentActive(current.split("/")[2])
    }, [current])
 
-   useEffect(() => {
-      if (currentActive) router.push(`/head/${currentActive}`)
-   }, [currentActive, router])
-
    const items: NavbarMenuItem[] = [
       {
-         name: t('Dashboard'),
+         name: t("Dashboard"),
          key: "dashboard",
-         icon: <DashboardFilled />,
-         onClick: () => setCurrentActive("dashboard"),
+         icon: <HomeFilled />,
+         onClick: () => handleClick("dashboard"),
       },
       {
-         name: t('Scan'),
+         name: t("Scan"),
          key: "scan",
-         icon: <SystemQRcodeOutline />,
-         onClick: () => setCurrentActive("scan"),
+         icon: <SearchOutlined />,
+         onClick: () => handleClick("scan"),
       },
       {
-         name: t('History'),
+         name: t("MyRequests"),
          key: "history",
-         icon: <ClockCircleOutline />,
-         onClick: () => setCurrentActive("history"),
+         icon: <HistoryOutlined />,
+         onClick: () => handleClick("history"),
       },
       {
-         name: t('Profile'),
+         name: t("Profile"),
          key: "profile",
-         icon: <UserOutlined />,
-         onClick: () => setCurrentActive("profile"),
+         icon: <EllipsisOutlined />,
+         onClick: () => handleClick("profile"),
       },
    ]
 

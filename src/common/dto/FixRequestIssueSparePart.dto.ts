@@ -1,6 +1,6 @@
 import { SparePartDto } from "@/common/dto/SparePart.dto"
 
-export type IssueSparePartDto = {
+export type FixRequestIssueSparePartDto = {
    id: string
    createdAt: string
    updatedAt: string

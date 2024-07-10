@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react"
-import { TaskIssueDto } from "@/common/dto/TaskIssue.dto"
+import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 import { App, Button, Drawer, List, Tag, Typography } from "antd"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { useMutation } from "@tanstack/react-query"
@@ -11,11 +11,11 @@ export default function IssueDetailsDrawer({
    children,
    afterSuccess,
 }: {
-   children: (handleOpen: (issue: TaskIssueDto) => void) => ReactNode
+   children: (handleOpen: (issue: FixRequestIssueDto) => void) => ReactNode
    afterSuccess?: () => void
 }) {
    const [open, setOpen] = useState(false)
-   const [currentIssue, setCurrentIssue] = useState<TaskIssueDto | undefined>(undefined)
+   const [currentIssue, setCurrentIssue] = useState<FixRequestIssueDto | undefined>(undefined)
    const { message } = App.useApp()
 
    const mutate_updateStatus = useMutation({
@@ -44,7 +44,7 @@ export default function IssueDetailsDrawer({
       },
    })
 
-   function handleOpen(issue: TaskIssueDto) {
+   function handleOpen(issue: FixRequestIssueDto) {
       setOpen(true)
       setCurrentIssue(issue)
    }
@@ -89,20 +89,39 @@ export default function IssueDetailsDrawer({
                   )}
                />
             </div>
-            <Button
-               className="mt-6 w-full"
-               size="large"
-               type="primary"
-               onClick={() => {
-                  if (currentIssue)
-                     mutate_updateStatus.mutate({
-                        id: currentIssue.id,
-                        status: IssueStatusEnum.RESOLVED,
-                     })
-               }}
-            >
-               Confirm Finish
-            </Button>
+            {currentIssue?.status === IssueStatusEnum.PENDING && (
+               <Button
+                  className="mt-6 w-full"
+                  size="large"
+                  type="primary"
+                  onClick={() => {
+                     if (currentIssue)
+                        mutate_updateStatus.mutate({
+                           id: currentIssue.id,
+                           status: IssueStatusEnum.RESOLVED,
+                        })
+                  }}
+               >
+                  Confirm Finish
+               </Button>
+            )}
+            {currentIssue?.status === IssueStatusEnum.RESOLVED && (
+               <Button
+                  className="mt-6 w-full"
+                  size="large"
+                  type="primary"
+                  danger
+                  onClick={() => {
+                     if (currentIssue)
+                        mutate_updateStatus.mutate({
+                           id: currentIssue.id,
+                           status: IssueStatusEnum.PENDING,
+                        })
+                  }}
+               >
+                  Undo Finish
+               </Button>
+            )}
          </Drawer>
       </>
    )

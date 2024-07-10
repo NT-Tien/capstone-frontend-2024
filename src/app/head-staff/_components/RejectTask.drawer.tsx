@@ -84,9 +84,10 @@ export default function RejectTaskDrawer({ children }: { children: (handleOpen: 
                size="large"
                type="primary"
                onClick={() => form.submit()}
+               danger
                icon={<UploadOutlined />}
             >
-               Submit
+               Reject Request
             </Button>
          </Drawer>
       </>

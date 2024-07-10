@@ -1,9 +1,9 @@
 import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 import { DeviceDto } from "@/common/dto/Device.dto"
-import { IssueRequestDto } from "@/common/dto/IssueRequest.dto"
+import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { UserDto } from "@/common/dto/User.dto"
-import { TaskIssueDto } from "@/common/dto/TaskIssue.dto"
+import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 
 export type TaskDto = {
    id: string
@@ -21,7 +21,7 @@ export type TaskDto = {
    videosVerify: string
    confirmReceipt: boolean | null
    device: DeviceDto
-   request: IssueRequestDto
+   request: FixRequestDto
    fixer: UserDto
-   issues: TaskIssueDto[]
+   issues: FixRequestIssueDto[]
 }

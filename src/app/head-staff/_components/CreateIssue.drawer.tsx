@@ -8,6 +8,8 @@ import qk from "@/common/querykeys"
 import HeadStaff_Task_OneById from "@/app/head-staff/_api/task/one-byId.api"
 import { ProFormSelect, ProFormTextArea } from "@ant-design/pro-components"
 import HeadStaff_Issue_Create from "@/app/head-staff/_api/issue/create.api"
+import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
+import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
 
 type FieldType = {
    typeError: string
@@ -15,7 +17,10 @@ type FieldType = {
    fixType: FixType
 }
 
-export default function CreateIssueDrawer(props: { children: (handleOpen: (taskId: string) => void) => ReactNode }) {
+export default function CreateIssueDrawer(props: {
+   children: (handleOpen: (requestId: string) => void) => ReactNode
+   onSuccess?: () => void
+}) {
    const [open, setOpen] = useState(false)
    const [id, setId] = useState<undefined | string>(undefined)
    const [form] = Form.useForm<FieldType>()
@@ -23,9 +28,16 @@ export default function CreateIssueDrawer(props: { children: (handleOpen: (taskI
    const queryClient = useQueryClient()
 
    const result = useQuery({
-      queryKey: qk.task.one_byId(id ?? ""),
-      queryFn: () => HeadStaff_Task_OneById({ id: id ?? "" }),
+      queryKey: qk.issueRequests.byId(id ?? ""),
+      queryFn: () => HeadStaff_Request_OneById({ id: id ?? "" }),
       enabled: !!id,
+   })
+
+   // TODO remove
+   const device = useQuery({
+      queryKey: qk.devices.one_byId(result.data?.device.id ?? ""),
+      queryFn: () => HeadStaff_Device_OneById({ id: result.data?.device.id ?? "" }),
+      enabled: result.isSuccess,
    })
 
    const mutate_createIssue = useMutation({
@@ -47,6 +59,7 @@ export default function CreateIssueDrawer(props: { children: (handleOpen: (taskI
          })
          form.resetFields()
          handleClose()
+         props.onSuccess?.()
       },
       onSettled: () => {
          message.destroy("creating-issue")
@@ -54,18 +67,19 @@ export default function CreateIssueDrawer(props: { children: (handleOpen: (taskI
    })
 
    function handleFinish(values: FieldType) {
-      if (!id) return
+      if (!id || !result.isSuccess) return
+
       mutate_createIssue.mutate({
-         task: id,
+         request: result.data.id,
          fixType: values.fixType,
          description: values.description,
          typeError: values.typeError,
       })
    }
 
-   function handleOpen(taskId: string) {
+   function handleOpen(requestId: string) {
       setOpen(true)
-      setId(taskId)
+      setId(requestId)
    }
 
    function handleClose() {
@@ -92,14 +106,14 @@ export default function CreateIssueDrawer(props: { children: (handleOpen: (taskI
                   name="typeError"
                   label="Type Error"
                   rules={[{ required: true }]}
-                  options={result.data?.device.machineModel.typeErrors.map((error) => ({
+                  options={device.data?.machineModel.typeErrors.map((error) => ({
                      label: error.name,
                      value: error.id,
                   }))}
                   showSearch
                />
             </Form>
-            <Button className="w-full" type="primary" onClick={form.submit}>
+            <Button className="w-full" type="primary" onClick={form.submit} size="large">
                Create Issue
             </Button>
          </Drawer>

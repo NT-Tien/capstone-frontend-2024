@@ -30,7 +30,7 @@ export default function StaffTasksPage() {
 
       if (!response.isSuccess) return result
 
-      response.data.forEach((task) => {
+      response.data.reverse().forEach((task) => {
          if (task.status === TaskStatus.IN_PROGRESS) return // ongoing tasks will be shown on top only, not in the list
 
          if (task.priority) {
@@ -63,20 +63,10 @@ export default function StaffTasksPage() {
    return (
       <TaskDetailsDrawer>
          {(handleOpen) => (
-            <div
-               style={{
-                  display: "grid",
-                  gridTemplateColumns: "[outer-start] 16px [inner-start] 1fr [inner-end] 16px [outer-end]",
-               }}
-            >
-               <RootHeader
-                  title="Tasks"
-                  className="p-4"
-                  style={{
-                     gridColumn: "outer-start / outer-end",
-                  }}
-               />
+            <div className="std-layout">
+               <RootHeader title="Tasks" className="std-layout-outer p-4" />
                <Tabs
+                  className="std-layout-outer main-tabs"
                   defaultActiveKey={tab}
                   onTabClick={(key) => {
                      router.push(`/staff/tasks?tab=${key}`)
@@ -84,7 +74,7 @@ export default function StaffTasksPage() {
                   renderTabBar={(props, DefaultTabBar) => (
                      <>
                         {ongoingTask !== null && (
-                           <div className="bg-[#fef7ff] px-4 py-1">
+                           <div className="bg-white px-4 py-1">
                               <TaskCard
                                  title={"Current Task"}
                                  description={ongoingTask.name}
@@ -97,14 +87,6 @@ export default function StaffTasksPage() {
                         <DefaultTabBar {...props} />
                      </>
                   )}
-                  tabBarStyle={{
-                     display: "flex",
-                     justifyContent: "space-between",
-                     background: "#fef7ff",
-                  }}
-                  style={{
-                     gridColumn: "outer-start / outer-end",
-                  }}
                   items={[
                      {
                         key: "all",
@@ -117,7 +99,6 @@ export default function StaffTasksPage() {
                                  enabledTaskId={latestTaskId}
                                  data={tasksInGroups.priority}
                                  loading={response.isLoading}
-                                 className={"px-4"}
                                  showEmpty={false}
                                  onItemClick={handleOpen}
                               />
@@ -127,7 +108,6 @@ export default function StaffTasksPage() {
                                  enabledTaskId={latestTaskId}
                                  data={tasksInGroups.normal}
                                  loading={response.isLoading}
-                                 className={"px-4"}
                                  showEmpty={false}
                                  onItemClick={handleOpen}
                               />
@@ -143,7 +123,6 @@ export default function StaffTasksPage() {
                               enabledTaskId={latestTaskId}
                               loading={response.isLoading}
                               data={tasksInGroups.priority}
-                              className="px-4"
                               emptyText={"You have no priority tasks"}
                               onItemClick={handleOpen}
                            />
@@ -158,7 +137,6 @@ export default function StaffTasksPage() {
                               enabledTaskId={latestTaskId}
                               loading={response.isLoading}
                               data={tasksInGroups.normal}
-                              className="px-4"
                               emptyText={"You have no normal tasks"}
                               onItemClick={handleOpen}
                            />

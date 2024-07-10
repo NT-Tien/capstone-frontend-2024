@@ -1,53 +1,40 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
-import { Card, Collapse, Tabs, Tag } from "antd"
-import ReportCard from "@/app/head-staff/(navbar)/requests/_components/ReportCard"
-import dayjs from "dayjs"
-import { useMemo } from "react"
-import { IssueRequestDto } from "@/common/dto/IssueRequest.dto"
+import { Card, Empty, Tabs } from "antd"
 import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
 import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
 import { useTranslation } from "react-i18next"
-
-type GroupType = {
-   today: IssueRequestDto[]
-   yesterday: IssueRequestDto[]
-   thisWeekRemaining: IssueRequestDto[]
-   lastWeek: IssueRequestDto[]
-   earlier: IssueRequestDto[]
-}
+import ReportCard from "@/app/head/_components/ReportCard"
+import React from "react"
+import { useRouter } from "next/navigation"
+import dayjs from "dayjs"
 
 export default function ReportsPage() {
-   const { t } = useTranslation();
+   const { t } = useTranslation()
 
    return (
-      <div className="overflow-y-auto">
-         <RootHeader
-            title="Reports"
-            style={{
-               padding: "16px",
-            }}
-         />
+      <div className="std-layout overflow-y-auto">
+         <RootHeader title="Requests" className="std-layout-outer p-4" />
          <Tabs
-            type="card"
-            className="mt-4 px-4"
+            type="line"
+            className="main-tabs std-layout-outer"
             items={[
                {
                   key: "pending",
-                  label: t('pending'),
+                  label: t("pending"),
                   children: <ReportsTab status={IssueRequestStatus.PENDING} />,
                },
                {
                   key: "approved",
-                  label: t('approved'),
+                  label: t("approved"),
                   children: <ReportsTab status={IssueRequestStatus.APPROVED} />,
                },
                {
                   key: "rejected",
-                  label: t('rejected'),
+                  label: t("rejected"),
                   children: <ReportsTab status={IssueRequestStatus.REJECTED} />,
                },
             ]}
@@ -61,7 +48,8 @@ type ReportsTabProps = {
 }
 
 function ReportsTab(props: ReportsTabProps) {
-   const { t } = useTranslation();
+   const { t } = useTranslation()
+   const router = useRouter()
    const results = useQuery({
       queryKey: qk.issueRequests.all(1, 50, props.status),
       queryFn: () =>
@@ -71,156 +59,38 @@ function ReportsTab(props: ReportsTabProps) {
             status: props.status,
          }),
    })
-   const groups: GroupType = useMemo(() => {
-      const base: GroupType = {
-         today: [],
-         yesterday: [],
-         thisWeekRemaining: [],
-         lastWeek: [],
-         earlier: [],
-      }
-
-      if (!results.isSuccess) return base
-
-      const today = dayjs().startOf("day")
-      const yesterday = dayjs().subtract(1, "day").startOf("day")
-      const thisWeek = dayjs().startOf("week")
-      const lastWeek = dayjs().subtract(1, "week").startOf("week")
-
-      results.data.list.forEach((req) => {
-         const createdAt = dayjs(req.createdAt)
-
-         if (createdAt.isSame(today, "day")) {
-            base.today.push(req)
-         } else if (createdAt.isSame(yesterday, "day")) {
-            base.yesterday.push(req)
-         } else if (createdAt.isAfter(thisWeek)) {
-            base.thisWeekRemaining.push(req)
-         } else if (createdAt.isAfter(lastWeek)) {
-            base.lastWeek.push(req)
-         } else {
-            base.earlier.push(req)
-         }
-      })
-
-      return base
-   }, [results.data, results.isSuccess])
 
    return (
-      <Card
-         bordered={false}
-         loading={results.isLoading}
-         styles={{
-            body: {
-               padding: results.isLoading ? "16px" : 0,
-            },
-         }}
-      >
-         <Collapse
-            ghost
-            size="middle"
-            bordered={false}
-            defaultActiveKey={groups.today.length > 0 ? ["today"] : undefined}
-            collapsible={groups.today.length > 0 ? undefined : "disabled"}
-            items={[
-               {
-                  key: "today",
-                  label: t('today'),
-                  children: (
-                     <div className="grid grid-cols-1 gap-3">
-                        {groups.today.map((req) => (
-                           <ReportCard key={req.id} issueRequest={req} />
-                        ))}
-                     </div>
-                  ),
-                  extra: <Tag color="default">{groups.today.length} {t('Reports')}</Tag>,
-               },
-            ]}
-         />
-         <Collapse
-            ghost
-            size="middle"
-            bordered={false}
-            className="mt-3"
-            collapsible={groups.yesterday.length > 0 ? undefined : "disabled"}
-            items={[
-               {
-                  key: "yesterday",
-                  label: t('yesterday'),
-                  children: (
-                     <div className="grid grid-cols-1 gap-3">
-                        {groups.yesterday.map((req) => (
-                           <ReportCard key={req.id} issueRequest={req} />
-                        ))}
-                     </div>
-                  ),
-                  extra: <Tag color="default">{groups.yesterday.length} {t('Reports')}</Tag>,
-               },
-            ]}
-         />
-         <Collapse
-            ghost
-            size="middle"
-            bordered={false}
-            className="mt-3"
-            collapsible={groups.thisWeekRemaining.length > 0 ? undefined : "disabled"}
-            items={[
-               {
-                  key: "thisWeekRemaining",
-                  label: t('remainingThisWeek'),
-                  children: (
-                     <div className="grid grid-cols-1 gap-3">
-                        {groups.thisWeekRemaining.map((req) => (
-                           <ReportCard key={req.id} issueRequest={req} />
-                        ))}
-                     </div>
-                  ),
-                  extra: <Tag color="default">{groups.thisWeekRemaining.length} {t('Reports')}</Tag>,
-               },
-            ]}
-         />
-         <Collapse
-            ghost
-            size="middle"
-            bordered={false}
-            className="mt-3"
-            collapsible={groups.lastWeek.length > 0 ? undefined : "disabled"}
-            items={[
-               {
-                  key: "lastWeek",
-                  label: t('lastWeek'),
-                  children: (
-                     <div className="grid grid-cols-1 gap-3">
-                        {groups.lastWeek.map((req) => (
-                           <ReportCard key={req.id} issueRequest={req} />
-                        ))}
-                     </div>
-                  ),
-                  extra: <Tag color="default">{groups.lastWeek.length} {t('Reports')}</Tag>,
-               },
-            ]}
-         />
-         <Collapse
-            ghost
-            size="middle"
-            bordered={false}
-            className="mt-3"
-            collapsible={groups.earlier.length > 0 ? undefined : "disabled"}
-            items={[
-               {
-                  key: "earlier",
-                  label: t('earlier'),
-                  children: (
-                     <div className="grid grid-cols-1 gap-3">
-                        {groups.earlier.map((req) => (
-                           <ReportCard key={req.id} issueRequest={req} />
-                        ))}
-                     </div>
-                  ),
-                  extra: <Tag color="default">{groups.earlier.length} {t('Reports')}</Tag>,
-               },
-            ]}
-         />
-      </Card>
+      <div className="grid grid-cols-1 gap-2">
+         <div className="text-gray-500">
+            {{
+               [IssueRequestStatus.PENDING]: "Sorting by Creation Date (old - new)",
+               [IssueRequestStatus.APPROVED]: "Sorting by Modified Date (new - old)",
+               [IssueRequestStatus.REJECTED]: "Sorting by Modified Date (new - old)",
+            }[props.status] || ""}
+         </div>
+         {results.isSuccess ? (
+            <>
+               {results.data.list.length !== 0 &&
+                  results.data.list.map((req) => (
+                     <ReportCard
+                        key={req.id}
+                        id={req.id}
+                        positionX={req.device.positionX}
+                        positionY={req.device.positionY}
+                        area={req.device.area.name}
+                        machineModelName={req.device?.machineModel?.name ?? "Test Machine"}
+                        createdDate={dayjs(req.createdAt).format("DD/MM/YY - HH:mm")}
+                        onClick={(id: string) => router.push(`/head-staff/requests/${id}`)}
+                     />
+                  ))}
+               {results.data.list.length === 0 && (
+                  <Empty description={t("noData")} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+               )}
+            </>
+         ) : (
+            <>{results.isLoading && <Card loading />}</>
+         )}
+      </div>
    )
 }

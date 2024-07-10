@@ -8,6 +8,7 @@ import dayjs from "dayjs"
 import { ExclamationCircleOutlined, InfoCircleFilled, InfoCircleOutlined, InfoOutlined } from "@ant-design/icons"
 import { useRouter } from "next/navigation"
 import Staff_Task_UpdateStart from "@/app/staff/_api/task/update-start.api"
+import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
 
 export default function TaskDetailsDrawer({
    children,
@@ -19,6 +20,12 @@ export default function TaskDetailsDrawer({
    const [shouldContinue, setShouldContinue] = useState<boolean>(false)
    const router = useRouter()
    const { message } = App.useApp()
+
+   const task = useQuery({
+      queryKey: staff_qk.task.one_byId(taskId ?? ""),
+      queryFn: () => Staff_Task_OneById({ id: taskId ?? "" }),
+      enabled: !!taskId,
+   })
 
    const mutate_startTask = useMutation({
       mutationFn: Staff_Task_UpdateStart,
@@ -38,17 +45,11 @@ export default function TaskDetailsDrawer({
          message.success({
             content: `Task started successfully.`,
          })
-         await response.refetch()
+         await task.refetch()
       },
       onSettled: () => {
          message.destroy(`loading`)
       },
-   })
-
-   const response = useQuery({
-      queryKey: staff_qk.task.one_byId(taskId ?? ""),
-      queryFn: () => Staff_Task_OneById({ id: taskId ?? "" }),
-      enabled: !!taskId,
    })
 
    function handleStartTask() {
@@ -85,17 +86,13 @@ export default function TaskDetailsDrawer({
          <Drawer open={open} onClose={handleClose} placement={"bottom"} height="max-content" title="Task Details">
             <ProDescriptions
                column={1}
-               loading={response.isLoading}
-               title={response.data?.name}
-               dataSource={response.data}
+               loading={task.isLoading}
+               title={task.data?.name}
+               dataSource={task.data}
                size="small"
                extra={
-                  <Tag color={response.data?.priority === true ? "red" : "default"}>
-                     {response.data?.priority === true
-                        ? "Priority"
-                        : response.data?.priority === false
-                          ? "Normal"
-                          : "-"}
+                  <Tag color={task.data?.priority === true ? "red" : "default"}>
+                     {task.data?.priority === true ? "Priority" : task.data?.priority === false ? "Normal" : "-"}
                   </Tag>
                }
                columns={[
@@ -116,40 +113,7 @@ export default function TaskDetailsDrawer({
                   },
                ]}
             />
-            <Card title={"Current Device"} size="small" className="mt-3">
-               <ProDescriptions
-                  size="small"
-                  dataSource={response.data?.device}
-                  loading={response.isLoading}
-                  columns={[
-                     {
-                        key: "device-3",
-                        label: "Machine Model",
-                        render: (_, e) => e.machineModel.name,
-                     },
-                     {
-                        key: "device-1",
-                        label: "Device Description",
-                        render: (_, e) => e.description,
-                     },
-                     {
-                        key: "device-2",
-                        label: "Area",
-                        render: (_, e) => `${e.area.name}`,
-                     },
-                     {
-                        key: "device-5",
-                        label: "Position",
-                        render: (_, e) => `${e.positionX}:${e.positionY}`,
-                     },
-                     {
-                        key: "device-4",
-                        label: "Manufacturer",
-                        render: (_, e) => e.machineModel.manufacturer,
-                     },
-                  ]}
-               />
-            </Card>
+            <DeviceDetailsCard device={task.data?.device} className="mt-2" />
             <Collapse
                className="mt-6"
                size="small"
@@ -165,7 +129,7 @@ export default function TaskDetailsDrawer({
                      headerClass: "text-black text-lg font-semibold",
                      showArrow: false,
                   },
-                  ...(response.data?.issues.map((issue) => ({
+                  ...(task.data?.issues.map((issue) => ({
                      key: issue.id + "_ISSUE",
                      label: issue.typeError.name,
                      children: (

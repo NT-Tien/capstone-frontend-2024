@@ -1,17 +1,20 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
-import { Button, Card, Divider, List, Tabs, Tag } from "antd"
+import { Button, Card, Divider, List, Tabs, Tag, Typography } from "antd"
 import { useRouter, useSearchParams } from "next/navigation"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
 import qk from "@/common/querykeys"
 import { TaskDto } from "@/common/dto/Task.dto"
-import { RightOutlined } from "@ant-design/icons"
+import { RightOutlined, RobotOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 import { useTranslation } from "react-i18next"
+import { cn } from "@/common/util/cn.util"
+import extended_dayjs from "@/config/dayjs.config"
+import { MapPin, Robot } from "@phosphor-icons/react"
 
 export default function TasksPage() {
    const searchParams = useSearchParams()
@@ -31,23 +34,10 @@ export default function TasksPage() {
    })
 
    return (
-      <div
-         style={{
-            display: "grid",
-            gridTemplateColumns: "[outer-start] 16px [inner-start] 1fr [inner-end] 16px [outer-end] 0",
-         }}
-      >
-         <RootHeader
-            title="Tasks"
-            className="p-4"
-            style={{
-               gridColumn: "outer-start / outer-end",
-            }}
-         />
+      <div className="std-layout">
+         <RootHeader title="Tasks" className="std-layout-outer p-4" />
          <Tabs
-            style={{
-               gridColumn: "inner-start / inner-end",
-            }}
+            className="main-tabs std-layout-outer"
             onChange={(e) => {
                router.push(`/head-staff/tasks?status=${e}`)
             }}
@@ -55,7 +45,7 @@ export default function TasksPage() {
             items={[
                {
                   key: TaskStatus.AWAITING_FIXER,
-                  label: t('Inbox'),
+                  label: t("Unassigned"),
                   children: (
                      <ListView
                         total={result.data?.pages[0].total ?? 0}
@@ -67,7 +57,7 @@ export default function TasksPage() {
                },
                {
                   key: TaskStatus.ASSIGNED,
-                  label: t('Assigned'),
+                  label: t("Assigned"),
                   children: (
                      <ListView
                         total={result.data?.pages[0].total ?? 0}
@@ -79,7 +69,7 @@ export default function TasksPage() {
                },
                {
                   key: TaskStatus.IN_PROGRESS,
-                  label: t('Progressing'),
+                  label: t("Progressing"),
                   children: (
                      <ListView
                         total={result.data?.pages[0].total ?? 0}
@@ -91,7 +81,7 @@ export default function TasksPage() {
                },
                {
                   key: TaskStatus.COMPLETED,
-                  label: t('Completed'),
+                  label: t("Completed"),
                   children: (
                      <ListView
                         total={result.data?.pages[0].total ?? 0}
@@ -123,7 +113,7 @@ function ListView(props: ListViewType) {
          loadMore={
             props.items.length !== 0 &&
             (props.total === props.items.length ? (
-               <Divider className="text-sm">{t('endList')}</Divider>
+               <Divider className="text-sm">{t("endList")}</Divider>
             ) : (
                <Button onClick={props.loadMore}>Load More</Button>
             ))
@@ -134,40 +124,51 @@ function ListView(props: ListViewType) {
          renderItem={(item) => (
             <Card
                key={item.id}
-               title={item.name}
-               extra={<Button icon={<RightOutlined />} size="small" type="text" />}
+               title={
+                  <Typography.Text className="mb-0" ellipsis>
+                     {item.name}
+                  </Typography.Text>
+               }
+               extra={
+                  <div className="flex items-center gap-2">
+                     <span className="text-xs text-gray-500">
+                        {extended_dayjs(item.createdAt).format("DD/MM/YY HH:mm")}
+                     </span>
+                     <Button icon={<RightOutlined />} size="small" type="text" />
+                  </div>
+               }
                size="small"
-               className="mb-3"
+               className={cn(item.priority ? "border-red-500 bg-red-100" : "border-gray-300", "mb-2 border-l-4")}
                hoverable={true}
                onClick={() => router.push(`/head-staff/tasks/${item.id}`)}
             >
                <ProDescriptions
                   size="small"
                   dataSource={item}
+                  colon={false}
                   columns={[
                      {
                         key: "mm",
-                        label: t('MachineModel'),
+                        label: "Machine Model",
                         render: (_, e) => e.device?.machineModel.name ?? "-",
                      },
                      {
-                        key: "Created",
-                        label: t('Created'),
-                        render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
+                        key: "location",
+                        label: "Location",
+                        render: (_, e) =>
+                           `${e.device?.area.name ?? "-"} (${e.device?.positionX}x${e.device?.positionY})`,
                      },
                      {
-                        key: "priority",
-                        label: t('Priority'),
-                        render: (_, e) => (e.priority ? <Tag color="red">{t('High')}</Tag> : <Tag color="green">{t('Low')}</Tag>),
+                        key: "fixer",
+                        label: "Fixer",
+                        render: (_, e) => e.fixer?.username ?? "-",
+                        hide: item.fixer === undefined,
+                        className: !item.fixer ? "hidden" : "",
                      },
                   ]}
                />
             </Card>
          )}
       />
-      // <div className="grid grid-cols-1 gap-3">
-      //    {props.items.map((item) => (
-      //    ))}
-      // </div>
    )
 }

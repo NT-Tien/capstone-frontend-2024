@@ -3,8 +3,9 @@ import { UserDto } from "@/common/dto/User.dto"
 import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { RequestType } from "@/common/enum/request-type.enum"
+import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 
-export type IssueRequestDto = {
+export type FixRequestDto = {
    id: string
    createdAt: string
    updatedAt: string
@@ -17,4 +18,5 @@ export type IssueRequestDto = {
    type: RequestType
    checker_note: string | null
    checker: UserDto
+   issues: FixRequestIssueDto[]
 }

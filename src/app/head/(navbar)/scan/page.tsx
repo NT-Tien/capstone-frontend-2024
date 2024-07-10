@@ -5,7 +5,7 @@ import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
 import React, { useRef, useState } from "react"
 import RootHeader from "@/common/components/RootHeader"
 import { useRouter } from "next/navigation"
-import { InfoCircleFilled, QrcodeOutlined, RightOutlined } from "@ant-design/icons"
+import { InfoCircleFilled, RightOutlined, SearchOutlined } from "@ant-design/icons"
 import { isUUID } from "@/common/util/isUUID.util"
 import { useTranslation } from "react-i18next"
 
@@ -43,7 +43,7 @@ export default function ScanPage() {
 
       if (!isUUID(id)) {
          await message.open({
-            content: t('invalidDeviceId'),
+            content: t("invalidDeviceId"),
             duration: 0,
             type: "error",
             key: "messenger",
@@ -52,7 +52,7 @@ export default function ScanPage() {
       }
 
       await message.open({
-         content: t('deviceIdScanned'),
+         content: t("deviceIdScanned"),
          duration: 0,
          type: "success",
          key: "messenger",
@@ -64,7 +64,7 @@ export default function ScanPage() {
       <>
          <div className="h-full">
             <div>
-               <RootHeader title="Scan" className="p-4" icon={<QrcodeOutlined />} />
+               <RootHeader title="Scan" className="p-4" icon={<SearchOutlined />} />
                <Scanner
                   paused={false}
                   onScan={handleScan}
@@ -86,8 +86,8 @@ export default function ScanPage() {
                            AI
                         </Avatar>
                         <div className="flex-grow">
-                           <p className="text-base font-bold">{t('InputManually')}</p>
-                           <p className="text-xs">{t('CannotScan')}</p>
+                           <p className="text-base font-bold">{t("InputManually")}</p>
+                           <p className="text-xs">{t("CannotScan")}</p>
                         </div>
                         <div>
                            <Button type="text" icon={<RightOutlined />} />
@@ -99,24 +99,25 @@ export default function ScanPage() {
          </div>
          <Form<FieldType> form={form} onFinish={(e) => finishHandler(e.deviceId)} layout="horizontal">
             <Drawer
-               title={t('ManuallyInput')}
+               title={t("InputManually")}
                placement="bottom"
                onClose={() => setManualOpen(false)}
                open={manualOpen}
-               height={260}
+               height="max-content"
                size="default"
-               extra={[
-                  <Button key="submit-btn" type="primary" htmlType="submit" onClick={form.submit}>
-                     {t('Submit')}
-                  </Button>,
-               ]}
                classNames={{
                   body: "flex flex-col",
                }}
             >
+               <Card size="small" hoverable className="mb-4">
+                  <div className="flex gap-2">
+                     <InfoCircleFilled />
+                     <div className="text-xs">{t("inputDeviceId")}</div>
+                  </div>
+               </Card>
                <Form.Item<FieldType>
                   name="deviceId"
-                  label={t('DeviceId')}
+                  label={t("DeviceId")}
                   labelAlign="left"
                   labelCol={{
                      span: 24,
@@ -133,12 +134,16 @@ export default function ScanPage() {
                >
                   <Input placeholder="e.g., 123-1231231-312312-3123123123" size="large" />
                </Form.Item>
-               <Card size="small" hoverable>
-                  <div className="flex gap-3">
-                     <InfoCircleFilled />
-                     <div className="text-xs">{t('inputDeviceId')}</div>
-                  </div>
-               </Card>
+               <Button
+                  key="submit-btn"
+                  type="primary"
+                  htmlType="submit"
+                  onClick={form.submit}
+                  className="w-full"
+                  size="large"
+               >
+                  {t("Submit")}
+               </Button>
             </Drawer>
          </Form>
       </>

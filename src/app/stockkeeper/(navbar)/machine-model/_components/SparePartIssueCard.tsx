@@ -1,7 +1,7 @@
 // "use client"
 
 // import { Button, Card, Typography } from "antd"
-// import { IssueRequestDto } from "@/common/dto/IssueRequest.dto"
+// import { FixRequestDto } from "@/common/dto/IssueRequest.dto"
 // import { CaretRightOutlined } from "@ant-design/icons"
 // import { useRouter } from "next/navigation"
 // import dayjs from "dayjs"
@@ -10,10 +10,10 @@
 // import { SparePartDto } from "@/common/dto/SparePart.dto"
 // import { TaskDto } from "@/common/dto/Task.dto"
 // import { TaskIssueDto } from "@/common/dto/TaskIssue.dto"
-// import { IssueSparePartDto } from "@/common/dto/IssueSparePart.dto"
+// import { FixRequestIssueSparePartDto } from "@/common/dto/IssueSparePart.dto"
 
 // type Props = {
-//    sparePartIssue: IssueSparePartDto[]
+//    sparePartIssue: FixRequestIssueSparePartDto[]
 // }
 
 // export default function SparePartIssueCard(props: Props) {

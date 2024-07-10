@@ -4,27 +4,38 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import HeadStaff_Task_OneById from "@/app/head-staff/_api/task/one-byId.api"
 import RootHeader from "@/common/components/RootHeader"
-import { DeleteOutlined, LeftOutlined, UserOutlined } from "@ant-design/icons"
+import { DeleteOutlined, LeftOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons"
 import { useRouter } from "next/navigation"
 import { ProDescriptions } from "@ant-design/pro-components"
 import dayjs from "dayjs"
-import { App, Avatar, Button, Card, Collapse, Descriptions, List, Tabs, Tag, Typography } from "antd"
+import { App, Avatar, Button, Card, Collapse, Descriptions, Empty, List, Tabs, Tag, Typography } from "antd"
 import { FixType } from "@/common/enum/fix-type.enum"
-import SelectSparePartDrawer from "@/app/head-staff/(stack)/tasks/[id]/_components/SelectSparePart.drawer"
+import SelectSparePartDrawer from "@/app/head-staff/_components/SelectSparePart.drawer"
 import HeadStaff_SparePart_Create from "@/app/head-staff/_api/spare-part/create.api"
 import HeadStaff_SparePart_Delete from "@/app/head-staff/_api/spare-part/delete.api"
 import AssignFixerDrawer from "@/app/head-staff/(stack)/tasks/[id]/_components/AssignFixer.drawer"
 import HeadStaff_Task_UpdateAssignFixer from "@/app/head-staff/_api/task/update-assignFixer.api"
 import { TaskStatus } from "@/common/enum/task-status.enum"
-import CreateIssueDrawer from "@/app/head-staff/(stack)/tasks/[id]/_components/CreateIssue.drawer"
+import CreateIssueDrawer from "@/app/head-staff/_components/CreateIssue.drawer"
 import { useTranslation } from "react-i18next"
 import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
-import { TaskIssueDto } from "@/common/dto/TaskIssue.dto"
+import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
+import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
+import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
+import ModalConfirm from "@/common/components/ModalConfirm"
+import { cn } from "@/common/util/cn.util"
+import AcceptTaskDrawer from "@/app/head-staff/_components/AcceptTask.drawer"
+import React from "react"
 
 export default function TaskDetails({ params }: { params: { id: string } }) {
    const result = useQuery({
       queryKey: qk.task.one_byId(params.id),
       queryFn: () => HeadStaff_Task_OneById({ id: params.id }),
+   })
+   const request = useQuery({
+      queryKey: qk.issueRequests.byId(result.data?.request.id ?? ""),
+      queryFn: () => HeadStaff_Request_OneById({ id: result.data?.request.id ?? "" }),
+      enabled: result.isSuccess,
    })
    const router = useRouter()
    const { message } = App.useApp()
@@ -45,7 +56,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
       },
       onSuccess: async () => {
          message.success("Spare part added")
-         await result.refetch()
+         await request.refetch()
       },
       onSettled: () => {
          message.destroy("creating-spare-part")
@@ -95,226 +106,137 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
    })
 
    return (
-      <div
-         style={{
-            display: "grid",
-            gridTemplateColumns: "[outer-start] 16px [inner-start] 1fr [inner-end] 16px [outer-end] 0",
-         }}
-      >
+      <div className="std-layout">
          <RootHeader
             title="Task Details"
             icon={<LeftOutlined />}
             onIconClick={() => router.back()}
-            className="p-4"
-            style={{
-               gridColumn: "outer-start / outer-end",
-            }}
-         />
-         <ProDescriptions
-            className="mt-3"
-            bordered={true}
-            style={{
-               gridColumn: "inner-start / inner-end",
-            }}
-            dataSource={result.data}
-            loading={result.isLoading}
-            size="small"
-            columns={[
-               {
-                  key: "name",
-                  label: t('TaskName'),
-                  dataIndex: "name",
-               },
-               {
-                  key: "created",
-                  label: t('Created'),
-                  dataIndex: "createdAt",
-                  render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
-               },
-               {
-                  key: "status",
-                  label: t('Status'),
-                  dataIndex: "status",
-               },
-               {
-                  key: "priority",
-                  label: t('Priority'),
-                  render: (_, e) => (e.priority ? <Tag color="red">{t('High')}</Tag> : <Tag color="green">{t('Low')}</Tag>),
-               },
-               {
-                  key: "totalTime",
-                  label: t('TotalTime'),
-                  dataIndex: "totalTime",
-               },
-               {
-                  key: "operator",
-                  label: t('operator'),
-                  dataIndex: "operator",
-               },
-            ]}
+            className="std-layout-outer p-4"
          />
          <Tabs
-            className="mt-3"
-            style={{
-               gridColumn: "inner-start / inner-end",
-            }}
+            className="main-tabs std-layout-outer"
+            type="line"
             items={[
                {
-                  key: "machine",
-                  label: t('Device'),
+                  key: "details",
+                  label: "Details",
                   children: (
-                     <ProDescriptions
-                        dataSource={result.data?.device}
-                        loading={result.isLoading}
-                        size="small"
-                        columns={[
-                           {
-                              key: "machineModel",
-                              label: t('MachineModel'),
-                              render: (_, e) => e.machineModel?.name ?? "-",
-                           },
-                           {
-                              key: "position",
-                              label: t('Position'),
-                              render: (_, e) => `${e.area?.name ?? "-"} - (${e.positionX} : ${e.positionY})`,
-                           },
-                           {
-                              key: "description",
-                              label: t('Description'),
-                              dataIndex: "description",
-                           },
-                        ]}
-                     />
+                     <>
+                        <ProDescriptions
+                           className="mt-3"
+                           dataSource={result.data}
+                           loading={result.isLoading}
+                           size="small"
+                           columns={[
+                              {
+                                 key: "name",
+                                 label: t("TaskName"),
+                                 dataIndex: "name",
+                              },
+                              {
+                                 key: "created",
+                                 label: t("Created"),
+                                 dataIndex: "createdAt",
+                                 render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
+                              },
+                              {
+                                 key: "status",
+                                 label: t("Status"),
+                                 dataIndex: "status",
+                                 render: (_, e) => <Tag>{e.status}</Tag>,
+                              },
+                              {
+                                 key: "priority",
+                                 label: t("Priority"),
+                                 render: (_, e) =>
+                                    e.priority ? (
+                                       <Tag color="red">{t("High")}</Tag>
+                                    ) : (
+                                       <Tag color="green">{t("Low")}</Tag>
+                                    ),
+                              },
+                              {
+                                 key: "totalTime",
+                                 label: t("TotalTime"),
+                                 render: (_, e) => e.totalTime + " minutes",
+                              },
+                              {
+                                 key: "operator",
+                                 label: t("operator"),
+                                 dataIndex: "operator",
+                              },
+                           ]}
+                        />
+                        <DeviceDetailsCard device={result.data?.device} className="mt-3" />
+                     </>
                   ),
                },
                {
                   key: "issues",
-                  label: t('Issues'),
+                  label: "Issues",
                   children: (
                      <div>
-                        <Collapse
-                           expandIconPosition="end"
-                           items={result.data?.issues.map((item: TaskIssueDto) => ({
-                              key: item.id,
-                              label: (
-                                 <div>
-                                    <Tag color={item.fixType === FixType.REPAIR ? "red" : "blue"}>{getFixTypeTranslation(item.fixType)}</Tag>
-                                    <Typography.Text className="w-40">{item.typeError.name}</Typography.Text>
-                                 </div>
-                              ),
-                              children: (
-                                 <div>
-                                    <Descriptions
-                                       size="small"
-                                       items={[
-                                          {
-                                             label: t('Description'),
-                                             children: item.description,
-                                          },
-                                       ]}
-                                    />
-                                    <Descriptions
-                                       size="small"
-                                       layout="vertical"
-                                       items={[
-                                          {
-                                             label: t('SpareParts'),
-                                             span: 10,
-                                             contentStyle: {
-                                                width: "100%",
-                                             },
-                                             children: (
-                                                <SelectSparePartDrawer
-                                                   onFinish={(values) => {
-                                                      mutate_addSparePart.mutate({
-                                                         issue: item.id,
-                                                         sparePart: values.sparePartId,
-                                                         quantity: values.quantity,
-                                                      })
-                                                   }}
-                                                >
-                                                   {(handleOpen) => (
-                                                      <div className="w-full">
-                                                         <List
-                                                            className={"w-full"}
-                                                            dataSource={item.issueSpareParts}
-                                                            itemLayout={"horizontal"}
-                                                            renderItem={(sp) => (
-                                                               <List.Item
-                                                                  itemID={sp.id}
-                                                                  key={sp.id}
-                                                                  extra={
-                                                                     result.data?.status ===
-                                                                        TaskStatus.AWAITING_FIXER && (
-                                                                        <Button
-                                                                           danger
-                                                                           type="text"
-                                                                           size={"small"}
-                                                                           icon={<DeleteOutlined />}
-                                                                           onClick={() => {
-                                                                              mutate_deleteSparePart.mutate({
-                                                                                 id: sp.id,
-                                                                              })
-                                                                           }}
-                                                                        />
-                                                                     )
-                                                                  }
-                                                               >
-                                                                  <List.Item.Meta
-                                                                     title={sp.sparePart.name}
-                                                                     description={`${t('Qty')}: ${sp.quantity}`}
-                                                                  ></List.Item.Meta>
-                                                               </List.Item>
-                                                            )}
-                                                         />
-                                                         {result.data?.status === TaskStatus.AWAITING_FIXER && (
-                                                            <Button
-                                                               className="w-full"
-                                                               type="dashed"
-                                                               size="large"
-                                                               onClick={() =>
-                                                                  result.isSuccess &&
-                                                                  handleOpen(
-                                                                     result.data.device.id,
-                                                                     result.data.issues
-                                                                        .filter((t) => t.id === item.id)[0]
-                                                                        ?.issueSpareParts.map((m) => m.sparePart.id),
-                                                                  )
-                                                               }
-                                                            >
-                                                               Add Spare Part
-                                                            </Button>
-                                                         )}
-                                                      </div>
-                                                   )}
-                                                </SelectSparePartDrawer>
-                                             ),
-                                          },
-                                       ]}
-                                    />
-                                 </div>
-                              ),
-                           }))}
-                        />
-                        {result.data?.status === TaskStatus.AWAITING_FIXER && (
-                           <CreateIssueDrawer>
-                              {(handleOpen) => (
-                                 <Button
-                                    type="dashed"
-                                    className="my-3 h-14 w-full"
-                                    onClick={() => handleOpen(params.id)}
-                                 >
-                                    Add Issue
-                                 </Button>
-                              )}
-                           </CreateIssueDrawer>
+                        {request.isSuccess && request.data.issues.length !== 0 && (
+                           <Collapse
+                              expandIconPosition="end"
+                              items={request.data?.issues.map((item: FixRequestIssueDto) => ({
+                                 key: item.id,
+                                 label: (
+                                    <div>
+                                       <Tag color={item.fixType === FixType.REPAIR ? "red" : "blue"}>
+                                          {getFixTypeTranslation(item.fixType)}
+                                       </Tag>
+                                       <Typography.Text className="w-40">{item.typeError.name}</Typography.Text>
+                                    </div>
+                                 ),
+                                 children: (
+                                    <div>
+                                       <Card size={"small"}>
+                                          <span className="text-gray-500">Description: </span>
+                                          {item.description}
+                                       </Card>
+                                       <div className="mt-2 w-full">
+                                          {item.issueSpareParts.length === 0 ? (
+                                             <Card className="my-3">
+                                                <Empty
+                                                   description={
+                                                      <span>
+                                                         This issue has{" "}
+                                                         <strong className="font-bold underline">no spare parts</strong>{" "}
+                                                         assigned
+                                                      </span>
+                                                   }
+                                                   className="rounded-lg py-6"
+                                                />
+                                             </Card>
+                                          ) : (
+                                             <List
+                                                className={"w-full"}
+                                                dataSource={item.issueSpareParts}
+                                                itemLayout={"horizontal"}
+                                                size={"small"}
+                                                renderItem={(sp) => (
+                                                   <List.Item itemID={sp.id} key={sp.id}>
+                                                      <List.Item.Meta
+                                                         title={sp.sparePart.name}
+                                                         description={`${t("Qty")}: ${sp.quantity}`}
+                                                      ></List.Item.Meta>
+                                                   </List.Item>
+                                                )}
+                                             />
+                                          )}
+                                       </div>
+                                    </div>
+                                 ),
+                              }))}
+                           />
                         )}
                      </div>
                   ),
                },
                {
-                  key: "assign_fixer",
-                  label: t('Fixer'),
+                  key: "fixer",
+                  label: "Fixer",
                   children: (
                      <div>
                         {result.isSuccess && result.data.fixer !== null ? (
@@ -343,10 +265,11 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                                           fixer: fixerId,
                                        },
                                     })
+                                    router.push("/head-staff/tasks?status=ASSIGNED")
                                  }}
                               >
                                  {(handleOpen) => (
-                                    <Button type="dashed" className="mt-3 w-full" onClick={handleOpen}>
+                                    <Button type="primary" className="mt-3 w-full" onClick={handleOpen} size="large">
                                        Add Fixer
                                     </Button>
                                  )}

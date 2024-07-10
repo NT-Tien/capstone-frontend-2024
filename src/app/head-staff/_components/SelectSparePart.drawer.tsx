@@ -6,9 +6,7 @@ import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
 import { RightOutlined } from "@ant-design/icons"
-import SelectSparePartDetailsDrawer, {
-   FieldType,
-} from "@/app/head-staff/(stack)/tasks/[id]/_components/SelectSparePartDetails.drawer"
+import SelectSparePartDetailsDrawer, { FieldType } from "@/app/head-staff/_components/SelectSparePartDetails.drawer"
 
 export default function SelectSparePartDrawer(props: {
    children: (handleOpen: (deviceId: string, ignoreIdList?: string[]) => void) => ReactNode

@@ -47,6 +47,7 @@ export default function AssignFixerDrawer({
                >
                   <ProFormSelect
                      name="staff"
+                     showSearch
                      placeholder={"Select a staff member"}
                      options={staff.data?.map((s) => ({
                         label: s.username,

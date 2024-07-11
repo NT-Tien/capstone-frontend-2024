@@ -6,7 +6,7 @@ import { Card, Drawer } from "antd"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { EyeOutlined, InfoCircleOutlined } from "@ant-design/icons"
-import { Robot } from "@phosphor-icons/react"
+import { MapPin, Robot } from "@phosphor-icons/react"
 
 type Props = {
    device?: DeviceDto
@@ -21,48 +21,60 @@ export default function DeviceDetailsCard(props: Props) {
    return (
       <>
          <Card
-            className={props.className}
-            size="small"
-            title={
-               <div className="flex w-max items-center gap-2">
-                  <Robot size={16} />
-                  {t("DeviceDetails")}
-               </div>
-            }
-            actions={[
-               <a key={"view"} className="inline-flex w-max items-center gap-2" onClick={() => setIsOpenMap(true)}>
-                  <EyeOutlined />
-                  View on Map
-               </a>,
-               <a key="details" className="inline-flex w-max items-center gap-2" onClick={() => setIsOpenDetails(true)}>
-                  <InfoCircleOutlined />
-                  Details
-               </a>,
-            ]}
-         >
-            <ProDescriptions
-               dataSource={props.device}
-               loading={props.device === undefined}
-               size="small"
-               columns={[
-                  {
-                     key: "device-machine-model",
-                     title: t("MachineModel"),
-                     render: (_, e) => e.machineModel?.name ?? "-",
-                  },
-                  {
-                     key: "device-positioning",
-                     title: t("Position"),
-                     render: (_, e) => `${e.area?.name ?? "..."} (${e.positionX}x${e.positionY})`,
-                  },
-                  {
-                     key: "manufacturer",
-                     title: t("Manufacturer"),
-                     render: (_, e) => e.machineModel?.manufacturer ?? "-",
-                  },
-               ]}
-            />
-         </Card>
+        className={props.className}
+        size="small"
+        title={
+          <div className="flex w-max items-center gap-2 text-lg">
+            <Robot size={20} />
+            {t("DeviceDetails")}
+          </div>
+        }
+      >
+        <ProDescriptions
+          dataSource={props.device}
+          loading={props.device === undefined}
+          size="small"
+          columns={[
+            {
+              key: "device-machine-model",
+              title: <span className="text-lg">{t("MachineModel")}</span>,
+              render: (_, e) => <span className="text-lg">{e.machineModel?.name ?? "-"}</span>,
+            },
+            {
+              key: "device-positioning",
+              title: <span className="text-lg">{t("Position")}</span>,
+              render: (_, e) => (
+                <div className="flex items-center justify-between">
+                  <span className="text-lg">
+                    {e.area?.name ?? "..."} ({e.positionX}x{e.positionY})
+                  </span>
+                  <MapPin size={20} className="ml-2 text-red-500" onClick={() => setIsOpenMap(true)} />
+                </div>
+              ),
+            },
+            {
+              key: "manufacturer",
+              title: <span className="text-lg">{t("Manufacturer")}</span>,
+              render: (_, e) => <span className="text-lg">{e.machineModel?.manufacturer ?? "-"}</span>,
+            },
+            {
+               key: "year-of-production",
+               title: <span className="text-lg">{t("YearOfProduction")}</span>,
+               render: (_, e) => <span className="text-lg">{e.machineModel?.yearOfProduction ?? "-"}</span>,
+             },
+             {
+               key: "warranty-term",
+               title: <span className="text-lg">{t("warrantyTerm")}</span>,
+               render: (_, e) => <span className="text-lg">{e.machineModel?.warrantyTerm ?? "-"}</span>,
+             },
+             {
+               key: "description",
+               title: <span className="text-lg">{t("Description")}</span>,
+               render: (_, e) => <span className="text-lg">{e.machineModel?.description ?? "-"}</span>,
+             },
+          ]}
+        />
+      </Card>
          <Drawer title="Device Details" open={isOpenDetails} onClose={() => setIsOpenDetails(false)} placement="bottom">
             Device Details placeholder
          </Drawer>

@@ -12,8 +12,10 @@ import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
 
 export default function TaskDetailsDrawer({
    children,
+   showNextButton = true,
 }: {
    children: (handleOpen: (taskId: string, shouldContinue?: boolean) => void) => ReactNode
+   showNextButton?: boolean
 }) {
    const [open, setOpen] = useState(false)
    const [taskId, setTaskId] = useState<string | undefined>(undefined)
@@ -153,9 +155,11 @@ export default function TaskDetailsDrawer({
                   })) ?? []),
                ]}
             />
-            <Button className="mt-6 w-full" type="primary" size="large" onClick={handleStartTask}>
-               {shouldContinue ? "Continue" : "Start"} Task
-            </Button>
+            {showNextButton && (
+               <Button className="mt-6 w-full" type="primary" size="large" onClick={handleStartTask}>
+                  {shouldContinue ? "Continue" : "Start"} Task
+               </Button>
+            )}
          </Drawer>
       </>
    )

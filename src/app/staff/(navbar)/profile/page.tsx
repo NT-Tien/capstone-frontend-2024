@@ -39,6 +39,11 @@ export default function ProfilePage() {
                <FunctionButton icon={<HomeOutlined />} title="Home" onClick={() => router.push("/staff/dashboard")} />
                <FunctionButton icon={<ContainerFilled />} title="Tasks" onClick={() => router.push("/staff/tasks")} />
                <FunctionButton icon={<CheckOutlined />} title="Device Map" onClick={() => router.push("/staff/map")} />
+               <FunctionButton
+                  icon={<ContainerFilled />}
+                  title="Completed Tasks"
+                  onClick={() => router.push("/staff/tasks/completed")}
+               />
             </main>
          </section>
          <section>

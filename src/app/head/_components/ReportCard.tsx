@@ -26,16 +26,19 @@ type Props = {
    positionY: number
    area: string
    onClick?: (id: string) => void
+   index: number
 }
 
 export default function ReportCard(props: Props) {
    const { t } = useTranslation()
+   const backgroundColor = props.index % 2 === 0 ? "bg-blue-100" : "bg-white"
    return (
       <Card
          classNames={{
             body: "flex",
          }}
          className={cn(
+            backgroundColor,
             (function () {
                switch (props.status) {
                   case IssueRequestStatus.PENDING:

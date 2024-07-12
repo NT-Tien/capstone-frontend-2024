@@ -33,6 +33,9 @@ const config: Config = {
             "layout-half": "calc(var(--std-layout-padding) / 2)",
          },
       },
+      fontSize: {
+         base: "18px",
+       },
    },
    important: true,
 }

@@ -25,6 +25,8 @@ import { File_Upload } from "@/_api/file/upload_image.api"
 import { clientEnv } from "@/env"
 import { RcFile } from "antd/es/upload"
 import checkImageUrl from "@/common/util/checkImageUrl.util"
+import ModalConfirm from "@/common/components/ModalConfirm"
+import Staff_Task_UpdateFinish from "@/app/staff/_api/task/update-finish.api"
 
 export default function StartTask({ params }: { params: { id: string } }) {
    const [currentStep, setCurrentStep] = useState<number>(-1)
@@ -67,7 +69,7 @@ export default function StartTask({ params }: { params: { id: string } }) {
                id={params.id}
             />
          )}
-         {currentStep === 2 && <Step3 handleBack={() => setCurrentStep((prev) => prev - 1)} />}
+         {currentStep === 2 && <Step3 id={params.id} handleBack={() => setCurrentStep((prev) => prev - 1)} />}
       </div>
    )
 }
@@ -125,7 +127,7 @@ function Step1(props: Step1Props) {
 
    return (
       <div style={props.style} className={props.className}>
-         <Card className="mt-1">Please head to the warehouse to collect the following spare parts.</Card>
+         <Card className="mt-layout">Please head to the warehouse to collect the following spare parts.</Card>
          {props.data.map((issue, index) => (
             <List
                key={issue.id}
@@ -204,7 +206,7 @@ function Step1(props: Step1Props) {
                )}
             />
          ))}
-         <div className="fixed bottom-0 left-0 flex items-center justify-between gap-4 bg-white p-layout">
+         <div className="fixed bottom-0 left-0 flex w-full items-center justify-between gap-4 bg-white p-layout">
             <Button size="large" onClick={props.handleBack} type="dashed">
                Back
             </Button>
@@ -379,13 +381,61 @@ type SubmitFieldType = {
    videosVerify: string
 }
 
-type Step3Props = GeneralProps & {}
+type Step3Props = GeneralProps & {
+   id: string
+}
 
 function Step3(props: Step3Props) {
    const router = useRouter()
    const [loadingImage, setLoadingImage] = useState(false)
    const { message } = App.useApp()
    const [form] = Form.useForm<SubmitFieldType>()
+   const queryClient = useQueryClient()
+
+   const mutate_finishTask = useMutation({
+      mutationFn: Staff_Task_UpdateFinish,
+      onMutate: async () => {
+         message.open({
+            type: "loading",
+            content: `Loading...`,
+            key: `loading`,
+         })
+      },
+      onError: async (error) => {
+         message.error({
+            content: "An error occurred. Please try again later.",
+         })
+      },
+      onSuccess: async () => {
+         message.success({
+            content: `Spare parts received successfully.`,
+         })
+         await queryClient.invalidateQueries({
+            queryKey: staff_qk.task.one_byId(props.id),
+         })
+      },
+      onSettled: () => {
+         message.destroy(`loading`)
+      },
+   })
+
+   function handleSubmit(values: SubmitFieldType) {
+      mutate_finishTask.mutate(
+         {
+            id: props.id,
+            payload: {
+               imagesVerify: ["..."],
+               videosVerify: "...",
+               fixerNote: values.fixerNote,
+            },
+         },
+         {
+            onSuccess: () => {
+               props.handleNext?.()
+            },
+         },
+      )
+   }
 
    return (
       <div style={props.style}>
@@ -501,16 +551,19 @@ function Step3(props: Step3Props) {
             >
                Back
             </Button>
-            <Button
-               size="large"
-               type="primary"
-               className="w-full"
-               onClick={() => {
-                  props.handleNext?.()
+            <ModalConfirm
+               onConfirm={() => {
+                  handleSubmit(form.getFieldsValue())
                }}
+               title="Finish task"
+               description="Are you sure you want to finish this task?"
+               confirmText="Confirm"
+               cancelText="Exit"
             >
-               Finish Task
-            </Button>
+               <Button size="large" type="primary" className="w-full">
+                  Finish Task
+               </Button>
+            </ModalConfirm>
          </div>
       </div>
    )

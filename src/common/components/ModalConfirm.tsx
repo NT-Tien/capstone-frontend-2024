@@ -35,6 +35,7 @@ export default function ModalConfirm(props: Props) {
             title={props.title ?? "Confirm Action"}
             open={open}
             onOk={props.onConfirm}
+            centered={true}
             onCancel={() => {
                props.onCancel?.()
                handleClose()

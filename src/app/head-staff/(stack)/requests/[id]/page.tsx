@@ -430,7 +430,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                                           disabled={request.data?.issues.length === 0}
                                           onClick={() => handleOpen(params.id)}
                                        >
-                                          Approve Request
+                                          Create Task & Approve Request
                                        </Button>
                                     )}
                                  </AcceptTaskDrawer>
@@ -439,6 +439,15 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                         </div>
                      ),
                   },
+                  ...(request.data?.status === IssueRequestStatus.APPROVED
+                     ? [
+                          {
+                             key: "main-tab-tasks",
+                             label: "Tasks",
+                             children: <div></div>,
+                          },
+                       ]
+                     : []),
                ]}
             />
          </section>

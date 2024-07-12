@@ -78,7 +78,7 @@ export default function HeadDashboardPage() {
                      </Card>
                   )}
                   {result.data.length > 0 &&
-                     result.data.map((req) => (
+                     result.data.map((req, index) => (
                         <ReportCard
                            key={req.id}
                            id={req.id}
@@ -89,6 +89,7 @@ export default function HeadDashboardPage() {
                            createdDate={extended_dayjs(req.createdAt).fromNow()}
                            onClick={(id: string) => router.push(`/head/history/${id}`)}
                            status={req.status}
+                           index={index}
                         />
                      ))}
                </>

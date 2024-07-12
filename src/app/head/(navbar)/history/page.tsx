@@ -110,7 +110,7 @@ function IssueList({ data, isLoading, statusName }: IssueListProps) {
                   </Card>
                )}
                {data.length > 0 &&
-                  data.map((req) => (
+                  data.map((req, index) => (
                      <ReportCard
                         key={req.id}
                         id={req.id}
@@ -120,6 +120,7 @@ function IssueList({ data, isLoading, statusName }: IssueListProps) {
                         machineModelName={req.device.machineModel.name}
                         createdDate={extended_dayjs(req.createdAt).fromNow()}
                         onClick={(id: string) => router.push(`/head/history/${id}`)}
+                        index={index}
                      />
                   ))}
             </>

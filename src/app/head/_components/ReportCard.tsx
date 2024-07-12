@@ -1,4 +1,4 @@
-"use client"
+// "use client"
 
 import { Card, Tag } from "antd"
 import React, { ReactNode } from "react"
@@ -32,6 +32,20 @@ type Props = {
 export default function ReportCard(props: Props) {
    const { t } = useTranslation()
    const backgroundColor = props.index % 2 === 0 ? "bg-blue-100" : "bg-white"
+   const tagColor =
+      props.status === IssueRequestStatus.PENDING
+         ? "blue"
+         : props.status === IssueRequestStatus.APPROVED
+           ? "#006400"
+           : "gray"
+
+   const borderTagColor =
+      props.status === IssueRequestStatus.PENDING
+         ? "blue"
+         : props.status === IssueRequestStatus.APPROVED
+           ? "#006400"
+           : "gray"
+
    return (
       <Card
          classNames={{
@@ -44,7 +58,7 @@ export default function ReportCard(props: Props) {
                   case IssueRequestStatus.PENDING:
                      return "border-gray-300 bg-gray-100"
                   case IssueRequestStatus.APPROVED:
-                     return "border-green-300 bg-green-100"
+                     return "bg-white-100 border-gray-300"
                   case IssueRequestStatus.REJECTED:
                      return "border-red-300 bg-red-100"
                   default:
@@ -69,18 +83,7 @@ export default function ReportCard(props: Props) {
             {props.status ? (
                <Tag
                   className="m-0"
-                  color={(function () {
-                     switch (props.status) {
-                        case IssueRequestStatus.PENDING:
-                           return "default"
-                        case IssueRequestStatus.APPROVED:
-                           return "success"
-                        case IssueRequestStatus.REJECTED:
-                           return "error"
-                        default:
-                           return "default"
-                     }
-                  })()}
+                  style={{ color: tagColor, borderColor: borderTagColor, backgroundColor: "#FAFAFA" }}
                >
                   {props.status}
                </Tag>

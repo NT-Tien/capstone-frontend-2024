@@ -6,7 +6,7 @@ import { Card, Drawer } from "antd"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { EyeOutlined, InfoCircleOutlined } from "@ant-design/icons"
-import { MapPin, Robot } from "@phosphor-icons/react"
+import { MapPin, MapPinArea, Robot } from "@phosphor-icons/react"
 
 type Props = {
    device?: DeviceDto
@@ -48,7 +48,7 @@ export default function DeviceDetailsCard(props: Props) {
                   <span className="text-lg">
                     {e.area?.name ?? "..."} ({e.positionX}x{e.positionY})
                   </span>
-                  <MapPin size={20} className="ml-2 text-red-500" onClick={() => setIsOpenMap(true)} />
+                  <MapPinArea size={23} className="ml-2 text-red-500" onClick={() => setIsOpenMap(true)} />
                 </div>
               ),
             },

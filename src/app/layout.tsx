@@ -11,12 +11,12 @@ export const metadata: Metadata = {
    description: "Rockstar App",
 }
 
-// export const viewport: Viewport = {
-//    width: "device-width",
-//    initialScale: 1,
-//    maximumScale: 1,
-//    userScalable: false,
-// }
+export const viewport: Viewport = {
+   width: "device-width",
+   initialScale: 1,
+   maximumScale: 1,
+   userScalable: false,
+}
 
 export default function RootLayout({
    children,
@@ -25,9 +25,9 @@ export default function RootLayout({
 }>) {
    return (
       <html lang="en">
-         {/* <head>
+         <head>
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-         </head> */}
+         </head>
          <body className={inter.className}>
             <GlobalProvider>{children}</GlobalProvider>
          </body>

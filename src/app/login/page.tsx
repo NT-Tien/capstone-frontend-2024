@@ -59,11 +59,11 @@ function Login() {
             const payload = decodeJwt(token)
             switch (payload.role) {
                case Role.admin: {
-                  router.push("/admin")
+                  router.push("/admin/dashboard")
                   break
                }
                case Role.staff: {
-                  router.push("/staff")
+                  router.push("/staff/dashboard")
                   break
                }
                case Role.headstaff: {
@@ -71,15 +71,15 @@ function Login() {
                   break
                }
                case Role.head: {
-                  router.push("/head")
+                  router.push("/head/dashboard")
                   break
                }
                case Role.manager: {
-                  router.push("/manager")
+                  router.push("/manager/dashboard")
                   break
                }
                case Role.stockkeeper: {
-                  router.push("/stockkeeper")
+                  router.push("/stockkeeper/dashboard")
                   break
                }
                default: {

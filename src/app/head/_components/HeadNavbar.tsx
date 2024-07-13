@@ -2,18 +2,8 @@
 
 import { useEffect, useState } from "react"
 import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
-import {
-   DashboardFilled,
-   EllipsisOutlined,
-   HistoryOutlined,
-   HomeFilled,
-   MoreOutlined,
-   SearchOutlined,
-   SecurityScanFilled,
-   UserOutlined,
-} from "@ant-design/icons"
+import { EllipsisOutlined, HistoryOutlined, HomeFilled, SearchOutlined } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
-import { ClockCircleOutline, SystemQRcodeOutline } from "antd-mobile-icons"
 import { useTranslation } from "react-i18next"
 
 export default function HeadNavbar() {

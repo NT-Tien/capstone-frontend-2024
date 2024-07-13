@@ -2,12 +2,8 @@
 
 import { useEffect, useState } from "react"
 import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
-import { CheckOutlined, ContainerFilled, DashboardFilled, EllipsisOutlined, UserOutlined } from "@ant-design/icons"
+import { CheckOutlined, ContainerFilled, DashboardFilled, EllipsisOutlined } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
-import { useRouter as useNextRouter } from "next/router"
-import { TeamFill } from "antd-mobile-icons"
-import vie from "@/common/locales/vie"
-import eng from "@/common/locales/eng"
 import { useTranslation } from "react-i18next"
 
 export default function StockkeeperNavbar() {

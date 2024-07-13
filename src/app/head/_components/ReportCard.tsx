@@ -27,6 +27,7 @@ type Props = {
    area: string
    onClick?: (id: string) => void
    index: number
+   className?: string
 }
 
 export default function ReportCard(props: Props) {
@@ -59,6 +60,7 @@ export default function ReportCard(props: Props) {
          }}
          className={cn(
             backgroundColor,
+            props.className,
             (function () {
                switch (props.status) {
                   case IssueRequestStatus.PENDING:

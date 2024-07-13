@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -16,8 +16,6 @@
     "@yudiel/react-qr-scanner": "^2.0.2",
     "antd": "^5.17.4",
     "antd-img-crop": "^4.22.0",
-    "antd-mobile": "^5.36.1",
-    "antd-mobile-icons": "^0.3.0",
     "axios": "^1.7.2",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.11",
@@ -29,6 +27,7 @@
     "next-i18next": "^15.3.0",
     "react": "^18",
     "react-countup": "^6.5.3",
+    "react-device-detect": "^2.2.3",
     "react-dom": "^18",
     "react-highlight-words": "^0.20.0",
     "react-i18next": "^14.1.2",

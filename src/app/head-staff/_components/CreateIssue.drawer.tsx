@@ -92,17 +92,7 @@ export default function CreateIssueDrawer(props: {
          {props.children(handleOpen)}
          <Drawer open={open} onClose={handleClose} height="max-content" placement="bottom" title="Create Issue">
             <Form<FieldType> form={form} onFinish={handleFinish}>
-               <ProFormTextArea name="description" label="Description" rules={[{ required: true }]} allowClear />
-               <ProFormSelect
-                  name="fixType"
-                  label="Fix Type"
-                  rules={[{ required: true }]}
-                  options={Object.values(FixType).map((fix) => ({
-                     label: fix,
-                     value: fix,
-                  }))}
-               />
-               <ProFormSelect
+            <ProFormSelect
                   name="typeError"
                   label="Type Error"
                   rules={[{ required: true }]}
@@ -112,6 +102,16 @@ export default function CreateIssueDrawer(props: {
                   }))}
                   showSearch
                />
+               <ProFormSelect
+                  name="fixType"
+                  label="Fix Type"
+                  rules={[{ required: true }]}
+                  options={Object.values(FixType).map((fix) => ({
+                     label: fix,
+                     value: fix,
+                  }))}
+               />
+               <ProFormTextArea name="description" label="Description" rules={[{ required: true }]} allowClear />
             </Form>
             <Button className="w-full" type="primary" onClick={form.submit} size="large">
                Create Issue

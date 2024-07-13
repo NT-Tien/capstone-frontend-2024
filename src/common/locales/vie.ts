@@ -74,6 +74,9 @@ const vie = {
    Note: "Ghi chú",
    "Start Scan": "Quét QR",
    Details: "Chi tiết",
+   Total: 'Tổng',
+   Fixed: 'Cần sửa',
+   Maintenance: 'Bảo trì',
 }
 
 export default vie

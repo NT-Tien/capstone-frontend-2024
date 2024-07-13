@@ -15,7 +15,7 @@ export function IssueRequestStatusTag({ status, ...props }: { status?: IssueRequ
       >
    } = {
       PENDING: "default",
-      APPROVED: "green",
+      APPROVED: "success",
       REJECTED: "red",
    }
 

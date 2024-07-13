@@ -121,6 +121,7 @@ function IssueList({ data, isLoading, statusName }: IssueListProps) {
                         machineModelName={req.device.machineModel.name}
                         createdDate={extended_dayjs(req.createdAt).fromNow()}
                         onClick={(id: string) => router.push(`/head/history/${id}`)}
+                        index={index}
                      />
                   ))}
             </>

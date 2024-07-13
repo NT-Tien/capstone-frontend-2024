@@ -10,6 +10,7 @@ import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
 import { useRouter } from "next/navigation"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import { TaskDto } from "@/common/dto/Task.dto"
+import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 
 type FieldType = {
    name: string
@@ -47,7 +48,7 @@ export default function AcceptTaskDrawer({
             },
          })
 
-         if (!updateStatus) throw new Error("")
+         if (!updateStatus) throw new Error("Error updating request status")
 
          return await HeadStaff_Task_Create(req)
       },
@@ -93,7 +94,7 @@ export default function AcceptTaskDrawer({
    }, [request.isSuccess, request.data])
 
    function handleFinish(values: FieldType) {
-      if (!id || !totalTime) return
+      if (!id || !totalTime || !request.isSuccess) return
 
       mutate_acceptReport.mutate(
          {
@@ -102,6 +103,7 @@ export default function AcceptTaskDrawer({
             operator: values.operator,
             request: id,
             totalTime: totalTime,
+            issueIDs: request.data.issues.map((i) => i.id),
          },
          {
             onSuccess: (response) => {

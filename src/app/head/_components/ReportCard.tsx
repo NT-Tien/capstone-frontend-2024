@@ -45,6 +45,12 @@ export default function ReportCard(props: Props) {
          : props.status === IssueRequestStatus.APPROVED
            ? "#006400"
            : "gray"
+   const backgroundTagColor =
+      props.status === IssueRequestStatus.PENDING
+         ? "#ebebff"
+         : props.status === IssueRequestStatus.APPROVED
+           ? "#f0faf0"
+           : "#FAFAFA"
 
    return (
       <Card
@@ -83,7 +89,7 @@ export default function ReportCard(props: Props) {
             {props.status ? (
                <Tag
                   className="m-0"
-                  style={{ color: tagColor, borderColor: borderTagColor, backgroundColor: "#FAFAFA" }}
+                  style={{ color: tagColor, borderColor: borderTagColor, backgroundColor: backgroundTagColor }}
                >
                   {props.status}
                </Tag>

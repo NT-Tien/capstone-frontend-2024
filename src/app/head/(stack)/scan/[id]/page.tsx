@@ -56,7 +56,7 @@ const machineIssues = [
 const loiMay = [
    {
       label: "+ Tạo vấn đề mới",
-      value: "Create",
+      value: "create",
    },
    {
       label: "Vấn đề nguồn điện",

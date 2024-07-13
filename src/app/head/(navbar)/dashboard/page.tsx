@@ -17,6 +17,8 @@ import ReportCard from "@/app/head/_components/ReportCard"
 import { StatisticCard } from "@ant-design/pro-card"
 import CountUp from "react-countup"
 import extended_dayjs from "@/config/dayjs.config"
+import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 
 export default function HeadDashboardPage() {
    const { t } = useTranslation()
@@ -31,25 +33,43 @@ export default function HeadDashboardPage() {
    return (
       <div className="std-layout">
          <HomeHeader className="pb-8 pt-4" />
-         <section className="std-layout-inner grid h-min grid-cols-3 gap-3">
-            <Button
+         {/* <section className="std-layout-inner grid h-min grid-cols-3 gap-3"> */}
+            {/* <Button
                className="col-span-1 flex aspect-square h-full w-full flex-col items-center justify-center gap-2"
                type="dashed"
                onClick={() => router.push("/head/scan")}
             >
                <QrcodeOutlined className="text-2xl" />
                <span className="ml-0 text-wrap text-center text-sm">{t("Start Scan")}</span>
-            </Button>
-            <StatisticCard
-               className="col-span-2 h-full w-full"
-               loading={result.isLoading}
-               statistic={{
-                  title: "Issues Reported",
-                  value: result.data?.length ?? 0,
-                  formatter: (value) => <CountUp end={value as number} separator={","} />,
-               }}
-            />
-         </section>
+            </Button> */}
+            <section className="flex space-x-4">
+               <StatisticCard
+                  className="h-full w-full flex-1"
+                  loading={result.isLoading}
+                  statistic={{
+                     title: t('Total'),
+                     value: result.data?.length ?? 0,
+                     formatter: (value) => <CountUp end={value as number} separator={","} />,
+                  }}
+               />
+               <StatisticCard
+                  className="h-full w-full flex-1"
+                  statistic={{
+                     title: t('Fixed'),
+                     value: result.data?.filter((value: FixRequestDto) => value.status === IssueRequestStatus.APPROVED).length ?? 0,
+                     formatter: (value) => <CountUp end={value as number} separator={","} />,
+                  }}
+               />
+               <StatisticCard
+                  className="h-full w-full flex-1"
+                  statistic={{
+                     title: t('Maintenance'),
+                     value: result.data?.filter((value: FixRequestDto) => value.status === IssueRequestStatus.PENDING).length ?? 0,
+                     formatter: (value) => <CountUp end={value as number} separator={","} />,
+                  }}
+               />
+            </section>
+         {/* </section> */}
          <section className="std-layout-inner mt-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
                <ClockCircleOutline />

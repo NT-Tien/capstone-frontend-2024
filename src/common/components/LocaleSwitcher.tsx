@@ -1,8 +1,13 @@
-import { Select } from "antd"
+import { Select, SelectProps } from "antd"
 import { useTranslation } from "react-i18next"
 import { useEffect, useState } from "react"
 
-export default function LocaleSwitcher() {
+type Props = {
+   className?: string
+   selectProps?: SelectProps
+}
+
+export default function LocaleSwitcher(props: Props) {
    const { i18n } = useTranslation()
    const [currentLanguage, setCurrentLanguage] = useState<string | null>(i18n.language ?? "vie")
 
@@ -110,6 +115,7 @@ export default function LocaleSwitcher() {
                value: "eng",
             },
          ]}
+         {...props.selectProps}
       />
    )
 }

@@ -5,6 +5,7 @@ import { TaskDto } from "@/common/dto/Task.dto"
 
 export type Request = Pick<TaskDto, "name" | "priority" | "operator" | "totalTime"> & {
    request: string
+   issueIDs: string[]
 }
 export type Response = TaskDto
 

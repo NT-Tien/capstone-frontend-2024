@@ -1,16 +1,16 @@
 "use client"
 
 import { ReactNode, useEffect, useState } from "react"
-import { ConfigProvider } from "antd-mobile"
-import enUS from "antd-mobile/es/locales/en-US"
+import { Spin } from "antd"
+import { isMobile } from "react-device-detect"
 
 export default function MobileOnly({ children }: { children: ReactNode }) {
-   const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined)
+   const [isCurrentMobile, setIsCurrentMobile] = useState<boolean | undefined>(undefined)
 
    useEffect(() => {
       function handleResize() {
-         if (window.innerWidth <= 1024) setIsMobile(true)
-         else setIsMobile(false)
+         if (isMobile) setIsCurrentMobile(true)
+         else setIsCurrentMobile(false)
       }
 
       handleResize()
@@ -20,11 +20,11 @@ export default function MobileOnly({ children }: { children: ReactNode }) {
       return () => window.removeEventListener("resize", handleResize)
    }, [])
 
-   if (isMobile === undefined) return null
-   if (isMobile) return <ConfigProvider locale={enUS}>{children}</ConfigProvider>
+   if (isCurrentMobile === undefined) return <Spin fullscreen={true} />
+   if (isCurrentMobile) return children
    else
       return (
-         <div className="grid h-screen w-full place-content-center text-2xl font-bold">
+         <div className="text-2xl grid h-screen w-full place-content-center font-bold">
             Please open this app on a mobile device
          </div>
       )

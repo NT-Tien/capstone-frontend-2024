@@ -1,6 +1,0 @@
-.qr-reader {
-    width: 100%; /* Make the QR reader fill the entire width of its container */
-    /* max-width: 300px; Optionally, set a maximum width to prevent it from stretching too much on larger screens */
-    height: fit-content; /* Let the height adjust automatically based on the aspect ratio of the QR code */
-    max-height: fit-content;
-  }

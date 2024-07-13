@@ -5,10 +5,6 @@ import GlobalProvider from "@/common/providers/global.provider"
 import "@/app/globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
-export const viewport: Viewport = {
-   initialScale: 1.0,
-   width: "device-width",
-}
 
 export const metadata: Metadata = {
    title: "Rockstar App",

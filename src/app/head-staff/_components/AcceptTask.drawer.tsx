@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import HeadStaff_Issue_Update from "@/app/head-staff/_api/issue/update.api"
 
 type FieldType = {
    name: string
@@ -40,11 +39,7 @@ export default function AcceptTaskDrawer({
    })
 
    const mutate_acceptReport = useMutation({
-      mutationFn: async (
-         req: CreateRequest & {
-            issues: FixRequestIssueDto[]
-         },
-      ) => {
+      mutationFn: async (req: CreateRequest) => {
          const updateStatus = await HeadStaff_Request_UpdateStatus({
             id: req.request,
             payload: {
@@ -55,54 +50,7 @@ export default function AcceptTaskDrawer({
 
          if (!updateStatus) throw new Error("Error updating request status")
 
-         const newTask = await HeadStaff_Task_Create(req)
-
-         if (!newTask) throw new Error("Error creating task")
-         const newTaskId = newTask.id
-         console.log("New ID", newTaskId)
-
-         const update = req.issues.map(
-            async (issue) =>
-               await HeadStaff_Issue_Update({
-                  id: issue.id,
-                  payload: {
-                     task: newTaskId,
-                     description: issue.description,
-                     fixType: issue.fixType,
-                     typeError: issue.typeError.id,
-                  },
-               }),
-         )
-
-         const data = await Promise.all(update)
-         console.log(req.issues)
-         console.log(data)
-
-         // const update = await Promise.allSettled(
-         //    req.issues.map(
-         //       async (issue) =>
-         //          await HeadStaff_Issue_Update({
-         //             id: issue.id,
-         //             payload: {
-         //                task: newTaskId,
-         //                description: issue.description,
-         //                fixType: issue.fixType,
-         //                typeError: issue.typeError.id,
-         //             },
-         //          }),
-         //    ),
-         // )
-         //
-         // console.log(update)
-         //
-         // if (update.some((u) => u.status === "rejected")) {
-         //    throw new Error("Error updating issues")
-         // }
-         //
-         // console.log("RESULT")
-         // console.log(update.length)
-
-         return newTask
+         return await HeadStaff_Task_Create(req)
       },
       onMutate: async () => {
          message.open({
@@ -155,7 +103,7 @@ export default function AcceptTaskDrawer({
             operator: values.operator,
             request: id,
             totalTime: totalTime,
-            issues: request.data.issues,
+            issueIDs: request.data.issues.map((i) => i.id),
          },
          {
             onSuccess: (response) => {

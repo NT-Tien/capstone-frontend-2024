@@ -110,8 +110,9 @@ function IssueList({ data, isLoading, statusName }: IssueListProps) {
                   </Card>
                )}
                {data.length > 0 &&
-                  data.map((req) => (
+                  data.map((req, index) => (
                      <ReportCard
+                        index={index}
                         key={req.id}
                         id={req.id}
                         positionX={req.device.positionX}

@@ -1,11 +1,10 @@
 "use client"
 
-import { Button, Card, Empty, Skeleton, Typography } from "antd"
-import { ClockCircleOutline } from "antd-mobile-icons"
+import { Button, Card, Empty, Typography } from "antd"
 import React from "react"
 import HomeHeader from "@/common/components/HomeHeader"
 import { useQuery } from "@tanstack/react-query"
-import { PlusOutlined, QrcodeOutlined } from "@ant-design/icons"
+import { ClockCircleOutlined, PlusOutlined, QrcodeOutlined } from "@ant-design/icons"
 import dayjs from "dayjs"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -38,7 +37,7 @@ export default function HeadDashboardPage() {
                onClick={() => router.push("/head/scan")}
             >
                <QrcodeOutlined className="text-2xl" />
-               <span className="ml-0 text-wrap text-center text-sm">{t("Start Scan")}</span>
+               <span className="text-sm ml-0 text-wrap text-center">{t("Start Scan")}</span>
             </Button>
             <StatisticCard
                className="col-span-2 h-full w-full"
@@ -52,7 +51,7 @@ export default function HeadDashboardPage() {
          </section>
          <section className="std-layout-inner mt-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-               <ClockCircleOutline />
+               <ClockCircleOutlined />
                <Typography.Title level={5} className="mb-0">
                   {t("PrevReports")}
                </Typography.Title>
@@ -78,8 +77,9 @@ export default function HeadDashboardPage() {
                      </Card>
                   )}
                   {result.data.length > 0 &&
-                     result.data.map((req) => (
+                     result.data.map((req, index) => (
                         <ReportCard
+                           index={index}
                            key={req.id}
                            id={req.id}
                            positionX={req.device.positionX}

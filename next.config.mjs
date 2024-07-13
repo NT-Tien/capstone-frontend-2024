@@ -13,11 +13,6 @@ const nextConfig = {
             permanent: true,
          },
          {
-            source: "/head-staff",
-            destination: "/head-staff/dashboard",
-            permanent: true,
-         },
-         {
             source: "/head",
             destination: "/head/dashboard",
             permanent: true,
@@ -25,13 +20,13 @@ const nextConfig = {
          {
             source: "/staff",
             destination: "/staff/dashboard",
-            permanent: true
+            permanent: true,
          },
          {
             source: "/stockkeeper",
             destination: "/stockkeeper/dashboard",
-            permanent: true
-         }
+            permanent: true,
+         },
       ]
    },
    reactStrictMode: true,
@@ -44,9 +39,9 @@ const nextConfig = {
       loaderFile: "./src/common/util/backendImageLoader.util.ts",
    },
    i18n: {
-      locales: ['vie', 'eng'],
-      defaultLocale: 'vie',
-    },
+      locales: ["vie", "eng"],
+      defaultLocale: "vie",
+   },
 }
 
 export default nextConfig

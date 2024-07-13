@@ -4,16 +4,19 @@ import RootHeader from "@/common/components/RootHeader"
 import { HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons"
 import React, { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import qk from "@/common/querykeys"
 import { NotFoundError } from "@/common/error/not-found.error"
-import { ProDescriptions, ProFormSelect, ProFormTextArea } from "@ant-design/pro-components"
-import { DeviceDto } from "@/common/dto/Device.dto"
-import { App, Button, Drawer, Empty, Form, Typography } from "antd"
+import { ProFormSelect, ProFormTextArea } from "@ant-design/pro-components"
+import { App, Button, Card, Drawer, Empty, Form, Typography } from "antd"
 import { useRouter } from "next/navigation"
 import Head_Device_OneById from "@/app/head/_api/device/oneById.api"
 import Head_Request_Create from "@/app/head/_api/request/create.api"
 import { useTranslation } from "react-i18next"
 import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
+import head_qk from "@/app/head/_api/qk"
+import qk from "@/app/head/_api/qk"
+import Head_Device_WithRequests from "@/app/head/_api/device/with_requests.api"
+import { ArchiveBox } from "@phosphor-icons/react"
+import DataListView from "@/common/components/DataListView"
 
 type FieldType = {
    description: string
@@ -93,12 +96,21 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
    const queryClient = useQueryClient()
    const { message } = App.useApp()
    const { t, i18n } = useTranslation()
+
    const results = useQuery({
-      queryKey: qk.devices.one_byId(params.id),
+      queryKey: head_qk.devices.by_id(params.id),
       queryFn: () => Head_Device_OneById({ id: params.id }),
       retry: 0,
       refetchOnWindowFocus: (query) => !(query.state.error?.name === NotFoundError.name),
    })
+
+   const results_withRequest = useQuery({
+      queryKey: head_qk.devices.with_requests(params.id),
+      queryFn: () => Head_Device_WithRequests({ id: params.id }),
+      retry: 0,
+      refetchOnWindowFocus: (query) => !(query.state.error?.name === NotFoundError.name),
+   })
+
    const [currentlySelected, setCurrentlySelected] = useState<string | undefined>()
 
    const mutate_submitIssue = useMutation({
@@ -133,7 +145,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   form.resetFields()
                   setOpenCreateIssue(false)
                   await queryClient.invalidateQueries({
-                     queryKey: qk.issueRequests.allRaw(),
+                     queryKey: head_qk.requests.all(),
                   })
                   router.push("/head/history")
                },
@@ -154,11 +166,69 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   type: "text",
                }}
             />
-            {(results.isSuccess || results.isLoading) && (
-               <div className="std-layout-grow mt-3">
-                  <DeviceDetailsCard device={results.data} />
-               </div>
-            )}
+            <div className="std-layout-grow mt-3">
+               <DataListView
+                  dataSource={results.data}
+                  items={[
+                     {
+                        label: "Machine Model",
+                        value: (s) => s.machineModel?.name,
+                     },
+                     {
+                        label: "Position",
+                        value: (s) => `${s.area?.name} (${s.positionX}x${s.positionY})`,
+                     },
+                     {
+                        label: "Manufacturer",
+                        value: (s) => s.machineModel?.manufacturer,
+                     },
+                     {
+                        label: "Year of Production",
+                        value: (s) => s.machineModel?.yearOfProduction,
+                     },
+                     {
+                        label: "Warrenty Term",
+                        value: (s) => s.machineModel?.warrantyTerm,
+                     },
+                     {
+                        label: "Description",
+                        value: (s) => s.description,
+                     },
+                  ]}
+               />
+               <section className="mt-6">
+                  <Typography.Title level={5}>Requests</Typography.Title>
+                  {results_withRequest.isSuccess ? (
+                     results_withRequest.data.requests.length === 0 ? (
+                        <Card size="small">
+                           <Empty description="This device has no requests" />
+                        </Card>
+                     ) : (
+                        <div className="grid grid-cols-1 gap-1">
+                           {results_withRequest.data.requests.map((req, index) => (
+                              <Card size="small" key={req.id}>
+                                 {req.requester_note}
+                              </Card>
+                           ))}
+                        </div>
+                     )
+                  ) : (
+                     <>
+                        {results_withRequest.isPending && <Card loading />}
+                        {results_withRequest.isError && (
+                           <Card size="small">
+                              <div className="grid place-content-center gap-2">
+                                 <div>An unexpected error has occurred. Please try again</div>
+                                 <Button type="primary" onClick={() => results_withRequest.refetch()}>
+                                    Retry
+                                 </Button>
+                              </div>
+                           </Card>
+                        )}
+                     </>
+                  )}
+               </section>
+            </div>
             {results.isError && results.error.name === NotFoundError.name ? (
                <div className="std-layout-grow grid place-items-center">
                   <Empty

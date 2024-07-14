@@ -9,6 +9,9 @@ const headstaff_qk = {
    device: {
       byId: (id: string) => ["headstaff", "device", "byId", id],
    },
+   issue: {
+      byId: (id: string) => ["headstaff", "issue", "byId", id],
+   },
 }
 
 export default headstaff_qk

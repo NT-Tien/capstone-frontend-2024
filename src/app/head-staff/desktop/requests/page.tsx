@@ -10,8 +10,8 @@ import dayjs from "dayjs"
 import Link from "next/link"
 import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
 import { PageContainer } from "@ant-design/pro-layout"
-import { useRef, useState } from "react"
-import { App, Button, Dropdown, Tabs } from "antd"
+import { Suspense, useRef, useState } from "react"
+import { App, Button, Dropdown, Spin, Tabs } from "antd"
 import { MoreOutlined } from "@ant-design/icons"
 import { cn } from "@/common/util/cn.util"
 
@@ -26,6 +26,14 @@ const currentDefault = 1,
    currentStatusDefault = IssueRequestStatus.PENDING
 
 export default function Page() {
+   return (
+      <Suspense fallback={<Spin fullscreen />}>
+         <PageContent />
+      </Suspense>
+   )
+}
+
+function PageContent() {
    const searchParams = useSearchParams()
    const [current, setCurrent] = useState(Number(searchParams.get("current")) || currentDefault)
    const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || pageSizeDefault)
@@ -34,6 +42,7 @@ export default function Page() {
    )
    const { message } = App.useApp()
    const queryClient = useQueryClient()
+   const router = useRouter()
 
    const response = useQuery({
       queryKey: headstaff_qk.request.all({
@@ -66,7 +75,22 @@ export default function Page() {
    }
 
    return (
-      <PageContainer title={`Requests List`}>
+      <PageContainer
+         title={`Requests List`}
+         breadcrumb={{
+            items: [
+               {
+                  title: "Dashboard",
+                  onClick: () => {
+                     router.push("/head-staff/desktop/dashboard")
+                  },
+               },
+               {
+                  title: "Requests",
+               },
+            ],
+         }}
+      >
          <Tabs
             className="tabs-no-spacing"
             type="card"
@@ -140,7 +164,7 @@ function DataView<T extends Record<string, any>>(props: Props<T>) {
                <span className="text-xs font-normal text-gray-500">Total {props.total ?? "-"} request(s)</span>
             </div>
          }
-         rowClassName={(record, index) => (index % 2 === 0 ? "" : "bg-neutral-100")}
+         rowClassName={(_, index) => (index % 2 === 0 ? "" : "bg-neutral-100/50")}
          actionRef={actionRef}
          dataSource={props.list}
          loading={props.loading || isRefetching}
@@ -151,7 +175,10 @@ function DataView<T extends Record<string, any>>(props: Props<T>) {
                setIsRefetching(false)
             },
          }}
-         virtual={true}
+         scroll={{
+            y: 500,
+         }}
+         virtual
          pagination={{
             pageSize: props.pageSize,
             showQuickJumper: true,
@@ -169,7 +196,7 @@ function DataView<T extends Record<string, any>>(props: Props<T>) {
             {
                title: "STT",
                key: "index",
-               valueType: "indexBorder",
+               render: (_, __, index) => index + 1,
                width: 48,
                hideInSearch: true,
                align: "center",

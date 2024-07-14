@@ -8,8 +8,8 @@ import dayjs from "dayjs"
 import Link from "next/link"
 import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
 import { PageContainer } from "@ant-design/pro-layout"
-import { useRef, useState } from "react"
-import { App, Button, Dropdown, Tabs, Tag } from "antd"
+import { Suspense, useRef, useState } from "react"
+import { App, Button, Dropdown, Spin, Tabs, Tag } from "antd"
 import { MoreOutlined } from "@ant-design/icons"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
@@ -29,6 +29,14 @@ const currentDefault = 1,
    currentStatusDefault = TaskStatus.AWAITING_FIXER
 
 export default function Page() {
+   return (
+      <Suspense fallback={<Spin fullscreen />}>
+         <PageContent />
+      </Suspense>
+   )
+}
+
+function PageContent() {
    const searchParams = useSearchParams()
    const [current, setCurrent] = useState(Number(searchParams.get("current")) || currentDefault)
    const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || pageSizeDefault)

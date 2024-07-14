@@ -96,9 +96,12 @@ export default function CreateIssueDrawer(props: {
             height="max-content"
             placement="bottom"
             title="Create Issue"
+            classNames={{
+               body: "flex flex-col",
+            }}
             {...props.drawerProp}
          >
-            <Form<FieldType> form={form} onFinish={handleFinish}>
+            <Form<FieldType> form={form} onFinish={handleFinish} className="flex-grow" layout="vertical">
                <ProFormSelect
                   name="typeError"
                   label="Type Error"
@@ -118,7 +121,16 @@ export default function CreateIssueDrawer(props: {
                      value: fix,
                   }))}
                />
-               <ProFormTextArea name="description" label="Description" rules={[{ required: true }]} allowClear />
+               <ProFormTextArea
+                  name="description"
+                  label="Description"
+                  rules={[{ required: true }]}
+                  allowClear
+                  fieldProps={{
+                     showCount: true,
+                     maxLength: 300,
+                  }}
+               />
             </Form>
             <Button className="w-full" type="primary" onClick={form.submit} size="large">
                Create Issue

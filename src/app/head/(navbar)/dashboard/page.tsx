@@ -32,33 +32,37 @@ export default function HeadDashboardPage() {
    return (
       <div className="std-layout">
          <HomeHeader className="pb-8 pt-4" />
-            <section className="flex space-x-4">
-               <StatisticCard
-                  className="h-full w-full flex-1"
-                  loading={result.isLoading}
-                  statistic={{
-                     title: t('Total'),
-                     value: result.data?.length ?? 0,
-                     formatter: (value) => <CountUp end={value as number} separator={","} />,
-                  }}
-               />
-               <StatisticCard
-                  className="h-full w-full flex-1"
-                  statistic={{
-                     title: t('Fixed'),
-                     value: result.data?.filter((value: FixRequestDto) => value.status === IssueRequestStatus.APPROVED).length ?? 0,
-                     formatter: (value) => <CountUp end={value as number} separator={","} />,
-                  }}
-               />
-               <StatisticCard
-                  className="h-full w-full flex-1"
-                  statistic={{
-                     title: t('Maintenance'),
-                     value: result.data?.filter((value: FixRequestDto) => value.status === IssueRequestStatus.PENDING).length ?? 0,
-                     formatter: (value) => <CountUp end={value as number} separator={","} />,
-                  }}
-               />
-            </section>
+         <section className="flex space-x-4">
+            <StatisticCard
+               className="h-full w-full flex-1"
+               loading={result.isLoading}
+               statistic={{
+                  title: t("Total"),
+                  value: result.data?.length ?? 0,
+                  formatter: (value) => <CountUp end={value as number} separator={","} />,
+               }}
+            />
+            <StatisticCard
+               className="h-full w-full flex-1"
+               statistic={{
+                  title: t("Fixed"),
+                  value:
+                     result.data?.filter((value: FixRequestDto) => value.status === IssueRequestStatus.APPROVED)
+                        .length ?? 0,
+                  formatter: (value) => <CountUp end={value as number} separator={","} />,
+               }}
+            />
+            <StatisticCard
+               className="h-full w-full flex-1"
+               statistic={{
+                  title: t("Maintenance"),
+                  value:
+                     result.data?.filter((value: FixRequestDto) => value.status === IssueRequestStatus.PENDING)
+                        .length ?? 0,
+                  formatter: (value) => <CountUp end={value as number} separator={","} />,
+               }}
+            />
+         </section>
          <section className="std-layout-inner mt-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
                <ClockCircleOutlined />
@@ -99,7 +103,6 @@ export default function HeadDashboardPage() {
                            createdDate={extended_dayjs(req.createdAt).fromNow()}
                            onClick={(id: string) => router.push(`/head/history/${id}`)}
                            status={req.status}
-                           index={index}
                         />
                      ))}
                </>

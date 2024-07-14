@@ -85,3 +85,14 @@ html, body {
         transform: none !important;
     }
 }
+
+.list-no-padding {
+    .ant-pro-card-body {
+        padding: 0 !important;
+    }
+
+    .ant-pro-table-list-toolbar-container {
+        padding: 0 !important;
+        padding-bottom: 0.75rem !important;
+    }
+}

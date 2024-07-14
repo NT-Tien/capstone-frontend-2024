@@ -20,6 +20,7 @@ import Link from "next/link"
 import { ProLayout } from "@ant-design/pro-layout"
 import { usePathname, useRouter } from "next/navigation"
 import LocaleSwitcher from "@/common/components/LocaleSwitcher"
+import { CheckSquare, Tray, User } from "@phosphor-icons/react"
 
 export default function HeadStaffDesktopLayout({ children }: { children: ReactNode }) {
    const router = useRouter()
@@ -95,65 +96,35 @@ export default function HeadStaffDesktopLayout({ children }: { children: ReactNo
                )
             },
          }}
-         title="Admin Panel"
+         title="Head Staff"
          layout="side"
          fixSiderbar={true}
-         onMenuHeaderClick={() => router.push("/admin/dashboard")}
+         onMenuHeaderClick={() => router.push("/head-staff/desktop/dashboard")}
          route={{
             routes: [
                {
-                  key: "general",
-                  name: "General",
-                  children: [
-                     {
-                        key: "dashboard",
-                        path: "/admin/dashboard",
-                        name: "Dashboard",
-                        icon: <DashboardOutlined />,
-                     },
-                  ],
+                  key: "dashboard",
+                  path: "/head-staff/desktop/dashboard",
+                  name: "Dashboard",
+                  icon: <DashboardOutlined />,
                },
                {
-                  key: "data management",
-                  name: "Data Management",
-                  children: [
-                     {
-                        key: "areas",
-                        name: "Areas",
-                        icon: <AreaChartOutlined />,
-                        path: "/admin/area",
-                     },
-                     {
-                        key: "machine models",
-                        name: "Machine Models",
-                        icon: <RobotOutlined />,
-                        path: "/admin/machine-models",
-                     },
-                     {
-                        key: "devices",
-                        name: "Devices",
-                        icon: <LaptopOutlined />,
-                        path: "/admin/devices",
-                     },
-                     {
-                        key: "spare parts",
-                        name: "Spare Parts",
-                        icon: <ApiOutlined />,
-                        path: "/admin/spare-parts",
-                     },
-                  ],
+                  key: "requests",
+                  path: "/head-staff/desktop/requests",
+                  name: "Requests",
+                  icon: <Tray size={16} />,
                },
                {
-                  key: "site settings",
-                  name: "Site Settings",
-                  children: [
-                     {
-                        key: "users",
-                        name: "Users",
-                        path: "/admin/users",
-                        icon: <UserOutlined />,
-                     },
-                  ],
+                  key: "tasks",
+                  path: "/head-staff/desktop/tasks",
+                  name: "Tasks",
+                  icon: <CheckSquare size={16} />,
+               },
+               {
+                  key: "staff",
+                  path: "/head-staff/desktop/staff",
+                  name: "Staff",
+                  icon: <User size={16} />,
                },
             ],
          }}
@@ -162,7 +133,7 @@ export default function HeadStaffDesktopLayout({ children }: { children: ReactNo
          }}
          menuItemRender={(item, dom) => <Link href={item.path ?? "/head-staff/desktop"}>{dom}</Link>}
       >
-         {children}
+         <div className="h-full min-h-screen w-full bg-neutral-100">{children}</div>
       </ProLayout>
    )
 }

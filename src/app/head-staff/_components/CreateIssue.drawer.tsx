@@ -1,7 +1,7 @@
 "use client"
 
 import { ReactNode, useState } from "react"
-import { App, Button, Drawer, Form } from "antd"
+import { App, Button, Drawer, DrawerProps, Form } from "antd"
 import { FixType } from "@/common/enum/fix-type.enum"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
@@ -20,6 +20,7 @@ type FieldType = {
 export default function CreateIssueDrawer(props: {
    children: (handleOpen: (requestId: string) => void) => ReactNode
    onSuccess?: () => void
+   drawerProp?: DrawerProps
 }) {
    const [open, setOpen] = useState(false)
    const [id, setId] = useState<undefined | string>(undefined)
@@ -33,7 +34,6 @@ export default function CreateIssueDrawer(props: {
       enabled: !!id,
    })
 
-   // TODO remove
    const device = useQuery({
       queryKey: qk.devices.one_byId(result.data?.device.id ?? ""),
       queryFn: () => HeadStaff_Device_OneById({ id: result.data?.device.id ?? "" }),
@@ -90,9 +90,16 @@ export default function CreateIssueDrawer(props: {
    return (
       <>
          {props.children(handleOpen)}
-         <Drawer open={open} onClose={handleClose} height="max-content" placement="bottom" title="Create Issue">
+         <Drawer
+            open={open}
+            onClose={handleClose}
+            height="max-content"
+            placement="bottom"
+            title="Create Issue"
+            {...props.drawerProp}
+         >
             <Form<FieldType> form={form} onFinish={handleFinish}>
-            <ProFormSelect
+               <ProFormSelect
                   name="typeError"
                   label="Type Error"
                   rules={[{ required: true }]}

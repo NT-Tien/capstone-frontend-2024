@@ -75,3 +75,13 @@ html, body {
     }
 }
 
+.tabs-no-spacing {
+    .ant-tabs-nav {
+        margin-bottom: 0 !important;
+    }
+
+    .ant-tabs-nav-list {
+        transition: none !important;
+        transform: none !important;
+    }
+}

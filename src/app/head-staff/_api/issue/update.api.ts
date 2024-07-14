@@ -6,7 +6,7 @@ import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 export type Request = {
    id: string
    payload: {
-      task: string
+      task?: string
       typeError: string
       description: string
       fixType: string

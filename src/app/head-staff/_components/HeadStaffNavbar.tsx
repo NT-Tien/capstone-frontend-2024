@@ -18,7 +18,7 @@ export default function HeadStaffNavbar() {
    }
 
    useEffect(() => {
-      setCurrentActive(current.split("/")[2])
+      setCurrentActive(current.split("/")[3])
    }, [current])
 
    const items: NavbarMenuItem[] = [

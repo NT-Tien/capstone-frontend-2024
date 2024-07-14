@@ -7,6 +7,7 @@ export function CopyToClipboard({ value, options }: { value: string; options?: {
    return {
       key: "copy",
       name: options?.name || "Copy ID",
+      label: options?.name || "Copy ID",
       onClick: async () => {
          await navigator.clipboard.writeText(value)
          message.success("ID copied to clipboard")

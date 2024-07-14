@@ -48,8 +48,8 @@ type ReportsTabProps = {
 }
 
 function ReportsTab(props: ReportsTabProps) {
-   const { t } = useTranslation();
-   const router = useRouter();
+   const { t } = useTranslation()
+   const router = useRouter()
 
    const results = useQuery({
       queryKey: qk.issueRequests.all(1, 50, props.status),
@@ -59,16 +59,16 @@ function ReportsTab(props: ReportsTabProps) {
             limit: 50,
             status: props.status,
          }),
-   });
+   })
 
    return (
       <div className="grid grid-cols-1 gap-2">
          <div className="text-gray-500">
             {{
-               [IssueRequestStatus.PENDING]: 'Sorting by Creation Date (old - new)',
-               [IssueRequestStatus.APPROVED]: 'Sorting by Modified Date (new - old)',
-               [IssueRequestStatus.REJECTED]: 'Sorting by Modified Date (new - old)',
-            }[props.status] || ''}
+               [IssueRequestStatus.PENDING]: "Sorting by Creation Date (old - new)",
+               [IssueRequestStatus.APPROVED]: "Sorting by Modified Date (new - old)",
+               [IssueRequestStatus.REJECTED]: "Sorting by Modified Date (new - old)",
+            }[props.status] || ""}
          </div>
          {results.isSuccess ? (
             <>
@@ -80,19 +80,19 @@ function ReportsTab(props: ReportsTabProps) {
                         positionX={req.device.positionX}
                         positionY={req.device.positionY}
                         area={req.device.area.name}
-                        machineModelName={req.device?.machineModel?.name ?? 'Test Machine'}
-                        createdDate={dayjs(req.createdAt).format('DD/MM/YY - HH:mm')}
-                        onClick={(id: string) => router.push(`/head-staff/requests/${id}`)}
+                        machineModelName={req.device?.machineModel?.name ?? "Test Machine"}
+                        createdDate={dayjs(req.createdAt).format("DD/MM/YY - HH:mm")}
+                        onClick={(id: string) => router.push(`/head-staff/mobile/requests/${id}`)}
                         index={index}
                      />
                   ))
                ) : (
-                  <Empty description={t('noData')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                  <Empty description={t("noData")} image={Empty.PRESENTED_IMAGE_SIMPLE} />
                )}
             </>
          ) : (
             <>{results.isLoading && <Card loading />}</>
          )}
       </div>
-   );
+   )
 }

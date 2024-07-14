@@ -18,6 +18,16 @@ const nextConfig = {
             permanent: true,
          },
          {
+            source: "/head-staff/desktop",
+            destination: "/head-staff/desktop/dashboard",
+            permanent: true,
+         },
+         {
+            source: "/head-staff/mobile",
+            destination: "/head-staff/mobile/dashboard",
+            permanent: true,
+         },
+         {
             source: "/staff",
             destination: "/staff/dashboard",
             permanent: true,

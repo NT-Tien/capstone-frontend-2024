@@ -20,6 +20,7 @@ export type TaskDto = {
    imagesVerify: string[]
    videosVerify: string
    confirmReceipt: boolean | null
+   fixerDate: string
    device: DeviceDto
    request: FixRequestDto
    fixer: UserDto

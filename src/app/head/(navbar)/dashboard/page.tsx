@@ -99,7 +99,6 @@ export default function HeadDashboardPage() {
                            createdDate={extended_dayjs(req.createdAt).fromNow()}
                            onClick={(id: string) => router.push(`/head/history/${id}`)}
                            status={req.status}
-                           index={index}
                         />
                      ))}
                </>

@@ -9,7 +9,7 @@ import { ProDescriptions } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 import { Button, Card, Collapse, List, Tag, Typography } from "antd"
 import { useTranslation } from "react-i18next"
-import Stockkeeper_Task_GetById from "../../../_api/task/getById.api"
+import Stockkeeper_Task_GetById from "../../../../_api/task/getById.api"
 import React from "react"
 
 export default function TaskDetails({ params }: { params: { id: string } }) {

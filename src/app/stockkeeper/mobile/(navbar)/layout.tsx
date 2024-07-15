@@ -1,5 +1,5 @@
 import { ReactNode } from "react"
-import StockkeeperNavbar from "../_components/StockkeeperNavbar"
+import StockkeeperNavbar from "../../_components/StockkeeperNavbar"
 
 export default function NavbarTabs({ children }: { children: ReactNode }) {
    return (

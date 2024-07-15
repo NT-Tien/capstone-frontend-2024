@@ -33,8 +33,13 @@ const nextConfig = {
             permanent: true,
          },
          {
-            source: "/stockkeeper",
-            destination: "/stockkeeper/dashboard",
+            source: "/stockkeeper/mobile",
+            destination: "/stockkeeper/mobile/dashboard",
+            permanent: true,
+         },
+         {
+            source: "/stockkeeper/desktop",
+            destination: "/stockkeeper/desktop/dashboard",
             permanent: true,
          },
       ]

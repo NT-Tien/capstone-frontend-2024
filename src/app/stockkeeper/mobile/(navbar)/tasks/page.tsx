@@ -10,14 +10,12 @@ import { RightOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 import { useTranslation } from "react-i18next"
-import Stockkeeper_Task_All from "../../_api/task/getAll.api"
+import Stockkeeper_Task_All from "../../../_api/task/getAll.api"
 
 export default function TasksPage() {
    const searchParams = useSearchParams()
    const page = Number(searchParams.get("page")) ?? 1
    const limit = 5
-   const router = useRouter()
-   const { t } = useTranslation()
 
    const result = useInfiniteQuery({
       queryKey: qk.task.all(page, limit),
@@ -31,12 +29,7 @@ export default function TasksPage() {
    return (
       <div className="std-layout">
          <RootHeader title="Tasks" className="std-layout-outer p-4" />
-         <div
-            className="mt-3"
-            onChange={(e) => {
-               router.push(`/stockkeeper/tasks=${e}`)
-            }}
-         >
+         <div className="mt-3">
             <ListView
                total={result.data?.pages[0].total ?? 0}
                loadMore={result.fetchNextPage}
@@ -80,7 +73,7 @@ function ListView(props: ListViewType) {
                size="small"
                className="mb-3"
                hoverable={true}
-               onClick={() => router.push(`/stockkeeper/tasks/${item.id}`)}
+               onClick={() => router.push(`/stockkeeper/mobile/tasks/${item.id}`)}
             >
                <ProDescriptions
                   size="small"

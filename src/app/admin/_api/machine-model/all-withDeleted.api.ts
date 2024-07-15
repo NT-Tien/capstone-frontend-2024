@@ -5,7 +5,7 @@ import { MachineModelDto } from "@/common/dto/MachineModel.dto"
 
 export type Response = MachineModelDto[]
 
-Admin_MachineModel_AllWithDeleted.URL = "/admin/machine-model/include-deleted"
+Admin_MachineModel_AllWithDeleted.URL = "/admin/warehouse/include-deleted"
 export default async function Admin_MachineModel_AllWithDeleted(): Promise<Response> {
    return api
       .get<Response>(Admin_MachineModel_AllWithDeleted.URL, {

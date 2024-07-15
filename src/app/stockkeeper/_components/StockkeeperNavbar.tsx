@@ -13,11 +13,11 @@ export default function StockkeeperNavbar() {
    const router = useRouter()
 
    useEffect(() => {
-      setCurrentActive(pathname.split("/")[2])
+      setCurrentActive(pathname.split("/")[3])
    }, [pathname])
 
    useEffect(() => {
-      if (currentActive) router.push(`/stockkeeper/${currentActive}`)
+      if (currentActive) router.push(`/stockkeeper/mobile/${currentActive}`)
    }, [currentActive, router])
 
    const items: NavbarMenuItem[] = [
@@ -29,9 +29,9 @@ export default function StockkeeperNavbar() {
       },
       {
          name: t("machineModelNav"),
-         key: "machine-model",
+         key: "warehouse",
          icon: <ContainerFilled />,
-         onClick: () => setCurrentActive("machine-model"),
+         onClick: () => setCurrentActive("warehouse"),
       },
       {
          name: t("tasksNav"),

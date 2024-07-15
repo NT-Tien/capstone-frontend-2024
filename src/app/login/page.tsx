@@ -79,7 +79,7 @@ function Login() {
                   break
                }
                case Role.stockkeeper: {
-                  router.push("/stockkeeper/dashboard")
+                  router.push("/stockkeeper")
                   break
                }
                default: {

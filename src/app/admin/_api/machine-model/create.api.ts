@@ -9,7 +9,7 @@ export type Request = Pick<
 >
 export type Response = MachineModelDto
 
-Admin_MachineModels_Create.URL = "/admin/machine-model"
+Admin_MachineModels_Create.URL = "/admin/warehouse"
 export default async function Admin_MachineModels_Create(req: Request): Promise<Response> {
    return api
       .post<Response>(Admin_MachineModels_Create.URL, req, {

@@ -15,9 +15,9 @@ const qk = {
       all: () => ["positions"],
    },
    machineModels: {
-      all: () => ["machine-model"],
-      all_withDeleted: () => ["machine-model", "all_withDeleted"],
-      one_byId: (id: string) => ["machine-model", id],
+      all: () => ["warehouse"],
+      all_withDeleted: () => ["warehouse", "all_withDeleted"],
+      one_byId: (id: string) => ["warehouse", id],
    },
    devices: {
       all: () => ["devices"],

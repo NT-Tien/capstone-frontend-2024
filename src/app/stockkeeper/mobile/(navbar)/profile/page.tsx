@@ -40,17 +40,17 @@ export default function ProfilePage() {
                <FunctionButton
                   icon={<HomeOutlined />}
                   title="Home"
-                  onClick={() => router.push("/stockkeeper/dashboard")}
+                  onClick={() => router.push("/stockkeeper/mobile/dashboard")}
                />
                <FunctionButton
                   icon={<ContainerFilled />}
                   title="Warehouse"
-                  onClick={() => router.push("/stockkeeper/requests")}
+                  onClick={() => router.push("/stockkeeper/mobile/warehouse")}
                />
                <FunctionButton
                   icon={<CheckOutlined />}
                   title="Tasks"
-                  onClick={() => router.push("/stockkeeper/tasks")}
+                  onClick={() => router.push("/stockkeeper/mobile/tasks")}
                />
             </main>
          </section>

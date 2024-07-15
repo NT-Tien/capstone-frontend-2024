@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
 import qk from "@/common/querykeys"
 import { ProFormTextArea } from "@ant-design/pro-components"
-import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
 import { UploadOutlined } from "@ant-design/icons"
 
 type FieldType = {
@@ -47,7 +47,7 @@ export default function RejectTaskDrawer({ children }: { children: (handleOpen: 
          {
             id,
             payload: {
-               status: IssueRequestStatus.REJECTED,
+               status: FixRequestStatus.REJECTED,
                checker_note: values.rejectMsg,
             },
          },

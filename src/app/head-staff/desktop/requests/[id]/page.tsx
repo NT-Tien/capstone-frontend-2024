@@ -1,21 +1,29 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import { Button, Card, Tag } from "antd"
 import { useRouter } from "next/navigation"
 import { PageContainer } from "@ant-design/pro-layout"
-import { LeftOutlined } from "@ant-design/icons"
+import { LeftOutlined, PlusOutlined } from "@ant-design/icons"
 import { ProDescriptions, ProTable } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 import { Key, useState } from "react"
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
-import { useCreateTask } from "@/app/head-staff/_context/CreateTask.context"
 import IssuesTab from "@/app/head-staff/desktop/requests/[id]/IssuesTab"
+import DesktopCreateTaskDrawer from "@/app/head-staff/_components/DesktopCreateTask.drawer"
+import dynamic from "next/dynamic"
+import { FixRequestStatusTagMapper } from "@/common/enum/issue-request-status.enum"
 
-export default function RequestDetails({ params }: { params: { id: string } }) {
+// render this component SOLELY on the client (no server side pre-rendering) because of a bug with the ProTable Footer
+export default dynamic(() => Promise.resolve(RequestDetails), {
+   ssr: false,
+})
+
+function RequestDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
+   const queryClient = useQueryClient()
 
    const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([])
 
@@ -32,40 +40,40 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
 
    return (
       <PageContainer
-         // footer={[
-         //    ...(selectedRowKeys.length > 0
-         //       ? [
-         //            // <FooterToolbar
-         //            //    key={"create-task-footer"}
-         //            //    extra={
-         //            //       <div>
-         //            //          <div className="text-base">
-         //            //             Time to complete:{" "}
-         //            //             {api.data?.issues
-         //            //                .filter((i) => selectedRowKeys.find((i2) => i2.toString() === i.id))
-         //            //                .reduce((acc, curr) => acc + curr.typeError.duration, 0)}{" "}
-         //            //             minute(s)
-         //            //          </div>
-         //            //       </div>
-         //            //    }
-         //            // >
-         //            //    <Button
-         //            //       type="primary"
-         //            //       icon={<PlusOutlined />}
-         //            //       onClick={() => {
-         //            //          add(
-         //            //             params.id,
-         //            //             selectedRowKeys.map((k) => k.toString()),
-         //            //          )
-         //            //          router.push("/head-staff/desktop/tasks/new")
-         //            //       }}
-         //            //    >
-         //            //       Create Task
-         //            //    </Button>
-         //            // </FooterToolbar>,
-         //         ]
-         //       : []),
-         // ]}
+         footer={[
+            ...(selectedRowKeys.length > 0
+               ? [
+                    <div className={"flex items-center p-4"}>
+                       <DesktopCreateTaskDrawer
+                          afterSuccess={async () => {
+                             await queryClient.invalidateQueries({
+                                queryKey: headstaff_qk.task.base(),
+                             })
+                             await queryClient.invalidateQueries({
+                                queryKey: headstaff_qk.request.base(),
+                             })
+                          }}
+                       >
+                          {(handleOpen) => (
+                             <Button
+                                type="primary"
+                                size="large"
+                                icon={<PlusOutlined />}
+                                onClick={() => {
+                                   handleOpen(
+                                      params.id,
+                                      selectedRowKeys.map((k) => k.toString()),
+                                   )
+                                }}
+                             >
+                                Create Task
+                             </Button>
+                          )}
+                       </DesktopCreateTaskDrawer>
+                    </div>,
+                 ]
+               : []),
+         ]}
          header={{
             title: (
                <div className="flex items-center gap-3">
@@ -88,8 +96,12 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                   },
                ],
             },
+            tags: [
+               <Tag key="status" color={FixRequestStatusTagMapper[String(api.data?.status)].colorInverse}>
+                  {FixRequestStatusTagMapper[String(api.data?.status)].text}
+               </Tag>,
+            ],
          }}
-         subTitle={<Tag>{api.data?.status}</Tag>}
          tabList={[
             {
                tab: "Issues",
@@ -222,6 +234,10 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                )}
             </>
          }
+         className="relative pb-10"
+         childrenContentStyle={{
+            position: "relative",
+         }}
       ></PageContainer>
    )
 }

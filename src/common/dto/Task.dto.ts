@@ -1,4 +1,4 @@
-import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 import { DeviceDto } from "@/common/dto/Device.dto"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
@@ -25,4 +25,32 @@ export type TaskDto = {
    request: FixRequestDto
    fixer: UserDto
    issues: FixRequestIssueDto[]
+}
+
+export const PriorityTagMapper: {
+   [key: string]: {
+      textLong: string
+      textShort: string
+      colorInverse: string
+      color: string
+   }
+} = {
+   true: {
+      textLong: "High Priority",
+      textShort: "High",
+      colorInverse: "red-inverse",
+      color: "red",
+   },
+   false: {
+      textLong: "Low Priority",
+      textShort: "Low",
+      colorInverse: "green-inverse",
+      color: "green",
+   },
+   undefined: {
+      textLong: "-",
+      textShort: "-",
+      colorInverse: "default",
+      color: "default",
+   },
 }

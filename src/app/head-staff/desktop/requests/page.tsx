@@ -4,26 +4,22 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
 import { useRouter, useSearchParams } from "next/navigation"
-import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
 import { ProTable } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 import Link from "next/link"
 import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
 import { PageContainer } from "@ant-design/pro-layout"
-import { Suspense, useRef, useState } from "react"
+import { Suspense, useEffect, useRef, useState } from "react"
 import { App, Button, Dropdown, Spin, Tabs } from "antd"
 import { MoreOutlined } from "@ant-design/icons"
 import { cn } from "@/common/util/cn.util"
 
 const RequestStatusToText = {
-   [IssueRequestStatus.PENDING]: "Pending",
-   [IssueRequestStatus.APPROVED]: "Approved",
-   [IssueRequestStatus.REJECTED]: "Rejected",
+   [FixRequestStatus.PENDING]: "Pending",
+   [FixRequestStatus.APPROVED]: "Approved",
+   [FixRequestStatus.REJECTED]: "Rejected",
 }
-
-const currentDefault = 1,
-   pageSizeDefault = 9,
-   currentStatusDefault = IssueRequestStatus.PENDING
 
 export default function Page() {
    return (
@@ -34,15 +30,20 @@ export default function Page() {
 }
 
 function PageContent() {
+   const currentDefault = 1,
+      pageSizeDefault = 9,
+      currentStatusDefault = FixRequestStatus.PENDING
+
    const searchParams = useSearchParams()
-   const [current, setCurrent] = useState(Number(searchParams.get("current")) || currentDefault)
-   const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || pageSizeDefault)
-   const [currentStatus, setCurrentStatus] = useState<IssueRequestStatus>(
-      (searchParams.get("status") as IssueRequestStatus) ?? currentStatusDefault,
-   )
    const { message } = App.useApp()
    const queryClient = useQueryClient()
    const router = useRouter()
+
+   const [current, setCurrent] = useState(Number(searchParams.get("current")) || currentDefault)
+   const [pageSize, setPageSize] = useState(Number(pageSizeDefault))
+   const [currentStatus, setCurrentStatus] = useState<FixRequestStatus>(
+      (searchParams.get("status") as FixRequestStatus) ?? currentStatusDefault,
+   )
 
    const response = useQuery({
       queryKey: headstaff_qk.request.all({
@@ -58,21 +59,25 @@ function PageContent() {
          }),
    })
 
-   function handleChangeTab(current?: number, pageSize?: number, status?: IssueRequestStatus) {
+   function handleChangeTab(current?: number, pageSize?: number, status?: FixRequestStatus) {
       const finalCurrent = current ?? currentDefault
-      const finalPageSize = pageSize ?? pageSizeDefault
       const finalStatus = status ?? currentStatusDefault
 
       setCurrent(finalCurrent)
-      setPageSize(finalPageSize)
       setCurrentStatus(finalStatus)
 
       const urlSearchParams = new URLSearchParams()
       urlSearchParams.set("current", String(finalCurrent))
-      urlSearchParams.set("pageSize", String(finalPageSize))
       urlSearchParams.set("status", String(finalStatus))
       history.replaceState({}, "", `/head-staff/desktop/requests?${urlSearchParams.toString()}`)
    }
+
+   useEffect(() => {
+      // this dynamically sets the number of rows to fill the screen
+      const value = window.innerHeight - 120 - 104 - 104 - 75
+      console.log(Math.floor(value / 48))
+      setPageSize(Math.floor(value / 48))
+   }, [])
 
    return (
       <PageContainer
@@ -95,10 +100,10 @@ function PageContent() {
             className="tabs-no-spacing"
             type="card"
             onChange={(key) => {
-               handleChangeTab(undefined, undefined, key as IssueRequestStatus)
+               handleChangeTab(undefined, undefined, key as FixRequestStatus)
             }}
             activeKey={currentStatus}
-            items={Object.values(IssueRequestStatus).map((status) => ({
+            items={Object.values(FixRequestStatus).map((status) => ({
                key: status,
                label: (
                   <span
@@ -149,7 +154,7 @@ type Props<T extends Record<string, any>> = {
    pageSize: number
    page: number
    tabStatus: string
-   handleChangeTab: (current?: number, pageSize?: number, status?: IssueRequestStatus) => void
+   handleChangeTab: (current?: number, pageSize?: number, status?: FixRequestStatus) => void
 }
 
 function DataView<T extends Record<string, any>>(props: Props<T>) {
@@ -175,9 +180,9 @@ function DataView<T extends Record<string, any>>(props: Props<T>) {
                setIsRefetching(false)
             },
          }}
-         scroll={{
-            y: 500,
-         }}
+         // scroll={{
+         //    y: 0,
+         // }}
          virtual
          pagination={{
             pageSize: props.pageSize,
@@ -186,7 +191,7 @@ function DataView<T extends Record<string, any>>(props: Props<T>) {
             current: props.page,
             total: props.total,
             onChange: (page, pageSize) => {
-               props.handleChangeTab(page, pageSize, props.tabStatus as IssueRequestStatus)
+               props.handleChangeTab(page, pageSize, props.tabStatus as FixRequestStatus)
             },
          }}
          dateFormatter={(value) => value.format("DD/MM/YY HH:mm")}
@@ -204,7 +209,6 @@ function DataView<T extends Record<string, any>>(props: Props<T>) {
             {
                key: "device",
                title: "Machine Model",
-               width: "0px",
                render: (_, e) => e.device.machineModel.name,
             },
             {
@@ -216,8 +220,8 @@ function DataView<T extends Record<string, any>>(props: Props<T>) {
             },
             {
                key: "issues",
-               title: "No. Issues",
-               width: 100,
+               title: "Issues",
+               width: 70,
                align: "center",
                render: (_, e) => e.issues.length,
             },
@@ -232,14 +236,14 @@ function DataView<T extends Record<string, any>>(props: Props<T>) {
                key: "createdAt",
                dataIndex: "createdAt",
                valueType: "date",
-               width: 200,
+               width: 130,
                render: (_, e) => dayjs(e.createdAt).format("DD-MM-YYYY"),
                sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
             },
             {
                title: "Updated At",
                key: "updatedAt",
-               width: 200,
+               width: 130,
                render: (_, e) => (e.updatedAt === e.createdAt ? "-" : dayjs(e.updatedAt).format("DD-MM-YYYY")),
                valueType: "date",
                sorter: (a, b) => dayjs(a.updatedAt).unix() - dayjs(b.updatedAt).unix(),

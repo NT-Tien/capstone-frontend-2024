@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import Head_Request_All from "@/app/head/_api/request/all.api"
 import { NotFoundError } from "@/common/error/not-found.error"
-import { IssueRequestStatusTag } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatusTagMapper, IssueRequestStatusTag } from "@/common/enum/issue-request-status.enum"
 import { ProDescriptions } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 import Head_Device_OneById from "@/app/head/_api/device/oneById.api"
@@ -50,11 +50,9 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
             <Typography.Title level={4} className="mb-0">
                {t("IssueDetails")}
             </Typography.Title>
-            {response.isSuccess ? (
-               <IssueRequestStatusTag status={getStatusTranslation(response.data.status)} />
-            ) : (
-               <Tag>...</Tag>
-            )}
+            <Tag color={FixRequestStatusTagMapper[String(response.data?.status)].colorInverse}>
+               {getStatusTranslation(response.data?.status)}
+            </Tag>
          </div>
          <ProDescriptions
             className="std-layout-inner mt-2"

@@ -5,7 +5,7 @@ import { Card, Empty, Tabs } from "antd"
 import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
-import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
 import { useTranslation } from "react-i18next"
 import ReportCard from "@/app/head/_components/ReportCard"
 import React from "react"
@@ -25,17 +25,17 @@ export default function ReportsPage() {
                {
                   key: "pending",
                   label: t("pending"),
-                  children: <ReportsTab status={IssueRequestStatus.PENDING} />,
+                  children: <ReportsTab status={FixRequestStatus.PENDING} />,
                },
                {
                   key: "approved",
                   label: t("approved"),
-                  children: <ReportsTab status={IssueRequestStatus.APPROVED} />,
+                  children: <ReportsTab status={FixRequestStatus.APPROVED} />,
                },
                {
                   key: "rejected",
                   label: t("rejected"),
-                  children: <ReportsTab status={IssueRequestStatus.REJECTED} />,
+                  children: <ReportsTab status={FixRequestStatus.REJECTED} />,
                },
             ]}
          />
@@ -44,7 +44,7 @@ export default function ReportsPage() {
 }
 
 type ReportsTabProps = {
-   status: IssueRequestStatus
+   status: FixRequestStatus
 }
 
 function ReportsTab(props: ReportsTabProps) {
@@ -65,9 +65,9 @@ function ReportsTab(props: ReportsTabProps) {
       <div className="grid grid-cols-1 gap-2">
          <div className="text-gray-500">
             {{
-               [IssueRequestStatus.PENDING]: "Sorting by Creation Date (old - new)",
-               [IssueRequestStatus.APPROVED]: "Sorting by Modified Date (new - old)",
-               [IssueRequestStatus.REJECTED]: "Sorting by Modified Date (new - old)",
+               [FixRequestStatus.PENDING]: "Sorting by Creation Date (old - new)",
+               [FixRequestStatus.APPROVED]: "Sorting by Modified Date (new - old)",
+               [FixRequestStatus.REJECTED]: "Sorting by Modified Date (new - old)",
             }[props.status] || ""}
          </div>
          {results.isSuccess ? (

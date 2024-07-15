@@ -3,7 +3,7 @@ import { Key, useEffect, useState } from "react"
 import { App, Button, Flex, Table, Tag, Tooltip } from "antd"
 import { EditOutlined, PlusOutlined } from "@ant-design/icons"
 import CreateIssueDrawer from "@/app/head-staff/_components/CreateIssue.drawer"
-import { FixType } from "@/common/enum/fix-type.enum"
+import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 import extended_dayjs from "@/config/dayjs.config"
 import dayjs from "dayjs"
 import { ProTable } from "@ant-design/pro-components"
@@ -107,18 +107,6 @@ export default function IssuesTab(props: Props) {
                dataSource={props.issues}
                loading={props.isLoading}
                toolBarRender={() => [
-                  ...(props.selectedRowKeys.length > 0
-                     ? [
-                          <Tooltip
-                             key="create-task-tbl-btn"
-                             title={props.selectedRowKeys.length === 0 ? "Select Issues to create Task" : ""}
-                          >
-                             <Button icon={<PlusOutlined />} disabled={props.selectedRowKeys.length === 0}>
-                                Create Task with Selected
-                             </Button>
-                          </Tooltip>,
-                       ]
-                     : []),
                   <CreateIssueDrawer
                      key={"create-issue-tbl-btn"}
                      drawerProp={{
@@ -137,7 +125,8 @@ export default function IssuesTab(props: Props) {
                   </CreateIssueDrawer>,
                ]}
                search={false}
-               virtual
+               virtual={true}
+               // scroll={{ x: 500 }}
                summary={(pageData) => {
                   const totalDuration = pageData.reduce((acc, curr) => acc + curr.typeError.duration, 0)
                   return (
@@ -145,7 +134,7 @@ export default function IssuesTab(props: Props) {
                         <Table.Summary.Cell index={0}></Table.Summary.Cell>
                         <Table.Summary.Cell index={1}></Table.Summary.Cell>
                         <Table.Summary.Cell index={2}></Table.Summary.Cell>
-                        <Table.Summary.Cell index={3}>
+                        <Table.Summary.Cell index={3} className="text-2xl">
                            <strong>Total</strong>: {totalDuration} minute{totalDuration !== 1 && "s"}
                         </Table.Summary.Cell>
                         <Table.Summary.Cell index={4}></Table.Summary.Cell>
@@ -187,8 +176,8 @@ export default function IssuesTab(props: Props) {
                   {
                      title: "Error Name",
                      dataIndex: ["typeError", "name"],
-                     width: 300,
                      ellipsis: true,
+                     width: 200,
                      valueType: "select",
                      valueEnum: props.device?.machineModel.typeErrors.reduce((acc, curr) => {
                         acc[curr.id] = { text: curr.name, status: curr.duration }
@@ -201,6 +190,7 @@ export default function IssuesTab(props: Props) {
                      dataIndex: "description",
                      render: (_, e) => e.description,
                      ellipsis: true,
+                     width: 200,
                      valueType: "textarea",
                      fieldProps: {
                         autosize: true,
@@ -219,8 +209,12 @@ export default function IssuesTab(props: Props) {
                   {
                      title: "Fix Type",
                      dataIndex: "fixType",
-                     width: 150,
-                     render: (_, e) => <Tag color={fixTypeColors[e.fixType]}>{e.fixType}</Tag>,
+                     width: 90,
+                     render: (_, e) => (
+                        <Tag color={FixTypeTagMapper[String(e.fixType)].colorInverse}>
+                           {FixTypeTagMapper[String(e.fixType)].text}
+                        </Tag>
+                     ),
                      valueType: "select",
                      valueEnum: Object.keys(FixType).reduce((acc, curr) => {
                         acc[curr] = { text: curr }
@@ -274,7 +268,7 @@ export default function IssuesTab(props: Props) {
                      editable: false,
                   },
                   {
-                     width: 170,
+                     width: 140,
                      align: "right",
                      fixed: "right",
                      valueType: "option",

@@ -16,7 +16,7 @@ import ReportCard from "@/app/head/_components/ReportCard"
 import { StatisticCard } from "@ant-design/pro-card"
 import CountUp from "react-countup"
 import extended_dayjs from "@/config/dayjs.config"
-import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 
 export default function HeadDashboardPage() {
@@ -47,8 +47,8 @@ export default function HeadDashboardPage() {
                statistic={{
                   title: t("Fixed"),
                   value:
-                     result.data?.filter((value: FixRequestDto) => value.status === IssueRequestStatus.APPROVED)
-                        .length ?? 0,
+                     result.data?.filter((value: FixRequestDto) => value.status === FixRequestStatus.APPROVED).length ??
+                     0,
                   formatter: (value) => <CountUp end={value as number} separator={","} />,
                }}
             />
@@ -57,8 +57,8 @@ export default function HeadDashboardPage() {
                statistic={{
                   title: t("Maintenance"),
                   value:
-                     result.data?.filter((value: FixRequestDto) => value.status === IssueRequestStatus.PENDING)
-                        .length ?? 0,
+                     result.data?.filter((value: FixRequestDto) => value.status === FixRequestStatus.PENDING).length ??
+                     0,
                   formatter: (value) => <CountUp end={value as number} separator={","} />,
                }}
             />

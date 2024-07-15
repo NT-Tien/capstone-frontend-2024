@@ -1,4 +1,4 @@
-import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
 import { parseApiResponse } from "@/common/util/parseApiResponse.util"
@@ -7,7 +7,7 @@ import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 export type Request = {
    id: string
    payload: {
-      status: IssueRequestStatus
+      status: FixRequestStatus
       checker_note: string
    }
 }

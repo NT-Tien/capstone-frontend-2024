@@ -21,7 +21,7 @@
 html, body {
     height: 100%;
     @apply bg-gray-100;
-    font-size: 18px;
+    /*font-size: 18px;*/
 }
 
 .select-pill > .ant-select-selector {
@@ -83,5 +83,16 @@ html, body {
     .ant-tabs-nav-list {
         transition: none !important;
         transform: none !important;
+    }
+}
+
+.list-no-padding {
+    .ant-pro-card-body {
+        padding: 0 !important;
+    }
+
+    .ant-pro-table-list-toolbar-container {
+        padding: 0 !important;
+        padding-bottom: 0.75rem !important;
     }
 }

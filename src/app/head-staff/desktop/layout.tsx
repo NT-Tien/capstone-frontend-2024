@@ -21,10 +21,12 @@ import { ProLayout } from "@ant-design/pro-layout"
 import { usePathname, useRouter } from "next/navigation"
 import LocaleSwitcher from "@/common/components/LocaleSwitcher"
 import { CheckSquare, Tray, User } from "@phosphor-icons/react"
+import CreateTaskContextProvider, { CreateTaskContext } from "@/app/head-staff/_context/CreateTask.context"
 
 export default function HeadStaffDesktopLayout({ children }: { children: ReactNode }) {
    const router = useRouter()
    const pathname = usePathname()
+
    return (
       <ProLayout
          location={{
@@ -133,7 +135,9 @@ export default function HeadStaffDesktopLayout({ children }: { children: ReactNo
          }}
          menuItemRender={(item, dom) => <Link href={item.path ?? "/head-staff/desktop"}>{dom}</Link>}
       >
-         <div className="h-full min-h-screen w-full bg-neutral-100">{children}</div>
+         <CreateTaskContextProvider>
+            <div className="h-full min-h-screen w-full bg-neutral-100">{children}</div>
+         </CreateTaskContextProvider>
       </ProLayout>
    )
 }

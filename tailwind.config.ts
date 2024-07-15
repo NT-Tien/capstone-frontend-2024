@@ -34,8 +34,10 @@ const config: Config = {
          },
       },
       fontSize: {
-         base: "18px",
-       },
+         // base: "18px",
+         // lg: "24px",
+         // xl: ""
+      },
    },
    important: true,
 }

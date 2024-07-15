@@ -8,9 +8,9 @@ import dayjs from "dayjs"
 import Link from "next/link"
 import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
 import { PageContainer } from "@ant-design/pro-layout"
-import { useRef, useState } from "react"
-import { App, Button, Dropdown, Tabs, Tag } from "antd"
-import { MoreOutlined } from "@ant-design/icons"
+import { Suspense, useEffect, useRef, useState } from "react"
+import { App, Button, Calendar, Dropdown, Radio, Spin, Tabs, Tag } from "antd"
+import { CalendarOutlined, MoreOutlined, OrderedListOutlined } from "@ant-design/icons"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
 import { TaskDto } from "@/common/dto/Task.dto"
@@ -24,19 +24,30 @@ const TaskStatusToText = {
    [TaskStatus.PENDING_STOCK]: "Pending Stock",
 }
 
-const currentDefault = 1,
-   pageSizeDefault = 10,
-   currentStatusDefault = TaskStatus.AWAITING_FIXER
-
 export default function Page() {
+   return (
+      <Suspense fallback={<Spin fullscreen />}>
+         <PageContent />
+      </Suspense>
+   )
+}
+
+function PageContent() {
+   const currentDefault = 1,
+      pageSizeDefault = 10,
+      currentStatusDefault = TaskStatus.AWAITING_FIXER
+
    const searchParams = useSearchParams()
+   const { message } = App.useApp()
+   const queryClient = useQueryClient()
+   const router = useRouter()
+
    const [current, setCurrent] = useState(Number(searchParams.get("current")) || currentDefault)
    const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || pageSizeDefault)
    const [currentStatus, setCurrentStatus] = useState<TaskStatus>(
       (searchParams.get("status") as TaskStatus) ?? currentStatusDefault,
    )
-   const { message } = App.useApp()
-   const queryClient = useQueryClient()
+   const [currentView, setCurrentView] = useState<"list" | "calendar">("list")
 
    const response = useQuery({
       queryKey: headstaff_qk.task.all({
@@ -68,14 +79,53 @@ export default function Page() {
       history.replaceState({}, "", `/head-staff/desktop/tasks?${urlSearchParams.toString()}`)
    }
 
+   useEffect(() => {
+      // this dynamically sets the number of rows to fill the screen
+      const value = window.innerHeight - 120 - 104 - 104 - 75
+      console.log(Math.floor(value / 48))
+      setPageSize(Math.floor(value / 48))
+   }, [])
+
    return (
-      <PageContainer title={`Tasks List`}>
+      <PageContainer
+         title={`Tasks List`}
+         breadcrumb={{
+            items: [
+               {
+                  title: "Dashboard",
+                  onClick: () => {
+                     router.push("/head-staff/desktop/dashboard")
+                  },
+               },
+               {
+                  title: "Tasks",
+               },
+            ],
+         }}
+      >
          <Tabs
             className="tabs-no-spacing"
             type="card"
             onChange={(key) => {
                handleChangeTab(undefined, undefined, key as TaskStatus)
-               // router.push("/head-staff/desktop/tasks?status=" + key)
+            }}
+            tabBarExtraContent={{
+               right: (
+                  <Radio.Group
+                     key={"list-type"}
+                     buttonStyle="solid"
+                     defaultValue="list"
+                     value={currentView}
+                     onChange={(e) => setCurrentView(e.target.value)}
+                  >
+                     <Radio.Button value="list">
+                        <OrderedListOutlined />
+                     </Radio.Button>
+                     <Radio.Button value="calendar">
+                        <CalendarOutlined />
+                     </Radio.Button>
+                  </Radio.Group>
+               ),
             }}
             activeKey={currentStatus}
             items={Object.values(TaskStatus)
@@ -105,20 +155,23 @@ export default function Page() {
                   ),
                }))}
          />
-         <DataView
-            list={response.data?.list}
-            total={response.data?.total}
-            loading={response.isLoading}
-            refetch={async () => {
-               message.destroy("refetched")
-               await response.refetch()
-               message.success({ content: "Successfully re-fetched data", key: "refetched" })
-            }}
-            pageSize={pageSize}
-            page={current}
-            tabStatus={currentStatus as any}
-            handleChangeTab={handleChangeTab}
-         />
+         {currentView === "list" && (
+            <DataView
+               list={response.data?.list}
+               total={response.data?.total}
+               loading={response.isLoading}
+               refetch={async () => {
+                  message.destroy("refetched")
+                  await response.refetch()
+                  message.success({ content: "Successfully re-fetched data", key: "refetched" })
+               }}
+               pageSize={pageSize}
+               page={current}
+               tabStatus={currentStatus as any}
+               handleChangeTab={handleChangeTab}
+            />
+         )}
+         {currentView === "calendar" && <Calendar className="p-3" />}
       </PageContainer>
    )
 }
@@ -137,7 +190,6 @@ type Props = {
 function DataView(props: Props) {
    const [isRefetching, setIsRefetching] = useState(false)
    const actionRef = useRef()
-   const router = useRouter()
 
    return (
       <ProTable
@@ -150,7 +202,7 @@ function DataView(props: Props) {
             </div>
          }
          actionRef={actionRef}
-         rowClassName={(record, index) => (index % 2 === 0 ? "" : "bg-neutral-200/50")}
+         rowClassName={(_, index) => (index % 2 === 0 ? "" : "bg-neutral-100")}
          dataSource={props.list}
          loading={props.loading || isRefetching}
          options={{
@@ -177,8 +229,9 @@ function DataView(props: Props) {
             {
                title: "No.",
                key: "index",
-               valueType: "indexBorder",
+               render: (_, __, index) => index + 1,
                width: 48,
+               align: "center",
                hideInSearch: true,
             },
             {
@@ -205,20 +258,24 @@ function DataView(props: Props) {
                key: "fixerDate",
                dataIndex: "fixerDate",
                valueType: "date",
-               render: (_, e) => e.fixerDate,
+               render: (_, e) => dayjs(e.fixerDate).format("DD-MM-YYYY"),
+               width: 120,
             },
             {
-               title: "Estimated Time",
+               title: "TTC",
+               tooltip: "Time to Complete (minutes)",
                key: "totalTime",
                dataIndex: "totalTime",
                valueType: "text",
-               width: 125,
-               render: (_, e) => `${Number(e.totalTime) + 0.1 * Number(e.totalTime)} minute(s)`,
+               align: "center",
+               width: 80,
+               render: (_, e) => e.totalTime,
             },
             {
                title: "Operator",
                key: "operator",
                dataIndex: "operator",
+               width: 100,
             },
             ...(props.tabStatus === TaskStatus.ASSIGNED
                ? [
@@ -234,7 +291,15 @@ function DataView(props: Props) {
                key: "createdAt",
                dataIndex: "createdAt",
                valueType: "date",
-               sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+               width: 120,
+            },
+            {
+               title: "Updated At",
+               key: "updatedAt",
+               dataIndex: "updatedAt",
+               render: (_, e) => (e.updatedAt === e.createdAt ? "-" : dayjs(e.updatedAt).format("DD-MM-YYYY HH:mm")),
+               valueType: "date",
+               width: 120,
             },
             {
                valueType: "option",

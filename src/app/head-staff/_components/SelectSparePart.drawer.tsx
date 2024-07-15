@@ -1,25 +1,35 @@
 "use client"
 
 import { ReactNode, useState } from "react"
-import { Button, Card, Drawer, Empty, Input, Spin } from "antd"
+import { Button, Card, Drawer, DrawerProps, Empty, Form, Input, InputNumber, Spin } from "antd"
 import { useQuery } from "@tanstack/react-query"
-import qk from "@/common/querykeys"
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
-import { RightOutlined } from "@ant-design/icons"
-import SelectSparePartDetailsDrawer, { FieldType } from "@/app/head-staff/_components/SelectSparePartDetails.drawer"
+import { cn } from "@/common/util/cn.util"
+import headstaff_qk from "@/app/head-staff/_api/qk"
+import ProCard from "@ant-design/pro-card"
+import { SparePartDto } from "@/common/dto/SparePart.dto"
+import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
+
+type ReturnType = {
+   sparePartId: string
+   quantity: number
+}
 
 export default function SelectSparePartDrawer(props: {
    children: (handleOpen: (deviceId: string, ignoreIdList?: string[]) => void) => ReactNode
-   onFinish: (values: FieldType) => void
+   onFinish: (values: ReturnType) => void
+   drawerProps?: DrawerProps
 }) {
    const [open, setOpen] = useState(false)
-   const [device, setDevice] = useState<undefined | string>()
+   const [deviceId, setDeviceId] = useState<undefined | string>()
    const [ignoreIdList, setIgnoreIdList] = useState<string[]>([])
+   const [selectedSparePart, setSelectedSparePart] = useState<SparePartDto | undefined>()
+   const [quantity, setQuantity] = useState(1)
 
    const response = useQuery({
-      queryKey: ["head-staff", ...qk.devices.one_byId(device ?? "")],
-      queryFn: () => HeadStaff_Device_OneById({ id: device ?? "" }),
-      enabled: !!device,
+      queryKey: headstaff_qk.device.byId(deviceId ?? ""),
+      queryFn: () => HeadStaff_Device_OneById({ id: deviceId ?? "" }),
+      enabled: !!deviceId,
       select: (data) =>
          !!ignoreIdList
             ? data.machineModel.spareParts.filter((sp) => !ignoreIdList.includes(sp.id))
@@ -28,14 +38,16 @@ export default function SelectSparePartDrawer(props: {
 
    function handleOpen(deviceId: string, ignoreIdList?: string[]) {
       setOpen(true)
-      setDevice(deviceId)
+      setDeviceId(deviceId)
       setIgnoreIdList(ignoreIdList ?? [])
    }
 
    function handleClose() {
       setOpen(false)
-      setDevice(undefined)
+      setDeviceId(undefined)
       setIgnoreIdList([])
+      setSelectedSparePart(undefined)
+      setQuantity(1)
    }
 
    return (
@@ -48,44 +60,108 @@ export default function SelectSparePartDrawer(props: {
             height="95%"
             title="Select Spare Part"
             className="relative"
+            classNames={{
+               body: "p-0",
+            }}
+            {...props.drawerProps}
          >
             {response.isSuccess ? (
                <>
-                  {response.data.length === 0 && (
-                     <Empty description="No spare parts for this machine have been found" />
-                  )}
-                  {response.data.length > 0 && (
-                     <>
-                        <Input.Search size="large" className="mb-4" placeholder="Search for Spare Parts" />
-                        <SelectSparePartDetailsDrawer
-                           onFinish={(values) => {
-                              handleClose()
-                              props.onFinish(values)
+                  {response.data.length === 0 ? (
+                     <Empty
+                        className="grid h-full place-content-center px-3"
+                        description="No spare parts for this machine have been found"
+                     />
+                  ) : (
+                     <div className="grid h-full grid-cols-1">
+                        <Input.Search size="large" className="my-3 px-3" placeholder="Search for Spare Parts" />
+                        <section
+                           className="flex flex-col gap-2 overflow-y-auto px-3 pb-4"
+                           style={{
+                              gridRow: "span 100",
                            }}
                         >
-                           {(handleOpenDetails) => (
-                              <div className="grid grid-cols-2 gap-3 overflow-y-auto pb-6">
-                                 {response.data.map((sparePart) => (
-                                    <div key={`MAIN_CONTAINER_${sparePart.id}`} className="relative">
-                                       <Card
-                                          key={"MAIN_" + sparePart.id}
-                                          title={sparePart.name}
-                                          hoverable
-                                          size="small"
-                                          extra={<Button type="text" size="small" icon={<RightOutlined />} />}
-                                          onClick={() => handleOpenDetails(sparePart)}
-                                       >
-                                          <div className="flex items-center justify-between">
-                                             <div className="text-xs">{sparePart.quantity} left</div>
-                                             {/*<div className="text-xs">{dayjs(sparePart.createdAt).format("DD/MM/YYYY")}</div>*/}
-                                          </div>
-                                       </Card>
+                           {response.data.map((sparePart, index) => (
+                              <ProCard
+                                 key={sparePart.id}
+                                 size="small"
+                                 hoverable
+                                 onClick={() => {
+                                    setSelectedSparePart(sparePart)
+                                    setQuantity(1)
+                                 }}
+                                 className={cn(
+                                    index % 2 === 0 ? "bg-neutral-200/50" : "bg-neutral-50",
+                                    sparePart.id === selectedSparePart?.id &&
+                                       "border-l-[6px] border-primary-500 bg-primary-50",
+                                 )}
+                                 bordered
+                              >
+                                 <div className="flex flex-col">
+                                    <span className="text-xl font-semibold">{sparePart.name}</span>
+                                    <span>Remaining: {sparePart.quantity}</span>
+                                 </div>
+                              </ProCard>
+                           ))}
+                        </section>
+                        {selectedSparePart !== undefined && (
+                           <section className="flex w-full flex-col gap-5 border-t-2 border-t-neutral-300 bg-white px-3 pb-3 pt-5 shadow-2xl">
+                              <div className="flex-grow">
+                                 <ProCard size="small" className="bg-neutral-100" bordered>
+                                    <div className="flex items-center">
+                                       <div className="flex flex-grow flex-col">
+                                          <span className="text-xl font-semibold">{selectedSparePart.name}</span>
+                                          <span>Remaining: {selectedSparePart.quantity}</span>
+                                       </div>
+                                       <div className="flex items-center gap-1">
+                                          <Button
+                                             icon={<MinusOutlined />}
+                                             onClick={() => setQuantity((prev) => (prev - 1 > 0 ? prev - 1 : 1))}
+                                          />
+                                          <InputNumber
+                                             className="w-12 text-center"
+                                             value={quantity}
+                                             controls={false}
+                                             onChange={(number) => {
+                                                let num = number
+                                                if (!num) num = 1
+                                                if (num > selectedSparePart.quantity) num = selectedSparePart.quantity
+                                                if (num < 1) num = 1
+                                                setQuantity(num)
+                                             }}
+                                          />
+                                          <Button
+                                             icon={<PlusOutlined />}
+                                             onClick={() =>
+                                                setQuantity((prev) =>
+                                                   prev + 1 > selectedSparePart.quantity
+                                                      ? selectedSparePart.quantity
+                                                      : prev + 1,
+                                                )
+                                             }
+                                          />
+                                       </div>
                                     </div>
-                                 ))}
+                                 </ProCard>
                               </div>
-                           )}
-                        </SelectSparePartDetailsDrawer>
-                     </>
+                              <Button
+                                 icon={<PlusOutlined />}
+                                 type="primary"
+                                 className="w-full"
+                                 size="large"
+                                 onClick={() => {
+                                    props.onFinish({
+                                       sparePartId: selectedSparePart.id,
+                                       quantity,
+                                    })
+                                    handleClose()
+                                 }}
+                              >
+                                 Add Spare Part
+                              </Button>
+                           </section>
+                        )}
+                     </div>
                   )}
                </>
             ) : (

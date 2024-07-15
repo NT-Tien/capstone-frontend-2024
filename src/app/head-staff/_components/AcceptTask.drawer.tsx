@@ -6,7 +6,7 @@ import HeadStaff_Task_Create, { Request as CreateRequest } from "@/app/head-staf
 import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons"
 import qk from "@/common/querykeys"
-import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
 import { useRouter } from "next/navigation"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import { TaskDto } from "@/common/dto/Task.dto"
@@ -43,7 +43,7 @@ export default function AcceptTaskDrawer({
          const updateStatus = await HeadStaff_Request_UpdateStatus({
             id: req.request,
             payload: {
-               status: IssueRequestStatus.APPROVED,
+               status: FixRequestStatus.APPROVED,
                checker_note: "",
             },
          })
@@ -72,7 +72,7 @@ export default function AcceptTaskDrawer({
          mutate_undoApprove.mutate({
             id,
             payload: {
-               status: IssueRequestStatus.PENDING,
+               status: FixRequestStatus.PENDING,
                checker_note: "",
             },
          })

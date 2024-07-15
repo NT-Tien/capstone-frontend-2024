@@ -8,7 +8,11 @@ import { CloseOutlined, DeleteOutlined, LeftOutlined, PlusOutlined } from "@ant-
 import { useRouter } from "next/navigation"
 import dayjs from "dayjs"
 import { App, Button, Card, Collapse, Drawer, Empty, List, Tabs, Tag, Typography } from "antd"
-import { IssueRequestStatus, IssueRequestStatusTag } from "@/common/enum/issue-request-status.enum"
+import {
+   FixRequestStatus,
+   FixRequestStatusTagMapper,
+   IssueRequestStatusTag,
+} from "@/common/enum/issue-request-status.enum"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import RejectTaskDrawer from "@/app/head-staff/_components/RejectTask.drawer"
 import { useTranslation } from "react-i18next"
@@ -109,7 +113,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
 
    const ShowAction = useCallback(
       ({ children }: { children: ReactNode }) => {
-         if (request.data?.status === IssueRequestStatus.PENDING) {
+         if (request.data?.status === FixRequestStatus.PENDING) {
             return children
          }
          return null
@@ -189,10 +193,12 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                                  ]}
                               />
                               <div className="pb-1.5">
-                                 <IssueRequestStatusTag
-                                    status={request.data?.status}
+                                 <Tag
+                                    color={FixRequestStatusTagMapper[String(request.data?.status)].colorInverse}
                                     className="mr-0 grid h-full place-items-center px-3"
-                                 />
+                                 >
+                                    {FixRequestStatusTagMapper[String(request.data?.status)].text}
+                                 </Tag>
                               </div>
                            </section>
                            <section>
@@ -211,7 +217,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                            <section className="std-layout-grow mt-layout-half">
                               <DeviceDetailsCard device={request.data?.device} />
                            </section>
-                           {request.data?.status === IssueRequestStatus.REJECTED && (
+                           {request.data?.status === FixRequestStatus.REJECTED && (
                               <section className="mt-layout-half">
                                  <Card
                                     className="mt-layout-half"
@@ -468,7 +474,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                         </div>
                      ),
                   },
-                  ...(request.data?.status === IssueRequestStatus.APPROVED
+                  ...(request.data?.status === FixRequestStatus.APPROVED
                      ? [
                           {
                              key: "main-tab-tasks",

@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react"
 import { SparePartDto } from "@/common/dto/SparePart.dto"
-import { Button, Divider, Drawer, Form } from "antd"
+import { Button, Divider, Drawer, DrawerProps, Form } from "antd"
 import { ProDescriptions, ProFormDigit } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 
@@ -12,9 +12,11 @@ export type FieldType = {
 export default function SelectSparePartDetailsDrawer({
    children,
    onFinish,
+   drawerProps,
 }: {
    children: (handleOpen: (sparePart: SparePartDto) => void) => ReactNode
    onFinish?: (values: FieldType) => void
+   drawerProps?: DrawerProps
 }) {
    const [open, setOpen] = useState(false)
    const [sparePart, setSparePart] = useState<undefined | SparePartDto>(undefined)
@@ -42,7 +44,7 @@ export default function SelectSparePartDetailsDrawer({
       <>
          {children(handleOpen)}
          <Form form={form} onFinish={handleFinish} requiredMark={false}>
-            <Drawer open={open} onClose={handleClose} placement="bottom" title="Spare Part Details">
+            <Drawer open={open} onClose={handleClose} placement="bottom" title="Spare Part Details" {...drawerProps}>
                {sparePart && (
                   <div>
                      <ProDescriptions

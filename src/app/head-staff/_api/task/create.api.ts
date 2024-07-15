@@ -3,7 +3,7 @@ import { parseApiResponse } from "@/common/util/parseApiResponse.util"
 import Cookies from "js-cookie"
 import { TaskDto } from "@/common/dto/Task.dto"
 
-export type Request = Pick<TaskDto, "name" | "priority" | "operator" | "totalTime"> & {
+export type Request = Pick<TaskDto, "name" | "priority" | "operator" | "totalTime" | "fixerDate"> & {
    request: string
    issueIDs: string[]
 }

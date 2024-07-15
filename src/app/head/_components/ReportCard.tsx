@@ -4,7 +4,7 @@ import { Card, Tag } from "antd"
 import React, { ReactNode } from "react"
 import extended_dayjs from "@/config/dayjs.config"
 import { cn } from "@/common/util/cn.util"
-import { IssueRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
 import { MapPin } from "@phosphor-icons/react"
 import { RightOutlined } from "@ant-design/icons"
 import { useTranslation } from "react-i18next"
@@ -21,7 +21,7 @@ type Props = {
    id: string
    machineModelName: string
    createdDate: ReactNode
-   status?: IssueRequestStatus
+   status?: FixRequestStatus
    positionX: number
    positionY: number
    area: string
@@ -34,22 +34,22 @@ export default function ReportCard(props: Props) {
    const { t } = useTranslation()
    const backgroundColor = props.index % 2 === 0 ? "bg-blue-100" : "bg-white"
    const tagColor =
-      props.status === IssueRequestStatus.PENDING
+      props.status === FixRequestStatus.PENDING
          ? "blue"
-         : props.status === IssueRequestStatus.APPROVED
+         : props.status === FixRequestStatus.APPROVED
            ? "#006400"
            : "gray"
 
    const borderTagColor =
-      props.status === IssueRequestStatus.PENDING
+      props.status === FixRequestStatus.PENDING
          ? "blue"
-         : props.status === IssueRequestStatus.APPROVED
+         : props.status === FixRequestStatus.APPROVED
            ? "#006400"
            : "gray"
    const backgroundTagColor =
-      props.status === IssueRequestStatus.PENDING
+      props.status === FixRequestStatus.PENDING
          ? "#ebebff"
-         : props.status === IssueRequestStatus.APPROVED
+         : props.status === FixRequestStatus.APPROVED
            ? "#f0faf0"
            : "#FAFAFA"
 
@@ -63,11 +63,11 @@ export default function ReportCard(props: Props) {
             props.className,
             (function () {
                switch (props.status) {
-                  case IssueRequestStatus.PENDING:
+                  case FixRequestStatus.PENDING:
                      return "border-gray-300 bg-gray-100"
-                  case IssueRequestStatus.APPROVED:
+                  case FixRequestStatus.APPROVED:
                      return "bg-white-100 border-gray-300"
-                  case IssueRequestStatus.REJECTED:
+                  case FixRequestStatus.REJECTED:
                      return "border-red-300 bg-red-100"
                   default:
                      return "border-gray-300"

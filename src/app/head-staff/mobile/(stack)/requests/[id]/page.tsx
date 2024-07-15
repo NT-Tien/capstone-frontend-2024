@@ -7,7 +7,7 @@ import { ProDescriptions } from "@ant-design/pro-components"
 import { CloseOutlined, DeleteOutlined, LeftOutlined, PlusOutlined } from "@ant-design/icons"
 import { useRouter } from "next/navigation"
 import dayjs from "dayjs"
-import { App, Button, Card, Collapse, Empty, List, Tabs, Tag, Typography } from "antd"
+import { App, Button, Card, Collapse, Drawer, Empty, List, Tabs, Tag, Typography } from "antd"
 import {
    FixRequestStatus,
    FixRequestStatusTagMapper,
@@ -16,7 +16,7 @@ import {
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import RejectTaskDrawer from "@/app/head-staff/_components/RejectTask.drawer"
 import { useTranslation } from "react-i18next"
-import React, { ReactNode, useCallback, useState } from "react"
+import React, { ReactNode, useCallback, useEffect, useState } from "react"
 import { NotePencil } from "@phosphor-icons/react"
 import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
@@ -30,6 +30,7 @@ import HeadStaff_Issue_Delete from "@/app/head-staff/_api/issue/delete.api"
 import ModalConfirm from "@/common/components/ModalConfirm"
 import { cn } from "@/common/util/cn.util"
 import AcceptTaskDrawer from "@/app/head-staff/_components/AcceptTask.drawer"
+import HeadStaffScanPage from "../../../scan/page"
 
 export default function RequestDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -37,7 +38,11 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
    const [tab, setTab] = useState<string>("main-tab-request")
    const { getFixTypeTranslation } = useIssueRequestStatusTranslation()
    const { message } = App.useApp()
-
+   const [scanDrawerVisible, setScanDrawerVisible] = useState<boolean>(false)
+   const [scanResult, setScanResult] = useState<boolean | null>(null)
+   const [scanButtonVisible, setScanButtonVisible] = useState<boolean>(true)
+   const [scanCompleted, setScanCompleted] = useState<boolean>(false)
+   const [scanningPaused, setScanningPaused] = useState<boolean>(false)
    const request = useQuery({
       queryKey: qk.issueRequests.byId(params.id),
       queryFn: () => HeadStaff_Request_OneById({ id: params.id }),
@@ -115,6 +120,28 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
       },
       [request.data],
    )
+   const handleScanClose = () => {
+      setScanDrawerVisible(false)
+      setScanningPaused(true)
+   }
+
+   const handleScanResult = (deviceId: string) => {
+      if (scanningPaused) return
+      if (request.isSuccess && request.data.device.id === deviceId) {
+         setScanResult(true)
+         setScanDrawerVisible(false)
+         setScanButtonVisible(false)
+         setScanCompleted(true)
+         message.success("Scanned device ID matched request details.")
+      } else {
+         message.error("Scanned device ID does not match request details.")
+      }
+   }
+
+   const handleOpenScanDrawer = () => {
+      setScanningPaused(false) // Resume scanning when drawer is opened
+    setScanDrawerVisible(true)
+   }
 
    return (
       <div className="std-layout">
@@ -206,44 +233,68 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                               </section>
                            )}
                            <section className="py-layout">
+                              {scanButtonVisible && (
+                                 <>
+                                    <section className="fixed bottom-0 left-0 w-full justify-center bg-white p-4">
+                                       <Button className="text-lg w-full" type="primary" onClick={handleOpenScanDrawer}>
+                                          Scan QR to Continue
+                                       </Button>
+                                    </section>
+                                    <Drawer
+                                       title="Scan QR"
+                                       placement="right"
+                                       onClose={handleScanClose}
+                                       open={scanDrawerVisible}
+                                    >
+                                       <HeadStaffScanPage onScanResult={handleScanResult} onClose={handleScanClose} open={!scanDrawerVisible} />
+                                    </Drawer>
+                                 </>
+                              )}
                               <ShowAction>
                                  <Typography.Title level={5}>Actions</Typography.Title>
                                  <div className="flex flex-col gap-2">
-                                    <RejectTaskDrawer>
-                                       {(handleOpen) => (
-                                          <Button
-                                             danger={true}
-                                             type="primary"
-                                             size="large"
-                                             className="w-full"
-                                             onClick={() => handleOpen(params.id)}
-                                             icon={<CloseOutlined />}
-                                          >
-                                             Reject Request
-                                          </Button>
-                                       )}
-                                    </RejectTaskDrawer>
-
-                                    <Button
-                                       type="default"
-                                       size="large"
-                                       className="w-full"
-                                       onClick={() => setTab("main-tab-issues")}
-                                       icon={<PlusOutlined />}
-                                    >
-                                       Add Issues
-                                    </Button>
+                                    {scanResult && (
+                                       <>
+                                          <RejectTaskDrawer>
+                                             {(handleOpen) => (
+                                                <Button
+                                                   danger={true}
+                                                   type="primary"
+                                                   size="large"
+                                                   className="w-full"
+                                                   onClick={() => handleOpen(params.id)}
+                                                   icon={<CloseOutlined />}
+                                                >
+                                                   Reject Request
+                                                </Button>
+                                             )}
+                                          </RejectTaskDrawer>
+                                          {/* {scanCompleted ? (
+                                             <Button
+                                                type="default"
+                                                size="large"
+                                                className="w-full"
+                                                onClick={() => setTab("main-tab-issues")}
+                                                icon={<PlusOutlined />}
+                                             >
+                                                Add Issues
+                                             </Button>
+                                          ) : (
+                                             <Button
+                                                type="default"
+                                                size="large"
+                                                className="w-full"
+                                                disabled
+                                                onClick={() => setTab("main-tab-issues")}
+                                                icon={<PlusOutlined />}
+                                             >
+                                                Add Issues
+                                             </Button>
+                                          )} */}
+                                       </>
+                                    )}
                                  </div>
                               </ShowAction>
-                              {request.data?.status === FixRequestStatus.APPROVED && (
-                                 <Button
-                                    size="large"
-                                    className="fixed bottom-0 left-0 m-4 w-[calc(100%-32px)]"
-                                    type="primary"
-                                 >
-                                    Goto Task
-                                 </Button>
-                              )}
                            </section>
                         </>
                      ),
@@ -332,7 +383,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                                                          )}
                                                       />
                                                    )}
-                                                   <ShowAction>
+                                                   {/* <ShowAction>
                                                       <div className="mt-3 flex gap-3">
                                                          <Button
                                                             className="w-full flex-grow"
@@ -391,7 +442,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                                                             </Button>
                                                          </ModalConfirm>
                                                       </div>
-                                                   </ShowAction>
+                                                   </ShowAction> */}
                                                 </div>
                                              )}
                                           </SelectSparePartDrawer>
@@ -401,47 +452,25 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                               />
                            )}
                            {request.isSuccess && (
-                              <ShowAction>
-                                 <CreateIssueDrawer
-                                    onSuccess={async () => {
-                                       await request.refetch()
-                                    }}
-                                 >
-                                    {(handleOpen) => (
-                                       <Button
-                                          type="default"
-                                          size="large"
-                                          className={cn("w-full", request.data?.issues.length !== 0 && "my-4")}
-                                          onClick={() => handleOpen(params.id)}
-                                          icon={<PlusOutlined />}
-                                       >
-                                          Add Issue
-                                       </Button>
-                                    )}
-                                 </CreateIssueDrawer>
-                              </ShowAction>
+                              <CreateIssueDrawer
+                                 onSuccess={async () => {
+                                    await request.refetch()
+                                 }}
+                              >
+                                 {(handleOpen) => (
+                                    <Button
+                                       type="default"
+                                       size="large"
+                                       className={cn("w-full", request.data?.issues.length !== 0 && "my-4")}
+                                       onClick={() => handleOpen(params.id)}
+                                       disabled={!scanCompleted}
+                                       icon={<PlusOutlined />}
+                                    >
+                                       Add Issue
+                                    </Button>
+                                 )}
+                              </CreateIssueDrawer>
                            )}
-                           <ShowAction>
-                              <div className="fixed bottom-0 left-0 w-full bg-white p-layout">
-                                 <AcceptTaskDrawer
-                                    onSuccess={(task) => {
-                                       router.push(`/head-staff/tasks/${task.id}`)
-                                    }}
-                                 >
-                                    {(handleOpen) => (
-                                       <Button
-                                          size="large"
-                                          type="primary"
-                                          className="w-full"
-                                          disabled={request.data?.issues.length === 0}
-                                          onClick={() => handleOpen(params.id)}
-                                       >
-                                          Create Task & Approve Request
-                                       </Button>
-                                    )}
-                                 </AcceptTaskDrawer>
-                              </div>
-                           </ShowAction>
                         </div>
                      ),
                   },

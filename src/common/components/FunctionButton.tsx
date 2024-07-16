@@ -15,7 +15,11 @@ export default function FunctionButton(props: Props) {
       },
    })
    return (
-      <Button className="flex aspect-square h-full w-full flex-col items-center justify-center" onClick={props.onClick}>
+      <Button
+         className="flex aspect-square h-full w-full flex-col items-center justify-center border-0"
+         type="dashed"
+         onClick={props.onClick}
+      >
          {displayIcon}
          <div className="mt-2">{props.title}</div>
       </Button>

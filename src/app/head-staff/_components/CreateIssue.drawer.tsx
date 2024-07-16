@@ -1,7 +1,7 @@
 "use client"
 
-import { ReactNode, useState } from "react"
-import { App, Button, Drawer, DrawerProps, Form } from "antd"
+import React, { ReactNode, useState } from "react"
+import { App, Button, Drawer, DrawerProps, Form, Radio } from "antd"
 import { FixType } from "@/common/enum/fix-type.enum"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
@@ -85,6 +85,7 @@ export default function CreateIssueDrawer(props: {
    function handleClose() {
       setOpen(false)
       setId(undefined)
+      form.resetFields()
    }
 
    return (
@@ -111,16 +112,19 @@ export default function CreateIssueDrawer(props: {
                      value: error.id,
                   }))}
                   showSearch
+                  fieldProps={{
+                     size: "large",
+                  }}
                />
-               <ProFormSelect
-                  name="fixType"
-                  label="Fix Type"
-                  rules={[{ required: true }]}
-                  options={Object.values(FixType).map((fix) => ({
-                     label: fix,
-                     value: fix,
-                  }))}
-               />
+               <Form.Item label="Fix Type" name="fixType" initialValue={FixType.REPLACE}>
+                  <Radio.Group buttonStyle="solid" size="large" className="w-full">
+                     {Object.values(FixType).map((fix) => (
+                        <Radio.Button key={fix} value={fix} className="capitalize">
+                           {fix}
+                        </Radio.Button>
+                     ))}
+                  </Radio.Group>
+               </Form.Item>
                <ProFormTextArea
                   name="description"
                   label="Description"

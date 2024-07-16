@@ -1,10 +1,10 @@
 "use client"
 
-import { Button, Card, Empty, Typography } from "antd"
+import { Button, Card, Empty } from "antd"
 import React from "react"
 import HomeHeader from "@/common/components/HomeHeader"
 import { useQuery } from "@tanstack/react-query"
-import { ClockCircleOutlined, PlusOutlined, QrcodeOutlined } from "@ant-design/icons"
+import { ClockCircleOutlined, PlusOutlined } from "@ant-design/icons"
 import dayjs from "dayjs"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -34,7 +34,7 @@ export default function HeadDashboardPage() {
          <HomeHeader className="pb-8 pt-4" />
          <section className="flex space-x-4">
             <StatisticCard
-               className="h-full w-full flex-1"
+               className="h-full w-full flex-1 shadow-fb"
                loading={result.isLoading}
                statistic={{
                   title: t("Total"),
@@ -43,7 +43,7 @@ export default function HeadDashboardPage() {
                }}
             />
             <StatisticCard
-               className="h-full w-full flex-1"
+               className="h-full w-full flex-1 shadow-fb"
                statistic={{
                   title: t("Fixed"),
                   value:
@@ -53,7 +53,7 @@ export default function HeadDashboardPage() {
                }}
             />
             <StatisticCard
-               className="h-full w-full flex-1"
+               className="h-full w-full flex-1 shadow-fb"
                statistic={{
                   title: t("Maintenance"),
                   value:
@@ -63,12 +63,10 @@ export default function HeadDashboardPage() {
                }}
             />
          </section>
-         <section className="std-layout-inner mt-6 flex items-center justify-between">
+         <section className="std-layout-inner mt-8 flex items-center justify-between">
             <div className="flex items-center gap-2">
                <ClockCircleOutlined />
-               <Typography.Title level={5} className="mb-0">
-                  {t("PrevReports")}
-               </Typography.Title>
+               <h2 className="text-lg font-semibold">{t("PrevReports")}</h2>
             </div>
             <Link href="/head/history">
                <Button type="link" className="p-0">
@@ -100,7 +98,7 @@ export default function HeadDashboardPage() {
                            positionY={req.device.positionY}
                            area={req.device.area.name}
                            machineModelName={req.device.machineModel.name}
-                           createdDate={extended_dayjs(req.createdAt).fromNow()}
+                           createdDate={extended_dayjs(req.createdAt).locale("en").fromNow()}
                            onClick={(id: string) => router.push(`/head/history/${id}`)}
                            status={req.status}
                         />

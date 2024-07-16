@@ -98,14 +98,14 @@ export default function SelectSparePartDrawer(props: {
                                  bordered
                               >
                                  <div className="flex flex-col">
-                                    <span className="text-xl font-semibold">{sparePart.name}</span>
+                                    <span className="text-base font-semibold">{sparePart.name}</span>
                                     <span>Remaining: {sparePart.quantity}</span>
                                  </div>
                               </ProCard>
                            ))}
                         </section>
                         {selectedSparePart !== undefined && (
-                           <section className="flex w-full flex-col gap-5 border-t-2 border-t-neutral-300 bg-white px-3 pb-3 pt-5 shadow-2xl">
+                           <section className="flex w-full flex-col gap-5 border-t-2 border-t-neutral-200 bg-white px-3 pb-3 pt-5 shadow-fb">
                               <div className="flex-grow">
                                  <ProCard size="small" className="bg-neutral-100" bordered>
                                     <div className="flex items-center">

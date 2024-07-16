@@ -9,9 +9,9 @@ export default function UserActions() {
    const { t } = useTranslation()
    return (
       <>
-         <Button size="large">{t('PhoneNumber')}</Button>
-         <Button size="large">{t('ChangePassword')}</Button>
-         <Button onClick={handleLogout} danger size="large" type="primary">
+         <Button size="middle">{t('PhoneNumber')}</Button>
+         <Button size="middle">{t('ChangePassword')}</Button>
+         <Button onClick={handleLogout} danger size="middle" type="primary">
             {t('logout')}
          </Button>
       </>

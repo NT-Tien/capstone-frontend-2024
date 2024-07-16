@@ -3,6 +3,7 @@ import type { Config } from "tailwindcss"
 const config: Config = {
    content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
    theme: {
+      fontFamily: { sans: ["Poppins"] },
       extend: {
          backgroundImage: {
             "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
@@ -32,11 +33,17 @@ const config: Config = {
             layout: "var(--std-layout-padding)",
             "layout-half": "calc(var(--std-layout-padding) / 2)",
          },
-      },
-      fontSize: {
-         // base: "18px",
-         // lg: "24px",
-         // xl: ""
+         boxShadow: {
+            fb: "rgba(0, 0, 0, 0.15) 0px 5px 15px 0px",
+            soft: "rgba(0, 0, 0, 0.1) 0px 4px 12px",
+         },
+         fontSize: {
+            base: "var(--font-base)",
+            "sub-base": "var(--font-sub-base)",
+         },
+         fontFamily: {
+            base: "var(--font)",
+         },
       },
    },
    important: true,

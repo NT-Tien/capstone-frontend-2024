@@ -12,11 +12,7 @@ import HeadStaff_Issue_Delete from "@/app/head-staff/_api/issue/delete.api"
 import HeadStaff_Issue_Update from "@/app/head-staff/_api/issue/update.api"
 import { DeviceDto } from "@/common/dto/Device.dto"
 import IssueDetailsDrawer from "@/app/head-staff/desktop/requests/[id]/IssueDetailsDrawer"
-
-const fixTypeColors = {
-   [FixType.REPAIR]: "red",
-   [FixType.REPLACE]: "blue",
-}
+import { useRouter } from "next/navigation"
 
 type Props = {
    refetch: () => void
@@ -30,6 +26,7 @@ type Props = {
 
 export default function IssuesTab(props: Props) {
    const { message } = App.useApp()
+   const router = useRouter()
    const [editableKeys, setEditableRowKeys] = useState<Key[]>([])
 
    const mutate_deleteIssue = useMutation({
@@ -134,7 +131,7 @@ export default function IssuesTab(props: Props) {
                         <Table.Summary.Cell index={0}></Table.Summary.Cell>
                         <Table.Summary.Cell index={1}></Table.Summary.Cell>
                         <Table.Summary.Cell index={2}></Table.Summary.Cell>
-                        <Table.Summary.Cell index={3} className="text-2xl">
+                        <Table.Summary.Cell index={3} className="text-base">
                            <strong>Total</strong>: {totalDuration} minute{totalDuration !== 1 && "s"}
                         </Table.Summary.Cell>
                         <Table.Summary.Cell index={4}></Table.Summary.Cell>
@@ -209,7 +206,7 @@ export default function IssuesTab(props: Props) {
                   {
                      title: "Fix Type",
                      dataIndex: "fixType",
-                     width: 90,
+                     width: 100,
                      render: (_, e) => (
                         <Tag color={FixTypeTagMapper[String(e.fixType)].colorInverse}>
                            {FixTypeTagMapper[String(e.fixType)].text}
@@ -220,6 +217,24 @@ export default function IssuesTab(props: Props) {
                         acc[curr] = { text: curr }
                         return acc
                      }, {} as any),
+                  },
+                  {
+                     title: "Task",
+                     width: 100,
+                     ellipsis: true,
+                     editable: false,
+                     render: (_, e) =>
+                        e.task ? (
+                           <Button
+                              type="default"
+                              size="small"
+                              onClick={() => router.push(`/head-staff/desktop/tasks/${e.task.id}`)}
+                           >
+                              Goto Task
+                           </Button>
+                        ) : (
+                           <div>-</div>
+                        ),
                   },
                   {
                      title: "Spare Parts",

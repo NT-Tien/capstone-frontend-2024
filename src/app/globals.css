@@ -16,12 +16,18 @@
     --primary-900: #1e2d8a;
     --primary-950: #171e54;
     --std-layout-padding: 20px;
+
+    --font-base: 16px;
+    --font-sub-base: 15px;
 }
 
 html, body {
     height: 100%;
-    @apply bg-gray-100;
-    /*font-size: 18px;*/
+    @apply bg-gray-100/70;
+}
+
+* {
+    @apply font-base;
 }
 
 .select-pill > .ant-select-selector {
@@ -31,6 +37,7 @@ html, body {
 .std-layout {
     display: grid;
     grid-template-columns: [outer-start] var(--std-layout-padding) [inner-start] 1fr [inner-end] var(--std-layout-padding) [outer-end];
+    overflow-y: auto;
 
     & > * {
         grid-column: inner-start / inner-end;
@@ -94,5 +101,11 @@ html, body {
     .ant-pro-table-list-toolbar-container {
         padding: 0 !important;
         padding-bottom: 0.75rem !important;
+    }
+}
+
+.descriptions-header-margin {
+    .ant-descriptions-header {
+        margin-bottom: 16px !important;
     }
 }

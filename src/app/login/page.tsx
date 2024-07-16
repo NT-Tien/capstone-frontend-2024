@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { decodeJwt } from "@/common/util/decodeJwt.util"
 import { Role } from "@/common/enum/role.enum"
 import Cookies from "js-cookie"
-import { Suspense, useEffect } from "react"
+import { Suspense, useEffect, useState } from "react"
 
 type FieldType = {
    username: string
@@ -28,6 +28,7 @@ function Login() {
    const { message } = App.useApp()
    const router = useRouter()
    const params = useSearchParams()
+   const [error, setError] = useState<any>()
    const [form] = Form.useForm<FieldType>()
 
    const mutate_loginCredentials = useMutation({
@@ -87,6 +88,9 @@ function Login() {
                }
             }
          },
+         onError: (e) => {
+            setError(e)
+         },
       })
    }
 
@@ -143,6 +147,7 @@ function Login() {
                   </Button>
                </Form.Item>
             </Form>
+            <pre>{JSON.stringify(error, null, 2)}</pre>
          </Card>
       </div>
    )

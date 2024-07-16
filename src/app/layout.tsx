@@ -1,14 +1,19 @@
 import type { Metadata, Viewport } from "next"
 import { ReactNode } from "react"
-import { Inter } from "next/font/google"
+import { Poppins } from "next/font/google"
 import GlobalProvider from "@/common/providers/global.provider"
 import "@/app/globals.css"
+import dayjs from "dayjs"
 
-const inter = Inter({ subsets: ["latin"] })
+const font = Poppins({
+   subsets: ["latin"],
+   weight: ["300", "400", "500", "600", "700"],
+   variable: "--font",
+})
 
 export const metadata: Metadata = {
-   title: "Rockstar App",
-   description: "Rockstar App",
+   title: "App",
+   description: "App",
 }
 
 export const viewport: Viewport = {
@@ -25,10 +30,7 @@ export default function RootLayout({
 }>) {
    return (
       <html lang="en">
-         <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-         </head>
-         <body className={inter.className}>
+         <body className={`${font.variable} antialiased`}>
             <GlobalProvider>{children}</GlobalProvider>
          </body>
       </html>

@@ -19,7 +19,7 @@ export type MobileNavbarProps = {
 
 export default function MobileNavbar(props: MobileNavbarProps) {
    return (
-      <div className="fixed bottom-0 left-0 flex h-max w-full justify-between gap-2 border-t-2 border-t-slate-100 bg-white px-2">
+      <div className="shadow-fb fixed bottom-0 left-0 flex h-max w-full justify-between gap-2 border-t-2 border-t-slate-100 bg-white px-2">
          {props.items.map((item) => (
             <NavbarItem
                key={item.key}

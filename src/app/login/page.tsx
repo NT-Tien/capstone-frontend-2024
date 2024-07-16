@@ -147,7 +147,6 @@ function Login() {
                   </Button>
                </Form.Item>
             </Form>
-            <pre>{JSON.stringify(error, null, 2)}</pre>
          </Card>
       </div>
    )

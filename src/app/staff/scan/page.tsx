@@ -12,8 +12,9 @@ import { useTranslation } from "react-i18next"
 type FieldType = {
    deviceId: string
 }
+
 interface StaffScanPageProps {
-   onScanResult: (deviceId: string) => void;
+   onScanResult: (deviceId: string) => void
    onClose: () => void
    open: boolean
 }
@@ -24,6 +25,7 @@ const StaffScanPage: React.FC<StaffScanPageProps> = ({ onScanResult, onClose, op
    const { message } = App.useApp()
    const timeoutRef = useRef<NodeJS.Timeout>()
    const { t } = useTranslation()
+
    async function handleScan(e: IDetectedBarcode[]) {
       if (e.length === 0) return
 
@@ -78,26 +80,22 @@ const StaffScanPage: React.FC<StaffScanPageProps> = ({ onScanResult, onClose, op
                   styles={{
                      container: {
                         width: "100%",
-                        height: "100%",
+                        height: "400px",
                      },
                   }}
                />
-               <div className="p-4">
-                  <Card size="small" hoverable onClick={() => setManualOpen(true)}>
-                     <div className="flex items-center gap-3">
-                        <Avatar style={{ fontSize: "18px", textAlign: "center", backgroundColor: "#6750A4" }}>
-                           AI
-                        </Avatar>
-                        <div className="flex-grow">
-                           <p className="text-base font-bold">{t("InputManually")}</p>
-                           <p className="text-xs">{t("CannotScan")}</p>
-                        </div>
-                        <div>
-                           <Button type="text" icon={<RightOutlined />} />
-                        </div>
+               <Card size="small" hoverable onClick={() => setManualOpen(true)} className="mt-3">
+                  <div className="flex items-center gap-3">
+                     <Avatar style={{ fontSize: "18px", textAlign: "center", backgroundColor: "#6750A4" }}>AI</Avatar>
+                     <div className="flex-grow">
+                        <p className="text-base font-bold">{t("InputManually")}</p>
+                        <p className="text-xs">{t("CannotScan")}</p>
                      </div>
-                  </Card>
-               </div>
+                     <div>
+                        <Button type="text" icon={<RightOutlined />} />
+                     </div>
+                  </div>
+               </Card>
             </div>
          </div>
          <Form<FieldType> form={form} onFinish={(e) => finishHandler(e.deviceId)} layout="horizontal">

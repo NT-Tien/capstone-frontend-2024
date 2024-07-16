@@ -1,8 +1,25 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
-import { App, Button, Card, Checkbox, Drawer, Form, List, message, Spin, Tabs, Tag, Tooltip, Typography, Upload } from "antd"
-import { CSSProperties, useEffect, useMemo, useState } from "react"
+import {
+   App,
+   Badge,
+   Button,
+   Card,
+   Checkbox,
+   Drawer,
+   Form,
+   List,
+   message,
+   QRCode,
+   Spin,
+   Tabs,
+   Tag,
+   Tooltip,
+   Typography,
+   Upload,
+} from "antd"
+import React, { CSSProperties, useEffect, useMemo, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import staff_qk from "@/app/staff/_api/qk"
 import Staff_Task_OneById from "@/app/staff/_api/task/one-byId.api"
@@ -28,6 +45,8 @@ import checkImageUrl from "@/common/util/checkImageUrl.util"
 import ModalConfirm from "@/common/components/ModalConfirm"
 import Staff_Task_UpdateFinish from "@/app/staff/_api/task/update-finish.api"
 import StaffScanPage from "@/app/staff/scan/page"
+import DataListView from "@/common/components/DataListView"
+import { MapPin } from "@phosphor-icons/react"
 
 export default function StartTask({ params }: { params: { id: string } }) {
    const [currentStep, setCurrentStep] = useState<number>(-1)
@@ -71,7 +90,7 @@ export default function StartTask({ params }: { params: { id: string } }) {
 
    const handleOpenScanDrawer = () => {
       setScanningPaused(false)
-    setScanDrawerVisible(true)
+      setScanDrawerVisible(true)
    }
    return (
       <div className="std-layout">
@@ -100,7 +119,15 @@ export default function StartTask({ params }: { params: { id: string } }) {
                scanCompleted={scanCompleted}
             />
          )}
-         {currentStep === 2 && <Step3 id={params.id} handleBack={() => setCurrentStep((prev) => prev - 1)} />}
+         {currentStep === 2 && (
+            <Step3
+               id={params.id}
+               handleBack={() => setCurrentStep((prev) => prev - 1)}
+               handleNext={() => {
+                  router.push("/staff/tasks")
+               }}
+            />
+         )}
       </div>
    )
 }
@@ -158,7 +185,8 @@ function Step1(props: Step1Props) {
 
    return (
       <div style={props.style} className={props.className}>
-         <Card className="mt-layout">Please head to the warehouse to collect the following spare parts.</Card>
+         <Card className="mt-layout">Please head to the warehouse and show the QR code to the stock keeper.</Card>
+         <QRCode value={props.id} className="mx-auto my-6" size={300} status="active"></QRCode>
          {props.data.map((issue, index) => (
             <List
                key={issue.id}
@@ -209,11 +237,11 @@ function Step1(props: Step1Props) {
                      description={
                         <div className="flex flex-col">
                            <div>
-                              <Typography.Text className="text-sm mr-2 text-gray-400">Error:</Typography.Text>
+                              <Typography.Text className="mr-2 text-sm text-gray-400">Error:</Typography.Text>
                               <Typography.Text className="text-sm">{issue.typeError.name}</Typography.Text>
                            </div>
                            <div>
-                              <Typography.Text className="text-sm mr-2 text-gray-400">Note:</Typography.Text>
+                              <Typography.Text className="mr-2 text-sm text-gray-400">Note:</Typography.Text>
                               <Typography.Text className="text-sm">{item.note ?? "-"}</Typography.Text>
                            </div>
                         </div>
@@ -272,10 +300,10 @@ type Step2Props = GeneralProps & {
    data?: TaskDto
    loading: boolean
    id: string
-   handleScanClose: () => void;
-   handleScanResult: (deviceId: string) => void;
-   handleOpenScanDrawer: () => void;
-   scanDrawerVisible: boolean;
+   handleScanClose: () => void
+   handleScanResult: (deviceId: string) => void
+   handleOpenScanDrawer: () => void
+   scanDrawerVisible: boolean
    scanCompleted: boolean
 }
 
@@ -314,23 +342,66 @@ function Step2(props: Step2Props) {
                            }
                            columns={[
                               {
-                                 key: "1",
-                                 label: "Created At",
-                                 render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
-                              },
-                              {
-                                 key: "2",
-                                 label: "Operator",
-                                 dataIndex: "operator",
+                                 label: "Fix Date",
+                                 render: (_, e) => dayjs(e.fixerDate).format("DD/MM/YYYY"),
                               },
                               {
                                  key: "3",
                                  label: "Total Time",
                                  render: (_, e) => `${e.totalTime} minutes`,
                               },
+                              {
+                                 key: "2",
+                                 label: "Operator",
+                                 dataIndex: "operator",
+                              },
                            ]}
                         />
-                        <DeviceDetailsCard device={props.data?.device} className="mt-2" />
+                        <section className="std-layout-outer mt-6 bg-white py-layout">
+                           <h2 className="mb-2 px-layout text-lg font-semibold">Device Details</h2>
+                           <DataListView
+                              dataSource={props.data?.device}
+                              bordered
+                              itemClassName="py-2"
+                              labelClassName="font-normal text-neutral-500"
+                              className="rounded-lg"
+                              items={[
+                                 {
+                                    label: "Machine Model",
+                                    value: (s) => s.machineModel?.name,
+                                 },
+                                 {
+                                    label: "Area",
+                                    value: (s) => s.area?.name,
+                                 },
+                                 {
+                                    label: "Position (x, y)",
+                                    value: (s) => (
+                                       <a className="flex items-center gap-1">
+                                          {s.positionX} x {s.positionY}
+                                          <MapPin size={16} weight="fill" />
+                                       </a>
+                                    ),
+                                 },
+                                 {
+                                    label: "Manufacturer",
+                                    value: (s) => s.machineModel?.manufacturer,
+                                 },
+                                 {
+                                    label: "Year of Production",
+                                    value: (s) => s.machineModel?.yearOfProduction,
+                                 },
+                                 {
+                                    label: "Warranty Term",
+                                    value: (s) => s.machineModel?.warrantyTerm,
+                                 },
+                                 {
+                                    label: "Description",
+                                    value: (s) => s.description,
+                                 },
+                              ]}
+                           />
+                        </section>
                      </div>
                   ),
                },
@@ -356,28 +427,34 @@ function Step2(props: Step2Props) {
                                  )}
                                  split={false}
                                  renderItem={(item) => (
-                                    <Card
-                                       classNames={{
-                                          body: "flex items-center",
-                                       }}
-                                       size="small"
-                                       className={cn(
-                                          "mb-2",
-                                          item.status === IssueStatusEnum.RESOLVED && "bg-green-100 opacity-40",
-                                          item.status === IssueStatusEnum.FAILED && "bg-red-100 opacity-40",
-                                       )}
-                                       hoverable
-                                       onClick={() => handleOpen(item)}
-                                    >
-                                       <div className="flex-grow">
-                                          <Typography.Title level={5} className="m-0 font-semibold">
-                                             {item.typeError.name}
-                                             <Tag className="ml-3">{item.fixType}</Tag>
-                                          </Typography.Title>
-                                          <Typography.Text ellipsis={true}>{item.description}</Typography.Text>
-                                       </div>
-                                       <Button icon={<RightOutlined />} type={"text"} size="large" />
-                                    </Card>
+                                    <Badge.Ribbon text={item.fixType}>
+                                       <Card
+                                          classNames={{
+                                             body: "flex items-center",
+                                          }}
+                                          size="small"
+                                          className={cn(
+                                             "mb-2",
+                                             item.status === IssueStatusEnum.RESOLVED && "bg-green-100 opacity-40",
+                                             item.status === IssueStatusEnum.FAILED && "bg-red-100 opacity-40",
+                                          )}
+                                          hoverable
+                                          onClick={() => handleOpen(item)}
+                                       >
+                                          <div className="flex-grow">
+                                             <Typography.Title level={5} className="m-0 font-semibold">
+                                                {item.typeError.name}
+                                             </Typography.Title>
+                                             <Typography.Text ellipsis={true}>{item.description}</Typography.Text>
+                                          </div>
+                                          <Button
+                                             icon={<RightOutlined />}
+                                             type={"text"}
+                                             size="large"
+                                             className="self-end"
+                                          />
+                                       </Card>
+                                    </Badge.Ribbon>
                                  )}
                               />
                            )}
@@ -396,17 +473,39 @@ function Step2(props: Step2Props) {
                   router.push("/staff/dashboard")
                }}
             />
-            <Button
-               size="large"
-               type="primary"
-               className="w-full"
-               // disabled={!props.data.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
-               onClick={props.handleOpenScanDrawer}
+            {props.scanCompleted ? (
+               <Button
+                  size="large"
+                  type="primary"
+                  className="w-full"
+                  disabled={!props.data.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
+                  onClick={props.handleNext}
+               >
+                  Next
+               </Button>
+            ) : (
+               <Button
+                  size="large"
+                  type="primary"
+                  className="w-full"
+                  // disabled={!props.data.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
+                  onClick={props.handleOpenScanDrawer}
+               >
+                  Scan QR to continue
+               </Button>
+            )}
+            <Drawer
+               title="Scan QR"
+               onClose={props.handleScanClose}
+               open={props.scanDrawerVisible}
+               placement="bottom"
+               height="max-content"
             >
-               Scan QR to continue
-            </Button>
-            <Drawer title="Scan QR" placement="right" onClose={props.handleScanClose} open={props.scanDrawerVisible}>
-               <StaffScanPage onScanResult={props.handleScanResult} onClose={props.handleScanClose} open={!props.scanDrawerVisible} />
+               <StaffScanPage
+                  onScanResult={props.handleScanResult}
+                  onClose={props.handleScanClose}
+                  open={!props.scanDrawerVisible}
+               />
             </Drawer>{" "}
          </div>
       </>

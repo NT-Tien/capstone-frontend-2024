@@ -141,7 +141,7 @@ function PageContent() {
                            })
                         }}
                      >
-                        {TaskStatusTagMapper[String(TaskStatusTagMapper)].text}
+                        {TaskStatusTagMapper[String(status)].text}
                      </span>
                   ),
                }))}
@@ -186,7 +186,7 @@ function DataView(props: Props) {
       <ProTable
          headerTitle={
             <div className="flex gap-2">
-               <span className="capitalize">{TaskStatusToText[props.tabStatus]} Tasks</span>
+               <span className="capitalize">{TaskStatusTagMapper[String(props.tabStatus)].text}</span>
                <span className="text-xs font-normal text-gray-500">
                   {props.list?.length ?? "-"} task{props.list?.length === 1 ? "" : "s"} found
                </span>

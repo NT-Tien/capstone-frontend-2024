@@ -1,7 +1,7 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
-import { App, Button, Card, Checkbox, Form, List, Spin, Tabs, Tag, Tooltip, Typography, Upload } from "antd"
+import { App, Button, Card, Checkbox, Drawer, Form, List, message, Spin, Tabs, Tag, Tooltip, Typography, Upload } from "antd"
 import { CSSProperties, useEffect, useMemo, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import staff_qk from "@/app/staff/_api/qk"
@@ -27,11 +27,16 @@ import { RcFile } from "antd/es/upload"
 import checkImageUrl from "@/common/util/checkImageUrl.util"
 import ModalConfirm from "@/common/components/ModalConfirm"
 import Staff_Task_UpdateFinish from "@/app/staff/_api/task/update-finish.api"
+import StaffScanPage from "@/app/staff/scan/page"
 
 export default function StartTask({ params }: { params: { id: string } }) {
    const [currentStep, setCurrentStep] = useState<number>(-1)
    const router = useRouter()
-
+   const [scanDrawerVisible, setScanDrawerVisible] = useState<boolean>(false)
+   const [scanResult, setScanResult] = useState<boolean | null>(null)
+   const [scanButtonVisible, setScanButtonVisible] = useState<boolean>(true)
+   const [scanCompleted, setScanCompleted] = useState<boolean>(false)
+   const [scanningPaused, setScanningPaused] = useState<boolean>(false)
    const response = useQuery({
       queryKey: staff_qk.task.one_byId(params.id),
       queryFn: () => Staff_Task_OneById({ id: params.id }),
@@ -46,7 +51,28 @@ export default function StartTask({ params }: { params: { id: string } }) {
          setCurrentStep(0)
       }
    }, [response.data, response.isSuccess])
+   const handleScanClose = () => {
+      setScanDrawerVisible(false)
+      setScanningPaused(true)
+   }
 
+   const handleScanResult = (deviceId: string) => {
+      if (scanningPaused) return
+      if (response.isSuccess && response.data.device.id === deviceId) {
+         setScanResult(true)
+         setScanDrawerVisible(false)
+         setScanButtonVisible(false)
+         setScanCompleted(true)
+         message.success("Scanned device ID matched request details.")
+      } else {
+         message.error("Scanned device ID does not match request details.")
+      }
+   }
+
+   const handleOpenScanDrawer = () => {
+      setScanningPaused(false)
+    setScanDrawerVisible(true)
+   }
    return (
       <div className="std-layout">
          <RootHeader title="Start Task" className="std-layout-outer p-4" />
@@ -67,6 +93,11 @@ export default function StartTask({ params }: { params: { id: string } }) {
                data={response.data}
                loading={response.isLoading}
                id={params.id}
+               handleScanClose={handleScanClose}
+               handleScanResult={handleScanResult}
+               handleOpenScanDrawer={handleOpenScanDrawer}
+               scanDrawerVisible={scanDrawerVisible}
+               scanCompleted={scanCompleted}
             />
          )}
          {currentStep === 2 && <Step3 id={params.id} handleBack={() => setCurrentStep((prev) => prev - 1)} />}
@@ -178,11 +209,11 @@ function Step1(props: Step1Props) {
                      description={
                         <div className="flex flex-col">
                            <div>
-                              <Typography.Text className="mr-2 text-sm text-gray-400">Error:</Typography.Text>
+                              <Typography.Text className="text-sm mr-2 text-gray-400">Error:</Typography.Text>
                               <Typography.Text className="text-sm">{issue.typeError.name}</Typography.Text>
                            </div>
                            <div>
-                              <Typography.Text className="mr-2 text-sm text-gray-400">Note:</Typography.Text>
+                              <Typography.Text className="text-sm mr-2 text-gray-400">Note:</Typography.Text>
                               <Typography.Text className="text-sm">{item.note ?? "-"}</Typography.Text>
                            </div>
                         </div>
@@ -241,6 +272,11 @@ type Step2Props = GeneralProps & {
    data?: TaskDto
    loading: boolean
    id: string
+   handleScanClose: () => void;
+   handleScanResult: (deviceId: string) => void;
+   handleOpenScanDrawer: () => void;
+   scanDrawerVisible: boolean;
+   scanCompleted: boolean
 }
 
 function Step2(props: Step2Props) {
@@ -311,6 +347,7 @@ function Step2(props: Step2Props) {
                                  })
                                  .then()
                            }}
+                           scanCompleted={props.scanCompleted}
                         >
                            {(handleOpen) => (
                               <List
@@ -363,13 +400,14 @@ function Step2(props: Step2Props) {
                size="large"
                type="primary"
                className="w-full"
-               disabled={!props.data.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
-               onClick={() => {
-                  props.handleNext?.()
-               }}
+               // disabled={!props.data.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
+               onClick={props.handleOpenScanDrawer}
             >
-               Next
+               Scan QR to continue
             </Button>
+            <Drawer title="Scan QR" placement="right" onClose={props.handleScanClose} open={props.scanDrawerVisible}>
+               <StaffScanPage onScanResult={props.handleScanResult} onClose={props.handleScanClose} open={!props.scanDrawerVisible} />
+            </Drawer>{" "}
          </div>
       </>
    )

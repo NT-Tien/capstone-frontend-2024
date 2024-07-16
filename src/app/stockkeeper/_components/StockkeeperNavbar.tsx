@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
-import { CheckOutlined, ContainerFilled, DashboardFilled, EllipsisOutlined } from "@ant-design/icons"
+import { CheckOutlined, ContainerFilled, DashboardFilled, EllipsisOutlined, ScanOutlined } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
@@ -34,10 +34,10 @@ export default function StockkeeperNavbar() {
          onClick: () => setCurrentActive("warehouse"),
       },
       {
-         name: t("tasksNav"),
-         key: "tasks",
-         icon: <CheckOutlined />,
-         onClick: () => setCurrentActive("tasks"),
+         name: t("Scan"),
+         key: "scan",
+         icon: <ScanOutlined />,
+         onClick: () => setCurrentActive("scan"),
       },
       {
          name: t("Profile"),

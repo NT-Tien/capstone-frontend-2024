@@ -16,7 +16,7 @@ export default function TasksPage() {
    const searchParams = useSearchParams()
    const page = Number(searchParams.get("page")) ?? 1
    const limit = 5
-
+   const { t } = useTranslation()
    const result = useInfiniteQuery({
       queryKey: qk.task.all(page, limit),
       queryFn: (req) => Stockkeeper_Task_All({ page: req.pageParam, limit }),
@@ -28,7 +28,7 @@ export default function TasksPage() {
 
    return (
       <div className="std-layout">
-         <RootHeader title="Tasks" className="std-layout-outer p-4" />
+         <RootHeader title={t('tasksNav')} className="std-layout-outer p-4" />
          <div className="mt-3">
             <ListView
                total={result.data?.pages[0].total ?? 0}

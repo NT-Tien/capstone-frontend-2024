@@ -77,6 +77,10 @@ const eng = {
    Total: 'Total',
    Fixed: 'Fixed',
    Maintenance: 'Maintenance',
+   TaskDetails: 'Task Details',
+   PhoneNumber: 'Update Phone Number',
+   ChangePassword: 'Change Password',
+   logout: 'Logout'
 }
 
 export default eng

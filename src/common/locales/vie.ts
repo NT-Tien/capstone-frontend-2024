@@ -1,8 +1,8 @@
 const vie = {
    Dashboard: "Trang chủ",
    requestsNav: "Yêu cầu",
-   tasksNav: "Công việc",
-   Profile: "Xem nữa",
+   tasksNav: "Tác vụ",
+   Profile: "Hồ sơ",
    Scan: "Quét QR",
    MyRequests: "Lịch sử đơn",
    Hello: "Chào buổi sáng",
@@ -49,7 +49,7 @@ const vie = {
    Fixer: "Người sửa chữa",
    ReportedBy: "Người báo cáo",
    RequesterNote: "Ghi chú của người yêu cầu",
-   DeviceDetails: "Thiết bị",
+   DeviceDetails: "Chi tiết thiết bị",
    DeviceId: "ID của thiết bị",
    DeviceDescription: "Mô tả của thiết bị",
    Manufacturer: "Nhà sản xuất",
@@ -72,11 +72,16 @@ const vie = {
    warrantyTerm: "Thời hạn bảo hành",
    ExpirationDate: "Ngày hết hạn",
    Note: "Ghi chú",
-   "Start Scan": "Quét QR",
+   StartScan: "Quét mã QR",
    Details: "Chi tiết",
    Total: 'Tổng',
    Fixed: 'Cần sửa',
    Maintenance: 'Bảo trì',
+   TaskDetails: 'Chi tiết tác vụ',
+   PhoneNumber: 'Cập nhật số điện thoại',
+   ChangePassword: 'Thay đổi mật khẩu',
+   logout: 'Đăng xuất',
+   pages: 'Thông tin'
 }
 
 export default vie

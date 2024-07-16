@@ -139,7 +139,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
    }
 
    const handleOpenScanDrawer = () => {
-      setScanningPaused(false) // Resume scanning when drawer is opened
+      setScanningPaused(false)
     setScanDrawerVisible(true)
    }
 
@@ -269,28 +269,6 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                                                 </Button>
                                              )}
                                           </RejectTaskDrawer>
-                                          {/* {scanCompleted ? (
-                                             <Button
-                                                type="default"
-                                                size="large"
-                                                className="w-full"
-                                                onClick={() => setTab("main-tab-issues")}
-                                                icon={<PlusOutlined />}
-                                             >
-                                                Add Issues
-                                             </Button>
-                                          ) : (
-                                             <Button
-                                                type="default"
-                                                size="large"
-                                                className="w-full"
-                                                disabled
-                                                onClick={() => setTab("main-tab-issues")}
-                                                icon={<PlusOutlined />}
-                                             >
-                                                Add Issues
-                                             </Button>
-                                          )} */}
                                        </>
                                     )}
                                  </div>

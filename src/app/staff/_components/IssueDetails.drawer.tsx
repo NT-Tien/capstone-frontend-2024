@@ -10,9 +10,11 @@ import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
 export default function IssueDetailsDrawer({
    children,
    afterSuccess,
+   scanCompleted
 }: {
    children: (handleOpen: (issue: FixRequestIssueDto) => void) => ReactNode
    afterSuccess?: () => void
+   scanCompleted: boolean
 }) {
    const [open, setOpen] = useState(false)
    const [currentIssue, setCurrentIssue] = useState<FixRequestIssueDto | undefined>(undefined)
@@ -101,6 +103,7 @@ export default function IssueDetailsDrawer({
                            status: IssueStatusEnum.RESOLVED,
                         })
                   }}
+                  disabled={!scanCompleted}
                >
                   Confirm Finish
                </Button>

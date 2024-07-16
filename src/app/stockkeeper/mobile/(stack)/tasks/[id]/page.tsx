@@ -23,7 +23,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
    return (
       <div className="std-layout">
          <RootHeader
-            title="Task Details"
+            title={t('TaskDetails')}
             icon={<LeftOutlined />}
             onIconClick={() => router.back()}
             className="std-layout-outer p-4"
@@ -70,7 +70,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
             ]}
          />
          <Typography.Title level={5} className="mt-4">
-            Spare Parts
+            {t('SpareParts')}
          </Typography.Title>
          <List
             className={"w-full"}
@@ -80,7 +80,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
             renderItem={(sp) => (
                <List.Item itemID={sp.id} key={sp.id}>
                   <List.Item.Meta
-                     title={sp.sparePart.name}
+                     title={<Typography.Text strong>{sp.sparePart.name}</Typography.Text>}
                      description={`${t("Qty")}: ${sp.quantity}`}
                   ></List.Item.Meta>
                </List.Item>

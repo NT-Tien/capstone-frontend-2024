@@ -33,7 +33,7 @@ export const TaskStatusTagMapper: {
    },
    [TaskStatus.IN_PROGRESS]: {
       text: "In Progress",
-      colorInverse: "processing-inverse",
+      colorInverse: "processing",
       color: "processing",
    },
    [TaskStatus.COMPLETED]: {

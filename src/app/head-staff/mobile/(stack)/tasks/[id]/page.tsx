@@ -4,27 +4,20 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import HeadStaff_Task_OneById from "@/app/head-staff/_api/task/one-byId.api"
 import RootHeader from "@/common/components/RootHeader"
-import { DeleteOutlined, LeftOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons"
+import { LeftOutlined, UserOutlined } from "@ant-design/icons"
 import { useRouter } from "next/navigation"
 import { ProDescriptions } from "@ant-design/pro-components"
 import dayjs from "dayjs"
-import { App, Avatar, Button, Card, Collapse, Descriptions, Empty, List, Tabs, Tag, Typography } from "antd"
+import { App, Avatar, Card, Collapse, Empty, List, Tabs, Tag, Typography } from "antd"
 import { FixType } from "@/common/enum/fix-type.enum"
-import SelectSparePartDrawer from "@/app/head-staff/_components/SelectSparePart.drawer"
 import HeadStaff_SparePart_Create from "@/app/head-staff/_api/spare-part/create.api"
 import HeadStaff_SparePart_Delete from "@/app/head-staff/_api/spare-part/delete.api"
-import AssignFixerDrawer from "@/app/head-staff/_components/AssignFixer.drawer"
 import HeadStaff_Task_UpdateAssignFixer from "@/app/head-staff/_api/task/update-assignFixer.api"
-import { TaskStatus } from "@/common/enum/task-status.enum"
-import CreateIssueDrawer from "@/app/head-staff/_components/CreateIssue.drawer"
 import { useTranslation } from "react-i18next"
 import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
-import ModalConfirm from "@/common/components/ModalConfirm"
-import { cn } from "@/common/util/cn.util"
-import AcceptTaskDrawer from "@/app/head-staff/_components/AcceptTask.drawer"
 import React from "react"
 
 export default function TaskDetails({ params }: { params: { id: string } }) {
@@ -257,23 +250,6 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                               <Card size="small">
                                  By assigning a fixer, this task will be automatically moved to <Tag>PENDING</Tag>status
                               </Card>
-                              <AssignFixerDrawer
-                                 onFinish={(fixerId) => {
-                                    mutate_assignFixer.mutate({
-                                       id: params.id,
-                                       payload: {
-                                          fixer: fixerId,
-                                       },
-                                    })
-                                    router.push("/head-staff/tasks?status=ASSIGNED")
-                                 }}
-                              >
-                                 {(handleOpen) => (
-                                    <Button type="primary" className="mt-3 w-full" onClick={handleOpen} size="large">
-                                       Add Fixer
-                                    </Button>
-                                 )}
-                              </AssignFixerDrawer>
                            </>
                         )}
                      </div>

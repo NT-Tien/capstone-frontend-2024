@@ -43,7 +43,7 @@ function RequestDetails({ params }: { params: { id: string } }) {
          footer={[
             ...(selectedRowKeys.length > 0
                ? [
-                    <div className={"flex items-center p-4"}>
+                    <div key="create-footer" className={"flex items-center p-4"}>
                        <DesktopCreateTaskDrawer
                           afterSuccess={async () => {
                              await queryClient.invalidateQueries({
@@ -52,6 +52,7 @@ function RequestDetails({ params }: { params: { id: string } }) {
                              await queryClient.invalidateQueries({
                                 queryKey: headstaff_qk.request.base(),
                              })
+                             setSelectedRowKeys([])
                           }}
                        >
                           {(handleOpen) => (

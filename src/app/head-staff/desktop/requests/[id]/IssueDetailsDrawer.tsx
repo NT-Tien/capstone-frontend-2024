@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react"
-import { App, Button, Drawer } from "antd"
+import { App, Button, Drawer, Popconfirm } from "antd"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 import dayjs from "dayjs"
@@ -18,9 +18,11 @@ import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
 export default function IssueDetailsDrawer({
    children,
    refetch,
+   showActions = true,
 }: {
    children: (handleOpen: (issueId: string, deviceId: string) => void) => ReactNode
    refetch: () => void
+   showActions?: boolean
 }) {
    const { message } = App.useApp()
    const queryClient = useQueryClient()
@@ -150,7 +152,7 @@ export default function IssueDetailsDrawer({
                ]}
             />
             <ProList
-               headerTitle={"Spare Parts"}
+               headerTitle={<span className="font-semibold">Spare Parts</span>}
                className={"list-no-padding mt-6"}
                dataSource={issue.data?.issueSpareParts}
                renderItem={(item) => {
@@ -158,61 +160,65 @@ export default function IssueDetailsDrawer({
                      <ProCard size="small" className={cn("mb-2 p-2")} bordered>
                         <div className="flex items-center">
                            <div className="flex flex-grow flex-col">
-                              <span className="text-xl font-semibold">{item.sparePart.name}</span>
-                              <span>Qty: {item.quantity}</span>
+                              <span className="text-sub-base font-medium">{item.sparePart.name}</span>
+                              <span className="text-sub-base">Qty: {item.quantity}</span>
                            </div>
-                           <Button
-                              type="link"
-                              danger
-                              icon={<DeleteOutlined />}
-                              onClick={() => {
-                                 mutate_deleteSparePart.mutate({ id: item.id })
-                              }}
-                           >
-                              Remove
-                           </Button>
+                           {showActions && (
+                              <Popconfirm
+                                 title={"Are you sure?"}
+                                 onConfirm={() => {
+                                    mutate_deleteSparePart.mutate({ id: item.id })
+                                 }}
+                              >
+                                 <Button type="link" danger icon={<DeleteOutlined />}>
+                                    Remove
+                                 </Button>
+                              </Popconfirm>
+                           )}
                         </div>
                      </ProCard>
                   )
                }}
             />
-            <SelectSparePartDrawer
-               drawerProps={{
-                  placement: "right",
-               }}
-               onFinish={(values) => {
-                  if (!issueId) return
+            {showActions && (
+               <SelectSparePartDrawer
+                  drawerProps={{
+                     placement: "right",
+                  }}
+                  onFinish={(values) => {
+                     if (!issueId) return
 
-                  mutate_addSparePart.mutate(
-                     {
-                        issue: issueId,
-                        sparePart: values.sparePartId,
-                        quantity: values.quantity,
-                     },
-                     {
-                        onSuccess: async () => {
-                           await issue.refetch()
+                     mutate_addSparePart.mutate(
+                        {
+                           issue: issueId,
+                           sparePart: values.sparePartId,
+                           quantity: values.quantity,
                         },
-                     },
-                  )
-               }}
-            >
-               {(handleOpen1) => (
-                  <Button
-                     className="w-full"
-                     type="dashed"
-                     size="large"
-                     onClick={() =>
-                        handleOpen1(
-                           device.data?.id ?? "",
-                           issue.data?.issueSpareParts.flatMap((v) => v.sparePart.id),
-                        )
-                     }
-                  >
-                     Add Spare Part
-                  </Button>
-               )}
-            </SelectSparePartDrawer>
+                        {
+                           onSuccess: async () => {
+                              await issue.refetch()
+                           },
+                        },
+                     )
+                  }}
+               >
+                  {(handleOpen1) => (
+                     <Button
+                        className="w-full"
+                        type="primary"
+                        size="large"
+                        onClick={() =>
+                           handleOpen1(
+                              device.data?.id ?? "",
+                              issue.data?.issueSpareParts.flatMap((v) => v.sparePart.id),
+                           )
+                        }
+                     >
+                        Add Spare Part
+                     </Button>
+                  )}
+               </SelectSparePartDrawer>
+            )}
          </Drawer>
       </>
    )

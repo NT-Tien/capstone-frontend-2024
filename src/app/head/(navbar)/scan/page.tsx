@@ -5,7 +5,7 @@ import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
 import React, { useRef, useState } from "react"
 import RootHeader from "@/common/components/RootHeader"
 import { useRouter } from "next/navigation"
-import { InfoCircleFilled, RightOutlined, SearchOutlined } from "@ant-design/icons"
+import { InfoCircleFilled, InfoCircleOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons"
 import { isUUID } from "@/common/util/isUUID.util"
 import { useTranslation } from "react-i18next"
 
@@ -65,6 +65,12 @@ export default function ScanPage() {
          <div className="h-full">
             <div>
                <RootHeader title="Scan" className="p-4" icon={<SearchOutlined />} />
+               <section className="my-6 grid place-items-center">
+                  <div className="flex items-center rounded-full bg-white px-6 py-1">
+                     Place <strong className="mx-1.5 font-semibold">device QR Code</strong> into the frame
+                     <InfoCircleOutlined className="ml-2" />
+                  </div>
+               </section>
                <Scanner
                   paused={false}
                   onScan={handleScan}
@@ -75,7 +81,7 @@ export default function ScanPage() {
                   styles={{
                      container: {
                         width: "100%",
-                        height: "100%",
+                        height: "430px",
                      },
                   }}
                />
@@ -110,9 +116,9 @@ export default function ScanPage() {
                }}
             >
                <Card size="small" hoverable className="mb-4">
-                  <div className="flex gap-2">
-                     <InfoCircleFilled />
-                     <div className="text-xs">{t("inputDeviceId")}</div>
+                  <div className="flex items-start gap-2">
+                     <InfoCircleFilled className="mt-1" />
+                     <div className="text-base">{t("inputDeviceId")}</div>
                   </div>
                </Card>
                <Form.Item<FieldType>

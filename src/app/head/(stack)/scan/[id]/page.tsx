@@ -6,17 +6,16 @@ import React, { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { NotFoundError } from "@/common/error/not-found.error"
 import { ProFormSelect, ProFormTextArea } from "@ant-design/pro-components"
-import { App, Button, Card, Drawer, Empty, Form, Typography } from "antd"
+import { App, Badge, Button, Card, Drawer, Empty, Form, Result, Space, Tag, Typography } from "antd"
 import { useRouter } from "next/navigation"
 import Head_Device_OneById from "@/app/head/_api/device/oneById.api"
 import Head_Request_Create from "@/app/head/_api/request/create.api"
 import { useTranslation } from "react-i18next"
-import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
 import head_qk from "@/app/head/_api/qk"
-import qk from "@/app/head/_api/qk"
 import Head_Device_WithRequests from "@/app/head/_api/device/with_requests.api"
-import { ArchiveBox } from "@phosphor-icons/react"
 import DataListView from "@/common/components/DataListView"
+import dayjs from "dayjs"
+import { FixRequestStatusTagMapper } from "@/common/enum/issue-request-status.enum"
 
 type FieldType = {
    description: string
@@ -109,6 +108,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
       queryFn: () => Head_Device_WithRequests({ id: params.id }),
       retry: 0,
       refetchOnWindowFocus: (query) => !(query.state.error?.name === NotFoundError.name),
+      enabled: results.isSuccess,
    })
 
    const [currentlySelected, setCurrentlySelected] = useState<string | undefined>()
@@ -156,7 +156,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
 
    return (
       <>
-         <div className="std-layout h-full">
+         <div className="std-layout overflow-auto pb-32">
             <RootHeader
                title="Scan Results"
                className="std-layout-outer p-4"
@@ -166,71 +166,133 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   type: "text",
                }}
             />
-            <div className="std-layout-grow mt-3">
-               <DataListView
-                  dataSource={results.data}
-                  items={[
-                     {
-                        label: "Machine Model",
-                        value: (s) => s.machineModel?.name,
-                     },
-                     {
-                        label: "Position",
-                        value: (s) => `${s.area?.name} (${s.positionX}x${s.positionY})`,
-                     },
-                     {
-                        label: "Manufacturer",
-                        value: (s) => s.machineModel?.manufacturer,
-                     },
-                     {
-                        label: "Year of Production",
-                        value: (s) => s.machineModel?.yearOfProduction,
-                     },
-                     {
-                        label: "Warrenty Term",
-                        value: (s) => s.machineModel?.warrantyTerm,
-                     },
-                     {
-                        label: "Description",
-                        value: (s) => s.description,
-                     },
-                  ]}
+            {results.isError ? (
+               <Result
+                  title={<span className="text-lg">Oops!</span>}
+                  status="error"
+                  subTitle="We couldn't retrieve the data. Please try again."
+                  extra={
+                     <Space>
+                        <Button size="large" onClick={() => router.push("/head/scan")}>
+                           Back
+                        </Button>
+                        <Button
+                           type={"primary"}
+                           icon={<ReloadOutlined />}
+                           size="large"
+                           onClick={() => results.refetch()}
+                        >
+                           Retry
+                        </Button>
+                     </Space>
+                  }
                />
-               <section className="mt-6">
-                  <Typography.Title level={5}>Requests</Typography.Title>
-                  {results_withRequest.isSuccess ? (
-                     results_withRequest.data.requests.length === 0 ? (
-                        <Card size="small">
+            ) : (
+               <div className="std-layout-outer mt-layout">
+                  <h2 className="mb-2 px-layout text-lg font-semibold">Device Details</h2>
+                  <DataListView
+                     dataSource={results.data}
+                     bordered
+                     itemClassName="py-2"
+                     labelClassName="font-normal text-neutral-500"
+                     items={[
+                        {
+                           label: "Machine Model",
+                           value: (s) => s.machineModel?.name,
+                        },
+                        {
+                           label: "Area",
+                           value: (s) => s.area?.name,
+                        },
+                        {
+                           label: "Position (x, y)",
+                           value: (s) => (
+                              <div>
+                                 {s.positionX} x {s.positionY}
+                              </div>
+                           ),
+                        },
+                        {
+                           label: "Manufacturer",
+                           value: (s) => s.machineModel?.manufacturer,
+                        },
+                        {
+                           label: "Year of Production",
+                           value: (s) => s.machineModel?.yearOfProduction,
+                        },
+                        {
+                           label: "Warranty Term",
+                           value: (s) => s.machineModel?.warrantyTerm,
+                        },
+                        {
+                           label: "Description",
+                           value: (s) => s.description,
+                        },
+                     ]}
+                  />
+               </div>
+            )}
+
+            <section className="mt-6">
+               <h2 className="mb-2 flex justify-between">
+                  <span className="mr-2 text-lg font-semibold">Requests</span>
+                  <span className="text-base font-normal text-neutral-500">
+                     {results_withRequest.data?.requests.length ?? "-"} item
+                     {results_withRequest.data?.requests.length !== 1 && "s"} found
+                  </span>
+               </h2>
+               {results_withRequest.isSuccess ? (
+                  results_withRequest.data.requests.length === 0 ? (
+                     <>
+                        <div className="grid h-full place-content-center rounded-lg border-2 border-dashed border-neutral-300 py-10">
                            <Empty description="This device has no requests" />
-                        </Card>
-                     ) : (
-                        <div className="grid grid-cols-1 gap-1">
-                           {results_withRequest.data.requests.map((req, index) => (
-                              <Card size="small" key={req.id}>
-                                 {req.requester_note}
-                              </Card>
-                           ))}
                         </div>
-                     )
+                     </>
                   ) : (
                      <>
-                        {results_withRequest.isPending && <Card loading />}
-                        {results_withRequest.isError && (
-                           <Card size="small">
-                              <div className="grid place-content-center gap-2">
-                                 <div>An unexpected error has occurred. Please try again</div>
-                                 <Button type="primary" onClick={() => results_withRequest.refetch()}>
-                                    Retry
-                                 </Button>
-                              </div>
-                           </Card>
-                        )}
+                        <div className="grid grid-cols-1 gap-1">
+                           {results_withRequest.data.requests.map((req, index) => (
+                              <Badge.Ribbon
+                                 key={req.id}
+                                 color={FixRequestStatusTagMapper[String(req.status)].color}
+                                 text={<span className="capitalize">{req.status.toLowerCase()}</span>}
+                              >
+                                 <Card size="small">
+                                    <div className="flex flex-col gap-2">
+                                       <span className="truncate text-base font-medium">{req.requester_note}</span>
+                                       <div className="flex justify-between">
+                                          <span>
+                                             <span className="text-neutral-500">Created by</span> Head
+                                          </span>
+                                          <span className="text-neutral-600">
+                                             {dayjs(req.createdAt).format("DD-MM-YYYY HH:mm")}
+                                          </span>
+                                       </div>
+                                    </div>
+                                 </Card>
+                              </Badge.Ribbon>
+                           ))}
+                        </div>
                      </>
-                  )}
-               </section>
-            </div>
+                  )
+               ) : (
+                  <>
+                     {results_withRequest.isPending && results.isSuccess && <Card loading />}
+                     {results_withRequest.isError && (
+                        <Card size="small">
+                           <div className="grid place-content-center gap-2">
+                              <div>An unexpected error has occurred. Please try again</div>
+                              <Button type="primary" onClick={() => results_withRequest.refetch()}>
+                                 Retry
+                              </Button>
+                           </div>
+                        </Card>
+                     )}
+                  </>
+               )}
+            </section>
             {results.isError && results.error.name === NotFoundError.name ? (
-               <div className="std-layout-grow grid place-items-center">
+               <div className="grid place-items-center">
                   <Empty
                      description={<Typography.Title level={5}>Device not found. Please try again</Typography.Title>}
                   >
@@ -245,18 +307,20 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   </Empty>
                </div>
             ) : (
-               <div className="std-layout-outer p-layout">
-                  <Button
-                     className="w-full"
-                     size="large"
-                     icon={<PlusOutlined />}
-                     type="primary"
-                     disabled={results.isLoading}
-                     onClick={() => setOpenCreateIssue(true)}
-                  >
-                     {t("CreateIssueReport")}
-                  </Button>
-               </div>
+               results.isSuccess && (
+                  <div className="fixed bottom-0 left-0 w-full border-t-neutral-200 bg-white p-layout shadow-fb">
+                     <Button
+                        className="w-full"
+                        size="large"
+                        icon={<PlusOutlined />}
+                        type="primary"
+                        disabled={results.isLoading}
+                        onClick={() => setOpenCreateIssue(true)}
+                     >
+                        {t("CreateIssueReport")}
+                     </Button>
+                  </div>
+               )
             )}
          </div>
          <Drawer

@@ -7,9 +7,9 @@ export default function UserActions() {
    const [handleLogout] = useLogout()
    return (
       <>
-         <Button size="large">Update Phone Number</Button>
-         <Button size="large">Change Password</Button>
-         <Button onClick={handleLogout} danger size="large" type="primary">
+         <Button size="middle">Update Phone Number</Button>
+         <Button size="middle">Change Password</Button>
+         <Button onClick={handleLogout} danger size="middle" type="primary">
             Log out
          </Button>
       </>

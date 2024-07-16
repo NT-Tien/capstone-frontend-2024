@@ -4,9 +4,9 @@ const eng = {
    tasksNav: "Tasks",
    Profile: "More",
    Scan: "Scan",
-   MyRequests: "My Requests",
+   MyRequests: "Requests",
    Hello: "Good Morning",
-   PrevReports: "Your Previous Reports",
+   PrevReports: "Previous Reports",
    SeeMore: "See more",
    pending: "Pending",
    approved: "Approved",
@@ -25,7 +25,7 @@ const eng = {
    Unassigned: "Unassigned",
    Assigned: "Assigned",
    Progressing: "In Progress",
-   Completed: "Completed",
+   Completed: "Approved",
    endList: "You are at the end of the list",
    MachineModel: "Machine Model",
    Created: "Created",
@@ -74,9 +74,9 @@ const eng = {
    Note: "Note",
    "Start Scan": "Start Scan",
    Details: "Details",
-   Total: 'Total',
-   Fixed: 'Fixed',
-   Maintenance: 'Maintenance',
+   Total: "Total",
+   Fixed: "Fixed",
+   Maintenance: "Maintenance",
 }
 
 export default eng

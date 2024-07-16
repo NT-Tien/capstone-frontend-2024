@@ -1,4 +1,5 @@
 import { Role } from "@/common/enum/role.enum"
+import { TaskDto } from "@/common/dto/Task.dto"
 
 export type UserDto = {
    role: Role | null
@@ -8,4 +9,5 @@ export type UserDto = {
    id: string
    createdAt: string
    updatedAt: string
+   tasks: TaskDto[]
 }

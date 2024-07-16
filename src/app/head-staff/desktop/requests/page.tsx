@@ -216,7 +216,7 @@ function DataView<T extends Record<string, any>>(props: Props<T>) {
                title: "Position",
                render: (_, e) => `${e.device.area.name} (${e.device.positionX}x${e.device.positionY})`,
                tooltip: "Area (X, Y)",
-               width: 150,
+               width: 300,
             },
             {
                key: "issues",

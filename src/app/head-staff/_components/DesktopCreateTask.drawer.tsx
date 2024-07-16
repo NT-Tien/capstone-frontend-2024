@@ -1,15 +1,16 @@
-import React, { Key, ReactNode, useMemo, useState } from "react"
+import React, { ReactNode, useEffect, useMemo, useState } from "react"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Avatar, Button, Card, Drawer, Form, Radio, Switch, Tag } from "antd"
-import HeadStaff_Task_Create from "@/app/head-staff/_api/task/create.api"
+import { App, Button, Drawer, Form, Radio } from "antd"
+import HeadStaff_Task_Create, { Request as CreateRequest } from "@/app/head-staff/_api/task/create.api"
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import ProList from "@ant-design/pro-list/lib"
-import { FixType } from "@/common/enum/fix-type.enum"
 import { ProFormDatePicker, ProFormDigit, ProFormText } from "@ant-design/pro-components"
 import { PlusOutlined } from "@ant-design/icons"
 import { Dayjs } from "dayjs"
+import HeadStaff_Request_UpdateStatus, {
+   Request as UpdateRequest,
+} from "@/app/head-staff/_api/request/updateStatus.api"
+import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
 
 type FieldType = {
    name: string
@@ -43,7 +44,12 @@ export default function DesktopCreateTaskDrawer({
    }, [api.data, issueIds])
 
    const mutate_createTask = useMutation({
-      mutationFn: HeadStaff_Task_Create,
+      mutationFn: async (req: { create: CreateRequest; update: UpdateRequest }) => {
+         return await Promise.allSettled([
+            HeadStaff_Task_Create(req.create),
+            HeadStaff_Request_UpdateStatus(req.update),
+         ])
+      },
       onMutate: async () => {
          message.destroy("create-task")
          message.open({
@@ -88,15 +94,30 @@ export default function DesktopCreateTaskDrawer({
       const totalTime = selectedIssues.reduce((acc, issue) => acc + issue.typeError.duration, 0)
 
       mutate_createTask.mutate({
-         name: values.name,
-         operator: values.operator,
-         issueIDs: issueIds,
-         request: requestId,
-         priority: values.priority,
-         totalTime: totalTime + totalTime * 0.1,
-         fixerDate: values.fixerDate.toISOString(),
+         create: {
+            name: values.name,
+            operator: values.operator,
+            issueIDs: issueIds,
+            request: requestId,
+            priority: values.priority,
+            totalTime: totalTime + totalTime * 0.1,
+            fixerDate: values.fixerDate.toISOString(),
+         },
+         update: {
+            id: requestId,
+            payload: {
+               status: FixRequestStatus.APPROVED,
+               checker_note: "",
+            },
+         },
       })
    }
+
+   useEffect(() => {
+      form.setFieldsValue({
+         name: `${api.data?.device.machineModel.name}-${api.data?.device.area.name}-${api.data?.device.positionX}-${api.data?.device.positionY}`,
+      })
+   }, [api.data, form, api.isSuccess])
 
    return (
       <>

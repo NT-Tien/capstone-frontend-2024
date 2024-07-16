@@ -3,22 +3,32 @@
 import RootHeader from "@/common/components/RootHeader"
 import { LeftOutlined } from "@ant-design/icons"
 import { useRouter } from "next/navigation"
-import { Tag, Typography } from "antd"
+import { Button, Card, Tag, Typography } from "antd"
 import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import Head_Request_All from "@/app/head/_api/request/all.api"
 import { NotFoundError } from "@/common/error/not-found.error"
-import { FixRequestStatusTagMapper, IssueRequestStatusTag } from "@/common/enum/issue-request-status.enum"
+import {
+   FixRequestStatus,
+   FixRequestStatusTagMapper,
+   IssueRequestStatusTag,
+} from "@/common/enum/issue-request-status.enum"
 import { ProDescriptions } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 import Head_Device_OneById from "@/app/head/_api/device/oneById.api"
 import { useTranslation } from "react-i18next"
 import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
+import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
+import DataListView from "@/common/components/DataListView"
+import React from "react"
+import { MapPin, XCircle } from "@phosphor-icons/react"
 
 export default function HistoryDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
    const { t } = useTranslation()
-   const response = useQuery({
+   const { getStatusTranslation } = useIssueRequestStatusTranslation()
+
+   const api = useQuery({
       queryKey: qk.issueRequests.allRaw(),
       queryFn: () => Head_Request_All(),
       select: (data) => {
@@ -26,13 +36,6 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
          if (!issue) throw new NotFoundError("Issue")
          return issue
       },
-   })
-   const { getStatusTranslation } = useIssueRequestStatusTranslation()
-
-   const device = useQuery({
-      queryKey: qk.devices.one_byId(response.data?.device.id ?? ""),
-      queryFn: () => Head_Device_OneById({ id: response.data?.device.id ?? "" }),
-      enabled: response.isSuccess,
    })
 
    return (
@@ -46,63 +49,104 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                type: "text",
             }}
          />
-         <div className="std-layout-inner mt-3 flex items-center justify-between">
-            <Typography.Title level={4} className="mb-0">
-               {t("IssueDetails")}
-            </Typography.Title>
-            <Tag color={FixRequestStatusTagMapper[String(response.data?.status)].colorInverse}>
-               {getStatusTranslation(response.data?.status)}
-            </Tag>
-         </div>
          <ProDescriptions
-            className="std-layout-inner mt-2"
-            dataSource={device.data}
-            loading={device.isLoading}
+            className="mt-layout"
+            labelStyle={{
+               fontSize: "15px",
+            }}
+            contentStyle={{
+               fontSize: "15px",
+            }}
+            title={<span className="text-lg">{t("IssueDetails")}</span>}
+            extra={
+               <Tag color={FixRequestStatusTagMapper[String(api.data?.status)].color}>
+                  {getStatusTranslation(api.data?.status)}
+               </Tag>
+            }
+            dataSource={api.data}
+            loading={api.isPending}
             size="small"
             columns={[
                {
-                  key: "machineModel",
-                  label: t("MachineModel"),
-
-                  render: (_, e) => e.machineModel?.name ?? "-",
-               },
-               {
-                  key: "deviceDescription",
-                  label: t("DeviceDescription"),
-                  render: (_, e) => e.description,
-               },
-               {
-                  key: "devicePosition",
-                  label: t("Position"),
-                  render: (_, e) => e.area?.name + ` (${e.positionX} : ${e.positionY})`,
-               },
-               {
-                  key: "createdAt",
-                  label: t("Created"),
+                  title: "Created At",
+                  dataIndex: "createdAt",
                   render: (_, e) => dayjs(e.createdAt).format("YYYY-MM-DD HH:mm:ss"),
                },
                {
-                  key: "updatedAt",
-                  label: t("LastUpdated"),
-                  render: (_, e) => dayjs(e.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
+                  title: "Updated At",
+                  dataIndex: "updatedAt",
+                  render: (_, e) =>
+                     e.createdAt === e.updatedAt ? "-" : dayjs(e.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
                },
-            ]}
-         />
-         <ProDescriptions
-            className="std-layout-inner"
-            dataSource={response.data}
-            loading={response.isLoading}
-            size="small"
-            layout="vertical"
-            columns={[
                {
-                  key: "attachedNote",
-                  label: t("RequesterNote"),
-                  render: (_, e) => e.requester_note,
-                  span: 2,
+                  title: "Reported by",
+                  dataIndex: ["requester", "username"],
+               },
+               {
+                  title: "Note",
+                  dataIndex: "requester_note",
                },
             ]}
          />
+         {api.data?.status === FixRequestStatus.REJECTED && (
+            <section className="mt-3 w-full">
+               <Card
+                  title={
+                     <div className="flex items-center gap-1">
+                        <XCircle size={18} />
+                        Rejection Reason
+                     </div>
+                  }
+                  size="small"
+               >
+                  {api.data?.checker_note}
+               </Card>
+            </section>
+         )}
+         <section className="std-layout-outer mt-6 bg-white py-layout">
+            <h2 className="mb-2 px-layout text-lg font-semibold">Device Details</h2>
+            <DataListView
+               dataSource={api.data?.device}
+               bordered
+               itemClassName="py-2"
+               labelClassName="font-normal text-neutral-500"
+               items={[
+                  {
+                     label: "Machine Model",
+                     value: (s) => s.machineModel?.name,
+                  },
+                  {
+                     label: "Area",
+                     value: (s) => s.area?.name,
+                  },
+                  {
+                     label: "Position (x, y)",
+                     value: (s) => (
+                        <a className="flex items-center gap-1">
+                           {s.positionX} x {s.positionY}
+                           <MapPin size={16} weight="fill" />
+                        </a>
+                     ),
+                  },
+                  {
+                     label: "Manufacturer",
+                     value: (s) => s.machineModel?.manufacturer,
+                  },
+                  {
+                     label: "Year of Production",
+                     value: (s) => s.machineModel?.yearOfProduction,
+                  },
+                  {
+                     label: "Warranty Term",
+                     value: (s) => s.machineModel?.warrantyTerm,
+                  },
+                  {
+                     label: "Description",
+                     value: (s) => s.description,
+                  },
+               ]}
+            />
+         </section>
       </div>
    )
 }

@@ -28,10 +28,7 @@ export default function HomeHeader(props: HeadStaffDashboardHeaderProps) {
             <Typography.Text className="text-base">{t("Hello")}</Typography.Text>
          </Row>
          <Row>
-            <Typography.Title level={3} className="mb-0 mt-1 text-3xl font-bold">
-               {/* TODO change currentToken to skeleton loader */}
-               {currentToken ? decodeJwt(currentToken).username : "User"}
-            </Typography.Title>
+            <h1 className="mb-0 mt-1 text-3xl font-bold">{currentToken ? decodeJwt(currentToken).username : "User"}</h1>
          </Row>
       </Col>
    )

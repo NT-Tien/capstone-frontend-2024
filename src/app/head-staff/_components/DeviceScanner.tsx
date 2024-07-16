@@ -5,25 +5,27 @@ import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
 import React, { useRef, useState } from "react"
 import RootHeader from "@/common/components/RootHeader"
 import { useRouter } from "next/navigation"
-import { InfoCircleFilled, RightOutlined, SearchOutlined } from "@ant-design/icons"
+import { InfoCircleFilled, InfoCircleOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons"
 import { isUUID } from "@/common/util/isUUID.util"
 import { useTranslation } from "react-i18next"
 
 type FieldType = {
    deviceId: string
 }
+
 interface HeadStaffScanPageProps {
-   onScanResult: (deviceId: string) => void;
+   onScanResult: (deviceId: string) => void
    onClose: () => void
    open: boolean
 }
 
-const HeadStaffScanPage: React.FC<HeadStaffScanPageProps> = ({ onScanResult, onClose, open }) => {
+const DeviceScanner: React.FC<HeadStaffScanPageProps> = ({ onScanResult, onClose, open }) => {
    const [manualOpen, setManualOpen] = useState(false)
    const [form] = Form.useForm<FieldType>()
    const { message } = App.useApp()
    const timeoutRef = useRef<NodeJS.Timeout>()
    const { t } = useTranslation()
+
    async function handleScan(e: IDetectedBarcode[]) {
       if (e.length === 0) return
 
@@ -45,7 +47,7 @@ const HeadStaffScanPage: React.FC<HeadStaffScanPageProps> = ({ onScanResult, onC
       }, 3000)
 
       if (!isUUID(id)) {
-         await message.open({
+         message.open({
             content: t("invalidDeviceId"),
             duration: 0,
             type: "error",
@@ -54,7 +56,7 @@ const HeadStaffScanPage: React.FC<HeadStaffScanPageProps> = ({ onScanResult, onC
          return
       }
 
-      await message.open({
+      message.open({
          content: t("deviceIdScanned"),
          duration: 0,
          type: "success",
@@ -67,38 +69,38 @@ const HeadStaffScanPage: React.FC<HeadStaffScanPageProps> = ({ onScanResult, onC
    return (
       <>
          <div className="h-full">
-            <div>
-               <Scanner
-                  paused={open}
-                  onScan={handleScan}
-                  allowMultiple={true}
-                  scanDelay={1000}
-                  components={{}}
-                  constraints={{}}
-                  styles={{
-                     container: {
-                        width: "100%",
-                        height: "100%",
-                     },
-                  }}
-               />
-               <div className="p-4">
-                  <Card size="small" hoverable onClick={() => setManualOpen(true)}>
-                     <div className="flex items-center gap-3">
-                        <Avatar style={{ fontSize: "18px", textAlign: "center", backgroundColor: "#6750A4" }}>
-                           AI
-                        </Avatar>
-                        <div className="flex-grow">
-                           <p className="text-base font-bold">{t("InputManually")}</p>
-                           <p className="text-xs">{t("CannotScan")}</p>
-                        </div>
-                        <div>
-                           <Button type="text" icon={<RightOutlined />} />
-                        </div>
-                     </div>
-                  </Card>
+            <section className="grid place-items-center">
+               <div className="mb-6 flex items-center rounded-full border-2 border-neutral-200 bg-white px-6 py-1">
+                  Place <strong className="mx-1.5 font-semibold">device QR Code</strong> into the frame
+                  <InfoCircleOutlined className="ml-2" />
                </div>
-            </div>
+            </section>
+            <Scanner
+               paused={open}
+               onScan={handleScan}
+               allowMultiple={true}
+               scanDelay={1000}
+               components={{}}
+               constraints={{}}
+               styles={{
+                  container: {
+                     width: "100%",
+                     height: "380px",
+                  },
+               }}
+            />
+            <Card size="small" hoverable onClick={() => setManualOpen(true)} className="mt-layout">
+               <div className="flex items-center gap-3">
+                  <Avatar style={{ fontSize: "18px", textAlign: "center", backgroundColor: "#6750A4" }}>AI</Avatar>
+                  <div className="flex-grow">
+                     <p className="text-base font-bold">{t("InputManually")}</p>
+                     <p className="text-xs">{t("CannotScan")}</p>
+                  </div>
+                  <div>
+                     <Button type="text" icon={<RightOutlined />} />
+                  </div>
+               </div>
+            </Card>
          </div>
          <Form<FieldType> form={form} onFinish={(e) => finishHandler(e.deviceId)} layout="horizontal">
             <Drawer
@@ -152,4 +154,4 @@ const HeadStaffScanPage: React.FC<HeadStaffScanPageProps> = ({ onScanResult, onC
       </>
    )
 }
-export default HeadStaffScanPage
+export default DeviceScanner

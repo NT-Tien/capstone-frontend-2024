@@ -11,18 +11,9 @@ import { PageContainer } from "@ant-design/pro-layout"
 import { Suspense, useEffect, useRef, useState } from "react"
 import { App, Button, Calendar, Dropdown, Radio, Spin, Tabs, Tag } from "antd"
 import { CalendarOutlined, MoreOutlined, OrderedListOutlined } from "@ant-design/icons"
-import { TaskStatus } from "@/common/enum/task-status.enum"
+import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
 import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
 import { TaskDto } from "@/common/dto/Task.dto"
-
-const TaskStatusToText = {
-   [TaskStatus.AWAITING_FIXER]: "Unassigned",
-   [TaskStatus.ASSIGNED]: "Assigned",
-   [TaskStatus.IN_PROGRESS]: "In Progress",
-   [TaskStatus.COMPLETED]: "Completed",
-   [TaskStatus.CANCELLED]: "Cancelled",
-   [TaskStatus.PENDING_STOCK]: "Pending Stock",
-}
 
 export default function Page() {
    return (
@@ -150,7 +141,7 @@ function PageContent() {
                            })
                         }}
                      >
-                        {TaskStatusToText[status]}
+                        {TaskStatusTagMapper[String(TaskStatusTagMapper)].text}
                      </span>
                   ),
                }))}

@@ -205,7 +205,7 @@ function DetailedListRenderer(props: ListRendererProps) {
                priority={task.priority}
                extra={
                   <Typography.Text className="text-gray-500">
-                     {extended_dayjs(task.createdAt).fromNow(false)}
+                     {extended_dayjs(task.createdAt).locale("en").fromNow(false)}
                   </Typography.Text>
                }
                onClick={() => {

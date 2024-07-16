@@ -122,12 +122,6 @@ export default function HeadStaffDesktopLayout({ children }: { children: ReactNo
                   name: "Tasks",
                   icon: <CheckSquare size={16} />,
                },
-               {
-                  key: "staff",
-                  path: "/head-staff/desktop/staff",
-                  name: "Staff",
-                  icon: <User size={16} />,
-               },
             ],
          }}
          onError={() => {

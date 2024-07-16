@@ -15,6 +15,9 @@ const headstaff_qk = {
    issue: {
       byId: (id: string) => ["headstaff", "issue", "byId", id],
    },
+   user: {
+      all: () => ["headstaff", "user", "all"],
+   },
 }
 
 export default headstaff_qk

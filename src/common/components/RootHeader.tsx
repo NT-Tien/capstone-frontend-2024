@@ -24,7 +24,10 @@ export default function RootHeader({
    className,
 }: Props) {
    return (
-      <div className={cn("flex h-min w-full items-center justify-between bg-white", className)} style={style}>
+      <div
+         className={cn("shadow-soft flex h-min w-full items-center justify-between bg-white", className)}
+         style={style}
+      >
          <span className="flex flex-grow items-center gap-1 text-xl font-semibold">
             <Button icon={icon} type="text" className="p-0" onClick={onIconClick} {...buttonProps} />
             {title}

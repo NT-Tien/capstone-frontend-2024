@@ -85,7 +85,7 @@ export default function MachineModelDetails({ params }: { params: { id: string }
          }}
       >
          <RootHeader
-            title="Task Details"
+            title={t('DeviceDetails')}
             icon={<LeftOutlined />}
             onIconClick={() => router.back()}
             className="p-4"

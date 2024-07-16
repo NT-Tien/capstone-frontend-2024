@@ -27,30 +27,30 @@ export default function ProfilePage() {
 
    return (
       <div className="std-layout gap-y-6">
-         <RootHeader title={t("Profile")} className="std-layout-outer p-4" icon={<EllipsisOutlined />} />
+         <RootHeader title={t("Profile")} className="std-layout-outer p-4" />
          <UserCard jwt={user} />
          <section>
             <header className="mb-3 flex items-center gap-2">
                <LaptopOutlined />
                <Typography.Title level={5} className="mb-0">
-                  Pages
+                  {t('pages')}
                </Typography.Title>
             </header>
             <main className="grid grid-cols-3 gap-2">
                <FunctionButton
                   icon={<HomeOutlined />}
-                  title="Home"
+                  title={t('Dashboard')}
                   onClick={() => router.push("/stockkeeper/mobile/dashboard")}
                />
                <FunctionButton
                   icon={<ContainerFilled />}
-                  title="Warehouse"
+                  title={t('machineModelNav')}
                   onClick={() => router.push("/stockkeeper/mobile/warehouse")}
                />
                <FunctionButton
                   icon={<CheckOutlined />}
-                  title="Tasks"
-                  onClick={() => router.push("/stockkeeper/mobile/tasks")}
+                  title={t('StartScan')}
+                  onClick={() => router.push("/stockkeeper/mobile/scan")}
                />
             </main>
          </section>
@@ -58,7 +58,7 @@ export default function ProfilePage() {
             <header className="mb-3 flex items-center gap-2">
                <UserOutlined />
                <Typography.Title level={5} className="mb-0">
-                  Profile
+                  {t('Profile')}
                </Typography.Title>
             </header>
             <main className="grid grid-cols-1 gap-2">

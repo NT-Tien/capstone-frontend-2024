@@ -135,7 +135,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
    }
 
    const handleOpenScanDrawer = () => {
-      setScanningPaused(false) // Resume scanning when drawer is opened
+      setScanningPaused(false)
       setScanDrawerVisible(true)
    }
 

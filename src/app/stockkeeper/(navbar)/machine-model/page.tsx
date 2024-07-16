@@ -8,15 +8,19 @@ import qk from "@/common/querykeys"
 import { RightOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { useTranslation } from "react-i18next"
-import Stockkeeper_MachineModel_All from "../../../_api/machine-model/getAll.api"
+import Stockkeeper_MachineModel_All from "../../_api/machine-model/getAll.api"
 import { MachineModelDto } from "@/common/dto/MachineModel.dto"
+import React from "react"
 
 export default function MachineModelPage() {
+   const searchParams = useSearchParams()
+   const router = useRouter()
+
    const result = useQuery({
       queryKey: qk.task.all(),
       queryFn: () => Stockkeeper_MachineModel_All({ page: 1, limit: 1000 }),
    })
-   const { t } = useTranslation()
+
    // const result = useInfiniteQuery({
    //    queryKey: qk.task.all(page, limit),
    //    queryFn: (req) => Stockkeeper_MachineModel_All({ page: req.pageParam, limit }),
@@ -28,9 +32,9 @@ export default function MachineModelPage() {
 
    return (
       <div className="std-layout">
-         <RootHeader title={t('machineModelNav')} className="std-layout-outer p-4" />
+         <RootHeader title="Tasks" className="std-layout-outer p-4" />
          <div className={"mt-3"}>
-            <ListView total={result.data?.total ?? 0} loading={result.isLoading} items={result.data?.list ?? []} />
+            <ListView total={result.data?.length ?? 0} loading={result.isLoading} items={result.data ?? []} />
          </div>
       </div>
    )
@@ -59,7 +63,7 @@ function ListView(props: ListViewType) {
                size="small"
                className="mb-3"
                hoverable={true}
-               onClick={() => router.push(`/stockkeeper/mobile/warehouse/${item.id}`)}
+               onClick={() => router.push(`/stockkeeper/machine-model/${item.id}`)}
             >
                <ProDescriptions
                   size="small"

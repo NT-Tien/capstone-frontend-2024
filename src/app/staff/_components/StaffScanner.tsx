@@ -13,13 +13,13 @@ type FieldType = {
    deviceId: string
 }
 
-interface StaffScanPageProps {
+type StaffScanPageProps = {
    onScanResult: (deviceId: string) => void
    onClose: () => void
    open: boolean
 }
 
-const StaffScanPage: React.FC<StaffScanPageProps> = ({ onScanResult, onClose, open }) => {
+export default function StaffScanner(props: StaffScanPageProps) {
    const [manualOpen, setManualOpen] = useState(false)
    const [form] = Form.useForm<FieldType>()
    const { message } = App.useApp()
@@ -62,8 +62,8 @@ const StaffScanPage: React.FC<StaffScanPageProps> = ({ onScanResult, onClose, op
          type: "success",
          key: "messenger",
       })
-      onScanResult(id)
-      onClose()
+      props.onScanResult(id)
+      props.onClose()
    }
 
    return (
@@ -71,7 +71,7 @@ const StaffScanPage: React.FC<StaffScanPageProps> = ({ onScanResult, onClose, op
          <div className="h-full">
             <div>
                <Scanner
-                  paused={open}
+                  paused={props.open}
                   onScan={handleScan}
                   allowMultiple={true}
                   scanDelay={1000}
@@ -150,4 +150,3 @@ const StaffScanPage: React.FC<StaffScanPageProps> = ({ onScanResult, onClose, op
       </>
    )
 }
-export default StaffScanPage

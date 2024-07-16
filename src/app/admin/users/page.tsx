@@ -41,17 +41,17 @@ export default function UsersListPage() {
                   case "role":
                      result = result || user.role === value
                      break
-                  case "createdAt":
-                     result = result || dayjs(user.createdAt).isSame(value, "day")
-                     break
-                  case "updatedAt":
-                     result = result || dayjs(user.updatedAt).isSame(value, "day")
-                     break
-                  case "deletedAt":
-                     result =
-                        result || value === null
-                           ? user.deletedAt === null
-                           : dayjs(user.deletedAt).isSame(dayjs(value as string), "day")
+                  // case "createdAt":
+                  //    result = result || dayjs(user.createdAt).isSame(value, "day")
+                  //    break
+                  // case "updatedAt":
+                  //    result = result || dayjs(user.updatedAt).isSame(value, "day")
+                  //    break
+                  // case "deletedAt":
+                  //    result =
+                  //       result || value === null
+                  //          ? user.deletedAt === null
+                  //          : dayjs(user.deletedAt).isSame(dayjs(value as string), "day")
                }
             }
             return result

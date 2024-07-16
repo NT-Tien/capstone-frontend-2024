@@ -3,10 +3,9 @@ import { ReactNode } from "react"
 import { Poppins } from "next/font/google"
 import GlobalProvider from "@/common/providers/global.provider"
 import "@/app/globals.css"
-import dayjs from "dayjs"
 
 const font = Poppins({
-   subsets: ["latin"],
+   subsets: ["latin", "latin-ext"],
    weight: ["300", "400", "500", "600", "700"],
    variable: "--font",
 })

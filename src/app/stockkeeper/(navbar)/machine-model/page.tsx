@@ -13,28 +13,16 @@ import { MachineModelDto } from "@/common/dto/MachineModel.dto"
 import React from "react"
 
 export default function MachineModelPage() {
-   const searchParams = useSearchParams()
-   const router = useRouter()
-
    const result = useQuery({
       queryKey: qk.task.all(),
       queryFn: () => Stockkeeper_MachineModel_All({ page: 1, limit: 1000 }),
    })
-
-   // const result = useInfiniteQuery({
-   //    queryKey: qk.task.all(page, limit),
-   //    queryFn: (req) => Stockkeeper_MachineModel_All({ page: req.pageParam, limit }),
-   //    initialPageParam: 1,
-   //    getNextPageParam: (lastPage, allPages, lastPageParam, allPageParams) => {
-   //       return lastPageParam + 1
-   //    },
-   // })
-
+   
    return (
       <div className="std-layout">
          <RootHeader title="Tasks" className="std-layout-outer p-4" />
          <div className={"mt-3"}>
-            <ListView total={result.data?.length ?? 0} loading={result.isLoading} items={result.data ?? []} />
+            <ListView total={result.data?.total ?? 0} loading={result.isLoading} items={result.data?.list ?? []} />
          </div>
       </div>
    )

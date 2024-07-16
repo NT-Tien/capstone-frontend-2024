@@ -44,7 +44,7 @@ import { RcFile } from "antd/es/upload"
 import checkImageUrl from "@/common/util/checkImageUrl.util"
 import ModalConfirm from "@/common/components/ModalConfirm"
 import Staff_Task_UpdateFinish from "@/app/staff/_api/task/update-finish.api"
-import StaffScanPage from "@/app/staff/scan/page"
+import StaffScanner from "@/app/staff/_components/StaffScanner"
 import DataListView from "@/common/components/DataListView"
 import { MapPin } from "@phosphor-icons/react"
 
@@ -501,7 +501,7 @@ function Step2(props: Step2Props) {
                placement="bottom"
                height="max-content"
             >
-               <StaffScanPage
+               <StaffScanner
                   onScanResult={props.handleScanResult}
                   onClose={props.handleScanClose}
                   open={!props.scanDrawerVisible}

@@ -1,8 +1,8 @@
 import relativeTime from "dayjs/plugin/relativeTime"
-import "dayjs/locale/en"
+import "dayjs/locale/vi"
 import dayjs from "dayjs"
 
-dayjs.locale("en")
+dayjs.locale("vi")
 dayjs.extend(relativeTime)
 
 const extended_dayjs = dayjs

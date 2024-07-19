@@ -7,9 +7,9 @@ export type Request = {
    id: string
    payload: {
       task?: string
-      typeError: string
-      description: string
-      fixType: string
+      typeError?: string
+      description?: string
+      fixType?: string
    }
 }
 export type Response = FixRequestIssueDto

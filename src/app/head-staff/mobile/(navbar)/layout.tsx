@@ -3,9 +3,9 @@ import HeadStaffNavbar from "@/app/head-staff/_components/HeadStaffNavbar"
 
 export default function NavbarTabs({ children }: { children: ReactNode }) {
    return (
-      <div className="pb-24">
-         {children}
+      <>
+         <div className="min-h-screen-with-navbar h-max">{children}</div>
          <HeadStaffNavbar />
-      </div>
+      </>
    )
 }

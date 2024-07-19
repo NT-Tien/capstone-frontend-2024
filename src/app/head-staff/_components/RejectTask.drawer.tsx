@@ -11,7 +11,12 @@ type FieldType = {
    rejectMsg: string
 }
 
-export default function RejectTaskDrawer({ children }: { children: (handleOpen: (id: string) => void) => ReactNode }) {
+type Props = {
+   children: (handleOpen: (id: string) => void) => ReactNode
+   afterSuccess?: () => void
+}
+
+export default function RejectTaskDrawer({ children, afterSuccess }: Props) {
    const [open, setOpen] = useState(false)
    const [id, setId] = useState<undefined | string>(undefined)
    const [form] = Form.useForm<FieldType>()
@@ -54,6 +59,7 @@ export default function RejectTaskDrawer({ children }: { children: (handleOpen: 
          {
             onSuccess: async () => {
                handleClose()
+               afterSuccess?.()
             },
          },
       )

@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next"
 import { ReactNode } from "react"
-import { Poppins } from "next/font/google"
+import { Poppins, Roboto } from "next/font/google"
 import GlobalProvider from "@/common/providers/global.provider"
 import "@/app/globals.css"
 
-const font = Poppins({
-   subsets: ["latin", "latin-ext"],
-   weight: ["300", "400", "500", "600", "700"],
+const font = Roboto({
+   subsets: ["latin", "vietnamese"],
+   weight: ["300", "400", "500", "700", "900"],
    variable: "--font",
 })
 

@@ -1,311 +1,143 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
-import { useMutation, useQuery } from "@tanstack/react-query"
-import qk from "@/common/querykeys"
-import { ProDescriptions } from "@ant-design/pro-components"
-import { CloseOutlined, DeleteOutlined, LeftOutlined, PlusOutlined } from "@ant-design/icons"
+import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query"
+import { ProDescriptions, ProFormTextArea } from "@ant-design/pro-components"
+import { CloseOutlined, LeftOutlined, PlusOutlined } from "@ant-design/icons"
 import { useRouter } from "next/navigation"
 import dayjs from "dayjs"
-import { App, Button, Card, Collapse, Descriptions, Drawer, Empty, List, Tabs, Tag, Typography } from "antd"
+import { App, Button, Card, Drawer, Form, List, Radio, Select, Skeleton, Tabs, Tag } from "antd"
 import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/issue-request-status.enum"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import RejectTaskDrawer from "@/app/head-staff/_components/RejectTask.drawer"
 import { useTranslation } from "react-i18next"
-import React, { ReactNode, useCallback, useState } from "react"
-import { MapPin, NotePencil, Pill, Tray, XCircle } from "@phosphor-icons/react"
-import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import { FixType } from "@/common/enum/fix-type.enum"
-import SelectSparePartDrawer from "@/app/head-staff/_components/SelectSparePart.drawer"
-import CreateIssueDrawer from "@/app/head-staff/_components/CreateIssue.drawer"
+import React, { Dispatch, forwardRef, ReactNode, SetStateAction, useCallback, useMemo, useRef, useState } from "react"
+import { CheckSquareOffset, MapPin, Tray, XCircle } from "@phosphor-icons/react"
+import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
-import HeadStaff_SparePart_Create from "@/app/head-staff/_api/spare-part/create.api"
-import HeadStaff_SparePart_Delete from "@/app/head-staff/_api/spare-part/delete.api"
-import HeadStaff_Issue_Delete from "@/app/head-staff/_api/issue/delete.api"
 import { cn } from "@/common/util/cn.util"
-import DeviceScanner from "../../../../_components/DeviceScanner"
 import DataListView from "@/common/components/DataListView"
+import ScannerDrawer from "@/common/components/Scanner.drawer"
+import { isUUID } from "@/common/util/isUUID.util"
+import headstaff_qk from "@/app/head-staff/_api/qk"
+import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
+import IssueDetailsDrawer from "@/app/head-staff/desktop/requests/[id]/IssueDetailsDrawer"
+import { FixRequestDto } from "@/common/dto/FixRequest.dto"
+import { DeviceDto } from "@/common/dto/Device.dto"
+import HeadStaff_Issue_Create from "@/app/head-staff/_api/issue/create.api"
 
 export default function RequestDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
    const { t } = useTranslation()
-   const [tab, setTab] = useState<string>("main-tab-request")
-   const { getFixTypeTranslation } = useIssueRequestStatusTranslation()
    const { message } = App.useApp()
 
-   const [scanDrawerVisible, setScanDrawerVisible] = useState<boolean>(false)
-   const [scanResult, setScanResult] = useState<boolean | null>(null)
-   const [scanButtonVisible, setScanButtonVisible] = useState<boolean>(true)
-   const [scanCompleted, setScanCompleted] = useState<boolean>(false)
-   const [scanningPaused, setScanningPaused] = useState<boolean>(false)
+   const issueInputRef = useRef<HTMLInputElement>()
+
+   const [tab, setTab] = useState<string>("main-tab-request")
+   const [hasScanned, setHasScanned] = useState(false)
+   const [issueDrawerOpen, setIssueDrawerOpen] = useState(false)
 
    const api = useQuery({
-      queryKey: qk.issueRequests.byId(params.id),
+      queryKey: headstaff_qk.request.byId(params.id),
       queryFn: () => HeadStaff_Request_OneById({ id: params.id }),
    })
 
-   const mutate_addSparePart = useMutation({
-      mutationFn: HeadStaff_SparePart_Create,
-      onMutate: async () => {
-         message.open({
-            type: "loading",
-            key: "creating-spare-part",
-            content: "Adding Spare Part...",
-         })
-      },
-      onError: async () => {
-         message.error("Failed to add spare part")
-      },
-      onSuccess: async () => {
-         message.success("Spare part added")
-         await api.refetch()
-      },
-      onSettled: () => {
-         message.destroy("creating-spare-part")
-      },
+   const device = useQuery({
+      queryKey: headstaff_qk.device.byId(api.data?.device.id ?? ""),
+      queryFn: () => HeadStaff_Device_OneById({ id: api.data?.device.id ?? "" }),
+      enabled: api.isSuccess,
    })
 
-   const mutate_deleteIssue = useMutation({
-      mutationFn: HeadStaff_Issue_Delete,
-      onMutate: async () => {
-         message.open({
-            type: "loading",
-            key: "remove",
-            content: "Removing Issue...",
-         })
-      },
-      onError: async () => {
-         message.error("Failed to remove issue")
-      },
-      onSuccess: async () => {
-         message.success("Issue removed")
-         await api.refetch()
-      },
-      onSettled: () => {
-         message.destroy("remove")
-      },
-   })
+   const ShowActionByStatus = useCallback(
+      ({ children, requiredStatus }: { children: ReactNode; requiredStatus: FixRequestStatus[] }) => {
+         if (!api.isSuccess) return null
 
-   const mutate_deleteSparePart = useMutation({
-      mutationFn: HeadStaff_SparePart_Delete,
-      onMutate: async () => {
-         message.open({
-            type: "loading",
-            key: "remove-spare-part",
-            content: "Removing Spare Part...",
-         })
-      },
-      onError: async () => {
-         message.error("Failed to remove spare part")
-      },
-      onSuccess: async () => {
-         message.success("Spare part removed")
-         await api.refetch()
-      },
-      onSettled: () => {
-         message.destroy("remove-spare-part")
-      },
-   })
-
-   const ShowAction = useCallback(
-      ({ children }: { children: ReactNode }) => {
-         if (api.data?.status === FixRequestStatus.PENDING) {
+         if (requiredStatus.includes(api.data.status)) {
             return children
          }
          return null
       },
-      [api.data],
+      [api.data, api.isSuccess],
    )
-   const handleScanClose = () => {
-      setScanDrawerVisible(false)
-      setScanningPaused(true)
-   }
 
-   const handleScanResult = (deviceId: string) => {
-      if (scanningPaused) return
-      if (api.isSuccess && api.data.device.id === deviceId) {
-         setScanResult(true)
-         setScanDrawerVisible(false)
-         setScanButtonVisible(false)
-         setScanCompleted(true)
-      } else {
-         message.error("Scanned device ID does not match request details.")
+   function handleScanFinish(result: string) {
+      message.destroy("scan-msg")
+
+      if (!api.isSuccess) {
+         message.error("Failed to scan device ID. Please try again").then()
+         return
       }
-   }
 
-   const handleOpenScanDrawer = () => {
-      setScanningPaused(false)
-      setScanDrawerVisible(true)
+      if (!isUUID(result)) {
+         message
+            .error({
+               content: "Invalid device ID",
+               key: "scan-msg",
+            })
+            .then()
+         return
+      }
+
+      if (api.data.device.id !== result) {
+         message
+            .error({
+               content: "Scanned device ID does not match request details.",
+               key: "scan-msg",
+            })
+            .then()
+         return
+      }
+
+      setHasScanned(true)
+      message
+         .success({
+            content: "Device ID scanned successfully",
+            key: "scan-msg",
+         })
+         .then()
    }
 
    return (
-      <div className="std-layout pb-24">
+      <div className="std-layout">
          <RootHeader
             title="Request Details"
             icon={<LeftOutlined />}
             onIconClick={() => router.back()}
             className="std-layout-outer p-4"
          />
-         <section className="std-layout-outer">
-            <Tabs
-               className="main-tabs"
-               type="line"
-               activeKey={tab}
-               onChange={(key) => setTab(key)}
-               items={[
-                  {
-                     key: "main-tab-request",
-                     label: (
-                        <div className="flex items-center gap-2">
-                           <Tray size={16} />
-                           Request
-                        </div>
-                     ),
-                  },
-                  {
-                     key: "main-tab-issues",
-                     label: (
-                        <div className="flex items-center gap-2">
-                           <Pill size={16} />
-                           Issues
-                        </div>
-                     ),
-                     children: (
-                        <div>
-                           {api.data?.issues.length !== 0 ? (
-                              <Collapse
-                                 expandIconPosition="end"
-                                 items={api.data?.issues.map((item: FixRequestIssueDto) => ({
-                                    key: item.id,
-                                    label: (
-                                       <div>
-                                          <Tag color={FixRequestStatusTagMapper[String(item.status)].colorInverse}>
-                                             {FixRequestStatusTagMapper[String(item.status)].text}
-                                          </Tag>
-                                          <Typography.Text className="w-40">{item.typeError.name}</Typography.Text>
-                                       </div>
-                                    ),
-                                    children: (
-                                       <div>
-                                          <Descriptions
-                                             size="small"
-                                             items={[
-                                                {
-                                                   label: "Description",
-                                                   children: item.description,
-                                                },
-                                                {
-                                                   label: "Fix Type",
-                                                   children: (
-                                                      <Tag color={item.fixType === FixType.REPAIR ? "red" : "blue"}>
-                                                         {getFixTypeTranslation(item.fixType)}
-                                                      </Tag>
-                                                   ),
-                                                },
-                                             ]}
-                                          />
-
-                                          <div className="w-full">
-                                             {item.issueSpareParts.length === 0 ? (
-                                                <Card className="my-3">
-                                                   <Empty
-                                                      description={
-                                                         <span>
-                                                            This issue has{" "}
-                                                            <strong className="font-bold underline">
-                                                               no spare parts
-                                                            </strong>{" "}
-                                                            assigned
-                                                         </span>
-                                                      }
-                                                      className="rounded-lg py-6"
-                                                   />
-                                                </Card>
-                                             ) : (
-                                                <List
-                                                   className={"w-full"}
-                                                   dataSource={item.issueSpareParts}
-                                                   itemLayout={"horizontal"}
-                                                   size={"small"}
-                                                   renderItem={(sp) => (
-                                                      <List.Item
-                                                         itemID={sp.id}
-                                                         key={sp.id}
-                                                         extra={
-                                                            <ShowAction>
-                                                               <Button
-                                                                  danger
-                                                                  type="text"
-                                                                  size={"small"}
-                                                                  icon={<DeleteOutlined />}
-                                                                  onClick={() => {
-                                                                     mutate_deleteSparePart.mutate({
-                                                                        id: sp.id,
-                                                                     })
-                                                                  }}
-                                                               />
-                                                            </ShowAction>
-                                                         }
-                                                      >
-                                                         <List.Item.Meta
-                                                            title={sp.sparePart.name}
-                                                            description={`${t("Qty")}: ${sp.quantity}`}
-                                                         ></List.Item.Meta>
-                                                      </List.Item>
-                                                   )}
-                                                />
-                                             )}
-                                          </div>
-                                       </div>
-                                    ),
-                                 }))}
-                              />
-                           ) : (
-                              <Card className="py-layout">
-                                 <Empty description="This request has no issues" />
-                              </Card>
-                           )}
-                           <div className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-fb">
-                              {api.isSuccess && (
-                                 <CreateIssueDrawer
-                                    onSuccess={async () => {
-                                       await api.refetch()
-                                    }}
-                                 >
-                                    {(handleOpen) => (
-                                       <Button
-                                          type="primary"
-                                          size="large"
-                                          className={cn("w-full")}
-                                          onClick={() => handleOpen(params.id)}
-                                          disabled={!scanCompleted}
-                                          icon={<PlusOutlined />}
-                                       >
-                                          Add Issue
-                                       </Button>
-                                    )}
-                                 </CreateIssueDrawer>
-                              )}
+         {api.data?.status === FixRequestStatus.APPROVED && (
+            <section className="std-layout-outer">
+               <Tabs
+                  className="main-tabs"
+                  type="line"
+                  activeKey={tab}
+                  onChange={(key) => setTab(key)}
+                  items={[
+                     {
+                        key: "main-tab-request",
+                        label: (
+                           <div className="flex items-center gap-2">
+                              <Tray size={16} />
+                              Request
                            </div>
-                        </div>
-                     ),
-                  },
-                  ...(api.data?.status === FixRequestStatus.APPROVED
-                     ? [
-                          {
-                             key: "main-tab-tasks",
-                             label: "Tasks",
-                             children: <div></div>,
-                          },
-                       ]
-                     : []),
-               ]}
-            />
-         </section>
+                        ),
+                     },
+                     {
+                        key: "main-tab-tasks",
+                        label: (
+                           <div className="flex items-center gap-2">
+                              <CheckSquareOffset size={16} />
+                              Tasks
+                           </div>
+                        ),
+                     },
+                  ]}
+               />
+            </section>
+         )}
          {tab === "main-tab-request" && (
             <>
-               <section className="mt-layout-half">
+               <section className={cn(api.data?.status !== FixRequestStatus.APPROVED && "mt-layout")}>
                   <ProDescriptions
                      loading={api.isLoading}
                      dataSource={api.data}
@@ -406,49 +238,302 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                      ]}
                   />
                </section>
-               <section className="py-layout">
-                  {scanResult && (
-                     <ShowAction>
-                        <Typography.Title level={5}>Actions</Typography.Title>
-                        <div className="flex flex-col gap-2">
-                           <RejectTaskDrawer>
+               <ShowActionByStatus requiredStatus={[FixRequestStatus.PENDING, FixRequestStatus.APPROVED]}>
+                  <IssuesList
+                     api={api}
+                     device={device}
+                     hasScanned={hasScanned}
+                     className="my-6"
+                     openIssuesSelect={issueDrawerOpen}
+                     setOpenIssuesSelect={setIssueDrawerOpen}
+                     ref={issueInputRef}
+                  />
+               </ShowActionByStatus>
+               {hasScanned && (
+                  <ShowActionByStatus requiredStatus={[FixRequestStatus.PENDING, FixRequestStatus.APPROVED]}>
+                     <section className="std-layout-outer sticky bottom-0 left-0 flex w-full items-center justify-center gap-3 bg-white p-layout shadow-fb">
+                        <ShowActionByStatus requiredStatus={[FixRequestStatus.PENDING]}>
+                           <RejectTaskDrawer
+                              afterSuccess={async () => {
+                                 await api.refetch()
+                              }}
+                           >
                               {(handleOpen) => (
                                  <Button
                                     danger={true}
                                     type="primary"
                                     size="large"
-                                    className="w-full"
                                     onClick={() => handleOpen(params.id)}
                                     icon={<CloseOutlined />}
                                  >
-                                    Reject Request
+                                    Reject
                                  </Button>
                               )}
                            </RejectTaskDrawer>
-                        </div>
-                     </ShowAction>
-                  )}
-               </section>
+                        </ShowActionByStatus>
+                        {api.data?.issues.length === 0 && (
+                           <Button
+                              type="primary"
+                              size="large"
+                              icon={<PlusOutlined />}
+                              className="flex-grow"
+                              onClick={() => {
+                                 setIssueDrawerOpen(true)
+                                 issueInputRef.current?.focus()
+                              }}
+                           >
+                              Create First Issue
+                           </Button>
+                        )}
+                        {api.data?.issues.length !== 0 && (
+                           <Button
+                              type="primary"
+                              size="large"
+                              icon={<PlusOutlined />}
+                              className="flex-grow"
+                              onClick={() => router.push(`/head-staff/mobile/requests/${params.id}/task/new`)}
+                           >
+                              Create Task
+                           </Button>
+                        )}
+                     </section>
+                  </ShowActionByStatus>
+               )}
             </>
          )}
-         {scanButtonVisible && (
-            <>
-               <section className="fixed bottom-0 left-0 w-full justify-center bg-white p-4">
-                  <Button size={"large"} className="w-full" type="primary" onClick={handleOpenScanDrawer}>
-                     Scan QR to Continue
-                  </Button>
-               </section>
-               <Drawer
-                  title="Scan QR"
-                  placement="bottom"
-                  height="max-content"
-                  onClose={handleScanClose}
-                  open={scanDrawerVisible}
-               >
-                  <DeviceScanner onScanResult={handleScanResult} onClose={handleScanClose} open={!scanDrawerVisible} />
-               </Drawer>
-            </>
-         )}
+         <ShowActionByStatus requiredStatus={[FixRequestStatus.PENDING, FixRequestStatus.APPROVED]}>
+            <ScannerDrawer onScan={handleScanFinish}>
+               {(handleOpen) =>
+                  !hasScanned && (
+                     <section className="std-layout-outer sticky bottom-0 left-0 w-full justify-center bg-white p-layout shadow-fb">
+                        <Button size={"large"} className="w-full" type="primary" onClick={handleOpen}>
+                           Scan QR to Continue
+                        </Button>
+                     </section>
+                  )
+               }
+            </ScannerDrawer>
+         </ShowActionByStatus>
       </div>
    )
 }
+
+type FieldType = {
+   request: string
+   typeError: string
+   description: string
+   fixType: FixType
+}
+
+type IssuesListProps = {
+   api: UseQueryResult<FixRequestDto, Error>
+   device: UseQueryResult<DeviceDto, Error>
+   openIssuesSelect: boolean
+   setOpenIssuesSelect: Dispatch<SetStateAction<boolean>>
+   hasScanned: boolean
+   className?: string
+}
+
+const IssuesList = forwardRef<any, IssuesListProps>(function Component(
+   { api, device, hasScanned, className, openIssuesSelect, setOpenIssuesSelect },
+   ref,
+) {
+   const { message } = App.useApp()
+   const [form] = Form.useForm<FieldType>()
+
+   const [createDrawerOpen, setCreateDrawerOpen] = useState(false)
+   const [selectedTypeErrorId, setSelectedTypeErrorId] = useState<undefined | string>()
+
+   const mutate_createIssue = useMutation({
+      mutationFn: HeadStaff_Issue_Create,
+      onMutate: async () => {
+         message.open({
+            type: "loading",
+            key: "creating-issue",
+            content: "Creating issue...",
+         })
+      },
+      onError: async () => {
+         message.error("Failed to create issue")
+      },
+      onSuccess: async () => {
+         message.success("Issue created")
+      },
+      onSettled: () => {
+         message.destroy("creating-issue")
+      },
+   })
+
+   const selectedTypeError = useMemo(() => {
+      if (!device.isSuccess || !selectedTypeErrorId) return
+
+      return device.data.machineModel.typeErrors.find((e) => e.id === selectedTypeErrorId)
+   }, [device.data, device.isSuccess, selectedTypeErrorId])
+
+   function handleCloseCreateDrawer() {
+      setCreateDrawerOpen(false)
+      setSelectedTypeErrorId(undefined)
+      form.resetFields()
+   }
+
+   function handleSelectIssue(issueId: string) {
+      setCreateDrawerOpen(true)
+      setSelectedTypeErrorId(issueId)
+   }
+
+   function handleCreateIssue(values: FieldType) {
+      mutate_createIssue.mutate(values, {
+         onSuccess: async () => {
+            form.resetFields()
+            handleCloseCreateDrawer()
+            await api.refetch()
+         },
+      })
+   }
+
+   return (
+      <section className={className}>
+         <h2 className="mb-2 text-base font-semibold">Request Issues</h2>
+         {api.isSuccess ? (
+            <>
+               <IssueDetailsDrawer
+                  refetch={api.refetch}
+                  showActions={hasScanned}
+                  drawerProps={{
+                     placement: "bottom",
+                     height: "clamp(100%, max-content, max-content)",
+                  }}
+               >
+                  {(handleOpen) => (
+                     <>
+                        <List
+                           dataSource={api.data?.issues}
+                           renderItem={(item) => (
+                              <List.Item>
+                                 <List.Item.Meta
+                                    title={item.typeError.name}
+                                    description={
+                                       <div className="flex items-center gap-1">
+                                          <Tag color={FixTypeTagMapper[String(item.fixType)].colorInverse}>
+                                             {FixTypeTagMapper[String(item.fixType)].text}
+                                          </Tag>
+                                          <span className="truncate">{item.description}</span>
+                                       </div>
+                                    }
+                                 />
+                                 <Button
+                                    type="link"
+                                    onClick={() => device.isSuccess && handleOpen(item.id, device.data.id)}
+                                 >
+                                    View
+                                 </Button>
+                              </List.Item>
+                           )}
+                        />
+                        {hasScanned && (
+                           <Select
+                              ref={ref}
+                              options={device.data?.machineModel.typeErrors.map((error) => ({
+                                 label: error.name,
+                                 value: error.id,
+                              }))}
+                              className="mt-3 w-full"
+                              showSearch
+                              variant="outlined"
+                              size="large"
+                              placeholder="+ Create New Issue"
+                              value={selectedTypeErrorId}
+                              onChange={(value) => handleSelectIssue(value)}
+                              open={openIssuesSelect}
+                              onDropdownVisibleChange={(open) => setOpenIssuesSelect(open)}
+                           />
+                        )}
+                     </>
+                  )}
+               </IssueDetailsDrawer>
+            </>
+         ) : (
+            <>{api.isPending && <Skeleton.Button />}</>
+         )}
+         <Drawer
+            open={createDrawerOpen}
+            onClose={handleCloseCreateDrawer}
+            title="Create Issue"
+            placement="bottom"
+            height="max-content"
+         >
+            <ProDescriptions
+               dataSource={selectedTypeError}
+               size="small"
+               className="mb-3"
+               title={<span className="text-lg">Error Details</span>}
+               labelStyle={{
+                  fontSize: "var(--font-sub-base)",
+               }}
+               contentStyle={{
+                  fontSize: "var(--font-sub-base)",
+               }}
+               columns={[
+                  {
+                     title: "Error Name",
+                     dataIndex: ["name"],
+                  },
+                  {
+                     title: "Duration",
+                     dataIndex: ["duration"],
+                  },
+                  {
+                     title: "Description",
+                     dataIndex: ["description"],
+                  },
+               ]}
+            />
+            <Form<FieldType>
+               form={form}
+               onFinish={(values) => {
+                  if (!selectedTypeErrorId || !api.isSuccess) return
+                  handleCreateIssue({
+                     ...values,
+                     request: api.data.id,
+                     typeError: selectedTypeErrorId,
+                  })
+               }}
+               className="flex-grow"
+               layout="vertical"
+            >
+               <Form.Item
+                  label={<span className="text-sub-base">Fix Type</span>}
+                  name="fixType"
+                  initialValue={FixType.REPLACE}
+                  className="w-full"
+                  rules={[{ required: true }]}
+               >
+                  <Radio.Group buttonStyle="solid" size="large" className="w-full">
+                     {Object.values(FixType).map((fix) => (
+                        <Radio.Button key={fix} value={fix} className="w-1/2 capitalize">
+                           <div className="flex items-center gap-2 text-center">
+                              {FixTypeTagMapper[String(fix)].icon}
+                              {FixTypeTagMapper[String(fix)].text}
+                           </div>
+                        </Radio.Button>
+                     ))}
+                  </Radio.Group>
+               </Form.Item>
+               <ProFormTextArea
+                  name="description"
+                  label="Description"
+                  rules={[{ required: true }]}
+                  allowClear
+                  fieldProps={{
+                     showCount: true,
+                     maxLength: 300,
+                  }}
+               />
+               <Button className="w-full" type="primary" size="large" onClick={form.submit}>
+                  Create Issue
+               </Button>
+            </Form>
+         </Drawer>
+      </section>
+   )
+})

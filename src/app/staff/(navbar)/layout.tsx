@@ -3,9 +3,9 @@ import StaffNavbar from "@/app/staff/_components/StaffNavbar"
 
 export default function StaffNavbarLayout({ children }: { children: ReactNode }) {
    return (
-      <div className="h-full pb-24">
-         {children}
+      <>
+         <div className="h-max min-h-screen-with-navbar">{children}</div>
          <StaffNavbar />
-      </div>
+      </>
    )
 }

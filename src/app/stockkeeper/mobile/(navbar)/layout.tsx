@@ -3,9 +3,9 @@ import StockkeeperNavbar from "../../_components/StockkeeperNavbar"
 
 export default function NavbarTabs({ children }: { children: ReactNode }) {
    return (
-      <div className="pb-24">
-         {children}
+      <>
+         <div className="h-max min-h-screen-with-navbar">{children}</div>
          <StockkeeperNavbar />
-      </div>
+      </>
    )
 }

@@ -1,5 +1,5 @@
-import { ReactNode, useState } from "react"
-import { App, Button, Card, Collapse, Divider, Drawer, Tag } from "antd"
+import React, { ReactNode, useState } from "react"
+import { App, Button, Card, Collapse, Divider, Drawer, List, Select, Tag } from "antd"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import staff_qk from "@/app/staff/_api/qk"
 import Staff_Task_OneById from "@/app/staff/_api/task/one-byId.api"
@@ -9,6 +9,10 @@ import { ExclamationCircleOutlined, InfoCircleFilled, InfoCircleOutlined, InfoOu
 import { useRouter } from "next/navigation"
 import Staff_Task_UpdateStart from "@/app/staff/_api/task/update-start.api"
 import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
+import DataListView from "@/common/components/DataListView"
+import api from "@/config/axios.config"
+import { MapPin } from "@phosphor-icons/react"
+import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 
 export default function TaskDetailsDrawer({
    children,
@@ -85,7 +89,16 @@ export default function TaskDetailsDrawer({
    return (
       <>
          {children(handleOpen)}
-         <Drawer open={open} onClose={handleClose} placement={"bottom"} height="max-content" title="Task Details">
+         <Drawer
+            open={open}
+            onClose={handleClose}
+            placement={"bottom"}
+            height="100%"
+            title="Task Details"
+            classNames={{
+               body: "overflow-auto",
+            }}
+         >
             <ProDescriptions
                column={1}
                loading={task.isLoading}
@@ -115,51 +128,79 @@ export default function TaskDetailsDrawer({
                   },
                ]}
             />
-            <DeviceDetailsCard device={task.data?.device} className="mt-2" />
-            <Collapse
-               className="mt-6"
-               size="small"
-               items={[
-                  {
-                     label: (
-                        <div className="flex items-center gap-2">
-                           <ExclamationCircleOutlined className="text-lg" />
-                           Issues
-                        </div>
-                     ),
-                     collapsible: "disabled",
-                     headerClass: "text-black text-lg font-semibold",
-                     showArrow: false,
-                  },
-                  ...(task.data?.issues.map((issue) => ({
-                     key: issue.id + "_ISSUE",
-                     label: issue.typeError.name,
-                     children: (
-                        <ProDescriptions
-                           dataSource={issue}
-                           size="small"
-                           columns={[
-                              {
-                                 key: issue.id + "_ISSUE-1",
-                                 label: "Description",
-                                 dataIndex: "description",
-                              },
-                              {
-                                 key: issue.id + "_ISSUE-2",
-                                 label: "Fix Type",
-                                 dataIndex: "fixType",
-                              },
-                           ]}
+            <section className="std-layout-outer rounded-lg bg-white py-layout">
+               <h2 className="mb-2 text-base font-semibold">Device Details</h2>
+               <DataListView
+                  dataSource={task.data?.device}
+                  bordered
+                  itemClassName="py-2 px-0"
+                  labelClassName="font-normal text-neutral-500 text-sub-base"
+                  valueClassName="text-sub-base"
+                  items={[
+                     {
+                        label: "Machine Model",
+                        value: (s) => s.machineModel?.name,
+                     },
+                     {
+                        label: "Area",
+                        value: (s) => s.area?.name,
+                     },
+                     {
+                        label: "Position (x, y)",
+                        value: (s) => (
+                           <a className="flex items-center gap-1">
+                              {s.positionX} x {s.positionY}
+                              <MapPin size={16} weight="fill" />
+                           </a>
+                        ),
+                     },
+                     {
+                        label: "Manufacturer",
+                        value: (s) => s.machineModel?.manufacturer,
+                     },
+                     {
+                        label: "Year of Production",
+                        value: (s) => s.machineModel?.yearOfProduction,
+                     },
+                     {
+                        label: "Warranty Term",
+                        value: (s) => s.machineModel?.warrantyTerm,
+                     },
+                     {
+                        label: "Description",
+                        value: (s) => s.description,
+                     },
+                  ]}
+               />
+            </section>
+            <section className="std-layout-outer py-layout">
+               <h2 className="mb-2 text-base font-semibold">Issues</h2>
+               <List
+                  dataSource={task.data?.issues}
+                  renderItem={(item) => (
+                     <List.Item>
+                        <List.Item.Meta
+                           title={item.typeError.name}
+                           description={
+                              <div className="flex items-center gap-1">
+                                 <Tag color={FixTypeTagMapper[String(item.fixType)].colorInverse}>
+                                    {FixTypeTagMapper[String(item.fixType)].text}
+                                 </Tag>
+                                 <span className="truncate">{item.description}</span>
+                              </div>
+                           }
                         />
-                     ),
-                  })) ?? []),
-               ]}
-            />
-            {showNextButton && (
-               <Button className="mt-6 w-full" type="primary" size="large" onClick={handleStartTask}>
-                  {shouldContinue ? "Continue" : "Start"} Task
-               </Button>
-            )}
+                     </List.Item>
+                  )}
+               />
+            </section>
+            <section className="fixed bottom-0 left-0 w-full bg-white p-layout">
+               {showNextButton && (
+                  <Button className="mt-6 w-full" type="primary" size="large" onClick={handleStartTask}>
+                     {shouldContinue ? "Continue" : "Start"} Task
+                  </Button>
+               )}
+            </section>
          </Drawer>
       </>
    )

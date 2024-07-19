@@ -20,8 +20,10 @@ type SortedUserDto = Omit<UserDto, "tasks"> & {
 
 export default function AssignFixerModal({
    children,
+   onSelect,
 }: {
-   children: (handleOpen: (taskId: string, selectedDate?: string, isPriority?: boolean) => void) => ReactNode
+   children: (handleOpen: (taskId?: string, selectedDate?: string, isPriority?: boolean) => void) => ReactNode
+   onSelect?: (selectedUser: UserDto, handleClose: () => void) => void
 }) {
    const { message } = App.useApp()
    const queryClient = useQueryClient()
@@ -111,7 +113,7 @@ export default function AssignFixerModal({
       return sorted.filter((e) => e.username.toLowerCase().includes(searchTerm.toLowerCase()))
    }, [sorted, searchTerm])
 
-   function handleOpen(taskId: string, selectedDate?: string, isPriority?: boolean) {
+   function handleOpen(taskId?: string, selectedDate?: string, isPriority?: boolean) {
       setOpen(true)
       setTaskId(taskId)
       setSelectedDate(selectedDate)
@@ -128,21 +130,34 @@ export default function AssignFixerModal({
    }
 
    function handleFinish() {
-      if (!selectedUser || !taskId) return
+      if (!selectedUser) return
 
-      mutate_assignFixer.mutate(
-         {
-            id: taskId,
-            payload: {
-               fixer: selectedUser.id,
+      if (onSelect === undefined) {
+         if (!taskId) return
+
+         mutate_assignFixer.mutate(
+            {
+               id: taskId,
+               payload: {
+                  fixer: selectedUser.id,
+               },
             },
-         },
-         {
-            onSuccess: () => {
-               handleClose()
+            {
+               onSuccess: () => {
+                  handleClose()
+               },
             },
-         },
-      )
+         )
+      } else {
+         const { hasPriority, sorted_tasks, ...rest } = selectedUser
+         onSelect(
+            {
+               ...rest,
+               tasks: [],
+            },
+            handleClose,
+         )
+      }
    }
 
    return (
@@ -150,13 +165,13 @@ export default function AssignFixerModal({
          {children(handleOpen)}
          <Modal
             open={open}
+            onOk={handleFinish}
             onCancel={handleClose}
             title="Assign Fixer"
             okText="Confirm"
             okButtonProps={{
                disabled: !selectedUser,
             }}
-            onOk={handleFinish}
          >
             <section className="flex flex-col gap-2">
                <Input.Search

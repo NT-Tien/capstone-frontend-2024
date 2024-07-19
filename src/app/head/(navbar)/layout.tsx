@@ -3,9 +3,9 @@ import HeadNavbar from "@/app/head/_components/HeadNavbar"
 
 export default function HeadNavbarLayout({ children }: { children: ReactNode }) {
    return (
-      <div className="pb-28">
-         {children}
+      <>
+         <div className="min-h-screen-with-navbar h-max">{children}</div>
          <HeadNavbar />
-      </div>
+      </>
    )
 }

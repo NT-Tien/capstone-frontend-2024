@@ -39,7 +39,7 @@ export default function TasksPage() {
          <Tabs
             className="main-tabs std-layout-outer"
             onChange={(e) => {
-               router.push(`/head-staff/tasks?status=${e}`)
+               router.push(`/head-staff/mobile/tasks?status=${e}`)
             }}
             defaultActiveKey={status}
             items={[
@@ -140,7 +140,7 @@ function ListView(props: ListViewType) {
                size="small"
                className={cn(item.priority ? "border-red-500 bg-red-100" : "border-gray-300", "mb-2 border-l-4")}
                hoverable={true}
-               onClick={() => router.push(`/head-staff/tasks/${item.id}`)}
+               onClick={() => router.push(`/head-staff/mobile/tasks/${item.id}`)}
             >
                <ProDescriptions
                   size="small"

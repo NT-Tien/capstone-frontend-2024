@@ -1,4 +1,4 @@
-// "use client"
+"use client"
 
 import { Badge, Card, Tag } from "antd"
 import React, { ReactNode } from "react"
@@ -34,26 +34,6 @@ type Props = {
 export default function ReportCard(props: Props) {
    const { t } = useTranslation()
    const backgroundColor = props.index % 2 === 0 ? "bg-neutral-200" : "bg-white"
-   const tagColor =
-      props.status === FixRequestStatus.PENDING
-         ? "blue"
-         : props.status === FixRequestStatus.APPROVED
-           ? "#006400"
-           : "gray"
-
-   const borderTagColor =
-      props.status === FixRequestStatus.PENDING
-         ? "blue"
-         : props.status === FixRequestStatus.APPROVED
-           ? "#006400"
-           : "gray"
-
-   const backgroundTagColor =
-      props.status === FixRequestStatus.PENDING
-         ? "#ebebff"
-         : props.status === FixRequestStatus.APPROVED
-           ? "#f0faf0"
-           : "#FAFAFA"
 
    return (
       <Badge.Ribbon
@@ -64,9 +44,6 @@ export default function ReportCard(props: Props) {
          text={<div className="text-sm capitalize">{props.status?.toLowerCase()}</div>}
       >
          <Card
-            classNames={{
-               body: "flex",
-            }}
             className={cn(
                backgroundColor,
                props.className,
@@ -87,30 +64,32 @@ export default function ReportCard(props: Props) {
             hoverable={!!props.onClick}
             onClick={() => props.onClick?.(props.id)}
          >
-            <section className="mr-3 flex w-full min-w-0 max-w-xs flex-grow flex-col gap-2">
-               <div className="truncate text-base font-medium text-neutral-700">{props.machineModelName}</div>
-               <div className="flex items-start gap-1 text-sm font-light text-neutral-700">
-                  <MapPin size={14} weight="fill" className="mt-[2px]" />
-                  <div>
-                     <span className="text-sm">
-                        {props.area} ({props.positionX}x{props.positionY})
-                     </span>
+            <div className="flex w-full justify-between">
+               <section className="mr-1 flex w-full min-w-0 max-w-xs flex-grow flex-col gap-2">
+                  <div className="truncate text-base font-medium text-neutral-700">{props.machineModelName}</div>
+                  <div className="flex items-start gap-1 text-sm font-light text-neutral-700">
+                     <MapPin size={14} weight="fill" className="mt-[2px]" />
+                     <div>
+                        <span className="text-sm">
+                           {props.area} ({props.positionX}x{props.positionY})
+                        </span>
+                     </div>
                   </div>
-               </div>
-            </section>
-            <section className="flex w-max min-w-max flex-col items-end justify-between">
-               {props.status ? (
-                  <div></div>
-               ) : !!props.onClick ? (
-                  <div className="flex w-max min-w-20 items-center justify-end gap-2 opacity-60">
-                     <span className="text-sm">{t("Details")}</span>
-                     <RightOutlined />
-                  </div>
-               ) : (
-                  <div className="w-16"></div>
-               )}
-               <span className="text-xs font-light text-neutral-600/90">{props.createdDate}</span>
-            </section>
+               </section>
+               <section
+                  className={cn(
+                     "flex min-w-max flex-col items-end justify-end",
+                     props.status === undefined && !!props.onClick && "justify-between",
+                  )}
+               >
+                  {props.status === undefined && !!props.onClick && (
+                     <div className="flex w-max min-w-20 items-center justify-end gap-2 opacity-60">
+                        <RightOutlined />
+                     </div>
+                  )}
+                  <span className="text-right text-xs font-light text-neutral-600/90">{props.createdDate}</span>
+               </section>
+            </div>
          </Card>
       </Badge.Ribbon>
    )

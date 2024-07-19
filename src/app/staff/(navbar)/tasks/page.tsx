@@ -17,8 +17,6 @@ import TaskDetailsDrawer from "@/app/staff/_components/TaskDetails.drawer"
 
 export default function StaffTasksPage() {
    const searchParams = useSearchParams()
-   const tab = searchParams.get("tab") ?? "all"
-   const router = useRouter()
 
    const response = useQuery({
       queryKey: staff_qk.task.all(),
@@ -65,6 +63,16 @@ export default function StaffTasksPage() {
          {(handleOpen) => (
             <div className="std-layout">
                <RootHeader title="Tasks" className="std-layout-outer p-4" />
+               {ongoingTask && (
+                  <section className="shadow-bottom std-layout-outer w-full bg-white p-layout">
+                     <TaskCard
+                        title="Ongoing Task"
+                        description={ongoingTask.name ?? ""}
+                        priority={ongoingTask.priority ?? false}
+                        onClick={() => handleOpen(ongoingTask.id ?? "", true)}
+                     />
+                  </section>
+               )}
                {tasksInGroups.normal.length === 0 && tasksInGroups.priority.length === 0 ? (
                   <div className="mt-layout h-full">
                      <Empty description={"You have no tasks"} />
@@ -78,8 +86,8 @@ export default function StaffTasksPage() {
                         loading={response.isLoading}
                         showEmpty={false}
                         onItemClick={handleOpen}
+                        className="mb-3"
                      />
-                     {/*<Divider className="my-2 mt-6">Normal</Divider>*/}
                      <DetailedListRenderer
                         hasOngoingTask={ongoingTask !== null}
                         enabledTaskId={latestTaskId}
@@ -90,65 +98,6 @@ export default function StaffTasksPage() {
                      />
                   </div>
                )}
-               {/*<Tabs*/}
-               {/*   className="std-layout-outer main-tabs"*/}
-               {/*   defaultActiveKey={tab}*/}
-               {/*   onTabClick={(key) => {*/}
-               {/*      router.push(`/staff/tasks?tab=${key}`)*/}
-               {/*   }}*/}
-               {/*   renderTabBar={(props, DefaultTabBar) => (*/}
-               {/*      <>*/}
-               {/*         {ongoingTask !== null && (*/}
-               {/*            <div className="bg-white px-4 py-1">*/}
-               {/*               <TaskCard*/}
-               {/*                  title={"Current Task"}*/}
-               {/*                  description={ongoingTask.name}*/}
-               {/*                  priority={ongoingTask.priority}*/}
-               {/*                  className="my-1 bg-[#fcfcfc]"*/}
-               {/*                  onClick={() => handleOpen(ongoingTask.id, true)}*/}
-               {/*               />*/}
-               {/*            </div>*/}
-               {/*         )}*/}
-               {/*         <DefaultTabBar {...props} />*/}
-               {/*      </>*/}
-               {/*   )}*/}
-               {/*   items={[*/}
-               {/*      {*/}
-               {/*         key: "all",*/}
-               {/*         label: `All (${tasksInGroups.normal.length + tasksInGroups.priority.length ?? 0})`,*/}
-               {/*         children:*/}
-               {/*            */}
-               {/*      },*/}
-               {/*      // {*/}
-               {/*      //    key: "high",*/}
-               {/*      //    label: `Priority (${tasksInGroups.priority.length})`,*/}
-               {/*      //    children: (*/}
-               {/*      //       <DetailedListRenderer*/}
-               {/*      //          hasOngoingTask={ongoingTask !== null}*/}
-               {/*      //          enabledTaskId={latestTaskId}*/}
-               {/*      //          loading={response.isLoading}*/}
-               {/*      //          data={tasksInGroups.priority}*/}
-               {/*      //          emptyText={"You have no priority tasks"}*/}
-               {/*      //          onItemClick={handleOpen}*/}
-               {/*      //       />*/}
-               {/*      //    ),*/}
-               {/*      // },*/}
-               {/*      // {*/}
-               {/*      //    key: "low",*/}
-               {/*      //    label: `Normal (${tasksInGroups.normal.length})`,*/}
-               {/*      //    children: (*/}
-               {/*      //       <DetailedListRenderer*/}
-               {/*      //          hasOngoingTask={ongoingTask !== null}*/}
-               {/*      //          enabledTaskId={latestTaskId}*/}
-               {/*      //          loading={response.isLoading}*/}
-               {/*      //          data={tasksInGroups.normal}*/}
-               {/*      //          emptyText={"You have no normal tasks"}*/}
-               {/*      //          onItemClick={handleOpen}*/}
-               {/*      //       />*/}
-               {/*      //    ),*/}
-               {/*      // },*/}
-               {/*   ]}*/}
-               {/*/>*/}
             </div>
          )}
       </TaskDetailsDrawer>

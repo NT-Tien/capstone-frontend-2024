@@ -34,8 +34,9 @@ const config: Config = {
             "layout-half": "calc(var(--std-layout-padding) / 2)",
          },
          boxShadow: {
-            fb: "rgba(0, 0, 0, 0.15) 0px 5px 15px 0px",
-            soft: "rgba(0, 0, 0, 0.1) 0px 4px 12px",
+            fb: "var(--shadow-fb)",
+            soft: "var(--shadow-soft)",
+            bottom: "var(--shadow-bottom)",
          },
          fontSize: {
             base: "var(--font-base)",
@@ -43,6 +44,12 @@ const config: Config = {
          },
          fontFamily: {
             base: "var(--font)",
+         },
+         height: {
+            navbar: "var(--navbar-height)",
+         },
+         minHeight: {
+            "screen-with-navbar": "calc(100svh - var(--navbar-height))",
          },
       },
    },

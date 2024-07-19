@@ -19,6 +19,12 @@
 
     --font-base: 16px;
     --font-sub-base: 15px;
+
+    --navbar-height: 88px;
+
+    --shadow-fb: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
+    --shadow-soft: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    --shadow-bottom: 0 10px 20px -20px rgba(0, 0, 0, 0.1);
 }
 
 html, body {
@@ -37,7 +43,7 @@ html, body {
 .std-layout {
     display: grid;
     grid-template-columns: [outer-start] var(--std-layout-padding) [inner-start] 1fr [inner-end] var(--std-layout-padding) [outer-end];
-    overflow-y: auto;
+    grid-auto-rows: max-content;
 
     & > * {
         grid-column: inner-start / inner-end;
@@ -57,7 +63,9 @@ html, body {
 }
 
 .main-tabs {
+
     .ant-tabs-nav {
+        box-shadow: var(--shadow-bottom) !important;
         width: 100% !important;
         background: white;
         display: flex;

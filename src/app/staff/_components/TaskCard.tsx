@@ -37,7 +37,7 @@ export default function TaskCard(props: Props) {
          >
             <Avatar
                icon={props.priority ? <InfoOutlined className="" /> : <InfoOutlined className="" />}
-               className={props.priority ? "bg-red-500" : "bg-blue-500"}
+               className={cn(props.priority ? "bg-red-500" : "bg-blue-500", "aspect-square h-full")}
             />
             <div className="ml-4 flex flex-grow flex-col">
                <Typography.Title level={5} className="mb-0 w-48" ellipsis={true}>

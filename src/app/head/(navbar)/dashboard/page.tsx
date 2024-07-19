@@ -12,7 +12,7 @@ import Head_Request_All from "@/app/head/_api/request/all.api"
 import { useTranslation } from "react-i18next"
 import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
 import head_qk from "@/app/head/_api/qk"
-import ReportCard from "@/app/head/_components/ReportCard"
+import ReportCard from "@/common/components/ReportCard"
 import { StatisticCard } from "@ant-design/pro-card"
 import CountUp from "react-countup"
 import extended_dayjs from "@/config/dayjs.config"
@@ -98,7 +98,7 @@ export default function HeadDashboardPage() {
                            positionY={req.device.positionY}
                            area={req.device.area.name}
                            machineModelName={req.device.machineModel.name}
-                           createdDate={extended_dayjs(req.createdAt).locale("en").fromNow()}
+                           createdDate={extended_dayjs(req.createdAt).locale("vi").fromNow()}
                            onClick={(id: string) => router.push(`/head/history/${id}`)}
                            status={req.status}
                         />

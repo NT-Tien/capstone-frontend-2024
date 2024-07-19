@@ -19,7 +19,7 @@ export type MobileNavbarProps = {
 
 export default function MobileNavbar(props: MobileNavbarProps) {
    return (
-      <div className="shadow-fb fixed bottom-0 left-0 flex h-max w-full justify-between gap-2 border-t-2 border-t-slate-100 bg-white px-2">
+      <div className="sticky bottom-0 left-0 flex h-[88px] w-full justify-between gap-2 border-t-2 border-t-slate-100 bg-white px-2 shadow-fb">
          {props.items.map((item) => (
             <NavbarItem
                key={item.key}
@@ -59,12 +59,17 @@ function NavbarItem({ name, icon, active = false, countBadge = 0, onClick }: Nav
          }}
          onClick={onClick}
       >
-         <div
-            className={cn(
-               "relative grid w-16 place-items-center self-center rounded-full px-5 py-1 text-center transition-all",
-               active ? "bg-primary-300" : "bg-transparent",
-            )}
-         >
+         <div className="relative grid place-items-center">
+            <div
+               className={cn(
+                  "absolute grid h-6 w-16 place-items-center self-center rounded-full px-5 py-1 text-center transition-all",
+                  active ? "bg-primary-300" : "bg-transparent",
+               )}
+               style={{
+                  transform: active ? "scale(1)" : "scale(0)",
+                  transition: "transform 0.3s",
+               }}
+            ></div>
             <Badge count={countBadge} size="small">
                {displayIcon}
             </Badge>

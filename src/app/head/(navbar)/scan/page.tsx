@@ -1,4 +1,103 @@
 "use client"
+//
+// import { useEffect, useRef, useState } from "react"
+// import QrScanner from "qr-scanner"
+// import RootHeader from "@/common/components/RootHeader"
+// import { InfoCircleOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons"
+// import { Avatar, Button, Card } from "antd"
+//
+// export default function ScanPage() {
+//    const scanner = useRef<QrScanner>()
+//    const videoEl = useRef<HTMLVideoElement>(null)
+//    const qrBoxEl = useRef<HTMLDivElement>(null)
+//
+//    const [qrOn, setQrOn] = useState<boolean>(true)
+//
+//    useEffect(() => {
+//       if (videoEl?.current && !scanner.current) {
+//          // 👉 Instantiate the QR Scanner
+//          scanner.current = new QrScanner(
+//             videoEl?.current,
+//             (result) => {
+//                console.log("QR Code found", result.data)
+//             },
+//             {
+//                onDecodeError: (error) => {
+//                   console.log("error", error)
+//                },
+//                preferredCamera: "environment",
+//                highlightScanRegion: true,
+//                highlightCodeOutline: true,
+//                overlay: qrBoxEl?.current || undefined,
+//             },
+//          )
+//
+//          scanner?.current
+//             ?.start()
+//             .then(() => setQrOn(true))
+//             .catch((err) => {
+//                console.log("something went wrong")
+//                if (err) setQrOn(false)
+//             })
+//       }
+//
+//       return () => {
+//          if (!videoEl?.current) {
+//             scanner?.current?.stop()
+//          }
+//       }
+//    }, [])
+//
+//    useEffect(() => {
+//       if (!qrOn)
+//          alert("Camera is blocked or not accessible. Please allow camera in your browser permissions and Reload.")
+//    }, [qrOn])
+//
+//    return (
+//       <div className="flex h-full flex-col">
+//          <RootHeader title="Scan" className="p-4" icon={<SearchOutlined />} />
+//          <div className="relative h-full flex-grow">
+//             <div className="absolute left-0 top-0 z-50 flex w-full flex-col items-center">
+//                <section className="my-6 grid place-items-center">
+//                   <div className="flex items-center rounded-lg bg-white p-1 px-3 font-semibold">
+//                      Quét mã QR thiết bị
+//                      <InfoCircleOutlined className="ml-2" />
+//                   </div>
+//                </section>
+//             </div>
+//             <div className="absolute bottom-0 left-0 z-50 flex w-full flex-col items-center px-layout">
+//                <Card size="small" hoverable onClick={() => {}} className="w-full">
+//                   <div className="flex items-center gap-3">
+//                      <Avatar style={{ fontSize: "18px", textAlign: "center", backgroundColor: "#6750A4" }}>AI</Avatar>
+//                      <div className="flex-grow">
+//                         <p className="text-base font-bold">Input manually</p>
+//                         <p className="text-xs">Input Manually</p>
+//                      </div>
+//                      <div>
+//                         <Button type="text" icon={<RightOutlined />} />
+//                      </div>
+//                   </div>
+//                </Card>
+//             </div>
+//             <div className="mx-auto h-[calc(100vh-150px)] w-screen">
+//                <video ref={videoEl} className="h-full w-full object-cover" />
+//                <div ref={qrBoxEl} className="left-0 w-full">
+//                   <img
+//                      src="/qr-frame.svg"
+//                      alt="Qr Frame"
+//                      width={256}
+//                      height={256}
+//                      className="absolute left-1/2 top-20 fill-none"
+//                      style={{
+//                         transform: "translate(-50%, -50%)",
+//                      }}
+//                   />
+//                </div>
+//             </div>
+//          </div>
+//       </div>
+//    )
+// }
 
 import { App, Avatar, Button, Card, Drawer, Form, Input } from "antd"
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"

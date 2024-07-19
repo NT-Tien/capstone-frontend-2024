@@ -28,21 +28,18 @@ function Login() {
    const { message } = App.useApp()
    const router = useRouter()
    const params = useSearchParams()
-   const [error, setError] = useState<any>()
    const [form] = Form.useForm<FieldType>()
+
+   const [loading, setLoading] = useState<boolean>(false)
 
    const mutate_loginCredentials = useMutation({
       mutationFn: LoginCredentials,
       onMutate: async () => {
-         message.open({ content: "Logging in...", type: "loading", key: "loading" })
-      },
-      onSettled: async () => {
-         message.destroy("loading")
-      },
-      onSuccess: async () => {
-         message.open({ content: "Login successful", type: "success" })
+         setLoading(true)
       },
       onError: async (error) => {
+         setLoading(false)
+
          form.resetFields()
          if (error instanceof NotFoundError) {
             message.error("Login failed. Account not found.")
@@ -89,7 +86,7 @@ function Login() {
             }
          },
          onError: (e) => {
-            setError(e)
+            setLoading(false)
          },
       })
    }
@@ -112,42 +109,45 @@ function Login() {
    }, [message, params])
 
    return (
-      <div className="grid h-full place-content-center gap-3">
-         <Card>
-            <Typography.Title level={4}>Login</Typography.Title>
-            <Typography.Text>Enter your username and password to log in.</Typography.Text>
-         </Card>
-         <Card className="min-w-96">
-            <Form
-               name="Login_Form"
-               form={form}
-               layout="vertical"
-               onFinish={handleFinish}
-               disabled={mutate_loginCredentials.isPending}
-            >
-               <Form.Item<FieldType>
-                  name="username"
-                  label="Username"
-                  tooltip="What's your username?"
-                  rules={[{ required: true }]}
+      <>
+         {loading && <Spin fullscreen tip="Logging in..." />}
+         <div className="grid h-full place-content-center gap-3">
+            <Card>
+               <Typography.Title level={4}>Login</Typography.Title>
+               <Typography.Text>Enter your username and password to log in.</Typography.Text>
+            </Card>
+            <Card className="min-w-96">
+               <Form
+                  name="Login_Form"
+                  form={form}
+                  layout="vertical"
+                  onFinish={handleFinish}
+                  disabled={mutate_loginCredentials.isPending}
                >
-                  <Input size="large" placeholder="e.g., account" autoFocus />
-               </Form.Item>
-               <Form.Item<FieldType>
-                  name="password"
-                  label="Password"
-                  tooltip="What's your password?"
-                  rules={[{ required: true }]}
-               >
-                  <Input.Password placeholder="e.g., ********" size="large" />
-               </Form.Item>
-               <Form.Item>
-                  <Button type="primary" htmlType="submit" size="large" className="w-full">
-                     Login
-                  </Button>
-               </Form.Item>
-            </Form>
-         </Card>
-      </div>
+                  <Form.Item<FieldType>
+                     name="username"
+                     label="Username"
+                     tooltip="What's your username?"
+                     rules={[{ required: true }]}
+                  >
+                     <Input size="large" placeholder="e.g., account" autoFocus />
+                  </Form.Item>
+                  <Form.Item<FieldType>
+                     name="password"
+                     label="Password"
+                     tooltip="What's your password?"
+                     rules={[{ required: true }]}
+                  >
+                     <Input.Password placeholder="e.g., ********" size="large" />
+                  </Form.Item>
+                  <Form.Item>
+                     <Button type="primary" htmlType="submit" size="large" className="w-full">
+                        Login
+                     </Button>
+                  </Form.Item>
+               </Form>
+            </Card>
+         </div>
+      </>
    )
 }

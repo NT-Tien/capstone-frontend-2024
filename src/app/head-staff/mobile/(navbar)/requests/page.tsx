@@ -7,38 +7,62 @@ import qk from "@/common/querykeys"
 import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
 import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
 import { useTranslation } from "react-i18next"
-import ReportCard from "@/app/head/_components/ReportCard"
-import React from "react"
+import ReportCard from "@/common/components/ReportCard"
+import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import dayjs from "dayjs"
+import { Hourglass, ThumbsUp, XCircle } from "@phosphor-icons/react"
+
+const TabMap: { [key: string]: FixRequestStatus } = {
+   pending: FixRequestStatus.PENDING,
+   approved: FixRequestStatus.APPROVED,
+   rejected: FixRequestStatus.REJECTED,
+}
 
 export default function ReportsPage() {
    const { t } = useTranslation()
+   const [tab, setTab] = useState<string>("pending")
 
    return (
-      <div className="std-layout overflow-y-auto">
+      <div className="std-layout">
          <RootHeader title="Requests" className="std-layout-outer p-4" />
          <Tabs
             type="line"
-            className="main-tabs std-layout-outer"
+            activeKey={tab}
+            onChange={(key) => setTab(key)}
+            rootClassName="std-layout-outer sticky top-0 z-50"
+            className="main-tabs"
             items={[
                {
                   key: "pending",
-                  label: t("pending"),
-                  children: <ReportsTab status={FixRequestStatus.PENDING} />,
+                  label: (
+                     <div className="flex items-center gap-1">
+                        <Hourglass size={14} className="mr-1" />
+                        {t("pending")}
+                     </div>
+                  ),
                },
                {
                   key: "approved",
-                  label: t("approved"),
-                  children: <ReportsTab status={FixRequestStatus.APPROVED} />,
+                  label: (
+                     <div className="flex items-center gap-1">
+                        <ThumbsUp size={14} className="mr-1" />
+                        {t("Completed")}
+                     </div>
+                  ),
                },
                {
                   key: "rejected",
-                  label: t("rejected"),
-                  children: <ReportsTab status={FixRequestStatus.REJECTED} />,
+                  label: (
+                     <div className="flex items-center gap-1">
+                        <XCircle size={14} />
+                        {t("rejected")}
+                     </div>
+                  ),
                },
             ]}
          />
+         <ReportsTab status={TabMap[tab]} />
       </div>
    )
 }
@@ -62,7 +86,7 @@ function ReportsTab(props: ReportsTabProps) {
    })
 
    return (
-      <div className="grid grid-cols-1 gap-2">
+      <div className="mb-layout grid grid-cols-1 gap-2">
          <div className="text-gray-500">
             {{
                [FixRequestStatus.PENDING]: "Sorting by Creation Date (old - new)",
@@ -81,7 +105,9 @@ function ReportsTab(props: ReportsTabProps) {
                         positionY={req.device.positionY}
                         area={req.device.area.name}
                         machineModelName={req.device?.machineModel?.name ?? "Test Machine"}
-                        createdDate={dayjs(req.createdAt).format("DD/MM/YY - HH:mm")}
+                        createdDate={dayjs(req.status === FixRequestStatus.PENDING ? req.createdAt : req.updatedAt)
+                           .locale("vi")
+                           .format("DD/MM/YY - HH:mm")}
                         onClick={(id: string) => router.push(`/head-staff/mobile/requests/${id}`)}
                         index={index}
                      />

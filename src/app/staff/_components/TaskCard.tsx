@@ -8,7 +8,7 @@ import { cn } from "@/common/util/cn.util"
 type Props = {
    title: string
    description: string
-   priority: boolean
+   priority?: boolean
    extra?: ReactNode
    onClick?: () => void
    style?: CSSProperties

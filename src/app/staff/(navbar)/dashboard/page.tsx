@@ -1,70 +1,112 @@
 "use client"
 
 import HomeHeader from "@/common/components/HomeHeader"
-import { Card, Skeleton } from "antd"
 import { useQuery } from "@tanstack/react-query"
 import staff_qk from "@/app/staff/_api/qk"
 import Staff_Task_All from "@/app/staff/_api/task/all.api"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 import TaskCard from "@/app/staff/_components/TaskCard"
 import TaskDetailsDrawer from "@/app/staff/_components/TaskDetails.drawer"
+import { StatisticCard } from "@ant-design/pro-components"
+import { TaskDto } from "@/common/dto/Task.dto"
+import CountUp from "react-countup"
+import { useMemo } from "react"
+import { useRouter } from "next/navigation"
+import { Button, Typography } from "antd"
+import extended_dayjs from "@/config/dayjs.config"
+import { ClockCircleOutlined, PlusOutlined } from "@ant-design/icons"
+import Link from "next/link"
+import { useTranslation } from "react-i18next"
 
 export default function StaffDashboard() {
+   const { t } = useTranslation()
    const response = useQuery({
       queryKey: staff_qk.task.all(),
       queryFn: Staff_Task_All,
-      select: (data) => {
-         const result = data.filter((task) => task.status === TaskStatus.IN_PROGRESS)
-         if (result.length > 0) return result[0]
-         return null
-      },
    })
 
+   const ongoingtask = useMemo(() => {
+      if (!response.isSuccess) return
+      const result = response.data?.filter((task) => task.status === TaskStatus.IN_PROGRESS)
+      if (result.length > 0) return result[0]
+      return null
+   }, [response.data])
+
+   const completedTasks = useMemo(() => {
+      if (!response.isSuccess) return []
+      return response.data?.filter((task: TaskDto) => task.status === TaskStatus.COMPLETED)
+   }, [response.data])
+
    return (
-      <div
-         style={{
-            display: "grid",
-            gridTemplateColumns: "[outer-start] 16px [inner-start] 1fr [inner-end] 16px [outer-end]",
-         }}
-      >
-         <HomeHeader
-            className="p-4"
-            style={{
-               gridColumn: "outer-start / outer-end",
-            }}
-         />
-         {response.data !== null ? (
+      <div className="std-layout">
+         <HomeHeader className="pb-8 pt-4" />
+         <section className="flex space-x-4">
             <TaskDetailsDrawer>
                {(handleOpen) => (
                   <TaskCard
+                     className="h-full w-full flex-1 shadow-fb"
                      title="Ongoing Task"
-                     description={response.data?.name ?? ""}
-                     priority={response.data?.priority ?? false}
-                     onClick={() => handleOpen(response.data?.id ?? "", true)}
-                     style={{
-                        gridColumn: "inner-start / inner-end",
-                     }}
+                     description={ongoingtask?.name ?? ""}
+                     priority={ongoingtask?.priority ?? false}
+                     onClick={() => handleOpen(ongoingtask?.id ?? "", true)}
                   />
                )}
             </TaskDetailsDrawer>
-         ) : (
-            <Card
-               style={{
-                  gridColumn: "inner-start / inner-end",
+         </section>
+         <section className="std-layout-inner mt-8 flex items-center justify-between space-x-4">
+            <StatisticCard
+               className="h-full w-full flex-1 shadow-fb"
+               loading={response.isLoading}
+               statistic={{
+                  title: "Tổng",
+                  value: response.data?.length ?? 0,
+                  formatter: (value) => <CountUp end={value as number} separator={","} />,
                }}
-            >
-               You have no ongoing tasks
-            </Card>
-         )}
-         <div
-            className="mt-4 grid grid-cols-3 gap-4"
-            style={{
-               gridColumn: "inner-start / inner-end",
-            }}
-         >
-            <Skeleton.Button className="aspect-square h-max w-full" />
-            <Skeleton.Button className="aspect-square h-max w-full" />
-            <Skeleton.Button className="aspect-square h-max w-full" />
+            />
+            <StatisticCard
+               className="h-full w-full flex-1 shadow-fb"
+               loading={response.isLoading}
+               statistic={{
+                  title: "Cần làm",
+                  value: response.data?.filter((value: TaskDto) => value.status === TaskStatus.ASSIGNED).length ?? 0,
+                  formatter: (value) => <CountUp end={value as number} separator={","} />,
+               }}
+            />
+            <StatisticCard
+               className="h-full w-full flex-1 shadow-fb"
+               loading={response.isLoading}
+               statistic={{
+                  title: "Hoàn tất",
+                  value: response.data?.filter((value: TaskDto) => value.status === TaskStatus.COMPLETED).length ?? 0,
+                  formatter: (value) => <CountUp end={value as number} separator={","} />,
+               }}
+            />
+         </section>
+         <section className="std-layout-inner mt-8 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+               <ClockCircleOutlined />
+               <h2 className="text-lg font-semibold">{t("PrevReports")}</h2>
+            </div>
+            <Link href="/staff/tasks">
+               <Button type="link" className="p-0">
+                  {t("SeeMore")}
+               </Button>
+            </Link>
+         </section>
+         <div>
+            {completedTasks.map((task) => (
+               <TaskCard
+               className="std-layout-inner mt-1.5 grid grid-cols-1 gap-3"
+                  title={task.name}
+                  description={`Est. ${task.totalTime} minutes`}
+                  key={task.id}
+                  extra={
+                     <Typography.Text className="text-gray-500">
+                        {extended_dayjs(task.createdAt).locale("en").fromNow(false)}
+                     </Typography.Text>
+                  }
+               />
+            ))}
          </div>
       </div>
    )

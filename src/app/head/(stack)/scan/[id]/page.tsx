@@ -158,7 +158,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
       <>
          <div className="std-layout overflow-auto pb-32">
             <RootHeader
-               title="Scan Results"
+               title="Thông tin chi tiết"
                className="std-layout-outer p-4"
                icon={<LeftOutlined className="text-base" />}
                onIconClick={() => router.back()}
@@ -174,7 +174,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   extra={
                      <Space>
                         <Button size="large" onClick={() => router.push("/head/scan")}>
-                           Back
+                           Quay lại
                         </Button>
                         <Button
                            type={"primary"}
@@ -182,14 +182,14 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                            size="large"
                            onClick={() => results.refetch()}
                         >
-                           Retry
+                           Thử lại
                         </Button>
                      </Space>
                   }
                />
             ) : (
                <div className="std-layout-outer mt-layout">
-                  <h2 className="mb-2 px-layout text-lg font-semibold">Device Details</h2>
+                  <h2 className="mb-2 px-layout text-lg font-semibold">Chi tiết thiết bị</h2>
                   <DataListView
                      dataSource={results.data}
                      bordered
@@ -197,15 +197,15 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                      labelClassName="font-normal text-neutral-500"
                      items={[
                         {
-                           label: "Machine Model",
+                           label: "Mẫu máy",
                            value: (s) => s.machineModel?.name,
                         },
                         {
-                           label: "Area",
+                           label: "Khu vực",
                            value: (s) => s.area?.name,
                         },
                         {
-                           label: "Position (x, y)",
+                           label: "Vị trí (x, y)",
                            value: (s) => (
                               <div>
                                  {s.positionX} x {s.positionY}
@@ -213,19 +213,19 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                            ),
                         },
                         {
-                           label: "Manufacturer",
+                           label: "Nhà sản xuất",
                            value: (s) => s.machineModel?.manufacturer,
                         },
                         {
-                           label: "Year of Production",
+                           label: "Năm sản xuất",
                            value: (s) => s.machineModel?.yearOfProduction,
                         },
                         {
-                           label: "Warranty Term",
+                           label: "Thời hạn bảo hành",
                            value: (s) => s.machineModel?.warrantyTerm,
                         },
                         {
-                           label: "Description",
+                           label: "Mô tả",
                            value: (s) => s.description,
                         },
                      ]}
@@ -235,17 +235,17 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
 
             <section className="mt-6">
                <h2 className="mb-2 flex justify-between">
-                  <span className="mr-2 text-lg font-semibold">Requests</span>
+                  <span className="mr-2 text-lg font-semibold">Lịch sử báo cáo</span>
                   <span className="text-base font-normal text-neutral-500">
-                     {results_withRequest.data?.requests.length ?? "-"} item
-                     {results_withRequest.data?.requests.length !== 1 && "s"} found
+                     {results_withRequest.data?.requests.length ?? "-"} báo cáo
+                     {/* {results_withRequest.data?.requests.length !== 1 && "s"} */}
                   </span>
                </h2>
                {results_withRequest.isSuccess ? (
                   results_withRequest.data.requests.length === 0 ? (
                      <>
                         <div className="grid h-full place-content-center rounded-lg border-2 border-dashed border-neutral-300 py-10">
-                           <Empty description="This device has no requests" />
+                           <Empty description="Thiết bị này không có báo cáo" />
                         </div>
                      </>
                   ) : (
@@ -262,7 +262,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                                        <span className="truncate text-base font-medium">{req.requester_note}</span>
                                        <div className="flex justify-between">
                                           <span>
-                                             <span className="text-neutral-500">Created by</span> Head
+                                             <span className="text-neutral-500">Được tạo bởi</span> Head
                                           </span>
                                           <span className="text-neutral-600">
                                              {dayjs(req.createdAt).format("DD-MM-YYYY HH:mm")}
@@ -281,9 +281,9 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                      {results_withRequest.isError && (
                         <Card size="small">
                            <div className="grid place-content-center gap-2">
-                              <div>An unexpected error has occurred. Please try again</div>
+                              <div>Đã xảy ra lỗi. Vui lòng thử lại</div>
                               <Button type="primary" onClick={() => results_withRequest.refetch()}>
-                                 Retry
+                                 Thử lại
                               </Button>
                            </div>
                         </Card>
@@ -294,14 +294,14 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
             {results.isError && results.error.name === NotFoundError.name ? (
                <div className="grid place-items-center">
                   <Empty
-                     description={<Typography.Title level={5}>Device not found. Please try again</Typography.Title>}
+                     description={<Typography.Title level={5}>Không tìm thấy thiết bị. Vui lòng thử lại</Typography.Title>}
                   >
                      <div className="flex w-full items-center justify-center gap-3">
                         <Button type="primary" onClick={() => router.push("/head/scan")} icon={<ReloadOutlined />}>
-                           Scan Again
+                           Quét lại
                         </Button>
                         <Button onClick={() => router.push("/head/dashboard")} icon={<HomeOutlined />}>
-                           Return Home
+                           Quay lại trang chủ
                         </Button>
                      </div>
                   </Empty>
@@ -317,7 +317,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                         disabled={results.isLoading}
                         onClick={() => setOpenCreateIssue(true)}
                      >
-                        {t("CreateIssueReport")}
+                        Tạo báo cáo
                      </Button>
                   </div>
                )
@@ -331,25 +331,25 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                setOpenCreateIssue(false)
                form.resetFields()
             }}
-            title={t("CreateIssueReport")}
+            title="Tạo báo cáo"
          >
             <Form<FieldType> form={form} layout="vertical">
                <ProFormSelect
                   options={i18n.language === "vie" ? loiMay : machineIssues}
-                  label="Issue"
+                  label="Vấn đề"
                   fieldProps={{
                      size: "large",
                   }}
                   onChange={(val) => setCurrentlySelected(val as any)}
                   showSearch
                   name="selection"
-                  placeholder="Select an issue"
+                  placeholder="Chọn vấn đề"
                   rules={[{ required: true }]}
                />
                <ProFormTextArea
                   name="description"
                   hidden={currentlySelected !== "create"}
-                  label={t("Description")}
+                  label="Mô tả"
                   rules={[{ required: true }]}
                />
                <Button
@@ -358,7 +358,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   className="w-full"
                   size="large"
                >
-                  {t("Submit")}
+                  Gửi
                </Button>
             </Form>
          </Drawer>

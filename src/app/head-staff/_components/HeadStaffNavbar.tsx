@@ -23,25 +23,25 @@ export default function HeadStaffNavbar() {
 
    const items: NavbarMenuItem[] = [
       {
-         name: t("Dashboard"),
+         name: "Trang chủ",
          key: "dashboard",
          icon: <DashboardFilled />,
          onClick: () => handleClick("dashboard"),
       },
       {
-         name: t("requestsNav"),
+         name: "Yêu cầu",
          key: "requests",
          icon: <ContainerFilled />,
          onClick: () => handleClick("requests"),
       },
       {
-         name: t("tasksNav"),
+         name: "Tác vụ",
          key: "tasks",
          icon: <CheckOutlined />,
          onClick: () => handleClick("tasks"),
       },
       {
-         name: t("Profile"),
+         name: "Hồ sơ",
          key: "profile",
          icon: <EllipsisOutlined />,
          onClick: () => handleClick("profile"),

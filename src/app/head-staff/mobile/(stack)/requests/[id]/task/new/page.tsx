@@ -77,7 +77,7 @@ export default function NewTaskPage({ params }: { params: { id: string } }) {
          <div className="h-max min-h-screen-with-navbar">
             <div className="std-layout">
                <RootHeader
-                  title="Create New Task"
+                  title="Tác vụ mới"
                   icon={<LeftOutlined />}
                   onIconClick={() => router.back()}
                   className="std-layout-outer p-4"
@@ -92,15 +92,15 @@ export default function NewTaskPage({ params }: { params: { id: string } }) {
                      type="navigation"
                      items={[
                         {
-                           title: "Select Issues",
+                           title: "Chọn vấn đề",
                            onClick: () => setStep(0),
                         },
                         {
-                           title: "Create Task",
+                           title: "Tạo tác vụ",
                            onClick: () => setStep(1),
                         },
                         {
-                           title: "Assign Fixer",
+                           title: "Phân công",
                            onClick: () => setStep(2),
                         },
                      ]}
@@ -162,7 +162,7 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
 
    useEffect(() => {
       setPrevBtnProps({
-         children: "Home",
+         children: "Trang chủ",
          onClick: () => {
             router.push("/head-staff/mobile/requests")
          },
@@ -172,7 +172,7 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
          onClick: () => {
             setStep(1)
          },
-         children: "Continue",
+         children: "Tiếp tục",
          icon: <ArrowRightOutlined />,
       })
    }, [router, setNextBtnProps, setPrevBtnProps, setStep])
@@ -194,7 +194,7 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
    return (
       <div className="mt-layout">
          <section className="mx-auto mb-layout w-max rounded-lg border-2 border-neutral-200 bg-white p-1 px-3 text-center">
-            Select Issues for the Task
+            Chọn vấn đề cho tác vụ
             <InfoCircleFilled className="ml-2" />
          </section>
          <section className="mb-2 grid grid-cols-2 gap-2">
@@ -212,7 +212,7 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
                   )
                }}
             >
-               Select all REPAIR
+               Chọn tất cả SỬA CHỮA
             </Button>
             <Button
                size="large"
@@ -228,16 +228,16 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
                   )
                }}
             >
-               Select all REPLACE
+               Chọn tất cả THAY THẾ
             </Button>
          </section>
          <Card size="small" className="mb-2">
             <div className="flex justify-between">
-               <span>Selected {sizeSelectedIssues} issue(s)</span>
+               <span>Chọn {sizeSelectedIssues} vấn đề</span>
                {sizeSelectedIssues !== 0 && (
                   <span>
                      <Button type="link" size="small" onClick={() => props.setSelectedIssues({})}>
-                        Clear
+                        Xóa
                      </Button>
                   </span>
                )}
@@ -310,7 +310,7 @@ function Step1_CreateTask(props: Step1_Props) {
 
    useEffect(() => {
       setPrevBtnProps({
-         children: "Back",
+         children: "Quay lại",
          onClick: () => {
             props.setSelectedFixDate(undefined)
             props.setSelectedPriority(false)
@@ -324,7 +324,7 @@ function Step1_CreateTask(props: Step1_Props) {
          onClick: async () => {
             form.submit()
          },
-         children: "Continue",
+         children: "Tiếp tục",
          icon: <ArrowRightOutlined />,
       })
    }, [form, props, setNextBtnProps, setPrevBtnProps, setStep])
@@ -360,14 +360,14 @@ function Step1_CreateTask(props: Step1_Props) {
                            props.setSelectedTaskName(str)
                         }}
                      >
-                        Generate Task Name
+                        Tạo tên tác vụ
                      </Button>
                   )
                }
                allowClear
                name="name"
                rules={[{ required: true }]}
-               label={"Task Name"}
+               label={"Tên tác vụ"}
                fieldProps={{
                   size: "large",
                   onChange: (e) => props.setSelectedTaskName(e.target.value),
@@ -376,7 +376,7 @@ function Step1_CreateTask(props: Step1_Props) {
             />
             <div className="flex gap-4">
                <ProFormDatePicker
-                  label={"Fix Date"}
+                  label={"Ngày sửa chữa"}
                   name="fixDate"
                   rules={[{ required: true }]}
                   formItemProps={{
@@ -390,7 +390,7 @@ function Step1_CreateTask(props: Step1_Props) {
                      value: props.selectedFixDate,
                   }}
                />
-               <Form.Item label="Task Priority" name="priority" initialValue={false}>
+               <Form.Item label="Mức độ ưu tiên" name="priority" initialValue={false}>
                   <Radio.Group
                      buttonStyle="solid"
                      size="large"
@@ -398,8 +398,8 @@ function Step1_CreateTask(props: Step1_Props) {
                      onChange={(e) => props.setSelectedPriority(e.target.value)}
                      value={props.selectedPriority}
                   >
-                     <Radio.Button value={false}>Normal</Radio.Button>
-                     <Radio.Button value={true}>Priority</Radio.Button>
+                     <Radio.Button value={false}>Bình thường</Radio.Button>
+                     <Radio.Button value={true}>Ưu tiên</Radio.Button>
                   </Radio.Group>
                </Form.Item>
             </div>
@@ -505,10 +505,10 @@ function Step2_ConfirmTask(props: Step2_Props) {
    const mutate_assignFixer = useMutation({
       mutationFn: HeadStaff_Task_UpdateAssignFixer,
       onSuccess: async () => {
-         message.success("Task Created Successfully")
+         message.success("Tạo tác vụ mới thành công.")
       },
       onError: async () => {
-         message.error("Failed to create task")
+         message.error("Tạo tác vụ mới thất bại")
       },
       onSettled: async () => {
          message.destroy("loading")
@@ -561,7 +561,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
 
    useEffect(() => {
       setPrevBtnProps({
-         children: "Back",
+         children: "Quay lại",
          onClick: () => {
             props.setSelectedFixer(undefined)
             setStep(1)
@@ -572,7 +572,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
          onClick: async () => {
             await handleFinish()
          },
-         children: "Create Task",
+         children: "Tạo tác vụ",
          icon: <UploadOutlined />,
       })
    }, [handleFinish, props, setNextBtnProps, setPrevBtnProps, setStep])
@@ -596,7 +596,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
          <Input.Search
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search for Staff"
+            placeholder="Tìm kiếm"
             size="large"
          />
          {searchTerm
@@ -610,7 +610,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
                        key={e.id}
                        title={e.username}
                        size="small"
-                       description={"Total Time: " + e.totalTime + ` minute${e.totalTime !== 1 ? "s" : ""}`}
+                       description={"Tổng thời lượng: " + e.totalTime + ` phút`}
                        onClick={() => {
                           const { hasPriority, sorted_tasks, ...rest } = e
                           props.setSelectedFixer({
@@ -620,7 +620,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
                        }}
                        checked={e.id === props.selectedFixer?.id}
                        className="m-0 w-full"
-                       extra={<Tag>Available</Tag>}
+                       extra={<Tag>Có mặt</Tag>}
                        disabled={e.hasPriority && props.selectedPriority}
                     ></CheckCard>
                  ))
@@ -634,7 +634,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
                        key={e.id}
                        title={e.username}
                        size="small"
-                       description={"Total Time: " + e.totalTime + ` minute${e.totalTime !== 1 ? "s" : ""}`}
+                       description={"Tổng thời lượng: " + e.totalTime + ` phút`}
                        onClick={() => {
                           const { hasPriority, sorted_tasks, ...rest } = e
                           props.setSelectedFixer({
@@ -644,7 +644,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
                        }}
                        checked={e.id === props.selectedFixer?.id}
                        className="m-0 w-full"
-                       extra={<Tag>Available</Tag>}
+                       extra={<Tag>Có mặt</Tag>}
                        disabled={e.hasPriority && props.selectedPriority}
                     ></CheckCard>
                  ))}

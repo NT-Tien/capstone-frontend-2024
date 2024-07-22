@@ -45,7 +45,7 @@ export default function TasksPage() {
             items={[
                {
                   key: TaskStatus.AWAITING_FIXER,
-                  label: t("Unassigned"),
+                  label: "Chưa giao",
                   children: (
                      <ListView
                         total={result.data?.pages[0].total ?? 0}
@@ -69,7 +69,7 @@ export default function TasksPage() {
                },
                {
                   key: TaskStatus.IN_PROGRESS,
-                  label: t("Progressing"),
+                  label: "Đang thực hiện",
                   children: (
                      <ListView
                         total={result.data?.pages[0].total ?? 0}
@@ -81,7 +81,7 @@ export default function TasksPage() {
                },
                {
                   key: TaskStatus.COMPLETED,
-                  label: t("Completed"),
+                  label: "Hoàn thành",
                   children: (
                      <ListView
                         total={result.data?.pages[0].total ?? 0}
@@ -113,9 +113,9 @@ function ListView(props: ListViewType) {
          loadMore={
             props.items.length !== 0 &&
             (props.total === props.items.length ? (
-               <Divider className="text-sm">{t("endList")}</Divider>
+               <Divider className="text-sm">Bạn đang ở cuối danh sách</Divider>
             ) : (
-               <Button onClick={props.loadMore}>Load More</Button>
+               <Button onClick={props.loadMore}>Tải thêm</Button>
             ))
          }
          dataSource={props.items}
@@ -149,18 +149,18 @@ function ListView(props: ListViewType) {
                   columns={[
                      {
                         key: "mm",
-                        label: "Machine Model",
+                        label: "Mẫu máy",
                         render: (_, e) => e.device?.machineModel.name ?? "-",
                      },
                      {
                         key: "location",
-                        label: "Location",
+                        label: "Vị trí",
                         render: (_, e) =>
                            `${e.device?.area.name ?? "-"} (${e.device?.positionX}x${e.device?.positionY})`,
                      },
                      {
                         key: "fixer",
-                        label: "Fixer",
+                        label: "Người sửa",
                         render: (_, e) => e.fixer?.username ?? "-",
                         hide: item.fixer === undefined,
                         className: !item.fixer ? "hidden" : "",

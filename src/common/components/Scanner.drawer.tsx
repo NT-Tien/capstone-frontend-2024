@@ -43,14 +43,14 @@ export default function ScannerDrawer({ children, ...props }: Props) {
          <Drawer
             open={open}
             onClose={handleClose}
-            title="Scan"
+            title="Quét mã QR"
             placement="bottom"
             height="max-content"
             {...props.drawerProps}
          >
             <section className="grid place-items-center">
                <div className="mb-6 flex items-center rounded-full border-2 border-neutral-200 bg-white px-6 py-1">
-                  Place <strong className="mx-1.5 font-semibold">device QR Code</strong> into the frame
+                  Vui lòng đặt <strong className="mx-1.5 font-semibold">mã QR của thiết bị</strong> vào khung hình
                   <InfoCircleOutlined className="ml-2" />
                </div>
             </section>
@@ -112,12 +112,12 @@ export default function ScannerDrawer({ children, ...props }: Props) {
                <Card size="small" hoverable className="mb-4">
                   <div className="flex gap-2">
                      <InfoCircleFilled />
-                     <div className="text-xs">{t("inputDeviceId")}</div>
+                     <div className="text-xs">Nhập ID thiết bị</div>
                   </div>
                </Card>
                <Form.Item<FieldType>
                   name="deviceId"
-                  label={t("DeviceId")}
+                  label="ID thiết bị"
                   labelAlign="left"
                   labelCol={{
                      span: 24,
@@ -127,7 +127,7 @@ export default function ScannerDrawer({ children, ...props }: Props) {
                      { required: true },
                      {
                         validator: (_, value) =>
-                           isUUID(value) ? Promise.resolve() : Promise.reject("Invalid Device ID"),
+                           isUUID(value) ? Promise.resolve() : Promise.reject("ID thiết bị không hợp lệ"),
                      },
                   ]}
                   className="flex-grow"

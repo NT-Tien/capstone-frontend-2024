@@ -25,7 +25,7 @@ export default function ReportsPage() {
 
    return (
       <div className="std-layout">
-         <RootHeader title="Requests" className="std-layout-outer p-4" />
+         <RootHeader title="Yêu cầu" className="std-layout-outer p-4" />
          <Tabs
             type="line"
             activeKey={tab}
@@ -38,7 +38,7 @@ export default function ReportsPage() {
                   label: (
                      <div className="flex items-center gap-1">
                         <Hourglass size={14} className="mr-1" />
-                        {t("pending")}
+                        Đang chờ
                      </div>
                   ),
                },
@@ -47,7 +47,7 @@ export default function ReportsPage() {
                   label: (
                      <div className="flex items-center gap-1">
                         <ThumbsUp size={14} className="mr-1" />
-                        {t("Completed")}
+                        Hoàn thành
                      </div>
                   ),
                },
@@ -56,7 +56,7 @@ export default function ReportsPage() {
                   label: (
                      <div className="flex items-center gap-1">
                         <XCircle size={14} />
-                        {t("rejected")}
+                        Từ chối
                      </div>
                   ),
                },
@@ -89,9 +89,9 @@ function ReportsTab(props: ReportsTabProps) {
       <div className="mb-layout grid grid-cols-1 gap-2">
          <div className="text-gray-500">
             {{
-               [FixRequestStatus.PENDING]: "Sorting by Creation Date (old - new)",
-               [FixRequestStatus.APPROVED]: "Sorting by Modified Date (new - old)",
-               [FixRequestStatus.REJECTED]: "Sorting by Modified Date (new - old)",
+               [FixRequestStatus.PENDING]: "Sắp xếp theo ngày tạo (cũ nhất - mới nhất)",
+               [FixRequestStatus.APPROVED]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
+               [FixRequestStatus.REJECTED]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
             }[props.status] || ""}
          </div>
          {results.isSuccess ? (

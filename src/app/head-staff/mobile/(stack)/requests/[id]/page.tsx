@@ -64,14 +64,14 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
       message.destroy("scan-msg")
 
       if (!api.isSuccess) {
-         message.error("Failed to scan device ID. Please try again").then()
+         message.error("Quét ID thiết bị thất bại. Vui lòng thử lại.").then()
          return
       }
 
       if (!isUUID(result)) {
          message
             .error({
-               content: "Invalid device ID",
+               content: "ID thiết bị không hợp lệ.",
                key: "scan-msg",
             })
             .then()
@@ -81,7 +81,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
       if (api.data.device.id !== result) {
          message
             .error({
-               content: "Scanned device ID does not match request details.",
+               content: "ID thiết bị được quét không khớp.",
                key: "scan-msg",
             })
             .then()
@@ -91,7 +91,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
       setHasScanned(true)
       message
          .success({
-            content: "Device ID scanned successfully",
+            content: "Quét ID thiết bị thành công.",
             key: "scan-msg",
          })
          .then()
@@ -100,7 +100,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
    return (
       <div className="std-layout">
          <RootHeader
-            title="Request Details"
+            title="Thông tin chi tiết"
             icon={<LeftOutlined />}
             onIconClick={() => router.back()}
             className="std-layout-outer p-4"
@@ -143,7 +143,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                      dataSource={api.data}
                      size="small"
                      className="flex-grow"
-                     title={<div className="text-base">Request Details</div>}
+                     title={<div className="text-base">Chi tiết yêu cầu</div>}
                      extra={
                         <Tag
                            color={FixRequestStatusTagMapper[String(api.data?.status)].colorInverse}
@@ -155,24 +155,24 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                      columns={[
                         {
                            key: "createdAt",
-                           title: t("Created"),
+                           title: "Ngày tạo",
                            dataIndex: "createdAt",
                            render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
                         },
                         {
                            key: "updatedAt",
-                           title: t("LastUpdated"),
+                           title: "Cập nhật lần cuối",
                            dataIndex: "updatedAt",
                            render: (_, e) =>
                               e.updatedAt === e.createdAt ? "-" : dayjs(e.updatedAt).format("DD/MM/YYYY - HH:mm"),
                         },
                         {
                            key: "account-name",
-                           title: t("ReportedBy"),
+                           title: "Báo cáo bởi",
                            render: (_, e) => e.requester?.username ?? "-",
                         },
                         {
-                           title: "Requester Note",
+                           title: "Ghi chú",
                            dataIndex: ["requester_note"],
                         },
                      ]}
@@ -184,7 +184,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                         title={
                            <div className="flex items-center gap-1">
                               <XCircle size={18} />
-                              Rejection Reason
+                              Lý do từ chối
                            </div>
                         }
                         size="small"
@@ -194,7 +194,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                   </section>
                )}
                <section className="std-layout-outer mt-6 rounded-lg bg-white py-layout">
-                  <h2 className="mb-2 px-layout text-base font-semibold">Device Details</h2>
+                  <h2 className="mb-2 px-layout text-base font-semibold">Chi tiết thiết bị</h2>
                   <DataListView
                      dataSource={api.data?.device}
                      bordered
@@ -203,15 +203,15 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                      valueClassName="text-sub-base"
                      items={[
                         {
-                           label: "Machine Model",
+                           label: "Mẫu máy",
                            value: (s) => s.machineModel?.name,
                         },
                         {
-                           label: "Area",
+                           label: "Khu vực",
                            value: (s) => s.area?.name,
                         },
                         {
-                           label: "Position (x, y)",
+                           label: "Vị trí (x, y)",
                            value: (s) => (
                               <a className="flex items-center gap-1">
                                  {s.positionX} x {s.positionY}
@@ -220,19 +220,19 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                            ),
                         },
                         {
-                           label: "Manufacturer",
+                           label: "Nhà sản xuất",
                            value: (s) => s.machineModel?.manufacturer,
                         },
                         {
-                           label: "Year of Production",
+                           label: "Năm sản xuất",
                            value: (s) => s.machineModel?.yearOfProduction,
                         },
                         {
-                           label: "Warranty Term",
+                           label: "Thời hạn bảo hành",
                            value: (s) => s.machineModel?.warrantyTerm,
                         },
                         {
-                           label: "Description",
+                           label: "Mô tả",
                            value: (s) => s.description,
                         },
                      ]}
@@ -266,7 +266,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                                     onClick={() => handleOpen(params.id)}
                                     icon={<CloseOutlined />}
                                  >
-                                    Reject
+                                    Từ chối
                                  </Button>
                               )}
                            </RejectTaskDrawer>
@@ -282,7 +282,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                                  issueInputRef.current?.focus()
                               }}
                            >
-                              Create First Issue
+                              Tạo vấn đề đầu tiên
                            </Button>
                         )}
                         {api.data?.issues.length !== 0 && (
@@ -293,7 +293,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                               className="flex-grow"
                               onClick={() => router.push(`/head-staff/mobile/requests/${params.id}/task/new`)}
                            >
-                              Create Task
+                              Tạo tác vụ
                            </Button>
                         )}
                      </section>
@@ -307,7 +307,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                   !hasScanned && (
                      <section className="std-layout-outer sticky bottom-0 left-0 w-full justify-center bg-white p-layout shadow-fb">
                         <Button size={"large"} className="w-full" type="primary" onClick={handleOpen}>
-                           Scan QR to Continue
+                           Quét mã QR để tiếp tục
                         </Button>
                      </section>
                   )
@@ -354,10 +354,10 @@ const IssuesList = forwardRef<any, IssuesListProps>(function Component(
          })
       },
       onError: async () => {
-         message.error("Failed to create issue")
+         message.error("Tạo vấn đề thất bại")
       },
       onSuccess: async () => {
-         message.success("Issue created")
+         message.success("Tạo vấn đề thành công")
       },
       onSettled: () => {
          message.destroy("creating-issue")
@@ -393,7 +393,7 @@ const IssuesList = forwardRef<any, IssuesListProps>(function Component(
 
    return (
       <section className={className}>
-         <h2 className="mb-2 text-base font-semibold">Request Issues</h2>
+         <h2 className="mb-2 text-base font-semibold">Báo cáo vấn đề</h2>
          {api.isSuccess ? (
             <>
                <IssueDetailsDrawer
@@ -425,7 +425,7 @@ const IssuesList = forwardRef<any, IssuesListProps>(function Component(
                                     type="link"
                                     onClick={() => device.isSuccess && handleOpen(item.id, device.data.id)}
                                  >
-                                    View
+                                    Xem thêm
                                  </Button>
                               </List.Item>
                            )}
@@ -441,7 +441,7 @@ const IssuesList = forwardRef<any, IssuesListProps>(function Component(
                               showSearch
                               variant="outlined"
                               size="large"
-                              placeholder="+ Create New Issue"
+                              placeholder="+ Tạo vấn đề mới"
                               value={selectedTypeErrorId}
                               onChange={(value) => handleSelectIssue(value)}
                               open={openIssuesSelect}
@@ -458,7 +458,7 @@ const IssuesList = forwardRef<any, IssuesListProps>(function Component(
          <Drawer
             open={createDrawerOpen}
             onClose={handleCloseCreateDrawer}
-            title="Create Issue"
+            title="Tạo vấn đề"
             placement="bottom"
             height="max-content"
          >
@@ -466,7 +466,7 @@ const IssuesList = forwardRef<any, IssuesListProps>(function Component(
                dataSource={selectedTypeError}
                size="small"
                className="mb-3"
-               title={<span className="text-lg">Error Details</span>}
+               title={<span className="text-lg">Chi tiết lỗi</span>}
                labelStyle={{
                   fontSize: "var(--font-sub-base)",
                }}
@@ -475,15 +475,15 @@ const IssuesList = forwardRef<any, IssuesListProps>(function Component(
                }}
                columns={[
                   {
-                     title: "Error Name",
+                     title: "Tên lỗi",
                      dataIndex: ["name"],
                   },
                   {
-                     title: "Duration",
+                     title: "Thời lượng",
                      dataIndex: ["duration"],
                   },
                   {
-                     title: "Description",
+                     title: "Mô tả",
                      dataIndex: ["description"],
                   },
                ]}
@@ -502,7 +502,7 @@ const IssuesList = forwardRef<any, IssuesListProps>(function Component(
                layout="vertical"
             >
                <Form.Item
-                  label={<span className="text-sub-base">Fix Type</span>}
+                  label={<span className="text-sub-base">Cách sửa chữa</span>}
                   name="fixType"
                   initialValue={FixType.REPLACE}
                   className="w-full"
@@ -521,7 +521,7 @@ const IssuesList = forwardRef<any, IssuesListProps>(function Component(
                </Form.Item>
                <ProFormTextArea
                   name="description"
-                  label="Description"
+                  label="Mô tả"
                   rules={[{ required: true }]}
                   allowClear
                   fieldProps={{
@@ -530,7 +530,7 @@ const IssuesList = forwardRef<any, IssuesListProps>(function Component(
                   }}
                />
                <Button className="w-full" type="primary" size="large" onClick={form.submit}>
-                  Create Issue
+                  Tạp vấn đề
                </Button>
             </Form>
          </Drawer>

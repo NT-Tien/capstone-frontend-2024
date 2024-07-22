@@ -41,12 +41,12 @@ export default function IssuesTab(props: Props) {
       },
       onError: async () => {
          message.error({
-            content: "Failed to delete issue. See logs.",
+            content: "Xóa vấn đề thất bại.",
          })
       },
       onSuccess: async () => {
          message.success({
-            content: "Issue deleted successfully.",
+            content: "Xóa vấn đề thành công.",
          })
          props.refetch()
       },
@@ -67,12 +67,12 @@ export default function IssuesTab(props: Props) {
       },
       onError: async () => {
          message.error({
-            content: "Failed to update issue. See logs.",
+            content: "Cập nhật vấn đề thất bại.",
          })
       },
       onSuccess: async () => {
          message.success({
-            content: "Issue updated successfully.",
+            content: "Cập nhật vấn đề thành công.",
          })
          props.refetch()
       },
@@ -95,9 +95,9 @@ export default function IssuesTab(props: Props) {
                }}
                headerTitle={
                   <div className="flex items-center gap-2">
-                     <span>Request Issues</span>
+                     <span>Báo cáo yêu cầu</span>
                      <span className="text-xs font-normal text-gray-500">
-                        {props.issues?.length} issue{props.issues?.length !== 1 && "s"} found
+                        {props.issues?.length} vấn đề
                      </span>
                   </div>
                }
@@ -116,7 +116,7 @@ export default function IssuesTab(props: Props) {
                   >
                      {(handleOpen) => (
                         <Button icon={<PlusOutlined />} type="primary" onClick={() => handleOpen(props.id)}>
-                           New Issue
+                           Tạo vấn đề
                         </Button>
                      )}
                   </CreateIssueDrawer>,
@@ -132,7 +132,7 @@ export default function IssuesTab(props: Props) {
                         <Table.Summary.Cell index={1}></Table.Summary.Cell>
                         <Table.Summary.Cell index={2}></Table.Summary.Cell>
                         <Table.Summary.Cell index={3} className="text-base">
-                           <strong>Total</strong>: {totalDuration} minute{totalDuration !== 1 && "s"}
+                           <strong>Tổng cộng</strong>: {totalDuration} phút{totalDuration !== 1 && "s"}
                         </Table.Summary.Cell>
                         <Table.Summary.Cell index={4}></Table.Summary.Cell>
                         <Table.Summary.Cell index={5}></Table.Summary.Cell>
@@ -171,7 +171,7 @@ export default function IssuesTab(props: Props) {
                }}
                columns={[
                   {
-                     title: "Error Name",
+                     title: "Tên lỗi",
                      dataIndex: ["typeError", "name"],
                      ellipsis: true,
                      width: 200,
@@ -183,7 +183,7 @@ export default function IssuesTab(props: Props) {
                   },
                   {
                      key: "description",
-                     title: "Description",
+                     title: "Mô tả",
                      dataIndex: "description",
                      render: (_, e) => e.description,
                      ellipsis: true,
@@ -196,7 +196,7 @@ export default function IssuesTab(props: Props) {
                      formItemProps: {},
                   },
                   {
-                     title: "Duration",
+                     title: "Thời lượng",
                      dataIndex: ["typeError", "duration"],
                      tooltip: "Minutes",
                      width: 150,
@@ -204,7 +204,7 @@ export default function IssuesTab(props: Props) {
                      editable: false,
                   },
                   {
-                     title: "Fix Type",
+                     title: "Cách sửa chữa",
                      dataIndex: "fixType",
                      width: 100,
                      render: (_, e) => (
@@ -219,7 +219,7 @@ export default function IssuesTab(props: Props) {
                      }, {} as any),
                   },
                   {
-                     title: "Task",
+                     title: "Tác vụ",
                      width: 100,
                      ellipsis: true,
                      editable: false,
@@ -230,14 +230,14 @@ export default function IssuesTab(props: Props) {
                               size="small"
                               onClick={() => router.push(`/head-staff/desktop/tasks/${e.task.id}`)}
                            >
-                              Goto Task
+                              Đi đến tác vụ
                            </Button>
                         ) : (
                            <div>-</div>
                         ),
                   },
                   {
-                     title: "Spare Parts",
+                     title: "Linh kiện thay thế",
                      width: 150,
                      render: (_, e) => (
                         <div className="flex items-center gap-2">
@@ -248,7 +248,7 @@ export default function IssuesTab(props: Props) {
                                  type="default"
                                  onClick={() => handleOpen(e.id, props.device?.id ?? "")}
                               >
-                                 Add First
+                                 Thêm
                               </Button>
                            ) : (
                               <span>{e.issueSpareParts.length}</span>
@@ -258,7 +258,7 @@ export default function IssuesTab(props: Props) {
                      editable: false,
                   },
                   {
-                     title: "Created At",
+                     title: "Ngày tạo",
                      dataIndex: "createdAt",
                      width: 200,
                      render: (_, e) => (
@@ -269,7 +269,7 @@ export default function IssuesTab(props: Props) {
                      editable: false,
                   },
                   {
-                     title: "Updated At",
+                     title: "Ngày cập nhật",
                      width: 200,
                      dataIndex: "updatedAt",
                      sorter: (a, b) => dayjs(a.updatedAt).unix() - dayjs(b.updatedAt).unix(),
@@ -295,7 +295,7 @@ export default function IssuesTab(props: Props) {
                                  size={"middle"}
                                  onClick={() => handleOpen(e.id, props.device?.id ?? "")}
                               >
-                                 View
+                                 Xem thêm
                               </Button>
                            )}
                            <Button type="link" size="middle" onClick={() => action?.startEditable(e.id)}>

@@ -17,13 +17,13 @@ export const FixTypeTagMapper: {
    }
 } = {
    [FixType.REPLACE]: {
-      text: "Replace",
+      text: "Thay thế",
       colorInverse: "geekblue-inverse",
       color: "geekblue",
       icon: <ReloadOutlined />,
    },
    [FixType.REPAIR]: {
-      text: "Repair",
+      text: "Sửa chữa",
       colorInverse: "gold-inverse",
       color: "gold",
       icon: <SettingOutlined />,

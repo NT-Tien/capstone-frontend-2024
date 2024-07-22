@@ -66,11 +66,11 @@ export default function HeadDashboardPage() {
          <section className="std-layout-inner mt-8 flex items-center justify-between">
             <div className="flex items-center gap-2">
                <ClockCircleOutlined />
-               <h2 className="text-lg font-semibold">{t("PrevReports")}</h2>
+               <h2 className="text-lg font-semibold">Báo cáo gần đây</h2>
             </div>
             <Link href="/head/history">
                <Button type="link" className="p-0">
-                  {t("SeeMore")}
+                  Xem thêm
                </Button>
             </Link>
          </section>
@@ -79,10 +79,10 @@ export default function HeadDashboardPage() {
                <>
                   {result.data.length === 0 && (
                      <Card>
-                        <Empty description="You have no previous reports">
+                        <Empty description="Bạn không có báo cáo gần đây">
                            <Link href="/head/scan">
                               <Button icon={<PlusOutlined />} type="primary">
-                                 Scan QR to Create Report
+                                 Quét mã QR để tạo báo cáo
                               </Button>
                            </Link>
                         </Empty>
@@ -107,7 +107,7 @@ export default function HeadDashboardPage() {
             ) : (
                <>
                   {result.isLoading && <Card loading />}
-                  {result.isError && <div>An error has occurred. Please try again</div>}
+                  {result.isError && <div>Đã xảy ra lỗi. Vui lòng thử lại</div>}
                </>
             )}
          </div>

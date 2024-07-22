@@ -60,7 +60,7 @@ export default function IssueDetailsDrawer({
          })
       },
       onError: async () => {
-         message.error("Failed to update issue")
+         message.error("Cập nhật vấn đề thất bại")
       },
       onSuccess: async () => {
          message.success("Issue updated")
@@ -83,7 +83,7 @@ export default function IssueDetailsDrawer({
          })
       },
       onError: async () => {
-         message.error("Failed to remove issue")
+         message.error("Xóa vấn đề thất bại")
       },
       onSuccess: async () => {
          message.success("Issue removed")
@@ -105,10 +105,10 @@ export default function IssueDetailsDrawer({
          })
       },
       onError: async () => {
-         message.error("Failed to add spare part")
+         message.error("Thêm linh kiện thất bại")
       },
       onSuccess: async () => {
-         message.success("Spare part added")
+         message.success("Thêm linh kiện thành công")
          await issue.refetch()
          refetch()
       },
@@ -128,7 +128,7 @@ export default function IssueDetailsDrawer({
          })
       },
       onError: async () => {
-         message.error("Failed to remove spare part")
+         message.error("Xóa linh kiện thất bại")
       },
       onSuccess: async () => {
          message.success("Spare part removed")
@@ -179,11 +179,11 @@ export default function IssueDetailsDrawer({
    return (
       <>
          {children(handleOpen)}
-         <Drawer open={open} onClose={handleClose} title="Issue Details" {...drawerProps}>
+         <Drawer open={open} onClose={handleClose} title="Thông tin chi tiết" {...drawerProps}>
             <ProDescriptions<FixRequestIssueDto>
                title={
                   <div className="flex items-center gap-2">
-                     <span>Issue Details</span>
+                     <span>Chi tiết vấn đề</span>
                      <Tag color={FixRequestStatusTagMapper[String(issue.data?.status)].colorInverse}>
                         {FixRequestStatusTagMapper[String(issue.data?.status)].text}
                      </Tag>
@@ -214,7 +214,7 @@ export default function IssueDetailsDrawer({
                            items: [
                               {
                                  key: "delete",
-                                 label: "Delete",
+                                 label: "Xóa",
                                  icon: <DeleteOutlined />,
                                  danger: true,
                                  onClick: () => issueId && handleDeleteIssue(issueId),
@@ -223,14 +223,14 @@ export default function IssueDetailsDrawer({
                         }}
                      >
                         <Button icon={<MoreOutlined />} type="primary" size="small">
-                           Actions
+                           Hoạt động
                         </Button>
                      </Dropdown>
                   )
                }
                columns={[
                   {
-                     title: "Error Name",
+                     title: "Tên lỗi",
                      dataIndex: ["typeError", "name"],
                      valueType: "select",
                      editable: showActions === false ? false : undefined,
@@ -243,13 +243,13 @@ export default function IssueDetailsDrawer({
                      },
                   },
                   {
-                     title: "Description",
+                     title: "Mô tả",
                      dataIndex: ["description"],
                      valueType: "textarea",
                      editable: showActions === false ? false : undefined,
                   },
                   {
-                     title: "Fix Type",
+                     title: "Cách sửa chữa",
                      dataIndex: ["fixType"],
                      valueType: "radioButton",
                      editable: showActions === false ? false : undefined,
@@ -267,23 +267,23 @@ export default function IssueDetailsDrawer({
                      },
                   },
                   {
-                     title: "Duration",
+                     title: "Thời lượng",
                      dataIndex: ["typeError", "duration"],
                      editable: false,
                   },
                   {
-                     title: "Status",
+                     title: "Trạng thái",
                      dataIndex: ["status"],
                      editable: false,
                   },
                   {
-                     title: "Created At",
+                     title: "Ngày tạo",
                      dataIndex: ["createdAt"],
                      editable: false,
                      render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY HH:mm"),
                   },
                   {
-                     title: "Updated At",
+                     title: "Ngày cập nhật",
                      dataIndex: ["updatedAt"],
                      editable: false,
                      render: (_, e) => dayjs(e.updatedAt).format("DD/MM/YYYY HH:mm"),
@@ -291,7 +291,7 @@ export default function IssueDetailsDrawer({
                ]}
             />
             <ProList
-               headerTitle={<span className="font-semibold">Spare Parts</span>}
+               headerTitle={<span className="font-semibold">Linh kiện thay thế</span>}
                className={"list-no-padding mt-6"}
                dataSource={issue.data?.issueSpareParts}
                renderItem={(item) => {
@@ -300,7 +300,7 @@ export default function IssueDetailsDrawer({
                         <div className="flex items-center">
                            <div className="flex flex-grow flex-col">
                               <span className="text-sub-base font-medium">{item.sparePart.name}</span>
-                              <span className="text-sub-base">Qty: {item.quantity}</span>
+                              <span className="text-sub-base">Số lượng: {item.quantity}</span>
                            </div>
                            {showActions && (
                               <Popconfirm
@@ -310,7 +310,7 @@ export default function IssueDetailsDrawer({
                                  }}
                               >
                                  <Button type="link" danger icon={<DeleteOutlined />}>
-                                    Remove
+                                    Xóa
                                  </Button>
                               </Popconfirm>
                            )}
@@ -354,7 +354,7 @@ export default function IssueDetailsDrawer({
                            )
                         }
                      >
-                        Add Spare Part
+                        Thêm linh kiện
                      </Button>
                   )}
                </SelectSparePartDrawer>

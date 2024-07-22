@@ -113,8 +113,8 @@ function Login() {
          {loading && <Spin fullscreen tip="Logging in..." />}
          <div className="grid h-full place-content-center gap-3">
             <Card>
-               <Typography.Title level={4}>Login</Typography.Title>
-               <Typography.Text>Enter your username and password to log in.</Typography.Text>
+               <Typography.Title level={4}>Đăng nhập</Typography.Title>
+               <Typography.Text>Vui lòng nhập tên đăng nhập và mật khẩu.</Typography.Text>
             </Card>
             <Card className="min-w-96">
                <Form
@@ -126,7 +126,7 @@ function Login() {
                >
                   <Form.Item<FieldType>
                      name="username"
-                     label="Username"
+                     label="Tên đăng nhập"
                      tooltip="What's your username?"
                      rules={[{ required: true }]}
                   >
@@ -134,7 +134,7 @@ function Login() {
                   </Form.Item>
                   <Form.Item<FieldType>
                      name="password"
-                     label="Password"
+                     label="Mật khẩu"
                      tooltip="What's your password?"
                      rules={[{ required: true }]}
                   >
@@ -142,7 +142,7 @@ function Login() {
                   </Form.Item>
                   <Form.Item>
                      <Button type="primary" htmlType="submit" size="large" className="w-full">
-                        Login
+                        Đăng nhập
                      </Button>
                   </Form.Item>
                </Form>

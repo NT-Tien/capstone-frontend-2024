@@ -6,6 +6,7 @@ export enum TaskStatus {
    PENDING_STOCK = "PENDING_STOCK", // -
    ASSIGNED = "ASSIGNED", // cannot update issues
    IN_PROGRESS = "IN_PROGRESS", // ---
+
    COMPLETED = "COMPLETED",
    CANCELLED = "CANCELLED",
 }

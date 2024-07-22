@@ -3,13 +3,15 @@
 import { cloneElement, ReactElement } from "react"
 import { Badge } from "antd"
 import { cn } from "@/common/util/cn.util"
+import Link from "next/link"
 
 export type NavbarMenuItem = {
    key: string
    name: string
    icon: ReactElement
-   onClick?: () => void
+   href?: string
    countBadge?: number
+   onClick?: () => void
 }
 
 export type MobileNavbarProps = {
@@ -27,7 +29,8 @@ export default function MobileNavbar(props: MobileNavbarProps) {
                icon={item.icon}
                countBadge={item.countBadge}
                active={item.key === props.currentActive}
-               onClick={item.onClick}
+               onClick={"href" in item ? undefined : item.onClick}
+               href={"href" in item ? item.href : undefined}
             />
          ))}
       </div>
@@ -40,9 +43,10 @@ export type NavbarItemProps = {
    onClick?: () => void
    countBadge?: number
    active?: boolean
+   href?: string
 }
 
-function NavbarItem({ name, icon, active = false, countBadge = 0, onClick }: NavbarItemProps) {
+function NavbarItem({ name, icon, active = false, countBadge = 0, onClick, href }: NavbarItemProps) {
    const displayIcon = cloneElement(icon, {
       style: {
          fontSize: "18px",
@@ -52,7 +56,8 @@ function NavbarItem({ name, icon, active = false, countBadge = 0, onClick }: Nav
    })
 
    return (
-      <div
+      <Link
+         href={href ?? ""}
          className="flex h-full w-full flex-col items-center justify-center gap-2 pb-5 pt-4"
          style={{
             cursor: onClick ? "pointer" : "default",
@@ -83,6 +88,6 @@ function NavbarItem({ name, icon, active = false, countBadge = 0, onClick }: Nav
          >
             {name}
          </span>
-      </div>
+      </Link>
    )
 }

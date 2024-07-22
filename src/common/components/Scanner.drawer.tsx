@@ -85,7 +85,7 @@ export default function ScannerDrawer({ children, ...props }: Props) {
                <div className="flex items-center gap-3">
                   <Avatar style={{ fontSize: "18px", textAlign: "center", backgroundColor: "#6750A4" }}>AI</Avatar>
                   <div className="flex-grow">
-                     <p className="text-base font-bold">{t("InputManually")}</p>
+                     <p className="text-base font-bold">Nhập thủ công</p>
                      <p className="text-xs">{t("CannotScan")}</p>
                   </div>
                   <div>
@@ -95,7 +95,7 @@ export default function ScannerDrawer({ children, ...props }: Props) {
             </Card>
          </Drawer>
          <Drawer
-            title={t("InputManually")}
+            title="Nhập thủ công"
             placement="bottom"
             onClose={() => {
                setManualInputDrawerOpen(false)

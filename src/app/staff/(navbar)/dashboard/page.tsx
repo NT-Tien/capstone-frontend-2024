@@ -37,7 +37,7 @@ export default function StaffDashboard() {
             <TaskDetailsDrawer>
                {(handleOpen) => (
                   <TaskCard
-                     title="Ongoing Task"
+                     title="Tác vụ đang thực hiện"
                      description={response.data?.name ?? ""}
                      priority={response.data?.priority ?? false}
                      onClick={() => handleOpen(response.data?.id ?? "", true)}
@@ -53,7 +53,7 @@ export default function StaffDashboard() {
                   gridColumn: "inner-start / inner-end",
                }}
             >
-               You have no ongoing tasks
+               Bạn không có tác vụ cần thực hiện
             </Card>
          )}
          <div

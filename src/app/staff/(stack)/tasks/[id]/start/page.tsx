@@ -82,9 +82,9 @@ export default function StartTask({ params }: { params: { id: string } }) {
          setScanDrawerVisible(false)
          setScanButtonVisible(false)
          setScanCompleted(true)
-         message.success("Scanned device ID matched request details.")
+         message.success("ID thiết bị khớp với yêu cầu.")
       } else {
-         message.error("Scanned device ID does not match request details.")
+         message.error("ID thiết bị không khớp với yêu cầu.")
       }
    }
 
@@ -94,7 +94,7 @@ export default function StartTask({ params }: { params: { id: string } }) {
    }
    return (
       <div className="std-layout">
-         <RootHeader title="Start Task" className="std-layout-outer p-4" />
+         <RootHeader title="Thông tin chi tiết" className="std-layout-outer p-4" />
          {currentStep === -1 && <Spin fullscreen={true} />}
          {currentStep === 0 && (
             <Step1
@@ -322,7 +322,7 @@ function Step2(props: Step2Props) {
             items={[
                {
                   key: "1",
-                  label: "Task Details",
+                  label: "Chi tiết tác vụ",
                   children: (
                      <div>
                         <ProDescriptions
@@ -334,31 +334,31 @@ function Step2(props: Step2Props) {
                            extra={
                               <Tag color={props.data?.priority === true ? "red" : "default"}>
                                  {props.data?.priority === true
-                                    ? "Priority"
+                                    ? "Ưu tiên"
                                     : props.data?.priority === false
-                                      ? "Normal"
+                                      ? "Thường"
                                       : "-"}
                               </Tag>
                            }
                            columns={[
                               {
-                                 label: "Fix Date",
+                                 label: "Ngày sửa",
                                  render: (_, e) => dayjs(e.fixerDate).format("DD/MM/YYYY"),
                               },
                               {
                                  key: "3",
-                                 label: "Total Time",
-                                 render: (_, e) => `${e.totalTime} minutes`,
+                                 label: "Tổng thời lượng",
+                                 render: (_, e) => `${e.totalTime} phút`,
                               },
                               {
                                  key: "2",
-                                 label: "Operator",
+                                 label: "Thông số kỹ thuật",
                                  dataIndex: "operator",
                               },
                            ]}
                         />
                         <section className="std-layout-outer mt-6 bg-white py-layout">
-                           <h2 className="mb-2 px-layout text-lg font-semibold">Device Details</h2>
+                           <h2 className="mb-2 px-layout text-lg font-semibold">Chi tiết thiết bị</h2>
                            <DataListView
                               dataSource={props.data?.device}
                               bordered
@@ -367,15 +367,15 @@ function Step2(props: Step2Props) {
                               className="rounded-lg"
                               items={[
                                  {
-                                    label: "Machine Model",
+                                    label: "Mẫu máy",
                                     value: (s) => s.machineModel?.name,
                                  },
                                  {
-                                    label: "Area",
+                                    label: "Khu vực",
                                     value: (s) => s.area?.name,
                                  },
                                  {
-                                    label: "Position (x, y)",
+                                    label: "Vị trí (x, y)",
                                     value: (s) => (
                                        <a className="flex items-center gap-1">
                                           {s.positionX} x {s.positionY}
@@ -384,19 +384,19 @@ function Step2(props: Step2Props) {
                                     ),
                                  },
                                  {
-                                    label: "Manufacturer",
+                                    label: "Nhà sản xuất",
                                     value: (s) => s.machineModel?.manufacturer,
                                  },
                                  {
-                                    label: "Year of Production",
+                                    label: "Năm sản xuất",
                                     value: (s) => s.machineModel?.yearOfProduction,
                                  },
                                  {
-                                    label: "Warranty Term",
+                                    label: "Thời hạn bảo hành",
                                     value: (s) => s.machineModel?.warrantyTerm,
                                  },
                                  {
-                                    label: "Description",
+                                    label: "Mô tả",
                                     value: (s) => s.description,
                                  },
                               ]}
@@ -407,7 +407,7 @@ function Step2(props: Step2Props) {
                },
                {
                   key: "2",
-                  label: "Issues",
+                  label: "Vấn đề",
                   children: (
                      <div className="pt-1">
                         <IssueDetailsDrawer
@@ -481,7 +481,7 @@ function Step2(props: Step2Props) {
                   disabled={!props.data.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
                   onClick={props.handleNext}
                >
-                  Next
+                  Tiếp tục
                </Button>
             ) : (
                <Button
@@ -491,7 +491,7 @@ function Step2(props: Step2Props) {
                   // disabled={!props.data.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
                   onClick={props.handleOpenScanDrawer}
                >
-                  Scan QR to continue
+                  Quét mã QR để tiếp tục
                </Button>
             )}
             <Drawer
@@ -577,11 +577,11 @@ function Step3(props: Step3Props) {
    return (
       <div style={props.style}>
          <Card size="small" className="mt-layout">
-            You have successfully fixed all issues in this task. Please take photo and video proof of the fix to
-            finalize the task!
+            Bạn đã sửa chữa thành công tất cả các vấn đề trong tác vụ này. Vui lòng chụp ảnh và quay video chứng minh
+            việc sửa chữa để hoàn tất tác vụ!
          </Card>
          <Form form={form} className="mt-3">
-            <Form.Item<SubmitFieldType> name="imagesVerify" label="Verification Images">
+            <Form.Item<SubmitFieldType> name="imagesVerify" label="Hình ảnh xác nhận">
                <ImageWithCrop
                   name="image"
                   action={clientEnv.BACKEND_URL + File_Upload.URL}
@@ -608,21 +608,21 @@ function Step3(props: Step3Props) {
                         setLoadingImage(true)
                      }
                      if (info.file.status === "error") {
-                        message.error("Failed to upload image")
+                        message.error("Tải tệp thất bại")
                      }
                      if (info.file.status === "removed") {
                         form.setFieldsValue({ imagesVerify: [] })
-                        message.success("Image removed")
+                        message.success("Tệp đã bị xóa")
                      }
                   }}
                >
                   <div className="flex flex-col items-center justify-center">
-                     <Typography.Title level={5}>Click here</Typography.Title>
-                     <p>Please upload an image.</p>
+                     <Typography.Title level={5}>Nhấp vào đây</Typography.Title>
+                     <p>Vui lòng tải hình ảnh lên.</p>
                   </div>
                </ImageWithCrop>
             </Form.Item>
-            <Form.Item<SubmitFieldType> name="videosVerify" label="Verification Video">
+            <Form.Item<SubmitFieldType> name="videosVerify" label="Video xác nhận">
                <Upload.Dragger
                   action={clientEnv.BACKEND_URL + File_Upload.URL}
                   accept=".jpg,.jpeg,.png,.gif,.bmp,.svg,.webp"
@@ -648,25 +648,25 @@ function Step3(props: Step3Props) {
                         setLoadingImage(true)
                      }
                      if (info.file.status === "error") {
-                        message.error("Failed to upload image")
+                        message.error("Tải tệp thất bại")
                      }
                      if (info.file.status === "removed") {
                         form.setFieldsValue({ imagesVerify: [] })
-                        message.success("Image removed")
+                        message.success("Tệp đã bị xóa")
                      }
                   }}
                >
                   <div className="flex flex-col items-center justify-center">
-                     <Typography.Title level={5}>Click here</Typography.Title>
-                     <p>Please upload a video.</p>
+                     <Typography.Title level={5}>Nhấp vào đây</Typography.Title>
+                     <p>Vui lòng tải hình ảnh lên.</p>
                   </div>
                </Upload.Dragger>
             </Form.Item>
             <ProFormTextArea
-               label="Notes"
+               label="Ghi chú"
                name="fixerNote"
                fieldProps={{
-                  placeholder: "Add some notes about the fix",
+                  placeholder: "Thêm ghi chú",
                }}
             />
          </Form>
@@ -686,19 +686,19 @@ function Step3(props: Step3Props) {
                   props.handleBack?.()
                }}
             >
-               Back
+               Quay lại
             </Button>
             <ModalConfirm
                onConfirm={() => {
                   handleSubmit(form.getFieldsValue())
                }}
-               title="Finish task"
-               description="Are you sure you want to finish this task?"
-               confirmText="Confirm"
-               cancelText="Exit"
+               title="Hoàn thành tác vụ"
+               description="Bạn có chắc chắn muốn hoàn thành tác vụ?"
+               confirmText="Xác nhận"
+               cancelText="Thoát"
             >
                <Button size="large" type="primary" className="w-full">
-                  Finish Task
+                  Hoàn thành tác vụ
                </Button>
             </ModalConfirm>
          </div>

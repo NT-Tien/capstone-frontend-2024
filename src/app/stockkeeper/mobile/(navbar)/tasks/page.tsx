@@ -28,7 +28,7 @@ export default function TasksPage() {
 
    return (
       <div className="std-layout">
-         <RootHeader title={t('tasksNav')} className="std-layout-outer p-4" />
+         <RootHeader title="Tác vụ" className="std-layout-outer p-4" />
          <div className="mt-3">
             <ListView
                total={result.data?.pages[0].total ?? 0}

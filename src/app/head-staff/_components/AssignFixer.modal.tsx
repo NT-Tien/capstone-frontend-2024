@@ -51,10 +51,10 @@ export default function AssignFixerModal({
          })
       },
       onError: async () => {
-         message.error("Failed to assign fixer")
+         message.error("Phân công thất bại")
       },
       onSuccess: async () => {
-         message.success("Fixer assigned")
+         message.success("Phân công thành công")
          await queryClient.invalidateQueries({
             queryKey: headstaff_qk.task.base(),
          })
@@ -167,8 +167,9 @@ export default function AssignFixerModal({
             open={open}
             onOk={handleFinish}
             onCancel={handleClose}
-            title="Assign Fixer"
-            okText="Confirm"
+            cancelText="Hủy"
+            title="Phân công người sửa chữa"
+            okText="Xác nhận"
             okButtonProps={{
                disabled: !selectedUser,
             }}
@@ -177,7 +178,7 @@ export default function AssignFixerModal({
                <Input.Search
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search for Staff"
+                  placeholder="Tìm kiếm"
                />
                {searchTerm
                   ? api.isSuccess &&
@@ -190,7 +191,7 @@ export default function AssignFixerModal({
                              key={e.id}
                              title={e.username}
                              size="small"
-                             description={"Total Time: " + e.totalTime + ` minute${e.totalTime !== 1 ? "s" : ""}`}
+                             description={"Tổng thời gian: " + e.totalTime + ` phút`}
                              onClick={() => setSelectedUser(e)}
                              checked={e.id === selectedUser?.id}
                              className="m-0 w-full"
@@ -208,11 +209,11 @@ export default function AssignFixerModal({
                              key={e.id}
                              title={e.username}
                              size="small"
-                             description={"Total Time: " + e.totalTime + ` minute${e.totalTime !== 1 ? "s" : ""}`}
+                             description={"Tổng thời gian: " + e.totalTime + ` phút`}
                              onClick={() => setSelectedUser(e)}
                              checked={e.id === selectedUser?.id}
                              className="m-0 w-full"
-                             extra={<Tag>Available</Tag>}
+                             extra={<Tag>Có mặt</Tag>}
                              disabled={e.hasPriority && isPriority}
                           ></CheckCard>
                        ))}

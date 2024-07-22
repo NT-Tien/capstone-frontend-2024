@@ -25,7 +25,7 @@ export default function HomeHeader(props: HeadStaffDashboardHeaderProps) {
             </Flex>
          </Row>
          <Row>
-            <Typography.Text className="text-base">{t("Hello")}</Typography.Text>
+            <Typography.Text className="text-base">Chào buổi sáng</Typography.Text>
          </Row>
          <Row>
             <h1 className="mb-0 mt-1 text-3xl font-bold">{currentToken ? decodeJwt(currentToken).username : "User"}</h1>

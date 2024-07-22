@@ -34,17 +34,17 @@ export const FixRequestStatusTagMapper: {
    }
 } = {
    [FixRequestStatus.PENDING]: {
-      text: "Pending",
+      text: "Đang chờ",
       colorInverse: "default",
       color: "default",
    },
    [FixRequestStatus.APPROVED]: {
-      text: "Approved",
+      text: "Xác nhận",
       colorInverse: "green-inverse",
       color: "green",
    },
    [FixRequestStatus.REJECTED]: {
-      text: "Rejected",
+      text: "Từ chối",
       colorInverse: "red-inverse",
       color: "red",
    },

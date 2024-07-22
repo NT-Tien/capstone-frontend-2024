@@ -55,7 +55,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                   title: (
                      <div className="flex items-center gap-3">
                         <Button icon={<LeftOutlined />} onClick={router.back} />
-                        <span>Task Details</span>
+                        <span>Chi tiết tác vụ</span>
                      </div>
                   ),
                   tags: [
@@ -69,15 +69,15 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                   breadcrumb: {
                      items: [
                         {
-                           title: "Dashboard",
+                           title: "Trang chủ",
                            onClick: () => router.push("/head-staff/desktop/dashboard"),
                         },
                         {
-                           title: "Tasks",
+                           title: "Tác vụ",
                            onClick: () => router.push("/head-staff/desktop/tasks"),
                         },
                         {
-                           title: "Details",
+                           title: "Chi tiết",
                         },
                      ],
                   },
@@ -88,7 +88,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                               type="primary"
                               onClick={() => handleOpen(params.id, api.data?.fixerDate, api.data?.priority)}
                            >
-                              Assign Fixer
+                              Phân công thợ sửa
                            </Button>
                         )}
                         <Dropdown
@@ -96,7 +96,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                            menu={{
                               items: [
                                  {
-                                    label: "Export",
+                                    label: "Xuất dữ liệu",
                                     key: "export",
                                  },
                               ],
@@ -114,34 +114,34 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                         loading={api.isPending}
                         columns={[
                            {
-                              title: "Name",
+                              title: "Tên",
                               dataIndex: ["name"],
                            },
                            {
-                              title: "Created At",
+                              title: "Ngày tạo",
                               dataIndex: ["createdAt"],
                               render: (_, e) => dayjs(e.createdAt).format("DD-MM-YYYY HH:mm"),
                            },
                            {
-                              title: "Updated At",
+                              title: "Ngày cập nhật",
                               dataIndex: ["updatedAt"],
                               render: (_, e) => dayjs(e.updatedAt).format("DD-MM-YYYY HH:mm"),
                            },
                            {
-                              title: "Operator",
+                              title: "Thông số kỹ thuật",
                               dataIndex: ["operator"],
                            },
                            {
-                              title: "Fix Date",
+                              title: "Ngày sửa",
                               dataIndex: ["fixerDate"],
                               render: (_, e) => dayjs(e.fixerDate).format("DD-MM-YYYY"),
                            },
                            {
-                              title: "Total Time",
+                              title: "Tổng thời gian",
                               dataIndex: ["totalTime"],
                            },
                            {
-                              title: "Fixer",
+                              title: "Thợ sửa",
                               dataIndex: ["fixer", "username"],
                               render: (_, e) => e.fixer?.username,
                               className: api.data?.status === TaskStatus.AWAITING_FIXER ? "hidden" : "",
@@ -165,21 +165,21 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                                           disabled={api.data.status !== TaskStatus.AWAITING_FIXER}
                                           onClick={() => handleOpen(params.id, api.data?.fixerDate, api.data?.priority)}
                                        >
-                                          Assign a fixer
+                                          Phân công người sửa chữa
                                        </Button>
                                     ),
                                  },
                                  {
-                                    title: "Pending",
-                                    description: "Task is pending",
+                                    title: "Đang chờ",
+                                    description: "Tác vụ đang chờ",
                                  },
                                  {
-                                    title: "In Progress",
-                                    description: "Task is in progress",
+                                    title: "Đang thực hiện",
+                                    description: "Tác vụ đang tiến hành",
                                  },
                                  {
-                                    title: "Done",
-                                    description: "Task finished",
+                                    title: "Hoàn thành",
+                                    description: "Tác vụ hoàn tất",
                                  },
                               ]}
                            />
@@ -193,7 +193,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                      >
                         <ProDescriptions
                            className="descriptions-header-margin"
-                           title={"Device"}
+                           title={"Chi tiết thiết bị"}
                            bordered
                            size="middle"
                            dataSource={api.data?.device}
@@ -205,42 +205,42 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                            column={3}
                            columns={[
                               {
-                                 label: "Machine Model",
+                                 label: "Mẫu máy",
                                  dataIndex: ["machineModel", "name"],
                               },
                               {
-                                 label: "Manufacturer",
+                                 label: "Nhà sản xuất",
                                  dataIndex: ["machineModel", "manufacturer"],
                               },
                               {
-                                 label: "Operation Status",
+                                 label: "Trạng thái thông số kỹ thuật",
                                  dataIndex: "operationStatus",
                               },
                               {
-                                 label: "Area",
+                                 label: "Khu vực",
                                  dataIndex: ["area", "name"],
                                  span: 2,
                               },
                               {
-                                 label: "Position",
+                                 label: "Vị trí",
                                  dataIndex: ["positionX", "positionY"],
                                  render: (_, e) => `${e.positionX}x${e.positionY}`,
                                  span: 1,
                               },
                               {
-                                 label: "Year of Production",
+                                 label: "Năm sản xuất",
                                  dataIndex: ["machineModel", "yearOfProduction"],
                               },
                               {
-                                 label: "Date of Receipt",
+                                 label: "Ngày nhận",
                                  dataIndex: ["machineModel", "dateOfReceipt"],
                               },
                               {
-                                 label: "Warranty Term",
+                                 label: "Thời hạn bảo hành",
                                  dataIndex: ["machineModel", "warrantyTerm"],
                               },
                               {
-                                 label: "Description",
+                                 label: "Mô tả",
                                  dataIndex: "description",
                                  span: 3,
                               },

@@ -85,7 +85,7 @@ export default function MachineModelDetails({ params }: { params: { id: string }
          }}
       >
          <RootHeader
-            title={t('DeviceDetails')}
+            title="Chi tiết thiết bị"
             icon={<LeftOutlined />}
             onIconClick={() => router.back()}
             className="p-4"
@@ -142,14 +142,14 @@ export default function MachineModelDetails({ params }: { params: { id: string }
                <Collapse.Panel header={part.name} key={part.id}>
                   <Card size="small">
                      <p>
-                        <strong>{t('Name')}:</strong> {part.name}
+                        <strong>Tên:</strong> {part.name}
                      </p>
                      <p>
-                        <strong>{t('ExpirationDate')}:</strong> {dayjs(part.expirationDate).format("DD/MM/YYYY")}
+                        <strong>Ngày hết hạn:</strong> {dayjs(part.expirationDate).format("DD/MM/YYYY")}
                      </p>
                      <div>
                         <p>
-                           <strong>{t('Qty')}: </strong>
+                           <strong>Số lượng: </strong>
                            <PlusOutlined
                               onClick={() =>
                                  handleUpdateQuantity(part.id, (quantityInputs[part.id] ?? part.quantity) + 1)

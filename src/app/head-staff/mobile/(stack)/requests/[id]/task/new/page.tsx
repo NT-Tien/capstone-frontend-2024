@@ -398,7 +398,7 @@ function Step1_CreateTask(props: Step1_Props) {
                      onChange={(e) => props.setSelectedPriority(e.target.value)}
                      value={props.selectedPriority}
                   >
-                     <Radio.Button value={false}>Bình thường</Radio.Button>
+                     <Radio.Button value={false}>Thường</Radio.Button>
                      <Radio.Button value={true}>Ưu tiên</Radio.Button>
                   </Radio.Group>
                </Form.Item>

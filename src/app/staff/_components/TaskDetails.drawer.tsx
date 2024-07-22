@@ -44,12 +44,12 @@ export default function TaskDetailsDrawer({
       },
       onError: async (error) => {
          message.error({
-            content: "An error occurred. Please try again later.",
+            content: "Đã xảy ra lỗi. Vui lòng thử lại.",
          })
       },
       onSuccess: async () => {
          message.success({
-            content: `Task started successfully.`,
+            content: `Bắt đầu tác vụ.`,
          })
          await task.refetch()
       },
@@ -94,7 +94,7 @@ export default function TaskDetailsDrawer({
             onClose={handleClose}
             placement={"bottom"}
             height="100%"
-            title="Task Details"
+            title="Chi tiết tác vụ"
             classNames={{
                body: "overflow-auto",
             }}
@@ -107,29 +107,29 @@ export default function TaskDetailsDrawer({
                size="small"
                extra={
                   <Tag color={task.data?.priority === true ? "red" : "default"}>
-                     {task.data?.priority === true ? "Priority" : task.data?.priority === false ? "Normal" : "-"}
+                     {task.data?.priority === true ? "Ưu tiên" : task.data?.priority === false ? "Thường" : "-"}
                   </Tag>
                }
                columns={[
                   {
                      key: "1",
-                     label: "Created At",
+                     label: "Ngày tạo",
                      render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
                   },
                   {
                      key: "2",
-                     label: "Operator",
+                     label: "Thông số kỹ thuật",
                      dataIndex: "operator",
                   },
                   {
                      key: "3",
-                     label: "Total Time",
-                     render: (_, e) => `${e.totalTime} minutes`,
+                     label: "Tổng thời lượng",
+                     render: (_, e) => `${e.totalTime} phút`,
                   },
                ]}
             />
             <section className="std-layout-outer rounded-lg bg-white py-layout">
-               <h2 className="mb-2 text-base font-semibold">Device Details</h2>
+               <h2 className="mb-2 text-base font-semibold">Chi tiết thiết bị</h2>
                <DataListView
                   dataSource={task.data?.device}
                   bordered
@@ -138,15 +138,15 @@ export default function TaskDetailsDrawer({
                   valueClassName="text-sub-base"
                   items={[
                      {
-                        label: "Machine Model",
+                        label: "Mẫu máy",
                         value: (s) => s.machineModel?.name,
                      },
                      {
-                        label: "Area",
+                        label: "Khu vực",
                         value: (s) => s.area?.name,
                      },
                      {
-                        label: "Position (x, y)",
+                        label: "Vị trí (x, y)",
                         value: (s) => (
                            <a className="flex items-center gap-1">
                               {s.positionX} x {s.positionY}
@@ -155,26 +155,26 @@ export default function TaskDetailsDrawer({
                         ),
                      },
                      {
-                        label: "Manufacturer",
+                        label: "Nhà sản xuất",
                         value: (s) => s.machineModel?.manufacturer,
                      },
                      {
-                        label: "Year of Production",
+                        label: "Năm sản xuất",
                         value: (s) => s.machineModel?.yearOfProduction,
                      },
                      {
-                        label: "Warranty Term",
+                        label: "Thời hạn bảo hành",
                         value: (s) => s.machineModel?.warrantyTerm,
                      },
                      {
-                        label: "Description",
+                        label: "Mô tả",
                         value: (s) => s.description,
                      },
                   ]}
                />
             </section>
             <section className="std-layout-outer py-layout">
-               <h2 className="mb-2 text-base font-semibold">Issues</h2>
+               <h2 className="mb-2 text-base font-semibold">Vấn đề</h2>
                <List
                   dataSource={task.data?.issues}
                   renderItem={(item) => (
@@ -197,7 +197,7 @@ export default function TaskDetailsDrawer({
             <section className="fixed bottom-0 left-0 w-full bg-white p-layout">
                {showNextButton && (
                   <Button className="mt-6 w-full" type="primary" size="large" onClick={handleStartTask}>
-                     {shouldContinue ? "Continue" : "Start"} Task
+                     {shouldContinue ? "Tiếp tục" : "Bắt đầu"} tác vụ
                   </Button>
                )}
             </section>

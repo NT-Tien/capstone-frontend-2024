@@ -18,7 +18,7 @@ export default function UserCard(props: Props) {
       >
          <Avatar size={52} icon={<UserOutlined />} className="mr-3" />
          <div className="flex flex-grow flex-col">
-            <div className="text-xl font-bold">Head</div>
+            <div className="text-xl font-bold">{props.jwt.role}</div>
             <div>{props.jwt.phone}</div>
          </div>
          <div className="flex flex-col justify-center">

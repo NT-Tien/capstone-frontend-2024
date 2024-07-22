@@ -21,7 +21,7 @@ export default function HeadStaffDashboardHeader(props: HeadStaffDashboardHeader
             </Flex>
          </Row>
          <Row>
-            <Typography.Text className="text-base">Good Morning</Typography.Text>
+            <Typography.Text className="text-base">Chào buổi sáng</Typography.Text>
          </Row>
          <Row>
             <Typography.Title level={3} className="mt-1 text-3xl font-bold">

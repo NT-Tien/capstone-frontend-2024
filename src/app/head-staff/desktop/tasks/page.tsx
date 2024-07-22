@@ -79,17 +79,17 @@ function PageContent() {
 
    return (
       <PageContainer
-         title={`Tasks List`}
+         title={`Danh sách tác vụ`}
          breadcrumb={{
             items: [
                {
-                  title: "Dashboard",
+                  title: "Trang chủ",
                   onClick: () => {
                      router.push("/head-staff/desktop/dashboard")
                   },
                },
                {
-                  title: "Tasks",
+                  title: "Tác vụ",
                },
             ],
          }}
@@ -218,7 +218,7 @@ function DataView(props: Props) {
          virtual={true}
          columns={[
             {
-               title: "No.",
+               title: "STT",
                key: "index",
                render: (_, __, index) => index + 1,
                width: 48,
@@ -226,66 +226,66 @@ function DataView(props: Props) {
                hideInSearch: true,
             },
             {
-               title: "Name",
+               title: "Tên",
                key: "name",
                dataIndex: "name",
                valueType: "text",
                ellipsis: true,
-               width: 250,
+               width: 230,
             },
             {
-               title: "Priority",
+               title: "Mức độ ưu tiên",
                key: "priority",
                dataIndex: "priority",
                align: "center",
-               width: 75,
+               width: 95,
                render: (_, e) => (
                   <Tag color={e.priority ? "red-inverse" : "default"}>{e.priority ? "High" : "Low"}</Tag>
                ),
                valueType: "boolean",
             },
             {
-               title: "Due Date",
+               title: "Ngày sửa",
                key: "fixerDate",
                dataIndex: "fixerDate",
                valueType: "date",
                render: (_, e) => dayjs(e.fixerDate).format("DD-MM-YYYY"),
-               width: 120,
+               width: 90,
             },
             {
-               title: "TTC",
-               tooltip: "Time to Complete (minutes)",
+               title: "Thời hạn hoàn thành",
+               // tooltip: "Time to Complete (minutes)",
                key: "totalTime",
                dataIndex: "totalTime",
                valueType: "text",
                align: "center",
-               width: 80,
+               width: 120,
                render: (_, e) => e.totalTime,
             },
             {
-               title: "Operator",
+               title: "Thông số kỹ thuật",
                key: "operator",
                dataIndex: "operator",
-               width: 100,
+               width: 110,
             },
             ...(props.tabStatus === TaskStatus.ASSIGNED
                ? [
                     {
-                       title: "Fixer",
+                       title: "Thợ sửa",
                        key: "fixer",
                        render: (_: any, e: any) => e.fixer?.username,
                     },
                  ]
                : []),
             {
-               title: "Created At",
+               title: "Ngày tạo",
                key: "createdAt",
                dataIndex: "createdAt",
                valueType: "date",
                width: 120,
             },
             {
-               title: "Updated At",
+               title: "Ngày cập nhật",
                key: "updatedAt",
                dataIndex: "updatedAt",
                render: (_, e) => (e.updatedAt === e.createdAt ? "-" : dayjs(e.updatedAt).format("DD-MM-YYYY HH:mm")),
@@ -304,7 +304,7 @@ function DataView(props: Props) {
                      <div className="flex items-center justify-end gap-1">
                         <Link key={"View"} href={`/head-staff/desktop/tasks/${record.id}`}>
                            <Button type="primary" size="small">
-                              View
+                              Xem thêm
                            </Button>
                         </Link>
                         <Dropdown

@@ -502,7 +502,7 @@ const IssuesList = forwardRef<any, IssuesListProps>(function Component(
                layout="vertical"
             >
                <Form.Item
-                  label={<span className="text-sub-base">Cách sửa chữa</span>}
+                  label={<span className="text-sub-base">Cách sửa</span>}
                   name="fixType"
                   initialValue={FixType.REPLACE}
                   className="w-full"

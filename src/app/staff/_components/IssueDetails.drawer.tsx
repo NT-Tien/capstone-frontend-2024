@@ -61,7 +61,7 @@ export default function IssueDetailsDrawer({
    return (
       <>
          {children(handleOpen)}
-         <Drawer open={open} onClose={handleClose} placement="bottom" height="max-content" title="Issue Details">
+         <Drawer open={open} onClose={handleClose} placement="bottom" height="max-content" title="Chi tiết vấn đề">
             <ProDescriptions
                title={currentIssue?.typeError.name ?? "-"}
                extra={<Tag>{currentIssue?.status ?? "-"}</Tag>}
@@ -70,23 +70,23 @@ export default function IssueDetailsDrawer({
                size="small"
                columns={[
                   {
-                     label: "Description",
+                     label: "Mô tả",
                      dataIndex: "description",
                   },
                   {
-                     label: "Fix Type",
+                     label: "Cách sửa",
                      dataIndex: "fixType",
                   },
                ]}
             />
             <div className="mt-6">
-               <Typography.Title level={5}>Spare Parts ({currentIssue?.issueSpareParts.length ?? 0})</Typography.Title>
+               <Typography.Title level={5}>Linh kiện thay thế ({currentIssue?.issueSpareParts.length ?? 0})</Typography.Title>
                <List
                   dataSource={currentIssue?.issueSpareParts}
                   renderItem={(item) => (
                      <List.Item className="flex justify-between">
                         <span>{item.sparePart.name}</span>
-                        <span>Qty: {item.quantity}</span>
+                        <span>Số lượng: {item.quantity}</span>
                      </List.Item>
                   )}
                />
@@ -105,7 +105,7 @@ export default function IssueDetailsDrawer({
                   }}
                   disabled={!scanCompleted}
                >
-                  Confirm Finish
+                  Xác nhận hoàn thành
                </Button>
             )}
             {currentIssue?.status === IssueStatusEnum.RESOLVED && (
@@ -122,7 +122,7 @@ export default function IssueDetailsDrawer({
                         })
                   }}
                >
-                  Undo Finish
+                  Hoàn tác
                </Button>
             )}
          </Drawer>

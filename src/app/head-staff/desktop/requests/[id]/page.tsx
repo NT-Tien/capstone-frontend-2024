@@ -67,7 +67,7 @@ function RequestDetails({ params }: { params: { id: string } }) {
                                    )
                                 }}
                              >
-                                Create Task
+                                Tạo tác vụ
                              </Button>
                           )}
                        </DesktopCreateTaskDrawer>
@@ -79,21 +79,21 @@ function RequestDetails({ params }: { params: { id: string } }) {
             title: (
                <div className="flex items-center gap-3">
                   <Button icon={<LeftOutlined />} onClick={router.back} />
-                  <span>Request Details</span>
+                  <span>Chi tiết yêu cầu</span>
                </div>
             ),
             breadcrumb: {
                items: [
                   {
-                     title: "Dashboard",
+                     title: "Trang chủ",
                      onClick: () => router.push("/head-staff/desktop/dashboard"),
                   },
                   {
-                     title: "Requests",
+                     title: "Yêu cầu",
                      onClick: () => router.push("/head-staff/desktop/requests"),
                   },
                   {
-                     title: "Details",
+                     title: "Chi tiết",
                   },
                ],
             },
@@ -105,7 +105,7 @@ function RequestDetails({ params }: { params: { id: string } }) {
          }}
          tabList={[
             {
-               tab: "Issues",
+               tab: "Vấn đề",
                key: "issues",
                children: (
                   <IssuesTab
@@ -120,15 +120,15 @@ function RequestDetails({ params }: { params: { id: string } }) {
                ),
             },
             {
-               tab: "Tasks",
+               tab: "Tác vụ",
                key: "tasks",
                children: (
                   <ProTable
                      headerTitle={
                         <div className="flex items-center gap-2">
-                           <span>Request Tasks</span>
+                           <span>Tác vụ yêu cầu</span>
                            <span className="text-xs font-normal text-gray-500">
-                              {api.data?.tasks.length} task{api.data?.tasks.length !== 1 && "s"} found
+                              {api.data?.tasks.length} tác vụ{api.data?.tasks.length !== 1 && "s"} tìm thấy
                            </span>
                         </div>
                      }
@@ -137,19 +137,19 @@ function RequestDetails({ params }: { params: { id: string } }) {
                      search={false}
                      columns={[
                         {
-                           title: "No.",
+                           title: "STT",
                            render: (_, __, index) => index + 1,
                         },
                         {
-                           title: "Error",
+                           title: "Tên lỗi",
                            dataIndex: "name",
                         },
                         {
-                           title: "Status",
+                           title: "Trạng thái",
                            dataIndex: "status",
                         },
                         {
-                           title: "Created",
+                           title: "Ngày tạo",
                            dataIndex: "createdAt",
                            render: (_, e) => dayjs(e.createdAt).format("DD-MM-YYYY HH:mm"),
                         },
@@ -165,21 +165,21 @@ function RequestDetails({ params }: { params: { id: string } }) {
                   loading={api.isPending}
                   columns={[
                      {
-                        title: "Created",
+                        title: "Ngày tạo",
                         dataIndex: "createdAt",
                         render: (_, e) => dayjs(e.createdAt).format("DD-MM-YYYY HH:mm"),
                      },
                      {
-                        title: "Updated",
+                        title: "Ngày cập nhật",
                         dataIndex: "updatedAt",
                         render: (_, e) => dayjs(e.updatedAt).format("DD-MM-YYYY HH:mm"),
                      },
                      {
-                        title: "Requested By",
+                        title: "Được yêu cầu bởi",
                         render: (_, e) => e.requester?.username ?? "-",
                      },
                      {
-                        title: "Requester Note",
+                        title: "Ghi chú",
                         span: 3,
                         dataIndex: "requester_note",
                         render: (_, e) => e.requester_note,
@@ -189,44 +189,44 @@ function RequestDetails({ params }: { params: { id: string } }) {
                {api.isSuccess && (
                   <Card size="default">
                      <ProDescriptions
-                        title={"Device"}
+                        title={"Chi tiết thiết bị"}
                         bordered
                         size="middle"
                         dataSource={api.data?.device}
                         columns={[
                            {
-                              title: "Machine Model",
+                              title: "Mẫu máy",
                               dataIndex: ["machineModel", "name"],
                               render: (_, e) => e.machineModel.name,
                            },
                            {
-                              title: "Manufacturer",
+                              title: "Nhà sản xuất",
                               dataIndex: ["machineModel", "manufacturer"],
                            },
                            {
-                              title: "Position",
+                              title: "Vị trí",
                               dataIndex: ["area", "positionX", "positionY"],
                               render: (_, e) => `${e.area.name} (${e.positionX}x${e.positionY})`,
                            },
                            {
-                              title: "Operation Status",
+                              title: "Trạng thái thông số kỹ thuật",
                               dataIndex: "operationStatus",
                            },
                            {
-                              title: "Description",
+                              title: "Mô tả",
                               dataIndex: "description",
                               span: 3,
                            },
                            {
-                              title: "Year of Production",
+                              title: "Năm sản xuất",
                               dataIndex: ["machineModel", "yearOfProduction"],
                            },
                            {
-                              title: "Date of Receipt",
+                              title: "Ngày nhận",
                               dataIndex: ["machineModel", "dateOfReceipt"],
                            },
                            {
-                              title: "Warranty Term",
+                              title: "Thời hạn bảo hành",
                               dataIndex: ["machineModel", "warrantyTerm"],
                            },
                         ]}

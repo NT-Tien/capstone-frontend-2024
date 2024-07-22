@@ -27,29 +27,29 @@ export default function ProfilePage() {
 
    return (
       <div className="std-layout gap-y-6">
-         <RootHeader title={t("Profile")} className="std-layout-outer p-4" icon={<EllipsisOutlined />} />
+         <RootHeader title="Hồ sơ" className="std-layout-outer p-4"/>
          <UserCard jwt={user} />
          <section>
             <header className="mb-3 flex items-center gap-2">
                <LaptopOutlined />
                <Typography.Title level={5} className="mb-0">
-                  Pages
+                  Thông tin
                </Typography.Title>
             </header>
             <main className="grid grid-cols-3 gap-2">
                <FunctionButton
                   icon={<HomeOutlined />}
-                  title="Home"
+                  title="Trang chủ"
                   onClick={() => router.push("/head-staff/dashboard")}
                />
                <FunctionButton
                   icon={<ContainerFilled />}
-                  title="Requests"
+                  title="Yêu cầu"
                   onClick={() => router.push("/head-staff/requests")}
                />
                <FunctionButton
                   icon={<CheckOutlined />}
-                  title="Tasks"
+                  title="Tác vụ"
                   onClick={() => router.push("/head-staff/tasks")}
                />
             </main>
@@ -58,7 +58,7 @@ export default function ProfilePage() {
             <header className="mb-3 flex items-center gap-2">
                <UserOutlined />
                <Typography.Title level={5} className="mb-0">
-                  Profile
+                  Hồ sơ
                </Typography.Title>
             </header>
             <main className="grid grid-cols-1 gap-2">

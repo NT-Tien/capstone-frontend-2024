@@ -27,22 +27,22 @@ export const TaskStatusTagMapper: {
       color: "orange",
    },
    [TaskStatus.ASSIGNED]: {
-      text: "Assigned",
+      text: "Đã phân công",
       colorInverse: "blue-inverse",
       color: "blue",
    },
    [TaskStatus.IN_PROGRESS]: {
-      text: "In Progress",
+      text: "Đang thực hiện",
       colorInverse: "processing",
       color: "processing",
    },
    [TaskStatus.COMPLETED]: {
-      text: "Completed",
+      text: "Hoàn thành",
       colorInverse: "green-inverse",
       color: "green",
    },
    [TaskStatus.CANCELLED]: {
-      text: "Cancelled",
+      text: "Đã hủy",
       colorInverse: "red-inverse",
       color: "red",
    },

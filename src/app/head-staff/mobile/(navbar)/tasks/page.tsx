@@ -35,7 +35,7 @@ export default function TasksPage() {
 
    return (
       <div className="std-layout">
-         <RootHeader title="Tasks" className="std-layout-outer p-4" />
+         <RootHeader title="Tác vụ" className="std-layout-outer p-4" />
          <Tabs
             className="main-tabs std-layout-outer"
             onChange={(e) => {
@@ -45,7 +45,7 @@ export default function TasksPage() {
             items={[
                {
                   key: TaskStatus.AWAITING_FIXER,
-                  label: "Chưa giao",
+                  label: "Đang chờ",
                   children: (
                      <ListView
                         total={result.data?.pages[0].total ?? 0}
@@ -57,7 +57,7 @@ export default function TasksPage() {
                },
                {
                   key: TaskStatus.ASSIGNED,
-                  label: t("Assigned"),
+                  label: "Đã phân công",
                   children: (
                      <ListView
                         total={result.data?.pages[0].total ?? 0}
@@ -160,7 +160,7 @@ function ListView(props: ListViewType) {
                      },
                      {
                         key: "fixer",
-                        label: "Người sửa",
+                        label: "Thợ sửa chữa",
                         render: (_, e) => e.fixer?.username ?? "-",
                         hide: item.fixer === undefined,
                         className: !item.fixer ? "hidden" : "",

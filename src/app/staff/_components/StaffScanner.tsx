@@ -3,9 +3,7 @@
 import { App, Avatar, Button, Card, Drawer, Form, Input } from "antd"
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
 import React, { useRef, useState } from "react"
-import RootHeader from "@/common/components/RootHeader"
-import { useRouter } from "next/navigation"
-import { InfoCircleFilled, RightOutlined, SearchOutlined } from "@ant-design/icons"
+import { InfoCircleFilled, RightOutlined } from "@ant-design/icons"
 import { isUUID } from "@/common/util/isUUID.util"
 import { useTranslation } from "react-i18next"
 
@@ -88,8 +86,8 @@ export default function StaffScanner(props: StaffScanPageProps) {
                   <div className="flex items-center gap-3">
                      <Avatar style={{ fontSize: "18px", textAlign: "center", backgroundColor: "#6750A4" }}>AI</Avatar>
                      <div className="flex-grow">
-                        <p className="text-base font-bold">{t("InputManually")}</p>
-                        <p className="text-xs">{t("CannotScan")}</p>
+                        <p className="text-base font-bold">Nhập thủ công</p>
+                        <p className="text-xs">Nhấp vào đây nếu bạn không thể quét mã QR</p>
                      </div>
                      <div>
                         <Button type="text" icon={<RightOutlined />} />
@@ -100,7 +98,7 @@ export default function StaffScanner(props: StaffScanPageProps) {
          </div>
          <Form<FieldType> form={form} onFinish={(e) => finishHandler(e.deviceId)} layout="horizontal">
             <Drawer
-               title={t("InputManually")}
+               title="Nhập thủ công"
                placement="bottom"
                onClose={() => setManualOpen(false)}
                open={manualOpen}
@@ -113,12 +111,12 @@ export default function StaffScanner(props: StaffScanPageProps) {
                <Card size="small" hoverable className="mb-4">
                   <div className="flex gap-2">
                      <InfoCircleFilled />
-                     <div className="text-xs">{t("inputDeviceId")}</div>
+                     <div className="text-xs">Vui lòng nhập ID của thiết bị nếu như bạn không thể quét mã QR.</div>
                   </div>
                </Card>
                <Form.Item<FieldType>
                   name="deviceId"
-                  label={t("DeviceId")}
+                  label="ID thiết bị"
                   labelAlign="left"
                   labelCol={{
                      span: 24,
@@ -128,7 +126,7 @@ export default function StaffScanner(props: StaffScanPageProps) {
                      { required: true },
                      {
                         validator: (_, value) =>
-                           isUUID(value) ? Promise.resolve() : Promise.reject("Invalid Device ID"),
+                           isUUID(value) ? Promise.resolve() : Promise.reject("ID thiết bị không hợp lệ"),
                      },
                   ]}
                   className="flex-grow"
@@ -143,7 +141,7 @@ export default function StaffScanner(props: StaffScanPageProps) {
                   className="w-full"
                   size="large"
                >
-                  {t("Submit")}
+                  Gửi
                </Button>
             </Drawer>
          </Form>

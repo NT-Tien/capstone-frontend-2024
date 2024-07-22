@@ -23,7 +23,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
    return (
       <div className="std-layout">
          <RootHeader
-            title={t('TaskDetails')}
+            title="Chi tiết tác vụ"
             icon={<LeftOutlined />}
             onIconClick={() => router.back()}
             className="std-layout-outer p-4"
@@ -70,7 +70,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
             ]}
          />
          <Typography.Title level={5} className="mt-4">
-            {t('SpareParts')}
+            Linh kiện thay thế
          </Typography.Title>
          <List
             className={"w-full"}

@@ -249,7 +249,7 @@ export default function IssueDetailsDrawer({
                      editable: showActions === false ? false : undefined,
                   },
                   {
-                     title: "Cách sửa chữa",
+                     title: "Cách sửa",
                      dataIndex: ["fixType"],
                      valueType: "radioButton",
                      editable: showActions === false ? false : undefined,
@@ -304,7 +304,7 @@ export default function IssueDetailsDrawer({
                            </div>
                            {showActions && (
                               <Popconfirm
-                                 title={"Are you sure?"}
+                                 title={"Bạn có chắc chắn không?"}
                                  onConfirm={() => {
                                     mutate_deleteSparePart.mutate({ id: item.id })
                                  }}

@@ -26,22 +26,22 @@ export default function ProfilePage() {
 
    return (
       <div className="std-layout gap-y-6">
-         <RootHeader title={t("Profile")} className="std-layout-outer p-4" icon={<EllipsisOutlined />} />
+         <RootHeader title={"Hồ sơ"} className="std-layout-outer p-4" />
          <UserCard jwt={user} />
          <section>
             <header className="mb-3 flex items-center gap-2">
                <LaptopOutlined />
                <Typography.Title level={5} className="mb-0">
-                  Pages
+                  Thông tin
                </Typography.Title>
             </header>
             <main className="grid grid-cols-3 gap-2">
-               <FunctionButton icon={<HomeOutlined />} title="Home" onClick={() => router.push("/staff/dashboard")} />
-               <FunctionButton icon={<ContainerFilled />} title="Tasks" onClick={() => router.push("/staff/tasks")} />
-               <FunctionButton icon={<CheckOutlined />} title="Device Map" onClick={() => router.push("/staff/map")} />
+               <FunctionButton icon={<HomeOutlined />} title="Trang chủ" onClick={() => router.push("/staff/dashboard")} />
+               <FunctionButton icon={<ContainerFilled />} title="Tác vụ" onClick={() => router.push("/staff/tasks")} />
+               <FunctionButton icon={<CheckOutlined />} title="Bản đồ" onClick={() => router.push("/staff/map")} />
                <FunctionButton
                   icon={<ContainerFilled />}
-                  title="Completed Tasks"
+                  title="Tác vụ hoàn tất"
                   onClick={() => router.push("/staff/tasks/completed")}
                />
             </main>
@@ -50,7 +50,7 @@ export default function ProfilePage() {
             <header className="mb-3 flex items-center gap-2">
                <UserOutlined />
                <Typography.Title level={5} className="mb-0">
-                  Profile
+                  Hồ sơ
                </Typography.Title>
             </header>
             <main className="grid grid-cols-1 gap-2">

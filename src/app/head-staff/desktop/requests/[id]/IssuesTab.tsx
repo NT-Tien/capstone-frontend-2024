@@ -132,7 +132,7 @@ export default function IssuesTab(props: Props) {
                         <Table.Summary.Cell index={1}></Table.Summary.Cell>
                         <Table.Summary.Cell index={2}></Table.Summary.Cell>
                         <Table.Summary.Cell index={3} className="text-base">
-                           <strong>Tổng cộng</strong>: {totalDuration} phút{totalDuration !== 1 && "s"}
+                           <strong>Tổng cộng</strong>: {totalDuration} phút
                         </Table.Summary.Cell>
                         <Table.Summary.Cell index={4}></Table.Summary.Cell>
                         <Table.Summary.Cell index={5}></Table.Summary.Cell>
@@ -200,11 +200,11 @@ export default function IssuesTab(props: Props) {
                      dataIndex: ["typeError", "duration"],
                      tooltip: "Minutes",
                      width: 150,
-                     render: (_, e) => `${e.typeError.duration} minutes`,
+                     render: (_, e) => `${e.typeError.duration} phút`,
                      editable: false,
                   },
                   {
-                     title: "Cách sửa chữa",
+                     title: "Cách sửa",
                      dataIndex: "fixType",
                      width: 100,
                      render: (_, e) => (
@@ -299,7 +299,7 @@ export default function IssuesTab(props: Props) {
                               </Button>
                            )}
                            <Button type="link" size="middle" onClick={() => action?.startEditable(e.id)}>
-                              Edit
+                              Sửa
                            </Button>
                         </Flex>
                      ),

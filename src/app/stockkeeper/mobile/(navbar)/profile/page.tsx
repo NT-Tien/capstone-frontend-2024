@@ -33,23 +33,23 @@ export default function ProfilePage() {
             <header className="mb-3 flex items-center gap-2">
                <LaptopOutlined />
                <Typography.Title level={5} className="mb-0">
-                  {t('pages')}
+                  Thông tin
                </Typography.Title>
             </header>
             <main className="grid grid-cols-3 gap-2">
                <FunctionButton
                   icon={<HomeOutlined />}
-                  title={t('Dashboard')}
+                  title="Trang chủ"
                   onClick={() => router.push("/stockkeeper/mobile/dashboard")}
                />
                <FunctionButton
                   icon={<ContainerFilled />}
-                  title={t('machineModelNav')}
+                  title="Kho hàng"
                   onClick={() => router.push("/stockkeeper/mobile/warehouse")}
                />
                <FunctionButton
                   icon={<CheckOutlined />}
-                  title={t('StartScan')}
+                  title="Quét mã QR"
                   onClick={() => router.push("/stockkeeper/mobile/scan")}
                />
             </main>
@@ -58,7 +58,7 @@ export default function ProfilePage() {
             <header className="mb-3 flex items-center gap-2">
                <UserOutlined />
                <Typography.Title level={5} className="mb-0">
-                  {t('Profile')}
+                  Hồ sơ
                </Typography.Title>
             </header>
             <main className="grid grid-cols-1 gap-2">

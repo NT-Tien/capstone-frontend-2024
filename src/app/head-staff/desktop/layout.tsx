@@ -60,7 +60,7 @@ export default function HeadStaffDesktopLayout({ children }: { children: ReactNo
                            {
                               key: "logout",
                               icon: <LogoutOutlined />,
-                              label: "Logout",
+                              label: "Đăng xuất",
                               danger: true,
                               onClick: () => {
                                  router.push("/login?logout=success")
@@ -70,12 +70,12 @@ export default function HeadStaffDesktopLayout({ children }: { children: ReactNo
                            {
                               key: "settings",
                               icon: <SettingOutlined />,
-                              label: "Settings",
+                              label: "Cài đặt",
                            },
                            {
                               key: "Profile",
                               icon: <UserOutlined />,
-                              label: "Profile",
+                              label: "Hồ sơ",
                            },
                         ],
                      }}
@@ -94,19 +94,19 @@ export default function HeadStaffDesktopLayout({ children }: { children: ReactNo
                {
                   key: "dashboard",
                   path: "/head-staff/desktop/dashboard",
-                  name: "Dashboard",
+                  name: "Trang chủ",
                   icon: <DashboardOutlined />,
                },
                {
                   key: "requests",
                   path: "/head-staff/desktop/requests",
-                  name: "Requests",
+                  name: "Yêu cầu",
                   icon: <Tray size={16} />,
                },
                {
                   key: "tasks",
                   path: "/head-staff/desktop/tasks",
-                  name: "Tasks",
+                  name: "Tác vụ",
                   icon: <CheckSquare size={16} />,
                },
             ],

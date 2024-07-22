@@ -19,11 +19,11 @@ export default function HomeHeader(props: HeadStaffDashboardHeaderProps) {
 
    return (
       <Col className={cn(props.className)} style={props.style}>
-         <Row>
+         {/* <Row>
             <Flex justify="flex-end" className="w-full">
                <LocaleSwitcher />
             </Flex>
-         </Row>
+         </Row> */}
          <Row>
             <Typography.Text className="text-base">Chào buổi sáng</Typography.Text>
          </Row>

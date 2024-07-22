@@ -32,9 +32,9 @@ export default function RootHeader({
             <Button icon={icon} type="text" className="p-0" onClick={onIconClick} {...buttonProps} />
             {title}
          </span>
-         <div className="">
+         {/* <div className="">
             <LocaleSwitcher />
-         </div>
+         </div> */}
       </div>
    )
 }

@@ -43,10 +43,10 @@ export default function HeadStaffDesktopLayout({ children }: { children: ReactNo
          menu={{
             collapsedShowGroupTitle: true,
          }}
-         actionsRender={(props) => {
-            if (props.isMobile) return []
-            return [<LocaleSwitcher key="locale" />]
-         }}
+         // actionsRender={(props) => {
+         //    if (props.isMobile) return []
+         //    return [<LocaleSwitcher key="locale" />]
+         // }}
          avatarProps={{
             src: "https://gw.alipayobjects.com/zos/antfincdn/efFD%24IOql2/weixintupian_20170331104822.jpg",
             title: "Admin",

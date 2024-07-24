@@ -9,10 +9,10 @@ export default function UserActions() {
    const { t } = useTranslation()
    return (
       <>
-         <Button size="middle">{t('PhoneNumber')}</Button>
-         <Button size="middle">{t('ChangePassword')}</Button>
+         <Button size="middle">Thay đổi số điện thoại</Button>
+         <Button size="middle">Thay đổi mật khẩu</Button>
          <Button onClick={handleLogout} danger size="middle" type="primary">
-            {t('logout')}
+            Đăng xuất
          </Button>
       </>
    )

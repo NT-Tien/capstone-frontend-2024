@@ -16,25 +16,25 @@ export default function StaffNavbar() {
 
    const items: NavbarMenuItem[] = [
       {
-         name: "Dashboard",
+         name: "Trang chủ",
          key: "dashboard",
          icon: <DashboardFilled />,
          onClick: () => handleNavigate("dashboard"),
       },
       {
-         name: "Task List",
+         name: "Tác vụ",
          key: "tasks",
          icon: <ContainerFilled />,
          onClick: () => handleNavigate("tasks"),
       },
       {
-         name: "Device Map",
+         name: "Bản đồ",
          key: "map",
          icon: <CheckOutlined />,
          onClick: () => handleNavigate("map"),
       },
       {
-         name: t("Profile"),
+         name: "Hồ sơ",
          key: "profile",
          icon: <EllipsisOutlined />,
          onClick: () => handleNavigate("profile"),

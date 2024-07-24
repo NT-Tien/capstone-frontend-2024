@@ -32,14 +32,14 @@ export default function ScannerDrawer({ children, ...props }: Props) {
          <Drawer
             open={open}
             onClose={handleClose}
-            title="Scan"
+            title="Quét mã QR"
             placement="bottom"
             height="max-content"
             {...props.drawerProps}
          >
             <section className="grid place-items-center">
                <div className="mb-6 flex items-center rounded-full border-2 border-neutral-200 bg-white px-6 py-1">
-                  Place <strong className="mx-1.5 font-semibold">device QR Code</strong> into the frame
+                  Vui lòng đặt <strong className="mx-1.5 font-semibold">mã QR của thiết bị</strong> vào khung hình
                   <InfoCircleOutlined className="ml-2" />
                </div>
             </section>
@@ -78,7 +78,7 @@ export default function ScannerDrawer({ children, ...props }: Props) {
                            AI
                         </Avatar>
                         <div className="flex-grow">
-                           <p className="text-base font-bold">{t("InputManually")}</p>
+                           <p className="text-base font-bold">Nhập thủ công</p>
                            <p className="text-xs">{t("CannotScan")}</p>
                         </div>
                         <div>

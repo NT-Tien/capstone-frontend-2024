@@ -19,7 +19,6 @@ import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
 export default function StaffDashboard() {
-   const { t } = useTranslation()
    const response = useQuery({
       queryKey: staff_qk.task.all(),
       queryFn: Staff_Task_All,
@@ -45,7 +44,7 @@ export default function StaffDashboard() {
                {(handleOpen) => (
                   <TaskCard
                      className="h-full w-full flex-1 shadow-fb"
-                     title="Ongoing Task"
+                     title="Tác vụ đang thực hiện"
                      description={ongoingtask?.name ?? ""}
                      priority={ongoingtask?.priority ?? false}
                      onClick={() => handleOpen(ongoingtask?.id ?? "", true)}
@@ -89,7 +88,7 @@ export default function StaffDashboard() {
             </div>
             <Link href="/staff/tasks">
                <Button type="link" className="p-0">
-                  {t("SeeMore")}
+                  Xem thêm
                </Button>
             </Link>
          </section>

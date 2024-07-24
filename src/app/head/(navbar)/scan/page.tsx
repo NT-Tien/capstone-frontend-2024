@@ -74,10 +74,10 @@ export default function ScanPage() {
       <div className="h-full">
          {isLoading && <Spin fullscreen className="z-[5000]" />}
          <div>
-            <RootHeader title="Scan" className="p-4" icon={<SearchOutlined />} />
+            <RootHeader title="Quét mã QR" className="p-4" icon={<SearchOutlined />} />
             <section className="my-6 grid place-items-center">
                <div className="flex items-center rounded-full bg-white px-6 py-1">
-                  Place <strong className="mx-1.5 font-semibold">device QR Code</strong> into the frame
+                  Vui lòng đặt <strong className="mx-1.5 font-semibold">mã QR của thiết bị</strong> vào khung hình
                   <InfoCircleOutlined className="ml-2" />
                </div>
             </section>

@@ -21,28 +21,28 @@ export default function HeadStaffNavbar() {
 
    const items: NavbarMenuItem[] = [
       {
-         name: t("Dashboard"),
+         name: "Trang chủ",
          key: "dashboard",
          icon: <DashboardFilled />,
          href: "/head-staff/mobile/dashboard",
          onClick: () => handleClick("dashboard"),
       },
       {
-         name: t("requestsNav"),
+         name: "Yêu cầu",
          key: "requests",
          icon: <ContainerFilled />,
          href: "/head-staff/mobile/requests",
          onClick: () => handleClick("requests"),
       },
       {
-         name: t("tasksNav"),
+         name: "Tác vụ",
          key: "tasks",
          icon: <CheckOutlined />,
          href: "/head-staff/mobile/tasks",
          onClick: () => handleClick("tasks"),
       },
       {
-         name: t("Profile"),
+         name: "Hồ sơ",
          key: "profile",
          icon: <EllipsisOutlined />,
          href: "/head-staff/mobile/profile",

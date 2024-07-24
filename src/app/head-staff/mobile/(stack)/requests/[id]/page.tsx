@@ -62,14 +62,14 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
       message.destroy("scan-msg")
 
       if (!api.isSuccess) {
-         message.error("Failed to scan device ID. Please try again").then()
+         message.error("Quét ID thiết bị thất bại. Vui lòng thử lại.").then()
          return
       }
 
       if (!isUUID(result)) {
          message
             .error({
-               content: "Invalid device ID",
+               content: "ID thiết bị không hợp lệ.",
                key: "scan-msg",
             })
             .then()
@@ -79,7 +79,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
       if (api.data.device.id !== result) {
          message
             .error({
-               content: "Scanned device ID does not match request details.",
+               content: "ID thiết bị được quét không khớp.",
                key: "scan-msg",
             })
             .then()
@@ -89,7 +89,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
       setHasScanned(true)
       message
          .success({
-            content: "Device ID scanned successfully",
+            content: "Quét ID thiết bị thành công.",
             key: "scan-msg",
          })
          .then()
@@ -98,7 +98,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
    return (
       <div className="std-layout">
          <RootHeader
-            title="Request Details"
+            title="Thông tin chi tiết"
             icon={<LeftOutlined />}
             onIconClick={() => router.back()}
             confirmOnIconClick={hasScanned}
@@ -148,7 +148,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                      dataSource={api.data}
                      size="small"
                      className="flex-grow"
-                     title={<div className="text-base">Request Details</div>}
+                     title={<div className="text-base">Chi tiết yêu cầu</div>}
                      extra={
                         <Tag
                            color={FixRequestStatusTagMapper[String(api.data?.status)].colorInverse}
@@ -160,24 +160,24 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                      columns={[
                         {
                            key: "createdAt",
-                           title: t("Created"),
+                           title: "Ngày tạo",
                            dataIndex: "createdAt",
                            render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
                         },
                         {
                            key: "updatedAt",
-                           title: t("LastUpdated"),
+                           title: "Cập nhật lần cuối",
                            dataIndex: "updatedAt",
                            render: (_, e) =>
                               e.updatedAt === e.createdAt ? "-" : dayjs(e.updatedAt).format("DD/MM/YYYY - HH:mm"),
                         },
                         {
                            key: "account-name",
-                           title: t("ReportedBy"),
+                           title: "Báo cáo bởi",
                            render: (_, e) => e.requester?.username ?? "-",
                         },
                         {
-                           title: "Requester Note",
+                           title: "Ghi chú",
                            dataIndex: ["requester_note"],
                         },
                      ]}
@@ -189,7 +189,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                         title={
                            <div className="flex items-center gap-1">
                               <XCircle size={18} />
-                              Rejection Reason
+                              Lý do từ chối
                            </div>
                         }
                         size="small"
@@ -199,7 +199,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                   </section>
                )}
                <section className="std-layout-outer mt-6 rounded-lg bg-white py-layout">
-                  <h2 className="mb-2 px-layout text-base font-semibold">Device Details</h2>
+                  <h2 className="mb-2 px-layout text-base font-semibold">Chi tiết thiết bị</h2>
                   <DataListView
                      dataSource={device.data}
                      bordered
@@ -208,15 +208,15 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                      valueClassName="text-[14px]"
                      items={[
                         {
-                           label: "Machine Model",
+                           label: "Mẫu máy",
                            value: (s) => s.machineModel?.name,
                         },
                         {
-                           label: "Area",
+                           label: "Khu vực",
                            value: (s) => s.area?.name,
                         },
                         {
-                           label: "Position (x, y)",
+                           label: "Vị trí (x, y)",
                            value: (s) => (
                               <a className="flex items-center gap-1">
                                  {s.positionX} x {s.positionY}
@@ -225,19 +225,19 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                            ),
                         },
                         {
-                           label: "Manufacturer",
+                           label: "Nhà sản xuất",
                            value: (s) => s.machineModel?.manufacturer,
                         },
                         {
-                           label: "Year of Production",
+                           label: "Năm sản xuất",
                            value: (s) => s.machineModel?.yearOfProduction,
                         },
                         {
-                           label: "Warranty Term",
+                           label: "Thời hạn bảo hành",
                            value: (s) => s.machineModel?.warrantyTerm,
                         },
                         {
-                           label: "Description",
+                           label: "Mô tả",
                            value: (s) => s.description,
                         },
                      ]}
@@ -271,7 +271,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                                     onClick={() => handleOpen(params.id)}
                                     icon={<CloseOutlined />}
                                  >
-                                    Reject
+                                    Từ chối
                                  </Button>
                               )}
                            </RejectTaskDrawer>
@@ -287,7 +287,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                                  issuesListRef.current?.openCreateIssueDropdown()
                               }}
                            >
-                              Create First Issue
+                              Tạo vấn đề đầu tiên
                            </Button>
                         )}
                         {api.data?.issues.length !== 0 && (
@@ -298,7 +298,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                               className="flex-grow"
                               onClick={() => router.push(`/head-staff/mobile/requests/${params.id}/task/new`)}
                            >
-                              Create Task
+                              Tạo tác vụ
                            </Button>
                         )}
                      </section>
@@ -315,7 +315,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                   !hasScanned && (
                      <section className="std-layout-outer fixed bottom-0 left-0 w-full justify-center bg-white p-layout shadow-fb">
                         <Button size={"large"} className="w-full" type="primary" onClick={handleOpen}>
-                           Scan QR to Continue
+                           Quét mã QR để tiếp tục
                         </Button>
                      </section>
                   )

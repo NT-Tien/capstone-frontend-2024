@@ -62,11 +62,11 @@ export default function StaffTasksPage() {
       <TaskDetailsDrawer>
          {(handleOpen) => (
             <div className="std-layout">
-               <RootHeader title="Tasks" className="std-layout-outer p-4" />
+               <RootHeader title="Tác vụ" className="std-layout-outer p-4" />
                {ongoingTask && (
                   <section className="shadow-bottom std-layout-outer w-full bg-white p-layout">
                      <TaskCard
-                        title="Ongoing Task"
+                        title="Tác vụ cần thực hiện"
                         description={ongoingTask.name ?? ""}
                         priority={ongoingTask.priority ?? false}
                         onClick={() => handleOpen(ongoingTask.id ?? "", true)}
@@ -75,7 +75,7 @@ export default function StaffTasksPage() {
                )}
                {tasksInGroups.normal.length === 0 && tasksInGroups.priority.length === 0 ? (
                   <div className="mt-layout h-full">
-                     <Empty description={"You have no tasks"} />
+                     <Empty description={"Bạn không còn tác vụ"} />
                   </div>
                ) : (
                   <div className={"mt-layout"}>
@@ -131,7 +131,7 @@ function DetailedListRenderer(props: ListRendererProps) {
 
       return (
          <div className="grid place-items-center py-10">
-            <Empty description={props.emptyText ?? "No tasks found"} />
+            <Empty description={props.emptyText ?? "Không còn tác vụ"} />
          </div>
       )
    }
@@ -145,9 +145,9 @@ function DetailedListRenderer(props: ListRendererProps) {
                disabled={task.id !== props.enabledTaskId || props.hasOngoingTask}
                disabledTooltipText={
                   task.id !== props.enabledTaskId
-                     ? "You have an older/more important task to complete. Please finish that first."
+                     ? "Bạn có một nhiệm vụ cũ/quan trọng hơn cần hoàn thành. Vui lòng hoàn tất nhiệm vụ đó trước."
                      : props.hasOngoingTask
-                       ? "You have an ongoing task. Please finish that first."
+                       ? "Bạn đang có nhiệm vụ cần hoàn thành. Vui lòng hoàn tất nhiệm vụ."
                        : ""
                }
                key={task.id}

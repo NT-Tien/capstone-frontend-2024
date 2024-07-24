@@ -50,10 +50,10 @@ export default function CreateIssueDrawer(props: {
          })
       },
       onError: async () => {
-         message.error("Failed to create issue")
+         message.error("Tạo vấn đề thất bại")
       },
       onSuccess: async () => {
-         message.success("Issue created")
+         message.success("Tạo vấn đề thành công")
          await queryClient.invalidateQueries({
             queryKey: qk.task.one_byId(id!),
          })
@@ -96,7 +96,7 @@ export default function CreateIssueDrawer(props: {
             onClose={handleClose}
             height="max-content"
             placement="bottom"
-            title="Create Issue"
+            title="Thông tin chi tiết"
             classNames={{
                body: "flex flex-col",
             }}
@@ -105,7 +105,7 @@ export default function CreateIssueDrawer(props: {
             <Form<FieldType> form={form} onFinish={handleFinish} className="flex-grow" layout="vertical">
                <ProFormSelect
                   name="typeError"
-                  label="Type Error"
+                  label="Loại lỗi"
                   rules={[{ required: true }]}
                   options={device.data?.machineModel.typeErrors.map((error) => ({
                      label: error.name,
@@ -116,7 +116,7 @@ export default function CreateIssueDrawer(props: {
                      size: "large",
                   }}
                />
-               <Form.Item label="Fix Type" name="fixType" initialValue={FixType.REPLACE}>
+               <Form.Item label="Cách sửa" name="fixType" initialValue={FixType.REPLACE}>
                   <Radio.Group buttonStyle="solid" size="large" className="w-full">
                      {Object.values(FixType).map((fix) => (
                         <Radio.Button key={fix} value={fix} className="capitalize">
@@ -127,7 +127,7 @@ export default function CreateIssueDrawer(props: {
                </Form.Item>
                <ProFormTextArea
                   name="description"
-                  label="Description"
+                  label="Mô tả"
                   rules={[{ required: true }]}
                   allowClear
                   fieldProps={{
@@ -137,7 +137,7 @@ export default function CreateIssueDrawer(props: {
                />
             </Form>
             <Button className="w-full" type="primary" onClick={form.submit} size="large">
-               Create Issue
+               Tạo vấn đề
             </Button>
          </Drawer>
       </>

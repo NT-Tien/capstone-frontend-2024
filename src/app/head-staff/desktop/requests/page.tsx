@@ -81,17 +81,17 @@ function PageContent() {
 
    return (
       <PageContainer
-         title={`Requests List`}
+         title={`Danh sách yêu cầu`}
          breadcrumb={{
             items: [
                {
-                  title: "Dashboard",
+                  title: "Trang chủ",
                   onClick: () => {
                      router.push("/head-staff/desktop/dashboard")
                   },
                },
                {
-                  title: "Requests",
+                  title: "Yêu cầu",
                },
             ],
          }}
@@ -166,7 +166,7 @@ function DataView<T extends Record<string, any>>(props: Props<T>) {
          headerTitle={
             <div className="flex gap-2">
                <span className="capitalize">{props.tabStatus.toLowerCase()} Requests</span>
-               <span className="text-xs font-normal text-gray-500">Total {props.total ?? "-"} request(s)</span>
+               <span className="text-xs font-normal text-gray-500">Tổng {props.total ?? "-"} yêu cầu</span>
             </div>
          }
          rowClassName={(_, index) => (index % 2 === 0 ? "" : "bg-neutral-100/50")}
@@ -208,31 +208,31 @@ function DataView<T extends Record<string, any>>(props: Props<T>) {
             },
             {
                key: "device",
-               title: "Machine Model",
+               title: "Mẫu máy",
                render: (_, e) => e.device.machineModel.name,
             },
             {
                key: "position",
-               title: "Position",
+               title: "Vị trí",
                render: (_, e) => `${e.device.area.name} (${e.device.positionX}x${e.device.positionY})`,
                tooltip: "Area (X, Y)",
                width: 300,
             },
             {
                key: "issues",
-               title: "Issues",
+               title: "Vấn đề",
                width: 70,
                align: "center",
                render: (_, e) => e.issues.length,
             },
             {
                key: "requester_note",
-               title: "Requester Note",
+               title: "Ghi chú",
                ellipsis: true,
                render: (_, e) => e.requester_note,
             },
             {
-               title: "Created At",
+               title: "Ngày tạo",
                key: "createdAt",
                dataIndex: "createdAt",
                valueType: "date",
@@ -241,7 +241,7 @@ function DataView<T extends Record<string, any>>(props: Props<T>) {
                sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
             },
             {
-               title: "Updated At",
+               title: "Ngày cập nhật",
                key: "updatedAt",
                width: 130,
                render: (_, e) => (e.updatedAt === e.createdAt ? "-" : dayjs(e.updatedAt).format("DD-MM-YYYY")),
@@ -264,7 +264,7 @@ function DataView<T extends Record<string, any>>(props: Props<T>) {
                      >
                         <Link key={"View"} href={`/head-staff/desktop/requests/${record.id}`} className="w-full">
                            <Button type="primary" size="small" className="w-full">
-                              View
+                              Xem thêm
                            </Button>
                         </Link>
                         <Dropdown

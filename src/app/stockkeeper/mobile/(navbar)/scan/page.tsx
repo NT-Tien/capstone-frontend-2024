@@ -64,7 +64,7 @@ export default function StockkeeperScanPage() {
       <>
          <div className="h-full">
             <div>
-               <RootHeader title={t('StartScan')} className="p-4" icon={<SearchOutlined />} />
+               <RootHeader title="Quét mã QR" className="p-4" icon={<SearchOutlined />} />
                <Scanner
                   paused={false}
                   onScan={handleScan}

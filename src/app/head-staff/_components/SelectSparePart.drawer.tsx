@@ -58,7 +58,7 @@ export default function SelectSparePartDrawer(props: {
             onClose={handleClose}
             placement="bottom"
             height="95%"
-            title="Select Spare Part"
+            title="Linh kiện thay thế"
             className="relative"
             classNames={{
                body: "p-0",
@@ -74,7 +74,7 @@ export default function SelectSparePartDrawer(props: {
                      />
                   ) : (
                      <div className="grid h-full grid-cols-1">
-                        <Input.Search size="large" className="my-3 px-3" placeholder="Search for Spare Parts" />
+                        <Input.Search size="large" className="my-3 px-3" placeholder="Tìm kiếm linh kiện" />
                         <section
                            className="flex flex-col gap-2 overflow-y-auto px-3 pb-4"
                            style={{
@@ -99,7 +99,7 @@ export default function SelectSparePartDrawer(props: {
                               >
                                  <div className="flex flex-col">
                                     <span className="text-base font-semibold">{sparePart.name}</span>
-                                    <span>Remaining: {sparePart.quantity}</span>
+                                    <span>Số lượng: {sparePart.quantity}</span>
                                  </div>
                               </ProCard>
                            ))}
@@ -111,7 +111,7 @@ export default function SelectSparePartDrawer(props: {
                                     <div className="flex items-center">
                                        <div className="flex flex-grow flex-col">
                                           <span className="text-xl font-semibold">{selectedSparePart.name}</span>
-                                          <span>Remaining: {selectedSparePart.quantity}</span>
+                                          <span>Số lượng: {selectedSparePart.quantity}</span>
                                        </div>
                                        <div className="flex items-center gap-1">
                                           <Button
@@ -160,7 +160,7 @@ export default function SelectSparePartDrawer(props: {
                                        })
                                  }}
                               >
-                                 Add Spare Part
+                                 Thêm linh kiện
                               </Button>
                            </section>
                         )}

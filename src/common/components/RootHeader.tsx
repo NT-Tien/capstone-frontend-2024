@@ -60,9 +60,9 @@ export default function RootHeader({
             )}
             {title}
          </span>
-         <div className="">
+         {/* <div className="">
             <LocaleSwitcher />
-         </div>
+         </div> */}
       </div>
    )
 }

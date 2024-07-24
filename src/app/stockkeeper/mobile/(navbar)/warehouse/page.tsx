@@ -28,7 +28,7 @@ export default function MachineModelPage() {
 
    return (
       <div className="std-layout">
-         <RootHeader title={t('machineModelNav')} className="std-layout-outer p-4" />
+         <RootHeader title="Kho hàng" className="std-layout-outer p-4" />
          <div className={"mt-3"}>
             <ListView total={result.data?.total ?? 0} loading={result.isLoading} items={result.data?.list ?? []} />
          </div>

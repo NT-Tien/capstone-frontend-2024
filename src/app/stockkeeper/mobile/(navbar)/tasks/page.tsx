@@ -28,7 +28,7 @@ export default function TasksPage() {
 
    return (
       <div className="std-layout">
-         <RootHeader title={t('tasksNav')} className="std-layout-outer p-4" />
+         <RootHeader title="Tác vụ" className="std-layout-outer p-4" />
          <div className="mt-3">
             <ListView
                total={result.data?.pages[0].total ?? 0}
@@ -57,9 +57,9 @@ function ListView(props: ListViewType) {
          loadMore={
             props.items.length !== 0 &&
             (props.total === props.items.length ? (
-               <Divider className="text-sm">{t("endList")}</Divider>
+               <Divider className="text-sm">Bạn đang ở cuối danh sách</Divider>
             ) : (
-               <Button onClick={props.loadMore}>Load More</Button>
+               <Button onClick={props.loadMore}>Tải thêm</Button>
             ))
          }
          dataSource={props.items}
@@ -81,19 +81,19 @@ function ListView(props: ListViewType) {
                   columns={[
                      {
                         key: "mm",
-                        label: t("MachineModel"),
+                        label: "Mẫu máy",
                         render: (_, e) => e.device?.machineModel.name ?? "-",
                      },
                      {
                         key: "Created",
-                        label: t("Created"),
+                        label: "Ngày tạo",
                         render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
                      },
                      {
                         key: "priority",
-                        label: t("Priority"),
+                        label: "Mức độ ưu tiên",
                         render: (_, e) =>
-                           e.priority ? <Tag color="red">{t("High")}</Tag> : <Tag color="green">{t("Low")}</Tag>,
+                           e.priority ? <Tag color="red">Cao</Tag> : <Tag color="green">Thấp</Tag>,
                      },
                   ]}
                />

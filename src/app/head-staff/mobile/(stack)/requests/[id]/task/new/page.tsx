@@ -87,7 +87,7 @@ export default function NewTaskPage({ params }: { params: { id: string } }) {
          <div className="h-max min-h-screen-with-navbar">
             <div className="std-layout">
                <RootHeader
-                  title="Create New Task"
+                  title="Tác vụ mới"
                   icon={<LeftOutlined />}
                   onIconClick={() => router.back()}
                   className="std-layout-outer p-4"
@@ -102,15 +102,15 @@ export default function NewTaskPage({ params }: { params: { id: string } }) {
                      type="navigation"
                      items={[
                         {
-                           title: "Select Issues",
+                           title: "Chọn vấn đề",
                            onClick: () => setStep(0),
                         },
                         {
-                           title: "Create Task",
+                           title: "Tạo tác vụ",
                            onClick: () => setStep(1),
                         },
                         {
-                           title: "Assign Fixer",
+                           title: "Phân công",
                            onClick: () => setStep(2),
                         },
                      ]}

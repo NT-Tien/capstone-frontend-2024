@@ -2,17 +2,19 @@
 
 import { useEffect, useState } from "react"
 import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
-import { EllipsisOutlined, HistoryOutlined, HomeFilled, SearchOutlined } from "@ant-design/icons"
+import { EllipsisOutlined, HistoryOutlined, HomeFilled, QrcodeOutlined } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
 export default function HeadNavbar() {
    const current = usePathname()
    const [currentActive, setCurrentActive] = useState<string | undefined>()
+   const router = useRouter()
    const { t } = useTranslation()
 
    function handleClick(path: string) {
       setCurrentActive(path)
+      router.push(`/head/${path}`)
    }
 
    useEffect(() => {
@@ -25,28 +27,28 @@ export default function HeadNavbar() {
 
    const items: NavbarMenuItem[] = [
       {
-         name: t("Dashboard"),
+         name: "Trang chủ",
          key: "dashboard",
          icon: <HomeFilled />,
          href: "/head/dashboard",
          onClick: () => handleClick("dashboard"),
       },
       {
-         name: t("Scan"),
+         name: "Quét QR",
          key: "scan",
-         icon: <SearchOutlined />,
+         icon: <QrcodeOutlined />,
          href: "/head/scan",
          onClick: () => handleClick("scan"),
       },
       {
-         name: t("MyRequests"),
+         name: "Lịch sử",
          key: "history",
          icon: <HistoryOutlined />,
          href: "/head/history",
          onClick: () => handleClick("history"),
       },
       {
-         name: t("Profile"),
+         name: "Hồ sơ",
          key: "profile",
          icon: <EllipsisOutlined />,
          href: "/head/profile",

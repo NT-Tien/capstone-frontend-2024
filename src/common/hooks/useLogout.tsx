@@ -12,7 +12,7 @@ export default function useLogout() {
 
    async function logout() {
       Cookies.remove("token")
-      message.success("Logout successful")
+      message.success("Đăng xuất thành công")
       queryClient.clear()
       router.push("/login")
    }

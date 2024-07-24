@@ -20,7 +20,7 @@ export default function ReportsPage() {
 
    return (
       <div className="std-layout">
-         <RootHeader title="Requests" className="std-layout-outer p-4" />
+         <RootHeader title="Yêu cầu" className="std-layout-outer p-4" />
          <ScrollableTabs
             className="std-layout-outer sticky left-0 top-0 z-10"
             classNames={{
@@ -31,27 +31,27 @@ export default function ReportsPage() {
             items={[
                {
                   key: FixRequestStatus.PENDING,
-                  title: "Pending",
+                  title: "Đang chờ",
                   icon: <Hourglass size={20} />,
                },
                {
                   key: FixRequestStatus.APPROVED,
-                  title: "Approved",
+                  title: "Đã Duyệt",
                   icon: <ThumbsUp size={20} />,
                },
                {
                   key: FixRequestStatus.REJECTED,
-                  title: "Rejected",
+                  title: "Từ chối",
                   icon: <XCircle size={20} />,
                },
                {
                   key: FixRequestStatus.IN_PROGRESS,
-                  title: "In Progress",
+                  title: "Đang thực hiện",
                   icon: <Wrench size={16} />,
                },
                {
                   key: FixRequestStatus.CLOSED,
-                  title: "Closed",
+                  title: "Đóng",
                   icon: <CheckSquareOffset size={16} />,
                },
             ]}
@@ -83,11 +83,11 @@ function ReportsTab(props: ReportsTabProps) {
       <div className="mb-layout grid grid-cols-1 gap-2">
          <div className="text-gray-500">
             {{
-               [FixRequestStatus.PENDING]: "Sorting by Creation Date (old - new)",
-               [FixRequestStatus.APPROVED]: "Sorting by Modified Date (new - old)",
-               [FixRequestStatus.REJECTED]: "Sorting by Modified Date (new - old)",
-               [FixRequestStatus.IN_PROGRESS]: "Sorting by Modified Date (new - old)",
-               [FixRequestStatus.CLOSED]: "Sorting by Modified Date (new - old)",
+               [FixRequestStatus.PENDING]: "Sắp xếp theo ngày tạo (cũ nhất - mới nhất)",
+               [FixRequestStatus.APPROVED]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
+               [FixRequestStatus.REJECTED]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
+               [FixRequestStatus.IN_PROGRESS]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
+               [FixRequestStatus.CLOSED]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
             }[props.status] || ""}
          </div>
          {results.isSuccess ? (

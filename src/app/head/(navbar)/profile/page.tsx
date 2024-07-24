@@ -24,21 +24,21 @@ export default function ProfilePage() {
 
    return (
       <div className="std-layout gap-y-6">
-         <RootHeader title={t("Profile")} className="std-layout-outer p-4" icon={<EllipsisOutlined />} />
+         <RootHeader title={t("Profile")} className="std-layout-outer p-4" />
          <UserCard jwt={user} />
          <section>
             <header className="mb-3 flex items-center gap-2">
                <LaptopOutlined />
                <Typography.Title level={5} className="mb-0">
-                  Pages
+                  Thông tin
                </Typography.Title>
             </header>
             <main className="grid grid-cols-3 gap-2">
-               <FunctionButton icon={<HomeOutlined />} title="Home" onClick={() => router.push("/head/dashboard")} />
-               <FunctionButton icon={<SearchOutlined />} title="Scan QR" onClick={() => router.push("/head/scan")} />
+               <FunctionButton icon={<HomeOutlined />} title="Trang chủ" onClick={() => router.push("/head/dashboard")} />
+               <FunctionButton icon={<SearchOutlined />} title="Quét mã QR" onClick={() => router.push("/head/scan")} />
                <FunctionButton
                   icon={<HistoryOutlined />}
-                  title="My Requests"
+                  title="Lịch sử"
                   onClick={() => router.push("/head/history")}
                />
             </main>
@@ -47,7 +47,7 @@ export default function ProfilePage() {
             <header className="mb-3 flex items-center gap-2">
                <UserOutlined />
                <Typography.Title level={5} className="mb-0">
-                  Profile
+                  Hồ sơ
                </Typography.Title>
             </header>
             <main className="grid grid-cols-1 gap-2">

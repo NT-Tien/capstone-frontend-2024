@@ -196,7 +196,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
             }}
          >
             <RootHeader
-               title="Scan Results"
+               title="Thông tin chi tiết"
                className="std-layout-outer p-4"
                icon={<LeftOutlined className="text-base" />}
                onIconClick={() => router.back()}
@@ -209,19 +209,19 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   <Result
                      title={
                         <span className="text-lg">
-                           {results.error instanceof NotFoundError ? "Device not found" : "Oops"}
+                           {results.error instanceof NotFoundError ? "Không tìm thấy thiết bị" : "Lỗi truy cập dữ liệu"}
                         </span>
                      }
                      status="error"
                      subTitle={
                         results.error instanceof NotFoundError
-                           ? "We couldn't find the device with the ID you entered. Please try again"
-                           : "An unexpected error has occurred"
+                           ? "Chúng tôi không thể tìm thấy thiết bị có ID bạn đã nhập. Vui lòng thử lại"
+                           : "Một lỗi không mong muốn đã xảy ra"
                      }
                      extra={
                         <Space>
                            <Button size="large" onClick={() => router.push("/head/scan")} icon={<QrcodeOutlined />}>
-                              Scan Again
+                              Quét lại
                            </Button>
                            {!(results.error instanceof NotFoundError) && (
                               <Button
@@ -230,7 +230,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                                  size="large"
                                  onClick={() => results.refetch()}
                               >
-                                 Retry
+                                 Thử lại
                               </Button>
                            )}
                         </Space>
@@ -239,7 +239,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                </section>
             ) : (
                <div className="std-layout-outer mt-layout">
-                  <h2 className="mb-2 px-layout text-lg font-semibold">Device Details</h2>
+                  <h2 className="mb-2 px-layout text-lg font-semibold">Chi tiết thiết bị</h2>
                   <DataListView
                      dataSource={results.data}
                      bordered
@@ -247,15 +247,15 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                      labelClassName="font-normal text-neutral-500"
                      items={[
                         {
-                           label: "Machine Model",
+                           label: "Mẫu máy",
                            value: (s) => s.machineModel?.name,
                         },
                         {
-                           label: "Area",
+                           label: "Khu vực",
                            value: (s) => s.area?.name,
                         },
                         {
-                           label: "Position (x, y)",
+                           label: "Vị trí (x, y)",
                            value: (s) => (
                               <div>
                                  {s.positionX} x {s.positionY}
@@ -263,19 +263,19 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                            ),
                         },
                         {
-                           label: "Manufacturer",
+                           label: "Nhà sản xuất",
                            value: (s) => s.machineModel?.manufacturer,
                         },
                         {
-                           label: "Year of Production",
+                           label: "Năm sản xuất",
                            value: (s) => s.machineModel?.yearOfProduction,
                         },
                         {
-                           label: "Warranty Term",
+                           label: "Thời hạn bảo hành",
                            value: (s) => s.machineModel?.warrantyTerm,
                         },
                         {
-                           label: "Description",
+                           label: "Mô tả",
                            value: (s) => s.description,
                         },
                      ]}
@@ -285,10 +285,9 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
 
             <section className="mt-6">
                <h2 className="mb-2 flex justify-between">
-                  <span className="mr-2 text-lg font-semibold">My Requests</span>
+                  <span className="mr-2 text-lg font-semibold">Báo cáo của tôi</span>
                   <span className="text-base font-normal text-neutral-500">
-                     {results_withRequest.data?.requests.length ?? "-"} item
-                     {results_withRequest.data?.requests.length !== 1 && "s"} found
+                     {results_withRequest.data?.requests.length ?? "-"} báo cáo
                   </span>
                </h2>
                {results_withRequest.isSuccess ? (
@@ -321,7 +320,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                      )}
                      {filteredRequests?.all.length === 0 ? (
                         <div className="grid place-content-center rounded-lg border-2 border-dashed border-neutral-300 py-6">
-                           <Empty description="This device has no requests" />
+                           <Empty description="Thiết bị này không có báo cáo" />
                         </div>
                      ) : (
                         filteredRequests?.all.map((req) => (
@@ -336,7 +335,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                                        <span className="truncate text-base font-medium">{req.requester_note}</span>
                                        <div className="flex justify-between">
                                           <span>
-                                             <span className="text-neutral-500">Created by</span> Head
+                                             <span className="text-neutral-500">Được tạo bởi</span> Head // TODO change to name
                                           </span>
                                           <span className="text-neutral-600">
                                              {dayjs(req.createdAt).format("DD-MM-YYYY HH:mm")}
@@ -355,9 +354,9 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                      {results_withRequest.isError && (
                         <Card size="small">
                            <div className="grid place-content-center gap-2">
-                              <div>An unexpected error has occurred. Please try again</div>
+                              <div>Đã xảy ra lỗi. Vui lòng thử lại</div>
                               <Button type="primary" onClick={() => results_withRequest.refetch()}>
-                                 Retry
+                                 Thử lại
                               </Button>
                            </div>
                         </Card>
@@ -381,7 +380,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                         }
                         onClick={handleOpen}
                      >
-                        {t("CreateIssueReport")}
+                        Tạo báo cáo
                      </Button>
                   </Tooltip>
                </div>
@@ -392,25 +391,25 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
             height="max-content"
             open={open}
             onClose={handleClose}
-            title={t("CreateIssueReport")}
+            title={"Tạo báo cáo"}
          >
             <Form<FieldType> form={form} layout="vertical">
                <ProFormSelect
                   options={i18n.language === "vie" ? loiMay : machineIssues}
-                  label="Issue"
+                  label="Vấn đề"
                   fieldProps={{
                      size: "large",
                   }}
                   onChange={(val) => setCurrentlySelected(val as any)}
                   showSearch
                   name="selection"
-                  placeholder="Select an issue"
+                  placeholder="Chọn vấn đề"
                   rules={[{ required: true }]}
                />
                <ProFormTextArea
                   name="description"
                   hidden={currentlySelected !== "create"}
-                  label={t("Description")}
+                  label="Mô tả"
                   rules={[{ required: true }]}
                   fieldProps={{
                      showCount: true,
@@ -423,7 +422,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   className="w-full"
                   size="large"
                >
-                  {t("Submit")}
+                  Gửi
                </Button>
             </Form>
          </Drawer>

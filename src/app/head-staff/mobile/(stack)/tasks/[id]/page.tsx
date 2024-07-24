@@ -41,7 +41,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
    return (
       <div className="std-layout">
          <RootHeader
-            title="Task Details"
+            title="Thông tin chi tiết"
             icon={<LeftOutlined />}
             onIconClick={() => router.back()}
             className="std-layout-outer p-4"
@@ -54,11 +54,11 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
             items={[
                {
                   key: "details",
-                  label: "Details",
+                  label: "Tác vụ",
                },
                {
                   key: "issues",
-                  label: "Issues",
+                  label: "Vấn đề",
                   children: (
                      <div>
                         {request.isSuccess && request.data.issues.length !== 0 && (
@@ -78,7 +78,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                                     <div>
                                        <Card size={"small"}>
                                           <span className="truncate">
-                                             <span className="text-gray-500">Description: </span>
+                                             <span className="text-gray-500">Mô tả: </span>
                                              {item.description}
                                           </span>
                                        </Card>
@@ -88,9 +88,9 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                                                 <Empty
                                                    description={
                                                       <span>
-                                                         This issue has{" "}
-                                                         <strong className="font-bold underline">no spare parts</strong>{" "}
-                                                         assigned
+                                                         Vấn đề này{" "}
+                                                         <strong className="font-bold underline">không có linh kiện thay thế</strong>{" "}
+                                                         được chỉ định
                                                       </span>
                                                    }
                                                    className="rounded-lg py-6"
@@ -106,7 +106,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                                                    <List.Item itemID={sp.id} key={sp.id}>
                                                       <List.Item.Meta
                                                          title={sp.sparePart.name}
-                                                         description={`${t("Qty")}: ${sp.quantity}`}
+                                                         description={`${"Số lượng"}: ${sp.quantity}`}
                                                       ></List.Item.Meta>
                                                    </List.Item>
                                                 )}
@@ -134,35 +134,35 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                   columns={[
                      {
                         key: "name",
-                        label: t("TaskName"),
+                        label: "Tên tác vụ",
                         dataIndex: "name",
                      },
                      {
                         key: "created",
-                        label: t("Created"),
+                        label: "Ngày tạo",
                         dataIndex: "createdAt",
                         render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
                      },
                      {
                         key: "status",
-                        label: t("Status"),
+                        label: "Trạng thái",
                         dataIndex: "status",
                         render: (_, e) => <Tag>{e.status}</Tag>,
                      },
                      {
                         key: "priority",
-                        label: t("Priority"),
+                        label: "Mức độ ưu tiên",
                         render: (_, e) =>
-                           e.priority ? <Tag color="red">{t("High")}</Tag> : <Tag color="green">{t("Low")}</Tag>,
+                           e.priority ? <Tag color="red">Cao</Tag> : <Tag color="green">Thấp</Tag>,
                      },
                      {
                         key: "totalTime",
-                        label: t("TotalTime"),
-                        render: (_, e) => e.totalTime + " minutes",
+                        label: "Tổng thời lượng",
+                        render: (_, e) => e.totalTime + " phút",
                      },
                      {
                         key: "operator",
-                        label: t("operator"),
+                        label: "Thông số kỹ thuật",
                         dataIndex: "operator",
                      },
                   ]}
@@ -180,7 +180,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                   </div>
                </Card>
                <section className="std-layout-outer mt-6 rounded-lg bg-white py-layout">
-                  <h2 className="mb-2 px-layout text-base font-semibold">Device Details</h2>
+                  <h2 className="mb-2 px-layout text-base font-semibold">Chi tiết thiết bị</h2>
                   <DataListView
                      dataSource={api.data?.device}
                      bordered
@@ -189,15 +189,15 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                      valueClassName="text-sub-base"
                      items={[
                         {
-                           label: "Machine Model",
+                           label: "Mẫu máy",
                            value: (s) => s.machineModel?.name,
                         },
                         {
-                           label: "Area",
+                           label: "Khu vực",
                            value: (s) => s.area?.name,
                         },
                         {
-                           label: "Position (x, y)",
+                           label: "Vị trí (x, y)",
                            value: (s) => (
                               <a className="flex items-center gap-1">
                                  {s.positionX} x {s.positionY}
@@ -206,15 +206,15 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                            ),
                         },
                         {
-                           label: "Manufacturer",
+                           label: "Nhà sản xuất",
                            value: (s) => s.machineModel?.manufacturer,
                         },
                         {
-                           label: "Year of Production",
+                           label: "Năm sản xuất",
                            value: (s) => s.machineModel?.yearOfProduction,
                         },
                         {
-                           label: "Warranty Term",
+                           label: "Thời hạn bảo hành",
                            value: (s) => s.machineModel?.warrantyTerm,
                         },
                         {

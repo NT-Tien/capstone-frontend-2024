@@ -15,18 +15,10 @@ import Link from "next/link"
 import { Button, Typography } from "antd"
 import TaskCard from "@/app/staff/_components/TaskCard"
 import extended_dayjs from "@/config/dayjs.config"
+import { Metadata } from "next"
 
-export default function DashboardPage() {
-   const { t } = useTranslation()
-   const currentDefault = 1,
-      pageSizeDefault = 10
-
-   const searchParams = useSearchParams()
-   const [current, setCurrent] = useState(Number(searchParams.get("current")) || currentDefault)
-   const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || pageSizeDefault)
-
-   // eslint-disable-next-line react-hooks/rules-of-hooks
-   const result = (status: TaskStatus) => useQuery({
+function useTask(current: number, pageSize: number, status: TaskStatus) {
+   return useQuery({
       queryKey: headstaff_qk.task.all({
          page: current.toString(),
          limit: pageSize.toString(),
@@ -39,13 +31,23 @@ export default function DashboardPage() {
             status,
          }),
    })
+}
 
-   const awaitingFixerResult = result(TaskStatus.AWAITING_FIXER)
+export default function DashboardPage() {
+   const { t } = useTranslation()
+   const currentDefault = 1,
+      pageSizeDefault = 10
+
+   const searchParams = useSearchParams()
+   const [current, setCurrent] = useState(Number(searchParams.get("current")) || currentDefault)
+   const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || pageSizeDefault)
+
+   const awaitingFixerResult = useTask(current, pageSize, TaskStatus.AWAITING_FIXER)
    // const pendingStockResult = result(TaskStatus.PENDING_STOCK)
-   const assignedResult = result(TaskStatus.ASSIGNED)
-   const inProgressResult = result(TaskStatus.IN_PROGRESS)
-   const completedResult = result(TaskStatus.COMPLETED)
-   const cancelledResult = result(TaskStatus.CANCELLED)
+   const assignedResult = useTask(current, pageSize, TaskStatus.ASSIGNED)
+   const inProgressResult = useTask(current, pageSize, TaskStatus.IN_PROGRESS)
+   const completedResult = useTask(current, pageSize, TaskStatus.COMPLETED)
+   const cancelledResult = useTask(current, pageSize, TaskStatus.CANCELLED)
 
    const totalTasks = [
       awaitingFixerResult.data?.total ?? 0,
@@ -64,7 +66,13 @@ export default function DashboardPage() {
          <section className="flex space-x-4">
             <StatisticCard
                className="h-full w-full flex-1 shadow-fb"
-               loading={awaitingFixerResult.isLoading || assignedResult.isLoading || inProgressResult.isLoading || completedResult.isLoading || cancelledResult.isLoading}
+               loading={
+                  awaitingFixerResult.isLoading ||
+                  assignedResult.isLoading ||
+                  inProgressResult.isLoading ||
+                  completedResult.isLoading ||
+                  cancelledResult.isLoading
+               }
                statistic={{
                   title: t("Total"),
                   value: totalTasks,
@@ -104,7 +112,7 @@ export default function DashboardPage() {
          <div>
             {completedResult.data?.list.map((task) => (
                <TaskCard
-               className="std-layout-inner mt-2.5 grid grid-cols-1 gap-10"
+                  className="std-layout-inner mt-2.5 grid grid-cols-1 gap-10"
                   title={task.name}
                   description={`Est. ${task.totalTime} minutes`}
                   key={task.id}

@@ -17,6 +17,10 @@ export default function HeadNavbar() {
 
    useEffect(() => {
       setCurrentActive(current.split("/")[2])
+
+      return () => {
+         setCurrentActive(undefined)
+      }
    }, [current])
 
    const items: NavbarMenuItem[] = [

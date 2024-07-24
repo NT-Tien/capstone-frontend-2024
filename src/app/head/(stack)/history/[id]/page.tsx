@@ -3,25 +3,30 @@
 import RootHeader from "@/common/components/RootHeader"
 import { LeftOutlined } from "@ant-design/icons"
 import { useRouter } from "next/navigation"
-import { Button, Card, Tag, Typography } from "antd"
+import { Card, Steps, Tag } from "antd"
 import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import Head_Request_All from "@/app/head/_api/request/all.api"
 import { NotFoundError } from "@/common/error/not-found.error"
-import {
-   FixRequestStatus,
-   FixRequestStatusTagMapper,
-   IssueRequestStatusTag,
-} from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
 import { ProDescriptions } from "@ant-design/pro-components"
 import dayjs from "dayjs"
-import Head_Device_OneById from "@/app/head/_api/device/oneById.api"
 import { useTranslation } from "react-i18next"
 import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
-import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
 import DataListView from "@/common/components/DataListView"
 import React from "react"
 import { MapPin, XCircle } from "@phosphor-icons/react"
+
+const FixRequestStatusIndexMapper: {
+   [key in FixRequestStatus as string | "undefined"]: number
+} = {
+   [FixRequestStatus.PENDING]: 0,
+   [FixRequestStatus.APPROVED]: 1,
+   [FixRequestStatus.IN_PROGRESS]: 2,
+   [FixRequestStatus.CLOSED]: 3,
+   [FixRequestStatus.REJECTED]: 1,
+   undefined: 0,
+}
 
 export default function HistoryDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -52,10 +57,10 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
          <ProDescriptions
             className="mt-layout"
             labelStyle={{
-               fontSize: "15px",
+               fontSize: "1rem",
             }}
             contentStyle={{
-               fontSize: "15px",
+               fontSize: "1rem",
             }}
             title={<span className="text-lg">{t("IssueDetails")}</span>}
             extra={
@@ -88,6 +93,51 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                },
             ]}
          />
+         <section className="mt-3">
+            <Card size="small" loading={api.isPending}>
+               <Steps
+                  size="small"
+                  direction="vertical"
+                  current={FixRequestStatusIndexMapper[String(api.data?.status)]}
+                  status={api.data?.status === FixRequestStatus.REJECTED ? "error" : "process"}
+                  className="std-steps"
+                  items={[
+                     {
+                        title: "Pending",
+                        description: "The issue is reported and waiting for approval",
+                        className: "text-base",
+                     },
+                     ...(api.isSuccess
+                        ? api.data?.status !== FixRequestStatus.REJECTED
+                           ? [
+                                {
+                                   title: "Approved",
+                                   description: "The issue is approved and waiting for fixing",
+                                   className: "text-base",
+                                },
+                                {
+                                   title: "In Progress",
+                                   description: "The issue is being fixed",
+                                   className: "text-base",
+                                },
+                                {
+                                   title: "Closed",
+                                   description: "The issue is fixed",
+                                   className: "text-base",
+                                },
+                             ]
+                           : [
+                                {
+                                   title: "Rejected",
+                                   description: "The issue is rejected",
+                                   className: "text-base",
+                                },
+                             ]
+                        : []),
+                  ]}
+               />
+            </Card>
+         </section>
          {api.data?.status === FixRequestStatus.REJECTED && (
             <section className="mt-3 w-full">
                <Card

@@ -11,7 +11,7 @@ import { useMutation } from "@tanstack/react-query"
 import HeadStaff_Issue_Delete from "@/app/head-staff/_api/issue/delete.api"
 import HeadStaff_Issue_Update from "@/app/head-staff/_api/issue/update.api"
 import { DeviceDto } from "@/common/dto/Device.dto"
-import IssueDetailsDrawer from "@/app/head-staff/desktop/requests/[id]/IssueDetailsDrawer"
+import IssueDetailsDrawer from "@/app/head-staff/_components/IssueDetailsDrawer"
 import { useRouter } from "next/navigation"
 
 type Props = {

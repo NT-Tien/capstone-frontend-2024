@@ -5,4 +5,5 @@ export type JwtToken = {
    phone: string
    exp: number
    role: Role
+   id: string
 }

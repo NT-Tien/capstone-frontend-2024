@@ -1,12 +1,12 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
-import { HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons"
-import React, { useState } from "react"
+import { HomeOutlined, LeftOutlined, PlusOutlined, QrcodeOutlined, ReloadOutlined } from "@ant-design/icons"
+import React, { useMemo, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { NotFoundError } from "@/common/error/not-found.error"
 import { ProFormSelect, ProFormTextArea } from "@ant-design/pro-components"
-import { App, Badge, Button, Card, Drawer, Empty, Form, Result, Space, Tag, Typography } from "antd"
+import { App, Badge, Button, Card, Divider, Drawer, Empty, Form, Result, Space, Tag, Tooltip, Typography } from "antd"
 import { useRouter } from "next/navigation"
 import Head_Device_OneById from "@/app/head/_api/device/oneById.api"
 import Head_Request_Create from "@/app/head/_api/request/create.api"
@@ -15,7 +15,10 @@ import head_qk from "@/app/head/_api/qk"
 import Head_Device_WithRequests from "@/app/head/_api/device/with_requests.api"
 import DataListView from "@/common/components/DataListView"
 import dayjs from "dayjs"
-import { FixRequestStatusTagMapper } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
+import useCurrentUser from "@/common/hooks/useCurrentUser"
+import { FixRequestDto } from "@/common/dto/FixRequest.dto"
+import useModalControls from "@/common/hooks/useModalControls"
 
 type FieldType = {
    description: string
@@ -90,11 +93,18 @@ const loiMay = [
 
 export default function ScanDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
-   const [openCreateIssue, setOpenCreateIssue] = useState(false)
    const [form] = Form.useForm<FieldType>()
    const queryClient = useQueryClient()
    const { message } = App.useApp()
    const { t, i18n } = useTranslation()
+   const user = useCurrentUser()
+
+   const { open, handleOpen, handleClose } = useModalControls({
+      onClose: () => {
+         form.resetFields()
+      },
+   })
+   const [currentlySelected, setCurrentlySelected] = useState<string | undefined>()
 
    const results = useQuery({
       queryKey: head_qk.devices.by_id(params.id),
@@ -111,7 +121,29 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
       enabled: results.isSuccess,
    })
 
-   const [currentlySelected, setCurrentlySelected] = useState<string | undefined>()
+   const filteredRequests = useMemo(() => {
+      return results_withRequest.data?.requests.reduce(
+         (acc, curr) => {
+            if (curr.requester.id === user.id && curr.status === FixRequestStatus.PENDING) {
+               return {
+                  ...acc,
+                  mine: curr,
+               }
+            }
+            return {
+               ...acc,
+               all: [...acc.all, curr],
+            }
+         },
+         {
+            all: [],
+            mine: undefined,
+         } as {
+            all: FixRequestDto[]
+            mine: FixRequestDto | undefined
+         },
+      )
+   }, [results_withRequest.data, user.id])
 
    const mutate_submitIssue = useMutation({
       mutationFn: Head_Request_Create,
@@ -143,7 +175,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
             {
                onSuccess: async () => {
                   form.resetFields()
-                  setOpenCreateIssue(false)
+                  handleClose()
                   await queryClient.invalidateQueries({
                      queryKey: head_qk.requests.all(),
                   })
@@ -156,7 +188,13 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
 
    return (
       <>
-         <div className="std-layout overflow-auto pb-32">
+         <div
+            className="std-layout h-full overflow-auto"
+            style={{
+               gridTemplateRows:
+                  results.error instanceof NotFoundError ? "auto 1fr" : results.isSuccess ? "auto auto 1fr" : undefined,
+            }}
+         >
             <RootHeader
                title="Scan Results"
                className="std-layout-outer p-4"
@@ -167,26 +205,38 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                }}
             />
             {results.isError ? (
-               <Result
-                  title={<span className="text-lg">Oops!</span>}
-                  status="error"
-                  subTitle="We couldn't retrieve the data. Please try again."
-                  extra={
-                     <Space>
-                        <Button size="large" onClick={() => router.push("/head/scan")}>
-                           Back
-                        </Button>
-                        <Button
-                           type={"primary"}
-                           icon={<ReloadOutlined />}
-                           size="large"
-                           onClick={() => results.refetch()}
-                        >
-                           Retry
-                        </Button>
-                     </Space>
-                  }
-               />
+               <section className="grid h-full flex-grow place-content-center">
+                  <Result
+                     title={
+                        <span className="text-lg">
+                           {results.error instanceof NotFoundError ? "Device not found" : "Oops"}
+                        </span>
+                     }
+                     status="error"
+                     subTitle={
+                        results.error instanceof NotFoundError
+                           ? "We couldn't find the device with the ID you entered. Please try again"
+                           : "An unexpected error has occurred"
+                     }
+                     extra={
+                        <Space>
+                           <Button size="large" onClick={() => router.push("/head/scan")} icon={<QrcodeOutlined />}>
+                              Scan Again
+                           </Button>
+                           {!(results.error instanceof NotFoundError) && (
+                              <Button
+                                 type={"primary"}
+                                 icon={<ReloadOutlined />}
+                                 size="large"
+                                 onClick={() => results.refetch()}
+                              >
+                                 Retry
+                              </Button>
+                           )}
+                        </Space>
+                     }
+                  />
+               </section>
             ) : (
                <div className="std-layout-outer mt-layout">
                   <h2 className="mb-2 px-layout text-lg font-semibold">Device Details</h2>
@@ -235,23 +285,47 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
 
             <section className="mt-6">
                <h2 className="mb-2 flex justify-between">
-                  <span className="mr-2 text-lg font-semibold">Requests</span>
+                  <span className="mr-2 text-lg font-semibold">My Requests</span>
                   <span className="text-base font-normal text-neutral-500">
                      {results_withRequest.data?.requests.length ?? "-"} item
                      {results_withRequest.data?.requests.length !== 1 && "s"} found
                   </span>
                </h2>
                {results_withRequest.isSuccess ? (
-                  results_withRequest.data.requests.length === 0 ? (
-                     <>
-                        <div className="grid h-full place-content-center rounded-lg border-2 border-dashed border-neutral-300 py-10">
+                  <div className="grid grid-cols-1 gap-2">
+                     {!!filteredRequests?.mine && (
+                        <div>
+                           <Badge.Ribbon
+                              key={filteredRequests.mine.id}
+                              color={FixRequestStatusTagMapper[String(filteredRequests.mine.status)].color}
+                              text={<span className="capitalize">{filteredRequests.mine.status.toLowerCase()}</span>}
+                           >
+                              <Card size="small" className="bg-yellow-50">
+                                 <div className="flex flex-col gap-2">
+                                    <span className="truncate text-base font-medium">
+                                       {filteredRequests.mine.requester_note}
+                                    </span>
+                                    <div className="flex justify-between">
+                                       <span>
+                                          <span className="text-neutral-500">Created by</span> Head
+                                       </span>
+                                       <span className="text-neutral-600">
+                                          {dayjs(filteredRequests.mine.createdAt).format("DD-MM-YYYY HH:mm")}
+                                       </span>
+                                    </div>
+                                 </div>
+                              </Card>
+                           </Badge.Ribbon>
+                           <Divider className="mb-0 mt-4">Other Requests</Divider>
+                        </div>
+                     )}
+                     {filteredRequests?.all.length === 0 ? (
+                        <div className="grid place-content-center rounded-lg border-2 border-dashed border-neutral-300 py-6">
                            <Empty description="This device has no requests" />
                         </div>
-                     </>
-                  ) : (
-                     <>
-                        <div className="grid grid-cols-1 gap-1">
-                           {results_withRequest.data.requests.map((req, index) => (
+                     ) : (
+                        filteredRequests?.all.map((req) => (
+                           <>
                               <Badge.Ribbon
                                  key={req.id}
                                  color={FixRequestStatusTagMapper[String(req.status)].color}
@@ -271,13 +345,13 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                                     </div>
                                  </Card>
                               </Badge.Ribbon>
-                           ))}
-                        </div>
-                     </>
-                  )
+                           </>
+                        ))
+                     )}
+                  </div>
                ) : (
                   <>
-                     {results_withRequest.isPending && results.isSuccess && <Card loading />}
+                     {results_withRequest.isPending && <Card loading />}
                      {results_withRequest.isError && (
                         <Card size="small">
                            <div className="grid place-content-center gap-2">
@@ -291,46 +365,33 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   </>
                )}
             </section>
-            {results.isError && results.error.name === NotFoundError.name ? (
-               <div className="grid place-items-center">
-                  <Empty
-                     description={<Typography.Title level={5}>Device not found. Please try again</Typography.Title>}
+
+            {results.isSuccess && (
+               <div className="std-layout-outer sticky bottom-0 left-0 mt-layout w-full border-t-neutral-200 bg-white p-layout shadow-fb">
+                  <Tooltip
+                     title={filteredRequests?.mine !== undefined && "You can only have one PENDING request at a time."}
                   >
-                     <div className="flex w-full items-center justify-center gap-3">
-                        <Button type="primary" onClick={() => router.push("/head/scan")} icon={<ReloadOutlined />}>
-                           Scan Again
-                        </Button>
-                        <Button onClick={() => router.push("/head/dashboard")} icon={<HomeOutlined />}>
-                           Return Home
-                        </Button>
-                     </div>
-                  </Empty>
-               </div>
-            ) : (
-               results.isSuccess && (
-                  <div className="fixed bottom-0 left-0 w-full border-t-neutral-200 bg-white p-layout shadow-fb">
                      <Button
                         className="w-full"
                         size="large"
                         icon={<PlusOutlined />}
                         type="primary"
-                        disabled={results.isLoading}
-                        onClick={() => setOpenCreateIssue(true)}
+                        disabled={
+                           results.isLoading || mutate_submitIssue.isPending || filteredRequests?.mine !== undefined
+                        }
+                        onClick={handleOpen}
                      >
                         {t("CreateIssueReport")}
                      </Button>
-                  </div>
-               )
+                  </Tooltip>
+               </div>
             )}
          </div>
          <Drawer
             placement="bottom"
             height="max-content"
-            open={openCreateIssue}
-            onClose={() => {
-               setOpenCreateIssue(false)
-               form.resetFields()
-            }}
+            open={open}
+            onClose={handleClose}
             title={t("CreateIssueReport")}
          >
             <Form<FieldType> form={form} layout="vertical">
@@ -351,6 +412,10 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   hidden={currentlySelected !== "create"}
                   label={t("Description")}
                   rules={[{ required: true }]}
+                  fieldProps={{
+                     showCount: true,
+                     maxLength: 300,
+                  }}
                />
                <Button
                   type="primary"

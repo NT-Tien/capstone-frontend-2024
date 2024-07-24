@@ -14,7 +14,7 @@ import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
 import IssuesTab from "@/app/head-staff/desktop/requests/[id]/IssuesTab"
 import DesktopCreateTaskDrawer from "@/app/head-staff/_components/DesktopCreateTask.drawer"
 import dynamic from "next/dynamic"
-import { FixRequestStatusTagMapper } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
 
 // render this component SOLELY on the client (no server side pre-rendering) because of a bug with the ProTable Footer
 export default dynamic(() => Promise.resolve(RequestDetails), {

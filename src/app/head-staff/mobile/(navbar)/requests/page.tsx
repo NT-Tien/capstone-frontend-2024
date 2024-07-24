@@ -5,64 +5,58 @@ import { Card, Empty, Tabs } from "antd"
 import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
-import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { useTranslation } from "react-i18next"
 import ReportCard from "@/common/components/ReportCard"
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import dayjs from "dayjs"
-import { Hourglass, ThumbsUp, XCircle } from "@phosphor-icons/react"
-
-const TabMap: { [key: string]: FixRequestStatus } = {
-   pending: FixRequestStatus.PENDING,
-   approved: FixRequestStatus.APPROVED,
-   rejected: FixRequestStatus.REJECTED,
-}
+import { CheckSquareOffset, Hourglass, ThumbsUp, Wrench, XCircle } from "@phosphor-icons/react"
+import ScrollableTabs from "@/common/components/ScrollableTabs"
 
 export default function ReportsPage() {
    const { t } = useTranslation()
-   const [tab, setTab] = useState<string>("pending")
+   const [tab, setTab] = useState<FixRequestStatus>(FixRequestStatus.PENDING)
 
    return (
       <div className="std-layout">
          <RootHeader title="Requests" className="std-layout-outer p-4" />
-         <Tabs
-            type="line"
-            activeKey={tab}
-            onChange={(key) => setTab(key)}
-            rootClassName="std-layout-outer sticky top-0 z-50"
-            className="main-tabs"
+         <ScrollableTabs
+            className="std-layout-outer sticky left-0 top-0 z-10"
+            classNames={{
+               content: "mt-layout",
+            }}
+            tab={tab}
+            onTabChange={setTab}
             items={[
                {
-                  key: "pending",
-                  label: (
-                     <div className="flex items-center gap-1">
-                        <Hourglass size={14} className="mr-1" />
-                        {t("pending")}
-                     </div>
-                  ),
+                  key: FixRequestStatus.PENDING,
+                  title: "Pending",
+                  icon: <Hourglass size={20} />,
                },
                {
-                  key: "approved",
-                  label: (
-                     <div className="flex items-center gap-1">
-                        <ThumbsUp size={14} className="mr-1" />
-                        {t("Completed")}
-                     </div>
-                  ),
+                  key: FixRequestStatus.APPROVED,
+                  title: "Approved",
+                  icon: <ThumbsUp size={20} />,
                },
                {
-                  key: "rejected",
-                  label: (
-                     <div className="flex items-center gap-1">
-                        <XCircle size={14} />
-                        {t("rejected")}
-                     </div>
-                  ),
+                  key: FixRequestStatus.REJECTED,
+                  title: "Rejected",
+                  icon: <XCircle size={20} />,
+               },
+               {
+                  key: FixRequestStatus.IN_PROGRESS,
+                  title: "In Progress",
+                  icon: <Wrench size={16} />,
+               },
+               {
+                  key: FixRequestStatus.CLOSED,
+                  title: "Closed",
+                  icon: <CheckSquareOffset size={16} />,
                },
             ]}
          />
-         <ReportsTab status={TabMap[tab]} />
+         <ReportsTab status={tab} />
       </div>
    )
 }
@@ -92,6 +86,8 @@ function ReportsTab(props: ReportsTabProps) {
                [FixRequestStatus.PENDING]: "Sorting by Creation Date (old - new)",
                [FixRequestStatus.APPROVED]: "Sorting by Modified Date (new - old)",
                [FixRequestStatus.REJECTED]: "Sorting by Modified Date (new - old)",
+               [FixRequestStatus.IN_PROGRESS]: "Sorting by Modified Date (new - old)",
+               [FixRequestStatus.CLOSED]: "Sorting by Modified Date (new - old)",
             }[props.status] || ""}
          </div>
          {results.isSuccess ? (

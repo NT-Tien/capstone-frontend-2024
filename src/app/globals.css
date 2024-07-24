@@ -23,13 +23,13 @@
     --navbar-height: 88px;
 
     --shadow-fb: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
-    --shadow-soft: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    --shadow-soft: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;
     --shadow-bottom: 0 10px 20px -20px rgba(0, 0, 0, 0.1);
 }
 
 html, body {
     height: 100%;
-    @apply bg-gray-100/70;
+    @apply bg-neutral-50/70;
 }
 
 * {
@@ -44,6 +44,7 @@ html, body {
     display: grid;
     grid-template-columns: [outer-start] var(--std-layout-padding) [inner-start] 1fr [inner-end] var(--std-layout-padding) [outer-end];
     grid-auto-rows: max-content;
+    width: 100%;
 
     & > * {
         grid-column: inner-start / inner-end;
@@ -108,12 +109,54 @@ html, body {
 
     .ant-pro-table-list-toolbar-container {
         padding: 0 !important;
-        padding-bottom: 0.75rem !important;
     }
 }
 
 .descriptions-header-margin {
     .ant-descriptions-header {
         margin-bottom: 16px !important;
+    }
+}
+
+.tabs-gradient {
+    background: rgb(2, 0, 36);
+    background: linear-gradient(90deg, rgba(2, 0, 36, 0) 0%, rgba(0, 0, 0, 0.1) 100%);
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple 600ms linear;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+.descriptions-description {
+    .ant-descriptions-item-content {
+        & > *:first-child {
+            width: 100%;
+        }
+    }
+}
+
+.std-steps {
+    * .ant-steps-item-title {
+        @apply text-base !important;
     }
 }

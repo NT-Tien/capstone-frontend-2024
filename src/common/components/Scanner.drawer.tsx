@@ -1,13 +1,11 @@
-import React, { ReactNode, useRef, useState } from "react"
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from "react"
 import { App, Avatar, Button, Card, Drawer, DrawerProps, Form, Input } from "antd"
 import { InfoCircleFilled, InfoCircleOutlined, RightOutlined } from "@ant-design/icons"
 import { isUUID } from "@/common/util/isUUID.util"
 import { useTranslation } from "react-i18next"
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
-
-type FieldType = {
-   deviceId: string
-}
+import ScannerInputManualDrawer from "@/common/components/ScannerInputManual.drawer"
+import useModalControls from "@/common/hooks/useModalControls"
 
 type Props = {
    children: (handleOpen: () => void) => ReactNode
@@ -16,25 +14,16 @@ type Props = {
 }
 
 export default function ScannerDrawer({ children, ...props }: Props) {
-   const [form] = Form.useForm<FieldType>()
    const { t } = useTranslation()
 
-   const [open, setOpen] = useState(false)
-   const [manualInputDrawerOpen, setManualInputDrawerOpen] = useState(false)
+   const { open, handleOpen, handleClose } = useModalControls({
+      onClose: () => {},
+   })
 
-   async function handleFinish(res: string) {
+   async function handleFinish(res: string, handleCloseManual?: () => void) {
       handleClose()
+      handleCloseManual?.()
       props.onScan(res)
-   }
-
-   function handleOpen() {
-      setOpen(true)
-   }
-
-   function handleClose() {
-      form.resetFields()
-      setOpen(false)
-      setManualInputDrawerOpen(false)
    }
 
    return (
@@ -81,70 +70,24 @@ export default function ScannerDrawer({ children, ...props }: Props) {
                   },
                }}
             />
-            <Card size="small" hoverable onClick={() => setManualInputDrawerOpen(true)} className="mt-layout">
-               <div className="flex items-center gap-3">
-                  <Avatar style={{ fontSize: "18px", textAlign: "center", backgroundColor: "#6750A4" }}>AI</Avatar>
-                  <div className="flex-grow">
-                     <p className="text-base font-bold">{t("InputManually")}</p>
-                     <p className="text-xs">{t("CannotScan")}</p>
-                  </div>
-                  <div>
-                     <Button type="text" icon={<RightOutlined />} />
-                  </div>
-               </div>
-            </Card>
-         </Drawer>
-         <Drawer
-            title={t("InputManually")}
-            placement="bottom"
-            onClose={() => {
-               setManualInputDrawerOpen(false)
-               form.resetFields()
-            }}
-            open={manualInputDrawerOpen}
-            height="max-content"
-            size="default"
-            classNames={{
-               body: "flex flex-col",
-            }}
-         >
-            <Form<FieldType> form={form} onFinish={(e) => handleFinish(e.deviceId)} layout="horizontal">
-               <Card size="small" hoverable className="mb-4">
-                  <div className="flex gap-2">
-                     <InfoCircleFilled />
-                     <div className="text-xs">{t("inputDeviceId")}</div>
-                  </div>
-               </Card>
-               <Form.Item<FieldType>
-                  name="deviceId"
-                  label={t("DeviceId")}
-                  labelAlign="left"
-                  labelCol={{
-                     span: 24,
-                     className: "pb-0",
-                  }}
-                  rules={[
-                     { required: true },
-                     {
-                        validator: (_, value) =>
-                           isUUID(value) ? Promise.resolve() : Promise.reject("Invalid Device ID"),
-                     },
-                  ]}
-                  className="flex-grow"
-               >
-                  <Input placeholder="e.g., 123-1231231-312312-3123123123" size="large" />
-               </Form.Item>
-               <Button
-                  key="submit-btn"
-                  type="primary"
-                  htmlType="submit"
-                  onClick={form.submit}
-                  className="w-full"
-                  size="large"
-               >
-                  {t("Submit")}
-               </Button>
-            </Form>
+            <ScannerInputManualDrawer onFinish={handleFinish}>
+               {(handleOpen) => (
+                  <Card size="small" hoverable onClick={handleOpen} className="mt-layout">
+                     <div className="flex items-center gap-3">
+                        <Avatar style={{ fontSize: "18px", textAlign: "center", backgroundColor: "#6750A4" }}>
+                           AI
+                        </Avatar>
+                        <div className="flex-grow">
+                           <p className="text-base font-bold">{t("InputManually")}</p>
+                           <p className="text-xs">{t("CannotScan")}</p>
+                        </div>
+                        <div>
+                           <Button type="text" icon={<RightOutlined />} />
+                        </div>
+                     </div>
+                  </Card>
+               )}
+            </ScannerInputManualDrawer>
          </Drawer>
       </>
    )

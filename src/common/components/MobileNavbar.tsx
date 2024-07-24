@@ -1,17 +1,19 @@
 "use client"
 
-import { cloneElement, ReactElement } from "react"
+import { cloneElement, ReactElement, useEffect } from "react"
 import { Badge } from "antd"
 import { cn } from "@/common/util/cn.util"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 
 export type NavbarMenuItem = {
    key: string
    name: string
    icon: ReactElement
+   onClick: () => void
    href?: string
    countBadge?: number
-   onClick?: () => void
 }
 
 export type MobileNavbarProps = {
@@ -20,6 +22,14 @@ export type MobileNavbarProps = {
 }
 
 export default function MobileNavbar(props: MobileNavbarProps) {
+   const router = useRouter()
+
+   useEffect(() => {
+      props.items.map((item) => {
+         item.href && router.prefetch(item.href)
+      })
+   }, [props.items, router])
+
    return (
       <div className="sticky bottom-0 left-0 flex h-[88px] w-full justify-between gap-2 border-t-2 border-t-slate-100 bg-white px-2 shadow-fb">
          {props.items.map((item) => (
@@ -29,8 +39,9 @@ export default function MobileNavbar(props: MobileNavbarProps) {
                icon={item.icon}
                countBadge={item.countBadge}
                active={item.key === props.currentActive}
-               onClick={"href" in item ? undefined : item.onClick}
+               onClick={item.onClick}
                href={"href" in item ? item.href : undefined}
+               router={router}
             />
          ))}
       </div>
@@ -40,13 +51,14 @@ export default function MobileNavbar(props: MobileNavbarProps) {
 export type NavbarItemProps = {
    name: string
    icon: ReactElement
+   router: AppRouterInstance
    onClick?: () => void
    countBadge?: number
    active?: boolean
    href?: string
 }
 
-function NavbarItem({ name, icon, active = false, countBadge = 0, onClick, href }: NavbarItemProps) {
+function NavbarItem({ name, icon, active = false, countBadge = 0, onClick, href, router }: NavbarItemProps) {
    const displayIcon = cloneElement(icon, {
       style: {
          fontSize: "18px",
@@ -55,14 +67,20 @@ function NavbarItem({ name, icon, active = false, countBadge = 0, onClick, href 
       },
    })
 
+   function handleClick() {
+      if (!!onClick === false) return
+      onClick()
+      if (!href) return
+      router.push(href)
+   }
+
    return (
-      <Link
-         href={href ?? ""}
+      <div
          className="flex h-full w-full flex-col items-center justify-center gap-2 pb-5 pt-4"
          style={{
-            cursor: onClick ? "pointer" : "default",
+            cursor: !!handleClick ? "pointer" : "default",
          }}
-         onClick={onClick}
+         onClick={handleClick}
       >
          <div className="relative grid place-items-center">
             <div
@@ -88,6 +106,6 @@ function NavbarItem({ name, icon, active = false, countBadge = 0, onClick, href 
          >
             {name}
          </span>
-      </Link>
+      </div>
    )
 }

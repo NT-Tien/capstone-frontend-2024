@@ -9,12 +9,10 @@ import { useTranslation } from "react-i18next"
 export default function HeadStaffNavbar() {
    const current = usePathname()
    const [currentActive, setCurrentActive] = useState<string | undefined>()
-   const router = useRouter()
    const { t } = useTranslation()
 
    function handleClick(path: string) {
       setCurrentActive(path)
-      router.push(`/head-staff/mobile/${path}`)
    }
 
    useEffect(() => {
@@ -26,24 +24,28 @@ export default function HeadStaffNavbar() {
          name: t("Dashboard"),
          key: "dashboard",
          icon: <DashboardFilled />,
+         href: "/head-staff/mobile/dashboard",
          onClick: () => handleClick("dashboard"),
       },
       {
          name: t("requestsNav"),
          key: "requests",
          icon: <ContainerFilled />,
+         href: "/head-staff/mobile/requests",
          onClick: () => handleClick("requests"),
       },
       {
          name: t("tasksNav"),
          key: "tasks",
          icon: <CheckOutlined />,
+         href: "/head-staff/mobile/tasks",
          onClick: () => handleClick("tasks"),
       },
       {
          name: t("Profile"),
          key: "profile",
          icon: <EllipsisOutlined />,
+         href: "/head-staff/mobile/profile",
          onClick: () => handleClick("profile"),
       },
    ]

@@ -9,6 +9,10 @@ import { AntdRegistry } from "@ant-design/nextjs-registry"
 import en_US from "antd/lib/locale/en_US"
 import { enUSIntl, ProConfigProvider } from "@ant-design/pro-provider"
 import I18NProvider from "@/common/providers/i18n.provider"
+import ModalStackProvider from "@/common/providers/modal-stack.provider"
+import "moment/locale/vi"
+import "dayjs/locale/vi"
+import DayjsProvider from "@/common/providers/dayjs.provider"
 
 export default function GlobalProvider({ children }: Readonly<{ children: ReactNode }>) {
    const queryClient = makeQueryClient()
@@ -38,7 +42,11 @@ export default function GlobalProvider({ children }: Readonly<{ children: ReactN
                         },
                      }}
                   >
-                     <I18NProvider>{children}</I18NProvider>
+                     <I18NProvider>
+                        <DayjsProvider>
+                           <ModalStackProvider>{children}</ModalStackProvider>
+                        </DayjsProvider>
+                     </I18NProvider>
                   </ConfigProvider>
                </ProConfigProvider>
             </App>

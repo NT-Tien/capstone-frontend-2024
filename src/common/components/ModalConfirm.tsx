@@ -1,7 +1,7 @@
 import { cloneElement, ReactElement, ReactNode, useState } from "react"
 import { ButtonProps, Modal, ModalProps } from "antd"
 
-type Props = {
+export type Props = {
    children: ReactElement
    title?: ReactNode
    description?: ReactNode
@@ -12,6 +12,7 @@ type Props = {
    onCancel?: () => string
    cancelProps?: ButtonProps
    modalProps?: ModalProps
+   closeAfterConfirm?: boolean
 }
 
 export default function ModalConfirm(props: Props) {
@@ -34,7 +35,10 @@ export default function ModalConfirm(props: Props) {
          <Modal
             title={props.title ?? "Confirm Action"}
             open={open}
-            onOk={props.onConfirm}
+            onOk={() => {
+               props.onConfirm?.()
+               if (props.closeAfterConfirm) handleClose()
+            }}
             centered={true}
             onCancel={() => {
                props.onCancel?.()

@@ -12,7 +12,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
    (config) => {
-      console.info("[DEV MODE]: Request made with config: ", config)
+      console.info(`[DEV MODE]: ${config.method?.toUpperCase()} Request made to ${config.url}: `, config)
       return config
    },
    (error) => {
@@ -27,7 +27,7 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
    (config) => {
-      console.info("[DEV MODE]: Response received with config: ", config)
+      console.info(`[DEV MODE]: ${config.status} Response received: `, config)
       return config
    },
    (error) => {

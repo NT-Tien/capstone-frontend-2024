@@ -1,4 +1,4 @@
-import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 
 const qk = {

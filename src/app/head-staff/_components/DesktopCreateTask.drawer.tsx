@@ -10,7 +10,7 @@ import { Dayjs } from "dayjs"
 import HeadStaff_Request_UpdateStatus, {
    Request as UpdateRequest,
 } from "@/app/head-staff/_api/request/updateStatus.api"
-import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 
 type FieldType = {
    name: string

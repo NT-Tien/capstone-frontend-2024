@@ -49,7 +49,7 @@ const config: Config = {
             navbar: "var(--navbar-height)",
          },
          minHeight: {
-            "screen-with-navbar": "calc(100svh - var(--navbar-height))",
+            "screen-with-navbar": "calc(100dvh - var(--navbar-height))",
          },
       },
    },

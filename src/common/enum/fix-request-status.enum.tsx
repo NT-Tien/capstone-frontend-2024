@@ -1,4 +1,3 @@
-import { Tag, TagProps } from "antd"
 import { PresetColorType, type PresetStatusColorType } from "antd/es/_util/colors"
 import { LiteralUnion } from "antd/es/_util/type"
 
@@ -6,24 +5,8 @@ export enum FixRequestStatus {
    PENDING = "PENDING",
    APPROVED = "APPROVED",
    REJECTED = "REJECTED",
-}
-
-export function IssueRequestStatusTag({ status, ...props }: { status?: FixRequestStatus } & TagProps) {
-   const colorMap: {
-      [key in FixRequestStatus]: LiteralUnion<
-         PresetColorType | "success" | "processing" | "error" | "default" | "warning"
-      >
-   } = {
-      PENDING: "default",
-      APPROVED: "success",
-      REJECTED: "red",
-   }
-
-   return (
-      <Tag color={status ? colorMap[status] : "default"} {...props}>
-         {status}
-      </Tag>
-   )
+   IN_PROGRESS = "IN_PROGRESS",
+   CLOSED = "CLOSED",
 }
 
 export const FixRequestStatusTagMapper: {
@@ -35,8 +18,8 @@ export const FixRequestStatusTagMapper: {
 } = {
    [FixRequestStatus.PENDING]: {
       text: "Pending",
-      colorInverse: "default",
-      color: "default",
+      colorInverse: "yellow-inverse",
+      color: "yellow",
    },
    [FixRequestStatus.APPROVED]: {
       text: "Approved",
@@ -47,6 +30,16 @@ export const FixRequestStatusTagMapper: {
       text: "Rejected",
       colorInverse: "red-inverse",
       color: "red",
+   },
+   [FixRequestStatus.IN_PROGRESS]: {
+      text: "In Progress",
+      colorInverse: "blue-inverse",
+      color: "blue",
+   },
+   [FixRequestStatus.CLOSED]: {
+      text: "Closed",
+      colorInverse: "default",
+      color: "default",
    },
    undefined: {
       text: "-",

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next"
-import { FixRequestStatus } from "./issue-request-status.enum"
+import { FixRequestStatus } from "./fix-request-status.enum"
 import { FixType } from "./fix-type.enum"
 
 export const useIssueRequestStatusTranslation = () => {

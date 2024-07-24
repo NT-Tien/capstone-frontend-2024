@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useState } from "react"
+import { ReactNode, useEffect, useState } from "react"
 import { Button, Card, Drawer, DrawerProps, Empty, Form, Input, InputNumber, Spin } from "antd"
 import { useQuery } from "@tanstack/react-query"
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
@@ -9,6 +9,8 @@ import headstaff_qk from "@/app/head-staff/_api/qk"
 import ProCard from "@ant-design/pro-card"
 import { SparePartDto } from "@/common/dto/SparePart.dto"
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
+import { useModalStack } from "@/common/providers/modal-stack.provider"
+import useModalControls from "@/common/hooks/useModalControls"
 
 type ReturnType = {
    sparePartId: string
@@ -17,10 +19,22 @@ type ReturnType = {
 
 export default function SelectSparePartDrawer(props: {
    children: (handleOpen: (deviceId: string, ignoreIdList?: string[]) => void) => ReactNode
-   onFinish: (values: ReturnType) => void
+   onFinish: (values: ReturnType) => Promise<void>
    drawerProps?: DrawerProps
 }) {
-   const [open, setOpen] = useState(false)
+   const { open, handleOpen, handleClose } = useModalControls({
+      onOpen: (deviceId: string, ignoreIdList?: string[]) => {
+         setDeviceId(deviceId)
+         setIgnoreIdList(ignoreIdList ?? [])
+      },
+      onClose: () => {
+         setDeviceId(undefined)
+         setIgnoreIdList([])
+         setSelectedSparePart(undefined)
+         setQuantity(1)
+      },
+   })
+
    const [deviceId, setDeviceId] = useState<undefined | string>()
    const [ignoreIdList, setIgnoreIdList] = useState<string[]>([])
    const [selectedSparePart, setSelectedSparePart] = useState<SparePartDto | undefined>()
@@ -35,20 +49,6 @@ export default function SelectSparePartDrawer(props: {
             ? data.machineModel.spareParts.filter((sp) => !ignoreIdList.includes(sp.id))
             : data.machineModel.spareParts,
    })
-
-   function handleOpen(deviceId: string, ignoreIdList?: string[]) {
-      setOpen(true)
-      setDeviceId(deviceId)
-      setIgnoreIdList(ignoreIdList ?? [])
-   }
-
-   function handleClose() {
-      setOpen(false)
-      setDeviceId(undefined)
-      setIgnoreIdList([])
-      setSelectedSparePart(undefined)
-      setQuantity(1)
-   }
 
    return (
       <>
@@ -149,12 +149,15 @@ export default function SelectSparePartDrawer(props: {
                                  type="primary"
                                  className="w-full"
                                  size="large"
-                                 onClick={() => {
-                                    props.onFinish({
-                                       sparePartId: selectedSparePart.id,
-                                       quantity,
-                                    })
-                                    handleClose()
+                                 onClick={async () => {
+                                    props
+                                       .onFinish({
+                                          sparePartId: selectedSparePart.id,
+                                          quantity,
+                                       })
+                                       .then(() => {
+                                          handleClose()
+                                       })
                                  }}
                               >
                                  Add Spare Part

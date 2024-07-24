@@ -6,7 +6,6 @@ export type FixRequestIssueSparePartDto = {
    updatedAt: string
    deletedAt: string | null
    quantity: number
-   status: string
    note: string | null
    sparePart: SparePartDto
 }

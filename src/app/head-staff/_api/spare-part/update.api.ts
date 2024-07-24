@@ -1,4 +1,3 @@
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
 import { parseApiResponse } from "@/common/util/parseApiResponse.util"
@@ -7,16 +6,17 @@ import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 export type Request = {
    id: string
    payload: {
-      status: FixRequestStatus
-      checker_note: string
+      issue?: string
+      sparePart?: string
+      quantity?: number
    }
 }
 export type Response = FixRequestDto
 
-HeadStaff_Request_UpdateStatus.URL = (req: Request) => `/head-staff/request/${req.id}/{status}`
-export default async function HeadStaff_Request_UpdateStatus(req: Request): Promise<Response> {
+HeadStaff_SparePart_Update.URL = (req: Request) => `/head-staff/issue-spare-part/${req.id}`
+export default async function HeadStaff_SparePart_Update(req: Request): Promise<Response> {
    return api
-      .put<Response>(HeadStaff_Request_UpdateStatus.URL(req), req.payload, {
+      .put<Response>(HeadStaff_SparePart_Update.URL(req), req.payload, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,

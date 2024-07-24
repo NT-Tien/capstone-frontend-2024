@@ -8,6 +8,7 @@ export type Response = DeviceDto
 
 HeadStaff_Device_OneById.URL = (req: Request) => `/head-staff/device/${req.id}`
 export default async function HeadStaff_Device_OneById(req: Request): Promise<Response> {
+   await Promise.allSettled([setTimeout(() => {}, 10000)])
    return api
       .get<Response>(HeadStaff_Device_OneById.URL(req), {
          transformResponse: (data) => parseApiResponse(data),

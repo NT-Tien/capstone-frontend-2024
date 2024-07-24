@@ -1,22 +1,21 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
-import { ClockCircleOutlined, RightOutlined } from "@ant-design/icons"
-import { Affix, Button, Card, Empty, Flex, Tabs, Typography } from "antd"
+import { ClockCircleOutlined } from "@ant-design/icons"
+import { Card, Empty } from "antd"
 import React, { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import qk from "@/common/querykeys"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { FixRequestStatus } from "@/common/enum/issue-request-status.enum"
-import dayjs from "dayjs"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { useRouter } from "next/navigation"
 import Head_Request_All from "@/app/head/_api/request/all.api"
 import { useTranslation } from "react-i18next"
 import head_qk from "@/app/head/_api/qk"
 import ReportCard from "@/common/components/ReportCard"
 import extended_dayjs from "@/config/dayjs.config"
-import { Hourglass, ThumbsUp, XCircle } from "@phosphor-icons/react"
+import { CheckSquareOffset, Hourglass, ThumbsUp, Wrench, XCircle } from "@phosphor-icons/react"
 import { cn } from "@/common/util/cn.util"
+import ScrollableTabs from "@/common/components/ScrollableTabs"
 
 export default function RequestsPage() {
    const results = useQuery({
@@ -24,17 +23,17 @@ export default function RequestsPage() {
       queryFn: () => Head_Request_All(),
    })
    const { t } = useTranslation()
-   const [tab, setTab] = useState<string>("pending")
+   const [tab, setTab] = useState<FixRequestStatus>(FixRequestStatus.PENDING)
 
    const datasets = useMemo(() => {
       const result: {
-         PENDING: FixRequestDto[]
-         APPROVED: FixRequestDto[]
-         REJECTED: FixRequestDto[]
+         [key in FixRequestStatus]: FixRequestDto[]
       } = {
          PENDING: [],
          APPROVED: [],
          REJECTED: [],
+         IN_PROGRESS: [],
+         CLOSED: [],
       }
 
       if (!results.isSuccess) return result
@@ -49,48 +48,47 @@ export default function RequestsPage() {
    return (
       <div className="std-layout">
          <RootHeader title={t("MyRequests")} className="std-layout-outer p-4" icon={<ClockCircleOutlined />} />
-         <Tabs
-            rootClassName="std-layout-outer sticky top-0 z-50"
-            className="main-tabs"
-            type="line"
-            activeKey={tab}
-            onChange={(key) => setTab(key)}
+         <ScrollableTabs
+            className="std-layout-outer"
+            classNames={{
+               content: "mt-layout",
+            }}
+            tab={tab}
+            onTabChange={setTab}
             items={[
                {
-                  key: "pending",
-                  label: (
-                     <div className="flex items-center gap-1">
-                        <Hourglass size={14} className="mr-1" />
-                        {t("pending")} <span className="text-xs text-gray-600">({datasets.PENDING.length})</span>
-                     </div>
-                  ),
+                  key: FixRequestStatus.PENDING,
+                  title: t("pending"),
+                  icon: <Hourglass size={16} />,
+                  badge: datasets[FixRequestStatus.PENDING].length,
                },
                {
-                  key: "completed",
-                  label: (
-                     <div className="flex items-center gap-1">
-                        <ThumbsUp size={14} className="mr-1" />
-                        {t("Completed")} <span className="text-xs text-gray-600">({datasets.APPROVED.length})</span>
-                     </div>
-                  ),
+                  key: FixRequestStatus.APPROVED,
+                  title: t("Completed"),
+                  icon: <ThumbsUp size={16} />,
+                  badge: datasets[FixRequestStatus.APPROVED].length,
                },
                {
-                  key: "rejected",
-                  label: (
-                     <div className="flex items-center gap-1">
-                        <XCircle size={14} />
-                        {t("rejected")} <span className="text-xs text-gray-600">({datasets.REJECTED.length})</span>
-                     </div>
-                  ),
+                  key: FixRequestStatus.IN_PROGRESS,
+                  title: "In Progress",
+                  icon: <Wrench size={16} />,
+                  badge: datasets[FixRequestStatus.IN_PROGRESS].length,
+               },
+               {
+                  key: FixRequestStatus.CLOSED,
+                  title: "Closed",
+                  icon: <CheckSquareOffset size={16} />,
+                  badge: datasets[FixRequestStatus.CLOSED].length,
+               },
+               {
+                  key: FixRequestStatus.REJECTED,
+                  title: t("rejected"),
+                  icon: <XCircle size={16} />,
+                  badge: datasets[FixRequestStatus.REJECTED].length,
                },
             ]}
          />
-         <IssueList
-            statusName={tab}
-            isLoading={results.isLoading}
-            data={tab === "pending" ? datasets.PENDING : tab === "completed" ? datasets.APPROVED : datasets.REJECTED}
-            className="mb-layout"
-         />
+         <IssueList statusName={tab} isLoading={results.isLoading} data={datasets[tab]} className="mb-layout" />
       </div>
    )
 }

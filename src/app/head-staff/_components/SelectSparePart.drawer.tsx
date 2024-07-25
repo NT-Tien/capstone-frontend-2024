@@ -32,6 +32,7 @@ export default function SelectSparePartDrawer(props: {
          setIgnoreIdList([])
          setSelectedSparePart(undefined)
          setQuantity(1)
+         setSearchTerm('')
       },
    })
 
@@ -39,6 +40,7 @@ export default function SelectSparePartDrawer(props: {
    const [ignoreIdList, setIgnoreIdList] = useState<string[]>([])
    const [selectedSparePart, setSelectedSparePart] = useState<SparePartDto | undefined>()
    const [quantity, setQuantity] = useState(1)
+   const [searchTerm, setSearchTerm] = useState('');
 
    const response = useQuery({
       queryKey: headstaff_qk.device.byId(deviceId ?? ""),
@@ -49,7 +51,9 @@ export default function SelectSparePartDrawer(props: {
             ? data.machineModel.spareParts.filter((sp) => !ignoreIdList.includes(sp.id))
             : data.machineModel.spareParts,
    })
-
+   const filteredSpareParts = response.data?.filter((sparePart) =>
+      sparePart.name.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
    return (
       <>
          {props.children(handleOpen)}
@@ -74,14 +78,14 @@ export default function SelectSparePartDrawer(props: {
                      />
                   ) : (
                      <div className="grid h-full grid-cols-1">
-                        <Input.Search size="large" className="my-3 px-3" placeholder="Tìm kiếm linh kiện" />
+                        <Input.Search size="large" className="my-3 px-3" placeholder="Tìm kiếm linh kiện" onChange={(e) => setSearchTerm(e.target.value)}/>
                         <section
                            className="flex flex-col gap-2 overflow-y-auto px-3 pb-4"
                            style={{
                               gridRow: "span 100",
                            }}
                         >
-                           {response.data.map((sparePart, index) => (
+                           {filteredSpareParts.map((sparePart, index) => (
                               <ProCard
                                  key={sparePart.id}
                                  size="small"

@@ -1,13 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
-import { CheckOutlined, ContainerFilled, DashboardFilled, EllipsisOutlined, ScanOutlined } from "@ant-design/icons"
+import { ContainerFilled, DashboardFilled, EllipsisOutlined, ScanOutlined } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
-import { useTranslation } from "react-i18next"
+import { useEffect, useState } from "react"
 
 export default function StockkeeperNavbar() {
-   const { t } = useTranslation()
    const pathname = usePathname()
    const [currentActive, setCurrentActive] = useState<string | undefined>()
    const router = useRouter()
@@ -22,25 +20,25 @@ export default function StockkeeperNavbar() {
 
    const items: NavbarMenuItem[] = [
       {
-         name: t("Dashboard"),
+         name: "Trang chủ",
          key: "dashboard",
          icon: <DashboardFilled />,
          onClick: () => setCurrentActive("dashboard"),
       },
       {
-         name: t("machineModelNav"),
+         name: "Kho máy",
          key: "warehouse",
          icon: <ContainerFilled />,
          onClick: () => setCurrentActive("warehouse"),
       },
       {
-         name: t("Scan"),
+         name: "Quét QR",
          key: "scan",
          icon: <ScanOutlined />,
          onClick: () => setCurrentActive("scan"),
       },
       {
-         name: t("Profile"),
+         name: "Hồ sơ",
          key: "profile",
          icon: <EllipsisOutlined />,
          onClick: () => setCurrentActive("profile"),

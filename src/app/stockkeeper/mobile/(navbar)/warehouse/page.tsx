@@ -1,22 +1,20 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
-import { Button, Card, Divider, List } from "antd"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
+import { MachineModelDto } from "@/common/dto/MachineModel.dto"
 import qk from "@/common/querykeys"
 import { RightOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
-import { useTranslation } from "react-i18next"
+import { useQuery } from "@tanstack/react-query"
+import { Button, Card, List } from "antd"
+import { useRouter } from "next/navigation"
 import Stockkeeper_MachineModel_All from "../../../_api/machine-model/getAll.api"
-import { MachineModelDto } from "@/common/dto/MachineModel.dto"
 
 export default function MachineModelPage() {
    const result = useQuery({
       queryKey: qk.task.all(),
       queryFn: () => Stockkeeper_MachineModel_All({ page: 1, limit: 1000 }),
    })
-   const { t } = useTranslation()
    // const result = useInfiniteQuery({
    //    queryKey: qk.task.all(page, limit),
    //    queryFn: (req) => Stockkeeper_MachineModel_All({ page: req.pageParam, limit }),
@@ -43,7 +41,6 @@ type ListViewType = {
 }
 
 function ListView(props: ListViewType) {
-   const { t } = useTranslation()
    const router = useRouter()
    return (
       <List
@@ -67,17 +64,17 @@ function ListView(props: ListViewType) {
                   columns={[
                      {
                         key: "mm",
-                        label: t("Name"),
+                        label: "Tên máy",
                         render: (_, e) => e.name ?? "-",
                      },
                      {
                         key: "manufacturer",
-                        label: t("Manufacturer"),
+                        label: "Nhà sản xuất",
                         render: (_, e) => e.manufacturer ?? "-",
                      },
                      {
                         key: "yearOfProduction",
-                        label: t("YearOfProduction"),
+                        label: "Năm sản xuất",
                         render: (_, e) => e.yearOfProduction ?? "-",
                      },
                   ]}

@@ -1,13 +1,11 @@
 "use client"
 
-import { Badge, Card, Tag } from "antd"
-import React, { ReactNode } from "react"
-import extended_dayjs from "@/config/dayjs.config"
-import { cn } from "@/common/util/cn.util"
 import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
-import { MapPin } from "@phosphor-icons/react"
+import { cn } from "@/common/util/cn.util"
 import { RightOutlined } from "@ant-design/icons"
-import { useTranslation } from "react-i18next"
+import { MapPin } from "@phosphor-icons/react"
+import { Badge, Card } from "antd"
+import { ReactNode } from "react"
 
 /**
  * Show:

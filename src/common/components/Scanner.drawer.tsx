@@ -1,11 +1,9 @@
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from "react"
-import { App, Avatar, Button, Card, Drawer, DrawerProps, Form, Input } from "antd"
-import { InfoCircleFilled, InfoCircleOutlined, RightOutlined } from "@ant-design/icons"
-import { isUUID } from "@/common/util/isUUID.util"
-import { useTranslation } from "react-i18next"
-import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
 import ScannerInputManualDrawer from "@/common/components/ScannerInputManual.drawer"
 import useModalControls from "@/common/hooks/useModalControls"
+import { InfoCircleOutlined, RightOutlined } from "@ant-design/icons"
+import { Scanner } from "@yudiel/react-qr-scanner"
+import { Avatar, Button, Card, Drawer, DrawerProps } from "antd"
+import { ReactNode } from "react"
 
 type Props = {
    children: (handleOpen: () => void) => ReactNode
@@ -14,8 +12,6 @@ type Props = {
 }
 
 export default function ScannerDrawer({ children, ...props }: Props) {
-   const { t } = useTranslation()
-
    const { open, handleOpen, handleClose } = useModalControls({
       onClose: () => {},
    })
@@ -39,7 +35,9 @@ export default function ScannerDrawer({ children, ...props }: Props) {
          >
             <section className="grid place-items-center">
                <div className="mb-6 flex items-center rounded-full border-2 border-neutral-200 bg-white px-6 py-1">
-                  Vui lòng đặt <strong className="mx-1.5 font-semibold">mã QR của thiết bị</strong> vào khung hình
+                  <span>
+                     Vui lòng đặt<strong className="mx-1 font-semibold">mã QR của thiết bị</strong>vào khung hình
+                  </span>
                   <InfoCircleOutlined className="ml-2" />
                </div>
             </section>
@@ -79,7 +77,7 @@ export default function ScannerDrawer({ children, ...props }: Props) {
                         </Avatar>
                         <div className="flex-grow">
                            <p className="text-base font-bold">Nhập thủ công</p>
-                           <p className="text-xs">{t("CannotScan")}</p>
+                           <p className="text-xs">Nhấp vào đây nếu bạn không thể quét mã QR</p>
                         </div>
                         <div>
                            <Button type="text" icon={<RightOutlined />} />

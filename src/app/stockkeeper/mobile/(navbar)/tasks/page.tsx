@@ -1,22 +1,29 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
-import { Button, Card, Divider, List, Tag } from "antd"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useInfiniteQuery } from "@tanstack/react-query"
-import qk from "@/common/querykeys"
 import { TaskDto } from "@/common/dto/Task.dto"
+import qk from "@/common/querykeys"
 import { RightOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
+import { useInfiniteQuery } from "@tanstack/react-query"
+import { Button, Card, Divider, List, Spin, Tag } from "antd"
 import dayjs from "dayjs"
-import { useTranslation } from "react-i18next"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Suspense } from "react"
 import Stockkeeper_Task_All from "../../../_api/task/getAll.api"
 
-export default function TasksPage() {
+export default function Page() {
+   return (
+      <Suspense fallback={<Spin fullscreen />}>
+         <TasksPage />
+      </Suspense>
+   )
+}
+
+function TasksPage() {
    const searchParams = useSearchParams()
    const page = Number(searchParams.get("page")) ?? 1
    const limit = 5
-   const { t } = useTranslation()
    const result = useInfiniteQuery({
       queryKey: qk.task.all(page, limit),
       queryFn: (req) => Stockkeeper_Task_All({ page: req.pageParam, limit }),
@@ -49,7 +56,6 @@ type ListViewType = {
 }
 
 function ListView(props: ListViewType) {
-   const { t } = useTranslation()
    const router = useRouter()
    return (
       <List
@@ -92,8 +98,7 @@ function ListView(props: ListViewType) {
                      {
                         key: "priority",
                         label: "Mức độ ưu tiên",
-                        render: (_, e) =>
-                           e.priority ? <Tag color="red">Cao</Tag> : <Tag color="green">Thấp</Tag>,
+                        render: (_, e) => (e.priority ? <Tag color="red">Cao</Tag> : <Tag color="green">Thấp</Tag>),
                      },
                   ]}
                />

@@ -13,9 +13,11 @@ import useModalControls from "@/common/hooks/useModalControls"
 export default function IssueSparePartDetailsModal({
    children,
    refetch,
+   showActions,
 }: {
    children: (handleOpen: (sparePart: FixRequestIssueSparePartDto) => void) => ReactNode
    refetch: () => void
+   showActions: boolean
 }) {
    const { message } = App.useApp()
 
@@ -26,7 +28,7 @@ export default function IssueSparePartDetailsModal({
       },
       onClose: () => {
          setSparePart(undefined)
-         setSelectedQuantity
+         setSelectedQuantity(0)
       },
    })
    const [sparePart, setSparePart] = useState<FixRequestIssueSparePartDto | undefined>(undefined)
@@ -115,28 +117,30 @@ export default function IssueSparePartDetailsModal({
             onCancel={handleClose}
             title="Thông tin linh kiện"
             footer={
-               <div className="flex w-full justify-between gap-3">
-                  <Button
-                     className="w-full"
-                     type="primary"
-                     icon={<EditOutlined />}
-                     size="large"
-                     disabled={sparePart?.quantity === selectedQuantity}
-                     onClick={handleUpdateQuantity_IssueSparePart}
-                  >
-                     Cập nhật
-                  </Button>
-                  <ModalConfirm
-                     confirmText="Delete"
-                     confirmProps={{ danger: true }}
-                     onConfirm={handleDeleteIssueSparePart}
-                     closeAfterConfirm
-                  >
-                     <Button className="w-full" danger={true} type="primary" icon={<DeleteOutlined />} size="large">
-                        Xóa
+               showActions && (
+                  <div className="flex w-full justify-between gap-3">
+                     <Button
+                        className="w-full"
+                        type="primary"
+                        icon={<EditOutlined />}
+                        size="large"
+                        disabled={sparePart?.quantity === selectedQuantity}
+                        onClick={handleUpdateQuantity_IssueSparePart}
+                     >
+                        Cập nhật
                      </Button>
-                  </ModalConfirm>
-               </div>
+                     <ModalConfirm
+                        confirmText="Delete"
+                        confirmProps={{ danger: true }}
+                        onConfirm={handleDeleteIssueSparePart}
+                        closeAfterConfirm
+                     >
+                        <Button className="w-full" danger={true} type="primary" icon={<DeleteOutlined />} size="large">
+                           Xóa
+                        </Button>
+                     </ModalConfirm>
+                  </div>
+               )
             }
          >
             {!!sparePart && (
@@ -166,42 +170,46 @@ export default function IssueSparePartDetailsModal({
                   />
                   <section className="mb-layout mt-layout">
                      <header className="mb-2">
-                        <h3 className="text-base font-medium">Số lượng được chọn</h3>
+                        <h3 className="text-base font-medium">
+                           Số lượng được chọn: {!showActions ? selectedQuantity : ""}
+                        </h3>
                      </header>
-                     <main className="flex gap-2">
-                        <Button
-                           icon={<MinusOutlined />}
-                           onClick={() => {
-                              setSelectedQuantity((prev) => {
-                                 if (prev - 1 < 1) return 1
-                                 return prev - 1
-                              })
-                           }}
-                           size="large"
-                        />
-                        <InputNumber
-                           value={selectedQuantity}
-                           onChange={(e) => {
-                              let num = e
-                              if (num === null) num = 1
-                              else if (num < 1) num = 1
-                              else if (num > sparePart?.sparePart.quantity) num = sparePart?.sparePart.quantity
+                     {showActions && (
+                        <main className="flex gap-2">
+                           <Button
+                              icon={<MinusOutlined />}
+                              onClick={() => {
+                                 setSelectedQuantity((prev) => {
+                                    if (prev - 1 < 1) return 1
+                                    return prev - 1
+                                 })
+                              }}
+                              size="large"
+                           />
+                           <InputNumber
+                              value={selectedQuantity}
+                              onChange={(e) => {
+                                 let num = e
+                                 if (num === null) num = 1
+                                 else if (num < 1) num = 1
+                                 else if (num > sparePart?.sparePart.quantity) num = sparePart?.sparePart.quantity
 
-                              setSelectedQuantity(num)
-                           }}
-                           size="large"
-                        />
-                        <Button
-                           icon={<PlusOutlined />}
-                           onClick={() => {
-                              setSelectedQuantity((prev) => {
-                                 if (prev + 1 > sparePart?.sparePart.quantity) return sparePart?.sparePart.quantity
-                                 return prev + 1
-                              })
-                           }}
-                           size="large"
-                        />
-                     </main>
+                                 setSelectedQuantity(num)
+                              }}
+                              size="large"
+                           />
+                           <Button
+                              icon={<PlusOutlined />}
+                              onClick={() => {
+                                 setSelectedQuantity((prev) => {
+                                    if (prev + 1 > sparePart?.sparePart.quantity) return sparePart?.sparePart.quantity
+                                    return prev + 1
+                                 })
+                              }}
+                              size="large"
+                           />
+                        </main>
+                     )}
                   </section>
                </>
             )}

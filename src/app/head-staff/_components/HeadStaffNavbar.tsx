@@ -1,15 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
 import { CheckOutlined, ContainerFilled, DashboardFilled, EllipsisOutlined } from "@ant-design/icons"
-import { usePathname, useRouter } from "next/navigation"
-import { useTranslation } from "react-i18next"
+import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
 
 export default function HeadStaffNavbar() {
    const current = usePathname()
    const [currentActive, setCurrentActive] = useState<string | undefined>()
-   const { t } = useTranslation()
 
    function handleClick(path: string) {
       setCurrentActive(path)

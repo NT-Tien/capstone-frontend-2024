@@ -4,9 +4,9 @@ import { UserDto } from "@/common/dto/User.dto"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react"
+import React, { Dispatch, memo, SetStateAction, useCallback, useEffect, useMemo, useState } from "react"
 import dayjs, { Dayjs } from "dayjs"
-import { App, Button, Checkbox, Drawer, Input, Result, Tag } from "antd"
+import { App, Button, Checkbox, Drawer, Input, Result, Spin, Tag } from "antd"
 import { useRouter } from "next/navigation"
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Users_AllStaff from "@/app/head-staff/_api/users/all.api"
@@ -16,7 +16,8 @@ import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/update
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { ArrowLeftOutlined, EyeOutlined, LeftOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons"
 import { CheckCard } from "@ant-design/pro-card"
-import { SelectedIssueType, usePageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page"
+import { SelectedIssueType } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page"
+import { usePageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page.context"
 
 type SortedUserDto = Omit<UserDto, "tasks"> & {
    sorted_tasks: {
@@ -29,6 +30,8 @@ type SortedUserDto = Omit<UserDto, "tasks"> & {
 
 type Step2_Props = {
    api: UseQueryResult<FixRequestDto, Error>
+   requestId: string | undefined
+   requestStatus: FixRequestStatus | undefined
    setSelectedFixer: Dispatch<SetStateAction<UserDto | undefined>>
    selectedFixer: UserDto | undefined
    selectedFixDate: Dayjs | undefined
@@ -38,7 +41,7 @@ type Step2_Props = {
    resetAll: () => void
 }
 
-function Step2_ConfirmTask(props: Step2_Props) {
+const Step2_ConfirmTask = memo(function Component(props: Step2_Props) {
    const { message } = App.useApp()
    const router = useRouter()
 
@@ -47,6 +50,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
    const [searchTerm, setSearchTerm] = useState("")
    const [successTaskId, setSuccessTaskId] = useState<undefined | string>()
    const [isFinalTask, setIsFinalTask] = useState(false)
+   const [isLoading, setIsLoading] = useState(false)
 
    const api_user = useQuery({
       queryKey: headstaff_qk.user.all(),
@@ -143,8 +147,16 @@ function Step2_ConfirmTask(props: Step2_Props) {
    }
 
    const handleFinish = useCallback(async () => {
+      setIsLoading(true)
       try {
-         if (!props.selectedTaskName || !props.selectedFixDate || !props.api.data || !props.selectedFixer) return
+         if (
+            !props.selectedTaskName ||
+            !props.selectedFixDate ||
+            !props.selectedFixer ||
+            !props.requestId ||
+            !props.requestStatus
+         )
+            throw new Error()
 
          const issueIDs = Object.keys(props.selectedIssues)
          const totalTime = issueIDs.reduce((acc, id) => {
@@ -157,13 +169,13 @@ function Step2_ConfirmTask(props: Step2_Props) {
             priority: props.selectedPriority,
             issueIDs,
             totalTime,
-            request: props.api.data.id,
+            request: props.requestId,
             operator: 0,
          })
 
-         if (props.api.data?.status === FixRequestStatus.PENDING) {
+         if (props.requestStatus === FixRequestStatus.PENDING) {
             await mutate_updateRequestStatus.mutateAsync({
-               id: props.api.data.id,
+               id: props.requestId,
                payload: {
                   status: FixRequestStatus.APPROVED,
                   checker_note: "",
@@ -181,13 +193,16 @@ function Step2_ConfirmTask(props: Step2_Props) {
          handleOpenSuccess(task.id)
       } catch (e) {
          message.error("Tạo tác vụ thất bại").then()
+      } finally {
+         setIsLoading(false)
       }
    }, [
       message,
       mutate_assignFixer,
       mutate_createTask,
       mutate_updateRequestStatus,
-      props.api.data,
+      props.requestId,
+      props.requestStatus,
       props.selectedFixDate,
       props.selectedFixer,
       props.selectedIssues,
@@ -211,7 +226,8 @@ function Step2_ConfirmTask(props: Step2_Props) {
          children: "Tạo tác vụ",
          icon: <UploadOutlined />,
       })
-   }, [handleFinish, props, setNextBtnProps, setPrevBtnProps, setStep])
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [handleFinish, props.setSelectedFixer, setNextBtnProps, setPrevBtnProps, setStep])
 
    useEffect(() => {
       if (!props.selectedFixer) {
@@ -235,6 +251,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
 
    return (
       <section className="mt-layout flex flex-col gap-2">
+         {isLoading && <Spin fullscreen />}
          <Input.Search
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -324,8 +341,9 @@ function Step2_ConfirmTask(props: Step2_Props) {
                            props.resetAll()
                            handleCloseSuccess()
                         }}
+                        size="large"
                      >
-                        Tạo thêm Tác vụ mới
+                        Tạo tác vụ mới
                      </Button>
                   ) : (
                      <Button
@@ -333,17 +351,19 @@ function Step2_ConfirmTask(props: Step2_Props) {
                         type="primary"
                         icon={<LeftOutlined />}
                         onClick={() => {
-                           router.push("/head-staff/mobile/requests")
+                           router.push(`/head-staff/mobile/requests/${props.requestId}`)
                         }}
+                        size="large"
                      >
-                        Quay về danh sách
+                        Quay về
                      </Button>
                   ),
                   <Button
                      key="view"
                      type="primary"
                      icon={<EyeOutlined />}
-                     onClick={() => successTaskId && router.push(`/head-staff/mobile/tasks/${successTaskId}`)}
+                     onClick={() => router.push(`/head-staff/mobile/tasks/${successTaskId}`)}
+                     size="large"
                   >
                      Xem tác vụ
                   </Button>,
@@ -352,6 +372,6 @@ function Step2_ConfirmTask(props: Step2_Props) {
          </Drawer>
       </section>
    )
-}
+})
 
 export default Step2_ConfirmTask

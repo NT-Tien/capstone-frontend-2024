@@ -1,11 +1,10 @@
 "use client"
 
-import React, { ReactNode } from "react"
 import useModalControls from "@/common/hooks/useModalControls"
-import { App, Button, Card, Drawer, DrawerProps, Form, Input } from "antd"
-import { InfoCircleFilled } from "@ant-design/icons"
 import { isUUID } from "@/common/util/isUUID.util"
-import { useTranslation } from "react-i18next"
+import { InfoCircleFilled } from "@ant-design/icons"
+import { App, Button, Card, Drawer, DrawerProps, Form, Input } from "antd"
+import { ReactNode } from "react"
 
 type FieldType = {
    deviceId: string
@@ -23,7 +22,6 @@ export default function ScannerInputManualDrawer(props: {
       },
    })
    const [form] = Form.useForm<FieldType>()
-   const { t } = useTranslation()
    const { message } = App.useApp()
 
    async function handleFinish() {
@@ -48,7 +46,7 @@ export default function ScannerInputManualDrawer(props: {
       <>
          {props.children(handleOpen)}
          <Drawer
-            title={t("InputManually")}
+            title="Nhập thủ công"
             placement="bottom"
             onClose={handleClose}
             open={open}
@@ -62,12 +60,12 @@ export default function ScannerInputManualDrawer(props: {
                <Card size="small" hoverable className="mb-4">
                   <div className="flex items-start gap-2">
                      <InfoCircleFilled className="mt-1" />
-                     <div className="text-base">{t("inputDeviceId")}</div>
+                     <div className="text-base">Vui lòng nhập ID của thiết bị nếu như bạn không thể quét mã QR</div>
                   </div>
                </Card>
                <Form.Item<FieldType>
                   name="deviceId"
-                  label={t("DeviceId")}
+                  label={"ID của thiết bị"}
                   labelAlign="left"
                   labelCol={{
                      span: 24,
@@ -113,7 +111,7 @@ export default function ScannerInputManualDrawer(props: {
                   />
                </Form.Item>
                <Button key="submit-btn" type="primary" onClick={handleFinish} className="w-full" size="large">
-                  {t("Submit")}
+                  Gửi
                </Button>
             </Form>
          </Drawer>

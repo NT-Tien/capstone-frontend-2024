@@ -120,7 +120,7 @@ function PageContent() {
             }}
             activeKey={currentStatus}
             items={Object.values(TaskStatus)
-               .filter((status) => status !== TaskStatus.PENDING_STOCK)
+               .filter((status) => status !== TaskStatus.AWAITING_SPARE_SPART)
                .map((status) => ({
                   key: status,
                   label: (

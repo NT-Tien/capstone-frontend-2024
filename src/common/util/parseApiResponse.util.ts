@@ -13,6 +13,7 @@ export function parseApiResponse<T extends ApiResponse<T>>(
    response: string,
    onSuccess: (response: ApiSuccessResponse<T>) => unknown = (res) => res.data,
    onError: (response: ApiErrorResponse) => unknown = (res) => {
+      console.error(res)
       throw new Error(res.message)
    },
 ) {

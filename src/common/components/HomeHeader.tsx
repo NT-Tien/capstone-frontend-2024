@@ -1,13 +1,11 @@
 "use client"
 
-import { Button, Col, Dropdown, Flex, Row, Typography } from "antd"
-import { decodeJwt } from "@/common/util/decodeJwt.util"
-import Cookies from "js-cookie"
 import { cn } from "@/common/util/cn.util"
-import { CSSProperties } from "react"
-import { useTranslation } from "react-i18next"
-import LocaleSwitcher from "@/common/components/LocaleSwitcher"
+import { decodeJwt } from "@/common/util/decodeJwt.util"
 import { MoreOutlined } from "@ant-design/icons"
+import { Button, Col, Flex, Row, Typography } from "antd"
+import Cookies from "js-cookie"
+import { CSSProperties } from "react"
 
 type HeadStaffDashboardHeaderProps = {
    className?: string
@@ -16,7 +14,6 @@ type HeadStaffDashboardHeaderProps = {
 
 export default function HomeHeader(props: HeadStaffDashboardHeaderProps) {
    const currentToken = Cookies.get("token")
-   const { t } = useTranslation()
 
    return (
       <Col className={cn(props.className)} style={props.style}>

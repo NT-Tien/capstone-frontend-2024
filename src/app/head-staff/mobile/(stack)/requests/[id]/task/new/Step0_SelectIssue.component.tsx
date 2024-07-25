@@ -9,7 +9,7 @@ import { ArrowRightOutlined, HomeOutlined, InfoCircleFilled } from "@ant-design/
 import { Button, Card, Checkbox, Tag } from "antd"
 import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 import { CheckCard } from "@ant-design/pro-card"
-import { usePageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page"
+import { usePageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page.context"
 
 type Step0_Props = {
    api: UseQueryResult<FixRequestDto, Error>
@@ -68,7 +68,7 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
                onClick={() => {
                   props.setSelectedIssues(
                      props.api.data?.issues.reduce((acc, issue) => {
-                        if (issue.fixType === FixType.REPAIR) {
+                        if (issue.fixType === FixType.REPAIR && issue.task === null) {
                            acc[issue.id] = issue
                         }
                         return acc
@@ -76,7 +76,7 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
                   )
                }}
             >
-               Chọn tất cả SỬA CHỮA
+               Chọn SỬA CHỮA
             </Button>
             <Button
                size="large"
@@ -84,7 +84,7 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
                onClick={() => {
                   props.setSelectedIssues(
                      props.api.data?.issues.reduce((acc, issue) => {
-                        if (issue.fixType === FixType.REPLACE) {
+                        if (issue.fixType === FixType.REPLACE && issue.task === null) {
                            acc[issue.id] = issue
                         }
                         return acc
@@ -92,7 +92,7 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
                   )
                }}
             >
-               Chọn tất cả THAY THẾ
+               Chọn THAY THẾ
             </Button>
          </section>
          <Card size="small" className="mb-2">

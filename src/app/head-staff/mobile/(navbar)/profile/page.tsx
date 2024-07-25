@@ -1,33 +1,21 @@
 "use client"
 
-import RootHeader from "@/common/components/RootHeader"
-import { Button, Typography } from "antd"
-import Cookies from "js-cookie"
-import { useRouter } from "next/navigation"
-import {
-   CheckOutlined,
-   ContainerFilled,
-   EllipsisOutlined,
-   HistoryOutlined,
-   HomeOutlined,
-   LaptopOutlined,
-   SearchOutlined,
-   UserOutlined,
-} from "@ant-design/icons"
-import UserCard from "@/common/components/UserCard"
 import FunctionButton from "@/common/components/FunctionButton"
+import RootHeader from "@/common/components/RootHeader"
 import UserActions from "@/common/components/UserActions"
-import { useTranslation } from "react-i18next"
+import UserCard from "@/common/components/UserCard"
 import useCurrentUser from "@/common/hooks/useCurrentUser"
+import { CheckOutlined, ContainerFilled, HomeOutlined, LaptopOutlined, UserOutlined } from "@ant-design/icons"
+import { Typography } from "antd"
+import { useRouter } from "next/navigation"
 
 export default function ProfilePage() {
    const router = useRouter()
    const user = useCurrentUser()
-   const { t } = useTranslation()
 
    return (
       <div className="std-layout gap-y-6">
-         <RootHeader title="Hồ sơ" className="std-layout-outer p-4"/>
+         <RootHeader title="Hồ sơ" className="std-layout-outer p-4" />
          <UserCard jwt={user} />
          <section>
             <header className="mb-3 flex items-center gap-2">

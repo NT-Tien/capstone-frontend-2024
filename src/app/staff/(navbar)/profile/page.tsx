@@ -1,28 +1,17 @@
 "use client"
 
+import FunctionButton from "@/common/components/FunctionButton"
 import RootHeader from "@/common/components/RootHeader"
-import {
-   CheckOutlined,
-   ContainerFilled,
-   EllipsisOutlined,
-   HistoryOutlined,
-   HomeOutlined,
-   LaptopOutlined,
-   SearchOutlined,
-   UserOutlined,
-} from "@ant-design/icons"
-import { Button, Divider, Skeleton, Typography } from "antd"
-import useCurrentUser from "@/common/hooks/useCurrentUser"
 import UserActions from "@/common/components/UserActions"
 import UserCard from "@/common/components/UserCard"
-import FunctionButton from "@/common/components/FunctionButton"
+import useCurrentUser from "@/common/hooks/useCurrentUser"
+import { CheckOutlined, ContainerFilled, HomeOutlined, LaptopOutlined, UserOutlined } from "@ant-design/icons"
+import { Typography } from "antd"
 import { useRouter } from "next/navigation"
-import { useTranslation } from "react-i18next"
 
 export default function ProfilePage() {
    const user = useCurrentUser()
    const router = useRouter()
-   const { t } = useTranslation()
 
    return (
       <div className="std-layout gap-y-6">
@@ -36,7 +25,11 @@ export default function ProfilePage() {
                </Typography.Title>
             </header>
             <main className="grid grid-cols-3 gap-2">
-               <FunctionButton icon={<HomeOutlined />} title="Trang chủ" onClick={() => router.push("/staff/dashboard")} />
+               <FunctionButton
+                  icon={<HomeOutlined />}
+                  title="Trang chủ"
+                  onClick={() => router.push("/staff/dashboard")}
+               />
                <FunctionButton icon={<ContainerFilled />} title="Tác vụ" onClick={() => router.push("/staff/tasks")} />
                <FunctionButton icon={<CheckOutlined />} title="Bản đồ" onClick={() => router.push("/staff/map")} />
                <FunctionButton

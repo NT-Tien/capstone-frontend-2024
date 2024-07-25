@@ -1,21 +1,19 @@
 "use client"
 
-import HomeHeader from "@/common/components/HomeHeader"
-import { useQuery } from "@tanstack/react-query"
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
-import { useMemo, useState } from "react"
-import { useSearchParams } from "next/navigation"
-import { TaskStatus } from "@/common/enum/task-status.enum"
-import { StatisticCard } from "@ant-design/pro-components"
-import CountUp from "react-countup"
-import { useTranslation } from "react-i18next"
-import { ClockCircleOutlined } from "@ant-design/icons"
-import Link from "next/link"
-import { Button, Typography } from "antd"
 import TaskCard from "@/app/staff/_components/TaskCard"
+import HomeHeader from "@/common/components/HomeHeader"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 import extended_dayjs from "@/config/dayjs.config"
-import { Metadata } from "next"
+import { ClockCircleOutlined } from "@ant-design/icons"
+import { StatisticCard } from "@ant-design/pro-components"
+import { useQuery } from "@tanstack/react-query"
+import { Button, Spin, Typography } from "antd"
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { Suspense, useState } from "react"
+import CountUp from "react-countup"
 
 function useTask(current: number, pageSize: number, status: TaskStatus) {
    return useQuery({
@@ -33,8 +31,15 @@ function useTask(current: number, pageSize: number, status: TaskStatus) {
    })
 }
 
-export default function DashboardPage() {
-   const { t } = useTranslation()
+export default function Page() {
+   return (
+      <Suspense fallback={<Spin fullscreen />}>
+         <DashboardPage />
+      </Suspense>
+   )
+}
+
+function DashboardPage() {
    const currentDefault = 1,
       pageSizeDefault = 10
 
@@ -74,7 +79,7 @@ export default function DashboardPage() {
                   cancelledResult.isLoading
                }
                statistic={{
-                  title: t("Total"),
+                  title: "Tống",
                   value: totalTasks,
                   formatter: (value) => <CountUp end={value as number} separator={","} />,
                }}
@@ -105,7 +110,7 @@ export default function DashboardPage() {
             </div>
             <Link href="/head-staff/mobile/tasks">
                <Button type="link" className="p-0">
-                  {t("SeeMore")}
+                  Xem tất cả
                </Button>
             </Link>
          </section>

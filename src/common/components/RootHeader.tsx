@@ -1,11 +1,10 @@
 "use client"
 
-import { Button, ButtonProps } from "antd"
-import { ContainerFilled } from "@ant-design/icons"
-import { CSSProperties, useEffect } from "react"
-import { cn } from "@/common/util/cn.util"
-import LocaleSwitcher from "@/common/components/LocaleSwitcher"
 import ModalConfirm, { type Props as ModalConfirmProps } from "@/common/components/ModalConfirm"
+import { cn } from "@/common/util/cn.util"
+import { ContainerFilled } from "@ant-design/icons"
+import { Button, ButtonProps } from "antd"
+import { CSSProperties, useEffect } from "react"
 
 type Props = {
    title: string
@@ -60,9 +59,6 @@ export default function RootHeader({
             )}
             {title}
          </span>
-         {/* <div className="">
-            <LocaleSwitcher />
-         </div> */}
       </div>
    )
 }

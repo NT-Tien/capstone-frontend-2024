@@ -1,21 +1,13 @@
 "use client"
 
+import FunctionButton from "@/common/components/FunctionButton"
 import RootHeader from "@/common/components/RootHeader"
-import {
-   EllipsisOutlined,
-   HistoryOutlined,
-   HomeOutlined,
-   LaptopOutlined,
-   SearchOutlined,
-   UserOutlined,
-} from "@ant-design/icons"
-import { Button, Divider, Skeleton, Typography } from "antd"
-import useCurrentUser from "@/common/hooks/useCurrentUser"
 import UserActions from "@/common/components/UserActions"
 import UserCard from "@/common/components/UserCard"
-import FunctionButton from "@/common/components/FunctionButton"
+import useCurrentUser from "@/common/hooks/useCurrentUser"
+import { HistoryOutlined, HomeOutlined, LaptopOutlined, SearchOutlined, UserOutlined } from "@ant-design/icons"
+import { Typography } from "antd"
 import { useRouter } from "next/navigation"
-import { useTranslation } from "react-i18next"
 
 export default function ProfilePage() {
    const user = useCurrentUser()

@@ -1,6 +1,30 @@
 "use client"
 
+import Cookies from "js-cookie"
+import { File_Image_Upload } from "@/_api/file/upload_image.api"
+import staff_qk from "@/app/staff/_api/qk"
+import Staff_Task_OneById from "@/app/staff/_api/task/one-byId.api"
+import Staff_Task_ReceiveSpareParts from "@/app/staff/_api/task/receive-spare-parts.api"
+import Staff_Task_UpdateFinish from "@/app/staff/_api/task/update-finish.api"
+import IssueDetailsDrawer from "@/app/staff/_components/IssueDetails.drawer"
+import StaffScanner from "@/app/staff/_components/StaffScanner"
+import DataListView from "@/common/components/DataListView"
+import ImageWithCrop from "@/common/components/ImageWithCrop"
+import ModalConfirm from "@/common/components/ModalConfirm"
 import RootHeader from "@/common/components/RootHeader"
+import ScannerDrawer from "@/common/components/Scanner.drawer"
+import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
+import { TaskDto } from "@/common/dto/Task.dto"
+import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
+import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
+import checkImageUrl from "@/common/util/checkImageUrl.util"
+import { cn } from "@/common/util/cn.util"
+import { clientEnv } from "@/env"
+import { HomeOutlined, RightOutlined } from "@ant-design/icons"
+import { CheckCard } from "@ant-design/pro-card"
+import { ProDescriptions, ProFormItem, ProFormTextArea } from "@ant-design/pro-components"
+import { MapPin } from "@phosphor-icons/react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
    App,
    Badge,
@@ -11,7 +35,9 @@ import {
    Form,
    List,
    message,
+   Popconfirm,
    QRCode,
+   Result,
    Spin,
    Tabs,
    Tag,
@@ -19,50 +45,24 @@ import {
    Typography,
    Upload,
 } from "antd"
-import React, { CSSProperties, useEffect, useMemo, useState } from "react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import staff_qk from "@/app/staff/_api/qk"
-import Staff_Task_OneById from "@/app/staff/_api/task/one-byId.api"
-import BottomBar from "@/common/components/BottomBar"
-import { useRouter } from "next/navigation"
-import { CheckCard } from "@ant-design/pro-card"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import { cn } from "@/common/util/cn.util"
-import Staff_Task_ReceiveSpareParts from "@/app/staff/_api/task/receive-spare-parts.api"
-import { ProDescriptions, ProFormTextArea } from "@ant-design/pro-components"
+import { RcFile, UploadFile } from "antd/es/upload"
 import dayjs from "dayjs"
-import { TaskDto } from "@/common/dto/Task.dto"
-import ProList from "@ant-design/pro-list/lib"
-import { HomeOutlined, RightOutlined } from "@ant-design/icons"
-import IssueDetailsDrawer from "@/app/staff/_components/IssueDetails.drawer"
-import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
-import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
-import ImageWithCrop from "@/common/components/ImageWithCrop"
-import { File_Upload } from "@/_api/file/upload_image.api"
-import { clientEnv } from "@/env"
-import { RcFile } from "antd/es/upload"
-import checkImageUrl from "@/common/util/checkImageUrl.util"
-import ModalConfirm from "@/common/components/ModalConfirm"
-import Staff_Task_UpdateFinish from "@/app/staff/_api/task/update-finish.api"
-import StaffScanner from "@/app/staff/_components/StaffScanner"
-import DataListView from "@/common/components/DataListView"
-import { MapPin } from "@phosphor-icons/react"
+import { useRouter } from "next/navigation"
+import { CSSProperties, useEffect, useMemo, useState } from "react"
+import { File_Video_Upload } from "@/_api/file/upload_video.api"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 
 export default function StartTask({ params }: { params: { id: string } }) {
    const [currentStep, setCurrentStep] = useState<number>(-1)
    const router = useRouter()
-   const [scanDrawerVisible, setScanDrawerVisible] = useState<boolean>(false)
-   const [scanResult, setScanResult] = useState<boolean | null>(null)
-   const [scanButtonVisible, setScanButtonVisible] = useState<boolean>(true)
-   const [scanCompleted, setScanCompleted] = useState<boolean>(false)
-   const [scanningPaused, setScanningPaused] = useState<boolean>(false)
+
    const response = useQuery({
       queryKey: staff_qk.task.one_byId(params.id),
       queryFn: () => Staff_Task_OneById({ id: params.id }),
    })
 
    useEffect(() => {
-      if (response.isSuccess) {
+      if (response.isSuccess && response.data.status !== TaskStatus.COMPLETED) {
          if (response.data.confirmReceipt === true) {
             setCurrentStep(1)
             return
@@ -70,28 +70,7 @@ export default function StartTask({ params }: { params: { id: string } }) {
          setCurrentStep(0)
       }
    }, [response.data, response.isSuccess])
-   const handleScanClose = () => {
-      setScanDrawerVisible(false)
-      setScanningPaused(true)
-   }
 
-   const handleScanResult = (deviceId: string) => {
-      if (scanningPaused) return
-      if (response.isSuccess && response.data.device.id === deviceId) {
-         setScanResult(true)
-         setScanDrawerVisible(false)
-         setScanButtonVisible(false)
-         setScanCompleted(true)
-         message.success("ID thiết bị khớp với yêu cầu.")
-      } else {
-         message.error("ID thiết bị không khớp với yêu cầu.")
-      }
-   }
-
-   const handleOpenScanDrawer = () => {
-      setScanningPaused(false)
-      setScanDrawerVisible(true)
-   }
    return (
       <div className="std-layout">
          <RootHeader title="Thông tin chi tiết" className="std-layout-outer p-4" />
@@ -112,11 +91,6 @@ export default function StartTask({ params }: { params: { id: string } }) {
                data={response.data}
                loading={response.isLoading}
                id={params.id}
-               handleScanClose={handleScanClose}
-               handleScanResult={handleScanResult}
-               handleOpenScanDrawer={handleOpenScanDrawer}
-               scanDrawerVisible={scanDrawerVisible}
-               scanCompleted={scanCompleted}
             />
          )}
          {currentStep === 2 && (
@@ -300,16 +274,24 @@ type Step2Props = GeneralProps & {
    data?: TaskDto
    loading: boolean
    id: string
-   handleScanClose: () => void
-   handleScanResult: (deviceId: string) => void
-   handleOpenScanDrawer: () => void
-   scanDrawerVisible: boolean
-   scanCompleted: boolean
 }
 
 function Step2(props: Step2Props) {
+   const [hasScanned, setHasScanned] = useState(false)
+
+   const { message } = App.useApp()
    const queryClient = useQueryClient()
    const router = useRouter()
+
+   function onScan(id: string) {
+      if (props.data?.device.id !== id) {
+         message.error("Mã QR không hợp lệ")
+         return
+      }
+
+      message.success("Quét mã QR thành công")
+      setHasScanned(true)
+   }
 
    if (!props.data) {
       return <div style={props.style}>Loading...</div>
@@ -418,7 +400,7 @@ function Step2(props: Step2Props) {
                                  })
                                  .then()
                            }}
-                           scanCompleted={props.scanCompleted}
+                           scanCompleted={hasScanned}
                         >
                            {(handleOpen) => (
                               <List
@@ -427,11 +409,11 @@ function Step2(props: Step2Props) {
                                  )}
                                  split={false}
                                  renderItem={(item) => (
-                                    <Badge.Ribbon text={item.fixType}>
+                                    <Badge.Ribbon
+                                       text={IssueStatusEnumTagMapper[item.status].text}
+                                       color={IssueStatusEnumTagMapper[item.status].colorInverse}
+                                    >
                                        <Card
-                                          classNames={{
-                                             body: "flex items-center",
-                                          }}
                                           size="small"
                                           className={cn(
                                              "mb-2",
@@ -441,18 +423,27 @@ function Step2(props: Step2Props) {
                                           hoverable
                                           onClick={() => handleOpen(item)}
                                        >
-                                          <div className="flex-grow">
-                                             <Typography.Title level={5} className="m-0 font-semibold">
-                                                {item.typeError.name}
-                                             </Typography.Title>
-                                             <Typography.Text ellipsis={true}>{item.description}</Typography.Text>
+                                          <div className="flex flex-col">
+                                             <div>
+                                                <Typography.Title level={5} className="m-0 font-semibold">
+                                                   {item.typeError.name}
+                                                </Typography.Title>
+                                             </div>
+                                             <div className="mt-2 flex items-center justify-between">
+                                                <div>
+                                                   <Tag color={FixTypeTagMapper[item.fixType].colorInverse}>
+                                                      {FixTypeTagMapper[item.fixType].text}
+                                                   </Tag>
+                                                   <Typography.Text ellipsis={true}>{item.description}</Typography.Text>
+                                                </div>
+                                                <Button
+                                                   icon={<RightOutlined />}
+                                                   type={"text"}
+                                                   size="small"
+                                                   className="self-end justify-self-end"
+                                                />
+                                             </div>
                                           </div>
-                                          <Button
-                                             icon={<RightOutlined />}
-                                             type={"text"}
-                                             size="large"
-                                             className="self-end"
-                                          />
                                        </Card>
                                     </Badge.Ribbon>
                                  )}
@@ -464,58 +455,43 @@ function Step2(props: Step2Props) {
                },
             ]}
          />
-         <div className="fixed bottom-0 left-0 flex w-full gap-3 bg-white p-layout">
-            <Button
-               icon={<HomeOutlined />}
-               size="large"
-               className="aspect-square w-16"
-               onClick={() => {
-                  router.push("/staff/dashboard")
-               }}
-            />
-            {props.scanCompleted ? (
-               <Button
-                  size="large"
-                  type="primary"
-                  className="w-full"
-                  disabled={!props.data.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
-                  onClick={props.handleNext}
-               >
-                  Tiếp tục
-               </Button>
-            ) : (
-               <Button
-                  size="large"
-                  type="primary"
-                  className="w-full"
-                  // disabled={!props.data.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
-                  onClick={props.handleOpenScanDrawer}
-               >
-                  Quét mã QR để tiếp tục
-               </Button>
+         <ScannerDrawer onScan={onScan}>
+            {(handleOpen) => (
+               <div className="fixed bottom-0 left-0 flex w-full gap-3 bg-white p-layout">
+                  <Button
+                     icon={<HomeOutlined />}
+                     size="large"
+                     className="aspect-square w-16"
+                     onClick={() => {
+                        router.push("/staff/dashboard")
+                     }}
+                  />
+                  {hasScanned ? (
+                     <Button
+                        size="large"
+                        type="primary"
+                        className="w-full"
+                        disabled={!props.data?.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
+                        onClick={props.handleNext}
+                     >
+                        Tiếp tục
+                     </Button>
+                  ) : (
+                     <Button size="large" type="primary" className="w-full" onClick={handleOpen}>
+                        Quét mã QR để tiếp tục
+                     </Button>
+                  )}
+               </div>
             )}
-            <Drawer
-               title="Scan QR"
-               onClose={props.handleScanClose}
-               open={props.scanDrawerVisible}
-               placement="bottom"
-               height="max-content"
-            >
-               <StaffScanner
-                  onScanResult={props.handleScanResult}
-                  onClose={props.handleScanClose}
-                  open={!props.scanDrawerVisible}
-               />
-            </Drawer>{" "}
-         </div>
+         </ScannerDrawer>
       </>
    )
 }
 
 type SubmitFieldType = {
    fixerNote: string
-   imagesVerify: string[]
-   videosVerify: string
+   imagesVerify: UploadFile
+   videosVerify: UploadFile
 }
 
 type Step3Props = GeneralProps & {
@@ -528,6 +504,7 @@ function Step3(props: Step3Props) {
    const { message } = App.useApp()
    const [form] = Form.useForm<SubmitFieldType>()
    const queryClient = useQueryClient()
+   const [open, setOpen] = useState(false)
 
    const mutate_finishTask = useMutation({
       mutationFn: Staff_Task_UpdateFinish,
@@ -557,18 +534,19 @@ function Step3(props: Step3Props) {
    })
 
    function handleSubmit(values: SubmitFieldType) {
+      console.log("SUBMIT", values)
       mutate_finishTask.mutate(
          {
             id: props.id,
             payload: {
-               imagesVerify: ["..."],
-               videosVerify: "...",
+               imagesVerify: [values.imagesVerify.response],
+               videosVerify: values.videosVerify?.response ?? "",
                fixerNote: values.fixerNote,
             },
          },
          {
             onSuccess: () => {
-               props.handleNext?.()
+               setOpen(true)
             },
          },
       )
@@ -580,15 +558,25 @@ function Step3(props: Step3Props) {
             Bạn đã sửa chữa thành công tất cả các vấn đề trong tác vụ này. Vui lòng chụp ảnh và quay video chứng minh
             việc sửa chữa để hoàn tất tác vụ!
          </Card>
-         <Form form={form} className="mt-3">
-            <Form.Item<SubmitFieldType> name="imagesVerify" label="Hình ảnh xác nhận">
+         <Form<SubmitFieldType>
+            form={form}
+            className="mt-3"
+            onValuesChange={(values) => {
+               console.log(values, typeof values.imagesVerify?.[0])
+            }}
+         >
+            <ProFormItem
+               name="imagesVerify"
+               label="Hình ảnh xác nhận"
+               shouldUpdate
+               rules={[{ required: true, message: "Vui lòng cập nhật hình ảnh" }]}
+            >
                <ImageWithCrop
                   name="image"
-                  action={clientEnv.BACKEND_URL + File_Upload.URL}
                   accept=".jpg,.jpeg,.png,.gif,.bmp,.svg,.webp"
                   customRequest={async (props) => {
                      const file = props.file as RcFile
-                     const response = await File_Upload({ file })
+                     const response = await File_Image_Upload({ file })
                      if (response.status === 201) props.onSuccess?.(response.data.path)
                      else props.onError?.(new Error("Failed to upload file."), response)
                   }}
@@ -597,12 +585,15 @@ function Step3(props: Step3Props) {
                   multiple={false}
                   maxCount={1}
                   method="POST"
+                  headers={{
+                     Authorization: `Bearer ${Cookies.get("token")}`,
+                  }}
                   isImageUrl={checkImageUrl}
                   className="w-full"
                   onChange={(info) => {
                      setLoadingImage(false)
                      if (info.file.status === "done") {
-                        form.setFieldsValue({ imagesVerify: [info.file.response.path] })
+                        form.setFieldsValue({ imagesVerify: info.file })
                      }
                      if (info.file.status === "uploading") {
                         setLoadingImage(true)
@@ -611,7 +602,7 @@ function Step3(props: Step3Props) {
                         message.error("Tải tệp thất bại")
                      }
                      if (info.file.status === "removed") {
-                        form.setFieldsValue({ imagesVerify: [] })
+                        form.setFieldsValue({ imagesVerify: {} })
                         message.success("Tệp đã bị xóa")
                      }
                   }}
@@ -621,14 +612,13 @@ function Step3(props: Step3Props) {
                      <p>Vui lòng tải hình ảnh lên.</p>
                   </div>
                </ImageWithCrop>
-            </Form.Item>
-            <Form.Item<SubmitFieldType> name="videosVerify" label="Video xác nhận">
+            </ProFormItem>
+            <ProFormItem name="videosVerify" label="Video xác nhận" shouldUpdate>
                <Upload.Dragger
-                  action={clientEnv.BACKEND_URL + File_Upload.URL}
-                  accept=".jpg,.jpeg,.png,.gif,.bmp,.svg,.webp"
+                  accept=".mp4,.avi,.flv,.wmv,.mov,.webm,.mkv,.3gp,.3g2,.m4v,.mpg,.mpeg,.m2v,.m4v,.3gp,.3g2,.m4v,.mpg,.mpeg,.m2v,.m4v"
                   customRequest={async (props) => {
                      const file = props.file as RcFile
-                     const response = await File_Upload({ file })
+                     const response = await File_Video_Upload({ file })
                      if (response.status === 201) props.onSuccess?.(response.data.path)
                      else props.onError?.(new Error("Failed to upload file."), response)
                   }}
@@ -637,12 +627,11 @@ function Step3(props: Step3Props) {
                   multiple={false}
                   maxCount={1}
                   method="POST"
-                  isImageUrl={checkImageUrl}
                   className="w-full"
                   onChange={(info) => {
                      setLoadingImage(false)
                      if (info.file.status === "done") {
-                        form.setFieldsValue({ imagesVerify: [info.file.response.path] })
+                        form.setFieldsValue({ videosVerify: info.file })
                      }
                      if (info.file.status === "uploading") {
                         setLoadingImage(true)
@@ -651,17 +640,17 @@ function Step3(props: Step3Props) {
                         message.error("Tải tệp thất bại")
                      }
                      if (info.file.status === "removed") {
-                        form.setFieldsValue({ imagesVerify: [] })
+                        form.setFieldsValue({ videosVerify: {} })
                         message.success("Tệp đã bị xóa")
                      }
                   }}
                >
                   <div className="flex flex-col items-center justify-center">
                      <Typography.Title level={5}>Nhấp vào đây</Typography.Title>
-                     <p>Vui lòng tải hình ảnh lên.</p>
+                     <p>Vui lòng tải video lên.</p>
                   </div>
                </Upload.Dragger>
-            </Form.Item>
+            </ProFormItem>
             <ProFormTextArea
                label="Ghi chú"
                name="fixerNote"
@@ -688,20 +677,39 @@ function Step3(props: Step3Props) {
             >
                Quay lại
             </Button>
-            <ModalConfirm
+            <Popconfirm
+               title="Lưu ý"
+               description="Bạn có chắc chắn hoàn thành tác vụ này không?"
                onConfirm={() => {
                   handleSubmit(form.getFieldsValue())
                }}
-               title="Hoàn thành tác vụ"
-               description="Bạn có chắc chắn muốn hoàn thành tác vụ?"
-               confirmText="Xác nhận"
-               cancelText="Thoát"
+               okText="Có"
+               cancelText="Không"
             >
                <Button size="large" type="primary" className="w-full">
                   Hoàn thành tác vụ
                </Button>
-            </ModalConfirm>
+            </Popconfirm>
          </div>
+         <Drawer open={open} onClose={() => setOpen(false)} placement="bottom" height="100%" closeIcon={null}>
+            <div className="grid h-full w-full place-content-center">
+               <Result
+                  title="Bạn đã hoàn thành tác vụ"
+                  status="success"
+                  subTitle={"Cảm ơn bạn đã hoàn thành tác vụ. Vui lòng chờ xác nhận từ quản lý."}
+                  extra={
+                     <Button
+                        type="primary"
+                        onClick={() => {
+                           router.push("/staff/dashboard")
+                        }}
+                     >
+                        Quay lại trang chính
+                     </Button>
+                  }
+               />
+            </div>
+         </Drawer>
       </div>
    )
 }

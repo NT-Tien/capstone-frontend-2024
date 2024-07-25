@@ -1,20 +1,18 @@
 "use client"
 
-import RootHeader from "@/common/components/RootHeader"
-import { LeftOutlined } from "@ant-design/icons"
-import { useRouter } from "next/navigation"
-import { Card, Steps, Tag } from "antd"
-import { useQuery } from "@tanstack/react-query"
-import qk from "@/common/querykeys"
 import Head_Request_All from "@/app/head/_api/request/all.api"
-import { NotFoundError } from "@/common/error/not-found.error"
-import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
-import { ProDescriptions } from "@ant-design/pro-components"
-import dayjs from "dayjs"
-import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
 import DataListView from "@/common/components/DataListView"
-import React from "react"
+import RootHeader from "@/common/components/RootHeader"
+import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
+import { NotFoundError } from "@/common/error/not-found.error"
+import qk from "@/common/querykeys"
+import { LeftOutlined } from "@ant-design/icons"
+import { ProDescriptions } from "@ant-design/pro-components"
 import { MapPin, XCircle } from "@phosphor-icons/react"
+import { useQuery } from "@tanstack/react-query"
+import { Card, Steps, Tag } from "antd"
+import dayjs from "dayjs"
+import { useRouter } from "next/navigation"
 
 const FixRequestStatusIndexMapper: {
    [key in FixRequestStatus as string | "undefined"]: number
@@ -29,8 +27,6 @@ const FixRequestStatusIndexMapper: {
 
 export default function HistoryDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
-   const { getStatusTranslation } = useIssueRequestStatusTranslation()
-
    const api = useQuery({
       queryKey: qk.issueRequests.allRaw(),
       queryFn: () => Head_Request_All(),
@@ -63,7 +59,7 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
             title={<span className="text-lg">{"Cụ thể"}</span>}
             extra={
                <Tag color={FixRequestStatusTagMapper[String(api.data?.status)].color}>
-                  {getStatusTranslation(api.data?.status)}
+                  {FixRequestStatusTagMapper[String(api.data?.status)].text}
                </Tag>
             }
             dataSource={api.data}
@@ -79,7 +75,9 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                   title: "Cập nhật lần cuối",
                   dataIndex: "updatedAt",
                   render: (_, e) =>
-                     e.createdAt === e.updatedAt ? "-" : dayjs(e.updatedAt).add(7, "hours").format("YYYY-MM-DD HH:mm:ss"),
+                     e.createdAt === e.updatedAt
+                        ? "-"
+                        : dayjs(e.updatedAt).add(7, "hours").format("YYYY-MM-DD HH:mm:ss"),
                },
                {
                   title: "Báo cáo bởi",

@@ -1,21 +1,20 @@
 "use client"
 
+import head_qk from "@/app/head/_api/qk"
+import Head_Request_All from "@/app/head/_api/request/all.api"
+import ReportCard from "@/common/components/ReportCard"
 import RootHeader from "@/common/components/RootHeader"
-import { ClockCircleOutlined } from "@ant-design/icons"
-import { Card, Empty } from "antd"
-import React, { useMemo, useState } from "react"
-import { useQuery } from "@tanstack/react-query"
+import ScrollableTabs from "@/common/components/ScrollableTabs"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
-import { useRouter } from "next/navigation"
-import Head_Request_All from "@/app/head/_api/request/all.api"
-import { useTranslation } from "react-i18next"
-import head_qk from "@/app/head/_api/qk"
-import ReportCard from "@/common/components/ReportCard"
-import extended_dayjs from "@/config/dayjs.config"
-import { CheckSquareOffset, Hourglass, ThumbsUp, Wrench, XCircle } from "@phosphor-icons/react"
 import { cn } from "@/common/util/cn.util"
-import ScrollableTabs from "@/common/components/ScrollableTabs"
+import extended_dayjs from "@/config/dayjs.config"
+import { ClockCircleOutlined } from "@ant-design/icons"
+import { CheckSquareOffset, Hourglass, ThumbsUp, Wrench, XCircle } from "@phosphor-icons/react"
+import { useQuery } from "@tanstack/react-query"
+import { Card, Empty } from "antd"
+import { useRouter } from "next/navigation"
+import { useMemo, useState } from "react"
 
 export default function RequestsPage() {
    const results = useQuery({
@@ -87,7 +86,7 @@ export default function RequestsPage() {
                },
             ]}
          />
-         <IssueList statusName={tab} isLoading={results.isLoading} data={datasets[tab]} className="mb-layout" />
+         <IssueList statusName={tab} isLoading={results.isPending} data={datasets[tab]} className="mb-layout" />
       </div>
    )
 }
@@ -111,7 +110,7 @@ function IssueList({ data, isLoading, statusName, className }: IssueListProps) {
 
    return (
       <>
-         {data && data.length === 0 && (
+         {data && !isLoading && data.length === 0 && (
             <Card className="h-full">
                <Empty description={`Bạn không có báo cáo với trạng thái \"${statusName}\"`}></Empty>
             </Card>

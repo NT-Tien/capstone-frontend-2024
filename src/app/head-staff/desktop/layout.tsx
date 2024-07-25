@@ -1,14 +1,13 @@
 "use client"
 
-import { ReactNode } from "react"
 import { DashboardOutlined, LogoutOutlined, SettingOutlined, UserOutlined } from "@ant-design/icons"
+import { ProLayout } from "@ant-design/pro-layout"
+import { CheckSquare, Tray } from "@phosphor-icons/react"
 import { Dropdown } from "antd"
 import Cookies from "js-cookie"
 import Link from "next/link"
-import { ProLayout } from "@ant-design/pro-layout"
 import { usePathname, useRouter } from "next/navigation"
-import LocaleSwitcher from "@/common/components/LocaleSwitcher"
-import { CheckSquare, Tray } from "@phosphor-icons/react"
+import { ReactNode } from "react"
 
 export default function HeadStaffDesktopLayout({ children }: { children: ReactNode }) {
    const router = useRouter()
@@ -43,10 +42,6 @@ export default function HeadStaffDesktopLayout({ children }: { children: ReactNo
          menu={{
             collapsedShowGroupTitle: true,
          }}
-         // actionsRender={(props) => {
-         //    if (props.isMobile) return []
-         //    return [<LocaleSwitcher key="locale" />]
-         // }}
          avatarProps={{
             src: "https://gw.alipayobjects.com/zos/antfincdn/efFD%24IOql2/weixintupian_20170331104822.jpg",
             title: "Admin",

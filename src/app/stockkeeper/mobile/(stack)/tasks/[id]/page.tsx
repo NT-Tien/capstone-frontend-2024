@@ -1,16 +1,15 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
-import qk from "@/common/querykeys"
 import RootHeader from "@/common/components/RootHeader"
-import { DeleteOutlined, LeftOutlined } from "@ant-design/icons"
-import { useRouter } from "next/navigation"
+import qk from "@/common/querykeys"
+import { LeftOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
+import { useQuery } from "@tanstack/react-query"
+import { Button, List, Tag, Typography } from "antd"
 import dayjs from "dayjs"
-import { Button, Card, Collapse, List, Tag, Typography } from "antd"
-import { useTranslation } from "react-i18next"
+import { useRouter } from "next/navigation"
 import Stockkeeper_Task_GetById from "../../../../_api/task/getById.api"
-import React from "react"
+import { TaskStatusTagMapper } from "@/common/enum/task-status.enum"
 
 export default function TaskDetails({ params }: { params: { id: string } }) {
    const result = useQuery({
@@ -18,7 +17,6 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
       queryFn: () => Stockkeeper_Task_GetById({ id: params.id }),
    })
    const router = useRouter()
-   const { t } = useTranslation()
 
    return (
       <div className="std-layout">
@@ -37,81 +35,69 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
             columns={[
                {
                   key: "name",
-                  label: t("TaskName"),
+                  label: "Tên tác vụ",
                   dataIndex: "name",
                },
                {
                   key: "created",
-                  label: t("Created"),
+                  label: "Ngày tạo",
                   dataIndex: "createdAt",
                   render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                },
                {
                   key: "status",
-                  label: t("Status"),
+                  label: "Trạng thái",
                   dataIndex: "status",
+                  render: (_, e) => (
+                     <Tag color={TaskStatusTagMapper[e.status].colorInverse}>{TaskStatusTagMapper[e.status].text}</Tag>
+                  ),
                },
                {
                   key: "priority",
-                  label: t("Priority"),
+                  label: "Độ ưu tiên",
                   render: (_, e) =>
-                     e.priority ? <Tag color="red">{t("High")}</Tag> : <Tag color="green">{t("Low")}</Tag>,
+                     e.priority ? <Tag color="red">{"Quan trọng"}</Tag> : <Tag color="green">{"Bình thường"}</Tag>,
                },
                {
                   key: "totalTime",
-                  label: t("TotalTime"),
+                  label: "Thời gian thực hiện",
                   dataIndex: "totalTime",
                },
                {
                   key: "operator",
-                  label: t("operator"),
+                  label: "Thông số máy",
                   dataIndex: "operator",
+               },
+               {
+                  key: "sp",
+                  label: "Lấy linh kiện",
+                  dataIndex: "confirmReceipt",
+                  render: (_, e) =>
+                     e.confirmReceipt ? <Tag color="green">{"Đã lấy"}</Tag> : <Tag color="red">{"Chưa lấy"}</Tag>,
                },
             ]}
          />
-         <Typography.Title level={5} className="mt-4">
-            Linh kiện thay thế
-         </Typography.Title>
-         <List
-            className={"w-full"}
-            dataSource={result.data?.issues.flatMap((i) => i.issueSpareParts) ?? []}
-            itemLayout={"horizontal"}
-            size={"small"}
-            renderItem={(sp) => (
-               <List.Item itemID={sp.id} key={sp.id}>
-                  <List.Item.Meta
-                     title={<Typography.Text strong>{sp.sparePart.name}</Typography.Text>}
-                     description={`${t("Qty")}: ${sp.quantity}`}
-                  ></List.Item.Meta>
-               </List.Item>
-            )}
-         />
-         {/*<Collapse*/}
-         {/*   ghost*/}
-         {/*   size="middle"*/}
-         {/*   bordered={false}*/}
-         {/*   items={result.data?.issues.map((issue: any) => ({*/}
-         {/*      key: issue.id,*/}
-         {/*      label: issue.description,*/}
-         {/*      children: (*/}
-         {/*         <Card>*/}
-         {/*            {issue.issueSpareParts.map((part: any) => (*/}
-         {/*               <Card key={part.id} type="inner" title={part.sparePart.name}>*/}
-         {/*                  <p>*/}
-         {/*                     {t("Qty")}: {part.quantity}*/}
-         {/*                  </p>*/}
-         {/*                  <p>*/}
-         {/*                     {t("Note")}: {part.note || "No note available"}*/}
-         {/*                  </p>*/}
-         {/*                  <p>*/}
-         {/*                     {t("ExpirationDate")}: {dayjs(part.sparePart.expirationDate).format("DD/MM/YYYY")}*/}
-         {/*                  </p>*/}
-         {/*               </Card>*/}
-         {/*            ))}*/}
-         {/*         </Card>*/}
-         {/*      ),*/}
-         {/*   }))}*/}
-         {/*/>*/}
+         <section className="mt-layout">
+            <h2 className="text-lg font-medium">Linh kiện thay thế</h2>
+            <List
+               className={"list-no-padding mt-3"}
+               dataSource={result.data?.issues.flatMap((i) => i.issueSpareParts) ?? []}
+               grid={{
+                  column: 2,
+               }}
+               renderItem={(sp) => (
+                  <List.Item itemID={sp.id} key={sp.id}>
+                     <List.Item.Meta
+                        title={<Typography.Text strong>{sp.sparePart.name}</Typography.Text>}
+                        description={`Số lượng: ${sp.quantity}`}
+                     ></List.Item.Meta>
+                  </List.Item>
+               )}
+            />
+            {/* <Button className="w-full" size="large" type="primary">
+               Hoàn tất lấy linh kiện
+            </Button> */}
+         </section>
       </div>
    )
 }

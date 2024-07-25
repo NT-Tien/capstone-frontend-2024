@@ -49,10 +49,10 @@ const nextConfig = {
    eslint: {
       ignoreDuringBuilds: false, // Set to true if build errors occur
    },
-   images: {
-      loader: "custom",
-      loaderFile: "./src/common/util/backendImageLoader.util.ts",
-   },
+   // images: {
+   //    loader: "custom",
+   //    loaderFile: "./src/common/util/backendImageLoader.util.ts",
+   // },
    i18n: {
       locales: ["vie", "eng"],
       defaultLocale: "vie",

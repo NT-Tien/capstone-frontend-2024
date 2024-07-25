@@ -1,13 +1,12 @@
 "use client"
 
-import { App, Avatar, Button, Card, Drawer, Form, Input } from "antd"
-import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
-import React, { useRef, useState } from "react"
 import RootHeader from "@/common/components/RootHeader"
-import { useRouter } from "next/navigation"
-import { InfoCircleFilled, RightOutlined, SearchOutlined } from "@ant-design/icons"
 import { isUUID } from "@/common/util/isUUID.util"
-import { useTranslation } from "react-i18next"
+import { InfoCircleFilled, RightOutlined, SearchOutlined } from "@ant-design/icons"
+import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
+import { App, Avatar, Button, Card, Drawer, Form, Input } from "antd"
+import { useRouter } from "next/navigation"
+import { useRef, useState } from "react"
 
 type FieldType = {
    deviceId: string
@@ -19,7 +18,6 @@ export default function StockkeeperScanPage() {
    const [form] = Form.useForm<FieldType>()
    const { message } = App.useApp()
    const timeoutRef = useRef<NodeJS.Timeout>()
-   const { t } = useTranslation()
 
    async function handleScan(e: IDetectedBarcode[]) {
       if (e.length === 0) return
@@ -43,7 +41,7 @@ export default function StockkeeperScanPage() {
 
       if (!isUUID(id)) {
          await message.open({
-            content: t("invalidDeviceId"),
+            content: "ID thiết bị không hợp lệ",
             duration: 0,
             type: "error",
             key: "messenger",
@@ -52,7 +50,7 @@ export default function StockkeeperScanPage() {
       }
 
       await message.open({
-         content: t("deviceIdScanned"),
+         content: "Quét thành công",
          duration: 0,
          type: "success",
          key: "messenger",
@@ -86,8 +84,8 @@ export default function StockkeeperScanPage() {
                            AI
                         </Avatar>
                         <div className="flex-grow">
-                           <p className="text-base font-bold">{t("InputManually")}</p>
-                           <p className="text-xs">{t("CannotScan")}</p>
+                           <p className="text-base font-bold">Nhập thủ công</p>
+                           <p className="text-xs">Nhấp vào đây nếu bạn không thể quét mã QR</p>
                         </div>
                         <div>
                            <Button type="text" icon={<RightOutlined />} />
@@ -99,7 +97,7 @@ export default function StockkeeperScanPage() {
          </div>
          <Form<FieldType> form={form} onFinish={(e) => finishHandler(e.deviceId)} layout="horizontal">
             <Drawer
-               title={t("InputManually")}
+               title={"Nhập thủ công"}
                placement="bottom"
                onClose={() => setManualOpen(false)}
                open={manualOpen}
@@ -112,12 +110,12 @@ export default function StockkeeperScanPage() {
                <Card size="small" hoverable className="mb-4">
                   <div className="flex gap-2">
                      <InfoCircleFilled />
-                     <div className="text-xs">{t("inputDeviceId")}</div>
+                     <div className="text-xs">Vui lòng nhập mã QR của thiết bị vào ô bên dưới</div>
                   </div>
                </Card>
                <Form.Item<FieldType>
                   name="deviceId"
-                  label={t("DeviceId")}
+                  label={"ID thiết bị"}
                   labelAlign="left"
                   labelCol={{
                      span: 24,
@@ -142,7 +140,7 @@ export default function StockkeeperScanPage() {
                   className="w-full"
                   size="large"
                >
-                  {t("Submit")}
+                  {"Gửi"}
                </Button>
             </Drawer>
          </Form>

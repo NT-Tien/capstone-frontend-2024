@@ -187,7 +187,7 @@ export default function IssueDetailsDrawer({
    return (
       <>
          {children(handleOpen)}
-         <Drawer open={open} onClose={handleClose} title="Thông tin lỗi" {...drawerProps}>
+         <Drawer open={open} onClose={handleClose} title="Thông tin vấn đề" {...drawerProps}>
             <ProDescriptions<FixRequestIssueDto>
                title={
                   <div className="flex items-center gap-2">
@@ -223,7 +223,7 @@ export default function IssueDetailsDrawer({
                         confirmText="Xóa"
                         confirmProps={{ danger: true }}
                         title="Lưu ý"
-                        description="Bạn có chắc chắn muốn xóa lỗi này?"
+                        description="Bạn có chắc chắn muốn xóa vấn đề này?"
                         closeAfterConfirm
                      >
                         <Button icon={<DeleteOutlined />} type="primary" size="small" danger>
@@ -312,7 +312,9 @@ export default function IssueDetailsDrawer({
                      dataIndex: ["updatedAt"],
                      editable: false,
                      render: (_, e) =>
-                        e.createdAt === e.updatedAt ? "-" : dayjs(e.updatedAt).add(7, "hours").format("DD/MM/YYYY HH:mm"),
+                        e.createdAt === e.updatedAt
+                           ? "-"
+                           : dayjs(e.updatedAt).add(7, "hours").format("DD/MM/YYYY HH:mm"),
                   },
                ]}
             />
@@ -351,7 +353,7 @@ export default function IssueDetailsDrawer({
                      <Empty description="Chưa có linh kiện" />
                   </Card>
                ) : (
-                  <IssueSparePartDetailsModal refetch={issue.refetch}>
+                  <IssueSparePartDetailsModal refetch={issue.refetch} showActions={showActions}>
                      {(handleOpen1) => (
                         <ProList
                            className={"list-no-padding"}
@@ -366,8 +368,8 @@ export default function IssueDetailsDrawer({
                                           item.id === highlightedId && "border-green-200 bg-green-50",
                                        )}
                                        bordered
-                                       hoverable={showActions}
-                                       onClick={() => showActions && handleOpen1(item)}
+                                       hoverable={true}
+                                       onClick={() => handleOpen1(item)}
                                     >
                                        <div className="flex flex-col">
                                           <span className="text-sub-base font-medium">{item.sparePart.name}</span>

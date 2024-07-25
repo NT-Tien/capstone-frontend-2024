@@ -1,23 +1,20 @@
 "use client"
 
-import RootHeader from "@/common/components/RootHeader"
-import { Empty, Skeleton, Spin, Tabs, Typography } from "antd"
-import { useQuery } from "@tanstack/react-query"
 import staff_qk from "@/app/staff/_api/qk"
 import Staff_Task_All from "@/app/staff/_api/task/all.api"
-import { useRouter, useSearchParams } from "next/navigation"
-import { TaskDto } from "@/common/dto/Task.dto"
 import TaskCard from "@/app/staff/_components/TaskCard"
-import { CSSProperties, useMemo } from "react"
-import { cn } from "@/common/util/cn.util"
-import dayjs from "dayjs"
-import extended_dayjs from "@/config/dayjs.config"
-import { TaskStatus } from "@/common/enum/task-status.enum"
 import TaskDetailsDrawer from "@/app/staff/_components/TaskDetails.drawer"
+import RootHeader from "@/common/components/RootHeader"
+import { TaskDto } from "@/common/dto/Task.dto"
+import { TaskStatus } from "@/common/enum/task-status.enum"
+import { cn } from "@/common/util/cn.util"
+import extended_dayjs from "@/config/dayjs.config"
+import { useQuery } from "@tanstack/react-query"
+import { Empty, Skeleton, Spin, Typography } from "antd"
+import dayjs from "dayjs"
+import { CSSProperties, useMemo } from "react"
 
 export default function StaffTasksPage() {
-   const searchParams = useSearchParams()
-
    const response = useQuery({
       queryKey: staff_qk.task.all(),
       queryFn: Staff_Task_All,
@@ -38,8 +35,12 @@ export default function StaffTasksPage() {
          }
       })
 
-      result.priority.sort((a, b) => (dayjs(a.createdAt).add(7, "hours").isBefore(dayjs(b.createdAt).add(7, "hours")) ? 1 : -1))
-      result.normal.sort((a, b) => (dayjs(a.createdAt).add(7, "hours").isBefore(dayjs(b.createdAt).add(7, "hours")) ? 1 : -1))
+      result.priority.sort((a, b) =>
+         dayjs(a.createdAt).add(7, "hours").isBefore(dayjs(b.createdAt).add(7, "hours")) ? 1 : -1,
+      )
+      result.normal.sort((a, b) =>
+         dayjs(a.createdAt).add(7, "hours").isBefore(dayjs(b.createdAt).add(7, "hours")) ? 1 : -1,
+      )
 
       return result
    }, [response.data, response.isSuccess])
@@ -64,7 +65,7 @@ export default function StaffTasksPage() {
             <div className="std-layout">
                <RootHeader title="Tác vụ" className="std-layout-outer p-4" />
                {ongoingTask && (
-                  <section className="shadow-bottom std-layout-outer w-full bg-white p-layout">
+                  <section className="std-layout-outer w-full bg-white p-layout shadow-bottom">
                      <TaskCard
                         title="Tác vụ cần thực hiện"
                         description={ongoingTask.name ?? ""}
@@ -117,8 +118,6 @@ type ListRendererProps = {
 }
 
 function DetailedListRenderer(props: ListRendererProps) {
-   const router = useRouter()
-
    if (props.loading)
       return (
          <Spin spinning={props.loading}>

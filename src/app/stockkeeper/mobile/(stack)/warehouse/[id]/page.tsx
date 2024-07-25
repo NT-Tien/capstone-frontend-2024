@@ -1,21 +1,18 @@
 "use client"
 
-import qk from "@/common/querykeys"
-import RootHeader from "@/common/components/RootHeader"
-import { DeleteOutlined, LeftOutlined, UserOutlined, PlusOutlined, MinusOutlined } from "@ant-design/icons"
-import { useRouter } from "next/navigation"
-import { ProDescriptions } from "@ant-design/pro-components"
-import dayjs from "dayjs"
-import { App, Avatar, Button, Card, Collapse, Descriptions, Input, List, Tabs, Tag, Typography } from "antd"
-import { useTranslation } from "react-i18next"
-import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
 import Stockkeeper_MachineModel_GetById from "@/app/stockkeeper/_api/machine-model/getById.api"
-import Stockkeeper_SparePart_GetById from "@/app/stockkeeper/_api/spare-part/getById.api"
-import { useMutation, useQuery } from "@tanstack/react-query"
 import Stockkeeper_SparePart_Update, {
    Request as UpdateRequest,
    Response as UpdateResponse,
 } from "@/app/stockkeeper/_api/spare-part/update-spare-part-by-id.api"
+import RootHeader from "@/common/components/RootHeader"
+import qk from "@/common/querykeys"
+import { LeftOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons"
+import { ProDescriptions } from "@ant-design/pro-components"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { App, Card, Collapse, Input } from "antd"
+import dayjs from "dayjs"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 export default function MachineModelDetails({ params }: { params: { id: string } }) {
@@ -26,16 +23,14 @@ export default function MachineModelDetails({ params }: { params: { id: string }
    const router = useRouter()
    const { message } = App.useApp()
    const [quantityInputs, setQuantityInputs] = useState<{ [key: string]: number }>({})
-   const { t } = useTranslation()
-   const { getFixTypeTranslation } = useIssueRequestStatusTranslation()
    const mutation = useMutation<UpdateResponse, Error, UpdateRequest>({
       mutationFn: (req) => Stockkeeper_SparePart_Update(req),
       onSuccess: () => {
          qk.machineModels.one_byId(params.id)
-         message.success(t("Spare part quantity updated successfully"))
+         message.success("Cập nhật số lượng linh kiện thành công")
       },
       onError: (error, variables) => {
-         message.error(t("Failed to update spare part quantity"))
+         message.error("Cập nhật số lượng linh kiện thất bại")
          setQuantityInputs((prev) => ({
             ...prev,
             [variables.id]: result.data?.spareParts.find((part) => part.id === variables.id)?.quantity ?? 0,
@@ -52,7 +47,7 @@ export default function MachineModelDetails({ params }: { params: { id: string }
                qk.machineModels.one_byId(params.id)
             },
             onError: (error, variables) => {
-               message.error(t("Failed to update spare part quantity"))
+               message.error("Cập nhật số lượng linh kiện thất bại")
                setQuantityInputs((prev) => ({
                   ...prev,
                   [variables.id]: result.data?.spareParts.find((part) => part.id === variables.id)?.quantity ?? 0,
@@ -105,33 +100,33 @@ export default function MachineModelDetails({ params }: { params: { id: string }
             columns={[
                {
                   key: "name",
-                  label: t("Name"),
+                  label: "Tên",
                   dataIndex: "name",
                },
                {
                   key: "description",
-                  label: t("Description"),
+                  label: "Mô tả",
                   dataIndex: "description",
                },
                {
                   key: "manufacturer",
-                  label: t("Manufacturer"),
+                  label: "Nhà sản xuất",
                   dataIndex: "manufacturer",
                },
                {
                   key: "yearOfProduction",
-                  label: t("YearOfProduction"),
+                  label: "Năm sản xuất",
                   dataIndex: "yearOfProduction",
                },
                {
                   key: "dateOfReceipt",
-                  label: t("Created"),
+                  label: "Ngày nhập kho",
                   dataIndex: "dateOfReceipt",
                   render: (_, e) => dayjs(e.dateOfReceipt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                },
                {
                   key: "warrantyTerm",
-                  label: t("Created"),
+                  label: "Thời hạn bảo hành",
                   dataIndex: "warrantyTerm",
                   render: (_, e) => dayjs(e.warrantyTerm).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                },

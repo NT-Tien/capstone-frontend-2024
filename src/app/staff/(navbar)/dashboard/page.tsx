@@ -1,22 +1,20 @@
 "use client"
 
-import HomeHeader from "@/common/components/HomeHeader"
-import { useQuery } from "@tanstack/react-query"
 import staff_qk from "@/app/staff/_api/qk"
 import Staff_Task_All from "@/app/staff/_api/task/all.api"
-import { TaskStatus } from "@/common/enum/task-status.enum"
 import TaskCard from "@/app/staff/_components/TaskCard"
 import TaskDetailsDrawer from "@/app/staff/_components/TaskDetails.drawer"
-import { StatisticCard } from "@ant-design/pro-components"
+import HomeHeader from "@/common/components/HomeHeader"
 import { TaskDto } from "@/common/dto/Task.dto"
-import CountUp from "react-countup"
-import { useMemo } from "react"
-import { useRouter } from "next/navigation"
-import { Button, Typography } from "antd"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 import extended_dayjs from "@/config/dayjs.config"
-import { ClockCircleOutlined, PlusOutlined } from "@ant-design/icons"
+import { ClockCircleOutlined } from "@ant-design/icons"
+import { StatisticCard } from "@ant-design/pro-components"
+import { useQuery } from "@tanstack/react-query"
+import { Button, Typography } from "antd"
 import Link from "next/link"
-import { useTranslation } from "react-i18next"
+import { useMemo } from "react"
+import CountUp from "react-countup"
 
 export default function StaffDashboard() {
    const response = useQuery({
@@ -29,12 +27,12 @@ export default function StaffDashboard() {
       const result = response.data?.filter((task) => task.status === TaskStatus.IN_PROGRESS)
       if (result.length > 0) return result[0]
       return null
-   }, [response.data])
+   }, [response.data, response.isSuccess])
 
    const completedTasks = useMemo(() => {
       if (!response.isSuccess) return []
       return response.data?.filter((task: TaskDto) => task.status === TaskStatus.COMPLETED)
-   }, [response.data])
+   }, [response.data, response.isSuccess])
 
    return (
       <div className="std-layout">
@@ -95,7 +93,7 @@ export default function StaffDashboard() {
          <div>
             {completedTasks.map((task) => (
                <TaskCard
-               className="std-layout-inner mt-1.5 grid grid-cols-1 gap-3"
+                  className="std-layout-inner mt-1.5 grid grid-cols-1 gap-3"
                   title={task.name}
                   description={`Est. ${task.totalTime} minutes`}
                   key={task.id}

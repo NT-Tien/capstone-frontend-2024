@@ -1,18 +1,20 @@
-import React, { ReactNode, useState } from "react"
-import { App, Button, Card, Collapse, Divider, Drawer, List, Select, Tag } from "antd"
-import { useMutation, useQuery } from "@tanstack/react-query"
 import staff_qk from "@/app/staff/_api/qk"
 import Staff_Task_OneById from "@/app/staff/_api/task/one-byId.api"
-import { ProDescriptions } from "@ant-design/pro-components"
-import dayjs from "dayjs"
-import { ExclamationCircleOutlined, InfoCircleFilled, InfoCircleOutlined, InfoOutlined } from "@ant-design/icons"
-import { useRouter } from "next/navigation"
+import Staff_Task_ReceiveSpareParts from "@/app/staff/_api/task/receive-spare-parts.api"
 import Staff_Task_UpdateStart from "@/app/staff/_api/task/update-start.api"
-import DeviceDetailsCard from "@/common/components/DeviceDetailsCard"
+import QrCodeDisplayModal from "@/app/staff/_components/QrCodeDisplay.modal"
 import DataListView from "@/common/components/DataListView"
-import api from "@/config/axios.config"
-import { MapPin } from "@phosphor-icons/react"
+import { FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
 import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
+import useModalControls from "@/common/hooks/useModalControls"
+import { cn } from "@/common/util/cn.util"
+import { ProDescriptions } from "@ant-design/pro-components"
+import { CheckCircle, Gear, MapPin } from "@phosphor-icons/react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { App, Badge, Button, Card, Drawer, List, Tag } from "antd"
+import dayjs from "dayjs"
+import { useRouter } from "next/navigation"
+import { ReactNode, useState } from "react"
 
 export default function TaskDetailsDrawer({
    children,
@@ -21,16 +23,54 @@ export default function TaskDetailsDrawer({
    children: (handleOpen: (taskId: string, shouldContinue?: boolean) => void) => ReactNode
    showNextButton?: boolean
 }) {
-   const [open, setOpen] = useState(false)
+   const { open, handleOpen, handleClose } = useModalControls({
+      onOpen: (taskId: string, shouldContinue?: boolean) => {
+         setTaskId(taskId)
+         setShouldContinue(shouldContinue ?? false)
+      },
+      onClose: () => {
+         setTaskId(undefined)
+         setShouldContinue(false)
+      },
+   })
+
    const [taskId, setTaskId] = useState<string | undefined>(undefined)
    const [shouldContinue, setShouldContinue] = useState<boolean>(false)
    const router = useRouter()
    const { message } = App.useApp()
+   const queryClient = useQueryClient()
 
    const task = useQuery({
       queryKey: staff_qk.task.one_byId(taskId ?? ""),
       queryFn: () => Staff_Task_OneById({ id: taskId ?? "" }),
       enabled: !!taskId,
+   })
+
+   const mutate_acceptSpareParts = useMutation({
+      mutationFn: Staff_Task_ReceiveSpareParts,
+      onMutate: async () => {
+         message.open({
+            type: "loading",
+            content: `Loading...`,
+            key: `loading`,
+         })
+      },
+      onError: async (error) => {
+         message.error({
+            content: "An error occurred. Please try again later.",
+         })
+      },
+      onSuccess: async () => {
+         message.success({
+            content: `Spare parts received successfully.`,
+         })
+         await queryClient.invalidateQueries({
+            queryKey: staff_qk.task.base(),
+         })
+      },
+      onSettled: () => {
+         message.destroy(`loading`)
+      },
    })
 
    const mutate_startTask = useMutation({
@@ -74,18 +114,6 @@ export default function TaskDetailsDrawer({
       }
    }
 
-   function handleOpen(taskId: string, shouldContinue?: boolean) {
-      setOpen(true)
-      setTaskId(taskId)
-      setShouldContinue(shouldContinue ?? false)
-   }
-
-   function handleClose() {
-      setOpen(false)
-      setTaskId(undefined)
-      setShouldContinue(false)
-   }
-
    return (
       <>
          {children(handleOpen)}
@@ -96,7 +124,7 @@ export default function TaskDetailsDrawer({
             height="100%"
             title="Chi tiết tác vụ"
             classNames={{
-               body: "overflow-auto",
+               body: "overflow-auto p-0 std-layout pt-layout",
             }}
          >
             <ProDescriptions
@@ -105,11 +133,7 @@ export default function TaskDetailsDrawer({
                title={task.data?.name}
                dataSource={task.data}
                size="small"
-               extra={
-                  <Tag color={task.data?.priority === true ? "red" : "default"}>
-                     {task.data?.priority === true ? "Ưu tiên" : task.data?.priority === false ? "Thường" : "-"}
-                  </Tag>
-               }
+               extra={task.data?.priority && <Tag color={"red"}>Ưu tiên</Tag>}
                columns={[
                   {
                      key: "1",
@@ -126,10 +150,15 @@ export default function TaskDetailsDrawer({
                      label: "Tổng thời lượng",
                      render: (_, e) => `${e.totalTime} phút`,
                   },
+                  {
+                     key: "4",
+                     label: "Ngày sửa",
+                     render: (_, e) => dayjs(e.fixerDate).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
+                  },
                ]}
             />
-            <section className="std-layout-outer rounded-lg bg-white py-layout">
-               <h2 className="mb-2 text-base font-semibold">Chi tiết thiết bị</h2>
+            <section className="std-layout-outer mt-layout rounded-lg bg-white">
+               <h2 className="mb-2 px-layout text-base font-semibold">Chi tiết thiết bị</h2>
                <DataListView
                   dataSource={task.data?.device}
                   bordered
@@ -158,49 +187,89 @@ export default function TaskDetailsDrawer({
                         label: "Nhà sản xuất",
                         value: (s) => s.machineModel?.manufacturer,
                      },
-                     {
-                        label: "Năm sản xuất",
-                        value: (s) => s.machineModel?.yearOfProduction,
-                     },
-                     {
-                        label: "Thời hạn bảo hành",
-                        value: (s) => s.machineModel?.warrantyTerm,
-                     },
-                     {
-                        label: "Mô tả",
-                        value: (s) => s.description,
-                     },
                   ]}
                />
             </section>
-            <section className="std-layout-outer py-layout">
+            <section className="mt-layout">
                <h2 className="mb-2 text-base font-semibold">Vấn đề</h2>
                <List
                   dataSource={task.data?.issues}
+                  grid={{
+                     column: 1,
+                     gutter: 10,
+                  }}
+                  renderItem={(item) => (
+                     <Badge.Ribbon
+                        text={FixRequestStatusTagMapper[String(item.status)]?.text ?? "status"}
+                        color={FixRequestStatusTagMapper[String(item.status)]?.color ?? "red"}
+                     >
+                        <Card
+                           className={cn("mb-2 w-full border-2 border-neutral-200 bg-transparent p-0 transition-all")}
+                           classNames={{
+                              body: "flex p-2.5 items-center",
+                           }}
+                        >
+                           <div className="flex flex-grow flex-col">
+                              <h3 className="font-medium">{item.typeError.name}</h3>
+                              <span className={"mt-1 flex w-full items-center gap-1"}>
+                                 <Tag color={FixTypeTagMapper[String(item.fixType)].colorInverse}>
+                                    {FixTypeTagMapper[String(item.fixType)]?.text ?? "Status"}
+                                 </Tag>
+                                 <span className="w-52 flex-grow truncate text-neutral-400">{item.description}</span>
+                              </span>
+                           </div>
+                        </Card>
+                     </Badge.Ribbon>
+                  )}
+               />
+            </section>
+            <section className="mb-28 mt-layout">
+               <h2 className="mb-2 text-base font-semibold">Linh kiện thay thế</h2>
+               <List
+                  grid={{
+                     column: 2,
+                  }}
+                  dataSource={task.data?.issues.map((i) => i.issueSpareParts).flat()}
                   renderItem={(item) => (
                      <List.Item>
-                        <List.Item.Meta
-                           title={item.typeError.name}
-                           description={
-                              <div className="flex items-center gap-1">
-                                 <Tag color={FixTypeTagMapper[String(item.fixType)].colorInverse}>
-                                    {FixTypeTagMapper[String(item.fixType)].text}
-                                 </Tag>
-                                 <span className="truncate">{item.description}</span>
-                              </div>
-                           }
-                        />
+                        <List.Item.Meta title={item.sparePart.name} description={`Số lượng: ${item.quantity}`} />
                      </List.Item>
                   )}
                />
             </section>
-            <section className="fixed bottom-0 left-0 w-full bg-white p-layout">
-               {showNextButton && (
-                  <Button className="mt-6 w-full" type="primary" size="large" onClick={handleStartTask}>
-                     {shouldContinue ? "Tiếp tục" : "Bắt đầu"} tác vụ
-                  </Button>
+            <QrCodeDisplayModal
+               onSubmit={(handleCloseMe) => {
+                  mutate_acceptSpareParts.mutate({ id: taskId ?? "" })
+                  handleCloseMe()
+               }}
+               title="Lấy linh kiện"
+               description="Hãy xuống kho và đưa mã QR sau cho chủ kho."
+            >
+               {(handleOpen) => (
+                  <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-fb">
+                     {showNextButton && (
+                        <Button
+                           disabled={!task.isSuccess}
+                           className="w-full"
+                           type="primary"
+                           size="large"
+                           onClick={() =>
+                              task.data?.confirmReceipt === false ? handleOpen(task.data?.id ?? "") : handleStartTask()
+                           }
+                        >
+                           <div className="flex items-center justify-center gap-2">
+                              {task.data?.confirmReceipt === false ? <Gear size={20} /> : <CheckCircle size={16} />}
+                              {task.data?.confirmReceipt === false
+                                 ? "Lấy linh kiện"
+                                 : shouldContinue
+                                   ? "Tiếp tục tác vụ"
+                                   : "Bắt đầu tác vụ"}
+                           </div>
+                        </Button>
+                     )}
+                  </section>
                )}
-            </section>
+            </QrCodeDisplayModal>
          </Drawer>
       </>
    )

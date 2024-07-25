@@ -3,11 +3,11 @@
 import dayjs, { Dayjs } from "dayjs"
 import { UseQueryResult } from "@tanstack/react-query"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import React, { Dispatch, SetStateAction, useCallback, useEffect } from "react"
+import React, { Dispatch, memo, SetStateAction, useCallback, useEffect } from "react"
 import { App, Button, Form, Radio } from "antd"
 import { ArrowLeftOutlined, ArrowRightOutlined, PlusOutlined } from "@ant-design/icons"
 import { ProFormDatePicker, ProFormText } from "@ant-design/pro-components"
-import { usePageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page"
+import { usePageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page.context"
 
 type FieldType = {
    name: string
@@ -25,7 +25,7 @@ type Step1_Props = {
    setSelectedTaskName: Dispatch<SetStateAction<string | undefined>>
 }
 
-export default function Step1_CreateTask(props: Step1_Props) {
+const Step1_CreateTask = memo(function Component(props: Step1_Props) {
    const [form] = Form.useForm<FieldType>()
    const { message } = App.useApp()
    const { setStep, setNextBtnProps, setPrevBtnProps } = usePageContext()
@@ -84,7 +84,18 @@ export default function Step1_CreateTask(props: Step1_Props) {
          children: "Tiếp tục",
          icon: <ArrowRightOutlined />,
       })
-   }, [form, handleFinish, props, setNextBtnProps, setPrevBtnProps, setStep])
+
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [
+      form,
+      handleFinish,
+      props.setSelectedFixDate,
+      props.setSelectedPriority,
+      props.setSelectedTaskName,
+      setNextBtnProps,
+      setPrevBtnProps,
+      setStep,
+   ])
 
    useEffect(() => {
       if (props.selectedFixDate === undefined || props.selectedTaskName === undefined) {
@@ -131,7 +142,7 @@ export default function Step1_CreateTask(props: Step1_Props) {
                   value: props.selectedTaskName,
                }}
             />
-            <div className="flex gap-4">
+            <div className="flex justify-between gap-2">
                <ProFormDatePicker
                   label={"Ngày sửa"}
                   name="fixDate"
@@ -147,7 +158,7 @@ export default function Step1_CreateTask(props: Step1_Props) {
                      onChange: (e) => props.setSelectedFixDate(e),
                      value: props.selectedFixDate,
                      disabledDate: (current) => {
-                        return current && current <= dayjs().startOf("day")
+                        return current && current < dayjs().startOf("day")
                      },
                   }}
                />
@@ -167,4 +178,6 @@ export default function Step1_CreateTask(props: Step1_Props) {
          </Form>
       </div>
    )
-}
+})
+
+export default Step1_CreateTask

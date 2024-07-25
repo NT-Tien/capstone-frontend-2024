@@ -1,15 +1,13 @@
 "use client"
 
-import { App, Avatar, Button, Card, Spin } from "antd"
-import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
-import React, { useEffect, useRef, useTransition } from "react"
 import RootHeader from "@/common/components/RootHeader"
-import { useRouter } from "next/navigation"
-import { InfoCircleOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons"
-import { isUUID } from "@/common/util/isUUID.util"
-import { useTranslation } from "react-i18next"
-import { PrefetchKind } from "next/dist/client/components/router-reducer/router-reducer-types"
 import ScannerInputManualDrawer from "@/common/components/ScannerInputManual.drawer"
+import { isUUID } from "@/common/util/isUUID.util"
+import { InfoCircleOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons"
+import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
+import { App, Avatar, Button, Card, Spin } from "antd"
+import { useRouter } from "next/navigation"
+import { useRef, useTransition } from "react"
 
 export default function ScanPage() {
    const router = useRouter()

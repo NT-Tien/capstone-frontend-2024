@@ -5,18 +5,30 @@ import { ProDescriptions } from "@ant-design/pro-components"
 import { useMutation } from "@tanstack/react-query"
 import Staff_Task_UpdateIssueStatus from "@/app/staff/_api/task/update-issue-status.api"
 import staff_qk from "@/app/staff/_api/qk"
-import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
+import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
+import useModalControls from "@/common/hooks/useModalControls"
+import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 
 export default function IssueDetailsDrawer({
    children,
    afterSuccess,
-   scanCompleted
+   scanCompleted,
 }: {
    children: (handleOpen: (issue: FixRequestIssueDto) => void) => ReactNode
    afterSuccess?: () => void
    scanCompleted: boolean
 }) {
-   const [open, setOpen] = useState(false)
+   const { open, handleOpen, handleClose } = useModalControls({
+      onClose: () => {
+         setTimeout(() => {
+            setCurrentIssue(undefined)
+         }, 200)
+      },
+      onOpen: (issue: FixRequestIssueDto) => {
+         setCurrentIssue(issue)
+      },
+   })
+
    const [currentIssue, setCurrentIssue] = useState<FixRequestIssueDto | undefined>(undefined)
    const { message } = App.useApp()
 
@@ -31,12 +43,12 @@ export default function IssueDetailsDrawer({
       },
       onError: async (error) => {
          message.error({
-            content: "An error occurred. Please try again later.",
+            content: "Đã xảy ra lỗi khi cập nhật trạng thái vấn đề.",
          })
       },
       onSuccess: async () => {
          message.success({
-            content: `Issue status updated successfully.`,
+            content: `Cập nhật trạng thái vấn đề thành công.`,
          })
          handleClose()
          afterSuccess?.()
@@ -46,25 +58,19 @@ export default function IssueDetailsDrawer({
       },
    })
 
-   function handleOpen(issue: FixRequestIssueDto) {
-      setOpen(true)
-      setCurrentIssue(issue)
-   }
-
-   function handleClose() {
-      setOpen(false)
-      setTimeout(() => {
-         setCurrentIssue(undefined)
-      }, 200)
-   }
-
    return (
       <>
          {children(handleOpen)}
          <Drawer open={open} onClose={handleClose} placement="bottom" height="max-content" title="Chi tiết vấn đề">
             <ProDescriptions
                title={currentIssue?.typeError.name ?? "-"}
-               extra={<Tag>{currentIssue?.status ?? "-"}</Tag>}
+               extra={
+                  currentIssue && (
+                     <Tag color={IssueStatusEnumTagMapper[String(currentIssue.status)].colorInverse}>
+                        {IssueStatusEnumTagMapper[String(currentIssue.status)].text}
+                     </Tag>
+                  )
+               }
                dataSource={currentIssue}
                loading={currentIssue === undefined}
                size="small"
@@ -76,11 +82,16 @@ export default function IssueDetailsDrawer({
                   {
                      label: "Cách sửa",
                      dataIndex: "fixType",
+                     render: (_, e) => (
+                        <Tag color={FixTypeTagMapper[e.fixType].colorInverse}>{FixTypeTagMapper[e.fixType].text}</Tag>
+                     ),
                   },
                ]}
             />
             <div className="mt-6">
-               <Typography.Title level={5}>Linh kiện thay thế ({currentIssue?.issueSpareParts.length ?? 0})</Typography.Title>
+               <Typography.Title level={5}>
+                  Linh kiện thay thế ({currentIssue?.issueSpareParts.length ?? 0})
+               </Typography.Title>
                <List
                   dataSource={currentIssue?.issueSpareParts}
                   renderItem={(item) => (

@@ -2,6 +2,7 @@
 
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
+import { PageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page.context"
 import Step0_SelectIssue from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/Step0_SelectIssue.component"
 import Step1_CreateTask from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/Step1_CreateTask.component"
 import Step2_ConfirmTask from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/Step2_ConfirmTask.component"
@@ -14,23 +15,7 @@ import { useQuery } from "@tanstack/react-query"
 import { App, Button, ButtonProps, Result, Spin, Steps } from "antd"
 import { Dayjs } from "dayjs"
 import { useRouter } from "next/navigation"
-import { createContext, Dispatch, SetStateAction, useContext, useEffect, useState } from "react"
-
-type PageContextType = {
-   setNextBtnProps: Dispatch<SetStateAction<ButtonProps>>
-   setPrevBtnProps: Dispatch<SetStateAction<ButtonProps>>
-   setStep: Dispatch<SetStateAction<number>>
-}
-
-const PageContext = createContext<PageContextType | undefined>(undefined)
-
-export function usePageContext() {
-   const context = useContext(PageContext)
-   if (context === undefined) {
-      throw new Error("usePageContext must be used within a PageContext")
-   }
-   return context
-}
+import { useEffect, useState } from "react"
 
 export type SelectedIssueType = { [key: string]: FixRequestIssueDto }
 
@@ -52,6 +37,7 @@ export default function NewTaskPage({ params }: { params: { id: string } }) {
       queryKey: headstaff_qk.request.byId(params.id),
       queryFn: () => HeadStaff_Request_OneById({ id: params.id }),
       retry: false,
+      refetchOnWindowFocus: false,
    })
 
    async function handleResetAll() {
@@ -190,6 +176,8 @@ export default function NewTaskPage({ params }: { params: { id: string } }) {
                         {step === 2 && (
                            <Step2_ConfirmTask
                               api={api}
+                              requestId={api.data?.id}
+                              requestStatus={api.data?.status}
                               selectedPriority={selectedPriority}
                               selectedFixDate={selectedFixDate}
                               selectedFixer={selectedFixer}

@@ -15,17 +15,17 @@ export const IssueStatusEnumTagMapper: {
    }
 } = {
    [IssueStatusEnum.PENDING]: {
-      text: "Pending",
+      text: "Chưa xử lý",
       color: "default",
       colorInverse: "default",
    },
    [IssueStatusEnum.FAILED]: {
-      text: "Failed",
+      text: "Thất bại",
       color: "red",
       colorInverse: "red-inverse",
    },
    [IssueStatusEnum.RESOLVED]: {
-      text: "Resolved",
+      text: "Thành công",
       color: "green",
       colorInverse: "green-inverse",
    },

@@ -1,6 +1,7 @@
-import { cloneElement, ReactElement, ReactNode } from "react"
-import { HomeOutlined } from "@ant-design/icons"
+"use client"
+
 import { Button } from "antd"
+import { cloneElement, ReactElement } from "react"
 
 type Props = {
    icon: ReactElement

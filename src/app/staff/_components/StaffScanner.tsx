@@ -1,11 +1,10 @@
 "use client"
 
-import { App, Avatar, Button, Card, Drawer, Form, Input } from "antd"
-import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
-import React, { useRef, useState } from "react"
-import { InfoCircleFilled, RightOutlined } from "@ant-design/icons"
 import { isUUID } from "@/common/util/isUUID.util"
-import { useTranslation } from "react-i18next"
+import { InfoCircleFilled, RightOutlined } from "@ant-design/icons"
+import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
+import { App, Avatar, Button, Card, Drawer, Form, Input } from "antd"
+import { useRef, useState } from "react"
 
 type FieldType = {
    deviceId: string
@@ -22,7 +21,6 @@ export default function StaffScanner(props: StaffScanPageProps) {
    const [form] = Form.useForm<FieldType>()
    const { message } = App.useApp()
    const timeoutRef = useRef<NodeJS.Timeout>()
-   const { t } = useTranslation()
 
    async function handleScan(e: IDetectedBarcode[]) {
       if (e.length === 0) return
@@ -46,7 +44,7 @@ export default function StaffScanner(props: StaffScanPageProps) {
 
       if (!isUUID(id)) {
          await message.open({
-            content: t("invalidDeviceId"),
+            content: "ID thiết bị không hợp lệ",
             duration: 0,
             type: "error",
             key: "messenger",
@@ -55,7 +53,7 @@ export default function StaffScanner(props: StaffScanPageProps) {
       }
 
       await message.open({
-         content: t("deviceIdScanned"),
+         content: "Quét thành công",
          duration: 0,
          type: "success",
          key: "messenger",

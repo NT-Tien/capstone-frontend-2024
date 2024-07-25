@@ -1,28 +1,30 @@
 "use client"
 
-import RootHeader from "@/common/components/RootHeader"
-import { Button, Card, Divider, List, Tabs, Tag, Typography } from "antd"
-import { useRouter, useSearchParams } from "next/navigation"
-import { TaskStatus } from "@/common/enum/task-status.enum"
-import { useInfiniteQuery } from "@tanstack/react-query"
 import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
-import qk from "@/common/querykeys"
+import RootHeader from "@/common/components/RootHeader"
+import ScrollableTabs from "@/common/components/ScrollableTabs"
+import TaskCard from "@/common/components/TaskCard"
 import { TaskDto } from "@/common/dto/Task.dto"
-import { RightOutlined, RobotOutlined } from "@ant-design/icons"
-import { ProDescriptions } from "@ant-design/pro-components"
-import dayjs from "dayjs"
-import { useTranslation } from "react-i18next"
-import { cn } from "@/common/util/cn.util"
-import extended_dayjs from "@/config/dayjs.config"
-import { MapPin, Robot } from "@phosphor-icons/react"
+import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
+import qk from "@/common/querykeys"
+import { useInfiniteQuery } from "@tanstack/react-query"
+import { Button, Card, Divider, Empty, List, Result, Spin } from "antd"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Suspense, useState } from "react"
 
-export default function TasksPage() {
+export default function Page() {
+   return (
+      <Suspense fallback={<Spin fullscreen />}>
+         <TasksPage />
+      </Suspense>
+   )
+}
+
+function TasksPage() {
    const searchParams = useSearchParams()
-   const status: TaskStatus = (searchParams.get("status") as TaskStatus) ?? TaskStatus.AWAITING_FIXER
+   const [status, setStatus] = useState<TaskStatus>(TaskStatus.AWAITING_FIXER)
    const page = Number(searchParams.get("page")) ?? 1
    const limit = 5
-   const router = useRouter()
-   const { t } = useTranslation()
 
    const result = useInfiniteQuery({
       queryKey: qk.task.all(page, limit, status),
@@ -36,63 +38,64 @@ export default function TasksPage() {
    return (
       <div className="std-layout">
          <RootHeader title="Tác vụ" className="std-layout-outer p-4" />
-         <Tabs
+         <ScrollableTabs
             className="main-tabs std-layout-outer"
-            onChange={(e) => {
-               router.push(`/head-staff/mobile/tasks?status=${e}`)
+            tab={status}
+            onTabChange={(e) => {
+               setStatus(e as any)
             }}
-            defaultActiveKey={status}
+            classNames={{
+               content: "mt-layout",
+            }}
             items={[
                {
                   key: TaskStatus.AWAITING_FIXER,
-                  label: "Đang chờ",
-                  children: (
-                     <ListView
-                        total={result.data?.pages[0].total ?? 0}
-                        loadMore={result.fetchNextPage}
-                        loading={result.isLoading}
-                        items={result.data?.pages.flatMap((res) => res.list) ?? []}
-                     />
-                  ),
+                  title: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text,
+                  icon: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].icon,
                },
                {
                   key: TaskStatus.ASSIGNED,
-                  label: "Đã phân công",
-                  children: (
-                     <ListView
-                        total={result.data?.pages[0].total ?? 0}
-                        loadMore={result.fetchNextPage}
-                        loading={result.isLoading}
-                        items={result.data?.pages.flatMap((res) => res.list) ?? []}
-                     />
-                  ),
+                  title: TaskStatusTagMapper[TaskStatus.ASSIGNED].text,
+                  icon: TaskStatusTagMapper[TaskStatus.ASSIGNED].icon,
                },
                {
                   key: TaskStatus.IN_PROGRESS,
-                  label: "Đang thực hiện",
-                  children: (
-                     <ListView
-                        total={result.data?.pages[0].total ?? 0}
-                        loadMore={result.fetchNextPage}
-                        loading={result.isLoading}
-                        items={result.data?.pages.flatMap((res) => res.list) ?? []}
-                     />
-                  ),
+                  title: TaskStatusTagMapper[TaskStatus.IN_PROGRESS].text,
+                  icon: TaskStatusTagMapper[TaskStatus.IN_PROGRESS].icon,
                },
                {
                   key: TaskStatus.COMPLETED,
-                  label: "Hoàn thành",
-                  children: (
-                     <ListView
-                        total={result.data?.pages[0].total ?? 0}
-                        loadMore={result.fetchNextPage}
-                        loading={result.isLoading}
-                        items={result.data?.pages.flatMap((res) => res.list) ?? []}
-                     />
-                  ),
+                  title: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text, // TODO temporary replacement
+                  icon: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].icon,
+               },
+               {
+                  key: TaskStatus.HEAD_STAFF_CONFIRM,
+                  title: TaskStatusTagMapper[TaskStatus.COMPLETED].text,
+                  icon: TaskStatusTagMapper[TaskStatus.COMPLETED].icon,
+               },
+               {
+                  key: TaskStatus.CANCELLED,
+                  title: TaskStatusTagMapper[TaskStatus.CANCELLED].text,
+                  icon: TaskStatusTagMapper[TaskStatus.CANCELLED].icon,
                },
             ]}
          />
+
+         {result.isError ? (
+            <Result
+               status="error"
+               title="Có lỗi xảy ra"
+               subTitle="Vui lòng thử lại sau"
+               extra={<Button onClick={() => result.refetch()}>Thử lại</Button>}
+            />
+         ) : (
+            <ListView
+               total={result.data?.pages[0].total ?? 0}
+               loadMore={result.fetchNextPage}
+               loading={result.isLoading}
+               items={result.data?.pages.flatMap((res) => res.list) ?? []}
+            />
+         )}
       </div>
    )
 }
@@ -105,8 +108,16 @@ type ListViewType = {
 }
 
 function ListView(props: ListViewType) {
-   const { t } = useTranslation()
    const router = useRouter()
+
+   if (props.items.length === 0) {
+      return (
+         <Card>
+            <Empty description="Không có tác vụ nào" />
+         </Card>
+      )
+   }
+
    return (
       <List
          loading={props.loading}
@@ -122,52 +133,7 @@ function ListView(props: ListViewType) {
          itemLayout={"horizontal"}
          size={"small"}
          renderItem={(item) => (
-            <Card
-               key={item.id}
-               title={
-                  <Typography.Text className="mb-0" ellipsis>
-                     {item.name}
-                  </Typography.Text>
-               }
-               extra={
-                  <div className="flex items-center gap-2">
-                     <span className="text-xs text-gray-500">
-                        {extended_dayjs(item.createdAt).add(7, "hours").format("DD/MM/YY HH:mm")}
-                     </span>
-                     <Button icon={<RightOutlined />} size="small" type="text" />
-                  </div>
-               }
-               size="small"
-               className={cn(item.priority ? "border-red-500 bg-red-100" : "border-gray-300", "mb-2 border-l-4")}
-               hoverable={true}
-               onClick={() => router.push(`/head-staff/mobile/tasks/${item.id}`)}
-            >
-               <ProDescriptions
-                  size="small"
-                  dataSource={item}
-                  colon={false}
-                  columns={[
-                     {
-                        key: "mm",
-                        label: "Mẫu máy",
-                        render: (_, e) => e.device?.machineModel.name ?? "-",
-                     },
-                     {
-                        key: "location",
-                        label: "Vị trí",
-                        render: (_, e) =>
-                           `${e.device?.area.name ?? "-"} (${e.device?.positionX}x${e.device?.positionY})`,
-                     },
-                     {
-                        key: "fixer",
-                        label: "Thợ sửa chữa",
-                        render: (_, e) => e.fixer?.username ?? "-",
-                        hide: item.fixer === undefined,
-                        className: !item.fixer ? "hidden" : "",
-                     },
-                  ]}
-               />
-            </Card>
+            <TaskCard task={item} className="mb-2" onClick={() => router.push(`/head-staff/mobile/tasks/${item.id}`)} />
          )}
       />
    )

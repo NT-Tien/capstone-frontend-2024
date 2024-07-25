@@ -3,15 +3,14 @@
 import RootHeader from "@/common/components/RootHeader"
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 import { ProDescriptions } from "@ant-design/pro-components"
-import { CloseOutlined, LeftOutlined, PlusOutlined } from "@ant-design/icons"
+import { CloseOutlined, LeftOutlined, LinkOutlined, PlusOutlined } from "@ant-design/icons"
 import { useRouter } from "next/navigation"
 import dayjs from "dayjs"
 import { App, Button, Card, Tabs, Tag } from "antd"
 import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import RejectTaskDrawer from "@/app/head-staff/_components/RejectTask.drawer"
-import { useTranslation } from "react-i18next"
-import React, { ReactNode, useCallback, useMemo, useRef, useState } from "react"
+import React, { ReactNode, useMemo, useRef, useState } from "react"
 import { CheckSquareOffset, MapPin, Tray, XCircle } from "@phosphor-icons/react"
 import { cn } from "@/common/util/cn.util"
 import DataListView from "@/common/components/DataListView"
@@ -130,7 +129,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                         label: (
                            <div className="flex items-center gap-2">
                               <Tray size={16} />
-                              Request
+                              Thông tin yêu cầu
                            </div>
                         ),
                      },
@@ -139,7 +138,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                         label: (
                            <div className="flex items-center gap-2">
                               <CheckSquareOffset size={16} />
-                              Tasks
+                              Tác vụ
                            </div>
                         ),
                      },
@@ -176,13 +175,31 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                            title: "Cập nhật lần cuối",
                            dataIndex: "updatedAt",
                            render: (_, e) =>
-                              e.updatedAt === e.createdAt ? "-" : dayjs(e.updatedAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
+                              e.updatedAt === e.createdAt
+                                 ? "-"
+                                 : dayjs(e.updatedAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                         },
                         {
                            key: "account-name",
                            title: "Báo cáo bởi",
                            render: (_, e) => e.requester?.username ?? "-",
                         },
+                        ...(api.data?.status === FixRequestStatus.APPROVED ||
+                        api.data?.status === FixRequestStatus.IN_PROGRESS ||
+                        api.data?.status === FixRequestStatus.CLOSED
+                           ? [
+                                {
+                                   key: "tasks",
+                                   title: "Số tác vụ",
+                                   render: (_: any, e: any) => (
+                                      <a onClick={() => setTab("main-tab-tasks")}>
+                                         {e.tasks?.length ?? 0}
+                                         <LinkOutlined className="ml-1" />
+                                      </a>
+                                   ),
+                                },
+                             ]
+                           : []),
                         {
                            title: "Ghi chú",
                            dataIndex: ["requester_note"],
@@ -314,7 +331,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                )}
             </>
          )}
-         {tab === "main-tab-tasks" && <TasksList api={api} />}
+         {tab === "main-tab-tasks" && <TasksList api={api} className="mb-28" />}
          <RequestDetails.ShowActionByStatus
             api={api}
             requiredStatus={[FixRequestStatus.PENDING, FixRequestStatus.APPROVED]}

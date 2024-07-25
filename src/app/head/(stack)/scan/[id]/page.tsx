@@ -96,7 +96,6 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
    const [form] = Form.useForm<FieldType>()
    const queryClient = useQueryClient()
    const { message } = App.useApp()
-   const { t, i18n } = useTranslation()
    const user = useCurrentUser()
 
    const { open, handleOpen, handleClose } = useModalControls({
@@ -150,15 +149,15 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
       onMutate: async () => {
          message.open({
             type: "loading",
-            content: "Creating issue report...",
+            content: "Vui long chờ...",
             key: "submitIssue",
          })
       },
       onError: async () => {
-         message.error(t("failedCreateReport"))
+         message.error("Tạo báo cáo thất bại")
       },
       onSuccess: async () => {
-         message.success(t("createReportIssueSuccess"))
+         message.success("Tạo báo cáo thành công")
       },
       onSettled: () => {
          message.destroy("submitIssue")
@@ -166,24 +165,23 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
    })
 
    function handleSubmit_createIssue(values: FieldType) {
-      if (results.isSuccess)
-         mutate_submitIssue.mutate(
-            {
-               requester_note: values.selection === "create" ? values.description : values.selection,
-               device: results.data.id,
+      if (!results.isSuccess) return
+      mutate_submitIssue.mutate(
+         {
+            requester_note: values.selection === "create" ? values.description : values.selection,
+            device: results.data.id,
+         },
+         {
+            onSuccess: async (res) => {
+               handleClose()
+
+               setTimeout(async () => {
+                  router.push(`/head/history/${res.id}`)
+                  await results_withRequest.refetch()
+               }, 500)
             },
-            {
-               onSuccess: async () => {
-                  form.resetFields()
-                  handleClose()
-                  await queryClient.invalidateQueries({
-                     queryKey: head_qk.requests.all(),
-                  })
-                  router.push("/head/history")
-               },
-            },
-         )
-      else message.info("Please wait...").then()
+         },
+      )
    }
 
    return (
@@ -335,7 +333,8 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                                        <span className="truncate text-base font-medium">{req.requester_note}</span>
                                        <div className="flex justify-between">
                                           <span>
-                                             <span className="text-neutral-500">Được tạo bởi</span> Head // TODO change to name
+                                             <span className="text-neutral-500">Được tạo bởi</span> Head // TODO change
+                                             to name
                                           </span>
                                           <span className="text-neutral-600">
                                              {dayjs(req.createdAt).format("DD-MM-YYYY HH:mm")}
@@ -386,16 +385,10 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                </div>
             )}
          </div>
-         <Drawer
-            placement="bottom"
-            height="max-content"
-            open={open}
-            onClose={handleClose}
-            title={"Tạo báo cáo"}
-         >
+         <Drawer placement="bottom" height="max-content" open={open} onClose={handleClose} title={"Tạo báo cáo"}>
             <Form<FieldType> form={form} layout="vertical">
                <ProFormSelect
-                  options={i18n.language === "vie" ? loiMay : machineIssues}
+                  options={loiMay}
                   label="Vấn đề"
                   fieldProps={{
                      size: "large",

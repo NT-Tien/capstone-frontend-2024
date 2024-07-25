@@ -21,9 +21,9 @@ export default function ScannerDrawer({ children, ...props }: Props) {
    })
 
    async function handleFinish(res: string, handleCloseManual?: () => void) {
-      handleClose()
-      handleCloseManual?.()
       props.onScan(res)
+      handleCloseManual?.()
+      handleClose()
    }
 
    return (

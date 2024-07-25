@@ -11,7 +11,7 @@ import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-r
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import RejectTaskDrawer from "@/app/head-staff/_components/RejectTask.drawer"
 import { useTranslation } from "react-i18next"
-import React, { ReactNode, useCallback, useRef, useState } from "react"
+import React, { ReactNode, useCallback, useMemo, useRef, useState } from "react"
 import { CheckSquareOffset, MapPin, Tray, XCircle } from "@phosphor-icons/react"
 import { cn } from "@/common/util/cn.util"
 import DataListView from "@/common/components/DataListView"
@@ -21,10 +21,10 @@ import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
 import IssuesList, { IssuesListRefType } from "./IssuesList.component"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
+import TasksList from "@/app/head-staff/mobile/(stack)/requests/[id]/TasksList.component"
 
 export default function RequestDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
-   const { t } = useTranslation()
    const { message } = App.useApp()
    const lastRefetchTime = useRef<number | null>(0)
 
@@ -57,6 +57,11 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
          return ret
       },
    })
+
+   const allHasTasks = useMemo(() => {
+      if (!api.isSuccess) return false
+      return api.data?.issues.every((issue) => issue.task !== null)
+   }, [api.isSuccess, api.data])
 
    function handleScanFinish(result: string) {
       message.destroy("scan-msg")
@@ -100,13 +105,15 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
          <RootHeader
             title="Thông tin chi tiết"
             icon={<LeftOutlined />}
-            onIconClick={() => router.back()}
+            onIconClick={() => router.push("/head-staff/mobile/requests")}
             confirmOnIconClick={hasScanned}
             confirmModalProps={{
-               confirmText: "Return",
-               title: "Warning",
+               confirmText: "Quay lại",
+               cancelText: "Hủy",
+               title: "Lưu ý",
                description:
-                  "You are about to go back. If you have unsaved changes, they will be lost and you'll have to rescan the QR.",
+                  "Bạn đã quét ID thiết bị. Nếu bạn thoát, bạn sẽ mất quyền quản lý yêu cầu này. Bạn có chắc chắn muốn thoát không?",
+               closeAfterConfirm: false,
             }}
             className="std-layout-outer p-4"
          />
@@ -248,7 +255,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                   api={api}
                   device={device}
                   hasScanned={hasScanned}
-                  className="my-6 mb-32"
+                  className="my-6 mb-28"
                   ref={issuesListRef}
                />
                {hasScanned && (
@@ -296,9 +303,10 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                               size="large"
                               icon={<PlusOutlined />}
                               className="flex-grow"
+                              disabled={allHasTasks}
                               onClick={() => router.push(`/head-staff/mobile/requests/${params.id}/task/new`)}
                            >
-                              Tạo tác vụ
+                              {allHasTasks ? "Tất cả lỗi đã có tác vụ" : "Tạo tác vụ mới"}
                            </Button>
                         )}
                      </section>
@@ -306,6 +314,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                )}
             </>
          )}
+         {tab === "main-tab-tasks" && <TasksList api={api} />}
          <RequestDetails.ShowActionByStatus
             api={api}
             requiredStatus={[FixRequestStatus.PENDING, FixRequestStatus.APPROVED]}

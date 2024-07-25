@@ -3,8 +3,8 @@
 import dayjs, { Dayjs } from "dayjs"
 import { UseQueryResult } from "@tanstack/react-query"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import React, { Dispatch, SetStateAction, useEffect } from "react"
-import { Button, Form, Radio } from "antd"
+import React, { Dispatch, SetStateAction, useCallback, useEffect } from "react"
+import { App, Button, Form, Radio } from "antd"
 import { ArrowLeftOutlined, ArrowRightOutlined, PlusOutlined } from "@ant-design/icons"
 import { ProFormDatePicker, ProFormText } from "@ant-design/pro-components"
 import { usePageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page"
@@ -27,15 +27,47 @@ type Step1_Props = {
 
 export default function Step1_CreateTask(props: Step1_Props) {
    const [form] = Form.useForm<FieldType>()
+   const { message } = App.useApp()
    const { setStep, setNextBtnProps, setPrevBtnProps } = usePageContext()
 
-   function handleFinish() {
-      setStep(2)
-   }
+   const handleFinish = useCallback(
+      async function handleFinish() {
+         try {
+            if (!props.selectedTaskName) {
+               form.setFields([
+                  {
+                     name: "name",
+                     errors: ["Vui lòng điền tên tác vụ"],
+                  },
+               ])
+            }
+
+            if (!props.selectedFixDate) {
+               form.setFields([
+                  {
+                     name: "fixDate",
+                     errors: ["Vui lòng chọn ngày sửa chữa"],
+                  },
+               ])
+            }
+
+            if (!props.selectedTaskName || !props.selectedFixDate) return
+
+            setStep(2)
+         } catch (e) {
+            message.destroy("error")
+            message.error({
+               content: "Vui lòng điền đầy đủ thông tin tác vụ",
+               key: "error",
+            })
+         }
+      },
+      [form, message, props.selectedFixDate, props.selectedTaskName, setStep],
+   )
 
    useEffect(() => {
       setPrevBtnProps({
-         children: "Back",
+         children: "Quay lại",
          onClick: () => {
             props.setSelectedFixDate(undefined)
             props.setSelectedPriority(false)
@@ -47,12 +79,12 @@ export default function Step1_CreateTask(props: Step1_Props) {
       })
       setNextBtnProps({
          onClick: async () => {
-            form.submit()
+            await handleFinish()
          },
-         children: "Continue",
+         children: "Tiếp tục",
          icon: <ArrowRightOutlined />,
       })
-   }, [form, props, setNextBtnProps, setPrevBtnProps, setStep])
+   }, [form, handleFinish, props, setNextBtnProps, setPrevBtnProps, setStep])
 
    useEffect(() => {
       if (props.selectedFixDate === undefined || props.selectedTaskName === undefined) {
@@ -85,14 +117,14 @@ export default function Step1_CreateTask(props: Step1_Props) {
                            props.setSelectedTaskName(str)
                         }}
                      >
-                        Generate Task Name
+                        Tạo tên tác vụ
                      </Button>
                   )
                }
                allowClear
                name="name"
                rules={[{ required: true }]}
-               label={"Task Name"}
+               label={"Tên tác vụ"}
                fieldProps={{
                   size: "large",
                   onChange: (e) => props.setSelectedTaskName(e.target.value),
@@ -101,7 +133,7 @@ export default function Step1_CreateTask(props: Step1_Props) {
             />
             <div className="flex gap-4">
                <ProFormDatePicker
-                  label={"Fix Date"}
+                  label={"Ngày sửa chữa"}
                   name="fixDate"
                   rules={[{ required: true }]}
                   formItemProps={{
@@ -111,7 +143,7 @@ export default function Step1_CreateTask(props: Step1_Props) {
                   fieldProps={{
                      size: "large",
                      className: "w-full",
-                     placeholder: "Select a Fix Date for the task",
+                     placeholder: "Chọn ngày sửa chữa cho tác vụ",
                      onChange: (e) => props.setSelectedFixDate(e),
                      value: props.selectedFixDate,
                      disabledDate: (current) => {
@@ -119,7 +151,7 @@ export default function Step1_CreateTask(props: Step1_Props) {
                      },
                   }}
                />
-               <Form.Item label="Task Priority" name="priority" initialValue={false}>
+               <Form.Item label="Mức độ ưu tiên" name="priority" initialValue={false}>
                   <Radio.Group
                      buttonStyle="solid"
                      size="large"
@@ -127,8 +159,8 @@ export default function Step1_CreateTask(props: Step1_Props) {
                      onChange={(e) => props.setSelectedPriority(e.target.value)}
                      value={props.selectedPriority}
                   >
-                     <Radio.Button value={false}>Normal</Radio.Button>
-                     <Radio.Button value={true}>Priority</Radio.Button>
+                     <Radio.Button value={false}>Thường</Radio.Button>
+                     <Radio.Button value={true}>Ưu tiên</Radio.Button>
                   </Radio.Group>
                </Form.Item>
             </div>

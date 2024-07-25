@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import HeadStaff_SparePart_Delete from "@/app/head-staff/_api/spare-part/delete.api"
 import ModalConfirm from "@/common/components/ModalConfirm"
 import HeadStaff_SparePart_Update from "@/app/head-staff/_api/spare-part/update.api"
+import useModalControls from "@/common/hooks/useModalControls"
 
 export default function IssueSparePartDetailsModal({
    children,
@@ -18,21 +19,18 @@ export default function IssueSparePartDetailsModal({
 }) {
    const { message } = App.useApp()
 
-   const [open, setOpen] = useState(false)
+   const { open, handleOpen, handleClose } = useModalControls({
+      onOpen: (sparePart: FixRequestIssueSparePartDto) => {
+         setSparePart(sparePart)
+         setSelectedQuantity(sparePart.quantity)
+      },
+      onClose: () => {
+         setSparePart(undefined)
+         setSelectedQuantity
+      },
+   })
    const [sparePart, setSparePart] = useState<FixRequestIssueSparePartDto | undefined>(undefined)
    const [selectedQuantity, setSelectedQuantity] = useState<number>(0)
-
-   function handleOpen(sparePart: FixRequestIssueSparePartDto) {
-      setSparePart(sparePart)
-      setOpen(true)
-      setSelectedQuantity(sparePart.quantity)
-   }
-
-   function handleClose() {
-      setOpen(false)
-      setSparePart(undefined)
-      setSelectedQuantity(0)
-   }
 
    const mutate_updateSparePart = useMutation({
       mutationFn: HeadStaff_SparePart_Update,
@@ -115,17 +113,18 @@ export default function IssueSparePartDetailsModal({
          <Modal
             open={open}
             onCancel={handleClose}
-            title="Spare Part Details"
+            title="Thông tin linh kiện"
             footer={
                <div className="flex w-full justify-between gap-3">
                   <Button
                      className="w-full"
                      type="primary"
                      icon={<EditOutlined />}
+                     size="large"
                      disabled={sparePart?.quantity === selectedQuantity}
                      onClick={handleUpdateQuantity_IssueSparePart}
                   >
-                     Update
+                     Cập nhật
                   </Button>
                   <ModalConfirm
                      confirmText="Delete"
@@ -133,8 +132,8 @@ export default function IssueSparePartDetailsModal({
                      onConfirm={handleDeleteIssueSparePart}
                      closeAfterConfirm
                   >
-                     <Button className="w-full" danger={true} type="primary" icon={<DeleteOutlined />}>
-                        Delete
+                     <Button className="w-full" danger={true} type="primary" icon={<DeleteOutlined />} size="large">
+                        Xóa
                      </Button>
                   </ModalConfirm>
                </div>
@@ -149,17 +148,17 @@ export default function IssueSparePartDetailsModal({
                      columns={[
                         {
                            key: "name",
-                           title: "Name",
+                           title: "Tên",
                            dataIndex: ["sparePart", "name"],
                         },
                         {
                            key: "Quantity",
-                           title: "Total Quantity",
+                           title: "Số lượng trong kho",
                            dataIndex: ["sparePart", "quantity"],
                         },
                         {
                            key: "exp",
-                           title: "Expiration Date",
+                           title: "Ngày hết hạn",
                            dataIndex: ["sparePart", "expirationDate"],
                            render: (_, e) => dayjs(e.sparePart.expirationDate).format("YYYY-MM-DD"),
                         },
@@ -167,7 +166,7 @@ export default function IssueSparePartDetailsModal({
                   />
                   <section className="mb-layout mt-layout">
                      <header className="mb-2">
-                        <h3 className="text-base font-medium">Selected Quantity</h3>
+                        <h3 className="text-base font-medium">Số lượng được chọn</h3>
                      </header>
                      <main className="flex gap-2">
                         <Button

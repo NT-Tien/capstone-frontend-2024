@@ -20,6 +20,7 @@ import HeadStaff_Issue_Update from "@/app/head-staff/_api/issue/update.api"
 import ModalConfirm from "@/common/components/ModalConfirm"
 import IssueSparePartDetailsModal from "@/app/head-staff/_components/IssueSparePartDetailsModal"
 import useModalControls from "@/common/hooks/useModalControls"
+import Link from "next/link"
 
 export default function IssueDetailsDrawer({
    children,
@@ -78,14 +79,14 @@ export default function IssueDetailsDrawer({
          message.open({
             type: "loading",
             key: "update-issue",
-            content: "Updating Issue...",
+            content: "Vui lòng chờ đợi...",
          })
       },
       onError: async () => {
-         message.error("Failed to update issue")
+         message.error("Cập nhật thất bại")
       },
       onSuccess: async () => {
-         message.success("Issue updated")
+         message.success("Cập nhật thành công")
          await issue.refetch()
       },
       onSettled: () => {
@@ -99,14 +100,14 @@ export default function IssueDetailsDrawer({
          message.open({
             type: "loading",
             key: "remove",
-            content: "Removing Issue...",
+            content: "Vui lòng chờ đợi...",
          })
       },
       onError: async () => {
-         message.error("Failed to remove issue")
+         message.error("Xóa thất bại")
       },
       onSuccess: async () => {
-         message.success("Issue removed")
+         message.success("Xóa thành công")
       },
       onSettled: () => {
          message.destroy("remove")
@@ -119,14 +120,14 @@ export default function IssueDetailsDrawer({
          message.open({
             type: "loading",
             key: "creating-spare-part",
-            content: "Adding Spare Part...",
+            content: "Vui lòng chờ đợi...",
          })
       },
       onError: async () => {
-         message.error("Failed to add spare part")
+         message.error("Thêm linh kiện thất bại")
       },
       onSuccess: async () => {
-         message.success("Spare part added")
+         message.success("Thêm linh kiện thành công")
          await issue.refetch()
       },
       onSettled: () => {
@@ -159,7 +160,8 @@ export default function IssueDetailsDrawer({
          },
          {
             onSuccess: async (res) => {
-               await issue.refetch()
+               await issue.refetch().then()
+               refetch()
 
                clearTimeout(highlightedTimeoutRef.current ?? 0)
                setHighlightedId(res.id)
@@ -174,7 +176,7 @@ export default function IssueDetailsDrawer({
    function IssueSparePartRibbon({ children, ...rest }: { children: ReactNode; id: string }) {
       if (rest.id === highlightedId) {
          return (
-            <Badge.Ribbon text="New" color="green">
+            <Badge.Ribbon text="Mới" color="green">
                {children}
             </Badge.Ribbon>
          )
@@ -185,11 +187,11 @@ export default function IssueDetailsDrawer({
    return (
       <>
          {children(handleOpen)}
-         <Drawer open={open} onClose={handleClose} title="Issue Details" {...drawerProps}>
+         <Drawer open={open} onClose={handleClose} title="Thông tin lỗi" {...drawerProps}>
             <ProDescriptions<FixRequestIssueDto>
                title={
                   <div className="flex items-center gap-2">
-                     <span>Issue Details</span>
+                     <span>Thông tin</span>
                      {showIssueStatus && (
                         <Tag color={FixRequestStatusTagMapper[String(issue.data?.status)].colorInverse}>
                            {FixRequestStatusTagMapper[String(issue.data?.status)].text}
@@ -218,21 +220,21 @@ export default function IssueDetailsDrawer({
                   showActions && (
                      <ModalConfirm
                         onConfirm={() => issueId && handleDeleteIssue(issueId)}
-                        confirmText="Delete"
+                        confirmText="Xóa"
                         confirmProps={{ danger: true }}
-                        title="Warning"
-                        description="Are you sure you want to delete this issue?"
+                        title="Lưu ý"
+                        description="Bạn có chắc chắn muốn xóa lỗi này?"
                         closeAfterConfirm
                      >
                         <Button icon={<DeleteOutlined />} type="primary" size="small" danger>
-                           Delete
+                           Xóa
                         </Button>
                      </ModalConfirm>
                   )
                }
                columns={[
                   {
-                     title: "Error Name",
+                     title: "Tên lỗi",
                      dataIndex: ["typeError", "name"],
                      valueType: "select",
                      editable: false,
@@ -246,7 +248,7 @@ export default function IssueDetailsDrawer({
                      // },
                   },
                   {
-                     title: "Fix Type",
+                     title: "Loại sửa chữa",
                      dataIndex: ["fixType"],
                      valueType: "radioButton",
                      editable: showActions === false ? false : undefined,
@@ -264,13 +266,13 @@ export default function IssueDetailsDrawer({
                      },
                   },
                   {
-                     title: "Duration",
+                     title: "Thời gian sửa chữa",
                      dataIndex: ["typeError", "duration"],
                      editable: false,
                      render: (_, e) => `${e.typeError.duration} minutes`,
                   },
                   {
-                     title: "Description",
+                     title: "Mô tả",
                      dataIndex: ["description"],
                      valueType: "textarea",
                      editable: showActions === false ? false : undefined,
@@ -287,13 +289,26 @@ export default function IssueDetailsDrawer({
                      },
                   },
                   {
-                     title: "Created At",
+                     title: "Tác vụ được giao",
+                     dataIndex: ["task", "id"],
+                     render: (_, e) =>
+                        e.task === null ? (
+                           "Chưa có"
+                        ) : (
+                           <Link href={`/head-staff/mobile/tasks/${e.task.id}`} className="truncate">
+                              {e.task.name}
+                           </Link>
+                        ),
+                     editable: false,
+                  },
+                  {
+                     title: "Ngày tạo",
                      dataIndex: ["createdAt"],
                      editable: false,
                      render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY HH:mm"),
                   },
                   {
-                     title: "Updated At",
+                     title: "Ngày cập nhật",
                      dataIndex: ["updatedAt"],
                      editable: false,
                      render: (_, e) =>
@@ -303,7 +318,7 @@ export default function IssueDetailsDrawer({
             />
             <section className="mb-3 mt-layout">
                <header className="mb-2 mt-2 flex items-center justify-between">
-                  <h2 className="text-base font-semibold">Spare Parts ({issue.data?.issueSpareParts.length ?? 0})</h2>
+                  <h2 className="text-base font-semibold">Linh kiện ({issue.data?.issueSpareParts.length ?? 0})</h2>
                   {showActions && (
                      <SelectSparePartDrawer
                         drawerProps={{
@@ -325,7 +340,7 @@ export default function IssueDetailsDrawer({
                                  )
                               }
                            >
-                              Add New
+                              Thêm mới
                            </Button>
                         )}
                      </SelectSparePartDrawer>
@@ -333,7 +348,7 @@ export default function IssueDetailsDrawer({
                </header>
                {issue.data?.issueSpareParts.length === 0 ? (
                   <Card>
-                     <Empty description="No Spare Parts selected" />
+                     <Empty description="Chưa có linh kiện" />
                   </Card>
                ) : (
                   <IssueSparePartDetailsModal refetch={issue.refetch}>

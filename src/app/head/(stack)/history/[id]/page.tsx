@@ -11,7 +11,6 @@ import { NotFoundError } from "@/common/error/not-found.error"
 import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
 import { ProDescriptions } from "@ant-design/pro-components"
 import dayjs from "dayjs"
-import { useTranslation } from "react-i18next"
 import { useIssueRequestStatusTranslation } from "@/common/enum/use-issue-request-status-translation"
 import DataListView from "@/common/components/DataListView"
 import React from "react"
@@ -30,7 +29,6 @@ const FixRequestStatusIndexMapper: {
 
 export default function HistoryDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
-   const { t } = useTranslation()
    const { getStatusTranslation } = useIssueRequestStatusTranslation()
 
    const api = useQuery({
@@ -46,7 +44,7 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
    return (
       <div className="std-layout">
          <RootHeader
-            title="History Details"
+            title="Thông tin báo cáo"
             className="std-layout-outer p-4"
             icon={<LeftOutlined />}
             onIconClick={() => router.back()}
@@ -62,7 +60,7 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
             contentStyle={{
                fontSize: "1rem",
             }}
-            title={<span className="text-lg">{t("IssueDetails")}</span>}
+            title={<span className="text-lg">{"Cụ thể"}</span>}
             extra={
                <Tag color={FixRequestStatusTagMapper[String(api.data?.status)].color}>
                   {getStatusTranslation(api.data?.status)}
@@ -73,22 +71,22 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
             size="small"
             columns={[
                {
-                  title: "Created At",
+                  title: "Ngày tạo",
                   dataIndex: "createdAt",
                   render: (_, e) => dayjs(e.createdAt).format("YYYY-MM-DD HH:mm:ss"),
                },
                {
-                  title: "Updated At",
+                  title: "Cập nhật lần cuối",
                   dataIndex: "updatedAt",
                   render: (_, e) =>
                      e.createdAt === e.updatedAt ? "-" : dayjs(e.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
                },
                {
-                  title: "Reported by",
+                  title: "Báo cáo bởi",
                   dataIndex: ["requester", "username"],
                },
                {
-                  title: "Note",
+                  title: "Ghi chú",
                   dataIndex: "requester_note",
                },
             ]}
@@ -103,33 +101,33 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                   className="std-steps"
                   items={[
                      {
-                        title: "Pending",
-                        description: "The issue is reported and waiting for approval",
+                        title: FixRequestStatusTagMapper[FixRequestStatus.PENDING].text,
+                        description: "Yêu cầu này đã được tạo và đang chờ xử lý",
                         className: "text-base",
                      },
                      ...(api.isSuccess
                         ? api.data?.status !== FixRequestStatus.REJECTED
                            ? [
                                 {
-                                   title: "Approved",
-                                   description: "The issue is approved and waiting for fixing",
+                                   title: FixRequestStatusTagMapper[FixRequestStatus.APPROVED].text,
+                                   description: "Yêu cầu đã được phê duyệt",
                                    className: "text-base",
                                 },
                                 {
-                                   title: "In Progress",
-                                   description: "The issue is being fixed",
+                                   title: FixRequestStatusTagMapper[FixRequestStatus.IN_PROGRESS].text,
+                                   description: "Yêu cầu đang được xử lý",
                                    className: "text-base",
                                 },
                                 {
-                                   title: "Closed",
-                                   description: "The issue is fixed",
+                                   title: FixRequestStatusTagMapper[FixRequestStatus.CLOSED].text,
+                                   description: "Yêu cầu đã hoàn thành",
                                    className: "text-base",
                                 },
                              ]
                            : [
                                 {
-                                   title: "Rejected",
-                                   description: "The issue is rejected",
+                                   title: FixRequestStatusTagMapper[FixRequestStatus.REJECTED].text,
+                                   description: "Yêu cầu đã bị từ chối",
                                    className: "text-base",
                                 },
                              ]
@@ -144,7 +142,7 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                   title={
                      <div className="flex items-center gap-1">
                         <XCircle size={18} />
-                        Rejection Reason
+                        Lý do
                      </div>
                   }
                   size="small"
@@ -154,23 +152,24 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
             </section>
          )}
          <section className="std-layout-outer mt-6 bg-white py-layout">
-            <h2 className="mb-2 px-layout text-lg font-semibold">Device Details</h2>
+            <h2 className="mb-2 px-layout text-lg font-semibold">Chi tiết thiết bị</h2>
             <DataListView
                dataSource={api.data?.device}
                bordered
                itemClassName="py-2"
-               labelClassName="font-normal text-neutral-500"
+               labelClassName="font-normal text-neutral-500 text-base"
+               valueClassName="text-base"
                items={[
                   {
-                     label: "Machine Model",
+                     label: "Mẫu máy",
                      value: (s) => s.machineModel?.name,
                   },
                   {
-                     label: "Area",
+                     label: "Khu vực",
                      value: (s) => s.area?.name,
                   },
                   {
-                     label: "Position (x, y)",
+                     label: "Vị trí (x, y)",
                      value: (s) => (
                         <a className="flex items-center gap-1">
                            {s.positionX} x {s.positionY}
@@ -179,19 +178,19 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                      ),
                   },
                   {
-                     label: "Manufacturer",
+                     label: "Nhà sản xuất",
                      value: (s) => s.machineModel?.manufacturer,
                   },
                   {
-                     label: "Year of Production",
+                     label: "Năm sản xuất",
                      value: (s) => s.machineModel?.yearOfProduction,
                   },
                   {
-                     label: "Warranty Term",
+                     label: "Thời hạn bảo hành",
                      value: (s) => s.machineModel?.warrantyTerm,
                   },
                   {
-                     label: "Description",
+                     label: "Mô tả",
                      value: (s) => s.description,
                   },
                ]}

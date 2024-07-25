@@ -15,7 +15,6 @@ export default function ScanPage() {
    const router = useRouter()
    const { message } = App.useApp()
    const timeoutRef = useRef<NodeJS.Timeout>()
-   const { t } = useTranslation()
 
    const [isLoading, startTransition] = useTransition()
 
@@ -41,7 +40,7 @@ export default function ScanPage() {
 
       if (!isUUID(id)) {
          await message.open({
-            content: t("invalidDeviceId"),
+            content: "ID thiết bị không hợp lệ",
             duration: 0,
             type: "error",
             key: "messenger",
@@ -51,15 +50,6 @@ export default function ScanPage() {
       }
 
       startTransition(() => {
-         // message
-         //    .open({
-         //       content: t("deviceIdScanned"),
-         //       duration: 0,
-         //       type: "success",
-         //       key: "messenger",
-         //    })
-         //    .then()
-
          router.push(`/head/scan/${id}`)
       })
 
@@ -108,8 +98,8 @@ export default function ScanPage() {
                               AI
                            </Avatar>
                            <div className="flex-grow">
-                              <p className="text-base font-bold">{t("InputManually")}</p>
-                              <p className="text-xs">{t("CannotScan")}</p>
+                              <p className="text-base font-bold">Nhập thủ công</p>
+                              <p className="text-xs">Nhấp vào đây nếu bạn không thể quét mã QR</p>
                            </div>
                            <div>
                               <Button type="text" icon={<RightOutlined />} />

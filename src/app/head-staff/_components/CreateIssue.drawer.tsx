@@ -10,6 +10,7 @@ import { ProFormSelect, ProFormTextArea } from "@ant-design/pro-components"
 import HeadStaff_Issue_Create from "@/app/head-staff/_api/issue/create.api"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
+import useModalControls from "@/common/hooks/useModalControls"
 
 type FieldType = {
    typeError: string
@@ -22,7 +23,16 @@ export default function CreateIssueDrawer(props: {
    onSuccess?: () => void
    drawerProp?: DrawerProps
 }) {
-   const [open, setOpen] = useState(false)
+   const { open, handleOpen, handleClose } = useModalControls({
+      onOpen: (requestId: string) => {
+         setId(requestId)
+      },
+      onClose: () => {
+         setId(undefined)
+         form.resetFields()
+      },
+   })
+
    const [id, setId] = useState<undefined | string>(undefined)
    const [form] = Form.useForm<FieldType>()
    const { message } = App.useApp()
@@ -75,17 +85,6 @@ export default function CreateIssueDrawer(props: {
          description: values.description,
          typeError: values.typeError,
       })
-   }
-
-   function handleOpen(requestId: string) {
-      setOpen(true)
-      setId(requestId)
-   }
-
-   function handleClose() {
-      setOpen(false)
-      setId(undefined)
-      form.resetFields()
    }
 
    return (

@@ -1,12 +1,13 @@
 "use client"
 
-import { Col, Dropdown, Flex, Row, Typography } from "antd"
+import { Button, Col, Dropdown, Flex, Row, Typography } from "antd"
 import { decodeJwt } from "@/common/util/decodeJwt.util"
 import Cookies from "js-cookie"
 import { cn } from "@/common/util/cn.util"
 import { CSSProperties } from "react"
 import { useTranslation } from "react-i18next"
 import LocaleSwitcher from "@/common/components/LocaleSwitcher"
+import { MoreOutlined } from "@ant-design/icons"
 
 type HeadStaffDashboardHeaderProps = {
    className?: string
@@ -19,11 +20,11 @@ export default function HomeHeader(props: HeadStaffDashboardHeaderProps) {
 
    return (
       <Col className={cn(props.className)} style={props.style}>
-         {/* <Row>
+         <Row>
             <Flex justify="flex-end" className="w-full">
-               <LocaleSwitcher />
+               <Button icon={<MoreOutlined />} type="default"></Button>
             </Flex>
-         </Row> */}
+         </Row>
          <Row>
             <Typography.Text className="text-base">Chào buổi sáng</Typography.Text>
          </Row>

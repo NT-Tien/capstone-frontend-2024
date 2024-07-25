@@ -6,7 +6,7 @@ import { Card, Empty } from "antd"
 import React, { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
 import { useRouter } from "next/navigation"
 import Head_Request_All from "@/app/head/_api/request/all.api"
 import { useTranslation } from "react-i18next"
@@ -22,7 +22,6 @@ export default function RequestsPage() {
       queryKey: head_qk.requests.all(),
       queryFn: () => Head_Request_All(),
    })
-   const { t } = useTranslation()
    const [tab, setTab] = useState<FixRequestStatus>(FixRequestStatus.PENDING)
 
    const datasets = useMemo(() => {
@@ -47,9 +46,9 @@ export default function RequestsPage() {
 
    return (
       <div className="std-layout">
-         <RootHeader title={t("MyRequests")} className="std-layout-outer p-4" icon={<ClockCircleOutlined />} />
+         <RootHeader title={"Lịch sử"} className="std-layout-outer p-4" icon={<ClockCircleOutlined />} />
          <ScrollableTabs
-            className="std-layout-outer"
+            className="std-layout-outer sticky left-0 top-0 z-50"
             classNames={{
                content: "mt-layout",
             }}
@@ -58,31 +57,31 @@ export default function RequestsPage() {
             items={[
                {
                   key: FixRequestStatus.PENDING,
-                  title: t("pending"),
+                  title: FixRequestStatusTagMapper[String(FixRequestStatus.PENDING)].text,
                   icon: <Hourglass size={16} />,
                   badge: datasets[FixRequestStatus.PENDING].length,
                },
                {
                   key: FixRequestStatus.APPROVED,
-                  title: t("Completed"),
+                  title: FixRequestStatusTagMapper[String(FixRequestStatus.APPROVED)].text,
                   icon: <ThumbsUp size={16} />,
                   badge: datasets[FixRequestStatus.APPROVED].length,
                },
                {
                   key: FixRequestStatus.IN_PROGRESS,
-                  title: "In Progress",
+                  title: FixRequestStatusTagMapper[String(FixRequestStatus.IN_PROGRESS)].text,
                   icon: <Wrench size={16} />,
                   badge: datasets[FixRequestStatus.IN_PROGRESS].length,
                },
                {
                   key: FixRequestStatus.CLOSED,
-                  title: "Closed",
+                  title: FixRequestStatusTagMapper[String(FixRequestStatus.CLOSED)].text,
                   icon: <CheckSquareOffset size={16} />,
                   badge: datasets[FixRequestStatus.CLOSED].length,
                },
                {
                   key: FixRequestStatus.REJECTED,
-                  title: t("rejected"),
+                  title: FixRequestStatusTagMapper[String(FixRequestStatus.REJECTED)].text,
                   icon: <XCircle size={16} />,
                   badge: datasets[FixRequestStatus.REJECTED].length,
                },
@@ -114,7 +113,7 @@ function IssueList({ data, isLoading, statusName, className }: IssueListProps) {
       <>
          {data && data.length === 0 && (
             <Card className="h-full">
-               <Empty description={`You have no ${statusName} reports`}></Empty>
+               <Empty description={`Bạn không có báo cáo với trạng thái \"${statusName}\"`}></Empty>
             </Card>
          )}
          <div className={cn("grid grid-cols-1 gap-2", className)}>

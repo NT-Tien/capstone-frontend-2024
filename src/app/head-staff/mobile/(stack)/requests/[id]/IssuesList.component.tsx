@@ -2,27 +2,19 @@ import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { DeviceDto } from "@/common/dto/Device.dto"
-import React, {
-   cloneElement,
-   forwardRef,
-   ReactNode,
-   useEffect,
-   useImperativeHandle,
-   useMemo,
-   useRef,
-   useState,
-} from "react"
-import { App, Badge, Button, Card, Drawer, Empty, Form, List, Radio, Select, Skeleton, Tag } from "antd"
+import React, { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
+import { App, Badge, Button, Card, Drawer, Empty, Form, Radio, Select, Skeleton, Tag } from "antd"
 import { BaseSelectRef } from "rc-select"
 import HeadStaff_Issue_Create from "@/app/head-staff/_api/issue/create.api"
 import IssueDetailsDrawer from "@/app/head-staff/_components/IssueDetailsDrawer"
 import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
-import { IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
 import { ProDescriptions, ProFormTextArea } from "@ant-design/pro-components"
 import RequestDetails from "@/app/head-staff/mobile/(stack)/requests/[id]/page"
-import { ArrowRightOutlined } from "@ant-design/icons"
+import { ArrowRightOutlined, PlusOutlined } from "@ant-design/icons"
 import { RibbonProps } from "antd/lib/badge/Ribbon"
 import { cn } from "@/common/util/cn.util"
+import useModalControls from "@/common/hooks/useModalControls"
+import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 
 type FieldType = {
    request: string
@@ -52,8 +44,17 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
    const createIssueBtnWrapperRef = useRef<HTMLDivElement | null>(null)
    const highlightedTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
+   const {
+      open,
+      handleOpen: handleOpen_CreateDrawer,
+      handleClose: handleClose_CreateDrawer,
+   } = useModalControls({
+      onClose: () => {
+         setSelectedTypeErrorId(undefined)
+         form.resetFields()
+      },
+   })
    const [createDropdownOpen, setCreateDropdownOpen] = useState(false)
-   const [createDrawerOpen, setCreateDrawerOpen] = useState(false)
    const [selectedTypeErrorId, setSelectedTypeErrorId] = useState<undefined | string>()
    const [highlightedId, setHighlightedId] = useState<undefined | string>()
 
@@ -63,7 +64,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
          message.open({
             type: "loading",
             key: "creating-issue",
-            content: "Creating issue...",
+            content: "Vui lọng chờ đợi...",
          })
       },
       onError: async () => {
@@ -101,15 +102,9 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
       })
    }, [props.api.data, props.api.isSuccess])
 
-   function handleClose_CreateDrawer() {
-      setCreateDrawerOpen(false)
-      setSelectedTypeErrorId(undefined)
-      form.resetFields()
-   }
-
    function handleSelectIssue(issueId: string) {
-      setCreateDrawerOpen(true)
       setSelectedTypeErrorId(issueId)
+      handleOpen_CreateDrawer()
    }
 
    function handleCreateIssue(values: FieldType) {
@@ -141,18 +136,65 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
       }
    }, [])
 
-   function IssueCardWithRibbon({ children, ...rest }: { children: ReactNode; id: string; badgeProps?: RibbonProps }) {
-      if (rest.id === highlightedId) {
+   function IssueCardWithRibbon({
+      children,
+      ...rest
+   }: {
+      children: ReactNode
+      issue: FixRequestIssueDto
+      badgeProps?: RibbonProps
+   }) {
+      if (rest.issue.id === highlightedId) {
          return (
-            <Badge.Ribbon text="New" color="green">
+            <Badge.Ribbon text="Mới" color="green">
                {children}
             </Badge.Ribbon>
          )
       }
-      if (props.api.data?.status !== FixRequestStatus.PENDING) {
-         return <Badge.Ribbon {...rest.badgeProps}>{children}</Badge.Ribbon>
+
+      if (
+         props.api.data?.status === FixRequestStatus.PENDING ||
+         props.api.data?.status === FixRequestStatus.APPROVED ||
+         props.api.data?.status === FixRequestStatus.IN_PROGRESS
+      ) {
+         if (rest.issue.task === null) {
+            return <Badge.Ribbon text="Chưa có tác vụ">{children}</Badge.Ribbon>
+         }
+
+         return (
+            <Badge.Ribbon
+               text={FixRequestStatusTagMapper[String(rest.issue.status)].text}
+               color={FixRequestStatusTagMapper[String(rest.issue.status)].color}
+            >
+               {children}
+            </Badge.Ribbon>
+         )
       }
+
       return children
+   }
+
+   async function handleFinish() {
+      try {
+         await form.validateFields()
+
+         const values = form.getFieldsValue()
+
+         if (!selectedTypeErrorId || !props.api.isSuccess) return
+         handleCreateIssue({
+            ...values,
+            request: props.api.data.id,
+            typeError: selectedTypeErrorId,
+         })
+      } catch (e) {
+         message.destroy("error-msg")
+         message
+            .error({
+               content: "Không thể gửi dữ liệu. Vui lòng kiểm tra lại.",
+               key: "error-msg",
+            })
+            .then()
+      }
    }
 
    return (
@@ -171,7 +213,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                <>
                   {props.api.data.issues.length === 0 ? (
                      <Card>
-                        <Empty description="There are no issues" />
+                        <Empty description="Báo cáo chưa có lỗi" />
                      </Card>
                   ) : (
                      <IssueDetailsDrawer
@@ -186,14 +228,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                         {(handleOpen) => (
                            <div className="space-y-2">
                               {sortedIssuesByUpdateDate.map((item) => (
-                                 <IssueCardWithRibbon
-                                    key={item.id}
-                                    id={item.id}
-                                    badgeProps={{
-                                       text: FixRequestStatusTagMapper[String(item.status)].text,
-                                       color: FixRequestStatusTagMapper[String(item.status)].color,
-                                    }}
-                                 >
+                                 <IssueCardWithRibbon key={item.id} issue={item}>
                                     <Card
                                        className={cn(
                                           "w-full border-2 border-neutral-200 bg-transparent p-0 transition-all",
@@ -214,7 +249,22 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                                                 {FixTypeTagMapper[String(item.fixType)].text}
                                              </Tag>
                                              <span className="w-52 flex-grow truncate text-neutral-400">
-                                                {item.description}
+                                                {item.issueSpareParts.length === 0 ? (
+                                                   props.hasScanned ? (
+                                                      <Button
+                                                         icon={<PlusOutlined />}
+                                                         size="small"
+                                                         type="link"
+                                                         className="px-0"
+                                                      >
+                                                         Thêm linh kiện
+                                                      </Button>
+                                                   ) : (
+                                                      "Chưa có linh kiện"
+                                                   )
+                                                ) : (
+                                                   `Có ${item.issueSpareParts.length} linh kiện`
+                                                )}
                                              </span>
                                              <Button icon={<ArrowRightOutlined />} size="small" type="text"></Button>
                                           </span>
@@ -238,7 +288,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                            showSearch
                            variant="outlined"
                            size="large"
-                           placeholder="+ Create New Issue"
+                           placeholder="+ Thêm lỗi mới"
                            value={selectedTypeErrorId}
                            onChange={(value) => handleSelectIssue(value)}
                            open={createDropdownOpen}
@@ -252,7 +302,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
             )}
          </RequestDetails.ShowActionByStatus>
          <Drawer
-            open={createDrawerOpen}
+            open={open}
             onClose={handleClose_CreateDrawer}
             title="Tạo vấn đề"
             placement="bottom"
@@ -262,7 +312,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                dataSource={selectedTypeError}
                size="small"
                className="mb-3"
-               title={<span className="text-lg">Chi tiết lỗi</span>}
+               title={<span className="text-lg">Thông tin lỗi</span>}
                labelStyle={{
                   fontSize: "var(--font-sub-base)",
                }}
@@ -275,8 +325,9 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                      dataIndex: ["name"],
                   },
                   {
-                     title: "Thời lượng",
+                     title: "Thời gian sửa chữa",
                      dataIndex: ["duration"],
+                     render: (_, e) => `${e.duration} phút`,
                   },
                   {
                      title: "Mô tả",
@@ -284,19 +335,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                   },
                ]}
             />
-            <Form<FieldType>
-               form={form}
-               onFinish={(values) => {
-                  if (!selectedTypeErrorId || !props.api.isSuccess) return
-                  handleCreateIssue({
-                     ...values,
-                     request: props.api.data.id,
-                     typeError: selectedTypeErrorId,
-                  })
-               }}
-               className="flex-grow"
-               layout="vertical"
-            >
+            <Form<FieldType> form={form} className="flex-grow" layout="vertical">
                <Form.Item<FieldType>
                   label={<span className="text-sub-base">Cách sửa</span>}
                   name="fixType"
@@ -317,7 +356,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                </Form.Item>
                <ProFormTextArea
                   name="description"
-                  label="Description"
+                  label="Mô tả"
                   formItemProps={{
                      className: "mb-10",
                   }}
@@ -329,7 +368,14 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                   }}
                />
                <Form.Item<FieldType> className="mb-0">
-                  <Button className="w-full" type="primary" size="large" htmlType="submit">
+                  <Button
+                     className="w-full"
+                     type="primary"
+                     size="large"
+                     htmlType="submit"
+                     icon={<PlusOutlined />}
+                     onClick={handleFinish}
+                  >
                      Tạo vấn đề
                   </Button>
                </Form.Item>

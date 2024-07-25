@@ -26,7 +26,7 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
 
    useEffect(() => {
       setPrevBtnProps({
-         children: "Home",
+         children: "Trang chủ",
          onClick: () => {
             router.push("/head-staff/mobile/requests")
          },
@@ -36,7 +36,7 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
          onClick: () => {
             setStep(1)
          },
-         children: "Continue",
+         children: "Tiếp tục",
          icon: <ArrowRightOutlined />,
       })
    }, [router, setNextBtnProps, setPrevBtnProps, setStep])
@@ -58,7 +58,7 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
    return (
       <div className="mt-layout">
          <section className="mx-auto mb-layout w-max rounded-lg border-2 border-neutral-200 bg-white p-1 px-3 text-center">
-            Select Issues for the Task
+            Chọn các lỗi cho tác vụ
             <InfoCircleFilled className="ml-2" />
          </section>
          <section className="mb-2 grid grid-cols-2 gap-2">
@@ -76,7 +76,7 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
                   )
                }}
             >
-               Select all REPAIR
+               Chọn tất cả SỬA CHỮA
             </Button>
             <Button
                size="large"
@@ -92,16 +92,16 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
                   )
                }}
             >
-               Select all REPLACE
+               Chọn tất cả THAY THẾ
             </Button>
          </section>
          <Card size="small" className="mb-2">
             <div className="flex justify-between">
-               <span>Selected {sizeSelectedIssues} issue(s)</span>
+               <span>Đã chọn {sizeSelectedIssues} lỗi</span>
                {sizeSelectedIssues !== 0 && (
                   <span>
                      <Button type="link" size="small" onClick={() => props.setSelectedIssues({})}>
-                        Clear
+                        Xóa
                      </Button>
                   </span>
                )}
@@ -122,7 +122,7 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
                      description={
                         <div className="mt-2 flex justify-between">
                            <div className="w-9/12 truncate">{issue.description}</div>
-                           <div className="text-neutral-600">{issue.typeError.duration} minute(s)</div>
+                           <div className="text-neutral-600">{issue.typeError.duration} phút</div>
                         </div>
                      }
                      extra={

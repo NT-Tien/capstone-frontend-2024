@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from "react"
 import useModalControls from "@/common/hooks/useModalControls"
-import { Button, Card, Drawer, DrawerProps, Form, Input } from "antd"
+import { App, Button, Card, Drawer, DrawerProps, Form, Input } from "antd"
 import { InfoCircleFilled } from "@ant-design/icons"
 import { isUUID } from "@/common/util/isUUID.util"
 import { useTranslation } from "react-i18next"
@@ -13,7 +13,7 @@ type FieldType = {
 
 export default function ScannerInputManualDrawer(props: {
    children: (handleOpen: () => void) => ReactNode
-   onFinish: (deviceId: string, handleClose: () => void) => Promise<void>
+   onFinish: (deviceId: string, handleClose?: () => void) => Promise<void>
    drawerProps?: DrawerProps
    disabled?: boolean
 }) {
@@ -24,6 +24,25 @@ export default function ScannerInputManualDrawer(props: {
    })
    const [form] = Form.useForm<FieldType>()
    const { t } = useTranslation()
+   const { message } = App.useApp()
+
+   async function handleFinish() {
+      try {
+         await form.validateFields()
+
+         const values = form.getFieldsValue()
+
+         await props.onFinish(values.deviceId, handleClose)
+      } catch (e) {
+         message.destroy("error-msg")
+         message
+            .error({
+               content: "Không thể gửi dữ liệu. Vui lòng kiểm tra lại.",
+               key: "error-msg",
+            })
+            .then()
+      }
+   }
 
    return (
       <>
@@ -39,14 +58,7 @@ export default function ScannerInputManualDrawer(props: {
             }}
             {...props.drawerProps}
          >
-            <Form<FieldType>
-               disabled={props.disabled}
-               form={form}
-               onFinish={async (e) => {
-                  await props.onFinish(e.deviceId, handleClose)
-               }}
-               layout="horizontal"
-            >
+            <Form<FieldType> disabled={props.disabled} form={form} layout="horizontal">
                <Card size="small" hoverable className="mb-4">
                   <div className="flex items-start gap-2">
                      <InfoCircleFilled className="mt-1" />
@@ -100,14 +112,7 @@ export default function ScannerInputManualDrawer(props: {
                      allowClear
                   />
                </Form.Item>
-               <Button
-                  key="submit-btn"
-                  type="primary"
-                  htmlType="submit"
-                  onClick={form.submit}
-                  className="w-full"
-                  size="large"
-               >
+               <Button key="submit-btn" type="primary" onClick={handleFinish} className="w-full" size="large">
                   {t("Submit")}
                </Button>
             </Form>

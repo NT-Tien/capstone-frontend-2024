@@ -3,6 +3,7 @@
 import { ReactNode, useState } from "react"
 import { Button, Modal } from "antd"
 import useModalControls from "@/common/hooks/useModalControls"
+import ScannerInputManualDrawer from "@/common/components/ScannerInputManual.drawer"
 
 export default function Inside() {
    return (
@@ -31,8 +32,15 @@ function ParentModal({ children }: { children: (handleOpen: (name: string, age: 
       <>
          {children(handleOpen)}
          <Modal open={open} onCancel={handleClose} title="Parent">
-            <ChildModal>{(handleOpen) => <Button onClick={handleOpen}>Child</Button>}</ChildModal>
-            {name} {age}
+            <ScannerInputManualDrawer
+               onFinish={async () => {
+                  console.log("FINISH")
+               }}
+            >
+               {(handleOpen1) => <Button onClick={handleOpen1}>Open Scanner</Button>}
+            </ScannerInputManualDrawer>
+            {/*<ChildModal>{(handleOpen) => <Button onClick={handleOpen}>Child</Button>}</ChildModal>*/}
+            {/*{name} {age}*/}
          </Modal>
       </>
    )
@@ -45,7 +53,7 @@ function ChildModal({ children }: { children: (handleOpen: () => void) => ReactN
       <>
          {children(handleOpen)}
          <Modal open={open} onCancel={handleClose} title="Child">
-            CHild
+            CHild\
          </Modal>
       </>
    )

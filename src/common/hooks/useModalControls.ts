@@ -45,5 +45,5 @@ export default function useModalControls<OpenProps extends any[]>(options?: {
       history.back()
    }
 
-   return { open, handleOpen, handleClose }
+   return { open, handleOpen, handleClose, handleClose_base }
 }

@@ -6,6 +6,7 @@ import qk from "@/common/querykeys"
 import { ProFormTextArea } from "@ant-design/pro-components"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { UploadOutlined } from "@ant-design/icons"
+import useModalControls from "@/common/hooks/useModalControls"
 
 type FieldType = {
    rejectMsg: string
@@ -17,7 +18,16 @@ type Props = {
 }
 
 export default function RejectTaskDrawer({ children, afterSuccess }: Props) {
-   const [open, setOpen] = useState(false)
+   const { open, handleOpen, handleClose } = useModalControls({
+      onOpen: (id: string) => {
+         setId(id)
+      },
+      onClose: () => {
+         setId(undefined)
+         form.resetFields()
+      },
+   })
+
    const [id, setId] = useState<undefined | string>(undefined)
    const [form] = Form.useForm<FieldType>()
    const { message } = App.useApp()
@@ -63,16 +73,6 @@ export default function RejectTaskDrawer({ children, afterSuccess }: Props) {
             },
          },
       )
-   }
-
-   function handleOpen(id: string) {
-      setOpen(true)
-      setId(id)
-   }
-
-   function handleClose() {
-      setOpen(false)
-      setId(undefined)
    }
 
    return (

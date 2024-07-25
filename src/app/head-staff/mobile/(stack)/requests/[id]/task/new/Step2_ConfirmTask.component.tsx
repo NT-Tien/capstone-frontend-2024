@@ -4,9 +4,9 @@ import { UserDto } from "@/common/dto/User.dto"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react"
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react"
 import dayjs, { Dayjs } from "dayjs"
-import { App, Input, Tag } from "antd"
+import { App, Button, Checkbox, Drawer, Input, Result, Tag } from "antd"
 import { useRouter } from "next/navigation"
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Users_AllStaff from "@/app/head-staff/_api/users/all.api"
@@ -14,7 +14,7 @@ import HeadStaff_Task_Create from "@/app/head-staff/_api/task/create.api"
 import HeadStaff_Task_UpdateAssignFixer from "@/app/head-staff/_api/task/update-assignFixer.api"
 import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { ArrowLeftOutlined, UploadOutlined } from "@ant-design/icons"
+import { ArrowLeftOutlined, EyeOutlined, LeftOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons"
 import { CheckCard } from "@ant-design/pro-card"
 import { SelectedIssueType, usePageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page"
 
@@ -35,6 +35,7 @@ type Step2_Props = {
    selectedIssues: SelectedIssueType
    selectedTaskName: string | undefined
    selectedPriority: boolean
+   resetAll: () => void
 }
 
 function Step2_ConfirmTask(props: Step2_Props) {
@@ -44,6 +45,8 @@ function Step2_ConfirmTask(props: Step2_Props) {
    const { setStep, setNextBtnProps, setPrevBtnProps } = usePageContext()
 
    const [searchTerm, setSearchTerm] = useState("")
+   const [successTaskId, setSuccessTaskId] = useState<undefined | string>()
+   const [isFinalTask, setIsFinalTask] = useState(false)
 
    const api_user = useQuery({
       queryKey: headstaff_qk.user.all(),
@@ -106,7 +109,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
          message.destroy("loading")
          message.open({
             type: "loading",
-            content: "Creating Task...",
+            content: "Vui lòng chờ đợi...",
             key: "loading",
          })
       },
@@ -115,10 +118,10 @@ function Step2_ConfirmTask(props: Step2_Props) {
    const mutate_assignFixer = useMutation({
       mutationFn: HeadStaff_Task_UpdateAssignFixer,
       onSuccess: async () => {
-         message.success("Tạo tác vụ mới thành công")
+         message.success("Tạo tác vụ thành công")
       },
       onError: async () => {
-         message.error("Tạo tác vụ mới thất bại")
+         message.error("Tạo tác vụ thất bại")
       },
       onSettled: async () => {
          message.destroy("loading")
@@ -131,47 +134,70 @@ function Step2_ConfirmTask(props: Step2_Props) {
       retry: 3,
    })
 
-   async function handleFinish() {
-      if (!props.selectedTaskName || !props.selectedFixDate || !props.api.data || !props.selectedFixer) return
+   function handleOpenSuccess(taskId: string) {
+      setSuccessTaskId(taskId)
+   }
 
-      const issueIDs = Object.keys(props.selectedIssues)
-      const totalTime = issueIDs.reduce((acc, id) => {
-         return acc + props.selectedIssues[id].typeError.duration
-      }, 0)
+   function handleCloseSuccess() {
+      setSuccessTaskId(undefined)
+   }
 
-      const task = await mutate_createTask.mutateAsync({
-         name: props.selectedTaskName,
-         fixerDate: props.selectedFixDate.toISOString(),
-         priority: props.selectedPriority,
-         issueIDs,
-         totalTime,
-         request: props.api.data.id,
-         operator: 0,
-      })
+   const handleFinish = useCallback(async () => {
+      try {
+         if (!props.selectedTaskName || !props.selectedFixDate || !props.api.data || !props.selectedFixer) return
 
-      if (props.api.data?.status === FixRequestStatus.PENDING) {
-         await mutate_updateRequestStatus.mutateAsync({
-            id: props.api.data.id,
+         const issueIDs = Object.keys(props.selectedIssues)
+         const totalTime = issueIDs.reduce((acc, id) => {
+            return acc + props.selectedIssues[id].typeError.duration
+         }, 0)
+
+         const task = await mutate_createTask.mutateAsync({
+            name: props.selectedTaskName,
+            fixerDate: props.selectedFixDate.toISOString(),
+            priority: props.selectedPriority,
+            issueIDs,
+            totalTime,
+            request: props.api.data.id,
+            operator: 0,
+         })
+
+         if (props.api.data?.status === FixRequestStatus.PENDING) {
+            await mutate_updateRequestStatus.mutateAsync({
+               id: props.api.data.id,
+               payload: {
+                  status: FixRequestStatus.APPROVED,
+                  checker_note: "",
+               },
+            })
+         }
+
+         await mutate_assignFixer.mutateAsync({
+            id: task.id,
             payload: {
-               status: FixRequestStatus.APPROVED,
-               checker_note: "",
+               fixer: props.selectedFixer.id,
             },
          })
+
+         handleOpenSuccess(task.id)
+      } catch (e) {
+         message.error("Tạo tác vụ thất bại").then()
       }
-
-      await mutate_assignFixer.mutateAsync({
-         id: task.id,
-         payload: {
-            fixer: props.selectedFixer.id,
-         },
-      })
-
-      router.push(`/head-staff/mobile/tasks/${task.id}`)
-   }
+   }, [
+      message,
+      mutate_assignFixer,
+      mutate_createTask,
+      mutate_updateRequestStatus,
+      props.api.data,
+      props.selectedFixDate,
+      props.selectedFixer,
+      props.selectedIssues,
+      props.selectedPriority,
+      props.selectedTaskName,
+   ])
 
    useEffect(() => {
       setPrevBtnProps({
-         children: "Back",
+         children: "Quay lại",
          onClick: () => {
             props.setSelectedFixer(undefined)
             setStep(1)
@@ -182,7 +208,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
          onClick: async () => {
             await handleFinish()
          },
-         children: "Create Task",
+         children: "Tạo tác vụ",
          icon: <UploadOutlined />,
       })
    }, [handleFinish, props, setNextBtnProps, setPrevBtnProps, setStep])
@@ -201,12 +227,18 @@ function Step2_ConfirmTask(props: Step2_Props) {
       }
    }, [props.selectedFixer, setNextBtnProps])
 
+   useEffect(() => {
+      const remainingTasks = props.api.data?.issues.filter((issue) => issue.task === null).length ?? 0
+      const selectedIssuesLength = Object.keys(props.selectedIssues).length
+      setIsFinalTask(remainingTasks === selectedIssuesLength)
+   }, [props.api.data, props.selectedIssues])
+
    return (
       <section className="mt-layout flex flex-col gap-2">
          <Input.Search
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Tìm kiếm"
+            placeholder="Tìm kiếm nhân viên..."
             size="large"
          />
          {searchTerm
@@ -218,9 +250,14 @@ function Step2_ConfirmTask(props: Step2_Props) {
                  .map((e) => (
                     <CheckCard
                        key={e.id}
-                       title={e.username}
+                       title={
+                          <div className="flex items-center gap-2">
+                             <Checkbox checked={props.selectedFixer?.username === e.username} />
+                             <span>{e.username}</span>
+                          </div>
+                       }
                        size="small"
-                       description={"Tổng thời lượng: " + e.totalTime + ` phút`}
+                       description={"Tổng thời gian làm việc: " + e.totalTime + ` phút`}
                        onClick={() => {
                           const { hasPriority, sorted_tasks, ...rest } = e
                           props.setSelectedFixer({
@@ -242,9 +279,14 @@ function Step2_ConfirmTask(props: Step2_Props) {
                  .map((e) => (
                     <CheckCard
                        key={e.id}
-                       title={e.username}
+                       title={
+                          <div className="flex items-center gap-2">
+                             <Checkbox checked={props.selectedFixer?.username === e.username} />
+                             <span>{e.username}</span>
+                          </div>
+                       }
                        size="small"
-                       description={"Tổng thời lượng: " + e.totalTime + ` phút`}
+                       description={"Tổng thời gian làm việc: " + e.totalTime + ` phút`}
                        onClick={() => {
                           const { hasPriority, sorted_tasks, ...rest } = e
                           props.setSelectedFixer({
@@ -258,6 +300,56 @@ function Step2_ConfirmTask(props: Step2_Props) {
                        disabled={e.hasPriority && props.selectedPriority}
                     ></CheckCard>
                  ))}
+         <Drawer
+            open={!!successTaskId}
+            onClose={handleCloseSuccess}
+            closeIcon={null}
+            placement="bottom"
+            height="100%"
+            classNames={{
+               body: "grid place-content-center",
+            }}
+         >
+            <Result
+               status="success"
+               title="Tạo tác vụ thành công"
+               subTitle="Tác vụ của bạn đã được tạo thành công."
+               extra={[
+                  !isFinalTask ? (
+                     <Button
+                        key="add"
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => {
+                           props.resetAll()
+                           handleCloseSuccess()
+                        }}
+                     >
+                        Tạo thêm Tác vụ mới
+                     </Button>
+                  ) : (
+                     <Button
+                        key="add"
+                        type="primary"
+                        icon={<LeftOutlined />}
+                        onClick={() => {
+                           router.push("/head-staff/mobile/requests")
+                        }}
+                     >
+                        Quay về danh sách
+                     </Button>
+                  ),
+                  <Button
+                     key="view"
+                     type="primary"
+                     icon={<EyeOutlined />}
+                     onClick={() => successTaskId && router.push(`/head-staff/mobile/tasks/${successTaskId}`)}
+                  >
+                     Xem tác vụ
+                  </Button>,
+               ]}
+            />
+         </Drawer>
       </section>
    )
 }

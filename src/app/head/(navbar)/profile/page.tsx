@@ -20,11 +20,10 @@ import { useTranslation } from "react-i18next"
 export default function ProfilePage() {
    const user = useCurrentUser()
    const router = useRouter()
-   const { t } = useTranslation()
 
    return (
       <div className="std-layout gap-y-6">
-         <RootHeader title={t("Profile")} className="std-layout-outer p-4" />
+         <RootHeader title={"Hồ sơ"} className="std-layout-outer p-4" />
          <UserCard jwt={user} />
          <section>
             <header className="mb-3 flex items-center gap-2">
@@ -34,7 +33,11 @@ export default function ProfilePage() {
                </Typography.Title>
             </header>
             <main className="grid grid-cols-3 gap-2">
-               <FunctionButton icon={<HomeOutlined />} title="Trang chủ" onClick={() => router.push("/head/dashboard")} />
+               <FunctionButton
+                  icon={<HomeOutlined />}
+                  title="Trang chủ"
+                  onClick={() => router.push("/head/dashboard")}
+               />
                <FunctionButton icon={<SearchOutlined />} title="Quét mã QR" onClick={() => router.push("/head/scan")} />
                <FunctionButton
                   icon={<HistoryOutlined />}
@@ -47,7 +50,7 @@ export default function ProfilePage() {
             <header className="mb-3 flex items-center gap-2">
                <UserOutlined />
                <Typography.Title level={5} className="mb-0">
-                  Hồ sơ
+                  Thao tác hồ sơ
                </Typography.Title>
             </header>
             <main className="grid grid-cols-1 gap-2">

@@ -32,7 +32,6 @@ type Props = {
 }
 
 export default function ReportCard(props: Props) {
-   const { t } = useTranslation()
    const backgroundColor = props.index % 2 === 0 ? "bg-neutral-200" : "bg-white"
 
    return (
@@ -41,7 +40,7 @@ export default function ReportCard(props: Props) {
             display: props.status ? "block" : "none",
          }}
          color={props.status ? FixRequestStatusTagMapper[String(props.status)].color : undefined}
-         text={<div className="text-sm capitalize">{props.status?.toLowerCase()}</div>}
+         text={<div className="text-sm capitalize">{FixRequestStatusTagMapper[String(props.status)].text}</div>}
       >
          <Card
             className={cn(

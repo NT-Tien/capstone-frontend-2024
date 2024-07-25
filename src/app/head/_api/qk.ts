@@ -1,5 +1,6 @@
 const head_qk = {
    requests: {
+      base: () => ["head", "requests"],
       all: () => ["head", "requests", "all"],
    },
    devices: {

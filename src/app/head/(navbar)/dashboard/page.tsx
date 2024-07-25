@@ -9,7 +9,6 @@ import dayjs from "dayjs"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import Head_Request_All from "@/app/head/_api/request/all.api"
-import { useTranslation } from "react-i18next"
 import head_qk from "@/app/head/_api/qk"
 import ReportCard from "@/common/components/ReportCard"
 import { StatisticCard } from "@ant-design/pro-card"
@@ -18,7 +17,6 @@ import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 
 export default function HeadDashboardPage() {
-   const { t } = useTranslation()
    const router = useRouter()
    const result = useQuery({
       queryKey: head_qk.requests.all(),
@@ -34,7 +32,7 @@ export default function HeadDashboardPage() {
                className="h-full w-full flex-1 shadow-fb"
                loading={result.isLoading}
                statistic={{
-                  title: t("Total"),
+                  title: "Tổng",
                   value: result.data?.length ?? 0,
                   formatter: (value) => <CountUp end={value as number} separator={","} />,
                }}
@@ -42,17 +40,19 @@ export default function HeadDashboardPage() {
             <StatisticCard
                className="h-full w-full flex-1 shadow-fb"
                statistic={{
-                  title: t("Fixed"),
+                  title: "Đã duyệt",
                   value:
-                     result.data?.filter((value: FixRequestDto) => value.status === FixRequestStatus.APPROVED).length ??
-                     0,
+                     result.data?.filter(
+                        (value: FixRequestDto) =>
+                           value.status === FixRequestStatus.APPROVED || value.status === FixRequestStatus.IN_PROGRESS,
+                     ).length ?? 0,
                   formatter: (value) => <CountUp end={value as number} separator={","} />,
                }}
             />
             <StatisticCard
                className="h-full w-full flex-1 shadow-fb"
                statistic={{
-                  title: t("Maintenance"),
+                  title: "Đang chờ",
                   value:
                      result.data?.filter((value: FixRequestDto) => value.status === FixRequestStatus.PENDING).length ??
                      0,

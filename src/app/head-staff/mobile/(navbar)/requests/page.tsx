@@ -1,12 +1,11 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
-import { Card, Empty, Tabs } from "antd"
+import { Card, Empty } from "antd"
 import { useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
 import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { useTranslation } from "react-i18next"
+import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
 import ReportCard from "@/common/components/ReportCard"
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -15,7 +14,6 @@ import { CheckSquareOffset, Hourglass, ThumbsUp, Wrench, XCircle } from "@phosph
 import ScrollableTabs from "@/common/components/ScrollableTabs"
 
 export default function ReportsPage() {
-   const { t } = useTranslation()
    const [tab, setTab] = useState<FixRequestStatus>(FixRequestStatus.PENDING)
 
    return (
@@ -31,28 +29,28 @@ export default function ReportsPage() {
             items={[
                {
                   key: FixRequestStatus.PENDING,
-                  title: "Đang chờ",
+                  title: FixRequestStatusTagMapper[FixRequestStatus.PENDING].text,
                   icon: <Hourglass size={20} />,
                },
                {
                   key: FixRequestStatus.APPROVED,
-                  title: "Đã Duyệt",
+                  title: FixRequestStatusTagMapper[FixRequestStatus.APPROVED].text,
                   icon: <ThumbsUp size={20} />,
                },
                {
-                  key: FixRequestStatus.REJECTED,
-                  title: "Từ chối",
-                  icon: <XCircle size={20} />,
-               },
-               {
                   key: FixRequestStatus.IN_PROGRESS,
-                  title: "Đang thực hiện",
+                  title: FixRequestStatusTagMapper[FixRequestStatus.IN_PROGRESS].text,
                   icon: <Wrench size={16} />,
                },
                {
                   key: FixRequestStatus.CLOSED,
-                  title: "Đóng",
+                  title: FixRequestStatusTagMapper[FixRequestStatus.CLOSED].text,
                   icon: <CheckSquareOffset size={16} />,
+               },
+               {
+                  key: FixRequestStatus.REJECTED,
+                  title: FixRequestStatusTagMapper[FixRequestStatus.REJECTED].text,
+                  icon: <XCircle size={20} />,
                },
             ]}
          />
@@ -66,7 +64,6 @@ type ReportsTabProps = {
 }
 
 function ReportsTab(props: ReportsTabProps) {
-   const { t } = useTranslation()
    const router = useRouter()
 
    const results = useQuery({
@@ -110,7 +107,9 @@ function ReportsTab(props: ReportsTabProps) {
                      />
                   ))
                ) : (
-                  <Empty description={t("noData")} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                  <div className="grid h-full place-content-center">
+                     <Empty description={"Hệ thống không tìm thấy yêu cầu nào"} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                  </div>
                )}
             </>
          ) : (

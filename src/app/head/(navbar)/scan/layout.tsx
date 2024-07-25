@@ -2,7 +2,7 @@ import { ReactNode } from "react"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-   title: "Scan Device | Head",
+   title: "Quét QR | Head",
 }
 
 export default function Layout({ children }: { children: ReactNode }) {

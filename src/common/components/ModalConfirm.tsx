@@ -1,5 +1,6 @@
 import { cloneElement, ReactElement, ReactNode, useState } from "react"
-import { ButtonProps, Modal, ModalProps } from "antd"
+import { Button, ButtonProps, Modal, ModalProps } from "antd"
+import useModalControls from "@/common/hooks/useModalControls"
 
 export type Props = {
    children: ReactElement
@@ -16,41 +17,49 @@ export type Props = {
 }
 
 export default function ModalConfirm(props: Props) {
-   const [open, setOpen] = useState<boolean>(false)
+   const { open, handleOpen, handleClose } = useModalControls({
+      onClose: () => {
+         props.onCancel?.()
+      },
+   })
+
    const modifiedChildren = cloneElement(props.children as any, {
       onClick: handleOpen,
    })
-
-   function handleOpen() {
-      setOpen(true)
-   }
-
-   function handleClose() {
-      setOpen(false)
-   }
 
    return (
       <>
          {modifiedChildren}
          <Modal
-            title={props.title ?? "Confirm Action"}
+            title={props.title ?? "Lưu ý"}
             open={open}
             onOk={() => {
                props.onConfirm?.()
-               if (props.closeAfterConfirm) handleClose()
+               // if (props.closeAfterConfirm) handleClose()
             }}
             centered={true}
             onCancel={() => {
-               props.onCancel?.()
                handleClose()
             }}
-            okText={props.confirmText ?? "Confirm"}
-            cancelText={props.cancelText ?? "Cancel"}
-            okButtonProps={props.confirmProps}
-            cancelButtonProps={props.cancelProps}
+            footer={[
+               <Button key="back" onClick={handleClose} {...props.cancelProps}>
+                  {props.cancelText ?? "Hủy bỏ"}
+               </Button>,
+               <Button
+                  key="confirm"
+                  type="primary"
+                  onClick={() => {
+                     props.onConfirm?.()
+                     // if (props.closeAfterConfirm) handleClose()
+                  }}
+                  {...props.confirmProps}
+               >
+                  {props.confirmText ?? "Đồng ý"}
+               </Button>,
+            ]}
             {...props.modalProps}
          >
-            {props.description ?? "Are you sure you want to perform this action?"}
+            {props.description ?? "Bạn có chắc chắn muốn thực hiện hành động này không?"}
          </Modal>
       </>
    )

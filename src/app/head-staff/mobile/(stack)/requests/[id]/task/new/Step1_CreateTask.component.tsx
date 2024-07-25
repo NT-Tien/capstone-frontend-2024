@@ -3,8 +3,8 @@
 import dayjs, { Dayjs } from "dayjs"
 import { UseQueryResult } from "@tanstack/react-query"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import React, { Dispatch, SetStateAction, useEffect } from "react"
-import { Button, Form, Radio } from "antd"
+import React, { Dispatch, SetStateAction, useCallback, useEffect } from "react"
+import { App, Button, Form, Radio } from "antd"
 import { ArrowLeftOutlined, ArrowRightOutlined, PlusOutlined } from "@ant-design/icons"
 import { ProFormDatePicker, ProFormText } from "@ant-design/pro-components"
 import { usePageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page"
@@ -27,15 +27,47 @@ type Step1_Props = {
 
 export default function Step1_CreateTask(props: Step1_Props) {
    const [form] = Form.useForm<FieldType>()
+   const { message } = App.useApp()
    const { setStep, setNextBtnProps, setPrevBtnProps } = usePageContext()
 
-   function handleFinish() {
-      setStep(2)
-   }
+   const handleFinish = useCallback(
+      async function handleFinish() {
+         try {
+            if (!props.selectedTaskName) {
+               form.setFields([
+                  {
+                     name: "name",
+                     errors: ["Vui lòng điền tên tác vụ"],
+                  },
+               ])
+            }
+
+            if (!props.selectedFixDate) {
+               form.setFields([
+                  {
+                     name: "fixDate",
+                     errors: ["Vui lòng chọn ngày sửa chữa"],
+                  },
+               ])
+            }
+
+            if (!props.selectedTaskName || !props.selectedFixDate) return
+
+            setStep(2)
+         } catch (e) {
+            message.destroy("error")
+            message.error({
+               content: "Vui lòng điền đầy đủ thông tin tác vụ",
+               key: "error",
+            })
+         }
+      },
+      [form, message, props.selectedFixDate, props.selectedTaskName, setStep],
+   )
 
    useEffect(() => {
       setPrevBtnProps({
-         children: "Back",
+         children: "Quay lại",
          onClick: () => {
             props.setSelectedFixDate(undefined)
             props.setSelectedPriority(false)
@@ -47,12 +79,12 @@ export default function Step1_CreateTask(props: Step1_Props) {
       })
       setNextBtnProps({
          onClick: async () => {
-            form.submit()
+            await handleFinish()
          },
-         children: "Continue",
+         children: "Tiếp tục",
          icon: <ArrowRightOutlined />,
       })
-   }, [form, props, setNextBtnProps, setPrevBtnProps, setStep])
+   }, [form, handleFinish, props, setNextBtnProps, setPrevBtnProps, setStep])
 
    useEffect(() => {
       if (props.selectedFixDate === undefined || props.selectedTaskName === undefined) {
@@ -85,7 +117,7 @@ export default function Step1_CreateTask(props: Step1_Props) {
                            props.setSelectedTaskName(str)
                         }}
                      >
-                        Generate Task Name
+                        Tạo tên tác vụ
                      </Button>
                   )
                }
@@ -111,7 +143,7 @@ export default function Step1_CreateTask(props: Step1_Props) {
                   fieldProps={{
                      size: "large",
                      className: "w-full",
-                     placeholder: "Chọn ngày để sửa",
+                     placeholder: "Chọn ngày sửa chữa cho tác vụ",
                      onChange: (e) => props.setSelectedFixDate(e),
                      value: props.selectedFixDate,
                      disabledDate: (current) => {

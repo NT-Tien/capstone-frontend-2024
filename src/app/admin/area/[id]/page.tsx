@@ -161,14 +161,14 @@ export default function AreaDetails({ params }: { params: { id: string } }) {
                         title: "Created",
                         dataIndex: "createdAt",
                         key: "createdAt",
-                        render: (_, entity) => dayjs(entity.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+                        render: (_, entity) => dayjs(entity.createdAt).add(7, "hours").format("YYYY-MM-DD HH:mm:ss"),
                         editable: false,
                      },
                      {
                         title: "Updated",
                         dataIndex: "updatedAt",
                         key: "updatedAt",
-                        render: (_, entity) => dayjs(entity.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
+                        render: (_, entity) => dayjs(entity.updatedAt).add(7, "hours").format("YYYY-MM-DD HH:mm:ss"),
                         editable: false,
                      },
                      {
@@ -176,7 +176,7 @@ export default function AreaDetails({ params }: { params: { id: string } }) {
                         dataIndex: "deletedAt",
                         key: "deletedAt",
                         render: (_, entity) =>
-                           entity.deletedAt ? dayjs(entity.deletedAt).format("YYYY-MM-DD HH:mm:ss") : "-",
+                           entity.deletedAt ? dayjs(entity.deletedAt).add(7, "hours").format("YYYY-MM-DD HH:mm:ss") : "-",
                         editable: false,
                      },
                   ]}

@@ -120,12 +120,12 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                            {
                               title: "Ngày tạo",
                               dataIndex: ["createdAt"],
-                              render: (_, e) => dayjs(e.createdAt).format("DD-MM-YYYY HH:mm"),
+                              render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("DD-MM-YYYY HH:mm"),
                            },
                            {
                               title: "Ngày cập nhật",
                               dataIndex: ["updatedAt"],
-                              render: (_, e) => dayjs(e.updatedAt).format("DD-MM-YYYY HH:mm"),
+                              render: (_, e) => dayjs(e.updatedAt).add(7, "hours").format("DD-MM-YYYY HH:mm"),
                            },
                            {
                               title: "Thông số kỹ thuật",
@@ -134,7 +134,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                            {
                               title: "Ngày sửa",
                               dataIndex: ["fixerDate"],
-                              render: (_, e) => dayjs(e.fixerDate).format("DD-MM-YYYY"),
+                              render: (_, e) => dayjs(e.fixerDate).add(7, "hours").format("DD-MM-YYYY"),
                            },
                            {
                               title: "Tổng thời gian",

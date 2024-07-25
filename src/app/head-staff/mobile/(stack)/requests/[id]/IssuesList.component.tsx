@@ -67,10 +67,10 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
          })
       },
       onError: async () => {
-         message.error("Failed to create issue")
+         message.error("Tạo vấn đề thất bại")
       },
       onSuccess: async () => {
-         message.success("Issue created")
+         message.success("Tạo vấn đề thành công")
       },
       onSettled: () => {
          message.destroy("creating-issue")
@@ -166,7 +166,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                FixRequestStatus.CLOSED,
             ]}
          >
-            <h2 className="mb-2 text-base font-semibold">Request Issues</h2>
+            <h2 className="mb-2 text-base font-semibold">Yêu cầu vấn đề</h2>
             {props.api.isSuccess ? (
                <>
                   {props.api.data.issues.length === 0 ? (
@@ -254,7 +254,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
          <Drawer
             open={createDrawerOpen}
             onClose={handleClose_CreateDrawer}
-            title="Create Issue"
+            title="Tạo vấn đề"
             placement="bottom"
             height="max-content"
          >
@@ -262,7 +262,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                dataSource={selectedTypeError}
                size="small"
                className="mb-3"
-               title={<span className="text-lg">Error Details</span>}
+               title={<span className="text-lg">Chi tiết lỗi</span>}
                labelStyle={{
                   fontSize: "var(--font-sub-base)",
                }}
@@ -271,15 +271,15 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                }}
                columns={[
                   {
-                     title: "Error Name",
+                     title: "Tên lỗi",
                      dataIndex: ["name"],
                   },
                   {
-                     title: "Duration",
+                     title: "Thời lượng",
                      dataIndex: ["duration"],
                   },
                   {
-                     title: "Description",
+                     title: "Mô tả",
                      dataIndex: ["description"],
                   },
                ]}
@@ -298,7 +298,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                layout="vertical"
             >
                <Form.Item<FieldType>
-                  label={<span className="text-sub-base">Fix Type</span>}
+                  label={<span className="text-sub-base">Cách sửa</span>}
                   name="fixType"
                   initialValue={FixType.REPLACE}
                   className="w-full"
@@ -330,7 +330,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                />
                <Form.Item<FieldType> className="mb-0">
                   <Button className="w-full" type="primary" size="large" htmlType="submit">
-                     Create Issue
+                     Tạo vấn đề
                   </Button>
                </Form.Item>
             </Form>

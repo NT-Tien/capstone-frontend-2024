@@ -64,7 +64,7 @@ export default function SelectSparePartDetailsDrawer({
                            {
                               key: "exp",
                               label: "Expiration Date",
-                              render: (_, e) => dayjs(e.expirationDate).format("DD/MM/YYYY"),
+                              render: (_, e) => dayjs(e.expirationDate).add(7, "hours").format("DD/MM/YYYY"),
                            },
                         ]}
                      />

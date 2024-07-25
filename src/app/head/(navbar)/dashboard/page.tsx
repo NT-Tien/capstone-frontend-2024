@@ -23,7 +23,7 @@ export default function HeadDashboardPage() {
    const result = useQuery({
       queryKey: head_qk.requests.all(),
       queryFn: () => Head_Request_All(),
-      select: (data) => data.sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt))).slice(0, 4),
+      select: (data) => data.sort((a, b) => dayjs(b.createdAt).add(7, "hours").diff(dayjs(a.createdAt).add(7, "hours"))).slice(0, 4),
    })
 
    return (

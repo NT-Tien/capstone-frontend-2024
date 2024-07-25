@@ -151,7 +151,7 @@ function RequestDetails({ params }: { params: { id: string } }) {
                         {
                            title: "Ngày tạo",
                            dataIndex: "createdAt",
-                           render: (_, e) => dayjs(e.createdAt).format("DD-MM-YYYY HH:mm"),
+                           render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("DD-MM-YYYY HH:mm"),
                         },
                      ]}
                   />
@@ -167,12 +167,12 @@ function RequestDetails({ params }: { params: { id: string } }) {
                      {
                         title: "Ngày tạo",
                         dataIndex: "createdAt",
-                        render: (_, e) => dayjs(e.createdAt).format("DD-MM-YYYY HH:mm"),
+                        render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("DD-MM-YYYY HH:mm"),
                      },
                      {
                         title: "Ngày cập nhật",
                         dataIndex: "updatedAt",
-                        render: (_, e) => dayjs(e.updatedAt).format("DD-MM-YYYY HH:mm"),
+                        render: (_, e) => dayjs(e.updatedAt).add(7, "hours").format("DD-MM-YYYY HH:mm"),
                      },
                      {
                         title: "Được yêu cầu bởi",

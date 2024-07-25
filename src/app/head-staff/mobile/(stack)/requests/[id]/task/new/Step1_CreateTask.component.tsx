@@ -92,7 +92,7 @@ export default function Step1_CreateTask(props: Step1_Props) {
                allowClear
                name="name"
                rules={[{ required: true }]}
-               label={"Task Name"}
+               label={"Tên tác vụ"}
                fieldProps={{
                   size: "large",
                   onChange: (e) => props.setSelectedTaskName(e.target.value),
@@ -101,7 +101,7 @@ export default function Step1_CreateTask(props: Step1_Props) {
             />
             <div className="flex gap-4">
                <ProFormDatePicker
-                  label={"Fix Date"}
+                  label={"Ngày sửa"}
                   name="fixDate"
                   rules={[{ required: true }]}
                   formItemProps={{
@@ -111,7 +111,7 @@ export default function Step1_CreateTask(props: Step1_Props) {
                   fieldProps={{
                      size: "large",
                      className: "w-full",
-                     placeholder: "Select a Fix Date for the task",
+                     placeholder: "Chọn ngày để sửa",
                      onChange: (e) => props.setSelectedFixDate(e),
                      value: props.selectedFixDate,
                      disabledDate: (current) => {
@@ -119,7 +119,7 @@ export default function Step1_CreateTask(props: Step1_Props) {
                      },
                   }}
                />
-               <Form.Item label="Task Priority" name="priority" initialValue={false}>
+               <Form.Item label="Mức độ ưu tiên" name="priority" initialValue={false}>
                   <Radio.Group
                      buttonStyle="solid"
                      size="large"
@@ -127,8 +127,8 @@ export default function Step1_CreateTask(props: Step1_Props) {
                      onChange={(e) => props.setSelectedPriority(e.target.value)}
                      value={props.selectedPriority}
                   >
-                     <Radio.Button value={false}>Normal</Radio.Button>
-                     <Radio.Button value={true}>Priority</Radio.Button>
+                     <Radio.Button value={false}>Thường</Radio.Button>
+                     <Radio.Button value={true}>Ưu tiên</Radio.Button>
                   </Radio.Group>
                </Form.Item>
             </div>

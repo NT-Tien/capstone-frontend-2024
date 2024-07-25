@@ -117,22 +117,22 @@ export default function MachineModelListPage() {
                      result = result || Number(area.yearOfProduction) === Number(value)
                      break
                   case "dateOfReceipt":
-                     result = result || dayjs(area.dateOfReceipt).isSame(dayjs(value as any), "day")
+                     result = result || dayjs(area.dateOfReceipt).add(7, "hours").isSame(dayjs(value as any), "day")
                      break
                   case "warrantyTerm":
-                     result = result || dayjs(area.warrantyTerm).isSame(dayjs(value as any), "day")
+                     result = result || dayjs(area.warrantyTerm).add(7, "hours").isSame(dayjs(value as any), "day")
                      break
                   case "createdAt":
-                     result = result || dayjs(area.createdAt).isSame(dayjs(value as any), "day")
+                     result = result || dayjs(area.createdAt).add(7, "hours").isSame(dayjs(value as any), "day")
                      break
                   case "updatedAt":
-                     result = result || dayjs(area.updatedAt).isSame(dayjs(value as any), "day")
+                     result = result || dayjs(area.updatedAt).add(7, "hours").isSame(dayjs(value as any), "day")
                      break
                   case "deletedAt":
                      result =
                         result || value === null
                            ? area.deletedAt === null
-                           : dayjs(area.deletedAt).isSame(dayjs(value as string), "day")
+                           : dayjs(area.deletedAt).add(7, "hours").isSame(dayjs(value as string), "day")
                }
             }
             return result
@@ -238,28 +238,28 @@ export default function MachineModelListPage() {
                   dataIndex: "dateOfReceipt",
                   width: 150,
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.dateOfReceipt).unix() - dayjs(b.dateOfReceipt).unix(),
+                  sorter: (a, b) => dayjs(a.dateOfReceipt).add(7, "hours").unix() - dayjs(b.dateOfReceipt).add(7, "hours").unix(),
                },
                {
                   title: "Warranty Term",
                   dataIndex: "warrantyTerm",
                   width: 150,
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.warrantyTerm).unix() - dayjs(b.warrantyTerm).unix(),
+                  sorter: (a, b) => dayjs(a.warrantyTerm).add(7, "hours").unix() - dayjs(b.warrantyTerm).add(7, "hours").unix(),
                },
                {
                   title: "Created At",
                   dataIndex: "createdAt",
                   width: 150,
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+                  sorter: (a, b) => dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
                },
                {
                   title: "Updated At",
                   dataIndex: "updatedAt",
                   width: 150,
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.updatedAt).unix() - dayjs(b.updatedAt).unix(),
+                  sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                   defaultSortOrder: "descend",
                },
                {
@@ -267,7 +267,7 @@ export default function MachineModelListPage() {
                   dataIndex: "deletedAt",
                   width: 150,
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).unix() - dayjs(b.deletedAt ?? dayjs()).unix(),
+                  sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).add(7, "hours").unix() - dayjs(b.deletedAt ?? dayjs()).add(7, "hours").unix(),
                },
                {
                   title: "Options",

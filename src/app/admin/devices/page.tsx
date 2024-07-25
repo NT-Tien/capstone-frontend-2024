@@ -126,16 +126,16 @@ export default function DevicesListPage() {
                      result = result || Number(area.positionY) === Number(value)
                      break
                   case "createdAt":
-                     result = result || dayjs(area.createdAt).isSame(value as string, "day")
+                     result = result || dayjs(area.createdAt).add(7, "hours").isSame(value as string, "day")
                      break
                   case "updatedAt":
-                     result = result || dayjs(area.updatedAt).isSame(value as string, "day")
+                     result = result || dayjs(area.updatedAt).add(7, "hours").isSame(value as string, "day")
                      break
                   case "deletedAt":
                      result =
                         result || value === null
                            ? area.deletedAt === null
-                           : dayjs(area.deletedAt).isSame(dayjs(value as string), "day")
+                           : dayjs(area.deletedAt).add(7, "hours").isSame(dayjs(value as string), "day")
                }
             }
             return result
@@ -289,7 +289,7 @@ export default function DevicesListPage() {
                         dataIndex: "createdAt",
                         width: 150,
                         valueType: "date",
-                        sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+                        sorter: (a, b) => dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
                      },
                      {
                         key: "updatedAt",
@@ -297,7 +297,7 @@ export default function DevicesListPage() {
                         dataIndex: "updatedAt",
                         width: 150,
                         valueType: "date",
-                        sorter: (a, b) => dayjs(a.updatedAt).unix() - dayjs(b.updatedAt).unix(),
+                        sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                         defaultSortOrder: "descend",
                      },
                      {
@@ -306,7 +306,7 @@ export default function DevicesListPage() {
                         dataIndex: "deletedAt",
                         width: 150,
                         valueType: "date",
-                        sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).unix() - dayjs(b.deletedAt ?? dayjs()).unix(),
+                        sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).add(7, "hours").unix() - dayjs(b.deletedAt ?? dayjs()).add(7, "hours").unix(),
                      },
                      {
                         title: "Options",

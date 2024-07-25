@@ -112,8 +112,8 @@ export default function IssuesTab(props: Props) {
                      dataIndex: "createdAt",
                      width: 200,
                      render: (_, e) => (
-                        <Tooltip title={extended_dayjs(e.createdAt).fromNow()}>
-                           {dayjs(e.createdAt).format("DD-MM-YYYY HH:mm")}
+                        <Tooltip title={extended_dayjs(e.createdAt).add(7, "hours").fromNow()}>
+                           {dayjs(e.createdAt).add(7, "hours").format("DD-MM-YYYY HH:mm")}
                         </Tooltip>
                      ),
                      editable: false,
@@ -122,10 +122,10 @@ export default function IssuesTab(props: Props) {
                      title: "Ngày cập nhật",
                      width: 200,
                      dataIndex: "updatedAt",
-                     sorter: (a, b) => dayjs(a.updatedAt).unix() - dayjs(b.updatedAt).unix(),
+                     sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                      render: (_, e) => (
-                        <Tooltip title={extended_dayjs(e.updatedAt).fromNow()}>
-                           {dayjs(e.updatedAt).format("DD-MM-YYYY HH:mm")}
+                        <Tooltip title={extended_dayjs(e.updatedAt).add(7, "hours").fromNow()}>
+                           {dayjs(e.updatedAt).add(7, "hours").format("DD-MM-YYYY HH:mm")}
                         </Tooltip>
                      ),
                      sortOrder: "descend",

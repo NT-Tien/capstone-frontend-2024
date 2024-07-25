@@ -75,13 +75,13 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                {
                   title: "Created At",
                   dataIndex: "createdAt",
-                  render: (_, e) => dayjs(e.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+                  render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("YYYY-MM-DD HH:mm:ss"),
                },
                {
                   title: "Updated At",
                   dataIndex: "updatedAt",
                   render: (_, e) =>
-                     e.createdAt === e.updatedAt ? "-" : dayjs(e.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
+                     e.createdAt === e.updatedAt ? "-" : dayjs(e.updatedAt).add(7, "hours").format("YYYY-MM-DD HH:mm:ss"),
                },
                {
                   title: "Reported by",

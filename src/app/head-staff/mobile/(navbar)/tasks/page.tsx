@@ -132,7 +132,7 @@ function ListView(props: ListViewType) {
                extra={
                   <div className="flex items-center gap-2">
                      <span className="text-xs text-gray-500">
-                        {extended_dayjs(item.createdAt).format("DD/MM/YY HH:mm")}
+                        {extended_dayjs(item.createdAt).add(7, "hours").format("DD/MM/YY HH:mm")}
                      </span>
                      <Button icon={<RightOutlined />} size="small" type="text" />
                   </div>

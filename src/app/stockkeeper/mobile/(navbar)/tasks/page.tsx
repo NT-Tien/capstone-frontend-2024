@@ -87,7 +87,7 @@ function ListView(props: ListViewType) {
                      {
                         key: "Created",
                         label: "Ngày tạo",
-                        render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
+                        render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                      },
                      {
                         key: "priority",

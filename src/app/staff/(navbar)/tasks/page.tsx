@@ -38,8 +38,8 @@ export default function StaffTasksPage() {
          }
       })
 
-      result.priority.sort((a, b) => (dayjs(a.createdAt).isBefore(dayjs(b.createdAt)) ? 1 : -1))
-      result.normal.sort((a, b) => (dayjs(a.createdAt).isBefore(dayjs(b.createdAt)) ? 1 : -1))
+      result.priority.sort((a, b) => (dayjs(a.createdAt).add(7, "hours").isBefore(dayjs(b.createdAt).add(7, "hours")) ? 1 : -1))
+      result.normal.sort((a, b) => (dayjs(a.createdAt).add(7, "hours").isBefore(dayjs(b.createdAt).add(7, "hours")) ? 1 : -1))
 
       return result
    }, [response.data, response.isSuccess])
@@ -154,7 +154,7 @@ function DetailedListRenderer(props: ListRendererProps) {
                priority={task.priority}
                extra={
                   <Typography.Text className="text-gray-500">
-                     {extended_dayjs(task.createdAt).locale("en").fromNow(false)}
+                     {extended_dayjs(task.createdAt).add(7, "hours").locale("en").fromNow(false)}
                   </Typography.Text>
                }
                onClick={() => {

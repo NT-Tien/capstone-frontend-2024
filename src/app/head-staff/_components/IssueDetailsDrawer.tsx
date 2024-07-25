@@ -290,14 +290,14 @@ export default function IssueDetailsDrawer({
                      title: "Created At",
                      dataIndex: ["createdAt"],
                      editable: false,
-                     render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY HH:mm"),
+                     render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY HH:mm"),
                   },
                   {
                      title: "Updated At",
                      dataIndex: ["updatedAt"],
                      editable: false,
                      render: (_, e) =>
-                        e.createdAt === e.updatedAt ? "-" : dayjs(e.updatedAt).format("DD/MM/YYYY HH:mm"),
+                        e.createdAt === e.updatedAt ? "-" : dayjs(e.updatedAt).add(7, "hours").format("DD/MM/YYYY HH:mm"),
                   },
                ]}
             />

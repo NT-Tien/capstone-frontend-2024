@@ -161,7 +161,7 @@ export default function IssueSparePartDetailsModal({
                            key: "exp",
                            title: "Expiration Date",
                            dataIndex: ["sparePart", "expirationDate"],
-                           render: (_, e) => dayjs(e.sparePart.expirationDate).format("YYYY-MM-DD"),
+                           render: (_, e) => dayjs(e.sparePart.expirationDate).add(7, "hours").format("YYYY-MM-DD"),
                         },
                      ]}
                   />

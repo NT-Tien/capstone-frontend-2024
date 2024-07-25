@@ -141,7 +141,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                         key: "created",
                         label: "Ngày tạo",
                         dataIndex: "createdAt",
-                        render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
+                        render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                      },
                      {
                         key: "status",

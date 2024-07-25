@@ -63,7 +63,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
 
          const rowData = tasks.reduce(
             (acc, task) => {
-               if (dayjs(task.fixerDate).isSame(dayjs(props.selectedFixDate), "date")) {
+               if (dayjs(task.fixerDate).add(7, "hours").isSame(dayjs(props.selectedFixDate).add(7, "hours"), "date")) {
                   total += task.totalTime
 
                   if (task.priority) {
@@ -115,10 +115,10 @@ function Step2_ConfirmTask(props: Step2_Props) {
    const mutate_assignFixer = useMutation({
       mutationFn: HeadStaff_Task_UpdateAssignFixer,
       onSuccess: async () => {
-         message.success("Task Created Successfully")
+         message.success("Tạo tác vụ mới thành công")
       },
       onError: async () => {
-         message.error("Failed to create task")
+         message.error("Tạo tác vụ mới thất bại")
       },
       onSettled: async () => {
          message.destroy("loading")
@@ -206,7 +206,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
          <Input.Search
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search for Staff"
+            placeholder="Tìm kiếm"
             size="large"
          />
          {searchTerm
@@ -220,7 +220,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
                        key={e.id}
                        title={e.username}
                        size="small"
-                       description={"Total Time: " + e.totalTime + ` minute${e.totalTime !== 1 ? "s" : ""}`}
+                       description={"Tổng thời lượng: " + e.totalTime + ` phút`}
                        onClick={() => {
                           const { hasPriority, sorted_tasks, ...rest } = e
                           props.setSelectedFixer({
@@ -230,7 +230,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
                        }}
                        checked={e.id === props.selectedFixer?.id}
                        className="m-0 w-full"
-                       extra={<Tag>Available</Tag>}
+                       extra={<Tag>Có mặt</Tag>}
                        disabled={e.hasPriority && props.selectedPriority}
                     ></CheckCard>
                  ))
@@ -244,7 +244,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
                        key={e.id}
                        title={e.username}
                        size="small"
-                       description={"Total Time: " + e.totalTime + ` minute${e.totalTime !== 1 ? "s" : ""}`}
+                       description={"Tổng thời lượng: " + e.totalTime + ` phút`}
                        onClick={() => {
                           const { hasPriority, sorted_tasks, ...rest } = e
                           props.setSelectedFixer({
@@ -254,7 +254,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
                        }}
                        checked={e.id === props.selectedFixer?.id}
                        className="m-0 w-full"
-                       extra={<Tag>Available</Tag>}
+                       extra={<Tag>Có mặt</Tag>}
                        disabled={e.hasPriority && props.selectedPriority}
                     ></CheckCard>
                  ))}

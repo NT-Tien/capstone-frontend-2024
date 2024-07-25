@@ -114,7 +114,7 @@ export default function TaskDetailsDrawer({
                   {
                      key: "1",
                      label: "Ngày tạo",
-                     render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
+                     render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                   },
                   {
                      key: "2",

@@ -249,7 +249,7 @@ function DataView(props: Props) {
                key: "fixerDate",
                dataIndex: "fixerDate",
                valueType: "date",
-               render: (_, e) => dayjs(e.fixerDate).format("DD-MM-YYYY"),
+               render: (_, e) => dayjs(e.fixerDate).add(7, "hours").format("DD-MM-YYYY"),
                width: 90,
             },
             {
@@ -288,7 +288,7 @@ function DataView(props: Props) {
                title: "Ngày cập nhật",
                key: "updatedAt",
                dataIndex: "updatedAt",
-               render: (_, e) => (e.updatedAt === e.createdAt ? "-" : dayjs(e.updatedAt).format("DD-MM-YYYY HH:mm")),
+               render: (_, e) => (e.updatedAt === e.createdAt ? "-" : dayjs(e.updatedAt).add(7, "hours").format("DD-MM-YYYY HH:mm")),
                valueType: "date",
                width: 120,
             },

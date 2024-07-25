@@ -68,10 +68,10 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
          })
       },
       onError: async () => {
-         message.error("Tạo lỗi thất bại")
+         message.error("Tạo vấn đề thất bại")
       },
       onSuccess: async () => {
-         message.success("Tạo lỗi thành công")
+         message.success("Tạo vấn đề thành công")
       },
       onSettled: () => {
          message.destroy("creating-issue")
@@ -208,7 +208,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                FixRequestStatus.CLOSED,
             ]}
          >
-            <h2 className="mb-2 text-base font-semibold">Lỗi thiết bị</h2>
+            <h2 className="mb-2 text-base font-semibold">Yêu cầu vấn đề</h2>
             {props.api.isSuccess ? (
                <>
                   {props.api.data.issues.length === 0 ? (
@@ -304,7 +304,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
          <Drawer
             open={open}
             onClose={handleClose_CreateDrawer}
-            title="Tạo lỗi mới"
+            title="Tạo vấn đề"
             placement="bottom"
             height="max-content"
          >
@@ -337,7 +337,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
             />
             <Form<FieldType> form={form} className="flex-grow" layout="vertical">
                <Form.Item<FieldType>
-                  label={<span className="text-sub-base">Cách sửa chữa</span>}
+                  label={<span className="text-sub-base">Cách sửa</span>}
                   name="fixType"
                   initialValue={FixType.REPLACE}
                   className="w-full"
@@ -376,7 +376,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                      icon={<PlusOutlined />}
                      onClick={handleFinish}
                   >
-                     Tạo lỗi
+                     Tạo vấn đề
                   </Button>
                </Form.Item>
             </Form>

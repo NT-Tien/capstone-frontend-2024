@@ -307,7 +307,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                                           <span className="text-neutral-500">Created by</span> Head
                                        </span>
                                        <span className="text-neutral-600">
-                                          {dayjs(filteredRequests.mine.createdAt).format("DD-MM-YYYY HH:mm")}
+                                          {dayjs(filteredRequests.mine.createdAt).add(7, "hours").format("DD-MM-YYYY HH:mm")}
                                        </span>
                                     </div>
                                  </div>
@@ -337,7 +337,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                                              to name
                                           </span>
                                           <span className="text-neutral-600">
-                                             {dayjs(req.createdAt).format("DD-MM-YYYY HH:mm")}
+                                             {dayjs(req.createdAt).add(7, "hours").format("DD-MM-YYYY HH:mm")}
                                           </span>
                                        </div>
                                     </div>

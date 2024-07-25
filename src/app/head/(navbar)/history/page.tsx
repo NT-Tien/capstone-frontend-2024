@@ -130,7 +130,7 @@ function IssueList({ data, isLoading, statusName, className }: IssueListProps) {
                            positionY={req.device.positionY}
                            area={req.device.area.name}
                            machineModelName={req.device.machineModel.name}
-                           createdDate={extended_dayjs(req.createdAt).locale("en").fromNow()}
+                           createdDate={extended_dayjs(req.createdAt).add(7, "hours").locale("en").fromNow()}
                            onClick={(id: string) => router.push(`/head/history/${id}`)}
                         />
                      ))}

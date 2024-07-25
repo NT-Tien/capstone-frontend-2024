@@ -76,7 +76,7 @@ export default function AssignFixerModal({
 
          const rowData = tasks.reduce(
             (acc, task) => {
-               if (dayjs(task.fixerDate).isSame(dayjs(selectedDate), "date")) {
+               if (dayjs(task.fixerDate).add(7, "hours").isSame(dayjs(selectedDate), "date")) {
                   total += task.totalTime
 
                   if (task.priority) {

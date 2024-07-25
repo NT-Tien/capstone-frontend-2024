@@ -169,14 +169,14 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                            key: "createdAt",
                            title: "Ngày tạo",
                            dataIndex: "createdAt",
-                           render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
+                           render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                         },
                         {
                            key: "updatedAt",
                            title: "Cập nhật lần cuối",
                            dataIndex: "updatedAt",
                            render: (_, e) =>
-                              e.updatedAt === e.createdAt ? "-" : dayjs(e.updatedAt).format("DD/MM/YYYY - HH:mm"),
+                              e.updatedAt === e.createdAt ? "-" : dayjs(e.updatedAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                         },
                         {
                            key: "account-name",

@@ -99,6 +99,7 @@ function ReportsTab(props: ReportsTabProps) {
                         area={req.device.area.name}
                         machineModelName={req.device?.machineModel?.name ?? "Test Machine"}
                         createdDate={dayjs(req.status === FixRequestStatus.PENDING ? req.createdAt : req.updatedAt)
+                           .add(7, "hours")
                            .locale("vi")
                            .format("DD/MM/YY - HH:mm")}
                         onClick={(id: string) => router.push(`/head-staff/mobile/requests/${id}`)}

@@ -343,7 +343,7 @@ function Step2(props: Step2Props) {
                            columns={[
                               {
                                  label: "Ngày sửa",
-                                 render: (_, e) => dayjs(e.fixerDate).format("DD/MM/YYYY"),
+                                 render: (_, e) => dayjs(e.fixerDate).add(7, "hours").format("DD/MM/YYYY"),
                               },
                               {
                                  key: "3",

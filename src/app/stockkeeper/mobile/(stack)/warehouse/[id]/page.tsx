@@ -127,13 +127,13 @@ export default function MachineModelDetails({ params }: { params: { id: string }
                   key: "dateOfReceipt",
                   label: t("Created"),
                   dataIndex: "dateOfReceipt",
-                  render: (_, e) => dayjs(e.dateOfReceipt).format("DD/MM/YYYY - HH:mm"),
+                  render: (_, e) => dayjs(e.dateOfReceipt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                },
                {
                   key: "warrantyTerm",
                   label: t("Created"),
                   dataIndex: "warrantyTerm",
-                  render: (_, e) => dayjs(e.warrantyTerm).format("DD/MM/YYYY - HH:mm"),
+                  render: (_, e) => dayjs(e.warrantyTerm).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                },
             ]}
          />
@@ -145,7 +145,7 @@ export default function MachineModelDetails({ params }: { params: { id: string }
                         <strong>Tên:</strong> {part.name}
                      </p>
                      <p>
-                        <strong>Ngày hết hạn:</strong> {dayjs(part.expirationDate).format("DD/MM/YYYY")}
+                        <strong>Ngày hết hạn:</strong> {dayjs(part.expirationDate).add(7, "hours").format("DD/MM/YYYY")}
                      </p>
                      <div>
                         <p>

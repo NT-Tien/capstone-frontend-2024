@@ -73,13 +73,13 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                {
                   title: "Ngày tạo",
                   dataIndex: "createdAt",
-                  render: (_, e) => dayjs(e.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+                  render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("YYYY-MM-DD HH:mm:ss"),
                },
                {
                   title: "Cập nhật lần cuối",
                   dataIndex: "updatedAt",
                   render: (_, e) =>
-                     e.createdAt === e.updatedAt ? "-" : dayjs(e.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
+                     e.createdAt === e.updatedAt ? "-" : dayjs(e.updatedAt).add(7, "hours").format("YYYY-MM-DD HH:mm:ss"),
                },
                {
                   title: "Báo cáo bởi",

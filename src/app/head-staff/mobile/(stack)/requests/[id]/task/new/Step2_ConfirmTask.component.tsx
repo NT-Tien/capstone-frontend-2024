@@ -66,7 +66,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
 
          const rowData = tasks.reduce(
             (acc, task) => {
-               if (dayjs(task.fixerDate).isSame(dayjs(props.selectedFixDate), "date")) {
+               if (dayjs(task.fixerDate).add(7, "hours").isSame(dayjs(props.selectedFixDate).add(7, "hours"), "date")) {
                   total += task.totalTime
 
                   if (task.priority) {
@@ -257,7 +257,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
                           </div>
                        }
                        size="small"
-                       description={"Thời gian làm việc: " + e.totalTime + ` phút`}
+                       description={"Tổng thời gian làm việc: " + e.totalTime + ` phút`}
                        onClick={() => {
                           const { hasPriority, sorted_tasks, ...rest } = e
                           props.setSelectedFixer({
@@ -267,7 +267,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
                        }}
                        checked={e.id === props.selectedFixer?.id}
                        className="m-0 w-full"
-                       extra={<Tag>Có thời gian</Tag>}
+                       extra={<Tag>Có mặt</Tag>}
                        disabled={e.hasPriority && props.selectedPriority}
                     ></CheckCard>
                  ))
@@ -286,7 +286,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
                           </div>
                        }
                        size="small"
-                       description={"Thời gian làm việc: " + e.totalTime + ` phút`}
+                       description={"Tổng thời gian làm việc: " + e.totalTime + ` phút`}
                        onClick={() => {
                           const { hasPriority, sorted_tasks, ...rest } = e
                           props.setSelectedFixer({
@@ -296,7 +296,7 @@ function Step2_ConfirmTask(props: Step2_Props) {
                        }}
                        checked={e.id === props.selectedFixer?.id}
                        className="m-0 w-full"
-                       extra={<Tag>Có thời gian</Tag>}
+                       extra={<Tag>Có mặt</Tag>}
                        disabled={e.hasPriority && props.selectedPriority}
                     ></CheckCard>
                  ))}

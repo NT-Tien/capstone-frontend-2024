@@ -86,7 +86,7 @@ function Renderer(props: RendererProps) {
                priority={task.priority}
                extra={
                   <Typography.Text className="text-gray-500">
-                     {extended_dayjs(task.createdAt).fromNow(false)}
+                     {extended_dayjs(task.createdAt).add(7, "hours").fromNow(false)}
                   </Typography.Text>
                }
                onClick={() => {

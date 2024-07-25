@@ -133,7 +133,7 @@ export default function Step1_CreateTask(props: Step1_Props) {
             />
             <div className="flex gap-4">
                <ProFormDatePicker
-                  label={"Ngày sửa chữa"}
+                  label={"Ngày sửa"}
                   name="fixDate"
                   rules={[{ required: true }]}
                   formItemProps={{

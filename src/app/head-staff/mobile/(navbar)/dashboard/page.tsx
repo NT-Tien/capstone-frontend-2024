@@ -101,7 +101,7 @@ export default function DashboardPage() {
          <section className="std-layout-inner mt-8 flex items-center justify-between">
             <div className="flex items-center gap-2">
                <ClockCircleOutlined />
-               <h2 className="text-lg font-semibold">{t("PrevReports")}</h2>
+               <h2 className="text-lg font-semibold">Báo cáo gần đây</h2>
             </div>
             <Link href="/head-staff/mobile/tasks">
                <Button type="link" className="p-0">
@@ -118,7 +118,7 @@ export default function DashboardPage() {
                   key={task.id}
                   extra={
                      <Typography.Text className="text-gray-500">
-                        {extended_dayjs(task.createdAt).locale("en").fromNow(false)}
+                        {extended_dayjs(task.createdAt).add(7, "hours").locale("en").fromNow(false)}
                      </Typography.Text>
                   }
                />

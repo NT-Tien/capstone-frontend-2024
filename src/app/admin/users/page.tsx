@@ -152,20 +152,20 @@ export default function UsersListPage() {
                   title: "Created At",
                   dataIndex: "createdAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+                  sorter: (a, b) => dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
                },
                {
                   title: "Updated At",
                   dataIndex: "updatedAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.updatedAt).unix() - dayjs(b.updatedAt).unix(),
+                  sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                   defaultSortOrder: "descend",
                },
                {
                   title: "Deleted At",
                   dataIndex: "deletedAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).unix() - dayjs(b.deletedAt ?? dayjs()).unix(),
+                  sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).add(7, "hours").unix() - dayjs(b.deletedAt ?? dayjs()).add(7, "hours").unix(),
                },
                {
                   title: "Options",

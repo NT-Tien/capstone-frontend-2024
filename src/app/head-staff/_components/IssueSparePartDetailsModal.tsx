@@ -160,7 +160,7 @@ export default function IssueSparePartDetailsModal({
                            key: "exp",
                            title: "Ngày hết hạn",
                            dataIndex: ["sparePart", "expirationDate"],
-                           render: (_, e) => dayjs(e.sparePart.expirationDate).format("YYYY-MM-DD"),
+                           render: (_, e) => dayjs(e.sparePart.expirationDate).add(7, "hours").format("YYYY-MM-DD"),
                         },
                      ]}
                   />

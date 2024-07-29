@@ -3,13 +3,13 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
-import { Button, Card, Tag } from "antd"
+import { App, Button, Card, Tag } from "antd"
 import { useRouter } from "next/navigation"
 import { PageContainer } from "@ant-design/pro-layout"
 import { LeftOutlined, PlusOutlined } from "@ant-design/icons"
 import { ProDescriptions, ProTable } from "@ant-design/pro-components"
 import dayjs from "dayjs"
-import { Key, useState } from "react"
+import { Key, useEffect, useState } from "react"
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
 import IssuesTab from "@/app/head-staff/desktop/requests/[id]/IssuesTab"
 import DesktopCreateTaskDrawer from "@/app/head-staff/_components/DesktopCreateTask.drawer"
@@ -24,6 +24,7 @@ export default dynamic(() => Promise.resolve(RequestDetails), {
 function RequestDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
    const queryClient = useQueryClient()
+   const { message } = App.useApp()
 
    const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([])
 
@@ -38,6 +39,20 @@ function RequestDetails({ params }: { params: { id: string } }) {
       enabled: api.isSuccess,
    })
 
+   useEffect(() => {
+      if (device.isSuccess && device.data) {
+         const { machineModel } = device.data
+         const yearOfProduction = machineModel.yearOfProduction
+         const warrantyTerm = machineModel.warrantyTerm
+
+         if (yearOfProduction && warrantyTerm) {
+            const warrantyYear = dayjs(warrantyTerm).year()
+            if (yearOfProduction < warrantyYear) {
+               message.warning("Máy đã hết hạn bảo hành.")
+            }
+         }
+      }
+   }, [device.isSuccess, device.data])
    return (
       <PageContainer
          footer={[

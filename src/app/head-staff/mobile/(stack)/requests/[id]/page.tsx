@@ -10,7 +10,7 @@ import { App, Button, Card, Tabs, Tag } from "antd"
 import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import RejectTaskDrawer from "@/app/head-staff/_components/RejectTask.drawer"
-import React, { ReactNode, useMemo, useRef, useState } from "react"
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react"
 import { CheckSquareOffset, MapPin, Tray, XCircle } from "@phosphor-icons/react"
 import { cn } from "@/common/util/cn.util"
 import DataListView from "@/common/components/DataListView"
@@ -56,6 +56,21 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
          return ret
       },
    })
+
+   useEffect(() => {
+      if (device.isSuccess && device.data) {
+         const { machineModel } = device.data
+         const yearOfProduction = machineModel.yearOfProduction
+         const warrantyTerm = machineModel.warrantyTerm
+
+         if (yearOfProduction && warrantyTerm) {
+            const warrantyYear = dayjs(warrantyTerm).year()
+            if (yearOfProduction > warrantyYear) {
+               message.warning("Máy đã hết hạn bảo hành.")
+            }
+         }
+      }
+   }, [device.isSuccess, device.data])
 
    const allHasTasks = useMemo(() => {
       if (!api.isSuccess) return false

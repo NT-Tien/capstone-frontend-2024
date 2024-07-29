@@ -228,7 +228,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                         title={
                            <div className="flex items-center gap-1">
                               <XCircle size={18} />
-                              Lý do từ chối
+                              Lý do không tiếp nhận
                            </div>
                         }
                         size="small"
@@ -310,7 +310,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                                     onClick={() => handleOpen(params.id)}
                                     icon={<CloseOutlined />}
                                  >
-                                    Từ chối
+                                    Không tiếp nhận
                                  </Button>
                               )}
                            </RejectTaskDrawer>

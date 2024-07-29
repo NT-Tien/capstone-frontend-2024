@@ -80,10 +80,10 @@ export default function RejectTaskDrawer({ children, afterSuccess }: Props) {
          {children(handleOpen)}
          <Drawer open={open} onClose={handleClose} title="Reject Report" placement="bottom" height="max-content">
             <Card className="mb-3">
-               Bạn đang cố gắng từ chối báo cáo này. Người báo cáo sẽ nhận được thông báo về quyết định này cũng bạn.
+               Bạn không tiếp nhận báo cáo này. Người báo cáo sẽ nhận được thông báo về quyết định này cũng bạn.
             </Card>
             <Form<FieldType> form={form} onFinish={handleFinish}>
-               <ProFormTextArea name="rejectMsg" label="Lý do từ chối" rules={[{ required: true }]} />
+               <ProFormTextArea name="rejectMsg" label="Lý do không tiếp nhận" rules={[{ required: true }]} />
             </Form>
             <Button
                className="w-full"
@@ -93,7 +93,7 @@ export default function RejectTaskDrawer({ children, afterSuccess }: Props) {
                danger
                icon={<UploadOutlined />}
             >
-               Reject Request
+               Không tiếp nhận
             </Button>
          </Drawer>
       </>

@@ -340,6 +340,7 @@ const IssueDetailsDrawer = forwardRef<IssueDetailsDrawerRefType, Props>(function
                            height: "100%",
                         }}
                         onFinish={async (values) => handleCreateSparePart(values.sparePartId, values.quantity)}
+                        
                      >
                         {(handleOpen1) => (
                            <Button

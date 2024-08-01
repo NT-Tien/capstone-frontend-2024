@@ -58,7 +58,7 @@ export function FixRequest_StatusData(
          return {
             index: 2,
             name: "rejected",
-            text: "Từ chối",
+            text: "Không tiếp nhận",
             description: "Yêu cầu đã bị từ chối",
             colorInverse: "red-inverse",
             color: "red",

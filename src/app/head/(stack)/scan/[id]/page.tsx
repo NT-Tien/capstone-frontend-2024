@@ -384,7 +384,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                </div>
             )}
          </div>
-         <Drawer placement="bottom" height="max-content" open={open} onClose={handleClose} title={"Tạo báo cáo"}>
+         <Drawer placement="left" height="max-content" open={open} onClose={handleClose} title={"Tạo báo cáo"}>
             <Form<FieldType> form={form} layout="vertical">
                <ProFormSelect
                   options={loiMay}

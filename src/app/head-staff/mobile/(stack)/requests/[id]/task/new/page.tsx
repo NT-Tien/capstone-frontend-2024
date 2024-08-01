@@ -155,9 +155,6 @@ export default function NewTaskPage({ params }: { params: { id: string } }) {
                               {
                                  title: "Tạo tác vụ",
                               },
-                              {
-                                 title: "Phân công",
-                              },
                            ]}
                         />
                      </section>
@@ -178,17 +175,9 @@ export default function NewTaskPage({ params }: { params: { id: string } }) {
                               setSelectedPriority={setSelectedPriority}
                               selectedTaskName={selectedTaskName}
                               setSelectedTaskName={setSelectedTaskName}
-                           />
-                        )}
-                        {step === 2 && (
-                           <Step2_ConfirmTask
-                              api={api}
                               requestId={api.data?.id}
                               requestStatus={api.data?.status}
-                              selectedPriority={selectedPriority}
-                              selectedFixDate={selectedFixDate}
                               selectedFixer={selectedFixer}
-                              selectedTaskName={selectedTaskName}
                               selectedIssues={selectedIssues}
                               setSelectedFixer={setSelectedFixer}
                               resetAll={handleResetAll}

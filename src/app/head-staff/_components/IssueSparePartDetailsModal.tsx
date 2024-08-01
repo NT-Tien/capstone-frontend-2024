@@ -133,7 +133,6 @@ export default function IssueSparePartDetailsModal({
                         confirmText="Delete"
                         confirmProps={{ danger: true }}
                         onConfirm={handleDeleteIssueSparePart}
-                        closeAfterConfirm
                      >
                         <Button className="w-full" danger={true} type="primary" icon={<DeleteOutlined />} size="large">
                            Xóa

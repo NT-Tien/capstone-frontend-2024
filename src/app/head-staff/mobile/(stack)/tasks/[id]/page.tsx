@@ -27,7 +27,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
          <RootHeader
             title="Thông tin chi tiết"
             icon={<LeftOutlined />}
-            onIconClick={() => router.back()}
+            onIconClick={() => router.push("/head-staff/mobile/tasks")}
             className="std-layout-outer p-4"
          />
          <Tabs
@@ -62,69 +62,6 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                         Vấn đề
                      </div>
                   ),
-                  // children: (
-                  //    <div>
-                  //       {request.isSuccess && request.data.issues.length !== 0 && (
-                  //          <Collapse
-                  //             expandIconPosition="end"
-                  //             items={request.data?.issues.map((item: FixRequestIssueDto) => ({
-                  //                key: item.id,
-                  //                label: (
-                  //                   <div>
-                  //                      <Tag color={item.fixType === FixType.REPAIR ? "red" : "blue"}>
-                  //                         {FixTypeTagMapper[item.fixType].text}
-                  //                      </Tag>
-                  //                      <Typography.Text className="w-40">{item.typeError.name}</Typography.Text>
-                  //                   </div>
-                  //                ),
-                  //                children: (
-                  //                   <div>
-                  //                      <Card size={"small"}>
-                  //                         <span className="truncate">
-                  //                            <span className="text-gray-500">Mô tả: </span>
-                  //                            {item.description}
-                  //                         </span>
-                  //                      </Card>
-                  //                      <div className="mt-2 w-full">
-                  //                         {item.issueSpareParts.length === 0 ? (
-                  //                            <Card className="my-3">
-                  //                               <Empty
-                  //                                  description={
-                  //                                     <span>
-                  //                                        Vấn đề này{" "}
-                  //                                        <strong className="font-bold underline">
-                  //                                           không có linh kiện thay thế
-                  //                                        </strong>{" "}
-                  //                                        được chỉ định
-                  //                                     </span>
-                  //                                  }
-                  //                                  className="rounded-lg py-6"
-                  //                               />
-                  //                            </Card>
-                  //                         ) : (
-                  //                            <List
-                  //                               className={"w-full"}
-                  //                               dataSource={item.issueSpareParts}
-                  //                               itemLayout={"horizontal"}
-                  //                               size={"small"}
-                  //                               renderItem={(sp) => (
-                  //                                  <List.Item itemID={sp.id} key={sp.id}>
-                  //                                     <List.Item.Meta
-                  //                                        title={sp.sparePart.name}
-                  //                                        description={`${"Số lượng"}: ${sp.quantity}`}
-                  //                                     ></List.Item.Meta>
-                  //                                  </List.Item>
-                  //                               )}
-                  //                            />
-                  //                         )}
-                  //                      </div>
-                  //                   </div>
-                  //                ),
-                  //             }))}
-                  //          />
-                  //       )}
-                  //    </div>
-                  // ),
                },
             ]}
          />

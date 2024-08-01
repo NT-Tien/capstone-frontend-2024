@@ -17,11 +17,7 @@ type Props = {
    api_task: UseQueryResult<TaskDto, Error>
 }
 
-const Can_UpdateIssues = new Set<string>([
-   TaskStatus.AWAITING_FIXER,
-   TaskStatus.ASSIGNED,
-   TaskStatus.AWAITING_SPARE_SPART,
-])
+const Can_UpdateIssues = new Set<string>([TaskStatus.AWAITING_FIXER])
 
 export default function IssuesTab(props: Props) {
    const api_device = useQuery({

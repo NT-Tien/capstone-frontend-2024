@@ -118,7 +118,6 @@ const Step2_ConfirmTask = memo(function Component(props: Step2_Props) {
          })
       },
    })
-
    const mutate_assignFixer = useMutation({
       mutationFn: HeadStaff_Task_UpdateAssignFixer,
       onSuccess: async () => {
@@ -132,7 +131,6 @@ const Step2_ConfirmTask = memo(function Component(props: Step2_Props) {
       },
       retry: 3,
    })
-
    const mutate_updateRequestStatus = useMutation({
       mutationFn: HeadStaff_Request_UpdateStatus,
       retry: 3,

@@ -22,6 +22,11 @@ export const FixRequestStatusTagMapper: {
       colorInverse: "default",
       color: "default",
    },
+   [FixRequestStatus.CHECKED]: {
+      text: "Đã kiểm tra",
+      colorInverse: "orange-inverse",
+      color: "orange",
+   },
    [FixRequestStatus.APPROVED]: {
       text: "Xác nhận",
       colorInverse: "green-inverse",

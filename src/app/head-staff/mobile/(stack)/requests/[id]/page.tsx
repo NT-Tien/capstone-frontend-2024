@@ -410,7 +410,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                      api={api}
                      requiredStatus={[FixRequestStatus.PENDING, FixRequestStatus.APPROVED, FixRequestStatus.CHECKED]}
                   >
-                     <section className="std-layout-outer sticky bottom-0 left-0 flex w-full items-center justify-center gap-3 bg-white p-layout shadow-fb">
+                     <section className="std-layout-outer fixed bottom-0 left-0 flex w-full items-center justify-center gap-3 bg-white p-layout shadow-fb">
                         <RequestDetails.ShowActionByStatus
                            api={api}
                            requiredStatus={[FixRequestStatus.PENDING, FixRequestStatus.CHECKED]}
@@ -444,7 +444,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                                  issuesListRef.current?.openCreateIssueDropdown()
                               }}
                            >
-                              Tạo vấn đề đầu tiên
+                              Tạo vấn đề
                            </Button>
                         )}
                         {api.data?.issues.length !== 0 && (

@@ -11,6 +11,7 @@ import en_US from "antd/lib/locale/en_US"
 import "dayjs/locale/vi"
 import "moment/locale/vi"
 import { ReactNode } from "react"
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 
 export default function GlobalProvider({ children }: Readonly<{ children: ReactNode }>) {
    const queryClient = makeQueryClient()

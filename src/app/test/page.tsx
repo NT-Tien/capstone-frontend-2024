@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 import { Hourglass, ThumbsUp, XCircle } from "@phosphor-icons/react"
 import { useRouter } from "next/navigation"
+import IssueDetailsDrawer from "@/app/staff/_components/IssueDetails.drawer"
 
 export default function TestPage() {
    const [tab, setTab] = useState<string>("pending")
@@ -48,7 +49,6 @@ export default function TestPage() {
 
          <h1>Outside</h1>
          <button onClick={() => router.push("/test/inside")}>Go Inside</button>
-         <div></div>
       </div>
    )
 }

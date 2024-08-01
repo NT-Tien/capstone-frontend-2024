@@ -6,7 +6,7 @@ import ReportCard from "@/common/components/ReportCard"
 import RootHeader from "@/common/components/RootHeader"
 import ScrollableTabs from "@/common/components/ScrollableTabs"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { cn } from "@/common/util/cn.util"
 import extended_dayjs from "@/config/dayjs.config"
 import { ClockCircleOutlined } from "@ant-design/icons"
@@ -15,33 +15,41 @@ import { useQuery } from "@tanstack/react-query"
 import { Card, Empty } from "antd"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
+import {
+   FixRequest_StatusData,
+   FixRequest_StatusMapper,
+   FixRequestStatuses,
+} from "@/common/dto/status/FixRequest.status"
 
 export default function RequestsPage() {
    const results = useQuery({
       queryKey: head_qk.requests.all(),
       queryFn: () => Head_Request_All(),
    })
-   const [tab, setTab] = useState<FixRequestStatus>(FixRequestStatus.PENDING)
+   const [tab, setTab] = useState<FixRequestStatuses>(FixRequest_StatusData("pending").name)
 
    const datasets = useMemo(() => {
-      const result: {
-         [key in FixRequestStatus]: FixRequestDto[]
+      const response: {
+         [key in FixRequestStatuses]: FixRequestDto[]
       } = {
-         PENDING: [],
-         APPROVED: [],
-         REJECTED: [],
-         IN_PROGRESS: [],
-         CLOSED: [],
+         pending: [],
+         approved: [],
+         checked: [],
+         closed: [],
+         in_progress: [],
+         rejected: [],
       }
 
-      if (!results.isSuccess) return result
+      results.data?.forEach((req) => {
+         const status = FixRequest_StatusMapper(req)
 
-      results.data.forEach((req) => {
-         result[req.status].push(req)
+         if (status) {
+            response[status.name].push(req)
+         }
       })
 
-      return result
-   }, [results.isSuccess, results.data])
+      return response
+   }, [results])
 
    return (
       <div className="std-layout">
@@ -55,34 +63,50 @@ export default function RequestsPage() {
             onTabChange={setTab}
             items={[
                {
-                  key: FixRequestStatus.PENDING,
-                  title: FixRequestStatusTagMapper[String(FixRequestStatus.PENDING)].text,
-                  icon: <Hourglass size={16} />,
-                  badge: datasets[FixRequestStatus.PENDING].length,
+                  key: FixRequest_StatusData("pending").name,
+                  title: FixRequest_StatusData("pending").text,
+                  icon: FixRequest_StatusData("pending", {
+                     phosphor: { size: 16 },
+                  }).icon,
+                  badge: datasets.pending.length,
                },
                {
-                  key: FixRequestStatus.APPROVED,
-                  title: FixRequestStatusTagMapper[String(FixRequestStatus.APPROVED)].text,
-                  icon: <ThumbsUp size={16} />,
-                  badge: datasets[FixRequestStatus.APPROVED].length,
+                  key: FixRequest_StatusData("checked").name,
+                  title: FixRequest_StatusData("checked").text,
+                  icon: FixRequest_StatusData("checked").icon,
+                  badge: datasets.checked.length,
                },
                {
-                  key: FixRequestStatus.IN_PROGRESS,
-                  title: FixRequestStatusTagMapper[String(FixRequestStatus.IN_PROGRESS)].text,
-                  icon: <Wrench size={16} />,
-                  badge: datasets[FixRequestStatus.IN_PROGRESS].length,
+                  key: FixRequest_StatusData("approved").name,
+                  title: FixRequest_StatusData("approved").text,
+                  icon: FixRequest_StatusData("approved", {
+                     phosphor: { size: 16 },
+                  }).icon,
+                  badge: datasets.approved.length,
                },
                {
-                  key: FixRequestStatus.CLOSED,
-                  title: FixRequestStatusTagMapper[String(FixRequestStatus.CLOSED)].text,
-                  icon: <CheckSquareOffset size={16} />,
-                  badge: datasets[FixRequestStatus.CLOSED].length,
+                  key: FixRequest_StatusData("in_progress").name,
+                  title: FixRequest_StatusData("in_progress").text,
+                  icon: FixRequest_StatusData("in_progress", {
+                     phosphor: { size: 16 },
+                  }).icon,
+                  badge: datasets.in_progress.length,
                },
                {
-                  key: FixRequestStatus.REJECTED,
-                  title: FixRequestStatusTagMapper[String(FixRequestStatus.REJECTED)].text,
-                  icon: <XCircle size={16} />,
-                  badge: datasets[FixRequestStatus.REJECTED].length,
+                  key: FixRequest_StatusData("closed").name,
+                  title: FixRequest_StatusData("closed").text,
+                  icon: FixRequest_StatusData("closed", {
+                     phosphor: { size: 16 },
+                  }).icon,
+                  badge: datasets.closed.length,
+               },
+               {
+                  key: FixRequest_StatusData("rejected").name,
+                  title: FixRequest_StatusData("rejected").text,
+                  icon: FixRequest_StatusData("rejected", {
+                     phosphor: { size: 16 },
+                  }).icon,
+                  badge: datasets.rejected.length,
                },
             ]}
          />
@@ -112,16 +136,20 @@ function IssueList({ data, isLoading, statusName, className }: IssueListProps) {
       <>
          {data && !isLoading && data.length === 0 && (
             <Card className="h-full">
-               <Empty description={`Bạn không có báo cáo với trạng thái \"${statusName}\"`}></Empty>
+               <Empty
+                  description={`Bạn không có báo cáo với trạng thái \"${FixRequest_StatusData(statusName.toLowerCase() as any).text}\"`}
+               ></Empty>
             </Card>
          )}
-         <div className={cn("grid grid-cols-1 gap-2", className)}>
+         <div className={cn("grid grid-cols-1 gap-3", className)}>
             {isLoading && <Card loading />}
             {!isLoading && (
                <>
                   {data.length > 0 &&
                      data.map((req, index) => (
                         <ReportCard
+                           className="cursor-default"
+                           dto={req}
                            index={index}
                            key={req.id}
                            id={req.id}

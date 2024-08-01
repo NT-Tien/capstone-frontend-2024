@@ -130,7 +130,14 @@ export default function NewTaskPage({ params }: { params: { id: string } }) {
                      <RootHeader
                         title="Tác vụ mới"
                         icon={<LeftOutlined />}
-                        onIconClick={() => router.back()}
+                        onIconClick={() => router.push(`/head-staff/mobile/requests/${params.id}`)}
+                        confirmOnIconClick
+                        confirmModalProps={{
+                           title: "Hủy tạo tác vụ",
+                           description: "Bạn có chắc chắn muốn hủy tạo tác vụ?",
+                           confirmText: "Hủy",
+                           cancelText: "Không",
+                        }}
                         className="std-layout-outer p-4"
                      />
                      <section className="std-layout-outer w-full bg-white shadow-bottom">

@@ -1,5 +1,6 @@
 import { MachineModelDto } from "@/common/dto/MachineModel.dto"
 import { AreaDto } from "@/common/dto/Area.dto"
+import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 
 export type DeviceDto = {
    machineModel: MachineModelDto
@@ -12,4 +13,5 @@ export type DeviceDto = {
    createdAt: string
    updatedAt: string
    deletedAt: null | string
+   requests: FixRequestDto[]
 }

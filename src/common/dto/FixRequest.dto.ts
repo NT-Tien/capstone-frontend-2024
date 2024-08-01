@@ -18,5 +18,7 @@ export type FixRequestDto = {
    type: RequestType
    checker_note: string | null
    checker: UserDto
+   checker_date: string
    issues: FixRequestIssueDto[]
+   is_seen: boolean
 }

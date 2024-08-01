@@ -121,7 +121,10 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
                         type="link"
                         icon={<PlusOutlined />}
                         onClick={() => {
-                           const str = `${props.api.data!.device.machineModel.name}-${props.api.data!.device.area.name}-${props.api.data!.device.positionX}-${props.api.data!.device.positionY}`
+                           const data = props.api.data! // cannot be undefined because isSuccess
+                           const requestIdPart = data.id.split("-")[0]
+                           const issueIdParts = data.issues.map((issue) => issue.id.split("-")[1]).join("")
+                           const str = `${requestIdPart}${issueIdParts}`
                            form.setFieldsValue({
                               name: str,
                            })
@@ -154,6 +157,9 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
                   fieldProps={{
                      size: "large",
                      className: "w-full",
+                     classNames: {
+                        popup: "antd-calendar-change-disabled-color",
+                     },
                      placeholder: "Chọn ngày sửa chữa cho tác vụ",
                      onChange: (e) => props.setSelectedFixDate(e),
                      value: props.selectedFixDate,
@@ -162,7 +168,7 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
                      },
                   }}
                />
-               <Form.Item label="Mức độ ưu tiên" name="priority" initialValue={false}>
+               <Form.Item label="Mức độ ưu tiên" name="priority" initialValue={props.selectedPriority}>
                   <Radio.Group
                      buttonStyle="solid"
                      size="large"
@@ -175,6 +181,10 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
                   </Radio.Group>
                </Form.Item>
             </div>
+
+            <section>
+               <h3>Chọn nhân viên sửa chữa</h3>
+            </section>
          </Form>
       </div>
    )

@@ -1,6 +1,5 @@
 "use client"
 
-import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import HeadStaff_Task_OneById from "@/app/head-staff/_api/task/one-byId.api"
 import DetailsTab from "@/app/head-staff/mobile/(stack)/tasks/[id]/DetailsTab.componen"
 import DeviceTab from "@/app/head-staff/mobile/(stack)/tasks/[id]/DeviceTab.component"
@@ -22,7 +21,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
       queryKey: qk.task.one_byId(params.id),
       queryFn: () => HeadStaff_Task_OneById({ id: params.id }),
    })
-   
+
    return (
       <div className="std-layout">
          <RootHeader

@@ -1,7 +1,7 @@
 const headstaff_qk = {
    request: {
       base: () => ["headstaff", "request"],
-      all: (props: { page: string; limit: string; status: string }) => ["headstaff", "request", "all", props],
+      all: (props?: { page: string; limit: string; status: string }) => ["headstaff", "request", "all", props],
       byId: (id: string) => ["headstaff", "request", "byId", id],
    },
    task: {
@@ -11,6 +11,7 @@ const headstaff_qk = {
    },
    device: {
       byId: (id: string) => ["headstaff", "device", "byId", id],
+      byIdWithHistory: (id: string) => ["headstaff", "device", id, "byIdWithHistory"],
    },
    issue: {
       byId: (id: string) => ["headstaff", "issue", "byId", id],

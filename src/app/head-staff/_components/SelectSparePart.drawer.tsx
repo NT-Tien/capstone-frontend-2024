@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useEffect, useState } from "react"
+import { forwardRef, ReactNode, useEffect, useImperativeHandle, useState } from "react"
 import { Button, Card, Drawer, DrawerProps, Empty, Form, Input, InputNumber, Spin } from "antd"
 import { useQuery } from "@tanstack/react-query"
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
@@ -17,11 +17,17 @@ type ReturnType = {
    quantity: number
 }
 
-export default function SelectSparePartDrawer(props: {
+export type SelectSparePartDrawerRefType = {
+   openDrawer: (deviceId: string, ignoreIdList?: string[]) => void
+}
+
+type Props = {
    children: (handleOpen: (deviceId: string, ignoreIdList?: string[]) => void) => ReactNode
    onFinish: (values: ReturnType) => Promise<void>
    drawerProps?: DrawerProps
-}) {
+}
+
+const SelectSparePartDrawer = forwardRef<SelectSparePartDrawerRefType, Props>(function Component(props, ref) {
    const { open, handleOpen, handleClose } = useModalControls({
       onOpen: (deviceId: string, ignoreIdList?: string[]) => {
          setDeviceId(deviceId)
@@ -32,7 +38,7 @@ export default function SelectSparePartDrawer(props: {
          setIgnoreIdList([])
          setSelectedSparePart(undefined)
          setQuantity(1)
-         setSearchTerm('')
+         setSearchTerm("")
       },
    })
 
@@ -40,7 +46,7 @@ export default function SelectSparePartDrawer(props: {
    const [ignoreIdList, setIgnoreIdList] = useState<string[]>([])
    const [selectedSparePart, setSelectedSparePart] = useState<SparePartDto | undefined>()
    const [quantity, setQuantity] = useState(1)
-   const [searchTerm, setSearchTerm] = useState('');
+   const [searchTerm, setSearchTerm] = useState("")
 
    const response = useQuery({
       queryKey: headstaff_qk.device.byId(deviceId ?? ""),
@@ -51,9 +57,17 @@ export default function SelectSparePartDrawer(props: {
             ? data.machineModel.spareParts.filter((sp) => !ignoreIdList.includes(sp.id))
             : data.machineModel.spareParts,
    })
-   const filteredSpareParts = response.data?.filter((sparePart) =>
-      sparePart.name.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || [];
+   const filteredSpareParts =
+      response.data?.filter((sparePart) => sparePart.name.toLowerCase().includes(searchTerm.toLowerCase())) || []
+
+   useImperativeHandle(
+      ref,
+      () => ({
+         openDrawer: handleOpen,
+      }),
+      [handleOpen],
+   )
+
    return (
       <>
          {props.children(handleOpen)}
@@ -78,7 +92,12 @@ export default function SelectSparePartDrawer(props: {
                      />
                   ) : (
                      <div className="grid h-full grid-cols-1">
-                        <Input.Search size="large" className="my-3 px-3" placeholder="Tìm kiếm linh kiện" onChange={(e) => setSearchTerm(e.target.value)}/>
+                        <Input.Search
+                           size="large"
+                           className="my-3 px-3"
+                           placeholder="Tìm kiếm linh kiện"
+                           onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                         <section
                            className="flex flex-col gap-2 overflow-y-auto px-3 pb-4"
                            style={{
@@ -184,4 +203,6 @@ export default function SelectSparePartDrawer(props: {
          </Drawer>
       </>
    )
-}
+})
+
+export default SelectSparePartDrawer

@@ -5,11 +5,12 @@ import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 import React, { memo, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowRightOutlined, HomeOutlined, InfoCircleFilled } from "@ant-design/icons"
-import { Button, Card, Checkbox, Tag } from "antd"
+import { ArrowRightOutlined, HomeOutlined, InfoCircleFilled, WarningFilled, WarningOutlined } from "@ant-design/icons"
+import { App, Button, Card, Checkbox, Modal, Tag } from "antd"
 import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 import { CheckCard } from "@ant-design/pro-card"
 import { usePageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page.context"
+import useModalControls from "@/common/hooks/useModalControls"
 
 type Step0_Props = {
    api: UseQueryResult<FixRequestDto, Error>
@@ -19,27 +20,41 @@ type Step0_Props = {
    setSelectedIssues: React.Dispatch<React.SetStateAction<{ [key: string]: FixRequestIssueDto }>>
 }
 
-const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
+const Step0_SelectIssue = function Component(props: Step0_Props) {
+   const { open, handleOpen, handleClose } = useModalControls()
    const { setStep, setNextBtnProps, setPrevBtnProps } = usePageContext()
    const sizeSelectedIssues = useMemo(() => Object.values(props.selectedIssues).length, [props.selectedIssues])
    const router = useRouter()
 
    useEffect(() => {
       setPrevBtnProps({
-         children: "Trang chủ",
+         children: "Quay về",
          onClick: () => {
-            router.push("/head-staff/mobile/requests")
+            props.api.isSuccess && router.push(`/head-staff/mobile/requests/${props.api.data.id}`)
          },
          icon: <HomeOutlined />,
       })
       setNextBtnProps({
          onClick: () => {
-            setStep(1)
+            if (Object.values(props.selectedIssues).find((issue) => issue.issueSpareParts.length === 0)) {
+               handleOpen()
+            } else {
+               setStep(1)
+            }
          },
          children: "Tiếp tục",
          icon: <ArrowRightOutlined />,
       })
-   }, [router, setNextBtnProps, setPrevBtnProps, setStep])
+   }, [
+      handleOpen,
+      props.api.data,
+      props.api.isSuccess,
+      props.selectedIssues,
+      router,
+      setNextBtnProps,
+      setPrevBtnProps,
+      setStep,
+   ])
 
    useEffect(() => {
       if (sizeSelectedIssues === 0) {
@@ -120,9 +135,21 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
                         </div>
                      }
                      description={
-                        <div className="mt-2 flex justify-between">
+                        <div className="mt-2 flex flex-col gap-1">
                            <div className="w-9/12 truncate">{issue.description}</div>
-                           <div className="text-neutral-600">{issue.typeError.duration} phút</div>
+                           <div>
+                              <Tag>{issue.typeError.duration} phút</Tag>
+                              <Tag color={issue.issueSpareParts.length === 0 ? "red" : "default"}>
+                                 {issue.issueSpareParts.length === 0 ? (
+                                    <>
+                                       <WarningOutlined className="mr-1" />
+                                       Chưa có linh kiện
+                                    </>
+                                 ) : (
+                                    `${issue.issueSpareParts.length} linh kiện`
+                                 )}
+                              </Tag>
+                           </div>
                         </div>
                      }
                      extra={
@@ -149,8 +176,29 @@ const Step0_SelectIssue = memo(function Component(props: Step0_Props) {
                   ></CheckCard>
                ))}
          </div>
+         <Modal
+            open={open}
+            onCancel={handleClose}
+            title={
+               <div className="text-yellow-500">
+                  <WarningFilled className="mr-2" />
+                  Lưu ý
+               </div>
+            }
+            centered={true}
+            okButtonProps={{
+               className: "bg-yellow-500",
+            }}
+            okText={"Tiếp tục"}
+            cancelText={"Hủy"}
+            onOk={() => {
+               setStep(1)
+            }}
+         >
+            Một số lỗi bạn chọn không có linh kiện, bạn có chắc chắn muốn tiếp tục?
+         </Modal>
       </div>
    )
-})
+}
 
 export default Step0_SelectIssue

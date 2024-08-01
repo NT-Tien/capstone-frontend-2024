@@ -160,3 +160,9 @@ html, body {
         @apply text-base !important;
     }
 }
+
+.antd-calendar-change-disabled-color {
+    .ant-picker-cell-disabled {
+        @apply bg-red-200 !important;
+    }
+}

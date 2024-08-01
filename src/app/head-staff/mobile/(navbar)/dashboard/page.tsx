@@ -51,6 +51,7 @@ function DashboardPage() {
    // const pendingStockResult = result(TaskStatus.PENDING_STOCK)
    const assignedResult = useTask(current, pageSize, TaskStatus.ASSIGNED)
    const inProgressResult = useTask(current, pageSize, TaskStatus.IN_PROGRESS)
+   const headstaffConfirmResult = useTask(current, pageSize, TaskStatus.HEAD_STAFF_CONFIRM)
    const completedResult = useTask(current, pageSize, TaskStatus.COMPLETED)
    const cancelledResult = useTask(current, pageSize, TaskStatus.CANCELLED)
 
@@ -60,15 +61,18 @@ function DashboardPage() {
       assignedResult.data?.total ?? 0,
       inProgressResult.data?.total ?? 0,
       completedResult.data?.total ?? 0,
+      headstaffConfirmResult.data?.total ?? 0,
       cancelledResult.data?.total ?? 0,
    ].reduce((acc, curr) => acc + curr, 0)
 
    const progressingTasks = inProgressResult.data?.list.length ?? 0
    const completedTasks = completedResult.data?.list.length ?? 0
+   const headstaffConfirmTasks = headstaffConfirmResult.data?.list.length ?? 0
+
    return (
       <div className="std-layout">
          <HomeHeader className="std-layout-inner pb-8 pt-4" />
-         <section className="flex space-x-4">
+         <section className="grid grid-cols-2 gap-2">
             <StatisticCard
                className="h-full w-full flex-1 shadow-fb"
                loading={
@@ -81,15 +85,27 @@ function DashboardPage() {
                statistic={{
                   title: "Tống",
                   value: totalTasks,
+                  suffix: <span className="ml-1 text-base text-neutral-600">tác vụ</span>,
+                  formatter: (value) => <CountUp end={value as number} separator={","} />,
+               }}
+            />
+            <StatisticCard
+               className="h-full w-full flex-1 p-0 shadow-fb"
+               loading={inProgressResult.isLoading}
+               statistic={{
+                  title: "Thực hiện",
+                  value: progressingTasks,
+                  suffix: <span className="ml-1 text-base text-neutral-600">tác vụ</span>,
                   formatter: (value) => <CountUp end={value as number} separator={","} />,
                }}
             />
             <StatisticCard
                className="h-full w-full flex-1 shadow-fb"
-               loading={inProgressResult.isLoading}
+               loading={completedResult.isLoading}
                statistic={{
-                  title: "Tiến hành",
-                  value: progressingTasks,
+                  title: "Chờ xác nhận",
+                  value: headstaffConfirmTasks,
+                  suffix: <span className="ml-1 text-base text-neutral-600">tác vụ</span>,
                   formatter: (value) => <CountUp end={value as number} separator={","} />,
                }}
             />
@@ -99,6 +115,7 @@ function DashboardPage() {
                statistic={{
                   title: "Hoàn tất",
                   value: completedTasks,
+                  suffix: <span className="ml-1 text-base text-neutral-600">tác vụ</span>,
                   formatter: (value) => <CountUp end={value as number} separator={","} />,
                }}
             />
@@ -106,7 +123,7 @@ function DashboardPage() {
          <section className="std-layout-inner mt-8 flex items-center justify-between">
             <div className="flex items-center gap-2">
                <ClockCircleOutlined />
-               <h2 className="text-lg font-semibold">Báo cáo gần đây</h2>
+               <h2 className="text-lg font-semibold">Tác vụ gần đây</h2>
             </div>
             <Link href="/head-staff/mobile/tasks">
                <Button type="link" className="p-0">

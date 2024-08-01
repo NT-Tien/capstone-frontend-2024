@@ -13,7 +13,7 @@ export type Props = {
    onCancel?: () => string
    cancelProps?: ButtonProps
    modalProps?: ModalProps
-   closeAfterConfirm?: boolean
+   closeBeforeConfirm?: boolean
 }
 
 export default function ModalConfirm(props: Props) {
@@ -33,24 +33,33 @@ export default function ModalConfirm(props: Props) {
          <Modal
             title={props.title ?? "Lưu ý"}
             open={open}
-            onOk={() => {
-               props.onConfirm?.()
-               // if (props.closeAfterConfirm) handleClose()
-            }}
             centered={true}
-            onCancel={() => {
-               handleClose()
-            }}
+            onCancel={handleClose}
             footer={[
-               <Button key="back" onClick={handleClose} {...props.cancelProps}>
+               <Button
+                  key="back"
+                  onClick={() => {
+                     handleClose()
+                     setTimeout(() => {
+                        props.onCancel?.()
+                     }, 300)
+                  }}
+                  {...props.cancelProps}
+               >
                   {props.cancelText ?? "Hủy bỏ"}
                </Button>,
                <Button
                   key="confirm"
                   type="primary"
                   onClick={() => {
-                     props.onConfirm?.()
-                     // if (props.closeAfterConfirm) handleClose()
+                     if (props.closeBeforeConfirm === true || props.closeBeforeConfirm === undefined) {
+                        handleClose()
+                        setTimeout(() => {
+                           props.onConfirm?.()
+                        }, 300)
+                     } else {
+                        props.onConfirm?.()
+                     }
                   }}
                   {...props.confirmProps}
                >

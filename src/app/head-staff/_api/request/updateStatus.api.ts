@@ -7,13 +7,16 @@ import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 export type Request = {
    id: string
    payload: {
-      status: FixRequestStatus
-      checker_note: string
+      status?: FixRequestStatus
+      checker_note?: string
+      checker?: string
+      checker_date?: string
+      is_seen?: boolean
    }
 }
 export type Response = FixRequestDto
 
-HeadStaff_Request_UpdateStatus.URL = (req: Request) => `/head-staff/request/${req.id}/{status}`
+HeadStaff_Request_UpdateStatus.URL = (req: Request) => `/head-staff/request/${req.id}/status`
 export default async function HeadStaff_Request_UpdateStatus(req: Request): Promise<Response> {
    return api
       .put<Response>(HeadStaff_Request_UpdateStatus.URL(req), req.payload, {

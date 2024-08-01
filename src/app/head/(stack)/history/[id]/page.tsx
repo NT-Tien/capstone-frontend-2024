@@ -3,7 +3,7 @@
 import Head_Request_All from "@/app/head/_api/request/all.api"
 import DataListView from "@/common/components/DataListView"
 import RootHeader from "@/common/components/RootHeader"
-import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { NotFoundError } from "@/common/error/not-found.error"
 import qk from "@/common/querykeys"
 import { LeftOutlined } from "@ant-design/icons"
@@ -13,17 +13,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Card, Steps, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-
-const FixRequestStatusIndexMapper: {
-   [key in FixRequestStatus as string | "undefined"]: number
-} = {
-   [FixRequestStatus.PENDING]: 0,
-   [FixRequestStatus.APPROVED]: 1,
-   [FixRequestStatus.IN_PROGRESS]: 2,
-   [FixRequestStatus.CLOSED]: 3,
-   [FixRequestStatus.REJECTED]: 1,
-   undefined: 0,
-}
+import { FixRequest_StatusData, FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
 
 export default function HistoryDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -43,7 +33,7 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
             title="Thông tin báo cáo"
             className="std-layout-outer p-4"
             icon={<LeftOutlined />}
-            onIconClick={() => router.back()}
+            onIconClick={() => router.replace("/head/history")}
             buttonProps={{
                type: "text",
             }}
@@ -57,11 +47,7 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                fontSize: "1rem",
             }}
             title={<span className="text-lg">{"Cụ thể"}</span>}
-            extra={
-               <Tag color={FixRequestStatusTagMapper[String(api.data?.status)].color}>
-                  {FixRequestStatusTagMapper[String(api.data?.status)].text}
-               </Tag>
-            }
+            extra={<Tag color={FixRequest_StatusMapper(api.data).color}>{FixRequest_StatusMapper(api.data).text}</Tag>}
             dataSource={api.data}
             loading={api.isPending}
             size="small"
@@ -94,38 +80,43 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                <Steps
                   size="small"
                   direction="vertical"
-                  current={FixRequestStatusIndexMapper[String(api.data?.status)]}
+                  current={FixRequest_StatusMapper(api.data).index}
                   status={api.data?.status === FixRequestStatus.REJECTED ? "error" : "process"}
                   className="std-steps"
                   items={[
                      {
-                        title: FixRequestStatusTagMapper[FixRequestStatus.PENDING].text,
-                        description: "Yêu cầu này đã được tạo và đang chờ xử lý",
+                        title: FixRequest_StatusData("pending").text,
+                        description: FixRequest_StatusData("pending").description,
+                        className: "text-base",
+                     },
+                     {
+                        title: FixRequest_StatusData("checked").text,
+                        description: FixRequest_StatusData("checked").description,
                         className: "text-base",
                      },
                      ...(api.isSuccess
-                        ? api.data?.status !== FixRequestStatus.REJECTED
+                        ? !FixRequest_StatusData("rejected").conditionFn(api.data)
                            ? [
                                 {
-                                   title: FixRequestStatusTagMapper[FixRequestStatus.APPROVED].text,
-                                   description: "Yêu cầu đã được phê duyệt",
+                                   title: FixRequest_StatusData("approved").text,
+                                   description: FixRequest_StatusData("approved").description,
                                    className: "text-base",
                                 },
                                 {
-                                   title: FixRequestStatusTagMapper[FixRequestStatus.IN_PROGRESS].text,
-                                   description: "Yêu cầu đang được xử lý",
+                                   title: FixRequest_StatusData("in_progress").text,
+                                   description: FixRequest_StatusData("in_progress").description,
                                    className: "text-base",
                                 },
                                 {
-                                   title: FixRequestStatusTagMapper[FixRequestStatus.CLOSED].text,
-                                   description: "Yêu cầu đã hoàn thành",
+                                   title: FixRequest_StatusData("closed").text,
+                                   description: FixRequest_StatusData("closed").description,
                                    className: "text-base",
                                 },
                              ]
                            : [
                                 {
-                                   title: FixRequestStatusTagMapper[FixRequestStatus.REJECTED].text,
-                                   description: "Yêu cầu đã bị từ chối",
+                                   title: FixRequest_StatusData("rejected").text,
+                                   description: FixRequest_StatusData("rejected").description,
                                    className: "text-base",
                                 },
                              ]
@@ -174,18 +165,6 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                            <MapPin size={16} weight="fill" />
                         </a>
                      ),
-                  },
-                  {
-                     label: "Nhà sản xuất",
-                     value: (s) => s.machineModel?.manufacturer,
-                  },
-                  {
-                     label: "Năm sản xuất",
-                     value: (s) => s.machineModel?.yearOfProduction,
-                  },
-                  {
-                     label: "Thời hạn bảo hành",
-                     value: (s) => s.machineModel?.warrantyTerm,
                   },
                   {
                      label: "Mô tả",

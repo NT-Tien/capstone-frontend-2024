@@ -47,9 +47,14 @@ export default function ScanPage() {
          return
       }
 
-      startTransition(() => {
-         router.push(`/head/scan/${id}`)
-      })
+      console.log("CLOSING")
+      handleClose?.()
+
+      setTimeout(() => {
+         startTransition(() => {
+            router.push(`/head/scan/${id}`)
+         })
+      }, 200)
 
       return
    }
@@ -96,7 +101,7 @@ export default function ScanPage() {
                               AI
                            </Avatar>
                            <div className="flex-grow">
-                              <p className="text-base font-bold">Nhập thủ công</p>
+                              <p className="text-base font-bold">Không quét mã được?</p>
                               <p className="text-xs">Nhấp vào đây nếu bạn không thể quét mã QR</p>
                            </div>
                            <div>

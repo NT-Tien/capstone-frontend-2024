@@ -33,6 +33,7 @@ export default function RootHeader({
          e.stopPropagation()
       }
 
+      // Prevent user from reloading or changing url manually
       if (confirmOnIconClick) {
          window.addEventListener("beforeunload", handleBeforeUnload)
       }

@@ -6,8 +6,8 @@ import React, { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, use
 import { App, Badge, Button, Card, Drawer, Empty, Form, Radio, Select, Skeleton, Tag } from "antd"
 import { BaseSelectRef } from "rc-select"
 import HeadStaff_Issue_Create from "@/app/head-staff/_api/issue/create.api"
-import IssueDetailsDrawer from "@/app/head-staff/_components/IssueDetailsDrawer"
-import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
+import IssueDetailsDrawer, { IssueDetailsDrawerRefType } from "@/app/head-staff/_components/IssueDetailsDrawer"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { ProDescriptions, ProFormTextArea } from "@ant-design/pro-components"
 import RequestDetails from "@/app/head-staff/mobile/(stack)/requests/[id]/page"
 import { ArrowRightOutlined, PlusOutlined } from "@ant-design/icons"
@@ -15,6 +15,10 @@ import { RibbonProps } from "antd/lib/badge/Ribbon"
 import { cn } from "@/common/util/cn.util"
 import useModalControls from "@/common/hooks/useModalControls"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
+import { Issue_StatusMapper } from "@/common/dto/status/Issue.status"
+import SelectSparePartDrawer, {
+   SelectSparePartDrawerRefType,
+} from "@/app/head-staff/_components/SelectSparePart.drawer"
 
 type FieldType = {
    request: string
@@ -40,6 +44,8 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
    const { message } = App.useApp()
    const [form] = Form.useForm<FieldType>()
 
+   const issueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)
+   const SelectSparePartDrawerRef = useRef<null | SelectSparePartDrawerRefType>(null)
    const createIssueBtnRef = useRef<BaseSelectRef | null>(null)
    const createIssueBtnWrapperRef = useRef<HTMLDivElement | null>(null)
    const highlightedTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -144,6 +150,8 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
       issue: FixRequestIssueDto
       badgeProps?: RibbonProps
    }) {
+      if (props.api.isPending) return children
+
       if (rest.issue.id === highlightedId) {
          return (
             <Badge.Ribbon text="Mới" color="green">
@@ -155,17 +163,15 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
       if (
          props.api.data?.status === FixRequestStatus.PENDING ||
          props.api.data?.status === FixRequestStatus.APPROVED ||
-         props.api.data?.status === FixRequestStatus.IN_PROGRESS
+         props.api.data?.status === FixRequestStatus.IN_PROGRESS ||
+         props.api.data?.status === FixRequestStatus.CHECKED
       ) {
          if (rest.issue.task === null) {
             return <Badge.Ribbon text="Chưa có tác vụ">{children}</Badge.Ribbon>
          }
 
          return (
-            <Badge.Ribbon
-               text={FixRequestStatusTagMapper[String(rest.issue.status)].text}
-               color={FixRequestStatusTagMapper[String(rest.issue.status)].color}
-            >
+            <Badge.Ribbon text={Issue_StatusMapper(rest.issue)?.text} color={Issue_StatusMapper(rest.issue)?.color}>
                {children}
             </Badge.Ribbon>
          )
@@ -206,6 +212,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                FixRequestStatus.APPROVED,
                FixRequestStatus.IN_PROGRESS,
                FixRequestStatus.CLOSED,
+               FixRequestStatus.CHECKED,
             ]}
          >
             <h2 className="mb-2 text-base font-semibold">Yêu cầu vấn đề</h2>
@@ -224,6 +231,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                         }}
                         showIssueStatus={props.api.data.status !== FixRequestStatus.PENDING}
                         refetch={props.api.refetch}
+                        ref={issueDetailsDrawerRef}
                      >
                         {(handleOpen) => (
                            <div className="space-y-2">
@@ -367,6 +375,26 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                      maxLength: 300,
                   }}
                />
+
+               {/* Select spare part */}
+               {/*<SelectSparePartDrawer onFinish={async (values) => {}}>*/}
+               {/*   {(handleOpen) => (*/}
+               {/*      <Select*/}
+               {/*         options={props.device.data?.machineModel.spareParts.map((sparePart) => ({*/}
+               {/*            label: sparePart.name,*/}
+               {/*            value: sparePart.id,*/}
+               {/*         }))}*/}
+               {/*         className="w-full"*/}
+               {/*         showSearch*/}
+               {/*         size="large"*/}
+               {/*         placeholder="+ Chọn linh kiện"*/}
+               {/*         onChange={(e) => {*/}
+               {/*            props.device.isSuccess && handleOpen(props.device.data.id)*/}
+               {/*         }}*/}
+               {/*      />*/}
+               {/*   )}*/}
+               {/*</SelectSparePartDrawer>*/}
+
                <Form.Item<FieldType> className="mb-0">
                   <Button
                      className="w-full"

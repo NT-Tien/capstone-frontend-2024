@@ -21,7 +21,8 @@ export default function HeadDashboardPage() {
    const result = useQuery({
       queryKey: head_qk.requests.all(),
       queryFn: () => Head_Request_All(),
-      select: (data) => data.sort((a, b) => dayjs(b.createdAt).add(7, "hours").diff(dayjs(a.createdAt).add(7, "hours"))).slice(0, 4),
+      select: (data) =>
+         data.sort((a, b) => dayjs(b.createdAt).add(7, "hours").diff(dayjs(a.createdAt).add(7, "hours"))).slice(0, 4),
    })
 
    return (
@@ -88,6 +89,7 @@ export default function HeadDashboardPage() {
                   {result.data.length > 0 &&
                      result.data.map((req, index) => (
                         <ReportCard
+                           dto={req}
                            index={index}
                            key={req.id}
                            id={req.id}
@@ -95,7 +97,7 @@ export default function HeadDashboardPage() {
                            positionY={req.device.positionY}
                            area={req.device.area.name}
                            machineModelName={req.device.machineModel.name}
-                           createdDate={dayjs(req.createdAt).add(7, "hours").fromNow()}
+                           createdDate={dayjs(req.createdAt).locale("vi").add(7, "hours").fromNow()}
                            onClick={(id: string) => router.push(`/head/history/${id}`)}
                            status={req.status}
                         />

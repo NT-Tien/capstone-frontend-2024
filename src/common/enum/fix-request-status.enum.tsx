@@ -2,11 +2,12 @@ import { PresetColorType, type PresetStatusColorType } from "antd/es/_util/color
 import { LiteralUnion } from "antd/es/_util/type"
 
 export enum FixRequestStatus {
-   PENDING = "PENDING",
-   APPROVED = "APPROVED",
-   REJECTED = "REJECTED",
-   IN_PROGRESS = "IN_PROGRESS",
-   CLOSED = "CLOSED",
+   PENDING = "PENDING", // mới tạo request, chưa xem / đã xem
+   CHECKED = "CHECKED", // request has scanned qr code.
+   APPROVED = "APPROVED", // có ít nhất 1 issue
+   IN_PROGRESS = "IN_PROGRESS", // có ít nhất 1 task
+   REJECTED = "REJECTED", //
+   CLOSED = "CLOSED", // all tasks finished
 }
 
 export const FixRequestStatusTagMapper: {
@@ -17,9 +18,9 @@ export const FixRequestStatusTagMapper: {
    }
 } = {
    [FixRequestStatus.PENDING]: {
-      text: "Đang chờ",
-      colorInverse: "yellow-inverse",
-      color: "yellow",
+      text: "Chưa xử lý",
+      colorInverse: "default",
+      color: "default",
    },
    [FixRequestStatus.APPROVED]: {
       text: "Xác nhận",
@@ -38,8 +39,8 @@ export const FixRequestStatusTagMapper: {
    },
    [FixRequestStatus.CLOSED]: {
       text: "Đóng",
-      colorInverse: "default",
-      color: "default",
+      colorInverse: "purple-inverse",
+      color: "purple",
    },
    undefined: {
       text: "-",

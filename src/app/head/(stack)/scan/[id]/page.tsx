@@ -7,17 +7,18 @@ import Head_Request_Create from "@/app/head/_api/request/create.api"
 import DataListView from "@/common/components/DataListView"
 import RootHeader from "@/common/components/RootHeader"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { FixRequestStatus, FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { NotFoundError } from "@/common/error/not-found.error"
 import useCurrentUser from "@/common/hooks/useCurrentUser"
 import useModalControls from "@/common/hooks/useModalControls"
 import { LeftOutlined, PlusOutlined, QrcodeOutlined, ReloadOutlined } from "@ant-design/icons"
 import { ProFormSelect, ProFormTextArea } from "@ant-design/pro-components"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { App, Badge, Button, Card, Divider, Drawer, Empty, Form, Result, Space, Tooltip } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
+import { FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
 
 type FieldType = {
    description: string
@@ -93,7 +94,6 @@ const loiMay = [
 export default function ScanDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
    const [form] = Form.useForm<FieldType>()
-   const queryClient = useQueryClient()
    const { message } = App.useApp()
    const user = useCurrentUser()
 
@@ -196,7 +196,15 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                title="Thông tin chi tiết"
                className="std-layout-outer p-4"
                icon={<LeftOutlined className="text-base" />}
-               onIconClick={() => router.back()}
+               onIconClick={() => router.replace("/head/scan")}
+               confirmOnIconClick={true}
+               confirmModalProps={{
+                  title: "Lưu ý",
+                  description: "Bạn có chắc chắn muốn rời khỏi trang này?",
+                  confirmText: "Rời khỏi",
+                  cancelText: "Ở lại",
+                  closeBeforeConfirm: true,
+               }}
                buttonProps={{
                   type: "text",
                }}
@@ -260,18 +268,6 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                            ),
                         },
                         {
-                           label: "Nhà sản xuất",
-                           value: (s) => s.machineModel?.manufacturer,
-                        },
-                        {
-                           label: "Năm sản xuất",
-                           value: (s) => s.machineModel?.yearOfProduction,
-                        },
-                        {
-                           label: "Thời hạn bảo hành",
-                           value: (s) => s.machineModel?.warrantyTerm,
-                        },
-                        {
                            label: "Mô tả",
                            value: (s) => s.description,
                         },
@@ -279,7 +275,6 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   />
                </div>
             )}
-
             <section className="mt-6">
                <h2 className="mb-2 flex justify-between">
                   <span className="mr-2 text-lg font-semibold">Báo cáo của tôi</span>
@@ -293,8 +288,12 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                         <div>
                            <Badge.Ribbon
                               key={filteredRequests.mine.id}
-                              color={FixRequestStatusTagMapper[String(filteredRequests.mine.status)].color}
-                              text={<span className="capitalize">{filteredRequests.mine.status.toLowerCase()}</span>}
+                              color={FixRequest_StatusMapper(filteredRequests.mine).color}
+                              text={
+                                 <span className="capitalize">
+                                    {FixRequest_StatusMapper(filteredRequests.mine).text}
+                                 </span>
+                              }
                            >
                               <Card size="small" className="bg-yellow-50">
                                  <div className="flex flex-col gap-2">
@@ -306,7 +305,9 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                                           <span className="text-neutral-500">Created by</span> Head
                                        </span>
                                        <span className="text-neutral-600">
-                                          {dayjs(filteredRequests.mine.createdAt).add(7, "hours").format("DD-MM-YYYY HH:mm")}
+                                          {dayjs(filteredRequests.mine.createdAt)
+                                             .add(7, "hours")
+                                             .format("DD-MM-YYYY HH:mm")}
                                        </span>
                                     </div>
                                  </div>
@@ -324,16 +325,15 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                            <>
                               <Badge.Ribbon
                                  key={req.id}
-                                 color={FixRequestStatusTagMapper[String(req.status)].color}
-                                 text={<span className="capitalize">{req.status.toLowerCase()}</span>}
+                                 color={FixRequest_StatusMapper(req).color}
+                                 text={<span className="capitalize">{FixRequest_StatusMapper(req).text}</span>}
                               >
                                  <Card size="small">
                                     <div className="flex flex-col gap-2">
                                        <span className="truncate text-base font-medium">{req.requester_note}</span>
                                        <div className="flex justify-between">
                                           <span>
-                                             <span className="text-neutral-500">Được tạo bởi</span> Head // TODO change
-                                             to name
+                                             <span className="text-neutral-500">Được tạo bởi</span> Head
                                           </span>
                                           <span className="text-neutral-600">
                                              {dayjs(req.createdAt).add(7, "hours").format("DD-MM-YYYY HH:mm")}

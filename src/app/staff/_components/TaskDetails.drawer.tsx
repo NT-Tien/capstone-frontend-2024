@@ -14,7 +14,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { App, Badge, Button, Card, Drawer, List, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import { ReactNode, useState } from "react"
+import { ReactNode, useMemo, useState } from "react"
 
 export default function TaskDetailsDrawer({
    children,
@@ -45,6 +45,10 @@ export default function TaskDetailsDrawer({
       queryFn: () => Staff_Task_OneById({ id: taskId ?? "" }),
       enabled: !!taskId,
    })
+
+   const hasSparePart = useMemo(() => {
+      return task.data?.issues.find((issue) => issue.issueSpareParts.length !== 0)
+   }, [task.data])
 
    const mutate_acceptSpareParts = useMutation({
       mutationFn: Staff_Task_ReceiveSpareParts,
@@ -127,6 +131,11 @@ export default function TaskDetailsDrawer({
                body: "overflow-auto p-0 std-layout pt-layout",
             }}
          >
+            {hasSparePart && task.data?.confirmReceipt === false && (
+               <Card size="small" className="mb-4">
+                  Tác vụ này có linh kiện. Vui lòng xuống kho và nhấn nút bên dưới để tiếp tục.
+               </Card>
+            )}
             <ProDescriptions
                column={1}
                loading={task.isLoading}
@@ -155,6 +164,27 @@ export default function TaskDetailsDrawer({
                      label: "Ngày sửa",
                      render: (_, e) => dayjs(e.fixerDate).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                   },
+                  ...(hasSparePart
+                     ? [
+                          {
+                             key: "5",
+                             label: "Linh kiện",
+                             render: (_: any, e: any) => (
+                                <Tag
+                                   color={
+                                      task.isSuccess
+                                         ? task.data?.confirmReceipt === false
+                                            ? "red"
+                                            : "green"
+                                         : "default"
+                                   }
+                                >
+                                   {task.data?.confirmReceipt === false ? "Chưa lấy" : "Đã lấy"}
+                                </Tag>
+                             ),
+                          },
+                       ]
+                     : []),
                ]}
             />
             <section className="std-layout-outer mt-layout rounded-lg bg-white">
@@ -258,8 +288,12 @@ export default function TaskDetailsDrawer({
                            }
                         >
                            <div className="flex items-center justify-center gap-2">
-                              {task.data?.confirmReceipt === false ? <Gear size={20} /> : <CheckCircle size={16} />}
-                              {task.data?.confirmReceipt === false
+                              {task.data?.confirmReceipt === false && hasSparePart ? (
+                                 <Gear size={20} />
+                              ) : (
+                                 <CheckCircle size={16} />
+                              )}
+                              {task.data?.confirmReceipt === false && hasSparePart
                                  ? "Lấy linh kiện"
                                  : shouldContinue
                                    ? "Tiếp tục tác vụ"

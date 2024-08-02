@@ -234,19 +234,15 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                            </div>
                         ),
                      },
-                     ...(api.data?.status === FixRequestStatus.APPROVED
-                        ? [
-                             {
-                                key: "main-tab-tasks",
-                                label: (
-                                   <div className="flex items-center gap-2">
-                                      <CheckSquareOffset size={16} />
-                                      Tác vụ
-                                   </div>
-                                ),
-                             },
-                          ]
-                        : []),
+                     {
+                        key: "main-tab-tasks",
+                        label: (
+                           <div className="flex items-center gap-2">
+                              <CheckSquareOffset size={16} />
+                              Tác vụ
+                           </div>
+                        ),
+                     },
                   ]}
                />
             )}
@@ -408,7 +404,12 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                {hasScanned && (
                   <RequestDetails.ShowActionByStatus
                      api={api}
-                     requiredStatus={[FixRequestStatus.PENDING, FixRequestStatus.APPROVED, FixRequestStatus.CHECKED]}
+                     requiredStatus={[
+                        FixRequestStatus.PENDING,
+                        FixRequestStatus.APPROVED,
+                        FixRequestStatus.CHECKED,
+                        FixRequestStatus.IN_PROGRESS,
+                     ]}
                   >
                      <section className="std-layout-outer fixed bottom-0 left-0 flex w-full items-center justify-center gap-3 bg-white p-layout shadow-fb">
                         <RequestDetails.ShowActionByStatus

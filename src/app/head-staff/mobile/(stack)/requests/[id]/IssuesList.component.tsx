@@ -19,6 +19,7 @@ import { Issue_StatusMapper } from "@/common/dto/status/Issue.status"
 import SelectSparePartDrawer, {
    SelectSparePartDrawerRefType,
 } from "@/app/head-staff/_components/SelectSparePart.drawer"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 
 type FieldType = {
    request: string
@@ -224,7 +225,6 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                      </Card>
                   ) : (
                      <IssueDetailsDrawer
-                        showActions={props.hasScanned}
                         drawerProps={{
                            placement: "bottom",
                            height: "100%",
@@ -243,7 +243,27 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                                           item.id === highlightedId && "border-green-200 bg-green-50",
                                        )}
                                        onClick={() => {
-                                          props.device.isSuccess && handleOpen(item.id, props.device.data.id)
+                                          props.device.isSuccess &&
+                                             props.api.isSuccess &&
+                                             handleOpen(
+                                                item.id,
+                                                props.device.data.id,
+                                                /**
+                                                 * Only show actions if
+                                                 * - User has scanned
+                                                 * - and either [Status is PENDING, CHECKED, APPROVED]
+                                                 * - or [Status is IN_PROGRESS with either no task or task status is AWAITING_FIXER]
+                                                 */
+                                                props.hasScanned &&
+                                                   (new Set([
+                                                      FixRequestStatus.PENDING,
+                                                      FixRequestStatus.CHECKED,
+                                                      FixRequestStatus.APPROVED,
+                                                   ]).has(props.api.data.status) ||
+                                                      (props.api.data.status === FixRequestStatus.IN_PROGRESS &&
+                                                         (item.task === null ||
+                                                            item.task.status === TaskStatus.AWAITING_FIXER))),
+                                             )
                                        }}
                                        hoverable
                                        classNames={{

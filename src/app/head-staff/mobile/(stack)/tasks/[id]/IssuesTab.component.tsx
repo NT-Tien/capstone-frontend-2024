@@ -60,7 +60,6 @@ export default function IssuesTab(props: Props) {
             </Card>
          ) : (
             <IssueDetailsDrawer
-               showActions={Can_UpdateIssues.has(String(props.api_task.data?.status))}
                drawerProps={{
                   placement: "bottom",
                   height: "100%",
@@ -78,7 +77,12 @@ export default function IssuesTab(props: Props) {
                            <Card
                               className={cn("w-full border-2 border-neutral-200 bg-transparent p-0 transition-all")}
                               onClick={() => {
-                                 api_device.isSuccess && handleOpen(item.id, api_device.data?.id)
+                                 api_device.isSuccess &&
+                                    handleOpen(
+                                       item.id,
+                                       api_device.data?.id,
+                                       Can_UpdateIssues.has(String(props.api_task.data?.status)),
+                                    )
                               }}
                               hoverable
                               classNames={{

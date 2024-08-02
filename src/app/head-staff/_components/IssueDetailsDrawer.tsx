@@ -25,11 +25,11 @@ import Link from "next/link"
 import { Issue_StatusMapper } from "@/common/dto/status/Issue.status"
 
 export type IssueDetailsDrawerRefType = {
-   openDrawer: (issueId: string, deviceId: string) => void
+   openDrawer: (issueId: string, deviceId: string, showActions?: boolean) => void
 }
 
 type Props = {
-   children: (handleOpen: (issueId: string, deviceId: string) => void) => ReactNode
+   children: (handleOpen: (issueId: string, deviceId: string, showActions?: boolean) => void) => ReactNode
    showActions?: boolean
    showIssueStatus?: boolean
    drawerProps?: DrawerProps
@@ -37,23 +37,26 @@ type Props = {
 }
 
 const IssueDetailsDrawer = forwardRef<IssueDetailsDrawerRefType, Props>(function Component(
-   { children, showActions = true, showIssueStatus = false, drawerProps, refetch },
+   { children, showIssueStatus = false, drawerProps, refetch },
    ref,
 ) {
    const { open, handleOpen, handleClose } = useModalControls({
-      onOpen: (issueId: string, deviceId: string) => {
+      onOpen: (issueId: string, deviceId: string, showActions: boolean = true) => {
          setIssueId(issueId)
          setDeviceId(deviceId)
+         setShowActions(showActions)
       },
       onClose: () => {
          setTimeout(() => {
             setIssueId(undefined)
             setDeviceId(undefined)
+            setShowActions(true)
          }, 300)
       },
    })
    const { message } = App.useApp()
 
+   const [showActions, setShowActions] = useState<boolean>(true)
    const [issueId, setIssueId] = useState<undefined | string>()
    const [deviceId, setDeviceId] = useState<undefined | string>()
    const [highlightedId, setHighlightedId] = useState<undefined | string>()

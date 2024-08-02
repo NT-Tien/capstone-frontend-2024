@@ -17,7 +17,7 @@ type Props = {
 
 export default function IssuesTab(props: Props) {
    return (
-      <IssueDetailsDrawer refetch={props.refetch} showActions={false}>
+      <IssueDetailsDrawer refetch={props.refetch}>
          {(handleOpen) => (
             <ProTable<FixRequestIssueDto>
                cardBordered

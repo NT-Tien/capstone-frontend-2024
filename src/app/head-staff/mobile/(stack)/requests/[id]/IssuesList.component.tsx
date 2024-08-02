@@ -1,16 +1,16 @@
 import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
-import { useMutation, UseQueryResult } from "@tanstack/react-query"
+import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { DeviceDto } from "@/common/dto/Device.dto"
-import React, { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
-import { App, Badge, Button, Card, Drawer, Empty, Form, Radio, Select, Skeleton, Tag } from "antd"
+import React, { forwardRef, ReactNode, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
+import { App, Badge, Button, Card, Drawer, Empty, Form, InputNumber, Modal, Radio, Select, Skeleton, Tag } from "antd"
 import { BaseSelectRef } from "rc-select"
 import HeadStaff_Issue_Create from "@/app/head-staff/_api/issue/create.api"
 import IssueDetailsDrawer, { IssueDetailsDrawerRefType } from "@/app/head-staff/_components/IssueDetailsDrawer"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { ProDescriptions, ProFormTextArea } from "@ant-design/pro-components"
+import { ProCard, ProDescriptions, ProFormTextArea } from "@ant-design/pro-components"
 import RequestDetails from "@/app/head-staff/mobile/(stack)/requests/[id]/page"
-import { ArrowRightOutlined, PlusOutlined } from "@ant-design/icons"
+import { ArrowRightOutlined, PlusOutlined, MinusOutlined } from "@ant-design/icons"
 import { RibbonProps } from "antd/lib/badge/Ribbon"
 import { cn } from "@/common/util/cn.util"
 import useModalControls from "@/common/hooks/useModalControls"
@@ -20,6 +20,9 @@ import SelectSparePartDrawer, {
    SelectSparePartDrawerRefType,
 } from "@/app/head-staff/_components/SelectSparePart.drawer"
 import { TaskStatus } from "@/common/enum/task-status.enum"
+import { SparePartDto } from "@/common/dto/SparePart.dto"
+import headstaff_qk from "@/app/head-staff/_api/qk"
+import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
 
 type FieldType = {
    request: string
@@ -28,12 +31,18 @@ type FieldType = {
    fixType: FixType
 }
 
+type ReturnType = {
+   sparePartId: string
+   quantity: number
+}
+
 type IssuesListProps = {
    id: string
    api: UseQueryResult<FixRequestDto, Error>
    device: UseQueryResult<DeviceDto, Error>
    hasScanned: boolean
    className?: string
+   onFinish: (values: ReturnType) => Promise<void>
 }
 
 export type IssuesListRefType = {
@@ -64,7 +73,49 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
    const [createDropdownOpen, setCreateDropdownOpen] = useState(false)
    const [selectedTypeErrorId, setSelectedTypeErrorId] = useState<undefined | string>()
    const [highlightedId, setHighlightedId] = useState<undefined | string>()
+   const [deviceId, setDeviceId] = useState<string>()
+   const [ignoreIdList, setIgnoreIdList] = useState<string[]>([])
+   const [selectedSparePart, setSelectedSparePart] = useState<SparePartDto | undefined>()
+   const [quantity, setQuantity] = useState(1)
+   const [searchTerm, setSearchTerm] = useState("")
+   const [sparePartModalOpen, setSparePartModalOpen] = useState(false)
 
+   const response = useQuery({
+      queryKey: headstaff_qk.device.byId(deviceId ?? ""),
+      queryFn: () => HeadStaff_Device_OneById({ id: deviceId ?? "" }),
+      enabled: !!deviceId,
+      select: (data) =>
+         !!ignoreIdList
+            ? data.machineModel.spareParts.filter((sp) => !ignoreIdList.includes(sp.id))
+            : data.machineModel.spareParts,
+   })
+   const filteredSpareParts =
+      response.data?.filter((sparePart) => sparePart.name.toLowerCase().includes(searchTerm.toLowerCase())) || []
+      useEffect(() => {
+         console.log("Current deviceId:", deviceId);
+       }, [deviceId]);
+       
+       useEffect(() => {
+         console.log("Query Data:", response.data);
+       }, [response.data]);
+   function handleSelectSparePart(sparePartId: any) {
+      setDeviceId(sparePartId)
+      setSelectedSparePart(sparePartId)
+      setSparePartModalOpen(true)
+   }
+   const { handleOpen: handleOpenQuantity, handleClose: handleCloseQuantity } = useModalControls({
+      onOpen: (deviceId: string, ignoreIdList?: string[]) => {
+         setDeviceId(deviceId)
+         setIgnoreIdList(ignoreIdList ?? [])
+      },
+      onClose: () => {
+         setDeviceId(undefined)
+         setIgnoreIdList([])
+         setSelectedSparePart(undefined)
+         setQuantity(1)
+         setSearchTerm("")
+      },
+   })
    const mutate_createIssue = useMutation({
       mutationFn: HeadStaff_Issue_Create,
       onMutate: async () => {
@@ -333,7 +384,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
             open={open}
             onClose={handleClose_CreateDrawer}
             title="Tạo vấn đề"
-placement="left"
+            placement="left"
             height="max-content"
          >
             <ProDescriptions
@@ -395,26 +446,103 @@ placement="left"
                      maxLength: 300,
                   }}
                />
-
-               {/* Select spare part */}
-               {/*<SelectSparePartDrawer onFinish={async (values) => {}}>*/}
-               {/*   {(handleOpen) => (*/}
-               {/*      <Select*/}
-               {/*         options={props.device.data?.machineModel.spareParts.map((sparePart) => ({*/}
-               {/*            label: sparePart.name,*/}
-               {/*            value: sparePart.id,*/}
-               {/*         }))}*/}
-               {/*         className="w-full"*/}
-               {/*         showSearch*/}
-               {/*         size="large"*/}
-               {/*         placeholder="+ Chọn linh kiện"*/}
-               {/*         onChange={(e) => {*/}
-               {/*            props.device.isSuccess && handleOpen(props.device.data.id)*/}
-               {/*         }}*/}
-               {/*      />*/}
-               {/*   )}*/}
-               {/*</SelectSparePartDrawer>*/}
-
+               <Form.Item label="Linh kiện thay thế">
+                  <Select
+                     options={filteredSpareParts?.map((sparePart) => ({
+                        label: sparePart.name,
+                        value: sparePart.id,
+                     }))}
+                     className="w-full"
+                     showSearch
+                     size="large"
+                     placeholder="+ Chọn linh kiện"
+                     value={selectedSparePart}
+                     onChange={(sp) => handleSelectSparePart(sp)}
+                  />
+                  <Modal open={sparePartModalOpen} onCancel={() => setSparePartModalOpen(false)} title="Thông tin linh kiện">
+                     {
+                        <>
+                           <ProDescriptions
+                              dataSource={selectedSparePart}
+                              className="mt-3"
+                              size="small"
+                              columns={[
+                                 {
+                                    key: "name",
+                                    title: "Tên",
+                                    dataIndex: ["sparePart", "name"],
+                                 },
+                                 {
+                                    key: "Quantity",
+                                    title: "Số lượng",
+                                    dataIndex: ["sparePart", "quantity"],
+                                 },
+                              ]}
+                           />
+                           {selectedSparePart !== undefined && (
+                           <section className="flex w-full flex-col gap-5 border-t-2 border-t-neutral-200 bg-white px-3 pb-3 pt-5 shadow-fb">
+                              <div className="flex-grow">
+                                 <ProCard size="small" className="bg-neutral-100" bordered>
+                                    <div className="flex items-center">
+                                       <div className="flex flex-grow flex-col">
+                                          <span className="text-xl font-semibold">{selectedSparePart.name}</span>
+                                          <span>Số lượng: {selectedSparePart.quantity}</span>
+                                       </div>
+                                       <div className="flex items-center gap-1">
+                                          <Button
+                                             icon={<MinusOutlined />}
+                                             onClick={() => setQuantity((prev) => (prev - 1 > 0 ? prev - 1 : 1))}
+                                          />
+                                          <InputNumber
+                                             className="w-12 text-center"
+                                             value={quantity}
+                                             controls={false}
+                                             onChange={(number) => {
+                                                let num = number
+                                                if (!num) num = 1
+                                                if (num > selectedSparePart.quantity) num = selectedSparePart.quantity
+                                                if (num < 1) num = 1
+                                                setQuantity(num)
+                                             }}
+                                          />
+                                          <Button
+                                             icon={<PlusOutlined />}
+                                             onClick={() =>
+                                                setQuantity((prev) =>
+                                                   prev + 1 > selectedSparePart.quantity
+                                                      ? selectedSparePart.quantity
+                                                      : prev + 1,
+                                                )
+                                             }
+                                          />
+                                       </div>
+                                    </div>
+                                 </ProCard>
+                              </div>
+                              <Button
+                                 icon={<PlusOutlined />}
+                                 type="primary"
+                                 className="w-full"
+                                 size="large"
+                                 onClick={async () => {
+                                    props
+                                       .onFinish({
+                                          sparePartId: selectedSparePart.id,
+                                          quantity,
+                                       })
+                                       .then(() => {
+                                          handleCloseQuantity()
+                                       })
+                                 }}
+                              >
+                                 Thêm linh kiện
+                              </Button>
+                           </section>
+                           )}
+                        </>
+                     }
+                  </Modal>
+               </Form.Item>
                <Form.Item<FieldType> className="mb-0">
                   <Button
                      className="w-full"

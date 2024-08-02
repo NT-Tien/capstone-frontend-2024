@@ -98,7 +98,7 @@ export default function StockkeeperScanPage() {
          <Form<FieldType> form={form} onFinish={(e) => finishHandler(e.deviceId)} layout="horizontal">
             <Drawer
                title={"Nhập thủ công"}
-               placement="bottom"
+   placement="left"
                onClose={() => setManualOpen(false)}
                open={manualOpen}
                height="max-content"

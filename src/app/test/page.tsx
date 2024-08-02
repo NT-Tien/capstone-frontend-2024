@@ -4,11 +4,13 @@ import React, { useState } from "react"
 import { Hourglass, ThumbsUp, XCircle } from "@phosphor-icons/react"
 import { useRouter } from "next/navigation"
 import IssueDetailsDrawer from "@/app/staff/_components/IssueDetails.drawer"
+import { Button, Drawer } from "antd"
+import useModalControls from "@/common/hooks/useModalControls"
 
 export default function TestPage() {
    const [tab, setTab] = useState<string>("pending")
    const router = useRouter()
-
+   const { handleClose, handleOpen, open } = useModalControls()
    const tabs = [
       {
          key: "pending",
@@ -43,12 +45,21 @@ export default function TestPage() {
    ]
 
    return (
-      <div className="w-screen">
-         {/*<RootHeader title="Test Page" className="p-4" />*/}
-         {/*<ScrollableTabs items={tabs} tab={tab} onTabChange={setTab} />*/}
-
-         <h1>Outside</h1>
-         <button onClick={() => router.push("/test/inside")}>Go Inside</button>
-      </div>
+      <React.Fragment>
+         <Button onClick={handleOpen}>Open</Button>
+         <Drawer
+            title="Nhập thủ công"
+            placement="left"
+            onClose={handleClose}
+            open={open}
+            height="max-content"
+            classNames={{
+               body: "flex flex-col",
+            }}
+            className="z-[1000]"
+         >
+            ahihi
+         </Drawer>
+      </React.Fragment>
    )
 }

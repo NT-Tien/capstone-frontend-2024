@@ -333,7 +333,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
             open={open}
             onClose={handleClose_CreateDrawer}
             title="Tạo vấn đề"
-            placement="bottom"
+placement="left"
             height="max-content"
          >
             <ProDescriptions

@@ -47,13 +47,14 @@ export default function ScannerInputManualDrawer(props: {
          {props.children(handleOpen)}
          <Drawer
             title="Nhập thủ công"
-            placement="bottom"
+placement="left"
             onClose={handleClose}
             open={open}
             height="max-content"
             classNames={{
                body: "flex flex-col",
             }}
+            className="z-[1000]"
             {...props.drawerProps}
          >
             <Form<FieldType> disabled={props.disabled} form={form} layout="horizontal">

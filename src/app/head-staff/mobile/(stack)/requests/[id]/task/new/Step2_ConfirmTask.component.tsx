@@ -319,7 +319,7 @@ const Step2_ConfirmTask = memo(function Component(props: Step2_Props) {
             open={!!successTaskId}
             onClose={handleCloseSuccess}
             closeIcon={null}
-            placement="bottom"
+placement="left"
             height="100%"
             classNames={{
                body: "grid place-content-center",

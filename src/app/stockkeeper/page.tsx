@@ -9,11 +9,7 @@ export default function StockkeeperPage() {
    const router = useRouter()
 
    useEffect(() => {
-      if (isMobile) {
-         router.push("/stockkeeper/mobile/dashboard")
-      } else {
-         router.push("/stockkeeper/desktop/dashboard")
-      }
+      router.push("/stockkeeper/mobile/dashboard")
    }, [router])
 
    return <Spin fullscreen />

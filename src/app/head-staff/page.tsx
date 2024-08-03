@@ -9,11 +9,7 @@ export default function HeadStaffPage() {
    const router = useRouter()
 
    useEffect(() => {
-      if (isMobile) {
-         router.push("/head-staff/mobile/dashboard")
-      } else {
-         router.push("/head-staff/desktop/dashboard")
-      }
+      router.push("/head-staff/mobile/dashboard")
    }, [router])
 
    return <Spin fullscreen />

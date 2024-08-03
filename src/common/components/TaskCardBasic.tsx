@@ -1,4 +1,4 @@
-import { Tag } from "antd"
+import { Card, Tag } from "antd"
 import { TaskDto } from "@/common/dto/Task.dto"
 import dayjs from "dayjs"
 import { CalendarOutlined, ClockCircleOutlined, ExclamationCircleFilled, UserOutlined } from "@ant-design/icons"
@@ -27,40 +27,17 @@ export default function TaskCardBasic(props: Props) {
       }
    }
 
-   function TaskStatusIcon({ status }: { status: TaskStatus }) {
-      switch (status) {
-         case TaskStatus.AWAITING_FIXER:
-         case TaskStatus.AWAITING_SPARE_SPART:
-         case TaskStatus.ASSIGNED:
-            return null
-         case TaskStatus.IN_PROGRESS:
-            return <Wrench size={12} color="white" weight="fill" />
-         case TaskStatus.COMPLETED:
-            return <CheckFat size={12} color="white" weight="fill" />
-         case TaskStatus.CANCELLED:
-            return <X size={15} color="white" weight="bold" />
-      }
-   }
-
    const status = props.task.status
    const fixerDate = props.task.fixerDate
    const priority = props.task.priority
 
    return (
-      <div
-         className="flex cursor-pointer gap-2 rounded-lg py-2 transition-all hover:bg-primary-50"
+      <Card
+         size={"small"}
          onClick={props.onClick}
+         hoverable
+         className={cn(props.task.priority && "border-red-300 bg-red-50")}
       >
-         <section>
-            <div
-               className={cn(
-                  "mt-0.5 grid h-5 w-5 place-content-center rounded-full border-2 border-neutral-300",
-                  TaskStatusColor(status),
-               )}
-            >
-               <TaskStatusIcon status={status} />
-            </div>
-         </section>
          <section className="flex w-full flex-col">
             <div className="flex items-start justify-between">
                <h4 className="line-clamp-2 text-base">{props.task.name}</h4>
@@ -90,6 +67,6 @@ export default function TaskCardBasic(props: Props) {
                </Tag>
             </div>
          </section>
-      </div>
+      </Card>
    )
 }

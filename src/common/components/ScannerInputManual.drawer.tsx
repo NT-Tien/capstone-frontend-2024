@@ -47,7 +47,7 @@ export default function ScannerInputManualDrawer(props: {
          {props.children(handleOpen)}
          <Drawer
             title="Nhập thủ công"
-placement="left"
+placement="bottom"
             onClose={handleClose}
             open={open}
             height="max-content"

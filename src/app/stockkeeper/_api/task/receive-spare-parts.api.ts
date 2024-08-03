@@ -1,18 +1,17 @@
 import api from "@/config/axios.config"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
 import Cookies from "js-cookie"
+import { parseApiResponse } from "@/common/util/parseApiResponse.util"
 import { TaskDto } from "@/common/dto/Task.dto"
 
 export type Request = {
    id: string
-   payload: Partial<Pick<TaskDto, "name" | "priority" | "operator" | "totalTime" | "status">>
 }
 export type Response = TaskDto
 
-HeadStaff_Task_Update.URL = (req: Request) => `/head-staff/task/${req.id}`
-export default async function HeadStaff_Task_Update(req: Request): Promise<Response> {
+Stockkeeper_Task_ReceiveSpareParts.URL = (req: Request) => `/stockkeeper/task/receipt/${req.id}`
+export default async function Stockkeeper_Task_ReceiveSpareParts(req: Request): Promise<Response> {
    return api
-      .put<Response>(HeadStaff_Task_Update.URL(req), req.payload, {
+      .post<Response>(Stockkeeper_Task_ReceiveSpareParts.URL(req), undefined, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,

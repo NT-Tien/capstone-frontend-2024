@@ -251,16 +251,17 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                                                 /**
                                                  * Only show actions if
                                                  * - User has scanned
-                                                 * - and either [Status is PENDING, CHECKED, APPROVED]
+                                                 * - and either [Status is PENDING, CHECKED]
                                                  * - or [Status is IN_PROGRESS with either no task or task status is AWAITING_FIXER]
                                                  */
                                                 props.hasScanned &&
-                                                   (new Set([
-                                                      FixRequestStatus.PENDING,
-                                                      FixRequestStatus.CHECKED,
-                                                      FixRequestStatus.APPROVED,
-                                                   ]).has(props.api.data.status) ||
-                                                      (props.api.data.status === FixRequestStatus.IN_PROGRESS &&
+                                                   (new Set([FixRequestStatus.PENDING, FixRequestStatus.CHECKED]).has(
+                                                      props.api.data.status,
+                                                   ) ||
+                                                      (new Set([
+                                                         FixRequestStatus.IN_PROGRESS,
+                                                         FixRequestStatus.APPROVED,
+                                                      ]).has(props.api.data.status) &&
                                                          (item.task === null ||
                                                             item.task.status === TaskStatus.AWAITING_FIXER))),
                                              )
@@ -333,7 +334,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
             open={open}
             onClose={handleClose_CreateDrawer}
             title="Tạo vấn đề"
-placement="left"
+            placement="bottom"
             height="max-content"
          >
             <ProDescriptions

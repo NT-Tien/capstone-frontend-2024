@@ -1,12 +1,10 @@
 import React, { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
-import { App, Badge, Button, Card, Drawer, DrawerProps, Empty, Tag } from "antd"
+import { App, Badge, Button, Card, Drawer, DrawerProps, Empty, Image, Tag } from "antd"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 import dayjs from "dayjs"
 import ProList from "@ant-design/pro-list/lib"
-import SelectSparePartDrawer, {
-   SelectSparePartDrawerRefType,
-} from "@/app/head-staff/_components/SelectSparePart.drawer"
+import SelectSparePartDrawer from "@/app/head-staff/_components/SelectSparePart.drawer"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import HeadStaff_SparePart_Create from "@/app/head-staff/_api/spare-part/create.api"
 import { cn } from "@/common/util/cn.util"
@@ -23,6 +21,8 @@ import IssueSparePartDetailsModal from "@/app/head-staff/_components/IssueSpareP
 import useModalControls from "@/common/hooks/useModalControls"
 import Link from "next/link"
 import { Issue_StatusMapper } from "@/common/dto/status/Issue.status"
+import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
+import { clientEnv } from "@/env"
 
 export type IssueDetailsDrawerRefType = {
    openDrawer: (issueId: string, deviceId: string, showActions?: boolean) => void
@@ -333,6 +333,43 @@ const IssueDetailsDrawer = forwardRef<IssueDetailsDrawerRefType, Props>(function
                   },
                ]}
             />
+
+            {issue.data?.status === IssueStatusEnum.RESOLVED && (
+               <Card size="small" className="my-layout">
+                  <section>
+                     <h2 className="mb-2 text-sub-base font-medium">Hình ảnh minh chứng</h2>
+                     <div className="flex items-center gap-2">
+                        {issue.isSuccess && (
+                           <Image
+                              src={clientEnv.BACKEND_URL + `/file-image/${issue.data.imagesVerify?.[0]}`}
+                              alt="image"
+                              className="h-20 w-20 rounded-lg"
+                           />
+                        )}
+                        <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
+                        <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
+                     </div>
+                  </section>
+                  <section className="mt-4">
+                     <h2 className="mb-2 text-sub-base font-medium">Video minh chứng</h2>
+                     {issue.isSuccess ? (
+                        !!issue.data.videosVerify ? (
+                           <video width="100%" height="240" controls>
+                              <source
+                                 src={clientEnv.BACKEND_URL + `/file-video/${issue.data.videosVerify}`}
+                                 type="video/mp4"
+                              />
+                           </video>
+                        ) : (
+                           <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">
+                              Không có
+                           </div>
+                        )
+                     ) : null}
+                  </section>
+               </Card>
+            )}
+
             <section className="mb-3 mt-layout">
                <header className="mb-2 mt-2 flex items-center justify-between">
                   <h2 className="text-base font-semibold">Linh kiện ({issue.data?.issueSpareParts.length ?? 0})</h2>
@@ -343,7 +380,6 @@ const IssueDetailsDrawer = forwardRef<IssueDetailsDrawerRefType, Props>(function
                            height: "100%",
                         }}
                         onFinish={async (values) => handleCreateSparePart(values.sparePartId, values.quantity)}
-                        
                      >
                         {(handleOpen1) => (
                            <Button

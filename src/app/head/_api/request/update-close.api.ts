@@ -2,17 +2,23 @@ import api from "@/config/axios.config"
 import { parseApiResponse } from "@/common/util/parseApiResponse.util"
 import Cookies from "js-cookie"
 import { TaskDto } from "@/common/dto/Task.dto"
+import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 
 export type Request = {
    id: string
-   payload: Partial<Pick<TaskDto, "name" | "priority" | "operator" | "totalTime" | "status">>
+   payload: {
+      content: string
+   }
 }
-export type Response = TaskDto
+export type Response = {
+   request: FixRequestDto
+   feedback: any
+}
 
-HeadStaff_Task_Update.URL = (req: Request) => `/head-staff/task/${req.id}`
-export default async function HeadStaff_Task_Update(req: Request): Promise<Response> {
+Head_Request_UpdateClose.URL = (req: Request) => `/head/request/${req.id}/close`
+export default async function Head_Request_UpdateClose(req: Request): Promise<Response> {
    return api
-      .put<Response>(HeadStaff_Task_Update.URL(req), req.payload, {
+      .put<Response>(Head_Request_UpdateClose.URL(req), req.payload, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,

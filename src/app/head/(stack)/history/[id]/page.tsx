@@ -9,14 +9,17 @@ import qk from "@/common/querykeys"
 import { LeftOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { MapPin, XCircle } from "@phosphor-icons/react"
-import { useQuery } from "@tanstack/react-query"
-import { Card, Steps, Tag } from "antd"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { App, Button, Card, Steps, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { FixRequest_StatusData, FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
+import Head_Request_UpdateClose from "@/app/head/_api/request/update-close.api"
+import FeedbackDrawer from "@/app/head/(stack)/history/[id]/Feedback.drawer"
 
 export default function HistoryDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
+   const { message } = App.useApp()
    const api = useQuery({
       queryKey: qk.issueRequests.allRaw(),
       queryFn: () => Head_Request_All(),
@@ -24,6 +27,26 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
          const issue = data.find((d) => d.id === params.id)
          if (!issue) throw new NotFoundError("Issue")
          return issue
+      },
+   })
+
+   const mutate_closeRequest = useMutation({
+      mutationFn: Head_Request_UpdateClose,
+      onMutate: async () => {
+         message.destroy("loading")
+         message.loading({
+            content: "Đang xử lý...",
+            key: "loading",
+         })
+      },
+      onSettled: () => {
+         message.destroy("loading")
+      },
+      onSuccess: async () => {
+         message.success("Đóng thành công")
+      },
+      onError: async () => {
+         message.error("Đóng thất bại")
       },
    })
 
@@ -105,6 +128,28 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                                 {
                                    title: FixRequest_StatusData("in_progress").text,
                                    description: FixRequest_StatusData("in_progress").description,
+                                   className: "text-base",
+                                },
+                                {
+                                   title: FixRequest_StatusData("head_confirm").text,
+                                   description: (
+                                      <div>
+                                         {FixRequest_StatusData("head_confirm").description}
+                                         {api.data?.status === FixRequestStatus.HEAD_CONFIRM && (
+                                            <FeedbackDrawer onSuccess={() => api.refetch()}>
+                                               {(handleOpen) => (
+                                                  <Button
+                                                     type="primary"
+                                                     className="mt-1"
+                                                     onClick={() => handleOpen(params.id)}
+                                                  >
+                                                     Xác nhận
+                                                  </Button>
+                                               )}
+                                            </FeedbackDrawer>
+                                         )}
+                                      </div>
+                                   ),
                                    className: "text-base",
                                 },
                                 {

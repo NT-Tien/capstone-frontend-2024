@@ -32,7 +32,15 @@ export default function ReportsPage() {
             tab={tab}
             onTabChange={setTab}
             items={(
-               ["pending", "checked", "approved", "in_progress", "closed", "rejected"] as FixRequestStatuses[]
+               [
+                  "pending",
+                  "checked",
+                  "approved",
+                  "in_progress",
+                  "head_confirm",
+                  "closed",
+                  "rejected",
+               ] as FixRequestStatuses[]
             ).map((item) => ({
                key: FixRequest_StatusData(item).statusEnum,
                title: FixRequest_StatusData(item).text,
@@ -78,6 +86,7 @@ function ReportsTab(props: ReportsTabProps) {
                [FixRequestStatus.APPROVED]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
                [FixRequestStatus.REJECTED]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
                [FixRequestStatus.IN_PROGRESS]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
+               [FixRequestStatus.HEAD_CONFIRM]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
                [FixRequestStatus.CLOSED]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
             }[props.status] || ""}
          </div>

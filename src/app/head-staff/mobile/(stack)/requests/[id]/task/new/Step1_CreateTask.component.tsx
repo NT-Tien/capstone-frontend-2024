@@ -223,21 +223,7 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
             setIsLoading(false)
          }
       },
-      [
-         form,
-         message,
-         message,
-         mutate_assignFixer,
-         mutate_createTask,
-         mutate_updateRequestStatus,
-         props.requestId,
-         props.requestStatus,
-         props.selectedFixDate,
-         props.selectedFixer,
-         props.selectedIssues,
-         props.selectedPriority,
-         props.selectedTaskName,
-      ],
+      [props, mutate_createTask, mutate_assignFixer, form, mutate_updateRequestStatus, message],
    )
 
    useEffect(() => {
@@ -288,7 +274,14 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
             disabled: false,
          }))
       }
-   }, [props.selectedFixDate, props.selectedTaskName, setNextBtnProps])
+   }, [props.selectedFixDate, props.selectedFixer, props.selectedTaskName, setNextBtnProps])
+
+   const handleReturn = () => {
+      setFinishOpen(false)
+      setTimeout(() => {
+         router.push(`/head-staff/mobile/requests/${props.requestId}`)
+      }, 500)
+   }
 
    return (
       <div className="mt-layout">
@@ -418,18 +411,7 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
             }}
          >
             <Result status="success" title="Thành công!" subTitle="Tất cả các lỗi đã được tạo tác vụ" extra={[]}>
-               <Button
-                  type="primary"
-                  size="large"
-                  icon={<ArrowLeftOutlined />}
-                  onClick={() => {
-                     console.log(`/head-staff/mobile/requests/${props.requestId}`)
-                     setFinishOpen(false)
-                     setTimeout(() => {
-                        router.push(`/head-staff/mobile/requests/${props.requestId}`)
-                     }, 500)
-                  }}
-               >
+               <Button type="primary" size="large" icon={<ArrowLeftOutlined />} onClick={handleReturn}>
                   Quay lại yêu cầu
                </Button>
             </Result>

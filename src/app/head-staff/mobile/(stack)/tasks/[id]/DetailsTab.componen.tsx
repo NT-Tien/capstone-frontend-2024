@@ -4,15 +4,21 @@ import VerifyTaskModal from "@/app/head-staff/mobile/(stack)/tasks/[id]/VerifyTa
 import DataListView from "@/common/components/DataListView"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import { UserOutlined } from "@ant-design/icons"
+import { LinkOutlined, UserOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { MapPin } from "@phosphor-icons/react"
-import { UseQueryResult } from "@tanstack/react-query"
-import { Avatar, Button, Card, Steps, Tag } from "antd"
+import { useMutation, UseQueryResult } from "@tanstack/react-query"
+import { App, Avatar, Button, Card, Image, Steps, Tag } from "antd"
 import dayjs from "dayjs"
+import Link from "next/link"
+import { clientEnv } from "@/env"
+import { useRef } from "react"
+import HeadStaff_Task_Update from "@/app/head-staff/_api/task/update.api"
+import HeadStaff_Task_UpdateComplete from "@/app/head-staff/_api/task/update-complete.api"
 
 type Props = {
    api: UseQueryResult<TaskDto, Error>
+   setTab: (tab: string) => void
 }
 
 function TaskStatusNumberMapper(task?: TaskDto) {
@@ -29,16 +35,54 @@ function TaskStatusNumberMapper(task?: TaskDto) {
          return 1
       case TaskStatus.IN_PROGRESS:
          return 3
-      case TaskStatus.COMPLETED: // TODO switcharoo
-         return 4
       case TaskStatus.HEAD_STAFF_CONFIRM:
+         return 4
+      case TaskStatus.COMPLETED:
          return 5
       default:
          return 0
    }
 }
 
-export default function DetailsTab({ api }: Props) {
+export default function DetailsTab({ api, setTab }: Props) {
+   const { message } = App.useApp()
+   const verifyRef = useRef<HTMLDivElement | null>(null)
+
+   const mutate_updateStatus = useMutation({
+      mutationFn: HeadStaff_Task_UpdateComplete,
+      onSuccess: async () => {
+         message.success("Xác nhận thành công")
+      },
+      onMutate: async () => {
+         message.destroy("loading")
+         message.loading({
+            content: "Đang xác nhận...",
+            key: "loading",
+         })
+      },
+      onSettled: () => {
+         message.destroy("loading")
+      },
+      onError: async () => {
+         message.error("Xác nhận thất bại")
+      },
+   })
+
+   function handleUpdateConfirmCheck() {
+      if (!api.isSuccess) return
+
+      mutate_updateStatus.mutate(
+         {
+            id: api.data.id,
+         },
+         {
+            onSuccess: async () => {
+               await api.refetch()
+            },
+         },
+      )
+   }
+
    return (
       <section>
          <ProDescriptions
@@ -78,6 +122,16 @@ export default function DetailsTab({ api }: Props) {
                   label: "Ngày tạo",
                   dataIndex: "createdAt",
                   render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
+               },
+               {
+                  key: "request",
+                  label: "Yêu cầu gốc",
+                  render: (_, e) => (
+                     <Link href={`/head-staff/mobile/requests/${e.request.id}`} prefetch>
+                        {e.request.requester_note}
+                        <LinkOutlined className="ml-1" />
+                     </Link>
+                  ),
                },
             ]}
          />
@@ -125,17 +179,13 @@ export default function DetailsTab({ api }: Props) {
                         description: (
                            <div className="flex items-center gap-2">
                               <span>Chờ xác nhận từ trưởng phòng</span>
-                              <VerifyTaskModal>
-                                 {(handleOpen) => (
-                                    <Button
-                                       size="small"
-                                       type="primary"
-                                       onClick={() => api.isSuccess && handleOpen(api.data)}
-                                    >
-                                       Xác nhận
-                                    </Button>
-                                 )}
-                              </VerifyTaskModal>
+                              <Button
+                                 size="small"
+                                 type="primary"
+                                 onClick={() => verifyRef.current?.scrollIntoView({ behavior: "smooth" })}
+                              >
+                                 Xác nhận
+                              </Button>
                            </div>
                         ),
                      },
@@ -147,6 +197,53 @@ export default function DetailsTab({ api }: Props) {
                />
             </Card>
          </section>
+         {(api.data?.status === TaskStatus.HEAD_STAFF_CONFIRM || api.data?.status === TaskStatus.COMPLETED) && (
+            <section ref={verifyRef} className="my-layout">
+               <Card>
+                  <section>
+                     <h2 className="mb-2 text-base font-medium">Hình ảnh minh chứng</h2>
+                     <div className="flex items-center gap-2">
+                        {api.isSuccess && (
+                           <Image
+                              src={clientEnv.BACKEND_URL + `/file-image/${api.data.imagesVerify?.[0]}`}
+                              alt="image"
+                              className="h-20 w-20 rounded-lg"
+                           />
+                        )}
+                        <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
+                        <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
+                     </div>
+                  </section>
+                  <section className="mt-4">
+                     <h2 className="mb-2 text-base font-medium">Video minh chứng</h2>
+                     {api.isSuccess ? (
+                        !!api.data.videosVerify ? (
+                           <video width="100%" height="240" controls>
+                              <source
+                                 src={clientEnv.BACKEND_URL + `/file-video/${api.data.videosVerify}`}
+                                 type="video/mp4"
+                              />
+                           </video>
+                        ) : (
+                           <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">
+                              Không có
+                           </div>
+                        )
+                     ) : null}
+                  </section>
+                  {api.data?.status === TaskStatus.HEAD_STAFF_CONFIRM && (
+                     <section className="mt-4 flex items-center gap-2">
+                        <Button type="default" size="large" className="w-full" onClick={() => setTab("issues")}>
+                           Xem chi tiết
+                        </Button>
+                        <Button type="primary" size="large" className="w-full" onClick={handleUpdateConfirmCheck}>
+                           Xác nhận
+                        </Button>
+                     </section>
+                  )}
+               </Card>
+            </section>
+         )}
       </section>
    )
 }

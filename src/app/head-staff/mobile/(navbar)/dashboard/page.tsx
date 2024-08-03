@@ -9,7 +9,7 @@ import extended_dayjs from "@/config/dayjs.config"
 import { ClockCircleOutlined } from "@ant-design/icons"
 import { StatisticCard } from "@ant-design/pro-components"
 import { useQuery } from "@tanstack/react-query"
-import { Button, Spin, Typography } from "antd"
+import { Button, Card, Empty, Spin, Typography } from "antd"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Suspense, useState } from "react"
@@ -132,19 +132,25 @@ function DashboardPage() {
             </Link>
          </section>
          <div>
-            {completedResult.data?.list.map((task) => (
-               <TaskCard
-                  className="std-layout-inner mt-2.5 grid grid-cols-1 gap-10"
-                  title={task.name}
-                  description={`Est. ${task.totalTime} minutes`}
-                  key={task.id}
-                  extra={
-                     <Typography.Text className="text-gray-500">
-                        {extended_dayjs(task.createdAt).add(7, "hours").locale("en").fromNow(false)}
-                     </Typography.Text>
-                  }
-               />
-            ))}
+            {completedResult.data?.list.length === 0 ? (
+               <Card className="mt-2.5">
+                  <Empty description="Không có tác vụ" />
+               </Card>
+            ) : (
+               completedResult.data?.list.map((task) => (
+                  <TaskCard
+                     className="std-layout-inner mt-2.5 grid grid-cols-1 gap-10"
+                     title={task.name}
+                     description={`Est. ${task.totalTime} minutes`}
+                     key={task.id}
+                     extra={
+                        <Typography.Text className="text-gray-500">
+                           {extended_dayjs(task.createdAt).add(7, "hours").locale("en").fromNow(false)}
+                        </Typography.Text>
+                     }
+                  />
+               ))
+            )}
          </div>
       </div>
    )

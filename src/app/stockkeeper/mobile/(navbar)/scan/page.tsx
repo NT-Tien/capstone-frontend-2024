@@ -1,23 +1,21 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
+import ScannerInputManualDrawer from "@/common/components/ScannerInputManual.drawer"
 import { isUUID } from "@/common/util/isUUID.util"
-import { InfoCircleFilled, RightOutlined, SearchOutlined } from "@ant-design/icons"
+import { InfoCircleOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons"
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
-import { App, Avatar, Button, Card, Drawer, Form, Input } from "antd"
+import { App, Avatar, Button, Card, Spin } from "antd"
 import { useRouter } from "next/navigation"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useTransition } from "react"
+import { PrefetchKind } from "next/dist/client/components/router-reducer/router-reducer-types"
 
-type FieldType = {
-   deviceId: string
-}
-
-export default function StockkeeperScanPage() {
+export default function ScanPage() {
    const router = useRouter()
-   const [manualOpen, setManualOpen] = useState(false)
-   const [form] = Form.useForm<FieldType>()
    const { message } = App.useApp()
    const timeoutRef = useRef<NodeJS.Timeout>()
+
+   const [isLoading, startTransition] = useTransition()
 
    async function handleScan(e: IDetectedBarcode[]) {
       if (e.length === 0) return
@@ -30,7 +28,7 @@ export default function StockkeeperScanPage() {
       }
    }
 
-   async function finishHandler(id: string) {
+   async function finishHandler(id: string, handleClose?: () => void) {
       if (timeoutRef.current) {
          clearTimeout(timeoutRef.current)
       }
@@ -46,104 +44,75 @@ export default function StockkeeperScanPage() {
             type: "error",
             key: "messenger",
          })
+
          return
       }
 
-      await message.open({
-         content: "Quét thành công",
-         duration: 0,
-         type: "success",
-         key: "messenger",
-      })
-      router.push(`/stockkeeper/mobile/tasks/${id}`)
+      handleClose?.()
+
+      setTimeout(() => {
+         startTransition(() => {
+            router.push(`/stockkeeper/mobile/tasks/${id}`)
+         })
+      }, 200)
+
+      return
    }
 
+   useEffect(() => {
+      router.prefetch("/stockkeeper/mobile/tasks/e31d662e-05db-4bc4-8bfd-773f56618725", { kind: PrefetchKind.AUTO })
+   }, [router])
+
    return (
-      <>
-         <div className="h-full">
-            <div>
-               <RootHeader title="Quét mã QR" className="p-4" icon={<SearchOutlined />} />
-               <Scanner
-                  paused={false}
-                  onScan={handleScan}
-                  allowMultiple={true}
-                  scanDelay={1000}
-                  components={{}}
-                  constraints={{}}
-                  styles={{
-                     container: {
-                        width: "100%",
-                        height: "100%",
-                     },
-                  }}
-               />
-               <div className="p-4">
-                  <Card size="small" hoverable onClick={() => setManualOpen(true)}>
-                     <div className="flex items-center gap-3">
-                        <Avatar style={{ fontSize: "18px", textAlign: "center", backgroundColor: "#6750A4" }}>
-                           AI
-                        </Avatar>
-                        <div className="flex-grow">
-                           <p className="text-base font-bold">Nhập thủ công</p>
-                           <p className="text-xs">Nhấp vào đây nếu bạn không thể quét mã QR</p>
-                        </div>
-                        <div>
-                           <Button type="text" icon={<RightOutlined />} />
-                        </div>
-                     </div>
-                  </Card>
+      <div className="h-full">
+         {isLoading && <Spin fullscreen className="z-[5000]" />}
+         <div>
+            <RootHeader title="Quét mã QR" className="p-4" icon={<SearchOutlined />} />
+            <section className="my-6 grid place-items-center">
+               <div className="flex items-center rounded-full bg-white px-6 py-1">
+                  Vui lòng đặt <strong className="mx-1.5 font-semibold">mã QR của tác vụ</strong> vào khung hình
+                  <InfoCircleOutlined className="ml-2" />
                </div>
-            </div>
-         </div>
-         <Form<FieldType> form={form} onFinish={(e) => finishHandler(e.deviceId)} layout="horizontal">
-            <Drawer
-               title={"Nhập thủ công"}
-   placement="left"
-               onClose={() => setManualOpen(false)}
-               open={manualOpen}
-               height="max-content"
-               size="default"
-               classNames={{
-                  body: "flex flex-col",
+            </section>
+            <Scanner
+               paused={false}
+               onScan={handleScan}
+               allowMultiple={true}
+               scanDelay={1000}
+               components={{}}
+               constraints={{}}
+               styles={{
+                  container: {
+                     width: "100%",
+                     aspectRatio: "1/1",
+                     borderRadius: "1rem !important",
+                  },
+                  video: {
+                     borderRadius: "1rem !important",
+                  },
                }}
-            >
-               <Card size="small" hoverable className="mb-4">
-                  <div className="flex gap-2">
-                     <InfoCircleFilled />
-                     <div className="text-xs">Vui lòng nhập mã QR của thiết bị vào ô bên dưới</div>
-                  </div>
-               </Card>
-               <Form.Item<FieldType>
-                  name="deviceId"
-                  label={"ID thiết bị"}
-                  labelAlign="left"
-                  labelCol={{
-                     span: 24,
-                     className: "pb-0",
-                  }}
-                  rules={[
-                     { required: true },
-                     {
-                        validator: (_, value) =>
-                           isUUID(value) ? Promise.resolve() : Promise.reject("Invalid Device ID"),
-                     },
-                  ]}
-                  className="flex-grow"
-               >
-                  <Input placeholder="e.g., 123-1231231-312312-3123123123" size="large" />
-               </Form.Item>
-               <Button
-                  key="submit-btn"
-                  type="primary"
-                  htmlType="submit"
-                  onClick={form.submit}
-                  className="w-full"
-                  size="large"
-               >
-                  {"Gửi"}
-               </Button>
-            </Drawer>
-         </Form>
-      </>
+            />
+            <section className="p-4">
+               <ScannerInputManualDrawer onFinish={finishHandler} disabled={isLoading}>
+                  {(handleOpen) => (
+                     <Card size="small" hoverable onClick={handleOpen}>
+                        <div className="flex items-center gap-3">
+                           <Avatar style={{ fontSize: "18px", textAlign: "center", backgroundColor: "#6750A4" }}>
+                              AI
+                           </Avatar>
+                           <div className="flex-grow">
+                              <p className="text-base font-bold">Không quét mã được?</p>
+                              <p className="text-xs">Nhấp vào đây nếu bạn không thể quét mã QR</p>
+                           </div>
+                           <div>
+                              <Button type="text" icon={<RightOutlined />} />
+                           </div>
+                        </div>
+                     </Card>
+                  )}
+               </ScannerInputManualDrawer>
+            </section>
+         </div>
+      </div>
    )
 }

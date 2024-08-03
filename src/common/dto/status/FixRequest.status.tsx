@@ -5,7 +5,14 @@ import { CheckSquareOffset, Hourglass, IconProps, ThumbsUp, Wrench, XCircle } fr
 import { CheckCircleOutlined, LoadingOutlined } from "@ant-design/icons"
 import { AntdIconProps } from "@ant-design/icons/lib/components/AntdIcon"
 
-export type FixRequestStatuses = "pending" | "checked" | "approved" | "rejected" | "in_progress" | "closed"
+export type FixRequestStatuses =
+   | "pending"
+   | "checked"
+   | "approved"
+   | "rejected"
+   | "in_progress"
+   | "head_confirm"
+   | "closed"
 
 export function FixRequest_StatusData(
    key: FixRequestStatuses,
@@ -80,9 +87,22 @@ export function FixRequest_StatusData(
             statusEnum: FixRequestStatus.IN_PROGRESS,
          }
       }
-      case "closed": {
+      case "head_confirm": {
          return {
             index: 4,
+            name: "head_confirm",
+            text: "Chờ xác nhận",
+            description: "Chờ bạn xác nhận và đánh giá quá trình kiểm tra",
+            colorInverse: "gold-inverse",
+            color: "gold",
+            conditionFn: (dto) => dto.status === FixRequestStatus.HEAD_CONFIRM,
+            icon: <ThumbsUp {...iconProps?.phosphor} />,
+            statusEnum: FixRequestStatus.HEAD_CONFIRM,
+         }
+      }
+      case "closed": {
+         return {
+            index: 5,
             name: "closed",
             text: "Đóng",
             description: "Yêu cầu đã hoàn thành",
@@ -131,6 +151,10 @@ export function FixRequest_StatusMapper(
 
    if (FixRequest_StatusData("in_progress").conditionFn(dto)) {
       return FixRequest_StatusData("in_progress")
+   }
+
+   if (FixRequest_StatusData("head_confirm").conditionFn(dto)) {
+      return FixRequest_StatusData("head_confirm")
    }
 
    if (FixRequest_StatusData("closed").conditionFn(dto)) {

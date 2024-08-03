@@ -1,6 +1,6 @@
 import { TaskDto } from "@/common/dto/Task.dto"
-import { useState } from "react"
-import { App, Badge, Button, Card, List, Tabs, Tag, Typography } from "antd"
+import { useEffect, useState } from "react"
+import { App, Badge, Button, Card, List, Spin, Tabs, Tag, Typography } from "antd"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { ProDescriptions } from "@ant-design/pro-components"
@@ -18,6 +18,7 @@ import { GeneralProps } from "@/app/staff/(stack)/tasks/[id]/start/page"
 
 type Step2Props = GeneralProps & {
    data?: TaskDto
+   refetch: () => void
    loading: boolean
    id: string
 }
@@ -26,7 +27,6 @@ export default function Step1(props: Step2Props) {
    const [hasScanned, setHasScanned] = useState(false)
 
    const { message } = App.useApp()
-   const queryClient = useQueryClient()
    const router = useRouter()
 
    function onScan(id: string) {
@@ -39,8 +39,14 @@ export default function Step1(props: Step2Props) {
       setHasScanned(true)
    }
 
+   useEffect(() => {
+      if (props.data?.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)) {
+         setHasScanned(true)
+      }
+   }, [props.data])
+
    if (!props.data) {
-      return <div style={props.style}>Loading...</div>
+      return <Spin fullscreen />
    }
 
    return (
@@ -140,11 +146,7 @@ export default function Step1(props: Step2Props) {
                      <div className="pt-1">
                         <IssueDetailsDrawer
                            afterSuccess={() => {
-                              queryClient
-                                 .invalidateQueries({
-                                    queryKey: staff_qk.task.one_byId(props.id),
-                                 })
-                                 .then()
+                              props.refetch()
                            }}
                            scanCompleted={hasScanned}
                         >
@@ -175,13 +177,11 @@ export default function Step1(props: Step2Props) {
                                                    {item.typeError.name}
                                                 </Typography.Title>
                                              </div>
-                                             <div className="mt-2 flex items-center justify-between">
-                                                <div>
-                                                   <Tag color={FixTypeTagMapper[item.fixType].colorInverse}>
-                                                      {FixTypeTagMapper[item.fixType].text}
-                                                   </Tag>
-                                                   <Typography.Text ellipsis={true}>{item.description}</Typography.Text>
-                                                </div>
+                                             <div className="mt-2 flex items-center">
+                                                <Tag color={FixTypeTagMapper[item.fixType].colorInverse}>
+                                                   {FixTypeTagMapper[item.fixType].text}
+                                                </Tag>
+                                                <span className="w-[75%] flex-grow truncate">{item.description}</span>
                                                 <Button
                                                    icon={<RightOutlined />}
                                                    type={"text"}

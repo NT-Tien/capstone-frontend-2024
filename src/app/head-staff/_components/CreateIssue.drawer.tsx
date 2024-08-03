@@ -94,7 +94,7 @@ export default function CreateIssueDrawer(props: {
             open={open}
             onClose={handleClose}
             height="max-content"
-            placement="left"
+            placement="bottom"
             title="Thông tin chi tiết"
             classNames={{
                body: "flex flex-col",

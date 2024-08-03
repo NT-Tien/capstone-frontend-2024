@@ -74,7 +74,7 @@ const SelectSparePartDrawer = forwardRef<SelectSparePartDrawerRefType, Props>(fu
          <Drawer
             open={open}
             onClose={handleClose}
-placement="left"
+            placement="bottom"
             height="95%"
             title="Linh kiện thay thế"
             className="relative"

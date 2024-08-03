@@ -16,4 +16,6 @@ export type FixRequestIssueDto = {
    typeError: TypeErrorDto
    issueSpareParts: FixRequestIssueSparePartDto[]
    task: TaskDto
+   imagesVerify: string[]
+   videosVerify: string
 }

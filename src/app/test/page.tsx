@@ -49,7 +49,7 @@ export default function TestPage() {
          <Button onClick={handleOpen}>Open</Button>
          <Drawer
             title="Nhập thủ công"
-            placement="left"
+            placement="bottom"
             onClose={handleClose}
             open={open}
             height="max-content"

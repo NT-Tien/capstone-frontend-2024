@@ -260,8 +260,9 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                         api.isSuccess && (
                            <Tag
                               color={FixRequest_StatusMapper(api.data).colorInverse}
-                              className="mr-0 grid h-full place-items-center px-3"
+                              className="mr-0 flex h-full items-center gap-2 px-3"
                            >
+                              {FixRequest_StatusMapper(api.data).icon}
                               {FixRequest_StatusMapper(api.data).text}
                            </Tag>
                         )

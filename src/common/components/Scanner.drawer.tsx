@@ -29,7 +29,7 @@ export default function ScannerDrawer({ children, ...props }: Props) {
             open={open}
             onClose={handleClose}
             title="Quét mã QR"
-placement="left"
+placement="bottom"
             height="max-content"
             {...props.drawerProps}
          >

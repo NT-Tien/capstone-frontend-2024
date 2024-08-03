@@ -9,11 +9,20 @@ import qk from "@/common/querykeys"
 import { LeftOutlined } from "@ant-design/icons"
 import { CheckSquareOffset, MapPin, Wrench } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
-import { Tabs } from "antd"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { Spin, Tabs } from "antd"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Suspense, useState } from "react"
 
 export default function TaskDetails({ params }: { params: { id: string } }) {
+   return (
+      <Suspense fallback={<Spin fullscreen />}>
+         <Component params={params} />
+      </Suspense>
+   )
+}
+
+function Component({ params }: { params: { id: string } }) {
+   const searchParams = useSearchParams()
    const router = useRouter()
    const [tab, setTab] = useState("details")
 
@@ -27,7 +36,13 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
          <RootHeader
             title="Thông tin chi tiết"
             icon={<LeftOutlined />}
-            onIconClick={() => router.push("/head-staff/mobile/tasks")}
+            onIconClick={() =>
+               api.isSuccess
+                  ? searchParams.get("goto") === "request"
+                     ? router.push(`/head-staff/mobile/requests/${api.data.request.id}`)
+                     : router.push("/head-staff/mobile/tasks")
+                  : undefined
+            }
             className="std-layout-outer p-4"
          />
          <Tabs
@@ -66,7 +81,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
             ]}
          />
 
-         {tab === "details" && <DetailsTab api={api} />}
+         {tab === "details" && <DetailsTab api={api} setTab={setTab} />}
          {tab === "device" && <DeviceTab api={api} />}
          {tab === "issues" && <IssuesTab api_task={api} />}
       </div>

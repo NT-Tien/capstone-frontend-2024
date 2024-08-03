@@ -81,6 +81,7 @@ export default function StartTask({ params }: { params: { id: string } }) {
             <Step1
                handleBack={() => setCurrentStep((prev) => prev - 1)}
                handleNext={() => setCurrentStep((prev) => prev + 1)}
+               refetch={response.refetch}
                data={response.data}
                loading={response.isLoading}
                id={params.id}

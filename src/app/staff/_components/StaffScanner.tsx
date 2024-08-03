@@ -97,7 +97,7 @@ export default function StaffScanner(props: StaffScanPageProps) {
          <Form<FieldType> form={form} onFinish={(e) => finishHandler(e.deviceId)} layout="horizontal">
             <Drawer
                title="Nhập thủ công"
-   placement="left"
+   placement="bottom"
                onClose={() => setManualOpen(false)}
                open={manualOpen}
                height="max-content"

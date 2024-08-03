@@ -7,6 +7,7 @@ export enum FixRequestStatus {
    APPROVED = "APPROVED", // có ít nhất 1 issue
    IN_PROGRESS = "IN_PROGRESS", // có ít nhất 1 task
    REJECTED = "REJECTED", //
+   HEAD_CONFIRM = "HEAD_CONFIRM",
    CLOSED = "CLOSED", // all tasks finished
 }
 

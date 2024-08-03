@@ -37,6 +37,7 @@ export default function RequestsPage() {
          checked: [],
          closed: [],
          in_progress: [],
+         head_confirm: [],
          rejected: [],
       }
 
@@ -91,6 +92,14 @@ export default function RequestsPage() {
                      phosphor: { size: 16 },
                   }).icon,
                   badge: datasets.in_progress.length,
+               },
+               {
+                  key: FixRequest_StatusData("head_confirm").name,
+                  title: FixRequest_StatusData("head_confirm").text,
+                  icon: FixRequest_StatusData("head_confirm", {
+                     phosphor: { size: 16 },
+                  }).icon,
+                  badge: datasets.head_confirm.length,
                },
                {
                   key: FixRequest_StatusData("closed").name,

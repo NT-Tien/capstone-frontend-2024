@@ -31,13 +31,12 @@ export default function TasksList(props: Props) {
 
    return (
       <section className={props.className}>
-         <h2>Yêu cầu có {props.api.data?.tasks.length} tác vụ</h2>
          <div className="grid grid-cols-1 gap-2">
             {taskGroups.map((task) => (
                <TaskCardBasic
                   key={task.id}
                   task={task}
-                  onClick={() => router.push(`/head-staff/mobile/tasks/${task.id}`)}
+                  onClick={() => router.push(`/head-staff/mobile/tasks/${task.id}?goto=request`)}
                />
             ))}
          </div>

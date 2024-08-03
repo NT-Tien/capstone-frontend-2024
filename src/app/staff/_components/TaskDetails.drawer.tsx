@@ -15,6 +15,7 @@ import { App, Badge, Button, Card, Drawer, List, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { ReactNode, useMemo, useState } from "react"
+import { IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
 
 export default function TaskDetailsDrawer({
    children,
@@ -230,8 +231,8 @@ export default function TaskDetailsDrawer({
                   }}
                   renderItem={(item) => (
                      <Badge.Ribbon
-                        text={FixRequestStatusTagMapper[String(item.status)]?.text ?? "status"}
-                        color={FixRequestStatusTagMapper[String(item.status)]?.color ?? "red"}
+                        text={IssueStatusEnumTagMapper[String(item.status)]?.text ?? "status"}
+                        color={IssueStatusEnumTagMapper[String(item.status)]?.color ?? "red"}
                      >
                         <Card
                            className={cn("mb-2 w-full border-2 border-neutral-200 bg-transparent p-0 transition-all")}
@@ -253,27 +254,10 @@ export default function TaskDetailsDrawer({
                   )}
                />
             </section>
-            <section className="mb-28 mt-layout">
-               <h2 className="mb-2 text-base font-semibold">Linh kiện thay thế</h2>
-               <List
-                  grid={{
-                     column: 2,
-                  }}
-                  dataSource={task.data?.issues.map((i) => i.issueSpareParts).flat()}
-                  renderItem={(item) => (
-                     <List.Item>
-                        <List.Item.Meta title={item.sparePart.name} description={`Số lượng: ${item.quantity}`} />
-                     </List.Item>
-                  )}
-               />
-            </section>
             <QrCodeDisplayModal
-               onSubmit={(handleCloseMe) => {
-                  mutate_acceptSpareParts.mutate({ id: taskId ?? "" })
-                  handleCloseMe()
-               }}
                title="Lấy linh kiện"
                description="Hãy xuống kho và đưa mã QR sau cho chủ kho."
+               refetch={task.refetch}
             >
                {(handleOpen) => (
                   <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-fb">
@@ -283,9 +267,14 @@ export default function TaskDetailsDrawer({
                            className="w-full"
                            type="primary"
                            size="large"
-                           onClick={() =>
-                              task.data?.confirmReceipt === false ? handleOpen(task.data?.id ?? "") : handleStartTask()
-                           }
+                           onClick={() => {
+                              if (!task.isSuccess) return
+                              if (task.data.confirmReceipt) {
+                                 handleStartTask()
+                              } else {
+                                 handleOpen(task.data.id, task.data.issues.map((issue) => issue.issueSpareParts).flat())
+                              }
+                           }}
                         >
                            <div className="flex items-center justify-center gap-2">
                               {task.data?.confirmReceipt === false && hasSparePart ? (

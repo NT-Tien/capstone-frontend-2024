@@ -12,6 +12,7 @@ import { useQuery, UseQueryResult } from "@tanstack/react-query"
 import { Badge, Button, Card, Empty, Tag } from "antd"
 import { RibbonProps } from "antd/lib/badge/Ribbon"
 import { ReactNode, useMemo, useRef } from "react"
+import { IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
 
 type Props = {
    api_task: UseQueryResult<TaskDto, Error>
@@ -44,8 +45,8 @@ export default function IssuesTab(props: Props) {
    }) {
       return (
          <Badge.Ribbon
-            text={FixRequestStatusTagMapper[String(rest.issue.status)].text}
-            color={FixRequestStatusTagMapper[String(rest.issue.status)].color}
+            text={IssueStatusEnumTagMapper[String(rest.issue.status)].text}
+            color={IssueStatusEnumTagMapper[String(rest.issue.status)].color}
          >
             {children}
          </Badge.Ribbon>

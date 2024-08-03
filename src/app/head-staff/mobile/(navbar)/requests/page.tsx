@@ -17,6 +17,7 @@ import {
    FixRequest_StatusMapper,
    FixRequestStatuses,
 } from "@/common/dto/status/FixRequest.status"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 
 export default function ReportsPage() {
    const [tab, setTab] = useState<FixRequestStatus>(FixRequestStatus.PENDING)
@@ -109,6 +110,7 @@ function ReportsTab(props: ReportsTabProps) {
                         onClick={(id: string) => router.push(`/head-staff/mobile/requests/${id}`)}
                         index={index}
                         new={!req.is_seen}
+                        hasCheck={!!req.tasks.find((task) => task.status === TaskStatus.HEAD_STAFF_CONFIRM)}
                      />
                   ))
                ) : (

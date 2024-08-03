@@ -51,33 +51,6 @@ export default function TaskDetailsDrawer({
       return task.data?.issues.find((issue) => issue.issueSpareParts.length !== 0)
    }, [task.data])
 
-   const mutate_acceptSpareParts = useMutation({
-      mutationFn: Staff_Task_ReceiveSpareParts,
-      onMutate: async () => {
-         message.open({
-            type: "loading",
-            content: `Loading...`,
-            key: `loading`,
-         })
-      },
-      onError: async (error) => {
-         message.error({
-            content: "An error occurred. Please try again later.",
-         })
-      },
-      onSuccess: async () => {
-         message.success({
-            content: `Spare parts received successfully.`,
-         })
-         await queryClient.invalidateQueries({
-            queryKey: staff_qk.task.base(),
-         })
-      },
-      onSettled: () => {
-         message.destroy(`loading`)
-      },
-   })
-
    const mutate_startTask = useMutation({
       mutationFn: Staff_Task_UpdateStart,
       onMutate: async () => {
@@ -269,7 +242,7 @@ export default function TaskDetailsDrawer({
                            size="large"
                            onClick={() => {
                               if (!task.isSuccess) return
-                              if (task.data.confirmReceipt) {
+                              if (task.data.confirmReceipt || !hasSparePart) {
                                  handleStartTask()
                               } else {
                                  handleOpen(task.data.id, task.data.issues.map((issue) => issue.issueSpareParts).flat())

@@ -1,5 +1,5 @@
 import useModalControls from "@/common/hooks/useModalControls"
-import { Button, Card, List, Modal, QRCode } from "antd"
+import { Button, Card, Input, List, Modal, QRCode } from "antd"
 import { ReactNode, useState } from "react"
 import { InfoCircleOutlined } from "@ant-design/icons"
 import { FixRequestIssueSparePartDto } from "@/common/dto/FixRequestIssueSparePart.dto"
@@ -43,6 +43,9 @@ export default function QrCodeDisplayModal({
                </Card>
             )}
             <QRCode value={qrCode ?? ""} className="aspect-square h-full w-full" />
+            <Card className="mt-layout w-full" size="small">
+               <Input className="w-full" value={qrCode} onChange={() => {}} />
+            </Card>
             <section className="mt-layout">
                <h2 className="mb-2 text-base font-semibold">Linh kiện thay thế</h2>
                <List

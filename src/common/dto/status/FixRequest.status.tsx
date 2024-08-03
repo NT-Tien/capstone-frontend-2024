@@ -91,7 +91,7 @@ export function FixRequest_StatusData(
          return {
             index: 4,
             name: "head_confirm",
-            text: "Chờ xác nhận",
+            text: "Chờ đánh giá",
             description: "Chờ bạn xác nhận và đánh giá quá trình kiểm tra",
             colorInverse: "gold-inverse",
             color: "gold",

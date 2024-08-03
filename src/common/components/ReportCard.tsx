@@ -32,6 +32,7 @@ type Props = {
    new?: boolean
    requester?: string
    dto?: FixRequestDto
+   hasCheck?: boolean
 }
 
 export default function ReportCard(props: Props) {
@@ -89,7 +90,10 @@ export default function ReportCard(props: Props) {
                         </span>
                      </div>
                   </div>
-                  <span className="mt-1 text-right text-xs font-light text-neutral-600/90">{props.createdDate}</span>
+                  <div className="mt-2 flex items-center justify-between">
+                     {props.hasCheck ? <Tag color="orange">Có tác vụ cần kiểm tra</Tag> : <div></div>}
+                     <span className="self-end text-xs font-light text-neutral-600/90">{props.createdDate}</span>
+                  </div>
                </section>
             </div>
          </Card>

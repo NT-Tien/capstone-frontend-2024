@@ -19,6 +19,7 @@ import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { SelectedIssueType } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page"
 import { CheckCard } from "@ant-design/pro-card"
 import { useRouter } from "next/navigation"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 
 type SortedUserDto = Omit<UserDto, "tasks"> & {
    sorted_tasks: {
@@ -107,6 +108,7 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
 
          const rowData = tasks.reduce(
             (acc, task) => {
+               if (task.status !== TaskStatus.ASSIGNED) return acc
                if (dayjs(task.fixerDate).add(7, "hours").isSame(dayjs(props.selectedFixDate).add(7, "hours"), "date")) {
                   total += task.totalTime
 

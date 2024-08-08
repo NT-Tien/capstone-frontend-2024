@@ -302,7 +302,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                                     </span>
                                     <div className="flex justify-between">
                                        <span>
-                                          <span className="text-neutral-500">Created by</span> Head
+                                          <span className="text-neutral-500">Được tạo bởi</span> Head
                                        </span>
                                        <span className="text-neutral-600">
                                           {dayjs(filteredRequests.mine.createdAt)

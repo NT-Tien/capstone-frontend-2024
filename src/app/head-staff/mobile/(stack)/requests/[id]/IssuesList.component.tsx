@@ -3,14 +3,14 @@ import { useMutation, UseQueryResult } from "@tanstack/react-query"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { DeviceDto } from "@/common/dto/Device.dto"
 import React, { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
-import { App, Badge, Button, Card, Drawer, Empty, Form, Radio, Select, Skeleton, Tag } from "antd"
+import { App, Badge, Button, Card, Drawer, Empty, Form, List, Radio, Select, Skeleton, Tag } from "antd"
 import { BaseSelectRef } from "rc-select"
 import HeadStaff_Issue_Create from "@/app/head-staff/_api/issue/create.api"
 import IssueDetailsDrawer, { IssueDetailsDrawerRefType } from "@/app/head-staff/_components/IssueDetailsDrawer"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { ProDescriptions, ProFormTextArea } from "@ant-design/pro-components"
 import RequestDetails from "@/app/head-staff/mobile/(stack)/requests/[id]/page"
-import { ArrowRightOutlined, PlusOutlined } from "@ant-design/icons"
+import { ArrowRightOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons"
 import { RibbonProps } from "antd/lib/badge/Ribbon"
 import { cn } from "@/common/util/cn.util"
 import useModalControls from "@/common/hooks/useModalControls"
@@ -20,12 +20,21 @@ import SelectSparePartDrawer, {
    SelectSparePartDrawerRefType,
 } from "@/app/head-staff/_components/SelectSparePart.drawer"
 import { TaskStatus } from "@/common/enum/task-status.enum"
+import { FixRequestIssueSparePartDto } from "@/common/dto/FixRequestIssueSparePart.dto"
+import BasicSelectSparePartModal from "@/app/head-staff/mobile/(stack)/requests/[id]/BasicSelectSpareParts.modal"
+import { SparePartDto } from "@/common/dto/SparePart.dto"
+import HeadStaff_SparePart_Create from "@/app/head-staff/_api/spare-part/create.api"
 
 type FieldType = {
    request: string
    typeError: string
    description: string
    fixType: FixType
+}
+
+type SparePartInputType = {
+   sparePart: SparePartDto
+   quantity: number
 }
 
 type IssuesListProps = {
@@ -58,31 +67,21 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
    } = useModalControls({
       onClose: () => {
          setSelectedTypeErrorId(undefined)
+         setSelectedSpareParts(new Map())
          form.resetFields()
       },
    })
    const [createDropdownOpen, setCreateDropdownOpen] = useState(false)
    const [selectedTypeErrorId, setSelectedTypeErrorId] = useState<undefined | string>()
    const [highlightedId, setHighlightedId] = useState<undefined | string>()
+   const [selectSparePartControl, setSelectSparePartControl] = useState<undefined | string>(undefined)
+   const [selectedSpareParts, setSelectedSpareParts] = useState<Map<string, SparePartInputType>>(new Map())
 
    const mutate_createIssue = useMutation({
       mutationFn: HeadStaff_Issue_Create,
-      onMutate: async () => {
-         message.open({
-            type: "loading",
-            key: "creating-issue",
-            content: "Vui lọng chờ đợi...",
-         })
-      },
-      onError: async () => {
-         message.error("Tạo vấn đề thất bại")
-      },
-      onSuccess: async () => {
-         message.success("Tạo vấn đề thành công")
-      },
-      onSettled: () => {
-         message.destroy("creating-issue")
-      },
+   })
+   const mutate_createIssueSparePart = useMutation({
+      mutationFn: HeadStaff_SparePart_Create,
    })
 
    const selectedTypeError = useMemo(() => {
@@ -90,7 +89,6 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
 
       return props.device.data.machineModel.typeErrors.find((e) => e.id === selectedTypeErrorId)
    }, [props.device.data, props.device.isSuccess, selectedTypeErrorId])
-
    const availableTypeErrors = useMemo(() => {
       if (!props.device.isSuccess || !props.api.isSuccess) {
          return undefined
@@ -100,7 +98,6 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
 
       return props.device.data.machineModel.typeErrors.filter((error) => !addedErrors.has(error.id))
    }, [props.api.data, props.api.isSuccess, props.device.data, props.device.isSuccess])
-
    const sortedIssuesByUpdateDate = useMemo(() => {
       if (!props.api.isSuccess) return []
 
@@ -108,27 +105,57 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
          return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
       })
    }, [props.api.data, props.api.isSuccess])
+   const unselectedSpareParts = useMemo(() => {
+      if (!props.device.isSuccess) return []
+
+      const fullList = props.device.data.machineModel.spareParts
+
+      return fullList.filter((sp) => !selectedSpareParts.has(sp.id))
+   }, [props.device.data?.machineModel.spareParts, props.device.isSuccess, selectedSpareParts])
 
    function handleSelectIssue(issueId: string) {
       setSelectedTypeErrorId(issueId)
       handleOpen_CreateDrawer()
    }
 
-   function handleCreateIssue(values: FieldType) {
-      mutate_createIssue.mutate(values, {
-         onSuccess: async (res) => {
-            handleClose_CreateDrawer()
-            form.resetFields()
-            await props.api.refetch()
-            setTimeout(() => createIssueBtnRef.current?.blur(), 250)
+   async function handleCreateIssue(values: FieldType) {
+      try {
+         message.destroy("creating-issue")
+         message.destroy("success-msg")
+         message.loading({
+            content: "Đang tạo vấn đề...",
+            key: "creating-issue",
+         })
+         const issue = await mutate_createIssue.mutateAsync(values)
+         const promises = Array.from(selectedSpareParts.values()).map((sparePart) => {
+            return mutate_createIssueSparePart.mutateAsync({
+               issue: issue.id,
+               sparePart: sparePart.sparePart.id,
+               quantity: sparePart.quantity,
+            })
+         })
+         const spareParts = await Promise.allSettled(promises)
 
-            clearTimeout(highlightedTimeoutRef.current ?? 0)
-            setHighlightedId(res.id)
-            highlightedTimeoutRef.current = setTimeout(() => {
-               setHighlightedId(undefined)
-            }, 5000)
-         },
-      })
+         message.success({
+            content: "Tạo vấn đề thành công",
+            key: "success-msg",
+         })
+
+         handleClose_CreateDrawer()
+         form.resetFields()
+         await props.api.refetch()
+         setTimeout(() => createIssueBtnRef.current?.blur(), 250)
+
+         clearTimeout(highlightedTimeoutRef.current ?? 0)
+         setHighlightedId(issue.id)
+         highlightedTimeoutRef.current = setTimeout(() => {
+            setHighlightedId(undefined)
+         }, 5000)
+      } catch (error) {
+         message.error("Tạo vấn đề thất bại")
+      } finally {
+         message.destroy("creating-issue")
+      }
    }
 
    useImperativeHandle(ref, () => {
@@ -188,7 +215,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
          const values = form.getFieldsValue()
 
          if (!selectedTypeErrorId || !props.api.isSuccess) return
-         handleCreateIssue({
+         await handleCreateIssue({
             ...values,
             request: props.api.data.id,
             typeError: selectedTypeErrorId,
@@ -214,6 +241,7 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                FixRequestStatus.IN_PROGRESS,
                FixRequestStatus.CLOSED,
                FixRequestStatus.CHECKED,
+               FixRequestStatus.HEAD_CONFIRM,
             ]}
          >
             <h2 className="mb-2 text-base font-semibold">Yêu cầu vấn đề</h2>
@@ -278,22 +306,9 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                                                 {FixTypeTagMapper[String(item.fixType)].text}
                                              </Tag>
                                              <span className="w-52 flex-grow truncate text-neutral-400">
-                                                {item.issueSpareParts.length === 0 ? (
-                                                   props.hasScanned ? (
-                                                      <Button
-                                                         icon={<PlusOutlined />}
-                                                         size="small"
-                                                         type="link"
-                                                         className="px-0"
-                                                      >
-                                                         Thêm linh kiện
-                                                      </Button>
-                                                   ) : (
-                                                      "Chưa có linh kiện"
-                                                   )
-                                                ) : (
-                                                   `Có ${item.issueSpareParts.length} linh kiện`
-                                                )}
+                                                {item.issueSpareParts.length === 0
+                                                   ? "Chưa có linh kiện"
+                                                   : `Có ${item.issueSpareParts.length} linh kiện`}
                                              </span>
                                              <Button icon={<ArrowRightOutlined />} size="small" type="text"></Button>
                                           </span>
@@ -305,26 +320,30 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                         )}
                      </IssueDetailsDrawer>
                   )}
-                  {props.hasScanned && (
-                     <div className="mt-2" ref={createIssueBtnWrapperRef}>
-                        <Select
-                           ref={createIssueBtnRef}
-                           options={availableTypeErrors?.map((error) => ({
-                              label: error.name,
-                              value: error.id,
-                           }))}
-                           className="w-full"
-                           showSearch
-                           variant="outlined"
-                           size="large"
-                           placeholder="+ Thêm lỗi mới"
-                           value={selectedTypeErrorId}
-                           onChange={(value) => handleSelectIssue(value)}
-                           open={createDropdownOpen}
-                           onDropdownVisibleChange={setCreateDropdownOpen}
-                        />
-                     </div>
-                  )}
+                  {props.api.isSuccess &&
+                     props.hasScanned &&
+                     new Set([FixRequestStatus.CHECKED, FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
+                        props.api.data.status,
+                     ) && (
+                        <div className="mt-2" ref={createIssueBtnWrapperRef}>
+                           <Select
+                              ref={createIssueBtnRef}
+                              options={availableTypeErrors?.map((error) => ({
+                                 label: error.name,
+                                 value: error.id,
+                              }))}
+                              className="w-full"
+                              showSearch
+                              variant="outlined"
+                              size="large"
+                              placeholder="+ Thêm lỗi mới"
+                              value={selectedTypeErrorId}
+                              onChange={(value) => handleSelectIssue(value)}
+                              open={createDropdownOpen}
+                              onDropdownVisibleChange={setCreateDropdownOpen}
+                           />
+                        </div>
+                     )}
                </>
             ) : (
                <>{props.api.isPending && <Skeleton.Button />}</>
@@ -335,7 +354,10 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
             onClose={handleClose_CreateDrawer}
             title="Tạo vấn đề"
             placement="bottom"
-            height="max-content"
+            height="100%"
+            classNames={{
+               body: "pb-20",
+            }}
          >
             <ProDescriptions
                dataSource={selectedTypeError}
@@ -376,8 +398,8 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                      {Object.values(FixType).map((fix) => (
                         <Radio.Button key={fix} value={fix} className="w-1/2 capitalize">
                            <div className="flex items-center gap-2 text-center">
-                              {FixTypeTagMapper[String(fix)].icon}
-                              {FixTypeTagMapper[String(fix)].text}
+                              <div>{FixTypeTagMapper[String(fix)].icon}</div>
+                              <div>{FixTypeTagMapper[String(fix)].text}</div>
                            </div>
                         </Radio.Button>
                      ))}
@@ -397,26 +419,83 @@ const IssuesList = forwardRef<IssuesListRefType, IssuesListProps>(function Compo
                   }}
                />
 
-               {/* Select spare part */}
-               {/*<SelectSparePartDrawer onFinish={async (values) => {}}>*/}
-               {/*   {(handleOpen) => (*/}
-               {/*      <Select*/}
-               {/*         options={props.device.data?.machineModel.spareParts.map((sparePart) => ({*/}
-               {/*            label: sparePart.name,*/}
-               {/*            value: sparePart.id,*/}
-               {/*         }))}*/}
-               {/*         className="w-full"*/}
-               {/*         showSearch*/}
-               {/*         size="large"*/}
-               {/*         placeholder="+ Chọn linh kiện"*/}
-               {/*         onChange={(e) => {*/}
-               {/*            props.device.isSuccess && handleOpen(props.device.data.id)*/}
-               {/*         }}*/}
-               {/*      />*/}
-               {/*   )}*/}
-               {/*</SelectSparePartDrawer>*/}
+               <Form.Item label="Linh kiện thay thế">
+                  <BasicSelectSparePartModal
+                     afterClose={() => {
+                        setSelectSparePartControl(undefined)
+                     }}
+                     onOk={(sparePart, quantity) => {
+                        console.log(quantity <= 0)
+                        if (quantity <= 0) {
+                           setSelectedSpareParts((prev) => {
+                              prev.delete(sparePart.id)
+                              return new Map(prev)
+                           })
+                           return
+                        }
 
-               <Form.Item<FieldType> className="mb-0">
+                        setSelectedSpareParts((prev) => {
+                           prev.set(sparePart.id, {
+                              sparePart,
+                              quantity,
+                           })
+
+                           return new Map(prev)
+                        })
+                     }}
+                  >
+                     {(handleOpen) => (
+                        <>
+                           <List
+                              dataSource={Array.from(selectedSpareParts.values())}
+                              bordered
+                              className={"mb-4"}
+                              renderItem={(item) => (
+                                 <List.Item className="p-4">
+                                    <List.Item.Meta
+                                       title={
+                                          <div className="flex justify-between gap-3">
+                                             <h5 className="line-clamp-2 font-semibold">{item.sparePart.name}</h5>
+                                             <div className="w-max flex-shrink-0">Chọn {item.quantity}</div>
+                                          </div>
+                                       }
+                                       description={
+                                          <a
+                                             className="font-medium"
+                                             onClick={() => handleOpen(item.sparePart, item.quantity, true)}
+                                          >
+                                             Sửa
+                                          </a>
+                                       }
+                                    />
+                                 </List.Item>
+                              )}
+                           />
+
+                           <Select
+                              options={unselectedSpareParts.map((sparePart) => ({
+                                 label: sparePart.name,
+                                 value: sparePart.id,
+                              }))}
+                              className="w-full"
+                              showSearch
+                              size="large"
+                              placeholder="+ Chọn linh kiện"
+                              value={selectSparePartControl}
+                              onChange={(sp) => {
+                                 setSelectSparePartControl(sp)
+                                 if (sp !== null && sp !== undefined && sp !== "") {
+                                    const sparePart = unselectedSpareParts.find((s) => s.id === sp)
+                                    !!sparePart && handleOpen(sparePart)
+                                 }
+                              }}
+                           />
+                        </>
+                     )}
+                  </BasicSelectSparePartModal>
+               </Form.Item>
+
+               <Form.Item<FieldType> className="fixed bottom-0 left-0 mb-0 w-full bg-white p-layout shadow-fb">
                   <Button
                      className="w-full"
                      type="primary"

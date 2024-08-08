@@ -3,21 +3,13 @@
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { cn } from "@/common/util/cn.util"
 import { RightOutlined } from "@ant-design/icons"
-import { MapPin } from "@phosphor-icons/react"
+import { MapPin, Note } from "@phosphor-icons/react"
 import { Badge, Card, Progress, Tag } from "antd"
 import { ReactNode, useMemo } from "react"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
 import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
 
-/**
- * Show:
- * - Name of Machine Model in Report
- * - Report Created Date
- * - Report Status (optional)
- * - Device Position
- * - Device Area
- */
 type Props = {
    id: string
    machineModelName: string
@@ -36,7 +28,7 @@ type Props = {
    hasCheck?: boolean
 }
 
-export default function ReportCard(props: Props) {
+export default function RequestCard(props: Props) {
    const percentFinished = useMemo(() => {
       if (!props.dto) return 0
       return Math.floor(
@@ -108,28 +100,19 @@ export default function ReportCard(props: Props) {
                   )}
                >
                   <div className="flex gap-2">
-                     <Tag className="m-0 flex w-max items-center gap-1">
+                     <div className="m-0 flex w-max items-center gap-1 text-sm text-neutral-500">
                         <MapPin size={12} weight="fill" />
                         <div>
                            {props.positionX}x{props.positionY} • {props.area}
                         </div>
-                     </Tag>
-                     {props.dto &&
-                        props.dto.issues &&
-                        new Set([
-                           FixRequestStatus.CHECKED,
-                           FixRequestStatus.APPROVED,
-                           FixRequestStatus.IN_PROGRESS,
-                        ]).has(props.dto.status) && (
-                           <Tag className="m-0">
-                              {props.dto.issues?.length ?? "0"} vấn đề
-                              {props.dto.status !== FixRequestStatus.CHECKED &&
-                                 ` • ${props.dto.tasks?.length ?? "0"} tác vụ`}
-                           </Tag>
-                        )}
+                     </div>
                   </div>
-                  <div className="mt-2 flex items-center justify-between">
-                     {props.hasCheck ? <Tag color="orange">Có tác vụ cần kiểm tra</Tag> : <div></div>}
+                  <div className="mt-1 flex w-max items-center gap-1 text-sm text-neutral-500">
+                     <Note size={12} weight="fill" />
+                     <div>{props.dto?.requester_note}</div>
+                  </div>
+                  <div className="mt-0.5 flex items-center justify-between">
+                     <div></div>
                      <span className="self-end text-xs font-light text-neutral-600/90">{props.createdDate}</span>
                   </div>
                </section>

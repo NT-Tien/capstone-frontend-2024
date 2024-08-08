@@ -15,6 +15,7 @@ import { StatisticCard } from "@ant-design/pro-card"
 import CountUp from "react-countup"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
+import RequestCard from "@/app/head/_components/RequestCard"
 
 export default function HeadDashboardPage() {
    const router = useRouter()
@@ -88,7 +89,7 @@ export default function HeadDashboardPage() {
                   )}
                   {result.data.length > 0 &&
                      result.data.map((req, index) => (
-                        <ReportCard
+                        <RequestCard
                            dto={req}
                            index={index}
                            key={req.id}

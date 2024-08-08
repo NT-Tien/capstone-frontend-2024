@@ -89,6 +89,19 @@ export default function Step1(props: Step2Props) {
                                  label: "Thông số kỹ thuật",
                                  dataIndex: "operator",
                               },
+                              {
+                                 key: "3",
+                                 label: "Hoàn thành",
+                                 render: (_, e) =>
+                                    Math.floor(
+                                       (e.issues.reduce(
+                                          (acc, prev) => acc + (prev.status === IssueStatusEnum.RESOLVED ? 1 : 0),
+                                          0,
+                                       ) /
+                                          e.issues.length) *
+                                          100,
+                                    ) + "%",
+                              },
                            ]}
                         />
                         <section className="std-layout-outer mt-6 bg-white py-layout">

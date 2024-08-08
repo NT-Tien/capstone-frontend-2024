@@ -10,12 +10,14 @@ import { LeftOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { MapPin, XCircle } from "@phosphor-icons/react"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Button, Card, Steps, Tag } from "antd"
+import { App, Button, Card, Progress, Steps, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { FixRequest_StatusData, FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
 import Head_Request_UpdateClose from "@/app/head/_api/request/update-close.api"
 import FeedbackDrawer from "@/app/head/(stack)/history/[id]/Feedback.drawer"
+import { useMemo } from "react"
+import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
 
 export default function HistoryDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -29,6 +31,17 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
          return issue
       },
    })
+
+   const percentFinished = useMemo(() => {
+      if (!api.isSuccess) return 0
+      return Math.floor(
+         (api.data.issues?.reduce((acc, prev) => {
+            return acc + (prev.status === IssueStatusEnum.RESOLVED ? 1 : 0)
+         }, 0) *
+            100) /
+            api.data.issues?.length,
+      )
+   }, [api.data?.issues, api.isSuccess])
 
    const mutate_closeRequest = useMutation({
       mutationFn: Head_Request_UpdateClose,
@@ -109,12 +122,18 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                   items={[
                      {
                         title: FixRequest_StatusData("pending").text,
-                        description: FixRequest_StatusData("pending").description,
+                        description:
+                           api.data?.status === FixRequest_StatusData("pending").statusEnum
+                              ? FixRequest_StatusData("pending").description
+                              : null,
                         className: "text-base",
                      },
                      {
                         title: FixRequest_StatusData("checked").text,
-                        description: FixRequest_StatusData("checked").description,
+                        description:
+                           api.data?.status === FixRequest_StatusData("checked").statusEnum
+                              ? FixRequest_StatusData("checked").description
+                              : null,
                         className: "text-base",
                      },
                      ...(api.isSuccess
@@ -122,46 +141,62 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                            ? [
                                 {
                                    title: FixRequest_StatusData("approved").text,
-                                   description: FixRequest_StatusData("approved").description,
+                                   description:
+                                      api.data?.status === FixRequest_StatusData("approved").statusEnum
+                                         ? FixRequest_StatusData("approved").description
+                                         : null,
                                    className: "text-base",
                                 },
                                 {
                                    title: FixRequest_StatusData("in_progress").text,
-                                   description: FixRequest_StatusData("in_progress").description,
+                                   description:
+                                      api.data?.status === FixRequest_StatusData("in_progress").statusEnum ? (
+                                         <div>
+                                            {FixRequest_StatusData("in_progress").description}
+                                            <Progress percent={percentFinished} />
+                                         </div>
+                                      ) : null,
                                    className: "text-base",
                                 },
                                 {
                                    title: FixRequest_StatusData("head_confirm").text,
-                                   description: (
-                                      <div>
-                                         {FixRequest_StatusData("head_confirm").description}
-                                         {api.data?.status === FixRequestStatus.HEAD_CONFIRM && (
-                                            <FeedbackDrawer onSuccess={() => api.refetch()}>
-                                               {(handleOpen) => (
-                                                  <Button
-                                                     type="primary"
-                                                     className="mt-1"
-                                                     onClick={() => handleOpen(params.id)}
-                                                  >
-                                                     Xác nhận
-                                                  </Button>
-                                               )}
-                                            </FeedbackDrawer>
-                                         )}
-                                      </div>
-                                   ),
+                                   description:
+                                      api.data?.status === FixRequest_StatusData("head_confirm").statusEnum ? (
+                                         <div>
+                                            {FixRequest_StatusData("head_confirm").description}
+                                            {api.data?.status === FixRequestStatus.HEAD_CONFIRM && (
+                                               <FeedbackDrawer onSuccess={() => api.refetch()}>
+                                                  {(handleOpen) => (
+                                                     <Button
+                                                        type="primary"
+                                                        className="mt-1"
+                                                        onClick={() => handleOpen(params.id)}
+                                                     >
+                                                        Xác nhận
+                                                     </Button>
+                                                  )}
+                                               </FeedbackDrawer>
+                                            )}
+                                         </div>
+                                      ) : null,
                                    className: "text-base",
                                 },
                                 {
                                    title: FixRequest_StatusData("closed").text,
-                                   description: FixRequest_StatusData("closed").description,
+                                   description:
+                                      api.data?.status === FixRequest_StatusData("closed").statusEnum
+                                         ? FixRequest_StatusData("closed").description
+                                         : null,
                                    className: "text-base",
                                 },
                              ]
                            : [
                                 {
                                    title: FixRequest_StatusData("rejected").text,
-                                   description: FixRequest_StatusData("rejected").description,
+                                   description:
+                                      api.data?.status === FixRequest_StatusData("rejected").statusEnum
+                                         ? FixRequest_StatusData("rejected").description
+                                         : null,
                                    className: "text-base",
                                 },
                              ]

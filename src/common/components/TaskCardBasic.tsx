@@ -1,10 +1,10 @@
-import { Card, Tag } from "antd"
+import { Card, Progress, Tag } from "antd"
 import { TaskDto } from "@/common/dto/Task.dto"
 import dayjs from "dayjs"
 import { CalendarOutlined, ClockCircleOutlined, ExclamationCircleFilled, UserOutlined } from "@ant-design/icons"
 import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import { CheckFat, Wrench, X } from "@phosphor-icons/react"
 import { cn } from "@/common/util/cn.util"
+import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
 
 type Props = {
    task: TaskDto
@@ -66,6 +66,20 @@ export default function TaskCardBasic(props: Props) {
                   <UserOutlined /> {props.task.fixer.username}
                </Tag>
             </div>
+            {new Set([TaskStatus.IN_PROGRESS, TaskStatus.ASSIGNED]).has(status) && (
+               <div className="mt-4">
+                  <Progress
+                     percent={Math.floor(
+                        (props.task.issues.reduce(
+                           (acc, prev) => acc + (prev.status === IssueStatusEnum.RESOLVED ? 1 : 0),
+                           0,
+                        ) /
+                           props.task.issues.length) *
+                           100,
+                     )}
+                  />
+               </div>
+            )}
          </section>
       </Card>
    )

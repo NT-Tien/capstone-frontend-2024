@@ -62,7 +62,7 @@ export default function StaffTasksPage() {
          const fixerDate = dayjs(task.fixerDate).add(7, "hours")
 
          if (fixerDate.isBefore(now, "day")) {
-            result.hasPast = true
+            result.hasPast = false
          }
 
          if (fixerDate.isBefore(now, "day") || fixerDate.isSame(now, "day")) {

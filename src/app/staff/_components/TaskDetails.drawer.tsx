@@ -15,7 +15,8 @@ import { App, Badge, Button, Card, Drawer, List, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { ReactNode, useMemo, useState } from "react"
-import { IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
+import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 
 export default function TaskDetailsDrawer({
    children,
@@ -113,7 +114,25 @@ export default function TaskDetailsDrawer({
             <ProDescriptions
                column={1}
                loading={task.isLoading}
-               title={task.data?.name}
+               title={
+                  <div>
+                     <h3>{task.data?.name}</h3>
+                     {task.isSuccess &&
+                        new Set([TaskStatus.IN_PROGRESS, TaskStatus.COMPLETED, TaskStatus.CANCELLED]).has(
+                           task.data.status,
+                        ) && (
+                           <Tag>
+                              {Math.floor(
+                                 task.data.issues.reduce(
+                                    (acc, prev) => acc + (prev.status === IssueStatusEnum.RESOLVED ? 1 : 0),
+                                    0,
+                                 ) / task.data.issues.length,
+                              )}
+                              % hoàn thành
+                           </Tag>
+                        )}
+                  </div>
+               }
                dataSource={task.data}
                size="small"
                extra={task.data?.priority && <Tag color={"red"}>Ưu tiên</Tag>}

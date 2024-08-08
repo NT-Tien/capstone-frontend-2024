@@ -11,14 +11,14 @@ import {
    PlusOutlined,
    QrcodeOutlined,
 } from "@ant-design/icons"
-import { useRouter } from "next/navigation"
+import { ReadonlyURLSearchParams, useRouter, useSearchParams } from "next/navigation"
 import dayjs from "dayjs"
-import { App, Button, Card, Tabs, Tag } from "antd"
+import { App, Button, Card, Progress, Spin, Tabs, Tag } from "antd"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import RejectTaskDrawer from "@/app/head-staff/_components/RejectTask.drawer"
-import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react"
-import { CheckSquareOffset, MapPin, Tray, XCircle } from "@phosphor-icons/react"
+import React, { Dispatch, ReactNode, SetStateAction, Suspense, useEffect, useMemo, useRef, useState } from "react"
+import { CheckSquareOffset, MapPin, Note, Tray, XCircle } from "@phosphor-icons/react"
 import { cn } from "@/common/util/cn.util"
 import DataListView from "@/common/components/DataListView"
 import ScannerDrawer from "@/common/components/Scanner.drawer"
@@ -33,8 +33,41 @@ import DeviceRequestHistoryDrawer from "@/app/head-staff/mobile/(stack)/requests
 import { decodeJwt } from "@/common/util/decodeJwt.util"
 import Cookies from "js-cookie"
 import { FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
+import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 
 export default function RequestDetails({ params }: { params: { id: string } }) {
+   const [searchParams, setSearchParams] = useState<ReadonlyURLSearchParams | undefined>(undefined)
+
+   return (
+      <>
+         <Suspense fallback={<Spin fullscreen />}>
+            <SearchParamsSetter setSearchParams={setSearchParams} />
+         </Suspense>
+         <Component params={params} searchParams={searchParams} />
+      </>
+   )
+}
+
+function SearchParamsSetter({
+   setSearchParams,
+}: {
+   setSearchParams: Dispatch<SetStateAction<ReadonlyURLSearchParams | undefined>>
+}) {
+   const searchParams = useSearchParams()
+   useEffect(() => {
+      setSearchParams(searchParams)
+   }, [searchParams, setSearchParams])
+   return null
+}
+
+function Component({
+   params,
+   searchParams,
+}: {
+   params: { id: string }
+   searchParams: ReadonlyURLSearchParams | undefined
+}) {
    const router = useRouter()
    const { message, notification } = App.useApp()
    const queryClient = useQueryClient()
@@ -48,25 +81,25 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
    const api = useQuery({
       queryKey: headstaff_qk.request.byId(params.id),
       queryFn: () => HeadStaff_Request_OneById({ id: params.id }),
-      refetchOnWindowFocus: (query) => {
-         const now = Date.now()
-         const diff = now - (lastRefetchTime.current ?? 0)
-         let ret = diff > 10000
-         lastRefetchTime.current = now
-         return ret
-      },
+      // refetchOnWindowFocus: (query) => {
+      //    const now = Date.now()
+      //    const diff = now - (lastRefetchTime.current ?? 0)
+      //    let ret = diff > 10000
+      //    lastRefetchTime.current = now
+      //    return ret
+      // },
    })
    const device = useQuery({
       queryKey: headstaff_qk.device.byId(api.data?.device.id ?? ""),
       queryFn: () => HeadStaff_Device_OneById({ id: api.data?.device.id ?? "" }),
       enabled: api.isSuccess,
-      refetchOnWindowFocus: (query) => {
-         const now = Date.now()
-         const diff = now - (lastRefetchTime.current ?? 0)
-         let ret = diff > 10000
-         lastRefetchTime.current = now
-         return ret
-      },
+      // refetchOnWindowFocus: (query) => {
+      //    const now = Date.now()
+      //    const diff = now - (lastRefetchTime.current ?? 0)
+      //    let ret = diff > 10000
+      //    lastRefetchTime.current = now
+      //    return ret
+      // },
    })
 
    const mutate_updateSeen = useMutation({
@@ -82,9 +115,12 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
    }, [api.isSuccess, api.data])
 
    const showFullRequestDetails = useMemo(() => {
-      return new Set<any>([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS, FixRequestStatus.CLOSED]).has(
-         api.data?.status,
-      )
+      return new Set<any>([
+         FixRequestStatus.APPROVED,
+         FixRequestStatus.IN_PROGRESS,
+         FixRequestStatus.HEAD_CONFIRM,
+         FixRequestStatus.CLOSED,
+      ]).has(api.data?.status)
    }, [api.data?.status])
 
    async function handleScanFinish(result: string) {
@@ -207,14 +243,9 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
          <RootHeader
             title="Thông tin chi tiết"
             icon={<LeftOutlined />}
-            onIconClick={() => router.push("/head-staff/mobile/requests")}
-            confirmOnIconClick={hasScanned}
-            confirmModalProps={{
-               confirmText: "Quay lại",
-               cancelText: "Hủy",
-               title: "Lưu ý",
-               description: "Bạn có chắc chắn muốn thoát không?",
-            }}
+            onIconClick={() =>
+               searchParams?.get("fromHistory") === "true" ? router.back() : router.push("/head-staff/mobile/requests")
+            }
             className="std-layout-outer p-4"
          />
          <section className="std-layout-outer">
@@ -250,6 +281,11 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
          {tab === "main-tab-request" && (
             <>
                <section className={cn(!showFullRequestDetails && "mt-layout")}>
+                  {api.data?.tasks.find((task) => task.status === TaskStatus.HEAD_STAFF_CONFIRM) !== undefined && (
+                     <Card className="mb-4 border-red-300 bg-red-100">
+                        Thiết bị này có tác vụ cần được <strong>xác nhận</strong>. Vui lòng qua trang tác vụ.
+                     </Card>
+                  )}
                   <ProDescriptions
                      loading={api.isLoading}
                      dataSource={api.data}
@@ -290,6 +326,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                         },
                         ...(api.data?.status === FixRequestStatus.APPROVED ||
                         api.data?.status === FixRequestStatus.IN_PROGRESS ||
+                        api.data?.status === FixRequestStatus.HEAD_CONFIRM ||
                         api.data?.status === FixRequestStatus.CLOSED
                            ? [
                                 {
@@ -308,6 +345,30 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                            title: "Ghi chú",
                            dataIndex: ["requester_note"],
                         },
+                        ...(api.data?.status === FixRequestStatus.APPROVED ||
+                        api.data?.status === FixRequestStatus.IN_PROGRESS
+                           ? [
+                                {
+                                   key: "finished",
+                                   title: "Hoàn thành",
+                                   render: (_: any, e: FixRequestDto) => {
+                                      return (
+                                         <Progress
+                                            percent={Math.floor(
+                                               (e.issues.reduce(
+                                                  (acc, prev) =>
+                                                     acc + (prev.status === IssueStatusEnum.RESOLVED ? 1 : 0),
+                                                  0,
+                                               ) *
+                                                  100) /
+                                                  e.issues.length,
+                                            )}
+                                         />
+                                      )
+                                   },
+                                },
+                             ]
+                           : []),
                      ]}
                   />
                </section>
@@ -326,6 +387,21 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                      </Card>
                   </section>
                )}
+               {api.data?.status === FixRequestStatus.CLOSED && (
+                  <section className="mt-3 w-full">
+                     <Card
+                        title={
+                           <div className="flex items-center gap-1">
+                              <Note size={18} />
+                              Đánh giá sau sửa chữa
+                           </div>
+                        }
+                        size="small"
+                     >
+                        N/A
+                     </Card>
+                  </section>
+               )}
                <section className="std-layout-outer mt-6 rounded-lg bg-white py-layout">
                   <div className="mb-2 flex items-center justify-between px-layout">
                      <h2 className="text-base font-semibold">Chi tiết thiết bị</h2>
@@ -335,7 +411,7 @@ export default function RequestDetails({ params }: { params: { id: string } }) {
                               type="link"
                               size="small"
                               icon={<CalendarOutlined />}
-                              onClick={() => handleOpen(device.data?.id)}
+                              onClick={() => device.isSuccess && handleOpen(device.data.id, params.id)}
                            >
                               Lịch sử yêu cầu
                            </Button>

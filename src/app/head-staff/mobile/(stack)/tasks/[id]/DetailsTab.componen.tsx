@@ -8,13 +8,16 @@ import { LinkOutlined, UserOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { MapPin } from "@phosphor-icons/react"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
-import { App, Avatar, Button, Card, Image, Steps, Tag } from "antd"
+import { App, Avatar, Button, Card, Image, Progress, Steps, Tag } from "antd"
 import dayjs from "dayjs"
 import Link from "next/link"
 import { clientEnv } from "@/env"
-import { useRef } from "react"
+import React, { useRef } from "react"
 import HeadStaff_Task_Update from "@/app/head-staff/_api/task/update.api"
 import HeadStaff_Task_UpdateComplete from "@/app/head-staff/_api/task/update-complete.api"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import { FixRequestDto } from "@/common/dto/FixRequest.dto"
+import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
 
 type Props = {
    api: UseQueryResult<TaskDto, Error>
@@ -133,6 +136,31 @@ export default function DetailsTab({ api, setTab }: Props) {
                      </Link>
                   ),
                },
+               ...(api.isSuccess &&
+               new Set([TaskStatus.ASSIGNED, TaskStatus.IN_PROGRESS, TaskStatus.COMPLETED, TaskStatus.CANCELLED]).has(
+                  api.data.status,
+               )
+                  ? [
+                       {
+                          key: "finished",
+                          title: "Hoàn thành",
+                          render: (_: any, e: TaskDto) => {
+                             return (
+                                <Progress
+                                   percent={Math.floor(
+                                      (e.issues.reduce(
+                                         (acc, prev) => acc + (prev.status === IssueStatusEnum.RESOLVED ? 1 : 0),
+                                         0,
+                                      ) *
+                                         100) /
+                                         e.issues.length,
+                                   )}
+                                />
+                             )
+                          },
+                       },
+                    ]
+                  : []),
             ]}
          />
          <Card

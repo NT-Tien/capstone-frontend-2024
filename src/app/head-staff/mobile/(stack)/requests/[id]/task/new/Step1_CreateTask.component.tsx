@@ -282,7 +282,9 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
       setFinishOpen(false)
       setTimeout(() => {
          router.push(`/head-staff/mobile/requests/${props.requestId}`)
-      }, 500)
+         router.push(`/head-staff/mobile/requests/${props.requestId}`)
+         router.push(`/head-staff/mobile/requests/${props.requestId}`)
+      }, 200)
    }
 
    return (

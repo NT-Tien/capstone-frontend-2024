@@ -2,15 +2,12 @@
 
 import head_qk from "@/app/head/_api/qk"
 import Head_Request_All from "@/app/head/_api/request/all.api"
-import ReportCard from "@/common/components/ReportCard"
 import RootHeader from "@/common/components/RootHeader"
 import ScrollableTabs from "@/common/components/ScrollableTabs"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { cn } from "@/common/util/cn.util"
 import extended_dayjs from "@/config/dayjs.config"
 import { ClockCircleOutlined } from "@ant-design/icons"
-import { CheckSquareOffset, Hourglass, ThumbsUp, Wrench, XCircle } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
 import { Card, Empty } from "antd"
 import { useRouter } from "next/navigation"
@@ -20,6 +17,7 @@ import {
    FixRequest_StatusMapper,
    FixRequestStatuses,
 } from "@/common/dto/status/FixRequest.status"
+import RequestCard from "@/app/head/_components/RequestCard"
 
 export default function RequestsPage() {
    const results = useQuery({
@@ -156,7 +154,7 @@ function IssueList({ data, isLoading, statusName, className }: IssueListProps) {
                <>
                   {data.length > 0 &&
                      data.map((req, index) => (
-                        <ReportCard
+                        <RequestCard
                            className="cursor-default"
                            dto={req}
                            index={index}
@@ -166,7 +164,7 @@ function IssueList({ data, isLoading, statusName, className }: IssueListProps) {
                            positionY={req.device.positionY}
                            area={req.device.area.name}
                            machineModelName={req.device.machineModel.name}
-                           createdDate={extended_dayjs(req.createdAt).add(7, "hours").locale("en").fromNow()}
+                           createdDate={extended_dayjs(req.createdAt).add(7, "hours").locale("vi").fromNow()}
                            onClick={(id: string) => router.push(`/head/history/${id}`)}
                         />
                      ))}

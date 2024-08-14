@@ -34,23 +34,23 @@ export default function HeadDashboardPage() {
             </div>
          </div>
          <div className="std-layout">
-            <section className="grid grid-cols-2 gap-4">
+            <section className="grid grid-cols-2 gap-4 mt-5">
                <StatisticCard
                   className="relative flex h-40 w-full items-center justify-center rounded-[2rem] bg-gradient-to-b from-[#FEFEFE] via-[#F5F7EC] to-[#D3E2A1] p-4 text-center shadow-fb"
                   loading={result.isLoading}
                >
                   <div className="absolute bottom-4 left-4 flex flex-col gap-2">
-                        <Col>
-                           <Row className="text-2xl font-medium">Tổng cộng</Row>
-                           <Row className="flex items-center">
-                              <div className="text-3xl font-bold">
-                                 <CountUp end={result.data?.length ?? 0} separator={","} />
-                              </div>
-                              {/* <div>
+                     <Col>
+                        <Row className="text-2xl font-medium">Tổng cộng</Row>
+                        <Row className="flex items-center">
+                           <div className="text-3xl font-bold">
+                              <CountUp end={result.data?.length ?? 0} separator={","} />
+                           </div>
+                           {/* <div>
                                  <ArrowRightOutlined />
                               </div> */}
-                           </Row>
-                        </Col>
+                        </Row>
+                     </Col>
                   </div>
                </StatisticCard>
                <StatisticCard
@@ -60,19 +60,21 @@ export default function HeadDashboardPage() {
                   }}
                >
                   <div className="absolute bottom-4 left-4 flex flex-col gap-2">
-                     <div className="text-xl font-medium">Đã duyệt</div>
-                     <div className="text-3xl font-bold">
-                        <CountUp
-                           end={
-                              result.data?.filter(
-                                 (value: FixRequestDto) =>
-                                    value.status === FixRequestStatus.APPROVED ||
-                                    value.status === FixRequestStatus.IN_PROGRESS,
-                              ).length ?? 0
-                           }
-                           separator={","}
-                        />
-                     </div>
+                     <Col>
+                        <Row className="text-2xl font-medium">Đã duyệt</Row>
+                        <Row className="text-3xl font-bold">
+                           <CountUp
+                              end={
+                                 result.data?.filter(
+                                    (value: FixRequestDto) =>
+                                       value.status === FixRequestStatus.APPROVED ||
+                                       value.status === FixRequestStatus.IN_PROGRESS,
+                                 ).length ?? 0
+                              }
+                              separator={","}
+                           />
+                        </Row>
+                     </Col>
                   </div>
                </StatisticCard>
                <StatisticCard
@@ -82,16 +84,19 @@ export default function HeadDashboardPage() {
                   }}
                >
                   <div className="absolute bottom-4 left-4 flex flex-col gap-2">
-                     <div className="text-xl font-medium">Đang chờ</div>
-                     <div className="text-3xl font-bold">
-                        <CountUp
-                           end={
-                              result.data?.filter((value: FixRequestDto) => value.status === FixRequestStatus.PENDING)
-                                 .length ?? 0
-                           }
-                           separator={","}
-                        />
-                     </div>
+                     <Col>
+                        <Row className="text-2xl font-medium">Đang chờ</Row>
+                        <Row className="text-3xl font-bold">
+                           <CountUp
+                              end={
+                                 result.data?.filter(
+                                    (value: FixRequestDto) => value.status === FixRequestStatus.PENDING,
+                                 ).length ?? 0
+                              }
+                              separator={","}
+                           />
+                        </Row>
+                     </Col>
                   </div>
                </StatisticCard>
                <StatisticCard
@@ -101,16 +106,19 @@ export default function HeadDashboardPage() {
                   }}
                >
                   <div className="absolute bottom-4 left-4 flex flex-col gap-2">
-                     <div className="text-xl font-medium">Đang chờ</div>
-                     <div className="text-3xl font-bold">
-                        <CountUp
-                           end={
-                              result.data?.filter((value: FixRequestDto) => value.status === FixRequestStatus.PENDING)
-                                 .length ?? 0
-                           }
-                           separator={","}
-                        />
-                     </div>
+                     <Col>
+                        <Row className="text-2xl font-medium">Chờ đánh giá</Row>
+                        <Row className="text-3xl font-bold">
+                           <CountUp
+                              end={
+                                 result.data?.filter(
+                                    (value: FixRequestDto) => value.status === FixRequestStatus.HEAD_CONFIRM,
+                                 ).length ?? 0
+                              }
+                              separator={","}
+                           />
+                        </Row>
+                     </Col>
                   </div>
                </StatisticCard>
             </section>

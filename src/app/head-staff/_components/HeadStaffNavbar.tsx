@@ -1,7 +1,7 @@
 "use client"
 
 import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
-import { CheckOutlined, ContainerFilled, DashboardFilled, EllipsisOutlined } from "@ant-design/icons"
+import { CheckOutlined, ContainerFilled, HomeFilled, SettingOutlined } from "@ant-design/icons"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -19,30 +19,30 @@ export default function HeadStaffNavbar() {
 
    const items: NavbarMenuItem[] = [
       {
-         name: "Trang chủ",
+         name: "",
          key: "dashboard",
-         icon: <DashboardFilled />,
+         icon: <HomeFilled />,
          href: "/head-staff/mobile/dashboard",
          onClick: () => handleClick("dashboard"),
       },
       {
-         name: "Yêu cầu",
+         name: "",
          key: "requests",
          icon: <ContainerFilled />,
          href: "/head-staff/mobile/requests",
          onClick: () => handleClick("requests"),
       },
       {
-         name: "Tác vụ",
+         name: "",
          key: "tasks",
          icon: <CheckOutlined />,
          href: "/head-staff/mobile/tasks",
          onClick: () => handleClick("tasks"),
       },
       {
-         name: "Hồ sơ",
+         name: "",
          key: "profile",
-         icon: <EllipsisOutlined />,
+         icon: <SettingOutlined />,
          href: "/head-staff/mobile/profile",
          onClick: () => handleClick("profile"),
       },

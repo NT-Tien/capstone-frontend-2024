@@ -1,10 +1,10 @@
 "use client"
 
-import { Button, Card, Empty } from "antd"
+import { Button, Card, Col, Empty, Row, Typography } from "antd"
 import React from "react"
 import HomeHeader from "@/common/components/HomeHeader"
 import { useQuery } from "@tanstack/react-query"
-import { ClockCircleOutlined, PlusOutlined } from "@ant-design/icons"
+import { ClockCircleOutlined, PlusOutlined, ArrowRightOutlined, ArrowUpOutlined } from "@ant-design/icons"
 import dayjs from "dayjs"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -16,6 +16,8 @@ import CountUp from "react-countup"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import RequestCard from "@/app/head/_components/RequestCard"
+import ColumnChart from "@/common/components/ChartComponent"
+import { ProCard } from "@ant-design/pro-components"
 
 export default function HeadDashboardPage() {
    const router = useRouter()
@@ -27,89 +29,137 @@ export default function HeadDashboardPage() {
    })
 
    return (
-      <div className="std-layout">
-         <HomeHeader className="pb-8 pt-4" />
-         <section className="flex space-x-4">
-            <StatisticCard
-               className="h-full w-full flex-1 shadow-fb"
-               loading={result.isLoading}
-               statistic={{
-                  title: "Tổng",
-                  value: result.data?.length ?? 0,
-                  formatter: (value) => <CountUp end={value as number} separator={","} />,
-               }}
-            />
-            <StatisticCard
-               className="h-full w-full flex-1 shadow-fb"
-               statistic={{
-                  title: "Đã duyệt",
-                  value:
-                     result.data?.filter(
-                        (value: FixRequestDto) =>
-                           value.status === FixRequestStatus.APPROVED || value.status === FixRequestStatus.IN_PROGRESS,
-                     ).length ?? 0,
-                  formatter: (value) => <CountUp end={value as number} separator={","} />,
-               }}
-            />
-            <StatisticCard
-               className="h-full w-full flex-1 shadow-fb"
-               statistic={{
-                  title: "Đang chờ",
-                  value:
-                     result.data?.filter((value: FixRequestDto) => value.status === FixRequestStatus.PENDING).length ??
-                     0,
-                  formatter: (value) => <CountUp end={value as number} separator={","} />,
-               }}
-            />
-         </section>
-         <section className="std-layout-inner mt-8 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-               <ClockCircleOutlined />
-               <h2 className="text-lg font-semibold">Báo cáo gần đây</h2>
+      <div>
+         <div style={{ backgroundImage: "linear-gradient(to right, #579A0D, #1C6014)" }}>
+            <div className="std-layout">
+               <HomeHeader className="pb-8 pt-4" />
             </div>
-            <Link href="/head/history">
-               <Button type="link" className="p-0">
-                  Xem thêm
-               </Button>
-            </Link>
-         </section>
-         <div className="std-layout-inner mt-1.5 grid grid-cols-1 gap-3">
-            {result.isSuccess ? (
-               <>
-                  {result.data.length === 0 && (
-                     <Card>
-                        <Empty description="Bạn không có báo cáo gần đây">
-                           <Link href="/head/scan">
-                              <Button icon={<PlusOutlined />} type="primary">
-                                 Quét mã QR để tạo báo cáo
-                              </Button>
-                           </Link>
-                        </Empty>
-                     </Card>
-                  )}
-                  {result.data.length > 0 &&
-                     result.data.map((req, index) => (
-                        <RequestCard
-                           dto={req}
-                           index={index}
-                           key={req.id}
-                           id={req.id}
-                           positionX={req.device.positionX}
-                           positionY={req.device.positionY}
-                           area={req.device.area.name}
-                           machineModelName={req.device.machineModel.name}
-                           createdDate={dayjs(req.createdAt).locale("vi").add(7, "hours").fromNow()}
-                           onClick={(id: string) => router.push(`/head/history/${id}`)}
-                           status={req.status}
-                        />
-                     ))}
-               </>
-            ) : (
-               <>
-                  {result.isLoading && <Card loading />}
-                  {result.isError && <div>Đã xảy ra lỗi. Vui lòng thử lại</div>}
-               </>
-            )}
+         </div>
+         <div className="std-layout">
+            <section className="mt-5 grid grid-cols-2 gap-4">
+               <StatisticCard
+                  className="relative flex h-40 w-full items-center justify-center rounded-[2rem] bg-gradient-to-b from-[#FEFEFE] via-[#F5F7EC] to-[#D3E2A1] p-4 text-center shadow-fb"
+                  loading={result.isLoading}
+               >
+                  <div className="absolute bottom-4 left-4 flex flex-col gap-2">
+                     <Col>
+                        <Row className="text-2xl font-medium">Tổng cộng</Row>
+                        <Row className="flex items-center">
+                           <div className="text-3xl font-bold">
+                              <CountUp end={result.data?.length ?? 0} separator={","} />
+                           </div>
+                           {/* <div>
+                                 <ArrowRightOutlined />
+                              </div> */}
+                        </Row>
+                     </Col>
+                  </div>
+               </StatisticCard>
+               <StatisticCard
+                  className="flex h-40 w-full items-center justify-center rounded-[2rem] p-4 text-center shadow-fb"
+                  style={{
+                     backgroundImage: "linear-gradient(135deg, #F7F9EB 40%, #E5EFCA 60%, #D9E6B1 80%, #D6E3AB)",
+                  }}
+               >
+                  <div className="absolute bottom-4 left-4 flex flex-col gap-2">
+                     <Col>
+                        <Row className="text-2xl font-medium">Đã duyệt</Row>
+                        <Row className="text-3xl font-bold">
+                           <CountUp
+                              end={
+                                 result.data?.filter(
+                                    (value: FixRequestDto) =>
+                                       value.status === FixRequestStatus.APPROVED ||
+                                       value.status === FixRequestStatus.IN_PROGRESS,
+                                 ).length ?? 0
+                              }
+                              separator={","}
+                           />
+                        </Row>
+                     </Col>
+                  </div>
+               </StatisticCard>
+               <StatisticCard
+                  className="flex h-40 w-full items-center justify-center rounded-[2rem] p-4 text-center shadow-fb"
+                  style={{
+                     backgroundImage: "linear-gradient(-135deg, #FEFEFE, #F5F7EC, #D7E4AC, #D3E2A1)",
+                  }}
+               >
+                  <div className="absolute bottom-4 left-4 flex flex-col gap-2">
+                     <Col>
+                        <Row className="text-2xl font-medium">Đang chờ</Row>
+                        <Row className="text-3xl font-bold">
+                           <CountUp
+                              end={
+                                 result.data?.filter(
+                                    (value: FixRequestDto) => value.status === FixRequestStatus.PENDING,
+                                 ).length ?? 0
+                              }
+                              separator={","}
+                           />
+                        </Row>
+                     </Col>
+                  </div>
+               </StatisticCard>
+               <StatisticCard
+                  className="relative flex h-40 w-full items-end justify-start rounded-[2rem] p-4 text-left shadow-fb"
+                  style={{
+                     backgroundImage: "linear-gradient(to bottom, #D3E2A1, #D7E4AC, #F5F7EC, #FEFEFE)",
+                  }}
+               >
+                  <div className="absolute bottom-4 left-4 flex flex-col gap-2">
+                     <Col>
+                        <Row className="text-2xl font-medium">Chờ đánh giá</Row>
+                        <Row className="text-3xl font-bold">
+                           <CountUp
+                              end={
+                                 result.data?.filter(
+                                    (value: FixRequestDto) => value.status === FixRequestStatus.HEAD_CONFIRM,
+                                 ).length ?? 0
+                              }
+                              separator={","}
+                           />
+                        </Row>
+                     </Col>
+                  </div>
+               </StatisticCard>
+            </section>
+            <section className="mt-8">
+               <ProCard
+                  style={{
+                     maxWidth: "100%",
+                     borderRadius: "2rem",
+                     position: "relative",
+                     overflow: "hidden",
+                  }}
+                  boxShadow
+               >
+                  <Row style={{ display: "flex", justifyContent: "center" }}>
+                     <Typography.Text className="text-2xl font-medium">Báo cáo hàng tuần</Typography.Text>
+                  </Row>
+                  <Row>
+                     <Col
+                        style={{
+                           position: "relative",
+                           height: "250px",
+                           width: "250px",
+                           bottom: "0",
+                           left: "0",
+                           display: "flex",
+                           alignItems: "flex-end",
+                        }}
+                     >
+                        <ColumnChart />
+                     </Col>
+                     <Col style={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
+                        <Typography.Text className="text-3xl font-medium" style={{ color: '#008B1A' }}>
+                        <ArrowUpOutlined />
+                           65%
+                        </Typography.Text>
+                     </Col>
+                  </Row>
+               </ProCard>
+            </section>
          </div>
       </div>
    )

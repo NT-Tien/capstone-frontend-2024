@@ -31,7 +31,7 @@ export default function MobileNavbar(props: MobileNavbarProps) {
    }, [props.items, router])
 
    return (
-      <div className="sticky bottom-0 left-0 flex h-[88px] w-full justify-between gap-2 border-t-2 border-t-slate-100 bg-white px-2 shadow-fb">
+      <div className="sticky bottom-0 left-0 flex h-[88px] w-full justify-between gap-2 border-t-2 border-t-slate-100 bg-white px-2 shadow-fb rounded-3xl">
          {props.items.map((item) => (
             <NavbarItem
                key={item.key}
@@ -62,7 +62,7 @@ function NavbarItem({ name, icon, active = false, countBadge = 0, onClick, href,
    const displayIcon = cloneElement(icon, {
       style: {
          fontSize: "18px",
-         color: active ? "var(--primary-700)" : "#49454F",
+         color: active ? "#5FAF32" : "#49454F",
          opacity: active ? 1 : 0.7,
       },
    })
@@ -86,7 +86,7 @@ function NavbarItem({ name, icon, active = false, countBadge = 0, onClick, href,
             <div
                className={cn(
                   "absolute grid h-6 w-16 place-items-center self-center rounded-full px-5 py-1 text-center transition-all",
-                  active ? "bg-primary-300" : "bg-transparent",
+                  active ? "" : "bg-transparent",
                )}
                style={{
                   transform: active ? "scale(1)" : "scale(0)",

@@ -1,10 +1,10 @@
 "use client"
 
-import { Button, Card, Col, Empty, Row } from "antd"
+import { Button, Card, Col, Empty, Row, Typography } from "antd"
 import React from "react"
 import HomeHeader from "@/common/components/HomeHeader"
 import { useQuery } from "@tanstack/react-query"
-import { ClockCircleOutlined, PlusOutlined, ArrowRightOutlined } from "@ant-design/icons"
+import { ClockCircleOutlined, PlusOutlined, ArrowRightOutlined, ArrowUpOutlined } from "@ant-design/icons"
 import dayjs from "dayjs"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -16,6 +16,8 @@ import CountUp from "react-countup"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import RequestCard from "@/app/head/_components/RequestCard"
+import ColumnChart from "@/common/components/ChartComponent"
+import { ProCard } from "@ant-design/pro-components"
 
 export default function HeadDashboardPage() {
    const router = useRouter()
@@ -34,7 +36,7 @@ export default function HeadDashboardPage() {
             </div>
          </div>
          <div className="std-layout">
-            <section className="grid grid-cols-2 gap-4 mt-5">
+            <section className="mt-5 grid grid-cols-2 gap-4">
                <StatisticCard
                   className="relative flex h-40 w-full items-center justify-center rounded-[2rem] bg-gradient-to-b from-[#FEFEFE] via-[#F5F7EC] to-[#D3E2A1] p-4 text-center shadow-fb"
                   loading={result.isLoading}
@@ -122,55 +124,42 @@ export default function HeadDashboardPage() {
                   </div>
                </StatisticCard>
             </section>
-            <section className="std-layout-inner mt-8 flex items-center justify-between">
-               <div className="flex items-center gap-2">
-                  <ClockCircleOutlined />
-                  <h2 className="text-lg font-semibold">Báo cáo gần đây</h2>
-               </div>
-               <Link href="/head/history">
-                  <Button type="link" className="p-0">
-                     Xem thêm
-                  </Button>
-               </Link>
+            <section className="mt-8">
+               <ProCard
+                  style={{
+                     maxWidth: "100%",
+                     borderRadius: "2rem",
+                     position: "relative",
+                     overflow: "hidden",
+                  }}
+                  boxShadow
+               >
+                  <Row style={{ display: "flex", justifyContent: "center" }}>
+                     <Typography.Text className="text-2xl font-medium">Báo cáo hàng tuần</Typography.Text>
+                  </Row>
+                  <Row>
+                     <Col
+                        style={{
+                           position: "relative",
+                           height: "250px",
+                           width: "250px",
+                           bottom: "0",
+                           left: "0",
+                           display: "flex",
+                           alignItems: "flex-end",
+                        }}
+                     >
+                        <ColumnChart />
+                     </Col>
+                     <Col style={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
+                        <Typography.Text className="text-3xl font-medium" style={{ color: '#008B1A' }}>
+                        <ArrowUpOutlined />
+                           65%
+                        </Typography.Text>
+                     </Col>
+                  </Row>
+               </ProCard>
             </section>
-            <div className="std-layout-inner mt-1.5 grid grid-cols-1 gap-3">
-               {result.isSuccess ? (
-                  <>
-                     {result.data.length === 0 && (
-                        <Card>
-                           <Empty description="Bạn không có báo cáo gần đây">
-                              <Link href="/head/scan">
-                                 <Button icon={<PlusOutlined />} type="primary">
-                                    Quét mã QR để tạo báo cáo
-                                 </Button>
-                              </Link>
-                           </Empty>
-                        </Card>
-                     )}
-                     {result.data.length > 0 &&
-                        result.data.map((req, index) => (
-                           <RequestCard
-                              dto={req}
-                              index={index}
-                              key={req.id}
-                              id={req.id}
-                              positionX={req.device.positionX}
-                              positionY={req.device.positionY}
-                              area={req.device.area.name}
-                              machineModelName={req.device.machineModel.name}
-                              createdDate={dayjs(req.createdAt).locale("vi").add(7, "hours").fromNow()}
-                              onClick={(id: string) => router.push(`/head/history/${id}`)}
-                              status={req.status}
-                           />
-                        ))}
-                  </>
-               ) : (
-                  <>
-                     {result.isLoading && <Card loading />}
-                     {result.isError && <div>Đã xảy ra lỗi. Vui lòng thử lại</div>}
-                  </>
-               )}
-            </div>
          </div>
       </div>
    )

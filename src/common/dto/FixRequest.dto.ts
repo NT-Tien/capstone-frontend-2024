@@ -6,6 +6,7 @@ import { RequestType } from "@/common/enum/request-type.enum"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 
 export type FixRequestDto = {
+   value: any
    id: string
    createdAt: string
    updatedAt: string

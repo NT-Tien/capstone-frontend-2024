@@ -10,18 +10,18 @@ import { LeftOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { MapPin, XCircle } from "@phosphor-icons/react"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Button, Card, Progress, Steps, Tag } from "antd"
+import { App, Button, Card, Modal, Progress, Steps, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { FixRequest_StatusData, FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
 import Head_Request_UpdateClose from "@/app/head/_api/request/update-close.api"
 import FeedbackDrawer from "@/app/head/(stack)/history/[id]/Feedback.drawer"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
 
 export default function HistoryDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
-   const { message } = App.useApp()
+   const [openCancelWarning, setOpenCancelWarning] = useState(false)
    const api = useQuery({
       queryKey: qk.issueRequests.allRaw(),
       queryFn: () => Head_Request_All(),
@@ -42,6 +42,10 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
             api.data.issues?.length,
       )
    }, [api.data?.issues, api.isSuccess])
+
+   const handleCancel = () => {
+      setOpenCancelWarning(true)
+   }
 
    return (
       <div className="std-layout">
@@ -101,7 +105,14 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                   className="std-steps"
                   items={[
                      {
-                        title: FixRequest_StatusData("pending").text,
+                        title: (
+                           <div className="flex items-center">
+                              <span>{FixRequest_StatusData("pending").text}</span>
+                              <Button danger onClick={handleCancel} className="ml-5">
+                                 Hủy báo cáo
+                              </Button>
+                           </div>
+                        ),
                         description:
                            api.data?.status === FixRequest_StatusData("pending").statusEnum
                               ? FixRequest_StatusData("pending").description
@@ -233,6 +244,15 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                ]}
             />
          </section>
+         <Modal
+            open={openCancelWarning}
+            onCancel={() => setOpenCancelWarning(false)}
+            title="Lưu ý"
+            okText="Hủy"
+            cancelText="Quay lại"
+         >
+            <Card>Bạn có chắc chắn muốn hủy báo cáo này?</Card>
+         </Modal>
       </div>
    )
 }

@@ -11,6 +11,8 @@ export default function useLogout() {
    const queryClient = useQueryClient()
 
    async function logout() {
+      localStorage.removeItem("staff-task")
+      localStorage.removeItem("scanned-cache-headstaff")
       Cookies.remove("token")
       message.success("Đăng xuất thành công")
       queryClient.clear()

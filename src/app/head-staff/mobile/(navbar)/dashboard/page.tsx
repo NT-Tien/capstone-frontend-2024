@@ -2,16 +2,14 @@
 
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
-import TaskCard from "@/app/staff/_components/TaskCard"
 import ColumnChart from "@/common/components/ChartComponent"
 import HomeHeader from "@/common/components/HomeHeader"
 import { TaskStatus } from "@/common/enum/task-status.enum"
-import extended_dayjs from "@/config/dayjs.config"
-import { ClockCircleOutlined, ArrowUpOutlined } from "@ant-design/icons"
+import { ArrowUpOutlined } from "@ant-design/icons"
 import { ProCard, StatisticCard } from "@ant-design/pro-components"
 import { useQuery } from "@tanstack/react-query"
-import { Button, Card, Col, Empty, Row, Spin, Typography } from "antd"
-import Link from "next/link"
+import { Col, Row, Spin, Typography } from "antd"
+import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { Suspense, useState } from "react"
 import CountUp from "react-countup"
@@ -32,13 +30,17 @@ function useTask(current: number, pageSize: number, status: TaskStatus) {
    })
 }
 
-export default function Page() {
+function Page() {
    return (
       <Suspense fallback={<Spin fullscreen />}>
          <DashboardPage />
       </Suspense>
    )
 }
+
+export default dynamic(() => Promise.resolve(Page), {
+   ssr: false,
+})
 
 function DashboardPage() {
    const currentDefault = 1,

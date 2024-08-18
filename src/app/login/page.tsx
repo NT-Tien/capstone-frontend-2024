@@ -9,6 +9,7 @@ import { decodeJwt } from "@/common/util/decodeJwt.util"
 import { Role } from "@/common/enum/role.enum"
 import Cookies from "js-cookie"
 import { Suspense, useEffect, useState } from "react"
+import useEnvEditor from "@/common/hooks/useEnvEditor"
 
 type FieldType = {
    username: string
@@ -29,6 +30,7 @@ function Login() {
    const router = useRouter()
    const params = useSearchParams()
    const [form] = Form.useForm<FieldType>()
+   const { handleDelayedOpenEnvEditor } = useEnvEditor()
 
    const [loading, setLoading] = useState<boolean>(false)
 
@@ -112,9 +114,11 @@ function Login() {
       <>
          {loading && <Spin fullscreen tip="Logging in..." />}
          <div className="grid h-full place-content-center gap-3">
-            <Card>
-               <Typography.Title level={4}>Đăng nhập</Typography.Title>
-               <Typography.Text>Vui lòng nhập tên đăng nhập và mật khẩu.</Typography.Text>
+            <Card onClick={handleDelayedOpenEnvEditor}>
+               <Typography.Title level={4} className="select-none">
+                  Đăng nhập
+               </Typography.Title>
+               <Typography.Text className="select-none">Vui lòng nhập tên đăng nhập và mật khẩu.</Typography.Text>
             </Card>
             <Card className="min-w-96">
                <Form

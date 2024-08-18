@@ -5,22 +5,22 @@ import Staff_Task_All from "@/app/staff/_api/task/all.api"
 import TaskCard from "@/app/staff/_components/TaskCard"
 import TaskDetailsDrawer from "@/app/staff/_components/TaskDetails.drawer"
 import RootHeader from "@/common/components/RootHeader"
+import ScrollableTabs from "@/common/components/ScrollableTabs"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 import { cn } from "@/common/util/cn.util"
-import { useQuery } from "@tanstack/react-query"
-import { Card, Empty, Skeleton, Spin, Tag, Typography } from "antd"
-import dayjs from "dayjs"
-import { CSSProperties, useMemo, useState } from "react"
-import ScrollableTabs from "@/common/components/ScrollableTabs"
 import {
    CalendarOutlined,
    CheckCircleFilled,
    EnvironmentFilled,
-   EnvironmentOutlined,
-   ExclamationCircleFilled,
+   ExclamationCircleFilled
 } from "@ant-design/icons"
 import { SkipForward } from "@phosphor-icons/react"
+import { useQuery } from "@tanstack/react-query"
+import { Card, Empty, Progress } from "antd"
+import dayjs from "dayjs"
+import { useMemo, useState } from "react"
+import { taskPercentCalculator } from "../../../../common/util/taskPercentCalculator.util"
 
 type TasksType = {
    today_priority: TaskDto[]
@@ -29,6 +29,7 @@ type TasksType = {
    others_normal: TaskDto[]
    ongoing: TaskDto | null
    hasPast: boolean
+   checking: TaskDto[]
 }
 
 export default function StaffTasksPage() {
@@ -47,6 +48,7 @@ export default function StaffTasksPage() {
          others_normal: [],
          ongoing: null,
          hasPast: false,
+         checking: [],
       }
 
       if (!api_tasks.isSuccess) return result
@@ -55,6 +57,10 @@ export default function StaffTasksPage() {
       api_tasks.data.forEach((task) => {
          if (task.status === TaskStatus.IN_PROGRESS) {
             result.ongoing = task
+            return
+         }
+         if (task.status === TaskStatus.HEAD_STAFF_CONFIRM) {
+            result.checking.push(task)
             return
          }
          if (task.status !== TaskStatus.ASSIGNED) return // we'll only show unstarted tasks.
@@ -96,8 +102,9 @@ export default function StaffTasksPage() {
                {!!tasks.ongoing && (
                   <section className="std-layout-outer w-full bg-white p-layout shadow-bottom">
                      <TaskCard
-                        title="Tác vụ cần thực hiện"
-                        description={tasks.ongoing.name ?? ""}
+                        title="Tác vụ đang thực hiện"
+                        description={tasks.ongoing.name}
+                        bottom={<Progress percent={taskPercentCalculator(tasks.ongoing)} />}
                         priority={tasks.ongoing.priority ?? false}
                         onClick={() => handleOpen(tasks.ongoing?.id ?? "", true)}
                      />
@@ -123,6 +130,12 @@ export default function StaffTasksPage() {
                         icon: <SkipForward size={16} />,
                         badge: tasks.others_priority.length + tasks.others_normal.length,
                      },
+                     {
+                        key: "checking",
+                        title: "Đang kiểm tra",
+                        icon: <CheckCircleFilled />,
+                        badge: tasks.checking.length,
+                     },
                   ]}
                />
                {tab === "today" && (
@@ -139,7 +152,8 @@ export default function StaffTasksPage() {
                         ) : (
                            tasks.today_priority.map((item) => {
                               const fixerDate = dayjs(item.fixerDate).add(7, "hours")
-                              const isDisabled = tasks.hasPast && fixerDate.isSame(dayjs(), "day") // if has past then disable present
+                              const isDisabled =
+                                 (tasks.hasPast && fixerDate.isSame(dayjs(), "day")) || tasks.ongoing !== null // if has past then disable present
 
                               return (
                                  <Card
@@ -169,6 +183,7 @@ export default function StaffTasksPage() {
                            })
                         )}
                      </section>
+                     {/* normal tasks */}
                      <section>
                         <h2 className="flex w-max items-center gap-2 rounded-md rounded-bl-none bg-neutral-500 px-3 py-0.5 text-sub-base font-medium text-white">
                            <CheckCircleFilled className="text-sm" />
@@ -180,7 +195,7 @@ export default function StaffTasksPage() {
                            </Card>
                         ) : (
                            tasks.today_normal.map((item, index) => {
-                              const isDisabled = tasks.today_priority.length !== 0
+                              const isDisabled = tasks.today_priority.length !== 0 || tasks.ongoing !== null
 
                               return (
                                  <Card
@@ -235,7 +250,8 @@ export default function StaffTasksPage() {
                            </Card>
                         ) : (
                            tasks.others_priority.map((item) => {
-                              const isDisabled = tasks.today_priority.length + tasks.today_normal.length !== 0
+                              const isDisabled =
+                                 tasks.today_priority.length + tasks.today_normal.length !== 0 || tasks.ongoing !== null
 
                               return (
                                  <Card
@@ -278,7 +294,8 @@ export default function StaffTasksPage() {
                            tasks.others_normal.map((item, index) => {
                               const isDisabled =
                                  tasks.others_priority.length !== 0 ||
-                                 tasks.today_priority.length + tasks.today_normal.length !== 0
+                                 tasks.today_priority.length + tasks.today_normal.length !== 0 ||
+                                 tasks.ongoing !== null
 
                               return (
                                  <Card
@@ -320,99 +337,56 @@ export default function StaffTasksPage() {
                      </section>
                   </div>
                )}
+               {tab === "checking" && (
+                  <TaskDetailsDrawer hideButtons>
+                     {handleOpenInner => (
+                        <div className="flex flex-col gap-6">
+                        {tasks.checking.length === 0 ? (
+                           <Card size="small" className="">
+                              <Empty description="Không có tác vụ đang kiểm tra" />
+                           </Card>
+                        ) : (
+                           tasks.checking.map((item, index) => (
+                              <Card
+                                 key={item.id}
+                                 size="small"
+                                 className={cn(
+                                    "border-default-500 bg-default-50 cursor-pointer border-r-4 transition-all hover:border-primary-300 hover:bg-primary-50",
+                                    index === 0 ? "rounded-tl-none" : "mt-1",
+                                 )}
+                                 classNames={{
+                                    body: "pb-2",
+                                 }}
+                                 onClick={() => handleOpenInner(item.id)}
+                              >
+                                 <div className="flex flex-col">
+                                    <section>
+                                       <h3 className="text-base font-medium">{item.name}</h3>
+                                    </section>
+                                    <section className="mt-1 flex w-full items-center justify-between text-neutral-500">
+                                       <span className="flex items-center gap-1">
+                                          <EnvironmentFilled className="text-xs" />
+                                          {item.device.area.name}
+                                       </span>
+                                       <span>{item.totalTime} phút</span>
+                                    </section>
+                                    {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
+                                       <section className="mt-1 text-right">
+                                          <span className="text-xs text-neutral-500">
+                                             {dayjs(item.fixerDate).add(7, "hours").format("DD/MM/YY")}
+                                          </span>
+                                       </section>
+                                    )}
+                                 </div>
+                              </Card>
+                           ))
+                        )}
+                     </div>
+                     )}
+                  </TaskDetailsDrawer>
+               )}
             </div>
          )}
       </TaskDetailsDrawer>
-   )
-}
-
-type ListRendererProps = {
-   priority: TaskDto[]
-   normal: TaskDto[]
-   isToday?: boolean
-}
-
-function ListRenderer(props: ListRendererProps) {
-   return (
-      <div className="flex flex-col gap-6">
-         <section>
-            <h2 className="flex w-max items-center gap-2 rounded-md rounded-bl-none bg-red-500 px-3 py-0.5 text-sub-base font-semibold text-white">
-               <ExclamationCircleFilled className="text-sm" />
-               Ưu tiên
-            </h2>
-            {props.priority.length === 0 ? (
-               <Card size="small" className="rounded-tl-none border-red-500 bg-red-50">
-                  Không có tác vụ ưu tiên
-               </Card>
-            ) : (
-               props.priority.map((item) => (
-                  <Card
-                     key={item.id}
-                     hoverable
-                     size="small"
-                     className="rounded-tl-none border-r-4 border-red-300 bg-red-50"
-                  >
-                     <div className="flex flex-col">
-                        <section>
-                           <h3 className="text-base font-medium">{item.name}</h3>
-                        </section>
-                        <section className="mt-1 flex w-full items-center justify-between text-neutral-500">
-                           <span className="flex items-center gap-1">
-                              <EnvironmentFilled className="text-xs" />
-                              {item.device.area.name}
-                           </span>
-                           <span>{item.totalTime} phút</span>
-                        </section>
-                     </div>
-                  </Card>
-               ))
-            )}
-         </section>
-         <section>
-            <h2 className="flex w-max items-center gap-2 rounded-md rounded-bl-none bg-neutral-500 px-3 py-0.5 text-sub-base font-medium text-white">
-               <CheckCircleFilled className="text-sm" />
-               Bình thường
-            </h2>
-            {props.normal.length === 0 ? (
-               <Card size="small" className="rounded-tl-none border-neutral-500 bg-neutral-50">
-                  Không có tác vụ ưu tiên
-               </Card>
-            ) : (
-               props.normal.map((item, index) => (
-                  <Card
-                     key={item.id}
-                     size="small"
-                     className={cn(
-                        "border-default-500 bg-default-50 cursor-pointer border-r-4 transition-all hover:border-primary-300 hover:bg-primary-50",
-                        index === 0 ? "rounded-tl-none" : "mt-1",
-                     )}
-                     classNames={{
-                        body: "pb-2",
-                     }}
-                  >
-                     <div className="flex flex-col">
-                        <section>
-                           <h3 className="text-base font-medium">{item.name}</h3>
-                        </section>
-                        <section className="mt-1 flex w-full items-center justify-between text-neutral-500">
-                           <span className="flex items-center gap-1">
-                              <EnvironmentFilled className="text-xs" />
-                              {item.device.area.name}
-                           </span>
-                           <span>{item.totalTime} phút</span>
-                        </section>
-                        {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
-                           <section className="mt-1 text-right">
-                              <span className="text-xs text-neutral-500">
-                                 {dayjs(item.fixerDate).add(7, "hours").format("DD/MM/YY")}
-                              </span>
-                           </section>
-                        )}
-                     </div>
-                  </Card>
-               ))
-            )}
-         </section>
-      </div>
    )
 }

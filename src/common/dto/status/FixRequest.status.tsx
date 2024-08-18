@@ -7,7 +7,7 @@ import { AntdIconProps } from "@ant-design/icons/lib/components/AntdIcon"
 
 export type FixRequestStatuses =
    | "pending"
-   | "checked"
+   // | "checked"
    | "approved"
    | "rejected"
    | "in_progress"
@@ -35,22 +35,22 @@ export function FixRequest_StatusData(
             statusEnum: FixRequestStatus.PENDING,
          }
       }
-      case "checked": {
-         return {
-            index: 1,
-            name: "checked",
-            description: "Yêu cầu đã được nhân viên kiểm tra",
-            text: "Đã kiểm tra",
-            colorInverse: "default",
-            color: "default",
-            conditionFn: (dto) => dto.status === FixRequestStatus.CHECKED,
-            icon: <CheckCircleOutlined {...iconProps?.antD} />,
-            statusEnum: FixRequestStatus.CHECKED,
-         }
-      }
+      // case "checked": {
+      //    return {
+      //       index: 1,
+      //       name: "checked",
+      //       description: "Yêu cầu đã được nhân viên kiểm tra",
+      //       text: "Đã kiểm tra",
+      //       colorInverse: "default",
+      //       color: "default",
+      //       conditionFn: (dto) => dto.status === FixRequestStatus.CHECKED,
+      //       icon: <CheckCircleOutlined {...iconProps?.antD} />,
+      //       statusEnum: FixRequestStatus.CHECKED,
+      //    }
+      // }
       case "approved": {
          return {
-            index: 2,
+            index: 1,
             name: "approved",
             description: "Yêu cầu đã được phê duyệt",
             text: "Xác nhận",
@@ -63,7 +63,7 @@ export function FixRequest_StatusData(
       }
       case "rejected": {
          return {
-            index: 2,
+            index: 1,
             name: "rejected",
             text: "Không tiếp nhận",
             description: "Yêu cầu đã bị từ chối",
@@ -76,7 +76,7 @@ export function FixRequest_StatusData(
       }
       case "in_progress": {
          return {
-            index: 3,
+            index: 2,
             name: "in_progress",
             text: "Đang thực hiện",
             description: "Yêu cầu đang được xử lý",
@@ -89,7 +89,7 @@ export function FixRequest_StatusData(
       }
       case "head_confirm": {
          return {
-            index: 4,
+            index: 3,
             name: "head_confirm",
             text: "Chờ đánh giá",
             description: "Chờ bạn xác nhận và đánh giá quá trình kiểm tra",
@@ -102,7 +102,7 @@ export function FixRequest_StatusData(
       }
       case "closed": {
          return {
-            index: 5,
+            index: 4,
             name: "closed",
             text: "Đóng",
             description: "Yêu cầu đã hoàn thành",
@@ -137,9 +137,9 @@ export function FixRequest_StatusMapper(
       return FixRequest_StatusData("pending")
    }
 
-   if (FixRequest_StatusData("checked").conditionFn(dto)) {
-      return FixRequest_StatusData("checked")
-   }
+   // if (FixRequest_StatusData("checked").conditionFn(dto)) {
+   //    return FixRequest_StatusData("checked")
+   // }
 
    if (FixRequest_StatusData("approved").conditionFn(dto)) {
       return FixRequest_StatusData("approved")

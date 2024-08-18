@@ -32,7 +32,6 @@ export default function RequestsPage() {
       } = {
          pending: [],
          approved: [],
-         checked: [],
          closed: [],
          in_progress: [],
          head_confirm: [],
@@ -69,12 +68,12 @@ export default function RequestsPage() {
                   }).icon,
                   badge: datasets.pending.length,
                },
-               {
-                  key: FixRequest_StatusData("checked").name,
-                  title: FixRequest_StatusData("checked").text,
-                  icon: FixRequest_StatusData("checked").icon,
-                  badge: datasets.checked.length,
-               },
+               // {
+               //    key: FixRequest_StatusData("checked").name,
+               //    title: FixRequest_StatusData("checked").text,
+               //    icon: FixRequest_StatusData("checked").icon,
+               //    badge: datasets.checked.length,
+               // },
                {
                   key: FixRequest_StatusData("approved").name,
                   title: FixRequest_StatusData("approved").text,

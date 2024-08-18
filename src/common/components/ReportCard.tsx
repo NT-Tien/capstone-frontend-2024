@@ -116,15 +116,9 @@ export default function ReportCard(props: Props) {
                      </Tag>
                      {props.dto &&
                         props.dto.issues &&
-                        new Set([
-                           FixRequestStatus.CHECKED,
-                           FixRequestStatus.APPROVED,
-                           FixRequestStatus.IN_PROGRESS,
-                        ]).has(props.dto.status) && (
+                        new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(props.dto.status) && (
                            <Tag className="m-0">
-                              {props.dto.issues?.length ?? "0"} vấn đề
-                              {props.dto.status !== FixRequestStatus.CHECKED &&
-                                 ` • ${props.dto.tasks?.length ?? "0"} tác vụ`}
+                              {props.dto.issues?.length ?? "0"} vấn đề • ${props.dto.tasks?.length ?? "0"} tác vụ
                            </Tag>
                         )}
                   </div>

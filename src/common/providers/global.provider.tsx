@@ -12,6 +12,9 @@ import "dayjs/locale/vi"
 import "moment/locale/vi"
 import { ReactNode } from "react"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import EnvEditorProvider from "@/common/providers/EnvEditor.provider"
+import SocketProvider from "@/common/providers/SocketProvider"
+import ClientOnlyWrapper from "./ClientOnlyWrapper"
 
 export default function GlobalProvider({ children }: Readonly<{ children: ReactNode }>) {
    const queryClient = makeQueryClient()
@@ -42,7 +45,11 @@ export default function GlobalProvider({ children }: Readonly<{ children: ReactN
                      }}
                   >
                      <DayjsProvider>
-                        <ModalStackProvider>{children}</ModalStackProvider>
+                        <ModalStackProvider>
+                           <EnvEditorProvider>
+                             {children}
+                           </EnvEditorProvider>
+                        </ModalStackProvider>
                      </DayjsProvider>
                   </ConfigProvider>
                </ProConfigProvider>

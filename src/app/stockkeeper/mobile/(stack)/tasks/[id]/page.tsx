@@ -24,8 +24,6 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
    })
    const router = useRouter()
 
-   const [currentChecked, setCurrentChecked] = useState<{ [key: string]: boolean }>({})
-
    const spareParts = useMemo(() => {
       return api_task.data?.issues.flatMap((i) => i.issueSpareParts) ?? []
    }, [api_task.data])
@@ -137,80 +135,21 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                itemLayout={"vertical"}
                className={cn("mt-3")}
                header={
-                  <div className="flex items-center justify-between">
-                     <Typography.Title level={5} className="m-0">
-                        Linh kiện ({spareParts.length})
-                     </Typography.Title>
-                     <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                           if (Object.keys(currentChecked).length === spareParts.length) {
-                              setCurrentChecked({})
-                           } else {
-                              setCurrentChecked(
-                                 api_task.data?.issues.reduce((acc, issue) => {
-                                    issue.issueSpareParts.forEach((item) => {
-                                       acc[item.id] = true
-                                    })
-                                    return acc
-                                 }, {} as any),
-                              )
-                           }
-                        }}
-                     >
-                        {Object.keys(currentChecked).length === spareParts.length ? "Unselect All" : "Select All"}
-                     </Button>
-                  </div>
+                  <Typography.Title level={5} className="m-0">
+                     Linh kiện ({spareParts.length})
+                  </Typography.Title>
                }
                split={false}
                renderItem={(item) => (
-                  <CheckCard
-                     key={item.id}
-                     size="small"
-                     className={cn(
-                        "m-0 mb-1 h-max w-full",
-                        api_task.isSuccess && api_task.data.confirmReceipt && "bg-neutral-100",
-                     )}
-                     bordered={true}
-                     title={item.sparePart.name}
-                     extra={
-                        <div className="flex items-center">
-                           <Tag color="blue">Số lượng: {item.quantity}</Tag>
-                           {!(api_task.isSuccess && api_task.data.confirmReceipt) && (
-                              <Checkbox checked={currentChecked[item.id] ?? false} />
-                           )}
-                        </div>
-                     }
-                     checked={currentChecked[item.id] ?? false}
-                     onChange={(checked) => {
-                        if (api_task.isSuccess && api_task.data.confirmReceipt) return
-                        if (checked) {
-                           setCurrentChecked({ ...currentChecked, [item.id]: true })
-                        } else {
-                           const { [item.id]: _, ...rest } = currentChecked
-                           setCurrentChecked(rest)
-                        }
-                     }}
-                  />
+                  <List.Item>
+                     <List.Item.Meta title={item.sparePart.name} description={"Số lượng: " + item.quantity} />
+                  </List.Item>
                )}
             />
          </section>
          {!(api_task.isSuccess && api_task.data.confirmReceipt) && (
             <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-fb">
-               {Object.keys(currentChecked).length !== spareParts.length && (
-                  <Card size="small" className="mb-4">
-                     <InfoCircleFilled className="mr-2" />
-                     Vui lòng chọn tất cả linh kiện đã lấy ở trên
-                  </Card>
-               )}
-               <Button
-                  type="primary"
-                  size="large"
-                  className="w-full"
-                  disabled={Object.keys(currentChecked).length !== spareParts.length}
-                  onClick={handleConfirmReceipt}
-               >
+               <Button type="primary" size="large" className="w-full" onClick={handleConfirmReceipt}>
                   Hoàn tất lấy linh kiện
                </Button>
             </section>

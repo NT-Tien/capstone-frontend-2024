@@ -52,7 +52,7 @@ function RequestDetails({ params }: { params: { id: string } }) {
             }
          }
       }
-   }, [device.isSuccess, device.data])
+   }, [device.isSuccess, device.data, message])
    return (
       <PageContainer
          footer={[

@@ -13,6 +13,7 @@ type Props = {
    onClick?: () => void
    style?: CSSProperties
    className?: string
+   bottom?: ReactNode
    disabled?: boolean
    disabledTooltipText?: string
 }
@@ -23,9 +24,6 @@ export default function TaskCard(props: Props) {
          <Card
             style={props.style}
             size="small"
-            classNames={{
-               body: "w-full flex items-center",
-            }}
             className={cn(
                props.priority && "border-red-300 bg-red-100",
                props.disabled && "opacity-30",
@@ -35,18 +33,25 @@ export default function TaskCard(props: Props) {
             onClick={() => !props.disabled && props.onClick?.()}
             aria-disabled={!!props.disabled}
          >
-            <Avatar
-               icon={props.priority ? <InfoOutlined className="" /> : <InfoOutlined className="" />}
-               className={cn(props.priority ? "bg-red-500" : "bg-blue-500", "aspect-square")}
-            />
-            <div className="ml-4 flex flex-grow flex-col">
-               <Typography.Title level={5} className="mb-0 w-48" ellipsis={true}>
-                  {props.title}
-               </Typography.Title>
-               <Typography.Text>{props.description}</Typography.Text>
+            <div className="flex flex-col">
+               <div className="flex items-center">
+                  <Avatar
+                     icon={props.priority ? <InfoOutlined className="" /> : <InfoOutlined className="" />}
+                     className={cn(props.priority ? "bg-red-500" : "bg-blue-500", "aspect-square")}
+                  />
+                  <div className="ml-4 flex flex-grow flex-col">
+                     <Typography.Title level={5} className="mb-0 w-48" ellipsis={true}>
+                        {props.title}
+                     </Typography.Title>
+                     <Typography.Text>{props.description}</Typography.Text>
+                  </div>
+                  {props.extra}
+                  {!!props.onClick && <Button icon={<RightOutlined />} type="text" />}
+               </div>
+               <section className="w-full mt-1">
+               {props.bottom}
+               </section>
             </div>
-            {props.extra}
-            {!!props.onClick && <Button icon={<RightOutlined />} type="text" />}
          </Card>
       </Tooltip>
    )

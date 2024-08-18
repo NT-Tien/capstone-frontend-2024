@@ -205,15 +205,17 @@ export default function DetailsTab({ api, setTab }: Props) {
                      {
                         title: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text,
                         description: (
-                           <div className="flex items-center gap-2">
+                           <div className="flex flex-col gap-2">
                               <span>Chờ xác nhận từ trưởng phòng</span>
-                              <Button
-                                 size="small"
-                                 type="primary"
-                                 onClick={() => verifyRef.current?.scrollIntoView({ behavior: "smooth" })}
-                              >
-                                 Xác nhận
-                              </Button>
+                              {api.data?.status === TaskStatus.HEAD_STAFF_CONFIRM && (
+                                 <Button
+                                    size="middle"
+                                    type="default"
+                                    onClick={() => verifyRef.current?.scrollIntoView({ behavior: "smooth" })}
+                                 >
+                                    Xác nhận
+                                 </Button>
+                              )}
                            </div>
                         ),
                      },

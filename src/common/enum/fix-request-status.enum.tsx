@@ -3,7 +3,6 @@ import { LiteralUnion } from "antd/es/_util/type"
 
 export enum FixRequestStatus {
    PENDING = "PENDING", // mới tạo request, chưa xem / đã xem
-   CHECKED = "CHECKED", // request has scanned qr code.
    APPROVED = "APPROVED", // có ít nhất 1 issue
    IN_PROGRESS = "IN_PROGRESS", // có ít nhất 1 task
    REJECTED = "REJECTED", //
@@ -22,11 +21,6 @@ export const FixRequestStatusTagMapper: {
       text: "Chưa xử lý",
       colorInverse: "default",
       color: "default",
-   },
-   [FixRequestStatus.CHECKED]: {
-      text: "Đã kiểm tra",
-      colorInverse: "orange-inverse",
-      color: "orange",
    },
    [FixRequestStatus.APPROVED]: {
       text: "Xác nhận",

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import TaskCardBasic from "@/common/components/TaskCardBasic"
 import { useMemo } from "react"
 import { TaskStatus } from "@/common/enum/task-status.enum"
+import { Card, Empty } from "antd"
 
 type Props = {
    api: UseQueryResult<FixRequestDto, Error>
@@ -31,6 +32,11 @@ export default function TasksList(props: Props) {
 
    return (
       <section className={props.className}>
+         {taskGroups.length === 0 && (
+            <Card size="small">
+               <Empty description="Không có tác vụ" />
+            </Card>
+         )}
          <div className="grid grid-cols-1 gap-2">
             {taskGroups.map((task) => (
                <TaskCardBasic

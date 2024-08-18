@@ -4,20 +4,24 @@ import staff_qk from "@/app/staff/_api/qk"
 import Staff_Task_All from "@/app/staff/_api/task/all.api"
 import TaskCard from "@/app/staff/_components/TaskCard"
 import TaskDetailsDrawer from "@/app/staff/_components/TaskDetails.drawer"
+import ColumnChart from "@/common/components/ChartComponent"
 import HomeHeader from "@/common/components/HomeHeader"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { TaskStatus } from "@/common/enum/task-status.enum"
-import { ArrowUpOutlined, CheckSquareOutlined, ClockCircleOutlined } from "@ant-design/icons"
+import { ArrowUpOutlined } from "@ant-design/icons"
 import { ProCard, StatisticCard } from "@ant-design/pro-components"
 import { useQuery } from "@tanstack/react-query"
-import { Button, Card, Col, Empty, Row, Typography } from "antd"
-import Link from "next/link"
+import { Col, Row, Typography } from "antd"
+import dayjs from "dayjs"
+import dynamic from "next/dynamic"
 import { useMemo } from "react"
 import CountUp from "react-countup"
-import dayjs from "dayjs"
-import ColumnChart from "@/common/components/ChartComponent"
 
-export default function StaffDashboard() {
+export default dynamic(() => Promise.resolve(StaffDashboard), {
+   ssr: false,
+})
+
+function StaffDashboard() {
    const response = useQuery({
       queryKey: staff_qk.task.all(),
       queryFn: Staff_Task_All,

@@ -37,13 +37,32 @@ export default function Step1(props: Step2Props) {
 
       message.success("Quét mã QR thành công")
       setHasScanned(true)
+      const scannedCache = localStorage.getItem("staff-task")
+      if (!scannedCache) {
+         localStorage.setItem("staff-task", JSON.stringify([id]))
+      } else {
+         const cache = JSON.parse(scannedCache) as { [taskId: string]: string }
+         cache[props.id] = id
+         localStorage.setItem("staff-task", JSON.stringify(cache))
+      }
    }
 
    useEffect(() => {
       if (props.data?.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)) {
          setHasScanned(true)
+         return
       }
-   }, [props.data])
+
+      const scannedCache = localStorage.getItem("staff-task")
+      if (!scannedCache) {
+         return
+      }
+
+      const cache = JSON.parse(scannedCache) as { [taskId: string]: string }
+      if (cache[props.id]) {
+         setHasScanned(true)
+      }
+   }, [props.data, props.id])
 
    if (!props.data) {
       return <Spin fullscreen />

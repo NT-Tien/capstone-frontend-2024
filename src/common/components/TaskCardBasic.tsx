@@ -5,6 +5,7 @@ import { CalendarOutlined, ClockCircleOutlined, ExclamationCircleFilled, UserOut
 import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
 import { cn } from "@/common/util/cn.util"
 import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
+import { taskPercentCalculator } from "../util/taskPercentCalculator.util"
 
 type Props = {
    task: TaskDto
@@ -68,16 +69,7 @@ export default function TaskCardBasic(props: Props) {
             </div>
             {new Set([TaskStatus.IN_PROGRESS, TaskStatus.ASSIGNED]).has(status) && (
                <div className="mt-4">
-                  <Progress
-                     percent={Math.floor(
-                        (props.task.issues.reduce(
-                           (acc, prev) => acc + (prev.status === IssueStatusEnum.RESOLVED ? 1 : 0),
-                           0,
-                        ) /
-                           props.task.issues.length) *
-                           100,
-                     )}
-                  />
+                  <Progress percent={taskPercentCalculator(props.task)} />
                </div>
             )}
          </section>

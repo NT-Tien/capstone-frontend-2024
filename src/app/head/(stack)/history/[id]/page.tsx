@@ -43,26 +43,6 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
       )
    }, [api.data?.issues, api.isSuccess])
 
-   const mutate_closeRequest = useMutation({
-      mutationFn: Head_Request_UpdateClose,
-      onMutate: async () => {
-         message.destroy("loading")
-         message.loading({
-            content: "Đang xử lý...",
-            key: "loading",
-         })
-      },
-      onSettled: () => {
-         message.destroy("loading")
-      },
-      onSuccess: async () => {
-         message.success("Đóng thành công")
-      },
-      onError: async () => {
-         message.error("Đóng thất bại")
-      },
-   })
-
    return (
       <div className="std-layout">
          <RootHeader
@@ -128,14 +108,14 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                               : null,
                         className: "text-base",
                      },
-                     {
-                        title: FixRequest_StatusData("checked").text,
-                        description:
-                           api.data?.status === FixRequest_StatusData("checked").statusEnum
-                              ? FixRequest_StatusData("checked").description
-                              : null,
-                        className: "text-base",
-                     },
+                     // {
+                     //    title: FixRequest_StatusData("checked").text,
+                     //    description:
+                     //       api.data?.status === FixRequest_StatusData("checked").statusEnum
+                     //          ? FixRequest_StatusData("checked").description
+                     //          : null,
+                     //    className: "text-base",
+                     // },
                      ...(api.isSuccess
                         ? !FixRequest_StatusData("rejected").conditionFn(api.data)
                            ? [

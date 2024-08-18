@@ -1,32 +1,51 @@
 "use client"
 
-import { Button, Card, Col, Empty, Row, Typography } from "antd"
-import React from "react"
-import HomeHeader from "@/common/components/HomeHeader"
-import { useQuery } from "@tanstack/react-query"
-import { ClockCircleOutlined, PlusOutlined, ArrowRightOutlined, ArrowUpOutlined } from "@ant-design/icons"
-import dayjs from "dayjs"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import Head_Request_All from "@/app/head/_api/request/all.api"
 import head_qk from "@/app/head/_api/qk"
-import ReportCard from "@/common/components/ReportCard"
-import { StatisticCard } from "@ant-design/pro-card"
-import CountUp from "react-countup"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import RequestCard from "@/app/head/_components/RequestCard"
+import Head_Request_All from "@/app/head/_api/request/all.api"
 import ColumnChart from "@/common/components/ChartComponent"
+import HomeHeader from "@/common/components/HomeHeader"
+import { FixRequestDto } from "@/common/dto/FixRequest.dto"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import { socket } from "@/socket"
+import { ArrowUpOutlined } from "@ant-design/icons"
+import { StatisticCard } from "@ant-design/pro-card"
 import { ProCard } from "@ant-design/pro-components"
+import { useQuery } from "@tanstack/react-query"
+import { App, Col, Row, Typography } from "antd"
+import dayjs from "dayjs"
+import Cookies from "js-cookie"
+import dynamic from "next/dynamic"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
+import CountUp from "react-countup"
 
-export default function HeadDashboardPage() {
+export default dynamic(() => Promise.resolve(HeadDashboardPage), {
+   ssr: false,
+})
+
+function HeadDashboardPage() {
    const router = useRouter()
+   const { notification } = App.useApp()
    const result = useQuery({
       queryKey: head_qk.requests.all(),
       queryFn: () => Head_Request_All(),
       select: (data) =>
          data.sort((a, b) => dayjs(b.createdAt).add(7, "hours").diff(dayjs(a.createdAt).add(7, "hours"))).slice(0, 4),
    })
+
+   useEffect(() => {
+      const token = Cookies.get("token")
+      if (!token) {
+         router.push("/login")
+         return
+      }
+      socket("head", token).on("new-payment", () => {
+         notification.info({
+            message: "Socket pinged",
+            description: "Your socket pinged!",
+         })
+      })
+   }, [notification, router])
 
    return (
       <div>

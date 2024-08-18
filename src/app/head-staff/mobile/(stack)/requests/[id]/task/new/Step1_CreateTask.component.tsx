@@ -189,15 +189,15 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
                operator: 0,
             })
 
-            if (props.requestStatus === FixRequestStatus.CHECKED) {
-               await mutate_updateRequestStatus.mutateAsync({
-                  id: props.requestId,
-                  payload: {
-                     status: FixRequestStatus.APPROVED,
-                     checker_note: "",
-                  },
-               })
-            }
+            // if (props.requestStatus === FixRequestStatus.CHECKED) {
+            //    await mutate_updateRequestStatus.mutateAsync({
+            //       id: props.requestId,
+            //       payload: {
+            //          status: FixRequestStatus.APPROVED,
+            //          checker_note: "",
+            //       },
+            //    })
+            // }
 
             await mutate_assignFixer.mutateAsync({
                id: task.id,
@@ -225,7 +225,7 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
             setIsLoading(false)
          }
       },
-      [props, mutate_createTask, mutate_assignFixer, form, mutate_updateRequestStatus, message],
+      [props, mutate_createTask, mutate_assignFixer, form, message],
    )
 
    useEffect(() => {
@@ -298,9 +298,13 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
                         icon={<PlusOutlined />}
                         onClick={() => {
                            const data = props.api.data! // cannot be undefined because isSuccess
-                           const requestIdPart = data.id.split("-")[0]
-                           const issueIdParts = data.issues.map((issue) => issue.id.split("-")[1]).join("")
-                           const str = `${requestIdPart}${issueIdParts}`
+                           const requestDate = dayjs(data.createdAt).format("DDMMYY")
+                           const area = data.device.area.name
+                           const machine = data.device.machineModel.name
+                           const issueCodes = Object.values(props.selectedIssues).map((e) => {
+                              return e.typeError.id.substring(0, 3)
+                           }).join("").toUpperCase()
+                           const str = `${requestDate}_${area}_${machine}_${issueCodes}`
                            form.setFieldsValue({
                               name: str,
                            })
@@ -415,7 +419,9 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
             }}
          >
             <Result status="success" title="Thành công!" subTitle="Tất cả các lỗi đã được tạo tác vụ" extra={[]}>
-               <Button type="primary" size="large" icon={<ArrowLeftOutlined />} onClick={handleReturn}>
+               <Button type="primary" size="large" icon={<ArrowLeftOutlined />} onClick={() => {
+                  router.back()
+               }}>
                   Quay lại yêu cầu
                </Button>
             </Result>

@@ -1,29 +1,30 @@
 import staff_qk from "@/app/staff/_api/qk"
 import Staff_Task_OneById from "@/app/staff/_api/task/one-byId.api"
-import Staff_Task_ReceiveSpareParts from "@/app/staff/_api/task/receive-spare-parts.api"
 import Staff_Task_UpdateStart from "@/app/staff/_api/task/update-start.api"
 import QrCodeDisplayModal from "@/app/staff/_components/QrCodeDisplay.modal"
 import DataListView from "@/common/components/DataListView"
-import { FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
 import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
+import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 import useModalControls from "@/common/hooks/useModalControls"
 import { cn } from "@/common/util/cn.util"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { CheckCircle, Gear, MapPin } from "@phosphor-icons/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { App, Badge, Button, Card, Drawer, List, Tag } from "antd"
+import { App, Badge, Button, Card, Drawer, List, Tag, Image } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { ReactNode, useMemo, useState } from "react"
-import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
-import { TaskStatus } from "@/common/enum/task-status.enum"
+import { clientEnv } from "../../../env"
 
 export default function TaskDetailsDrawer({
    children,
    showNextButton = true,
+   hideButtons = false,
 }: {
    children: (handleOpen: (taskId: string, shouldContinue?: boolean) => void) => ReactNode
    showNextButton?: boolean
+   hideButtons?: boolean
 }) {
    const { open, handleOpen, handleClose } = useModalControls({
       onOpen: (taskId: string, shouldContinue?: boolean) => {
@@ -103,7 +104,7 @@ export default function TaskDetailsDrawer({
             height="100%"
             title="Chi tiết tác vụ"
             classNames={{
-               body: "overflow-auto p-0 std-layout pt-layout",
+               body: "overflow-auto p-0 std-layout pt-layout pb-layout",
             }}
          >
             {hasSparePart && task.data?.confirmReceipt === false && (
@@ -213,6 +214,43 @@ export default function TaskDetailsDrawer({
                   ]}
                />
             </section>
+            {(task.data?.status === TaskStatus.HEAD_STAFF_CONFIRM || task.data?.status === TaskStatus.COMPLETED) && (
+               <section className="my-layout">
+                  <Card>
+                     <section>
+                        <h2 className="mb-2 text-base font-medium">Hình ảnh minh chứng</h2>
+                        <div className="flex items-center gap-2">
+                           {task.isSuccess && (
+                              <Image
+                                 src={clientEnv.BACKEND_URL + `/file-image/${task.data.imagesVerify?.[0]}`}
+                                 alt="image"
+                                 className="h-20 w-20 rounded-lg"
+                              />
+                           )}
+                           <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
+                           <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
+                        </div>
+                     </section>
+                     <section className="mt-4">
+                        <h2 className="mb-2 text-base font-medium">Video minh chứng</h2>
+                        {task.isSuccess ? (
+                           !!task.data.videosVerify ? (
+                              <video width="100%" height="240" controls>
+                                 <source
+                                    src={clientEnv.BACKEND_URL + `/file-video/${task.data.videosVerify}`}
+                                    type="video/mp4"
+                                 />
+                              </video>
+                           ) : (
+                              <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">
+                                 Không có
+                              </div>
+                           )
+                        ) : null}
+                     </section>
+                  </Card>
+               </section>
+            )}
             <section className="mt-layout">
                <h2 className="mb-2 text-base font-semibold">Vấn đề</h2>
                <List
@@ -246,45 +284,50 @@ export default function TaskDetailsDrawer({
                   )}
                />
             </section>
-            <QrCodeDisplayModal
-               title="Lấy linh kiện"
-               description="Hãy xuống kho và đưa mã QR sau cho chủ kho."
-               refetch={task.refetch}
-            >
-               {(handleOpen) => (
-                  <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-fb">
-                     {showNextButton && (
-                        <Button
-                           disabled={!task.isSuccess}
-                           className="w-full"
-                           type="primary"
-                           size="large"
-                           onClick={() => {
-                              if (!task.isSuccess) return
-                              if (task.data.confirmReceipt || !hasSparePart) {
-                                 handleStartTask()
-                              } else {
-                                 handleOpen(task.data.id, task.data.issues.map((issue) => issue.issueSpareParts).flat())
-                              }
-                           }}
-                        >
-                           <div className="flex items-center justify-center gap-2">
-                              {task.data?.confirmReceipt === false && hasSparePart ? (
-                                 <Gear size={20} />
-                              ) : (
-                                 <CheckCircle size={16} />
-                              )}
-                              {task.data?.confirmReceipt === false && hasSparePart
-                                 ? "Lấy linh kiện"
-                                 : shouldContinue
-                                   ? "Tiếp tục tác vụ"
-                                   : "Bắt đầu tác vụ"}
-                           </div>
-                        </Button>
-                     )}
-                  </section>
-               )}
-            </QrCodeDisplayModal>
+            {!hideButtons && (
+               <QrCodeDisplayModal
+                  title="Lấy linh kiện"
+                  description="Hãy xuống kho và đưa mã QR sau cho chủ kho."
+                  refetch={task.refetch}
+               >
+                  {(handleOpen) =>
+                     showNextButton && (
+                        <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-fb">
+                           <Button
+                              disabled={!task.isSuccess}
+                              className="w-full"
+                              type="primary"
+                              size="large"
+                              onClick={() => {
+                                 if (!task.isSuccess) return
+                                 if (task.data.confirmReceipt || !hasSparePart) {
+                                    handleStartTask()
+                                 } else {
+                                    handleOpen(
+                                       task.data.id,
+                                       task.data.issues.map((issue) => issue.issueSpareParts).flat(),
+                                    )
+                                 }
+                              }}
+                           >
+                              <div className="flex items-center justify-center gap-2">
+                                 {task.data?.confirmReceipt === false && hasSparePart ? (
+                                    <Gear size={20} />
+                                 ) : (
+                                    <CheckCircle size={16} />
+                                 )}
+                                 {task.data?.confirmReceipt === false && hasSparePart
+                                    ? "Lấy linh kiện"
+                                    : shouldContinue
+                                      ? "Tiếp tục tác vụ"
+                                      : "Bắt đầu tác vụ"}
+                              </div>
+                           </Button>
+                        </section>
+                     )
+                  }
+               </QrCodeDisplayModal>
+            )}
          </Drawer>
       </>
    )

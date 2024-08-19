@@ -70,7 +70,9 @@ export default function ScanPage() {
             <RootHeader title="Quét mã QR" className="p-4" icon={<SearchOutlined />} />
             <section className="my-6 grid place-items-center">
                <div className="flex items-center rounded-full bg-white px-6 py-1">
-                  Vui lòng đặt <strong className="mx-1.5 font-semibold">mã QR của thiết bị</strong> vào khung hình
+                  <div>
+                     Vui lòng đặt<strong className="mx-1.5 font-semibold">mã QR của thiết bị</strong>vào khung hình
+                  </div>
                   <InfoCircleOutlined className="ml-2" />
                </div>
             </section>

@@ -1,11 +1,10 @@
-import { ReactNode } from "react"
 import { Metadata } from "next"
-import SocketProvider from "@/common/providers/SocketProvider"
+import { ReactNode } from "react"
 
 export const metadata: Metadata = {
    title: "Trang chủ | Head",
 }
 
 export default function Layout({ children }: { children: ReactNode }) {
-   return <SocketProvider role="head">{children}</SocketProvider>
+   return children
 }

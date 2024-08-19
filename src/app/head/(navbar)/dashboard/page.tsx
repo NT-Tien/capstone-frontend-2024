@@ -6,46 +6,20 @@ import ColumnChart from "@/common/components/ChartComponent"
 import HomeHeader from "@/common/components/HomeHeader"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { socket } from "@/socket"
 import { ArrowUpOutlined } from "@ant-design/icons"
 import { StatisticCard } from "@ant-design/pro-card"
 import { ProCard } from "@ant-design/pro-components"
 import { useQuery } from "@tanstack/react-query"
-import { App, Col, Row, Typography } from "antd"
-import dayjs from "dayjs"
-import Cookies from "js-cookie"
-import dynamic from "next/dynamic"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { Col, Row, Typography } from "antd"
 import CountUp from "react-countup"
 
-export default dynamic(() => Promise.resolve(HeadDashboardPage), {
-   ssr: false,
-})
-
-function HeadDashboardPage() {
-   const router = useRouter()
-   const { notification } = App.useApp()
-   const result = useQuery({
+function Page() {
+   const api_requests = useQuery({
       queryKey: head_qk.requests.all(),
       queryFn: () => Head_Request_All(),
-      select: (data) =>
-         data.sort((a, b) => dayjs(b.createdAt).add(7, "hours").diff(dayjs(a.createdAt).add(7, "hours"))).slice(0, 4),
+      // select: (data) =>
+      //    data.sort((a, b) => dayjs(b.createdAt).add(7, "hours").diff(dayjs(a.createdAt).add(7, "hours"))).slice(0, 4),
    })
-
-   useEffect(() => {
-      const token = Cookies.get("token")
-      if (!token) {
-         router.push("/login")
-         return
-      }
-      socket("head", token).on("new-payment", () => {
-         notification.info({
-            message: "Socket pinged",
-            description: "Your socket pinged!",
-         })
-      })
-   }, [notification, router])
 
    return (
       <div>
@@ -58,14 +32,14 @@ function HeadDashboardPage() {
             <section className="mt-5 grid grid-cols-2 gap-4">
                <StatisticCard
                   className="relative flex h-40 w-full items-center justify-center rounded-[2rem] bg-gradient-to-b from-[#FEFEFE] via-[#F5F7EC] to-[#D3E2A1] p-4 text-center shadow-fb"
-                  loading={result.isLoading}
+                  loading={api_requests.isLoading}
                >
                   <div className="absolute bottom-4 left-4 flex flex-col gap-2">
                      <Col>
                         <Row className="text-2xl font-medium">Tổng cộng</Row>
                         <Row className="flex items-center">
                            <div className="text-3xl font-bold">
-                              <CountUp end={result.data?.length ?? 0} separator={","} />
+                              <CountUp end={api_requests.data?.length ?? 0} separator={","} />
                            </div>
                            {/* <div>
                                  <ArrowRightOutlined />
@@ -86,7 +60,7 @@ function HeadDashboardPage() {
                         <Row className="text-3xl font-bold">
                            <CountUp
                               end={
-                                 result.data?.filter(
+                                 api_requests.data?.filter(
                                     (value: FixRequestDto) =>
                                        value.status === FixRequestStatus.APPROVED ||
                                        value.status === FixRequestStatus.IN_PROGRESS,
@@ -110,7 +84,7 @@ function HeadDashboardPage() {
                         <Row className="text-3xl font-bold">
                            <CountUp
                               end={
-                                 result.data?.filter(
+                                 api_requests.data?.filter(
                                     (value: FixRequestDto) => value.status === FixRequestStatus.PENDING,
                                  ).length ?? 0
                               }
@@ -132,7 +106,7 @@ function HeadDashboardPage() {
                         <Row className="text-3xl font-bold">
                            <CountUp
                               end={
-                                 result.data?.filter(
+                                 api_requests.data?.filter(
                                     (value: FixRequestDto) => value.status === FixRequestStatus.HEAD_CONFIRM,
                                  ).length ?? 0
                               }
@@ -143,7 +117,7 @@ function HeadDashboardPage() {
                   </div>
                </StatisticCard>
             </section>
-            <section className="mt-8">
+            {/* <section className="mt-8">
                <ProCard
                   style={{
                      maxWidth: "100%",
@@ -178,8 +152,10 @@ function HeadDashboardPage() {
                      </Col>
                   </Row>
                </ProCard>
-            </section>
+            </section> */}
          </div>
       </div>
    )
 }
+
+export default Page

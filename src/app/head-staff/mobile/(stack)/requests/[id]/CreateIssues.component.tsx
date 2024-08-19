@@ -182,7 +182,7 @@ export default function CreateIssuesComponent({ requestId }: Props) {
          </CreateSingleIssueDrawer>
          <section className="std-layout-outer fixed bottom-0 left-0 flex w-full items-center justify-center gap-3 bg-[#eef3f6] p-layout shadow-fb">
             <Button type="primary" size="large" icon={<PlusOutlined />} className="flex-grow" onClick={handleSubmit}>
-               Gửi thông tin
+               Ghi nhận lỗi
             </Button>
             <RejectTaskDrawer>
                {(handleOpen) => (

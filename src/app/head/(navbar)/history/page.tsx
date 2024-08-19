@@ -8,7 +8,7 @@ import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { cn } from "@/common/util/cn.util"
 import extended_dayjs from "@/config/dayjs.config"
 import { ClockCircleOutlined } from "@ant-design/icons"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, UseQueryResult } from "@tanstack/react-query"
 import { Card, Empty } from "antd"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
@@ -19,8 +19,8 @@ import {
 } from "@/common/dto/status/FixRequest.status"
 import RequestCard from "@/app/head/_components/RequestCard"
 
-export default function RequestsPage() {
-   const results = useQuery({
+function Page() {
+   const api_requests = useQuery({
       queryKey: head_qk.requests.all(),
       queryFn: () => Head_Request_All(),
    })
@@ -38,7 +38,7 @@ export default function RequestsPage() {
          rejected: [],
       }
 
-      results.data?.forEach((req) => {
+      api_requests.data?.forEach((req) => {
          const status = FixRequest_StatusMapper(req)
 
          if (status) {
@@ -47,7 +47,7 @@ export default function RequestsPage() {
       })
 
       return response
-   }, [results])
+   }, [api_requests])
 
    return (
       <div className="std-layout">
@@ -116,31 +116,42 @@ export default function RequestsPage() {
                },
             ]}
          />
-         <IssueList statusName={tab} isLoading={results.isPending} data={datasets[tab]} className="mb-layout" />
+         <IssueList statusName={tab} isLoading={api_requests.isPending} data={datasets[tab]} className="mb-layout" />
       </div>
    )
 }
 
-type IssueListProps =
-   | {
-        statusName: string
-        data: FixRequestDto[]
-        isLoading: false | boolean
-        className?: string
-     }
-   | {
-        statusName: string
-        data: null
-        isLoading: true
-        className?: string
-     }
+type IssueListProps = {
+   api_requests: UseQueryResult<FixRequestDto[], Error>
+   statusName: FixRequestStatuses
+   className?: string
+}
 
-function IssueList({ data, isLoading, statusName, className }: IssueListProps) {
+function IssueList({ api_requests, statusName, className }: IssueListProps) {
    const router = useRouter()
 
    return (
       <>
-         {data && !isLoading && data.length === 0 && (
+         {api_requests.isSuccess ? (
+            <>
+            {/* Empty result */}
+               {api_requests.data.length === 0 && (
+                  <Card className="h-full">
+                     <Empty
+                        description={`Bạn không có báo cáo với trạng thái \"${FixRequest_StatusData(statusName.toLowerCase() as any).text}\"`}
+                     ></Empty>
+                  </Card>
+               )}
+            </>
+         ) : (
+            <></>
+         )}
+      </>
+   )
+
+   return (
+      <>
+         {api_requests.isSuccess && api_requests.data.length === 0 && (
             <Card className="h-full">
                <Empty
                   description={`Bạn không có báo cáo với trạng thái \"${FixRequest_StatusData(statusName.toLowerCase() as any).text}\"`}
@@ -148,11 +159,13 @@ function IssueList({ data, isLoading, statusName, className }: IssueListProps) {
             </Card>
          )}
          <div className={cn("grid grid-cols-1 gap-3", className)}>
-            {isLoading && <Card loading />}
-            {!isLoading && (
+            {api_requests.isPending ? (
+               <Card loading />
+            ) : (
                <>
-                  {data.length > 0 &&
-                     data.map((req, index) => (
+                  {api_requests.isSuccess &&
+                     api_requests.data.length > 0 &&
+                     api_requests.data.map((req, index) => (
                         <RequestCard
                            className="cursor-default"
                            dto={req}
@@ -173,3 +186,5 @@ function IssueList({ data, isLoading, statusName, className }: IssueListProps) {
       </>
    )
 }
+
+export default Page

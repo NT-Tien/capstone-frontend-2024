@@ -496,7 +496,7 @@ function Component({ params }: { params: { id: string } }) {
             okText="Bảo hành thiết bị"
             cancelText="Quay lại"
          >
-            <Card>Thiết bị hiện tại vẫn còn bảo hành. Bạn có muốn đánh dấu thiết bị này để gửi bảo hành không?</Card>
+            <Card>Thiết bị hiện tại vẫn còn thời hạn bảo hành. Bạn có muốn gửi bảo hành thiết bị này không?</Card>
          </Modal>
       </>
    )

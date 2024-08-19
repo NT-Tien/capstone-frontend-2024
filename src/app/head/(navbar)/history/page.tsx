@@ -9,7 +9,7 @@ import { cn } from "@/common/util/cn.util"
 import extended_dayjs from "@/config/dayjs.config"
 import { ClockCircleOutlined } from "@ant-design/icons"
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
-import { Card, Empty } from "antd"
+import { Button, Card, Empty, Result, Skeleton } from "antd"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import {
@@ -27,10 +27,11 @@ function Page() {
    const [tab, setTab] = useState<FixRequestStatuses>(FixRequest_StatusData("pending").name)
 
    const datasets = useMemo(() => {
-      const response: {
+      const response: Partial<{
          [key in FixRequestStatuses]: FixRequestDto[]
-      } = {
+      }> = {
          pending: [],
+         head_cancel: [],
          approved: [],
          closed: [],
          in_progress: [],
@@ -42,7 +43,7 @@ function Page() {
          const status = FixRequest_StatusMapper(req)
 
          if (status) {
-            response[status.name].push(req)
+            response[status.name]?.push(req)
          }
       })
 
@@ -66,7 +67,7 @@ function Page() {
                   icon: FixRequest_StatusData("pending", {
                      phosphor: { size: 16 },
                   }).icon,
-                  badge: datasets.pending.length,
+                  badge: datasets.pending?.length,
                },
                // {
                //    key: FixRequest_StatusData("checked").name,
@@ -80,7 +81,7 @@ function Page() {
                   icon: FixRequest_StatusData("approved", {
                      phosphor: { size: 16 },
                   }).icon,
-                  badge: datasets.approved.length,
+                  badge: datasets.approved?.length,
                },
                {
                   key: FixRequest_StatusData("in_progress").name,
@@ -88,7 +89,7 @@ function Page() {
                   icon: FixRequest_StatusData("in_progress", {
                      phosphor: { size: 16 },
                   }).icon,
-                  badge: datasets.in_progress.length,
+                  badge: datasets.in_progress?.length,
                },
                {
                   key: FixRequest_StatusData("head_confirm").name,
@@ -96,7 +97,7 @@ function Page() {
                   icon: FixRequest_StatusData("head_confirm", {
                      phosphor: { size: 16 },
                   }).icon,
-                  badge: datasets.head_confirm.length,
+                  badge: datasets.head_confirm?.length,
                },
                {
                   key: FixRequest_StatusData("closed").name,
@@ -104,7 +105,7 @@ function Page() {
                   icon: FixRequest_StatusData("closed", {
                      phosphor: { size: 16 },
                   }).icon,
-                  badge: datasets.closed.length,
+                  badge: datasets.closed?.length,
                },
                {
                   key: FixRequest_StatusData("rejected").name,
@@ -112,77 +113,88 @@ function Page() {
                   icon: FixRequest_StatusData("rejected", {
                      phosphor: { size: 16 },
                   }).icon,
-                  badge: datasets.rejected.length,
+                  badge: datasets.rejected?.length,
+               },
+               {
+                  key: FixRequest_StatusData("head_cancel").name,
+                  title: FixRequest_StatusData("head_cancel").text,
+                  icon: FixRequest_StatusData("head_cancel", {
+                     phosphor: { size: 16 },
+                  }).icon,
+                  badge: datasets.head_cancel?.length,
                },
             ]}
          />
-         <IssueList statusName={tab} isLoading={api_requests.isPending} data={datasets[tab]} className="mb-layout" />
+         <IssueList data={datasets[tab] ?? []} statusName={tab} api_requests={api_requests} className="mb-layout" />
       </div>
    )
 }
 
 type IssueListProps = {
+   data: FixRequestDto[]
    api_requests: UseQueryResult<FixRequestDto[], Error>
    statusName: FixRequestStatuses
    className?: string
 }
 
-function IssueList({ api_requests, statusName, className }: IssueListProps) {
+function IssueList({ data, api_requests, statusName, className }: IssueListProps) {
    const router = useRouter()
 
    return (
       <>
          {api_requests.isSuccess ? (
-            <>
-            {/* Empty result */}
-               {api_requests.data.length === 0 && (
+            <div className={cn("grid grid-cols-1 gap-3", className)}>
+               {data.length === 0 ? (
                   <Card className="h-full">
                      <Empty
                         description={`Bạn không có báo cáo với trạng thái \"${FixRequest_StatusData(statusName.toLowerCase() as any).text}\"`}
                      ></Empty>
                   </Card>
+               ) : (
+                  data.map((req, index) => (
+                     <RequestCard
+                        className="cursor-default"
+                        dto={req}
+                        index={index}
+                        key={req.id}
+                        id={req.id}
+                        positionX={req.device.positionX}
+                        positionY={req.device.positionY}
+                        area={req.device.area.name}
+                        machineModelName={req.device.machineModel.name}
+                        createdDate={extended_dayjs(req.createdAt).add(7, "hours").locale("vi").fromNow()}
+                        onClick={(id: string) => router.push(`/head/history/${id}`)}
+                     />
+                  ))
+               )}
+            </div>
+         ) : (
+            <>
+               {api_requests.isPending && (
+                  <div className="grid grid-cols-1 gap-2">
+                     <Skeleton paragraph active />
+                     <Skeleton paragraph active />
+                     <Skeleton paragraph active />
+                     <Skeleton paragraph active />
+                     <Skeleton paragraph active />
+                  </div>
+               )}
+               {api_requests.isError && (
+                  <Card size="small">
+                     <Result
+                        status="error"
+                        title="Đã xảy ra lỗi"
+                        subTitle="Đã có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại."
+                        extra={
+                           <Button type="primary" onClick={() => api_requests.refetch()}>
+                              Thử lại
+                           </Button>
+                        }
+                     />
+                  </Card>
                )}
             </>
-         ) : (
-            <></>
          )}
-      </>
-   )
-
-   return (
-      <>
-         {api_requests.isSuccess && api_requests.data.length === 0 && (
-            <Card className="h-full">
-               <Empty
-                  description={`Bạn không có báo cáo với trạng thái \"${FixRequest_StatusData(statusName.toLowerCase() as any).text}\"`}
-               ></Empty>
-            </Card>
-         )}
-         <div className={cn("grid grid-cols-1 gap-3", className)}>
-            {api_requests.isPending ? (
-               <Card loading />
-            ) : (
-               <>
-                  {api_requests.isSuccess &&
-                     api_requests.data.length > 0 &&
-                     api_requests.data.map((req, index) => (
-                        <RequestCard
-                           className="cursor-default"
-                           dto={req}
-                           index={index}
-                           key={req.id}
-                           id={req.id}
-                           positionX={req.device.positionX}
-                           positionY={req.device.positionY}
-                           area={req.device.area.name}
-                           machineModelName={req.device.machineModel.name}
-                           createdDate={extended_dayjs(req.createdAt).add(7, "hours").locale("vi").fromNow()}
-                           onClick={(id: string) => router.push(`/head/history/${id}`)}
-                        />
-                     ))}
-               </>
-            )}
-         </div>
       </>
    )
 }

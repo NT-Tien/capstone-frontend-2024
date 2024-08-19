@@ -182,6 +182,24 @@ export default function CreateSingleIssueDrawer({
                   >
                      {(handleOpen) => (
                         <>
+                           <Select
+                              options={unselectedSpareParts.map((sparePart) => ({
+                                 label: sparePart.name,
+                                 value: sparePart.id,
+                              }))}
+                              className="w-full"
+                              showSearch
+                              size="large"
+                              placeholder="+ Chọn linh kiện"
+                              value={selectSparePartControl}
+                              onChange={(sp) => {
+                                 setSelectSparePartControl(sp)
+                                 if (sp !== null && sp !== undefined && sp !== "") {
+                                    const sparePart = unselectedSpareParts.find((s) => s.id === sp)
+                                    !!sparePart && handleOpen(sparePart)
+                                 }
+                              }}
+                           />
                            <List
                               dataSource={Array.from(selectedSpareParts.values())}
                               bordered
@@ -206,25 +224,6 @@ export default function CreateSingleIssueDrawer({
                                     />
                                  </List.Item>
                               )}
-                           />
-
-                           <Select
-                              options={unselectedSpareParts.map((sparePart) => ({
-                                 label: sparePart.name,
-                                 value: sparePart.id,
-                              }))}
-                              className="w-full"
-                              showSearch
-                              size="large"
-                              placeholder="+ Chọn linh kiện"
-                              value={selectSparePartControl}
-                              onChange={(sp) => {
-                                 setSelectSparePartControl(sp)
-                                 if (sp !== null && sp !== undefined && sp !== "") {
-                                    const sparePart = unselectedSpareParts.find((s) => s.id === sp)
-                                    !!sparePart && handleOpen(sparePart)
-                                 }
-                              }}
                            />
                         </>
                      )}

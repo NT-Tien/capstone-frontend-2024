@@ -203,7 +203,7 @@ export default function CreateSingleIssueDrawer({
                            <List
                               dataSource={Array.from(selectedSpareParts.values())}
                               bordered
-                              className={"mb-4"}
+                              className={"mb-4 mt-5"}
                               renderItem={(item) => (
                                  <List.Item className="p-4">
                                     <List.Item.Meta

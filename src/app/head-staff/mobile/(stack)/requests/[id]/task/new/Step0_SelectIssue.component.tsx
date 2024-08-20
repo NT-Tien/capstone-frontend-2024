@@ -1,6 +1,6 @@
 "use client"
 
-import { UseQueryResult } from "@tanstack/react-query"
+import { useQuery, UseQueryResult } from "@tanstack/react-query"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 import React, { memo, useEffect, useMemo } from "react"
@@ -11,6 +11,10 @@ import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 import { CheckCard } from "@ant-design/pro-card"
 import { usePageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page.context"
 import useModalControls from "@/common/hooks/useModalControls"
+import headstaff_qk from "@/app/head-staff/_api/qk"
+import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
+import TasksList from "../../TasksList.tab"
+import api from "@/config/axios.config"
 
 type Step0_Props = {
    api: UseQueryResult<FixRequestDto, Error>
@@ -18,6 +22,7 @@ type Step0_Props = {
       [key: string]: FixRequestIssueDto
    }
    setSelectedIssues: React.Dispatch<React.SetStateAction<{ [key: string]: FixRequestIssueDto }>>
+   params: string
 }
 
 const Step0_SelectIssue = function Component(props: Step0_Props) {
@@ -25,7 +30,11 @@ const Step0_SelectIssue = function Component(props: Step0_Props) {
    const { setStep, setNextBtnProps, setPrevBtnProps } = usePageContext()
    const sizeSelectedIssues = useMemo(() => Object.values(props.selectedIssues).length, [props.selectedIssues])
    const router = useRouter()
-
+   const id = props.params
+   const apiRequest = useQuery({
+      queryKey: headstaff_qk.request.byId(id),
+      queryFn: () => HeadStaff_Request_OneById({ id }),
+   })
    useEffect(() => {
       setPrevBtnProps({
          children: "Quay về",
@@ -175,6 +184,10 @@ const Step0_SelectIssue = function Component(props: Step0_Props) {
                      className="m-0 w-full"
                   ></CheckCard>
                ))}
+            <section className="py-layout">
+               <h2 className="text-center text-base font-semibold">Tác vụ</h2>{" "}
+               <TasksList api={apiRequest} className="mb-28" />
+            </section>
          </div>
          <Modal
             open={open}

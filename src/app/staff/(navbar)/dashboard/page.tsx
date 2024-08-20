@@ -143,7 +143,7 @@ function StaffDashboard() {
                >
                   <div className="absolute bottom-4 left-4 flex flex-col gap-2">
                      <Col>
-                        <Row className="text-2xl font-medium">Chờ xác nhận</Row>
+                        <Row className="text-2xl font-medium">Chờ xét duyệt</Row>
                         <Row className="text-3xl font-bold">
                            <CountUp
                               end={

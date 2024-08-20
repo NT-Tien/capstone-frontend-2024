@@ -9,15 +9,10 @@ import ScrollableTabs from "@/common/components/ScrollableTabs"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 import { cn } from "@/common/util/cn.util"
-import {
-   CalendarOutlined,
-   CheckCircleFilled,
-   EnvironmentFilled,
-   ExclamationCircleFilled
-} from "@ant-design/icons"
+import { CalendarOutlined, CheckCircleFilled, EnvironmentFilled, ExclamationCircleFilled } from "@ant-design/icons"
 import { SkipForward } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
-import { Card, Empty, Progress } from "antd"
+import { Card, Empty, Progress, Skeleton } from "antd"
 import dayjs from "dayjs"
 import { useMemo, useState } from "react"
 import { taskPercentCalculator } from "../../../../common/util/taskPercentCalculator.util"
@@ -146,9 +141,16 @@ export default function StaffTasksPage() {
                            Ưu tiên
                         </h2>
                         {tasks.today_priority.length === 0 ? (
-                           <Card size="small" className="rounded-tl-none border-red-500 bg-red-50">
-                              Không có tác vụ ưu tiên
-                           </Card>
+                           <>
+                              <Card
+                                 loading={api_tasks.isPending}
+                                 size="small"
+                                 className="rounded-tl-none border-red-500 bg-red-50"
+                              >
+                                 Không có tác vụ ưu tiên
+                              </Card>
+                              <Skeleton paragraph={false} active={api_tasks.isPending} loading={api_tasks.isPending} />
+                           </>
                         ) : (
                            tasks.today_priority.map((item) => {
                               const fixerDate = dayjs(item.fixerDate).add(7, "hours")
@@ -156,29 +158,37 @@ export default function StaffTasksPage() {
                                  (tasks.hasPast && fixerDate.isSame(dayjs(), "day")) || tasks.ongoing !== null // if has past then disable present
 
                               return (
-                                 <Card
-                                    key={item.id}
-                                    hoverable
-                                    size="small"
-                                    className={cn(
-                                       "rounded-tl-none border-r-4 border-red-300 bg-red-50",
-                                       isDisabled && "opacity-50",
-                                    )}
-                                    onClick={() => !isDisabled && handleOpen(item.id)}
-                                 >
-                                    <div className="flex flex-col">
-                                       <section>
-                                          <h3 className="text-base font-medium">{item.name}</h3>
-                                       </section>
-                                       <section className="mt-1 flex w-full items-center justify-between text-neutral-500">
-                                          <span className="flex items-center gap-1">
-                                             <EnvironmentFilled className="text-xs" />
-                                             {item.device.area.name}
-                                          </span>
-                                          <span>{item.totalTime} phút</span>
-                                       </section>
-                                    </div>
-                                 </Card>
+                                 <>
+                                    <Card
+                                       loading={api_tasks.isPending}
+                                       key={item.id}
+                                       hoverable
+                                       size="small"
+                                       className={cn(
+                                          "rounded-tl-none border-r-4 border-red-300 bg-red-50",
+                                          isDisabled && "opacity-50",
+                                       )}
+                                       onClick={() => !isDisabled && handleOpen(item.id)}
+                                    >
+                                       <div className="flex flex-col">
+                                          <section>
+                                             <h3 className="text-base font-medium">{item.name}</h3>
+                                          </section>
+                                          <section className="mt-1 flex w-full items-center justify-between text-neutral-500">
+                                             <span className="flex items-center gap-1">
+                                                <EnvironmentFilled className="text-xs" />
+                                                {item.device.area.name}
+                                             </span>
+                                             <span>{item.totalTime} phút</span>
+                                          </section>
+                                       </div>
+                                    </Card>
+                                    <Skeleton
+                                       paragraph={false}
+                                       active={api_tasks.isPending}
+                                       loading={api_tasks.isPending}
+                                    />
+                                 </>
                               )
                            })
                         )}
@@ -190,9 +200,16 @@ export default function StaffTasksPage() {
                            Bình thường
                         </h2>
                         {tasks.today_normal.length === 0 ? (
-                           <Card size="small" className="rounded-tl-none border-neutral-500 bg-neutral-50">
-                              Không có tác vụ ưu tiên
-                           </Card>
+                           <>
+                              <Card
+                                 loading={api_tasks.isPending}
+                                 size="small"
+                                 className="rounded-tl-none border-neutral-500 bg-neutral-50"
+                              >
+                                 Không có tác vụ ưu tiên
+                              </Card>
+                              <Skeleton paragraph={false} active={api_tasks.isPending} loading={api_tasks.isPending} />
+                           </>
                         ) : (
                            tasks.today_normal.map((item, index) => {
                               const isDisabled = tasks.today_priority.length !== 0 || tasks.ongoing !== null
@@ -245,38 +262,53 @@ export default function StaffTasksPage() {
                            Ưu tiên
                         </h2>
                         {tasks.others_priority.length === 0 ? (
-                           <Card size="small" className="rounded-tl-none border-red-500 bg-red-50">
-                              Không có tác vụ ưu tiên
-                           </Card>
+                           <>
+                              <Card
+                                 loading={api_tasks.isPending}
+                                 size="small"
+                                 className="rounded-tl-none border-red-500 bg-red-50"
+                              >
+                                 Không có tác vụ ưu tiên
+                              </Card>
+                              <Skeleton paragraph={false} active={api_tasks.isPending} loading={api_tasks.isPending} />
+                           </>
                         ) : (
                            tasks.others_priority.map((item) => {
                               const isDisabled =
                                  tasks.today_priority.length + tasks.today_normal.length !== 0 || tasks.ongoing !== null
 
                               return (
-                                 <Card
-                                    key={item.id}
-                                    hoverable
-                                    size="small"
-                                    className={cn(
-                                       "rounded-tl-none border-r-4 border-red-300 bg-red-50",
-                                       isDisabled && "opacity-50",
-                                    )}
-                                    onClick={() => !isDisabled && handleOpen(item.id)}
-                                 >
-                                    <div className="flex flex-col">
-                                       <section>
-                                          <h3 className="text-base font-medium">{item.name}</h3>
-                                       </section>
-                                       <section className="mt-1 flex w-full items-center justify-between text-neutral-500">
-                                          <span className="flex items-center gap-1">
-                                             <EnvironmentFilled className="text-xs" />
-                                             {item.device.area.name}
-                                          </span>
-                                          <span>{item.totalTime} phút</span>
-                                       </section>
-                                    </div>
-                                 </Card>
+                                 <>
+                                    <Card
+                                       loading={api_tasks.isPending}
+                                       key={item.id}
+                                       hoverable
+                                       size="small"
+                                       className={cn(
+                                          "rounded-tl-none border-r-4 border-red-300 bg-red-50",
+                                          isDisabled && "opacity-50",
+                                       )}
+                                       onClick={() => !isDisabled && handleOpen(item.id)}
+                                    >
+                                       <div className="flex flex-col">
+                                          <section>
+                                             <h3 className="text-base font-medium">{item.name}</h3>
+                                          </section>
+                                          <section className="mt-1 flex w-full items-center justify-between text-neutral-500">
+                                             <span className="flex items-center gap-1">
+                                                <EnvironmentFilled className="text-xs" />
+                                                {item.device.area.name}
+                                             </span>
+                                             <span>{item.totalTime} phút</span>
+                                          </section>
+                                       </div>
+                                    </Card>
+                                    <Skeleton
+                                       paragraph={false}
+                                       active={api_tasks.isPending}
+                                       loading={api_tasks.isPending}
+                                    />
+                                 </>
                               )
                            })
                         )}
@@ -287,9 +319,16 @@ export default function StaffTasksPage() {
                            Bình thường
                         </h2>
                         {tasks.others_normal.length === 0 ? (
-                           <Card size="small" className="rounded-tl-none border-neutral-500 bg-neutral-50">
-                              Không có tác vụ ưu tiên
-                           </Card>
+                           <>
+                              <Card
+                                 loading={api_tasks.isPending}
+                                 size="small"
+                                 className="rounded-tl-none border-neutral-500 bg-neutral-50"
+                              >
+                                 Không có tác vụ ưu tiên
+                              </Card>
+                              <Skeleton paragraph={false} active={api_tasks.isPending} loading={api_tasks.isPending} />
+                           </>
                         ) : (
                            tasks.others_normal.map((item, index) => {
                               const isDisabled =
@@ -298,39 +337,47 @@ export default function StaffTasksPage() {
                                  tasks.ongoing !== null
 
                               return (
-                                 <Card
-                                    key={item.id}
-                                    size="small"
-                                    className={cn(
-                                       "border-default-500 bg-default-50 cursor-pointer border-r-4 transition-all hover:border-primary-300 hover:bg-primary-50",
-                                       index === 0 ? "rounded-tl-none" : "mt-1",
-                                       isDisabled && "opacity-50",
-                                    )}
-                                    classNames={{
-                                       body: "pb-2",
-                                    }}
-                                    onClick={() => (!isDisabled ? handleOpen(item.id) : null)}
-                                 >
-                                    <div className="flex flex-col">
-                                       <section>
-                                          <h3 className="text-base font-medium">{item.name}</h3>
-                                       </section>
-                                       <section className="mt-1 flex w-full items-center justify-between text-neutral-500">
-                                          <span className="flex items-center gap-1">
-                                             <EnvironmentFilled className="text-xs" />
-                                             {item.device.area.name}
-                                          </span>
-                                          <span>{item.totalTime} phút</span>
-                                       </section>
-                                       {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
-                                          <section className="mt-1 text-right">
-                                             <span className="text-xs text-neutral-500">
-                                                {dayjs(item.fixerDate).add(7, "hours").format("DD/MM/YY")}
-                                             </span>
-                                          </section>
+                                 <>
+                                    <Card
+                                       loading={api_tasks.isPending}
+                                       key={item.id}
+                                       size="small"
+                                       className={cn(
+                                          "border-default-500 bg-default-50 cursor-pointer border-r-4 transition-all hover:border-primary-300 hover:bg-primary-50",
+                                          index === 0 ? "rounded-tl-none" : "mt-1",
+                                          isDisabled && "opacity-50",
                                        )}
-                                    </div>
-                                 </Card>
+                                       classNames={{
+                                          body: "pb-2",
+                                       }}
+                                       onClick={() => (!isDisabled ? handleOpen(item.id) : null)}
+                                    >
+                                       <div className="flex flex-col">
+                                          <section>
+                                             <h3 className="text-base font-medium">{item.name}</h3>
+                                          </section>
+                                          <section className="mt-1 flex w-full items-center justify-between text-neutral-500">
+                                             <span className="flex items-center gap-1">
+                                                <EnvironmentFilled className="text-xs" />
+                                                {item.device.area.name}
+                                             </span>
+                                             <span>{item.totalTime} phút</span>
+                                          </section>
+                                          {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
+                                             <section className="mt-1 text-right">
+                                                <span className="text-xs text-neutral-500">
+                                                   {dayjs(item.fixerDate).add(7, "hours").format("DD/MM/YY")}
+                                                </span>
+                                             </section>
+                                          )}
+                                       </div>
+                                    </Card>
+                                    <Skeleton
+                                       paragraph={false}
+                                       active={api_tasks.isPending}
+                                       loading={api_tasks.isPending}
+                                    />
+                                 </>
                               )
                            })
                         )}
@@ -339,49 +386,64 @@ export default function StaffTasksPage() {
                )}
                {tab === "checking" && (
                   <TaskDetailsDrawer hideButtons>
-                     {handleOpenInner => (
+                     {(handleOpenInner) => (
                         <div className="flex flex-col gap-6">
-                        {tasks.checking.length === 0 ? (
-                           <Card size="small" className="">
-                              <Empty description="Không có tác vụ đang kiểm tra" />
-                           </Card>
-                        ) : (
-                           tasks.checking.map((item, index) => (
-                              <Card
-                                 key={item.id}
-                                 size="small"
-                                 className={cn(
-                                    "border-default-500 bg-default-50 cursor-pointer border-r-4 transition-all hover:border-primary-300 hover:bg-primary-50",
-                                    index === 0 ? "rounded-tl-none" : "mt-1",
-                                 )}
-                                 classNames={{
-                                    body: "pb-2",
-                                 }}
-                                 onClick={() => handleOpenInner(item.id)}
-                              >
-                                 <div className="flex flex-col">
-                                    <section>
-                                       <h3 className="text-base font-medium">{item.name}</h3>
-                                    </section>
-                                    <section className="mt-1 flex w-full items-center justify-between text-neutral-500">
-                                       <span className="flex items-center gap-1">
-                                          <EnvironmentFilled className="text-xs" />
-                                          {item.device.area.name}
-                                       </span>
-                                       <span>{item.totalTime} phút</span>
-                                    </section>
-                                    {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
-                                       <section className="mt-1 text-right">
-                                          <span className="text-xs text-neutral-500">
-                                             {dayjs(item.fixerDate).add(7, "hours").format("DD/MM/YY")}
-                                          </span>
-                                       </section>
-                                    )}
-                                 </div>
-                              </Card>
-                           ))
-                        )}
-                     </div>
+                           {tasks.checking.length === 0 ? (
+                              <>
+                                 <Card loading={api_tasks.isPending} size="small" className="">
+                                    <Empty description="Không có tác vụ đang kiểm tra" />
+                                 </Card>
+                                 <Skeleton
+                                    paragraph={false}
+                                    active={api_tasks.isPending}
+                                    loading={api_tasks.isPending}
+                                 />
+                              </>
+                           ) : (
+                              tasks.checking.map((item, index) => (
+                                 <>
+                                    <Card
+                                       loading={api_tasks.isPending}
+                                       key={item.id}
+                                       size="small"
+                                       className={cn(
+                                          "border-default-500 bg-default-50 cursor-pointer border-r-4 transition-all hover:border-primary-300 hover:bg-primary-50",
+                                          index === 0 ? "rounded-tl-none" : "mt-1",
+                                       )}
+                                       classNames={{
+                                          body: "pb-2",
+                                       }}
+                                       onClick={() => handleOpenInner(item.id)}
+                                    >
+                                       <div className="flex flex-col">
+                                          <section>
+                                             <h3 className="text-base font-medium">{item.name}</h3>
+                                          </section>
+                                          <section className="mt-1 flex w-full items-center justify-between text-neutral-500">
+                                             <span className="flex items-center gap-1">
+                                                <EnvironmentFilled className="text-xs" />
+                                                {item.device.area.name}
+                                             </span>
+                                             <span>{item.totalTime} phút</span>
+                                          </section>
+                                          {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
+                                             <section className="mt-1 text-right">
+                                                <span className="text-xs text-neutral-500">
+                                                   {dayjs(item.fixerDate).add(7, "hours").format("DD/MM/YY")}
+                                                </span>
+                                             </section>
+                                          )}
+                                       </div>
+                                    </Card>
+                                    <Skeleton
+                                       paragraph={false}
+                                       active={api_tasks.isPending}
+                                       loading={api_tasks.isPending}
+                                    />
+                                 </>
+                              ))
+                           )}
+                        </div>
                      )}
                   </TaskDetailsDrawer>
                )}

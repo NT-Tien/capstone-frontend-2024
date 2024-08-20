@@ -7,8 +7,9 @@ import TaskCard from "@/common/components/TaskCard"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
 import qk from "@/common/querykeys"
+import { Car } from "@phosphor-icons/react"
 import { useInfiniteQuery } from "@tanstack/react-query"
-import { Button, Card, Divider, Empty, List, Result, Spin } from "antd"
+import { Button, Card, Divider, Empty, List, Result, Skeleton, Spin } from "antd"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useState } from "react"
 
@@ -96,6 +97,9 @@ function TasksPage() {
                items={result.data?.pages.flatMap((res) => res.list) ?? []}
             />
          )}
+         <h2 className="mb-2 px-layout text-lg font-semibold">
+            <Skeleton paragraph={false} active={result.isPending} loading={result.isPending} />
+         </h2>
       </div>
    )
 }
@@ -112,29 +116,33 @@ function ListView(props: ListViewType) {
 
    if (props.items.length === 0) {
       return (
-         <Card>
+         <Card loading={props.loading}>
             <Empty description="Không có tác vụ nào" />
          </Card>
       )
    }
 
    return (
-      <List
-         loading={props.loading}
-         loadMore={
-            props.items.length !== 0 &&
-            (props.total === props.items.length ? (
-               <Divider className="text-sm">Bạn đang ở cuối danh sách</Divider>
-            ) : (
-               <Button onClick={props.loadMore}>Tải thêm</Button>
-            ))
-         }
-         dataSource={props.items}
-         itemLayout={"horizontal"}
-         size={"small"}
-         renderItem={(item) => (
-            <TaskCard task={item} className="mb-2" onClick={() => router.push(`/head-staff/mobile/tasks/${item.id}`)} />
-         )}
-      />
+         <List
+            loading={props.loading}
+            loadMore={
+               props.items.length !== 0 &&
+               (props.total === props.items.length ? (
+                  <Divider className="text-sm">Bạn đang ở cuối danh sách</Divider>
+               ) : (
+                  <Button onClick={props.loadMore}>Tải thêm</Button>
+               ))
+            }
+            dataSource={props.items}
+            itemLayout={"horizontal"}
+            size={"small"}
+            renderItem={(item) => (
+               <TaskCard
+                  task={item}
+                  className="mb-2"
+                  onClick={() => router.push(`/head-staff/mobile/tasks/${item.id}`)}
+               />
+            )}
+         />
    )
 }

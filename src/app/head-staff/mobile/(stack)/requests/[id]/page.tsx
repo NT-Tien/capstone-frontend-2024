@@ -213,7 +213,7 @@ function Component({ params }: { params: { id: string } }) {
                confirmOnIconClick={api.data?.status === FixRequestStatus.PENDING && hasScanned}
                className="std-layout-outer p-4"
             />
-            <section className="std-layout-outer">
+            {/* <section className="std-layout-outer">
                {pageStatus?.canViewTabs && (
                   <Tabs
                      className="main-tabs"
@@ -242,9 +242,9 @@ function Component({ params }: { params: { id: string } }) {
                      ]}
                   />
                )}
-            </section>
+            </section> */}
             {/*   Tab content*/}
-            {tab === "main-tab-request" && (
+            {/* {tab === "main-tab-request" && ( */}
                <>
                   <section className={cn(pageStatus?.canViewTabs === false && "mt-layout")}>
                      {pageStatus?.hasTaskToCheck && (
@@ -256,7 +256,7 @@ function Component({ params }: { params: { id: string } }) {
                         loading={api.isLoading}
                         dataSource={api.data}
                         size="small"
-                        className="flex-grow"
+                        className="flex-grow mt-layout"
                         title={<div className="text-base">Chi tiết yêu cầu</div>}
                         extra={
                            api.isSuccess && (
@@ -368,74 +368,82 @@ function Component({ params }: { params: { id: string } }) {
                         </Card>
                      </section>
                   )}
-                  <section className="std-layout-outer mt-6 rounded-lg bg-white py-layout">
-                     <div className="mb-2 flex items-center justify-between px-layout">
-                        <h2 className="text-base font-semibold">Chi tiết thiết bị</h2>
-                        <DeviceRequestHistoryDrawer>
-                           {(handleOpen) => (
-                              <Button
-                                 type="link"
-                                 size="small"
-                                 icon={<CalendarOutlined />}
-                                 onClick={() => device.isSuccess && handleOpen(device.data.id, params.id)}
-                              >
-                                 Lịch sử yêu cầu
-                              </Button>
-                           )}
-                        </DeviceRequestHistoryDrawer>
-                     </div>
-                     <DataListView
-                        dataSource={device.data}
-                        bordered
-                        itemClassName="py-2"
-                        labelClassName="font-normal text-neutral-500 text-[14px]"
-                        valueClassName="text-[14px]"
-                        items={[
-                           {
-                              label: "Mẫu máy",
-                              value: (s) => s.machineModel?.name,
-                           },
-                           {
-                              label: "Khu vực",
-                              value: (s) => s.area?.name,
-                           },
-                           {
-                              label: "Vị trí (x, y)",
-                              value: (s) => (
-                                 <a className="flex items-center gap-1">
-                                    {s.positionX} x {s.positionY}
-                                    <MapPin size={16} weight="fill" />
-                                 </a>
-                              ),
-                           },
-                           {
-                              label: "Nhà sản xuất",
-                              value: (s) => s.machineModel?.manufacturer,
-                           },
-                           {
-                              label: "Năm sản xuất",
-                              value: (s) => s.machineModel?.yearOfProduction,
-                           },
-                           {
-                              label: "Thời hạn bảo hành",
-                              value: (s) => (
-                                 <span className="">
-                                    <span className="mr-2">{s.machineModel?.warrantyTerm}</span>
-                                    {dayjs().isAfter(dayjs(s.machineModel?.warrantyTerm)) && (
-                                       <Tag color="red-inverse" className="">
-                                          Hết bảo hành
-                                       </Tag>
-                                    )}
-                                 </span>
-                              ),
-                           },
-                           {
-                              label: "Mô tả",
-                              value: (s) => s.description,
-                           },
-                        ]}
-                     />
-                  </section>
+                  {api.data?.status === FixRequestStatus.APPROVED && (
+                     <section className="py-layout">
+                        <h2 className="text-center text-base font-semibold">Tác vụ</h2>{" "}
+                        <TasksList api={api} className="mb-28" />
+                     </section>
+                  )}
+                  {api.data?.status === FixRequestStatus.PENDING && (
+                     <section className="std-layout-outer mt-6 rounded-lg bg-white py-layout">
+                        <div className="mb-2 flex items-center justify-between px-layout">
+                           <h2 className="text-base font-semibold">Chi tiết thiết bị</h2>
+                           <DeviceRequestHistoryDrawer>
+                              {(handleOpen) => (
+                                 <Button
+                                    type="link"
+                                    size="small"
+                                    icon={<CalendarOutlined />}
+                                    onClick={() => device.isSuccess && handleOpen(device.data.id, params.id)}
+                                 >
+                                    Lịch sử yêu cầu
+                                 </Button>
+                              )}
+                           </DeviceRequestHistoryDrawer>
+                        </div>
+                        <DataListView
+                           dataSource={device.data}
+                           bordered
+                           itemClassName="py-2"
+                           labelClassName="font-normal text-neutral-500 text-[14px]"
+                           valueClassName="text-[14px]"
+                           items={[
+                              {
+                                 label: "Mẫu máy",
+                                 value: (s) => s.machineModel?.name,
+                              },
+                              {
+                                 label: "Khu vực",
+                                 value: (s) => s.area?.name,
+                              },
+                              {
+                                 label: "Vị trí (x, y)",
+                                 value: (s) => (
+                                    <a className="flex items-center gap-1">
+                                       {s.positionX} x {s.positionY}
+                                       <MapPin size={16} weight="fill" />
+                                    </a>
+                                 ),
+                              },
+                              {
+                                 label: "Nhà sản xuất",
+                                 value: (s) => s.machineModel?.manufacturer,
+                              },
+                              {
+                                 label: "Năm sản xuất",
+                                 value: (s) => s.machineModel?.yearOfProduction,
+                              },
+                              {
+                                 label: "Thời hạn bảo hành",
+                                 value: (s) => (
+                                    <span className="">
+                                       <span className="mr-2">{s.machineModel?.warrantyTerm}</span>
+                                       {dayjs().isAfter(dayjs(s.machineModel?.warrantyTerm)) && (
+                                          <Tag color="red-inverse" className="">
+                                             Hết bảo hành
+                                          </Tag>
+                                       )}
+                                    </span>
+                                 ),
+                              },
+                              {
+                                 label: "Mô tả",
+                                 value: (s) => s.description,
+                              },
+                           ]}
+                        />
+                     </section>
+                  )}
 
                   {pageStatus?.showingApproveRejectButtons && (
                      <section className="mt-6">
@@ -443,7 +451,7 @@ function Component({ params }: { params: { id: string } }) {
                      </section>
                   )}
 
-                  {pageStatus?.canViewIssuesList && (
+                  {pageStatus?.canViewIssuesList && api.data?.status === FixRequestStatus.PENDING && (
                      <IssuesList
                         id={params.id}
                         api={api}
@@ -455,7 +463,8 @@ function Component({ params }: { params: { id: string } }) {
 
                   <ScannerDrawer onScan={handleScanFinish}>
                      {(handleOpen) =>
-                        !hasScanned && api.isSuccess && (
+                        !hasScanned &&
+                        api.isSuccess && (
                            <section className="std-layout-outer fixed bottom-0 left-0 w-full justify-center bg-inherit p-layout">
                               <Button
                                  size={"large"}
@@ -471,7 +480,7 @@ function Component({ params }: { params: { id: string } }) {
                      }
                   </ScannerDrawer>
                </>
-            )}
+            {/* // )} */}
             {tab === "main-tab-tasks" && <TasksList api={api} className="mb-28" />}
 
             {pageStatus?.canCreateTask && (

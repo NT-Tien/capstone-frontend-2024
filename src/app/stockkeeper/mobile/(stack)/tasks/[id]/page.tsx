@@ -61,6 +61,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
          {
             onSuccess: async () => {
                await api_task.refetch()
+               router.back()
             },
          },
       )

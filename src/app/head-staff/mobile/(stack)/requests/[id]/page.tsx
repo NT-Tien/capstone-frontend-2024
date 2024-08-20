@@ -210,7 +210,7 @@ function Component({ params }: { params: { id: string } }) {
                      ? router.back()
                      : router.push("/head-staff/mobile/requests")
                }
-               confirmOnIconClick={api.data?.status === FixRequestStatus.PENDING}
+               confirmOnIconClick={api.data?.status === FixRequestStatus.PENDING && hasScanned}
                className="std-layout-outer p-4"
             />
             <section className="std-layout-outer">
@@ -489,15 +489,6 @@ function Component({ params }: { params: { id: string } }) {
                </section>
             )}
          </div>
-         <Modal
-            open={open_warranty}
-            onCancel={() => setOpen_warranty(false)}
-            title="Lưu ý"
-            okText="Bảo hành thiết bị"
-            cancelText="Quay lại"
-         >
-            <Card>Thiết bị hiện tại vẫn còn thời hạn bảo hành. Bạn có muốn gửi bảo hành thiết bị này không?</Card>
-         </Modal>
       </>
    )
 }

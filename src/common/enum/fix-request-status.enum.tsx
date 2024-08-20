@@ -3,6 +3,7 @@ import { LiteralUnion } from "antd/es/_util/type"
 
 export enum FixRequestStatus {
    PENDING = "PENDING", // mới tạo request, chưa xem / đã xem
+   HEAD_CANCEL = "HEAD_CANCEL", // trưởng phòng từ chối
    APPROVED = "APPROVED", // có ít nhất 1 issue
    IN_PROGRESS = "IN_PROGRESS", // có ít nhất 1 task
    REJECTED = "REJECTED", //

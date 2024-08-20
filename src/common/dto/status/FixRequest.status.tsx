@@ -7,6 +7,7 @@ import { AntdIconProps } from "@ant-design/icons/lib/components/AntdIcon"
 
 export type FixRequestStatuses =
    | "pending"
+   | "head_cancel"
    // | "checked"
    | "approved"
    | "rejected"
@@ -33,6 +34,19 @@ export function FixRequest_StatusData(
             conditionFn: (dto) => dto.status === FixRequestStatus.PENDING,
             icon: <Hourglass {...iconProps?.phosphor} />,
             statusEnum: FixRequestStatus.PENDING,
+         }
+      }
+      case "head_cancel": {
+         return {
+            index: 1,
+            name: "head_cancel",
+            description: "Yêu cầu đã bị hủy bởi trưởng phòng",
+            text: "Hủy bởi trưởng phòng",
+            colorInverse: "red-inverse",
+            color: "red",
+            conditionFn: (dto) => dto.status === FixRequestStatus.HEAD_CANCEL,
+            icon: <XCircle {...iconProps?.phosphor} />,
+            statusEnum: FixRequestStatus.HEAD_CANCEL,
          }
       }
       // case "checked": {
@@ -135,6 +149,10 @@ export function FixRequest_StatusMapper(
 
    if (FixRequest_StatusData("pending").conditionFn(dto)) {
       return FixRequest_StatusData("pending")
+   }
+
+   if (FixRequest_StatusData("head_cancel").conditionFn(dto)) {
+      return FixRequest_StatusData("head_cancel")
    }
 
    // if (FixRequest_StatusData("checked").conditionFn(dto)) {

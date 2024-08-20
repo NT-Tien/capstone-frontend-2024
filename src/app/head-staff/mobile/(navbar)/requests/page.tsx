@@ -1,12 +1,12 @@
 "use client"
 
 import RootHeader from "@/common/components/RootHeader"
-import { Card, Empty } from "antd"
+import { Button, Card, Empty, Result, Skeleton } from "antd"
 import { useQuery } from "@tanstack/react-query"
 import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import ReportCard from "@/common/components/ReportCard"
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import dayjs from "dayjs"
 import { CheckSquareOffset, Hourglass, ThumbsUp, Wrench, XCircle } from "@phosphor-icons/react"
@@ -70,17 +70,24 @@ function ReportsTab(props: ReportsTabProps) {
          }),
    })
 
+   const sortOrder = useMemo(() => {
+      switch (props.status) {
+         case FixRequestStatus.PENDING:
+            return "Sắp xếp theo ngày tạo (cũ nhất - mới nhất)"
+         case FixRequestStatus.APPROVED:
+         case FixRequestStatus.REJECTED:
+         case FixRequestStatus.IN_PROGRESS:
+         case FixRequestStatus.HEAD_CONFIRM:
+         case FixRequestStatus.CLOSED:
+         default:
+            return "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)"
+      }
+   }, [props.status])
+
    return (
       <div className="mb-layout grid grid-cols-1 gap-2">
          <div className="text-gray-500">
-            {{
-               [FixRequestStatus.PENDING]: "Sắp xếp theo ngày tạo (cũ nhất - mới nhất)",
-               [FixRequestStatus.APPROVED]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
-               [FixRequestStatus.REJECTED]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
-               [FixRequestStatus.IN_PROGRESS]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
-               [FixRequestStatus.HEAD_CONFIRM]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
-               [FixRequestStatus.CLOSED]: "Sắp xếp theo ngày chỉnh sửa (mới nhất - cũ nhất)",
-            }[props.status] || ""}
+            {sortOrder}
          </div>
          {results.isSuccess ? (
             <>
@@ -111,7 +118,25 @@ function ReportsTab(props: ReportsTabProps) {
                )}
             </>
          ) : (
-            <>{results.isLoading && <Card loading />}</>
+            <>{results.isPending && (
+               <div className="grid grid-cols-1 gap-2">
+                  <Skeleton paragraph />
+                  <Skeleton paragraph />
+                  <Skeleton paragraph />
+                  <Skeleton paragraph />
+                  <Skeleton paragraph />
+               </div>
+            )}
+            {results.isError && (
+                  <Card size="small">
+                     <Result
+                        status="error"
+                        title="Đã xảy ra lỗi"
+                        subTitle="Đã có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại."
+                        extra={<Button type="primary" onClick={() => results.refetch()}>Thử lại</Button>}
+                     />
+                  </Card>
+               )}</>
          )}
       </div>
    )

@@ -55,7 +55,10 @@ export default function DataListView<T>(props: Props<T>) {
                      </span>
                   </>
                ) : (
-                  <Skeleton.Button className="col-span-2 w-full"></Skeleton.Button>
+                  <div className="col-span-2 grid gap-2 grid-cols-2">
+                     <Skeleton.Button active className="col-span-1 w-full"></Skeleton.Button>
+                     <Skeleton.Input active className="col-span-1 w-full"></Skeleton.Input>
+                  </div>
                )}
             </li>
          ))}

@@ -1,9 +1,11 @@
 "use client"
 
 import headstaff_qk from "@/app/head-staff/_api/qk"
+import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
 import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
 import ColumnChart from "@/common/components/ChartComponent"
 import HomeHeader from "@/common/components/HomeHeader"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 import { ArrowUpOutlined } from "@ant-design/icons"
 import { ProCard, StatisticCard } from "@ant-design/pro-components"
@@ -13,6 +15,7 @@ import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { Suspense, useState } from "react"
 import CountUp from "react-countup"
+import { useRouter } from "next/navigation"
 
 function useTask(current: number, pageSize: number, status: TaskStatus) {
    return useQuery({
@@ -30,6 +33,22 @@ function useTask(current: number, pageSize: number, status: TaskStatus) {
    })
 }
 
+function useRequest(current: number, pageSize: number, currentStatus: FixRequestStatus) {
+   return useQuery({
+      queryKey: headstaff_qk.request.all({
+         page: current.toString(),
+         limit: pageSize.toString(),
+         status: currentStatus,
+      }),
+      queryFn: () =>
+         HeadStaff_Request_All30Days({
+            page: current,
+            limit: pageSize,
+            status: currentStatus as any,
+         }),
+   })
+}
+
 function Page() {
    return (
       <Suspense fallback={<Spin fullscreen />}>
@@ -43,6 +62,7 @@ export default dynamic(() => Promise.resolve(Page), {
 })
 
 function DashboardPage() {
+   const router = useRouter()
    const currentDefault = 1,
       pageSizeDefault = 10
 
@@ -58,6 +78,8 @@ function DashboardPage() {
    const completedResult = useTask(current, pageSize, TaskStatus.COMPLETED)
    const cancelledResult = useTask(current, pageSize, TaskStatus.CANCELLED)
 
+   const requestPending = useRequest(current, pageSize, FixRequestStatus.PENDING)
+
    const totalTasks = [
       awaitingFixerResult.data?.total ?? 0,
       // pendingStockResult.data?.total ?? 0,
@@ -72,6 +94,7 @@ function DashboardPage() {
    const completedTasks = completedResult.data?.list.length ?? 0
    const headstaffConfirmTasks = headstaffConfirmResult.data?.list.length ?? 0
 
+   const pendingRequest = requestPending.data?.list.length ?? 0
    return (
       <div>
          <div style={{ backgroundImage: "linear-gradient(to right, #579A0D, #1C6014)" }}>
@@ -120,16 +143,17 @@ function DashboardPage() {
                </StatisticCard>
                <StatisticCard
                   className="flex h-40 w-full items-center justify-center rounded-[2rem] p-4 text-center shadow-fb"
-                  loading={completedResult.isLoading}
+                  loading={requestPending.isLoading}
                   style={{
                      backgroundImage: "linear-gradient(-135deg, #FEFEFE, #F5F7EC, #D7E4AC, #D3E2A1)",
                   }}
+                  onClick={() => router.push("requests")}
                >
                   <div className="absolute bottom-4 left-4 flex flex-col gap-2">
                      <Col>
-                        <Row className="text-2xl font-medium">Chờ xác nhận</Row>
+                        <Row className="text-2xl font-medium">Chưa xử lý</Row>
                         <Row className="text-3xl font-bold">
-                           <CountUp end={headstaffConfirmTasks} separator={","} />
+                           <CountUp end={pendingRequest} separator={","} />
                         </Row>
                      </Col>
                   </div>

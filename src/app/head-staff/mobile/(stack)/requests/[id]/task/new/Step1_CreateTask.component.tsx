@@ -287,6 +287,16 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
       }, 200)
    }
 
+  useEffect(() => {
+   if (finishOpen) {
+     const timer = setTimeout(() => {
+       router.back();
+     }, 2500);
+
+     return () => clearTimeout(timer);
+   }
+ }, [finishOpen, router]);
+
    return (
       <div className="mt-layout">
          <Form layout="vertical" form={form} onFinish={handleFinish}>
@@ -419,11 +429,7 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
             }}
          >
             <Result status="success" title="Thành công!" subTitle="Tất cả các lỗi đã được tạo tác vụ" extra={[]}>
-               <Button type="primary" size="large" icon={<ArrowLeftOutlined />} onClick={() => {
-                  router.back()
-               }}>
-                  Quay lại yêu cầu
-               </Button>
+               
             </Result>
          </Drawer>
       </div>

@@ -164,6 +164,7 @@ export default function NewTaskPage({ params }: { params: { id: string } }) {
                               api={api}
                               selectedIssues={selectedIssues}
                               setSelectedIssues={setSelectedIssues}
+                              params={params.id}
                            />
                         )}
                         {step === 1 && (

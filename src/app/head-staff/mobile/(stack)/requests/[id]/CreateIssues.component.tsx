@@ -117,6 +117,28 @@ export default function CreateIssuesComponent({ requestId }: Props) {
 
    return (
       <>
+               <CreateSingleIssueDrawer onFinish={handleCreateSingleIssue}>
+            {(handleOpen) => (
+               <Select
+                  options={availableTypeErrors?.map((error) => ({
+                     label: error.name,
+                     value: JSON.stringify(error),
+                  }))}
+                  className="w-full"
+                  showSearch
+                  variant="outlined"
+                  size="large"
+                  placeholder="+ Thêm lỗi mới"
+                  value={selectedTypeErrorControl}
+                  onChange={(value) => {
+                     setSelectedTypeErrorControl(value)
+                     handleSelectIssue(value as any)
+                     if (!api_device.isSuccess) return
+                     handleOpen(JSON.parse(value as any) as TypeErrorDto, api_device.data)
+                  }}
+               />
+            )}
+         </CreateSingleIssueDrawer>
          <div className="mb-2">
             {selectedIssues.length === 0 ? (
                <Card size="small">
@@ -124,6 +146,7 @@ export default function CreateIssuesComponent({ requestId }: Props) {
                </Card>
             ) : (
                <List
+               className="mt-5"
                   bordered
                   dataSource={selectedIssues}
                   renderItem={(issue) => {
@@ -158,28 +181,7 @@ export default function CreateIssuesComponent({ requestId }: Props) {
                />
             )}
          </div>
-         <CreateSingleIssueDrawer onFinish={handleCreateSingleIssue}>
-            {(handleOpen) => (
-               <Select
-                  options={availableTypeErrors?.map((error) => ({
-                     label: error.name,
-                     value: JSON.stringify(error),
-                  }))}
-                  className="w-full"
-                  showSearch
-                  variant="outlined"
-                  size="large"
-                  placeholder="+ Thêm lỗi mới"
-                  value={selectedTypeErrorControl}
-                  onChange={(value) => {
-                     setSelectedTypeErrorControl(value)
-                     handleSelectIssue(value as any)
-                     if (!api_device.isSuccess) return
-                     handleOpen(JSON.parse(value as any) as TypeErrorDto, api_device.data)
-                  }}
-               />
-            )}
-         </CreateSingleIssueDrawer>
+
          <section className="std-layout-outer fixed bottom-0 left-0 flex w-full items-center justify-center gap-3 bg-[#eef3f6] p-layout shadow-fb">
             <Button type="primary" size="large" icon={<PlusOutlined />} className="flex-grow" onClick={handleSubmit}>
                Ghi nhận lỗi

@@ -1,8 +1,6 @@
 "use client"
 
-import { ReactNode, useEffect, useState } from "react"
-import { Spin } from "antd"
-import { isMobile } from "react-device-detect"
+import { ReactNode } from "react"
 
 export default function MobileOnly({ children }: { children: ReactNode }) {
    return children

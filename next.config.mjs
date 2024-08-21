@@ -1,3 +1,5 @@
+import withBundleAnalyzer from '@next/bundle-analyzer'
+
 /** @type {import("next").NextConfig} */
 const nextConfig = {
    webpack: (config, { isServer }) => {
@@ -10,7 +12,7 @@ const nextConfig = {
       }
 
       return config;
-   },
+   }, 
    async redirects() {
       return [
          {
@@ -70,4 +72,4 @@ const nextConfig = {
    },
 }
 
-export default nextConfig
+export default withBundleAnalyzer({ enabled: false })(nextConfig)

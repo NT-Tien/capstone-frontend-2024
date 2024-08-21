@@ -6,8 +6,9 @@ import UserActions from "@/common/components/UserActions"
 import UserCard from "@/common/components/UserCard"
 import useCurrentUser from "@/common/hooks/useCurrentUser"
 import { CheckOutlined, ContainerFilled, HomeOutlined, LaptopOutlined, UserOutlined } from "@ant-design/icons"
-import { Typography } from "antd"
+import Typography from "antd/es/typography"
 import { useRouter } from "next/navigation"
+
 
 export default function ProfilePage() {
    const router = useRouter()

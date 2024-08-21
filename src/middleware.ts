@@ -4,11 +4,11 @@ import { Role } from "@/common/enum/role.enum"
 
 export function middleware(request: NextRequest) {
    // ignore static assets
-   if (request.nextUrl.pathname.startsWith("/_next/static/")) {
+   if (request.nextUrl.pathname.startsWith("/_next/static/") || request.nextUrl.pathname.startsWith("/images/")) {
       return NextResponse.next()
    }
 
-   if (request.nextUrl.pathname === "/login") {
+   if (request.nextUrl.pathname === "/login" || request.nextUrl.pathname.startsWith('/test')) {
       // check if user is already logged in
       return NextResponse.next()
    }

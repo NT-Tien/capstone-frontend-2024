@@ -1,9 +1,8 @@
 "use client"
 
 import { Spin } from "antd"
-import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { isMobile } from "react-device-detect"
+import { useEffect } from "react"
 
 export default function StockkeeperPage() {
    const router = useRouter()

@@ -9,6 +9,7 @@ import dayjs from "dayjs"
 import { cn } from "@/common/util/cn.util"
 import { useMemo } from "react"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
+import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
 
 type Props = {
    status: FixRequestStatus
@@ -60,9 +61,16 @@ function TabDetails(props: Props) {
                   headerClassName={cn(item.is_seen === false && "bg-green-100 rounded-lg p-1")}
                   description={item.requester_note}
                   footerLeft={
-                     item.status === FixRequestStatus.REJECTED ? (
-                        <div className="w-32 truncate">Lý do: {item.checker_note}</div>
-                     ) : undefined
+                     <div>
+                        {item.issues.find(
+                           (i) =>
+                              i.typeError?.id === SendWarrantyTypeErrorId ||
+                              i.typeError?.id === ReceiveWarrantyTypeErrorId,
+                        ) && <Tag color="orange-inverse">Bảo hành</Tag>}
+                        {item.status === FixRequestStatus.REJECTED ? (
+                           <div className="w-32 truncate">Lý do: {item.checker_note}</div>
+                        ) : undefined}
+                     </div>
                   }
                   footerRight={getCreatedAt(item)}
                   subtitle={`${item.requester.username} | ${item.device.area.name}`}

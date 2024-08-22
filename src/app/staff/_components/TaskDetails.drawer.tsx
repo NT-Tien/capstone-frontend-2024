@@ -1,7 +1,7 @@
 import staff_qk from "@/app/staff/_api/qk"
 import Staff_Task_OneById from "@/app/staff/_api/task/one-byId.api"
 import Staff_Task_UpdateStart from "@/app/staff/_api/task/update-start.api"
-import QrCodeDisplayModal from "@/app/staff/_components/QrCodeDisplay.modal"
+import QrCodeDisplayModal, { QrCodeDisplayModalRefType } from "@/app/staff/_components/QrCodeDisplay.modal"
 import DataListView from "@/common/components/DataListView"
 import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
@@ -14,7 +14,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { App, Badge, Button, Card, Drawer, List, Tag, Image } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import { ReactNode, useMemo, useState } from "react"
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react"
 import { clientEnv } from "../../../env"
 import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
 
@@ -43,6 +43,8 @@ export default function TaskDetailsDrawer({
    const router = useRouter()
    const { message } = App.useApp()
    const queryClient = useQueryClient()
+
+   const qrCodeDisplayRef = useRef<QrCodeDisplayModalRefType | null>(null)
 
    const task = useQuery({
       queryKey: staff_qk.task.one_byId(taskId ?? ""),
@@ -97,6 +99,12 @@ export default function TaskDetailsDrawer({
          )
       }
    }
+
+   // useEffect(() => {
+   //    if (task.data?.confirmReceipt === true && task.data.issues.find((issue) => issue.issueSpareParts.length !== 0)) {
+   //       qrCodeDisplayRef.current?.handleClose()
+   //    }
+   // }, [task.data?.confirmReceipt, task.data?.issues])
 
    return (
       <>
@@ -293,6 +301,7 @@ export default function TaskDetailsDrawer({
                   title="Lấy linh kiện"
                   description="Hãy xuống kho và đưa mã QR sau cho chủ kho."
                   refetch={task.refetch}
+                  ref={qrCodeDisplayRef}
                >
                   {(handleOpen) =>
                      showNextButton && (
@@ -310,6 +319,9 @@ export default function TaskDetailsDrawer({
                                     handleOpen(
                                        task.data.id,
                                        task.data.issues.map((issue) => issue.issueSpareParts).flat(),
+                                       !!task.data.issues.find(
+                                          (issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId,
+                                       ),
                                     )
                                  }
                               }}

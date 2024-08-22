@@ -88,9 +88,11 @@ export default function DetailsTab({ api, setTab }: Props) {
             className="mt-3"
             title="Chi tiết tác vụ"
             extra={
-               <Tag color={TaskStatusTagMapper[String(api.data?.status)].colorInverse}>
-                  {TaskStatusTagMapper[String(api.data?.status)].text}
-               </Tag>
+               api.isSuccess && (
+                  <Tag color={TaskStatusTagMapper[String(api.data.status)]?.colorInverse ?? "default"}>
+                     {TaskStatusTagMapper[String(api.data.status)].text ?? "-"}
+                  </Tag>
+               )
             }
             dataSource={api.data}
             loading={api.isLoading}
@@ -215,7 +217,7 @@ export default function DetailsTab({ api, setTab }: Props) {
                               <div className="mt-2">
                                  {api.data?.status === TaskStatus.ASSIGNED && (
                                     <Button
-                                       type="primary"
+                                       type="default"
                                        className="w-full"
                                        size="middle"
                                        onClick={() =>

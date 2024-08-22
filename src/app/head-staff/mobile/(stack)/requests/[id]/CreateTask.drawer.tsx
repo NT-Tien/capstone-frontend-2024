@@ -85,9 +85,10 @@ function useFormContext() {
 type Props = {
    children?: (handleOpen: (requestId: string) => void) => ReactNode
    drawerProps?: DrawerProps
+   refetchFn?: () => void
 }
 
-const CreateTaskDrawer = forwardRef<CreateTaskDrawerRefType, Props>(function Component({ children }, ref) {
+const CreateTaskDrawer = forwardRef<CreateTaskDrawerRefType, Props>(function Component({ children, ...props }, ref) {
    const { open, handleOpen, handleClose } = useModalControls({
       onOpen: (requestId: string) => {
          setRequestId(requestId)
@@ -159,6 +160,7 @@ const CreateTaskDrawer = forwardRef<CreateTaskDrawerRefType, Props>(function Com
          {
             onSuccess: () => {
                handleClose()
+               props.refetchFn?.()
             },
          },
       )
@@ -505,7 +507,7 @@ function FormStep_1() {
       const issues = issueIDs
       const name = generateTaskName(api_request.data, issues)
       setName(name)
-   }, [api_request.data, api_request.isSuccess, issueIDs])
+   }, [api_request.data, api_request.isSuccess, issueIDs, setName])
 
    function handleSubmit() {
       setFixer(selectedFixer?.id)

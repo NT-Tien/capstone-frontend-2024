@@ -9,7 +9,7 @@ import { cn } from "@/common/util/cn.util"
 import { PlusOutlined } from "@ant-design/icons"
 import { MapPin } from "@phosphor-icons/react"
 import { UseQueryResult } from "@tanstack/react-query"
-import { Empty, Skeleton } from "antd"
+import { Divider, Empty, Skeleton } from "antd"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
 import List from "antd/es/list"
@@ -84,7 +84,7 @@ function TabbedLayout(props: Props) {
             <>
                <>
                   {props.api_request.data?.tasks.length === 0 ? (
-                     <Card size="small" className="py-12 mt-layout-half">
+                     <Card size="small" className="mt-layout-half py-12">
                         <Empty description="Chưa có tác vụ nào được tạo" image={Empty.PRESENTED_IMAGE_DEFAULT} />
                      </Card>
                   ) : (
@@ -109,41 +109,80 @@ function TabbedLayout(props: Props) {
          )}
          {tab === "issues" && (
             <>
-               <IssueDetailsDrawer refetch={() => {}} showActions={false}>
-                  {(handleOpen) => (
-                     <List
-                        dataSource={props.api_request.data?.issues}
-                        className="mt-layout-half"
-                        renderItem={(item, index) => (
-                           <List.Item
-                              className={cn(index === 0 && "pt-0")}
-                              extra={
-                                 <Tag color={Issue_StatusData(item.status).color}>
-                                    {Issue_StatusData(item.status).text}
-                                 </Tag>
-                              }
-                              onClick={() => handleOpen(item.id, props.api_device.data?.id ?? "", false)}
-                           >
-                              <List.Item.Meta
-                                 title={item.typeError.name}
-                                 description={
-                                    <span>
-                                       <Tag color={FixTypeTagMapper[item.fixType].color}>
-                                          {FixTypeTagMapper[item.fixType].text}
+               {props.api_request.data?.issues.filter((issue) => issue.task === null).length !== 0 && (
+                  <section className="mb-layout mt-layout rounded-lg border-2 border-neutral-100 bg-white p-layout shadow-lg">
+                     <h5 className="font-semibold text-neutral-700">Lỗi chưa có tác vụ</h5>
+                     <Divider className="my-1"/>
+                     <IssueDetailsDrawer refetch={() => {}} showActions={false}>
+                        {(handleOpen) => (
+                           <List
+                              dataSource={props.api_request.data?.issues.filter((issue) => issue.task === null)}
+                              className="mt-layout-half"
+                              renderItem={(item, index) => (
+                                 <List.Item
+                                    className={cn(index === 0 && "pt-0")}
+                                    extra={
+                                       <Tag color={Issue_StatusData(item.status).color}>
+                                          {Issue_StatusData(item.status).text}
                                        </Tag>
-                                       <span className="truncate">{item.description}</span>
-                                    </span>
-                                 }
-                              ></List.Item.Meta>
-                           </List.Item>
+                                    }
+                                    onClick={() => handleOpen(item.id, props.api_device.data?.id ?? "", false)}
+                                 >
+                                    <List.Item.Meta
+                                       title={item.typeError.name}
+                                       description={
+                                          <span>
+                                             <Tag color={FixTypeTagMapper[item.fixType].color}>
+                                                {FixTypeTagMapper[item.fixType].text}
+                                             </Tag>
+                                             <span className="truncate">{item.description}</span>
+                                          </span>
+                                       }
+                                    ></List.Item.Meta>
+                                 </List.Item>
+                              )}
+                           />
                         )}
-                     />
-                  )}
-               </IssueDetailsDrawer>
+                     </IssueDetailsDrawer>
+                  </section>
+               )}
+               <section>
+                  <IssueDetailsDrawer refetch={() => {}} showActions={false}>
+                     {(handleOpen) => (
+                        <List
+                           dataSource={props.api_request.data?.issues.filter((issue) => issue.task !== null)}
+                           className="mt-layout-half"
+                           renderItem={(item, index) => (
+                              <List.Item
+                                 className={cn(index === 0 && "pt-0")}
+                                 extra={
+                                    <Tag color={Issue_StatusData(item.status).color}>
+                                       {Issue_StatusData(item.status).text}
+                                    </Tag>
+                                 }
+                                 onClick={() => handleOpen(item.id, props.api_device.data?.id ?? "", false)}
+                              >
+                                 <List.Item.Meta
+                                    title={item.typeError.name}
+                                    description={
+                                       <span>
+                                          <Tag color={FixTypeTagMapper[item.fixType].color}>
+                                             {FixTypeTagMapper[item.fixType].text}
+                                          </Tag>
+                                          <span className="truncate">{item.description}</span>
+                                       </span>
+                                    }
+                                 ></List.Item.Meta>
+                              </List.Item>
+                           )}
+                        />
+                     )}
+                  </IssueDetailsDrawer>
+               </section>
             </>
          )}
          {tab === "device" && (
-            <div className="rounded-lg border-2 border-neutral-200 mt-layout-half">
+            <div className="mt-layout-half rounded-lg border-2 border-neutral-200">
                <DataListView
                   bordered
                   dataSource={props.api_device.data}
@@ -282,7 +321,7 @@ function TabbedLayout(props: Props) {
                )}
             </div>
          )}
-         <CreateTaskDrawer ref={createTaskRef} />
+         <CreateTaskDrawer ref={createTaskRef} refetchFn={props.api_request.refetch} />
       </>
    )
 }

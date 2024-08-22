@@ -58,7 +58,7 @@ const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function C
       ) => {
          setTaskId(taskId)
          setPriority(initialValues.priority ?? false)
-         setFixerDate(initialValues.fixerDate)
+         setFixerDate(initialValues.fixerDate?.isValid() ? initialValues.fixerDate : undefined)
          setFixer(initialValues.fixer)
       },
       onClose: () => {

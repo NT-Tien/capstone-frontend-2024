@@ -67,7 +67,7 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
          {
             onSuccess: async () => {
                await api_task.refetch()
-               router.back()
+               router.push("/stockkeeper/mobile/scan")
             },
          },
       )
@@ -156,16 +156,12 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                            value: (s) => s.machineModel?.name,
                         },
                         {
-                           label: "Khu vực",
-                           value: (s) => s.area?.name,
+                           label: "Nhà sản xuất",
+                           value: (s) => s.machineModel.manufacturer,
                         },
                         {
-                           label: "Vị trí (x, y)",
-                           value: (s) => (
-                              <div>
-                                 {s.positionX} x {s.positionY}
-                              </div>
-                           ),
+                           label: "Năm sản xuất",
+                           value: (s) => s.machineModel.yearOfProduction,
                         },
                         {
                            label: "Mô tả",

@@ -45,7 +45,7 @@ export const TaskStatusTagMapper: {
       icon: <Wrench size={16} />,
    },
    [TaskStatus.HEAD_STAFF_CONFIRM]: {
-      text: "Chờ xác nhận",
+      text: "Chờ kiểm tra",
       colorInverse: "processing",
       color: "processing",
       icon: <Note size={16} />,

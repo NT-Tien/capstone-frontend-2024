@@ -1,9 +1,9 @@
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { DtoStatus } from "@/common/types/DtoStatus"
-import { CheckSquareOffset, Hourglass, IconProps, ThumbsUp, Wrench, XCircle } from "@phosphor-icons/react"
-import { CheckCircleOutlined, LoadingOutlined } from "@ant-design/icons"
+import { LoadingOutlined } from "@ant-design/icons"
 import { AntdIconProps } from "@ant-design/icons/lib/components/AntdIcon"
+import { CheckSquareOffset, Hourglass, IconProps, ThumbsUp, Wrench, XCircle } from "@phosphor-icons/react"
 
 export type FixRequestStatuses =
    | "pending"

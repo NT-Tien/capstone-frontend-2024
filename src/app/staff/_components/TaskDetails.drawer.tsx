@@ -16,6 +16,7 @@ import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { ReactNode, useMemo, useState } from "react"
 import { clientEnv } from "../../../env"
+import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
 
 export default function TaskDetailsDrawer({
    children,
@@ -50,7 +51,10 @@ export default function TaskDetailsDrawer({
    })
 
    const hasSparePart = useMemo(() => {
-      return task.data?.issues.find((issue) => issue.issueSpareParts.length !== 0)
+      return (
+         task.data?.issues.find((issue) => issue.issueSpareParts.length !== 0) ||
+         task.data?.issues.find((issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId)
+      )
    }, [task.data])
 
    const mutate_startTask = useMutation({

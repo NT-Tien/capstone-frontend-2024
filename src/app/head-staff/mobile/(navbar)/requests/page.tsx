@@ -1,16 +1,53 @@
 "use client"
 
 import PageHeader from "@/common/components/PageHeader"
+import { FixRequest_StatusData, FixRequestStatuses } from "@/common/dto/status/FixRequest.status"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { AddressBook } from "@phosphor-icons/react"
+import { Card, Input, Skeleton, Spin } from "antd"
+import Segmented from "antd/es/segmented"
 import Image from "next/image"
-import { useState } from "react"
-import RequestCard from "./RequestCard"
+import { Suspense, useEffect, useState } from "react"
+import TabDetails from "./TabDetails.component"
+import { useRouter, useSearchParams } from "next/navigation"
 
 function Page() {
-   const [tab, setTab] = useState<string>("pending")
+   return (
+      <Suspense fallback={<Spin fullscreen />}>
+         <Component />
+      </Suspense>
+   )
+}
+
+function Component() {
+   const searchParams = useSearchParams()
+   const router = useRouter()
+   const [tab, setTab] = useState<FixRequestStatus | undefined>(undefined)
+
+   function handleChangeTab(tab: FixRequestStatus) {
+      setTab(tab)
+
+      const tabURL = new URLSearchParams()
+      tabURL.set("status", tab)
+      router.push("/head-staff/mobile/requests?" + tabURL.toString())
+   }
+
+   useEffect(() => {
+      const status = searchParams.get("status")
+
+      if (status) {
+         const allStatuses = Object.values(FixRequestStatus)
+         if (allStatuses.includes(status as FixRequestStatus)) {
+            setTab(status as FixRequestStatus)
+         }
+         return
+      }
+
+      setTab(FixRequestStatus.PENDING)
+   }, [searchParams])
 
    return (
-      <div className="std-layout relative h-full min-h-full bg-white">
+      <div className="std-layout relative h-full min-h-screen bg-white">
          <PageHeader title="Yêu cầu" icon={AddressBook} className="std-layout-outer relative z-30" />
          <Image
             className="std-layout-outer absolute left-0 top-0 z-0 h-24 w-full object-fill opacity-40"
@@ -19,38 +56,37 @@ function Page() {
             height={240}
             alt="image"
          />
-         <input
+         <Input
             type="text"
             className="relative z-30 w-full rounded-full border border-neutral-200 bg-neutral-100 px-4 py-3"
-            placeholder="Search..."
+            placeholder="Tìm kiếm"
          />
-
-         {/* <Segmented
-            block
+         <Segmented
+            onChange={handleChangeTab}
             value={tab}
-            onChange={setTab}
             size="large"
-            className="mt-layout py-3"
-            options={[
-               {
-                  value: "pending",
-                  label: <span>Chưa xử lý</span>,
-               },
-               {
-                  value: "approved",
-                  label: <span>Đã xác nhận</span>,
-               },
-               {
-                  value: "in_progress",
-                  label: <span>Đang xử lý</span>,
-               },
-               {
-                  value: "head_confirm",
-                  label: <span>Chờ kiểm tra</span>,
-               },
-            ]}
-         /> */}
-         <RequestCard />
+            options={(["pending", "approved", "in_progress", "head_confirm", "closed", "rejected"] as FixRequestStatuses[]).map(
+               (status) => ({
+                  className: "p-1",
+                  value: FixRequest_StatusData(status).statusEnum,
+                  label: (
+                     <div className="flex w-min flex-col items-center justify-center break-words font-medium">
+                        {FixRequest_StatusData(status).text}
+                     </div>
+                  ),
+               }),
+            )}
+            className="hide-scrollbar mt-layout w-full overflow-auto"
+         />
+         <section className="mt-layout">
+            {tab ? (
+               <TabDetails status={tab} />
+            ) : (
+               <Card>
+                  <Spin fullscreen />
+               </Card>
+            )}
+         </section>
       </div>
    )
 }

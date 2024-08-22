@@ -117,7 +117,7 @@ export default function CreateIssuesComponent({ requestId }: Props) {
 
    return (
       <>
-               <CreateSingleIssueDrawer onFinish={handleCreateSingleIssue}>
+         <CreateSingleIssueDrawer onFinish={handleCreateSingleIssue}>
             {(handleOpen) => (
                <Select
                   options={availableTypeErrors?.map((error) => ({
@@ -146,7 +146,7 @@ export default function CreateIssuesComponent({ requestId }: Props) {
                </Card>
             ) : (
                <List
-               className="mt-5"
+                  className="mt-5"
                   bordered
                   dataSource={selectedIssues}
                   renderItem={(issue) => {

@@ -4,7 +4,7 @@ import { clientEnv } from "@/env"
 const api = axios.create({
    baseURL: clientEnv.BACKEND_URL,
    timeout: 10000, // 10 seconds
-   validateStatus: (status) => status >= 200 && status < 500, // allow only 2xx, 3xx, 4xx codes,
+   validateStatus: (status) => (status >= 200 && status < 300), // allow only 2xx, 3xx, 4xx codes,
    headers: {
       "Content-Type": "application/json",
    },

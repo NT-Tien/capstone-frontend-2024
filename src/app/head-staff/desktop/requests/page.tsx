@@ -42,8 +42,8 @@ function PageContent() {
 
    const response = useQuery({
       queryKey: headstaff_qk.request.all({
-         page: current.toString(),
-         limit: pageSize.toString(),
+         page: current,
+         limit: pageSize,
          status: currentStatus,
       }),
       queryFn: () =>

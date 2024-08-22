@@ -14,6 +14,8 @@ import Stockkeeper_Task_ReceiveSpareParts from "@/app/stockkeeper/_api/task/rece
 import { cn } from "@/common/util/cn.util"
 import { CheckCard } from "@ant-design/pro-card"
 import { useMemo, useState } from "react"
+import { ReceiveWarrantyTypeErrorId } from "@/constants/Warranty"
+import DataListView from "@/common/components/DataListView"
 
 export default function TaskDetails({ params }: { params: { id: string } }) {
    const { message } = App.useApp()
@@ -23,6 +25,10 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
       queryFn: () => Stockkeeper_Task_GetById({ id: params.id }),
    })
    const router = useRouter()
+
+   const isWarranty = useMemo(() => {
+      return api_task.data?.issues.find((i) => i.typeError.id === ReceiveWarrantyTypeErrorId)
+   }, [api_task.data?.issues])
 
    const spareParts = useMemo(() => {
       return api_task.data?.issues.flatMap((i) => i.issueSpareParts) ?? []
@@ -124,30 +130,75 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
                   render: (_, e) =>
                      e.confirmReceipt ? <Tag color="green">{"Đã lấy"}</Tag> : <Tag color="red">{"Chưa lấy"}</Tag>,
                },
+               ...(isWarranty
+                  ? [
+                       {
+                          key: "type",
+                          label: "Ghi chú",
+                          render: () => "Tác vụ bảo hành",
+                       },
+                    ]
+                  : []),
             ]}
          />
-         <section>
-            <List
-               dataSource={spareParts}
-               grid={{
-                  column: 1,
-               }}
-               size={"small"}
-               itemLayout={"vertical"}
-               className={cn("mt-3")}
-               header={
-                  <Typography.Title level={5} className="m-0">
-                     Linh kiện ({spareParts.length})
-                  </Typography.Title>
-               }
-               split={false}
-               renderItem={(item) => (
-                  <List.Item>
-                     <List.Item.Meta title={item.sparePart.name} description={"Số lượng: " + item.quantity} />
-                  </List.Item>
-               )}
-            />
-         </section>
+         {isWarranty ? (
+            <>
+               <div className="std-layout-outer mt-layout">
+                  <h2 className="mb-2 px-layout text-lg font-semibold">Chi tiết thiết bị</h2>
+                  <DataListView
+                     dataSource={api_task.data?.device}
+                     bordered
+                     itemClassName="py-2"
+                     labelClassName="font-normal text-neutral-500"
+                     items={[
+                        {
+                           label: "Mẫu máy",
+                           value: (s) => s.machineModel?.name,
+                        },
+                        {
+                           label: "Khu vực",
+                           value: (s) => s.area?.name,
+                        },
+                        {
+                           label: "Vị trí (x, y)",
+                           value: (s) => (
+                              <div>
+                                 {s.positionX} x {s.positionY}
+                              </div>
+                           ),
+                        },
+                        {
+                           label: "Mô tả",
+                           value: (s) => s.description,
+                        },
+                     ]}
+                  />
+               </div>
+            </>
+         ) : (
+            <section>
+               <List
+                  dataSource={spareParts}
+                  grid={{
+                     column: 1,
+                  }}
+                  size={"small"}
+                  itemLayout={"vertical"}
+                  className={cn("mt-3")}
+                  header={
+                     <Typography.Title level={5} className="m-0">
+                        Linh kiện ({spareParts.length})
+                     </Typography.Title>
+                  }
+                  split={false}
+                  renderItem={(item) => (
+                     <List.Item>
+                        <List.Item.Meta title={item.sparePart.name} description={"Số lượng: " + item.quantity} />
+                     </List.Item>
+                  )}
+               />
+            </section>
+         )}
          {!(api_task.isSuccess && api_task.data.confirmReceipt) && (
             <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-fb">
                <Button type="primary" size="large" className="w-full" onClick={handleConfirmReceipt}>

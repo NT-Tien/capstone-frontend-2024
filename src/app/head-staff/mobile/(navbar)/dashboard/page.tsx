@@ -36,8 +36,8 @@ function useTask(current: number, pageSize: number, status: TaskStatus) {
 function useRequest(current: number, pageSize: number, currentStatus: FixRequestStatus) {
    return useQuery({
       queryKey: headstaff_qk.request.all({
-         page: current.toString(),
-         limit: pageSize.toString(),
+         page: current,
+         limit: pageSize,
          status: currentStatus,
       }),
       queryFn: () =>

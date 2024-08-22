@@ -184,10 +184,10 @@ const Step0_SelectIssue = function Component(props: Step0_Props) {
                      className="m-0 w-full"
                   ></CheckCard>
                ))}
-            <section className="py-layout">
+            {/* <section className="py-layout">
                <h2 className="text-center text-base font-semibold">Tác vụ</h2>{" "}
                <TasksList api={apiRequest} className="mb-28" />
-            </section>
+            </section> */}
          </div>
          <Modal
             open={open}

@@ -65,7 +65,6 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
    })
 
    const [isLoading, setIsLoading] = useState(false)
-   const [finishOpen, setFinishOpen] = useState(false)
 
    const mutate_createTask = useMutation({
       mutationFn: HeadStaff_Task_Create,
@@ -212,7 +211,8 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
             if (remainingTasks !== selectedIssuesLength) {
                props.resetAll()
             } else {
-               setFinishOpen(true)
+               setIsLoading(false)
+               router.push(`/head-staff/mobile/requests/${props.requestId}`)
             }
          } catch (e) {
             message.error("Tạo tác vụ thất bại").then()
@@ -222,10 +222,9 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
                key: "error",
             })
          } finally {
-            setIsLoading(false)
          }
       },
-      [props, mutate_createTask, mutate_assignFixer, form, message],
+      [props, mutate_createTask, mutate_assignFixer, form, router, message],
    )
 
    useEffect(() => {
@@ -278,25 +277,6 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
       }
    }, [props.selectedFixDate, props.selectedFixer, props.selectedTaskName, setNextBtnProps])
 
-   const handleReturn = () => {
-      setFinishOpen(false)
-      setTimeout(() => {
-         router.push(`/head-staff/mobile/requests/${props.requestId}`)
-         router.push(`/head-staff/mobile/requests/${props.requestId}`)
-         router.push(`/head-staff/mobile/requests/${props.requestId}`)
-      }, 200)
-   }
-
-  useEffect(() => {
-   if (finishOpen) {
-     const timer = setTimeout(() => {
-       router.back();
-     }, 2500);
-
-     return () => clearTimeout(timer);
-   }
- }, [finishOpen, router]);
-
    return (
       <div className="mt-layout">
          <Form layout="vertical" form={form} onFinish={handleFinish}>
@@ -311,9 +291,12 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
                            const requestDate = dayjs(data.createdAt).format("DDMMYY")
                            const area = data.device.area.name
                            const machine = data.device.machineModel.name
-                           const issueCodes = Object.values(props.selectedIssues).map((e) => {
-                              return e.typeError.id.substring(0, 3)
-                           }).join("").toUpperCase()
+                           const issueCodes = Object.values(props.selectedIssues)
+                              .map((e) => {
+                                 return e.typeError.id.substring(0, 3)
+                              })
+                              .join("")
+                              .toUpperCase()
                            const str = `${requestDate}_${area}_${machine}_${issueCodes}`
                            form.setFieldsValue({
                               name: str,
@@ -419,19 +402,6 @@ const Step1_CreateTask = memo(function Component(props: Step1_Props) {
          </Form>
 
          {isLoading && <Spin fullscreen />}
-         <Drawer
-            open={finishOpen}
-            closeIcon={null}
-            placement="bottom"
-            height="100%"
-            classNames={{
-               body: "grid place-content-center",
-            }}
-         >
-            <Result status="success" title="Thành công!" subTitle="Tất cả các lỗi đã được tạo tác vụ" extra={[]}>
-               
-            </Result>
-         </Drawer>
       </div>
    )
 })

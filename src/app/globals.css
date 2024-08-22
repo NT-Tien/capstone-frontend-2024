@@ -64,7 +64,6 @@ html, body {
 }
 
 .main-tabs {
-
     .ant-tabs-nav {
         box-shadow: var(--shadow-bottom) !important;
         width: 100% !important;
@@ -164,5 +163,21 @@ html, body {
 .antd-calendar-change-disabled-color {
     .ant-picker-cell-disabled {
         @apply bg-red-200 !important;
+    }
+}
+
+.custom-active-tab {
+    .ant-tabs-tab-active {
+        @apply rounded-b-lg !important;
+    }
+
+    .ant-tabs-tab {
+        @apply rounded-lg !important;
+    }
+}
+
+.custom-collapse-padding {
+    .ant-collapse-content-box {
+        @apply px-layout pb-3 pt-0 !important;
     }
 }

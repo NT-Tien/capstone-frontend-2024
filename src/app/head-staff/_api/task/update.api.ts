@@ -5,7 +5,11 @@ import { TaskDto } from "@/common/dto/Task.dto"
 
 export type Request = {
    id: string
-   payload: Partial<Pick<TaskDto, "name" | "priority" | "operator" | "totalTime" | "status">>
+   payload: Partial<
+      Pick<TaskDto, "name" | "priority" | "operator" | "totalTime" | "status" | "fixerDate"> & {
+         fixer: string
+      }
+   >
 }
 export type Response = TaskDto
 

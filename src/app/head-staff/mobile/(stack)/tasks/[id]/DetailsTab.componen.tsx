@@ -1,23 +1,18 @@
 "use client"
 
-import VerifyTaskModal from "@/app/head-staff/mobile/(stack)/tasks/[id]/VerifyTask.modal"
-import DataListView from "@/common/components/DataListView"
+import HeadStaff_Task_UpdateComplete from "@/app/head-staff/_api/task/update-complete.api"
 import { TaskDto } from "@/common/dto/Task.dto"
+import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
 import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
+import { clientEnv } from "@/env"
 import { LinkOutlined, UserOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
-import { MapPin } from "@phosphor-icons/react"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
 import { App, Avatar, Button, Card, Image, Progress, Steps, Tag } from "antd"
 import dayjs from "dayjs"
 import Link from "next/link"
-import { clientEnv } from "@/env"
-import React, { useRef } from "react"
-import HeadStaff_Task_Update from "@/app/head-staff/_api/task/update.api"
-import HeadStaff_Task_UpdateComplete from "@/app/head-staff/_api/task/update-complete.api"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
+import { useRef } from "react"
+import AssignFixerDrawer, { AssignFixerDrawerRefType } from "./AssignFixer.drawer"
 
 type Props = {
    api: UseQueryResult<TaskDto, Error>
@@ -50,6 +45,7 @@ function TaskStatusNumberMapper(task?: TaskDto) {
 export default function DetailsTab({ api, setTab }: Props) {
    const { message } = App.useApp()
    const verifyRef = useRef<HTMLDivElement | null>(null)
+   const assignFixerRef = useRef<AssignFixerDrawerRefType | null>(null)
 
    const mutate_updateStatus = useMutation({
       mutationFn: HeadStaff_Task_UpdateComplete,
@@ -121,10 +117,10 @@ export default function DetailsTab({ api, setTab }: Props) {
                   dataIndex: "operator",
                },
                {
-                  key: "created",
-                  label: "Ngày tạo",
-                  dataIndex: "createdAt",
-                  render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
+                  key: "fix date",
+                  label: "Ngày sửa",
+                  dataIndex: "fixerDate",
+                  render: (_, e) => (e.fixerDate ? dayjs(e.fixerDate).add(7, "hours").format("DD/MM/YYYY") : "-"),
                },
                {
                   key: "request",
@@ -163,19 +159,21 @@ export default function DetailsTab({ api, setTab }: Props) {
                   : []),
             ]}
          />
-         <Card
-            size="small"
-            className="mt-3"
-            classNames={{
-               body: "flex",
-            }}
-         >
-            <Avatar icon={<UserOutlined />} />
-            <div className="ml-3">
-               <div className="text-base font-semibold">{api.data?.fixer.username}</div>
-               <div className="text-xs">{api.data?.fixer.phone}</div>
-            </div>
-         </Card>
+         {api.isSuccess && api.data.fixer && (
+            <Card
+               size="small"
+               className="mt-3"
+               classNames={{
+                  body: "flex",
+               }}
+            >
+               <Avatar icon={<UserOutlined />} />
+               <div className="ml-3">
+                  <div className="text-base font-semibold">{api.data.fixer?.username}</div>
+                  <div className="text-xs">{api.data.fixer?.phone}</div>
+               </div>
+            </Card>
+         )}
          <section className="mt-3">
             <Card>
                <Steps
@@ -184,11 +182,57 @@ export default function DetailsTab({ api, setTab }: Props) {
                   items={[
                      {
                         title: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text,
-                        description: "Chờ phân công nhân viên",
+                        description: (
+                           <div>
+                              <span>Chờ phân công nhân viên</span>
+                              <div className="mt-2">
+                                 {api.data?.status === TaskStatus.AWAITING_FIXER && (
+                                    <Button
+                                       type="primary"
+                                       className="w-full"
+                                       size="middle"
+                                       onClick={() =>
+                                          api.isSuccess &&
+                                          assignFixerRef.current?.handleOpen(api.data.id, {
+                                             fixer: api.data.fixer,
+                                             fixerDate: dayjs(api.data.fixerDate).add(7, "hours"),
+                                             priority: api.data.priority,
+                                          })
+                                       }
+                                    >
+                                       Phân công tác vụ
+                                    </Button>
+                                 )}
+                              </div>
+                           </div>
+                        ),
                      },
                      {
                         title: TaskStatusTagMapper[TaskStatus.ASSIGNED].text,
-                        description: "Đã phân công nhân viên, chờ nhân viên bắt đầu",
+                        description: (
+                           <div>
+                              <span>Đã phân công nhân viên, chờ nhân viên bắt đầu</span>
+                              <div className="mt-2">
+                                 {api.data?.status === TaskStatus.ASSIGNED && (
+                                    <Button
+                                       type="primary"
+                                       className="w-full"
+                                       size="middle"
+                                       onClick={() =>
+                                          api.isSuccess &&
+                                          assignFixerRef.current?.handleOpen(api.data.id, {
+                                             fixer: api.data.fixer,
+                                             fixerDate: dayjs(api.data.fixerDate).add(7, "hours"),
+                                             priority: api.data.priority,
+                                          })
+                                       }
+                                    >
+                                       Cập nhật thông tin
+                                    </Button>
+                                 )}
+                              </div>
+                           </div>
+                        ),
                      },
                      ...(api.data?.issues.find((i) => i.issueSpareParts.length !== 0)
                         ? [
@@ -274,6 +318,7 @@ export default function DetailsTab({ api, setTab }: Props) {
                </Card>
             </section>
          )}
+         <AssignFixerDrawer ref={assignFixerRef} refetchFn={api.refetch} />
       </section>
    )
 }

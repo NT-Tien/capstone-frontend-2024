@@ -5,7 +5,6 @@ import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api
 import { PageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/page.context"
 import Step0_SelectIssue from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/Step0_SelectIssue.component"
 import Step1_CreateTask from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/Step1_CreateTask.component"
-import Step2_ConfirmTask from "@/app/head-staff/mobile/(stack)/requests/[id]/task/new/Step2_ConfirmTask.component"
 import RootHeader from "@/common/components/RootHeader"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 import { UserDto } from "@/common/dto/User.dto"

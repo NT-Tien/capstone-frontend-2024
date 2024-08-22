@@ -1,20 +1,18 @@
 "use client"
 
 import DayjsProvider from "@/common/providers/dayjs.provider"
+import EnvEditorProvider from "@/common/providers/EnvEditor.provider"
 import ModalStackProvider from "@/common/providers/modal-stack.provider"
 import { makeQueryClient } from "@/common/util/makeQueryClient.util"
 import { AntdRegistry } from "@ant-design/nextjs-registry"
 import { enUSIntl, ProConfigProvider } from "@ant-design/pro-provider"
 import { QueryClientProvider } from "@tanstack/react-query"
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { App, ConfigProvider } from "antd"
 import en_US from "antd/lib/locale/en_US"
 import "dayjs/locale/vi"
 import "moment/locale/vi"
 import { ReactNode } from "react"
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import EnvEditorProvider from "@/common/providers/EnvEditor.provider"
-import SocketProvider from "@/common/providers/SocketProvider"
-import ClientOnlyWrapper from "./ClientOnlyWrapper"
 
 export default function GlobalProvider({ children }: Readonly<{ children: ReactNode }>) {
    const queryClient = makeQueryClient()

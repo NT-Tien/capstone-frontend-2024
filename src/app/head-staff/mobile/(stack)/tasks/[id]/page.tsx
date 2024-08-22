@@ -39,7 +39,7 @@ function Component({ params }: { params: { id: string } }) {
             onIconClick={() =>
                api.isSuccess
                   ? searchParams.get("goto") === "request"
-                     ? router.push(`/head-staff/mobile/requests/${api.data.request.id}`)
+                     ? router.push(`/head-staff/mobile/requests/${api.data.request.id}/approved?tab=tasks`)
                      : router.push("/head-staff/mobile/tasks")
                   : undefined
             }

@@ -1,24 +1,59 @@
 import { Avatar, Button } from "antd"
 import { MoreOutlined } from "@ant-design/icons"
+import { ReactNode, useMemo } from "react"
+import { cn } from "@/common/util/cn.util"
 
-function RequestCard() {
+type Props = {
+   title: string
+   subtitle: ReactNode
+   description: ReactNode
+   footerLeft: ReactNode
+   footerRight: ReactNode
+   tag?: ReactNode
+   className?: string
+   headerClassName?: string
+   onClick?: () => void
+}
+
+function RequestCard(props: Props) {
+   const avatarData = useMemo(() => generateAvatarData(props.title), [props.title])
+
    return (
-      <div className="flex flex-col">
-         <div className="flex">
-            <Avatar size={64} src="Text" />
+      <div className={cn("flex flex-col", props.onClick && "cursor-pointer rounded-lg transition-all hover:p-2 hover:bg-primary-50", props.className)} onClick={props.onClick}>
+         <div className={cn("flex gap-3", props.headerClassName)}>
+            <Avatar size={48} className="bg-orange-500">
+               {avatarData.content}
+            </Avatar>
             <div className="flex flex-grow flex-col">
-               <div>Name</div>
-               <div>Text | Text</div>
+               <div className="text-lg font-medium">{props.title}</div>
+               <div className="text-neutral-500">{props.subtitle}</div>
             </div>
-            <Button type="text" size="large" icon={<MoreOutlined />} />
+            <div className="flex gap-1 items-center">
+               {props.tag && <div>{props.tag}</div>}
+               <Button type="text" size="small" icon={<MoreOutlined />} className="m-0 p-0" />
+            </div>
          </div>
-         <div>Description</div>
+         <div className="mt-2 line-clamp-1 text-neutral-500">{props.description}</div>
          <div className="flex">
-            <div className="flex-grow">50% complete</div>
-            <div>Text</div>
+            <div className="flex-grow text-sm">{props.footerLeft}</div>
+            <div className="text-sm">{props.footerRight}</div>
          </div>
       </div>
    )
+}
+
+function generateAvatarData(input: string) {
+   let content
+   const splitInput = input.split(" ")
+   if (splitInput.length > 1) {
+      content = splitInput[0][0] + splitInput[1][0]
+   } else {
+      content = splitInput[0][0] + (splitInput[0][1] ? splitInput[0][1] : "")
+   }
+
+   return {
+      content,
+   }
 }
 
 export default RequestCard

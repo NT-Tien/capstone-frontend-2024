@@ -41,7 +41,7 @@ export default function TaskCardBasic(props: Props) {
       >
          <section className="flex w-full flex-col">
             <div className="flex items-start justify-between">
-               <h4 className="line-clamp-2 text-base">{props.task.name}</h4>
+               <h4 className="line-clamp-2 text-sm font-medium">{props.task.name}</h4>
                {priority && (
                   <Tag color="red" className="m-0">
                      <ExclamationCircleFilled className="mr-1.5" />
@@ -53,19 +53,23 @@ export default function TaskCardBasic(props: Props) {
                <Tag className="m-0" color={TaskStatusTagMapper[status].colorInverse}>
                   {TaskStatusTagMapper[status].text}
                </Tag>
-               <Tag className="m-0 flex items-center gap-1">
-                  <CalendarOutlined />
-                  {dayjs(fixerDate).isSame(dayjs(), "day")
-                     ? "Today"
-                     : dayjs(fixerDate).add(7, "hours").format("DD/MM/YY")}
-               </Tag>
+               {fixerDate && (
+                  <Tag className="m-0 flex items-center gap-1">
+                     <CalendarOutlined />
+                     {dayjs(fixerDate).isSame(dayjs(), "day")
+                        ? "Hôm nay"
+                        : dayjs(fixerDate).add(7, "hours").format("DD/MM/YY")}
+                  </Tag>
+               )}
                <Tag className="m-0 flex items-center gap-1">
                   <ClockCircleOutlined />
                   {props.task.totalTime} phút
                </Tag>
-               <Tag className="m-0 flex items-center gap-1">
-                  <UserOutlined /> {props.task.fixer.username}
-               </Tag>
+               {props.task.fixer && (
+                  <Tag className="m-0 flex items-center gap-1">
+                     <UserOutlined /> {props.task.fixer.username}
+                  </Tag>
+               )}
             </div>
             {new Set([TaskStatus.IN_PROGRESS, TaskStatus.ASSIGNED]).has(status) && (
                <div className="mt-4">

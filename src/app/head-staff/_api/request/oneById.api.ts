@@ -11,19 +11,15 @@ export type Response = FixRequestDto
 
 HeadStaff_Request_OneById.URL = (req: Request) => `/head-staff/request/${req.id}`
 export default async function HeadStaff_Request_OneById(req: Request): Promise<Response> {
-   return api
-      .get<Response>(HeadStaff_Request_OneById.URL(req), {
-         transformResponse: (data) =>
-            parseApiResponse(data, (res) => {
-               if (res.data === null) {
-                  throw new NotFoundError("Device not found")
-               }
+   const res = await api.get<Response>(HeadStaff_Request_OneById.URL(req), {
+      transformResponse: (data) =>
+         parseApiResponse(data, (res) => {
+            return res.data
+         }),
+      headers: {
+         Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+   })
 
-               return res.data
-            }),
-         headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
-         },
-      })
-      .then((res) => res.data)
+   return res.data
 }

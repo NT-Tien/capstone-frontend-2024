@@ -31,25 +31,22 @@ type Props<T> = {
 
 export default function DataListView<T>(props: Props<T>) {
    return (
-      <ul
-         className={cn("grid grid-cols-1", props.className)}
-         style={{
-            ...props.style,
-            border: props.bordered ? "1px solid #ddd" : undefined,
-            borderRadius: "5%",
-            boxShadow: props.bordered ? "0 2px 8px rgba(0, 0, 0, 0.1)" : undefined,
-         }}
-      >
+      <ul className={cn("grid grid-cols-1", props.className)} style={props.style}>
          {props.items.map((item, index) => (
             <li
                key={index}
-               className={cn("flex items-start justify-between px-layout py-3", props.itemClassName)}
-               style={props.style}
+               className={cn(
+                  "flex items-start justify-between px-layout py-3",
+                  !props.dataSource && index === 0 && "pt-layout",
+                  !props.dataSource && index === props.items.length - 1 && "pb-layout",
+                  props.itemClassName,
+               )}
+               style={props.itemStyle}
             >
                {props.dataSource ? (
                   <>
-              {item.isDivider && <Divider style={dividerStyle} />} 
-              <div
+                     {item.isDivider && <Divider style={dividerStyle} />}
+                     <div
                         className={cn(
                            "flex flex-grow items-center gap-2 text-base font-semibold",
                            props.labelClassName,
@@ -70,7 +67,7 @@ export default function DataListView<T>(props: Props<T>) {
                      </div>
                   </>
                ) : (
-                  <div className="col-span-2 grid grid-cols-2 gap-2">
+                  <div className="col-span-2 grid w-full grid-cols-2 gap-2">
                      <Skeleton.Button active className="col-span-1 w-full"></Skeleton.Button>
                      <Skeleton.Input active className="col-span-1 w-full"></Skeleton.Input>
                   </div>

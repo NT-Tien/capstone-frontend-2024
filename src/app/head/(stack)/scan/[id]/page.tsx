@@ -7,6 +7,7 @@ import Head_Request_Create from "@/app/head/_api/request/create.api"
 import DataListView from "@/common/components/DataListView"
 import RootHeader from "@/common/components/RootHeader"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
+import { FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { NotFoundError } from "@/common/error/not-found.error"
 import useCurrentUser from "@/common/hooks/useCurrentUser"
@@ -14,11 +15,12 @@ import useModalControls from "@/common/hooks/useModalControls"
 import { LeftOutlined, PlusOutlined, QrcodeOutlined, ReloadOutlined } from "@ant-design/icons"
 import { ProFormSelect, ProFormTextArea } from "@ant-design/pro-components"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Badge, Button, Card, Divider, Drawer, Empty, Form, Result, Space, Tooltip } from "antd"
+import { App, Button, Card, Divider, Drawer, Empty, Form, Result, Space, Tag, Tooltip } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
-import { FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
+import Cookies from "js-cookie"
+import { decodeJwt } from "@/common/util/decodeJwt.util"
 
 type FieldType = {
    description: string
@@ -286,34 +288,32 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   <div className="grid grid-cols-1 gap-2">
                      {!!filteredRequests?.mine && (
                         <div>
-                           <Badge.Ribbon
-                              key={filteredRequests.mine.id}
-                              color={FixRequest_StatusMapper(filteredRequests.mine).color}
-                              text={
-                                 <span className="capitalize">
-                                    {FixRequest_StatusMapper(filteredRequests.mine).text}
-                                 </span>
-                              }
+                           <Card
+                              size="small"
+                              hoverable
+                              onClick={() => router.push(`/head/history/${filteredRequests.mine?.id}?return=scan`)}
                            >
-                              <Card size="small" className="bg-yellow-50">
-                                 <div className="flex flex-col gap-2">
-                                    <span className="truncate text-base font-medium">
-                                       {filteredRequests.mine.requester_note}
+                              <div className="flex flex-col gap-2">
+                                 <div className="flex items-center justify-between">
+                                    <span className="w-64 truncate text-base font-semibold">
+                                       {filteredRequests.mine.requester.username}
                                     </span>
-                                    <div className="flex justify-between">
-                                       <span>
-                                          <span className="text-neutral-500">Được tạo bởi</span> Head
-                                       </span>
-                                       <span className="text-neutral-600">
-                                          {dayjs(filteredRequests.mine.createdAt)
-                                             .add(7, "hours")
-                                             .format("DD-MM-YYYY HH:mm")}
-                                       </span>
-                                    </div>
+                                    <Tag
+                                       color={FixRequest_StatusMapper(filteredRequests.mine).colorInverse}
+                                       className="m-0"
+                                    >
+                                       {FixRequest_StatusMapper(filteredRequests.mine).text}
+                                    </Tag>
                                  </div>
-                              </Card>
-                           </Badge.Ribbon>
-                           <Divider className="mb-0 mt-4">Other Requests</Divider>
+                                 <div className="flex justify-between font-normal text-neutral-400">
+                                    {filteredRequests.mine.requester_note}
+                                 </div>
+                                 <span className="text-xs text-neutral-600">
+                                    {dayjs(filteredRequests.mine.createdAt).add(7, "hours").format("DD-MM-YYYY HH:mm")}
+                                 </span>
+                              </div>
+                           </Card>
+                           <Divider className="mb-0 mt-4">Yêu cầu cũ</Divider>
                         </div>
                      )}
                      {filteredRequests?.all.length === 0 ? (
@@ -323,25 +323,34 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                      ) : (
                         filteredRequests?.all.map((req) => (
                            <>
-                              <Badge.Ribbon
-                                 key={req.id}
-                                 color={FixRequest_StatusMapper(req).color}
-                                 text={<span className="capitalize">{FixRequest_StatusMapper(req).text}</span>}
+                              <Card
+                                 size="small"
+                                 onClick={() => {
+                                    const jwt = Cookies.get("token")
+                                    if (!jwt) return
+                                    const decoded = decodeJwt(jwt)
+                                    if (decoded.id === req.requester.id) {
+                                       router.push(`/head/history/${req.id}?return=scan`)
+                                    }
+                                 }}
                               >
-                                 <Card size="small">
-                                    <div className="flex flex-col gap-2">
-                                       <span className="truncate text-base font-medium">{req.requester_note}</span>
-                                       <div className="flex justify-between">
-                                          <span>
-                                             <span className="text-neutral-500">Được tạo bởi</span> Head
-                                          </span>
-                                          <span className="text-neutral-600">
-                                             {dayjs(req.createdAt).add(7, "hours").format("DD-MM-YYYY HH:mm")}
-                                          </span>
-                                       </div>
+                                 <div className="flex flex-col gap-2">
+                                    <div className="flex items-center justify-between">
+                                       <span className="w-64 truncate text-base font-semibold">
+                                          {req.requester.username}
+                                       </span>
+                                       <Tag color={FixRequest_StatusMapper(req).colorInverse} className="m-0">
+                                          {FixRequest_StatusMapper(req).text}
+                                       </Tag>
                                     </div>
-                                 </Card>
-                              </Badge.Ribbon>
+                                    <div className="flex justify-between font-normal text-neutral-400">
+                                       {req.requester_note}
+                                    </div>
+                                    <span className="text-xs text-neutral-600">
+                                       {dayjs(req.createdAt).add(7, "hours").format("DD-MM-YYYY HH:mm")}
+                                    </span>
+                                 </div>
+                              </Card>
                            </>
                         ))
                      )}

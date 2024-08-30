@@ -1,6 +1,6 @@
 import { RcFile, UploadFile } from "antd/es/upload"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { App, Button, Card, Drawer, Form, Popconfirm, Result, Typography, Upload } from "antd"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Staff_Task_UpdateFinish from "@/app/staff/_api/task/update-finish.api"
@@ -13,6 +13,7 @@ import checkImageUrl from "@/common/util/checkImageUrl.util"
 import { File_Video_Upload } from "@/_api/file/upload_video.api"
 import { HomeOutlined } from "@ant-design/icons"
 import { GeneralProps } from "@/app/staff/(stack)/tasks/[id]/start/page"
+import CreateSignatureDrawer, { CreateSignatureDrawerRefType } from "@/common/components/CreateSignature.drawer"
 
 type SubmitFieldType = {
    fixerNote: string
@@ -30,25 +31,26 @@ export default function Step2(props: Step3Props) {
    const { message } = App.useApp()
    const [form] = Form.useForm<SubmitFieldType>()
    const queryClient = useQueryClient()
-   const [open, setOpen] = useState(false)
+
+   const createSignatureRef = useRef<CreateSignatureDrawerRefType | null>(null)
 
    const mutate_finishTask = useMutation({
       mutationFn: Staff_Task_UpdateFinish,
       onMutate: async () => {
          message.open({
             type: "loading",
-            content: `Loading...`,
+            content: `Vui lòng chờ...`,
             key: `loading`,
          })
       },
       onError: async (error) => {
          message.error({
-            content: "An error occurred. Please try again later.",
+            content: "Có lỗi xảy ra khi cập nhật tác vụ.",
          })
       },
       onSuccess: async () => {
          message.success({
-            content: `Spare parts received successfully.`,
+            content: `Cập nhật tác vụ thành công`,
          })
          await queryClient.invalidateQueries({
             queryKey: staff_qk.task.one_byId(props.id),
@@ -59,30 +61,28 @@ export default function Step2(props: Step3Props) {
       },
    })
 
-   function handleSubmit(values: SubmitFieldType) {
-      console.log("SUBMIT", values)
+   function handleSubmit(values: SubmitFieldType, path: string) {
       mutate_finishTask.mutate(
          {
             id: props.id,
             payload: {
-               imagesVerify: [values.imagesVerify.response],
+               imagesVerify: [path],
                videosVerify: values.videosVerify?.response ?? "",
                fixerNote: values.fixerNote,
             },
          },
          {
             onSuccess: () => {
-               setOpen(true)
+               router.push("/staff/tasks")
             },
          },
       )
    }
 
    return (
-      <div style={props.style}>
+      <div style={props.style} className="mb-32 overflow-y-auto">
          <Card size="small" className="mt-layout">
-            Bạn đã sửa chữa thành công tất cả các vấn đề trong tác vụ này. Vui lòng chụp ảnh và quay video chứng minh
-            việc sửa chữa để hoàn tất tác vụ!
+            Bạn đã sửa chữa thành công tất cả các vấn đề trong tác vụ này. Vui lòng xác nhận và hoàn thành tác vụ.
          </Card>
          <Form<SubmitFieldType>
             form={form}
@@ -91,12 +91,7 @@ export default function Step2(props: Step3Props) {
                console.log(values, typeof values.imagesVerify?.[0])
             }}
          >
-            <ProFormItem
-               name="imagesVerify"
-               label="Hình ảnh xác nhận"
-               shouldUpdate
-               rules={[{ required: true, message: "Vui lòng cập nhật hình ảnh" }]}
-            >
+            {/* <ProFormItem name="imagesVerify" label="Hình ảnh xác nhận" shouldUpdate>
                <ImageWithCrop
                   name="image"
                   accept=".jpg,.jpeg,.png,.gif,.bmp,.svg,.webp"
@@ -176,7 +171,7 @@ export default function Step2(props: Step3Props) {
                      <p>Vui lòng tải video lên.</p>
                   </div>
                </Upload.Dragger>
-            </ProFormItem>
+            </ProFormItem> */}
             <ProFormTextArea
                label="Ghi chú"
                name="fixerNote"
@@ -203,39 +198,22 @@ export default function Step2(props: Step3Props) {
             >
                Quay lại
             </Button>
-            <Popconfirm
-               title="Lưu ý"
-               description="Bạn có chắc chắn hoàn thành tác vụ này không?"
-               onConfirm={() => {
-                  handleSubmit(form.getFieldsValue())
-               }}
-               okText="Có"
-               cancelText="Không"
+
+            <Button
+               size="large"
+               type="primary"
+               className="w-full"
+               onClick={() => createSignatureRef.current?.handleOpen()}
             >
-               <Button size="large" type="primary" className="w-full">
-                  Hoàn thành tác vụ
-               </Button>
-            </Popconfirm>
+               Hoàn thành tác vụ
+            </Button>
          </div>
-         <Drawer open={open} onClose={() => setOpen(false)} placement="bottom" height="100%" closeIcon={null}>
-            <div className="grid h-full w-full place-content-center">
-               <Result
-                  title="Bạn đã hoàn thành tác vụ"
-                  status="success"
-                  subTitle={"Cảm ơn bạn đã hoàn thành tác vụ. Vui lòng chờ xác nhận từ quản lý."}
-                  extra={
-                     <Button
-                        type="primary"
-                        onClick={() => {
-                           router.push("/staff/dashboard")
-                        }}
-                     >
-                        Quay lại trang chính
-                     </Button>
-                  }
-               />
-            </div>
-         </Drawer>
+         <CreateSignatureDrawer
+            ref={createSignatureRef}
+            onSubmit={(path) => {
+               handleSubmit(form.getFieldsValue(), path)
+            }}
+         />
       </div>
    )
 }

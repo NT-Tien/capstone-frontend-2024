@@ -36,7 +36,9 @@ export default function IssueDetailsDrawer({
    return (
       <>
          {children(handleOpen)}
-         <Drawer open={open} onClose={handleClose} placement="bottom" height="100%" title="Chi tiết vấn đề">
+         <Drawer open={open} onClose={handleClose} placement="bottom" height="100%" title="Chi tiết lỗi" classNames={{
+            body: "overflow-y-auto"
+         }}>
             <ProDescriptions
                title={currentIssue?.typeError.name ?? "-"}
                extra={
@@ -63,35 +65,44 @@ export default function IssueDetailsDrawer({
                   },
                ]}
             />
-            {currentIssue?.status === IssueStatusEnum.RESOLVED && (
-               <Card size="small" className="my-layout">
-                  <section>
-                     <h2 className="mb-2 text-sub-base font-medium">Hình ảnh minh chứng</h2>
-                     <div className="flex items-center gap-2">
-                        <Image
-                           src={clientEnv.BACKEND_URL + `/file-image/${currentIssue.imagesVerify?.[0]}`}
-                           alt="image"
-                           className="h-20 w-20 rounded-lg"
-                        />
-                        <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
-                        <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
-                     </div>
-                  </section>
-                  <section className="mt-4">
-                     <h2 className="mb-2 text-sub-base font-medium">Video minh chứng</h2>
-                     {!!currentIssue.videosVerify ? (
-                        <video width="100%" height="240" controls>
-                           <source
-                              src={clientEnv.BACKEND_URL + `/file-video/${currentIssue.videosVerify}`}
-                              type="video/mp4"
-                           />
-                        </video>
-                     ) : (
-                        <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">Không có</div>
-                     )}
-                  </section>
-               </Card>
-            )}
+            {currentIssue?.status === IssueStatusEnum.RESOLVED &&
+               (currentIssue.videosVerify || currentIssue.imagesVerify.find((img) => !!img)) && (
+                  <Card size="small" className="my-layout">
+                     <section>
+                        <h2 className="mb-2 text-sub-base font-medium">Hình ảnh minh chứng</h2>
+                        {currentIssue.imagesVerify.length === 0 ? (
+                           <div className="flex items-center gap-2">
+                              <Image
+                                 src={clientEnv.BACKEND_URL + `/file-image/${currentIssue.imagesVerify?.[0]}`}
+                                 alt="image"
+                                 className="h-20 w-20 rounded-lg"
+                              />
+                              <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
+                              <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
+                           </div>
+                        ) : (
+                           <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">
+                              Không có
+                           </div>
+                        )}
+                     </section>
+                     <section className="mt-4">
+                        <h2 className="mb-2 text-sub-base font-medium">Video minh chứng</h2>
+                        {!!currentIssue.videosVerify ? (
+                           <video width="100%" height="240" controls>
+                              <source
+                                 src={clientEnv.BACKEND_URL + `/file-video/${currentIssue.videosVerify}`}
+                                 type="video/mp4"
+                              />
+                           </video>
+                        ) : (
+                           <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">
+                              Không có
+                           </div>
+                        )}
+                     </section>
+                  </Card>
+               )}
             <div className="mt-6">
                <Typography.Title level={5}>
                   Linh kiện thay thế ({currentIssue?.issueSpareParts.length ?? 0})

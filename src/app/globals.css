@@ -181,3 +181,9 @@ html, body {
         @apply px-layout pb-3 pt-0 !important;
     }
 }
+
+.custom-segmented-label-no-padding {
+    .ant-segmented-item-label {
+        padding: 0 !important;
+    }
+}

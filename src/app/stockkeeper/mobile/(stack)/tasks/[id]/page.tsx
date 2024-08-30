@@ -27,8 +27,8 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
    const router = useRouter()
 
    const isWarranty = useMemo(() => {
-      return api_task.data?.issues.find((i) => i.typeError.id === ReceiveWarrantyTypeErrorId)
-   }, [api_task.data?.issues])
+      return false
+   }, [])
 
    const spareParts = useMemo(() => {
       return api_task.data?.issues.flatMap((i) => i.issueSpareParts) ?? []

@@ -23,7 +23,13 @@ import Head_Request_OneById from "@/app/head/_api/request/oneById.api"
 import head_qk from "@/app/head/_api/qk"
 import Head_Request_UpdateCancel from "@/app/head/_api/request/update-cancel.api"
 
-export default function HistoryDetails({ params }: { params: { id: string } }) {
+export default function HistoryDetails({
+   params,
+   searchParams,
+}: {
+   params: { id: string }
+   searchParams: { return?: "scan" }
+}) {
    const router = useRouter()
    const { message } = App.useApp()
 
@@ -92,7 +98,13 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
             title="Thông tin báo cáo"
             className="std-layout-outer p-4"
             icon={<LeftOutlined />}
-            onIconClick={() => router.replace("/head/history")}
+            onIconClick={() => {
+               if (searchParams.return === "scan") {
+                  if (api_requests.isSuccess) router.replace(`/head/scan/${api_requests.data?.device.id}`)
+               } else {
+                  router.replace("/head/history")
+               }
+            }}
             buttonProps={{
                type: "text",
             }}
@@ -253,17 +265,19 @@ export default function HistoryDetails({ params }: { params: { id: string } }) {
                                                <div>
                                                   {FixRequest_StatusData("head_confirm").description}
                                                   {api_requests.data?.status === FixRequestStatus.HEAD_CONFIRM && (
-                                                     <FeedbackDrawer onSuccess={() => api_requests.refetch()}>
-                                                        {(handleOpen) => (
-                                                           <Button
-                                                              type="primary"
-                                                              className="mt-1"
-                                                              onClick={() => handleOpen(params.id)}
-                                                           >
-                                                              Xác nhận
-                                                           </Button>
-                                                        )}
-                                                     </FeedbackDrawer>
+                                                     <div>
+                                                        <FeedbackDrawer onSuccess={() => api_requests.refetch()}>
+                                                           {(handleOpen) => (
+                                                              <Button
+                                                                 type="primary"
+                                                                 className="mt-1"
+                                                                 onClick={() => handleOpen(params.id)}
+                                                              >
+                                                                 Xác nhận
+                                                              </Button>
+                                                           )}
+                                                        </FeedbackDrawer>
+                                                     </div>
                                                   )}
                                                </div>
                                             ) : null,

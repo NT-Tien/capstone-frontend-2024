@@ -20,9 +20,11 @@ import Tag from "antd/es/tag"
 import dayjs from "dayjs"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useMemo, useRef, useState } from "react"
-import CreateTaskDrawer, { CreateTaskDrawerRefType } from "../CreateTask.drawer"
-import TasksList from "../TasksList.tab"
+import CreateTaskDrawer, { CreateTaskDrawerRefType } from "./CreateTask.drawer"
+import TasksList from "./TasksList.tab"
 import DeviceRequestHistoryDrawer from "../DeviceRequestHistory.drawer"
+import isApproved from "./is-approved.util"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 
 type Props = {
    requestId: string
@@ -47,7 +49,7 @@ function TabbedLayout(props: Props) {
    function handleTabChange(value: string) {
       setTab(value)
 
-      const urlSearchParams = new URLSearchParams()
+      const urlSearchParams = new URLSearchParams(searchParams.toString())
       urlSearchParams.set("tab", value)
       router.push(`/head-staff/mobile/requests/${props.requestId}/approved?${urlSearchParams.toString()}`)
    }
@@ -88,23 +90,28 @@ function TabbedLayout(props: Props) {
                         <Empty description="Chưa có tác vụ nào được tạo" image={Empty.PRESENTED_IMAGE_DEFAULT} />
                      </Card>
                   ) : (
-                     <TasksList api={props.api_request} className="std-layout-outer mt-2" />
+                     <TasksList api_request={props.api_request} className="std-layout-outer mt-2" />
                   )}
                </>
 
-               <section className="fixed bottom-0 left-0 flex w-full justify-center gap-3 bg-inherit p-layout">
-                  <Button
-                     className="w-full"
-                     type="primary"
-                     size="large"
-                     icon={<PlusOutlined />}
-                     onClick={() => createTaskRef.current?.handleOpen(props.requestId)}
-                     // onClick={() => router.push(`/head-staff/mobile/requests/${props.requestId}/task/new`)}
-                     disabled={!props.api_request.data?.issues.find((issue) => issue.task === null)}
-                  >
-                     Tạo tác vụ
-                  </Button>
-               </section>
+               {props.api_request.isSuccess &&
+                  new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
+                     props.api_request.data.status,
+                  ) && (
+                     <section className="fixed bottom-0 left-0 flex w-full justify-center gap-3 bg-inherit p-layout">
+                        <Button
+                           className="w-full"
+                           type="primary"
+                           size="large"
+                           icon={<PlusOutlined />}
+                           onClick={() => createTaskRef.current?.handleOpen(props.requestId)}
+                           // onClick={() => router.push(`/head-staff/mobile/requests/${props.requestId}/task/new`)}
+                           disabled={!props.api_request.data?.issues.find((issue) => issue.task === null)}
+                        >
+                           Tạo tác vụ
+                        </Button>
+                     </section>
+                  )}
             </>
          )}
          {tab === "issues" && (
@@ -112,7 +119,7 @@ function TabbedLayout(props: Props) {
                {props.api_request.data?.issues.filter((issue) => issue.task === null).length !== 0 && (
                   <section className="mb-layout mt-layout rounded-lg border-2 border-neutral-100 bg-white p-layout shadow-lg">
                      <h5 className="font-semibold text-neutral-700">Lỗi chưa có tác vụ</h5>
-                     <Divider className="my-1"/>
+                     <Divider className="my-1" />
                      <IssueDetailsDrawer refetch={() => {}} showActions={false}>
                         {(handleOpen) => (
                            <List
@@ -254,12 +261,19 @@ function TabbedLayout(props: Props) {
                               renderItem={(item, index) => (
                                  <List.Item
                                     className={cn(index === 0 && "mt-1")}
-                                    onClick={() =>
-                                       router.push(`/head-staff/mobile/requests/${item.id}?viewingHistory=true`)
-                                    }
+                                    onClick={() => {
+                                       if (isApproved(item.status)) {
+                                          router.push(
+                                             `/head-staff/mobile/requests/${item.id}/approved?viewingHistory=true`,
+                                          )
+                                       } else {
+                                          router.push(`/head-staff/mobile/requests/${item.id}?viewingHistory=true`)
+                                       }
+                                    }}
                                     extra={
                                        <div className="flex flex-col justify-between gap-1">
                                           <div className="text-right">
+                                             {item.is_warranty && <Tag color="orange">Bảo hành</Tag>}
                                              <Tag className="mr-0" color={FixRequest_StatusMapper(item).colorInverse}>
                                                 {FixRequest_StatusMapper(item).text}
                                              </Tag>

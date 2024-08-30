@@ -11,6 +11,7 @@ function createQueryClient() {
             retry: (_, error) => {
                return !(error instanceof UnauthorizedError)
             },
+            refetchOnWindowFocus: true,
          },
          dehydrate: {
             shouldDehydrateQuery: (query) => defaultShouldDehydrateQuery(query) || query.state.status === "pending",

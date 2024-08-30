@@ -13,7 +13,7 @@ import { usePageContext } from "@/app/head-staff/mobile/(stack)/requests/[id]/ta
 import useModalControls from "@/common/hooks/useModalControls"
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
-import TasksList from "../../TasksList.tab"
+import TasksList from "../../approved/TasksList.tab"
 import api from "@/config/axios.config"
 
 type Step0_Props = {

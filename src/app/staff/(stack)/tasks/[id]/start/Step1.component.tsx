@@ -25,6 +25,7 @@ type Step2Props = GeneralProps & {
 
 export default function Step1(props: Step2Props) {
    const [hasScanned, setHasScanned] = useState(false)
+   const [tab, setTab] = useState<"task" | "issues">("task")
 
    const { message } = App.useApp()
    const router = useRouter()
@@ -37,6 +38,7 @@ export default function Step1(props: Step2Props) {
 
       message.success("Quét mã QR thành công")
       setHasScanned(true)
+      setTab("issues")
       const scannedCache = localStorage.getItem("staff-task")
       if (!scannedCache) {
          localStorage.setItem("staff-task", JSON.stringify([id]))
@@ -72,9 +74,11 @@ export default function Step1(props: Step2Props) {
       <>
          <Tabs
             className="std-layout-outer main-tabs"
+            activeKey={tab}
+            onChange={(key) => setTab(key as "task" | "issues")}
             items={[
                {
-                  key: "1",
+                  key: "task",
                   label: "Chi tiết tác vụ",
                   children: (
                      <div>
@@ -172,7 +176,7 @@ export default function Step1(props: Step2Props) {
                   ),
                },
                {
-                  key: "2",
+                  key: "issues",
                   label: "Vấn đề",
                   children: (
                      <div className="pt-1">

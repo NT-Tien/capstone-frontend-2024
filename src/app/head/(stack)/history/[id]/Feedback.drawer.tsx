@@ -76,7 +76,7 @@ export default function FeedbackDrawer({
          <Drawer open={open} onClose={handleClose} title="Xác nhận và Đánh giá" placement="bottom" height="max-content">
             <Card size="small" className="mb-layout">
                <InfoCircleFilled className="mr-1" />
-               Vui lòng xác nhận máy đã được sửa chữa
+               Vui lòng đánh giá quá trình sửa chữa
             </Card>
             <ProFormTextArea
                label="Đánh giá"

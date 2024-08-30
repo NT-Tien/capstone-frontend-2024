@@ -1,26 +1,26 @@
 "use client"
 
-import { UseQueryResult } from "@tanstack/react-query"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { useRouter } from "next/navigation"
 import TaskCardBasic from "@/common/components/TaskCardBasic"
-import { useMemo } from "react"
-import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import { Card, Collapse, Empty } from "antd"
+import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { TaskDto } from "@/common/dto/Task.dto"
+import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
+import { UseQueryResult } from "@tanstack/react-query"
+import { Card, Collapse, Empty } from "antd"
+import { useMemo, useRef } from "react"
+import TaskDetailsDrawer, { TaskDetailsDrawerRefType } from "./TaskDetails.drawer"
 
 type Props = {
-   api: UseQueryResult<FixRequestDto, Error>
+   api_request: UseQueryResult<FixRequestDto, Error>
    className?: string
 }
 
 export default function TasksList(props: Props) {
-   const router = useRouter()
+   const taskDetailsRef = useRef<TaskDetailsDrawerRefType | null>(null)
 
    const taskSorted = useMemo(() => {
-      if (!props.api.data) return []
+      if (!props.api_request.data) return []
       // sort by status completed -> priority -> task name
-      return props.api.data.tasks.sort((a, b) => {
+      return props.api_request.data.tasks.sort((a, b) => {
          if (a.status === b.status) {
             if (a.priority === b.priority) {
                return a.name.localeCompare(b.name)
@@ -29,7 +29,7 @@ export default function TasksList(props: Props) {
          }
          return a.status === TaskStatus.COMPLETED ? -1 : 1
       })
-   }, [props.api.data])
+   }, [props.api_request.data])
 
    const taskGrouped = useMemo(() => {
       let result = {
@@ -81,7 +81,7 @@ export default function TasksList(props: Props) {
                                    <TaskCardBasic
                                       key={task.id}
                                       task={task}
-                                      onClick={() => router.push(`/head-staff/mobile/tasks/${task.id}?goto=request`)}
+                                      onClick={() => taskDetailsRef.current?.handleOpen(task)}
                                    />
                                 ))}
                              </div>
@@ -100,7 +100,7 @@ export default function TasksList(props: Props) {
                                    <TaskCardBasic
                                       key={task.id}
                                       task={task}
-                                      onClick={() => router.push(`/head-staff/mobile/tasks/${task.id}?goto=request`)}
+                                      onClick={() => taskDetailsRef.current?.handleOpen(task)}
                                    />
                                 ))}
                              </div>
@@ -109,7 +109,7 @@ export default function TasksList(props: Props) {
                     ]
                   : []),
                {
-                  key: "remaining",
+                  key: "doing",
                   label: "Chưa/Đang thực hiện" + ` (${taskGrouped.remaining.length})`,
                   children: (
                      <div className="grid grid-cols-1 gap-2">
@@ -117,7 +117,7 @@ export default function TasksList(props: Props) {
                            <TaskCardBasic
                               key={task.id}
                               task={task}
-                              onClick={() => router.push(`/head-staff/mobile/tasks/${task.id}?goto=request`)}
+                              onClick={() => taskDetailsRef.current?.handleOpen(task)}
                            />
                         ))}
                      </div>
@@ -134,7 +134,7 @@ export default function TasksList(props: Props) {
                                    <TaskCardBasic
                                       key={task.id}
                                       task={task}
-                                      onClick={() => router.push(`/head-staff/mobile/tasks/${task.id}?goto=request`)}
+                                      onClick={() => taskDetailsRef.current?.handleOpen(task)}
                                    />
                                 ))}
                              </div>
@@ -153,6 +153,7 @@ export default function TasksList(props: Props) {
                />
             ))}
          </div> */}
+         <TaskDetailsDrawer ref={taskDetailsRef} refetchFn={props.api_request.refetch} />
       </section>
    )
 }

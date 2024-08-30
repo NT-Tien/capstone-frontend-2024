@@ -1,15 +1,14 @@
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
+import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import { cn } from "@/common/util/cn.util"
 import { useQuery } from "@tanstack/react-query"
 import { Button, Card, List, Result, Skeleton, Tag } from "antd"
+import { TruckFilled } from "@ant-design/icons"
+import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import RequestCard from "./RequestCard"
-import dayjs from "dayjs"
-import { cn } from "@/common/util/cn.util"
-import { useMemo } from "react"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
 
 type Props = {
    status: FixRequestStatus
@@ -33,12 +32,12 @@ function TabDetails(props: Props) {
 
    if (!api_requests.isSuccess) {
       if (api_requests.isPending) {
-         return <Skeleton active />
+         return <Skeleton className="mt-layout" active />
       }
 
       if (api_requests.isError) {
          return (
-            <Card>
+            <Card className="mt-layout">
                <Result
                   title="Có lỗi xảy ra"
                   subTitle="Vui lòng thử lại sau"
@@ -62,17 +61,17 @@ function TabDetails(props: Props) {
                   description={item.requester_note}
                   footerLeft={
                      <div>
-                        {item.issues.find(
-                           (i) =>
-                              i.typeError?.id === SendWarrantyTypeErrorId ||
-                              i.typeError?.id === ReceiveWarrantyTypeErrorId,
-                        ) && <Tag color="orange-inverse">Bảo hành</Tag>}
+                        {item.is_warranty && (
+                           <Tag color="orange-inverse">
+                              <TruckFilled /> Bảo hành
+                           </Tag>
+                        )}
                         {item.status === FixRequestStatus.REJECTED ? (
                            <div className="w-32 truncate">Lý do: {item.checker_note}</div>
                         ) : undefined}
                      </div>
                   }
-                  footerRight={getCreatedAt(item)}
+                  footerRight={<span className="text-xs text-neutral-500">{getCreatedAt(item)}</span>}
                   subtitle={`${item.requester.username} | ${item.device.area.name}`}
                   title={item.device.machineModel.name}
                   onClick={() => {
@@ -90,6 +89,7 @@ function TabDetails(props: Props) {
                         </Tag>
                      )
                   }
+                  footerClassName="mt-1"
                />
             </List.Item>
          )}

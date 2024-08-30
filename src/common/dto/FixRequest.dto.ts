@@ -21,4 +21,5 @@ export type FixRequestDto = {
    checker_date: string
    issues: FixRequestIssueDto[]
    is_seen: boolean
+   is_warranty: boolean
 }

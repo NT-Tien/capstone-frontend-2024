@@ -12,8 +12,8 @@ import { useMutation } from "@tanstack/react-query"
 import Staff_Issue_UpdateFinish from "@/app/staff/_api/issue/update-finish"
 
 type SubmitFieldType = {
-   imagesVerify: UploadFile
-   videosVerify: UploadFile
+   imagesVerify?: UploadFile
+   videosVerify?: UploadFile
 }
 
 type Props = {
@@ -76,7 +76,7 @@ export default function FinishIssueDrawer({
          {
             id: issueId!,
             payload: {
-               imagesVerify: [values.imagesVerify.response],
+               imagesVerify: [values.imagesVerify?.response ?? ""],
                videosVerify: values.videosVerify?.response ?? "",
             },
          },
@@ -106,7 +106,6 @@ export default function FinishIssueDrawer({
                   name="imagesVerify"
                   label="Hình ảnh xác nhận"
                   shouldUpdate
-                  rules={[{ required: true, message: "Vui lòng cập nhật hình ảnh" }]}
                >
                   <ImageWithCrop
                      name="image"

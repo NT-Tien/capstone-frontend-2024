@@ -10,6 +10,7 @@ import Image from "next/image"
 import { Suspense, useEffect, useState } from "react"
 import TabDetails from "./TabDetails.component"
 import { useRouter, useSearchParams } from "next/navigation"
+import { SearchOutlined, FilterOutlined } from "@ant-design/icons"
 
 function Page() {
    return (
@@ -23,7 +24,7 @@ function Component() {
    const searchParams = useSearchParams()
    const router = useRouter()
    const [tab, setTab] = useState<FixRequestStatus | undefined>(undefined)
-
+   
    function handleChangeTab(tab: FixRequestStatus) {
       setTab(tab)
 
@@ -50,16 +51,30 @@ function Component() {
       <div className="std-layout relative h-full min-h-screen bg-white">
          <PageHeader title="Yêu cầu" icon={AddressBook} className="std-layout-outer relative z-30" />
          <Image
-            className="std-layout-outer absolute left-0 top-0 z-0 h-24 w-full object-fill opacity-40"
+            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
+            src="/images/requests.jpg"
+            alt="image"
+            width={784}
+            height={100}
+            style={{
+               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               objectFit: "fill",
+            }}
+         />
+         {/* <Image
+            className="std-layout-outer absolute left-0 top-0 z-0 h-24 w-full object-fill opacity-30"
             src="/images/requests.jpg"
             width={784}
             height={240}
             alt="image"
-         />
+         /> */}
          <Input
             type="text"
             className="relative z-30 w-full rounded-full border border-neutral-200 bg-neutral-100 px-4 py-3"
             placeholder="Tìm kiếm"
+            prefix={<SearchOutlined className="mr-2" />}
+            suffix={<FilterOutlined />}
          />
          <Segmented
             onChange={handleChangeTab}
@@ -70,7 +85,8 @@ function Component() {
                   className: "p-1",
                   value: FixRequest_StatusData(status).statusEnum,
                   label: (
-                     <div className="flex w-min flex-col items-center justify-center break-words font-medium">
+                     <div className="flex w-min gap-3 items-center justify-center break-words font-medium">
+                        <div className="text-lg">{FixRequest_StatusData(status).icon}</div>
                         {FixRequest_StatusData(status).text}
                      </div>
                   ),
@@ -78,7 +94,7 @@ function Component() {
             )}
             className="hide-scrollbar mt-layout w-full overflow-auto"
          />
-         <section className="mt-layout">
+         <section>
             {tab ? (
                <TabDetails status={tab} />
             ) : (

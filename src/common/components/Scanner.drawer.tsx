@@ -34,11 +34,11 @@ placement="bottom"
             {...props.drawerProps}
          >
             <section className="grid place-items-center">
-               <div className="mb-6 flex items-center rounded-full border-2 border-neutral-200 bg-white px-6 py-1">
-                  <span>
+               <div className="mb-6 flex items-center rounded-full border-2 border-neutral-200 bg-white px-2 py-1 gap-3">
+                  <InfoCircleOutlined />
+                  <span className="text-xs">
                      Vui lòng đặt<strong className="mx-1 font-semibold">mã QR của thiết bị</strong>vào khung hình
                   </span>
-                  <InfoCircleOutlined className="ml-2" />
                </div>
             </section>
             <Scanner

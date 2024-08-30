@@ -44,6 +44,7 @@ export type AssignFixerDrawerRefType = {
 
 type Props = {
    refetchFn?: () => void
+   afterFinish?: () => void
 }
 
 const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function Component({ ...props }, ref) {
@@ -72,15 +73,14 @@ const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function C
    const [priority, setPriority] = useState<boolean>(false)
    const [taskId, setTaskId] = useState<string | undefined>()
 
-   console.log(fixer)
-
    const api_user = useQuery({
       queryKey: headstaff_qk.user.all(),
       queryFn: () => HeadStaff_Users_AllStaff(),
+      enabled: !!fixerDate
    })
 
    const sorted = useMemo(() => {
-      if (!api_user.isSuccess) return
+      if (!api_user.isSuccess || !fixerDate) return
       const selectedFixDate = dayjs(fixerDate).add(7, "hours")
 
       if (!selectedFixDate.isValid()) return
@@ -165,6 +165,7 @@ const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function C
             onSuccess: () => {
                props.refetchFn?.()
                handleClose()
+               props.afterFinish?.()
             },
          },
       )

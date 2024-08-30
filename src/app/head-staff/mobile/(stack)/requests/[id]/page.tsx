@@ -33,8 +33,8 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import ApproveRequestDrawer, { ApproveRequestDrawerRefType } from "./ApproveRequest.drawer"
 import DeviceRequestHistoryDrawer from "./DeviceRequestHistory.drawer"
 import RejectRequestDrawer, { RejectRequestDrawerRefType } from "./RejectRequest.drawer"
-import isApproved from "./approved/is-approved.util"
 import SendWarrantyDrawer, { SendWarrantyDrawerRefType } from "./SendWarranty.drawer"
+import isApproved from "./approved/is-approved.util"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
@@ -361,10 +361,16 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                               value: (s) => s.machineModel?.yearOfProduction,
                            },
                            {
+                              label: "Ngày nhận máy",
+                              value: (s) => dayjs(s.machineModel?.dateOfReceipt).format("DD-MM-YYYY"),
+                           },
+                           {
                               label: "Thời hạn bảo hành",
                               value: (s) => (
                                  <span className="flex flex-col">
-                                    <span className="text-right">{s.machineModel?.warrantyTerm}</span>
+                                    <span className="text-right">
+                                       {dayjs(s.machineModel?.warrantyTerm).format("DD-MM-YYYY")}
+                                    </span>
                                     {hasExpired && (
                                        <Tag color="red-inverse" className="m-0">
                                           Hết bảo hành
@@ -412,12 +418,21 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                     renderItem={(item, index) => (
                                        <List.Item
                                           className={cn(index === 0 && "mt-1")}
-                                          onClick={() =>
-                                             router.push(`/head-staff/mobile/requests/${item.id}?viewingHistory=true`)
-                                          }
+                                          onClick={() => {
+                                             if (isApproved(item.status)) {
+                                                router.push(
+                                                   `/head-staff/mobile/requests/${item.id}/approved?viewingHistory=true`,
+                                                )
+                                             } else {
+                                                router.push(
+                                                   `/head-staff/mobile/requests/${item.id}?viewingHistory=true`,
+                                                )
+                                             }
+                                          }}
                                           extra={
                                              <div className="flex flex-col justify-between gap-1">
                                                 <div className="text-right">
+                                                   {item.is_warranty && <Tag color="orange">Bảo hành</Tag>}
                                                    <Tag
                                                       className="mr-0"
                                                       color={FixRequest_StatusMapper(item).colorInverse}
@@ -532,7 +547,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                               onClick={() =>
                                  api_device.isSuccess &&
                                  api_request.isSuccess &&
-                                 sendWarrantyRef.current?.handleOpen(params.id, {
+                                 sendWarrantyRef.current?.handleOpen(params.id, api_device.data, {
                                     areaName: api_device.data?.area.name,
                                     createdAt: api_request.data.createdAt,
                                     machineModelName: api_device.data?.machineModel.name,

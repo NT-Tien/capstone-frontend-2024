@@ -1,34 +1,32 @@
 "use client"
 
-import { App, Button, Card, Form, Input, Spin, Typography } from "antd"
-import { useMutation } from "@tanstack/react-query"
 import LoginCredentials from "@/app/login/_api/login-credentials.api"
-import { NotFoundError } from "@/common/error/not-found.error"
-import { useRouter, useSearchParams } from "next/navigation"
-import { decodeJwt } from "@/common/util/decodeJwt.util"
 import { Role } from "@/common/enum/role.enum"
-import Cookies from "js-cookie"
-import { Suspense, useEffect, useState } from "react"
+import { NotFoundError } from "@/common/error/not-found.error"
 import useEnvEditor from "@/common/hooks/useEnvEditor"
+import { decodeJwt } from "@/common/util/decodeJwt.util"
+import LockOutlined from "@ant-design/icons/LockOutlined"
+import UserOutlined from "@ant-design/icons/UserOutlined"
+import { useMutation } from "@tanstack/react-query"
+import App from "antd/es/app"
+import Button from "antd/es/button"
+import Card from "antd/es/card"
+import Form from "antd/es/form"
+import Input from "antd/es/input"
+import Spin from "antd/es/spin"
+import Typography from "antd/es/typography"
+import Cookies from "js-cookie"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 type FieldType = {
    username: string
    password: string
 }
 
-// component uses useSearchParams so it must be wrapped in Suspense
-export default function Page_Login() {
-   return (
-      <Suspense fallback={<Spin fullscreen={true} />}>
-         <Login />
-      </Suspense>
-   )
-}
-
-function Login() {
+function Page({ searchParams }: { searchParams: { error: string } }) {
    const { message } = App.useApp()
    const router = useRouter()
-   const params = useSearchParams()
    const [form] = Form.useForm<FieldType>()
    const { handleDelayedOpenEnvEditor } = useEnvEditor()
 
@@ -94,7 +92,8 @@ function Login() {
    }
 
    useEffect(() => {
-      const error = params.get("error")
+      message.destroy("error")
+      const error = searchParams.error
       if (error === "unauthenticated") {
          message
             .open({
@@ -108,7 +107,7 @@ function Login() {
       return () => {
          message.destroy("error")
       }
-   }, [message, params])
+   }, [message, searchParams.error])
 
    return (
       <>
@@ -131,18 +130,16 @@ function Login() {
                   <Form.Item<FieldType>
                      name="username"
                      label="Tên đăng nhập"
-                     tooltip="What's your username?"
                      rules={[{ required: true }]}
                   >
-                     <Input size="large" placeholder="e.g., account" autoFocus />
+                     <Input size="large" placeholder="Tên đăng nhập" autoFocus prefix={<UserOutlined className="mr-1" />} />
                   </Form.Item>
                   <Form.Item<FieldType>
                      name="password"
                      label="Mật khẩu"
-                     tooltip="What's your password?"
                      rules={[{ required: true }]}
                   >
-                     <Input.Password placeholder="e.g., ********" size="large" />
+                     <Input.Password placeholder="********" size="large" prefix={<LockOutlined className="mr-1" />} />
                   </Form.Item>
                   <Form.Item>
                      <Button type="primary" htmlType="submit" size="large" className="w-full">
@@ -155,3 +152,5 @@ function Login() {
       </>
    )
 }
+
+export default Page

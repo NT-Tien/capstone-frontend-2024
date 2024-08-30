@@ -53,10 +53,7 @@ export default function TaskDetailsDrawer({
    })
 
    const hasSparePart = useMemo(() => {
-      return (
-         task.data?.issues.find((issue) => issue.issueSpareParts.length !== 0) ||
-         task.data?.issues.find((issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId)
-      )
+      return task.data?.issues.find((issue) => issue.issueSpareParts.length !== 0)
    }, [task.data])
 
    const mutate_startTask = useMutation({
@@ -116,7 +113,7 @@ export default function TaskDetailsDrawer({
             height="100%"
             title="Chi tiết tác vụ"
             classNames={{
-               body: "overflow-auto p-0 std-layout pt-layout pb-layout",
+               body: "overflow-y-auto p-0 std-layout pt-layout pb-32",
             }}
          >
             {hasSparePart && task.data?.confirmReceipt === false && (
@@ -126,10 +123,11 @@ export default function TaskDetailsDrawer({
             )}
             <ProDescriptions
                column={1}
+               className="w-full"
                loading={task.isLoading}
                title={
                   <div>
-                     <h3>{task.data?.name}</h3>
+                     <h3 className="whitespace-pre-wrap">{task.data?.name}</h3>
                      {task.isSuccess &&
                         new Set([TaskStatus.IN_PROGRESS, TaskStatus.COMPLETED, TaskStatus.CANCELLED]).has(
                            task.data.status,
@@ -148,7 +146,6 @@ export default function TaskDetailsDrawer({
                }
                dataSource={task.data}
                size="small"
-               extra={task.data?.priority && <Tag color={"red"}>Ưu tiên</Tag>}
                columns={[
                   {
                      key: "1",
@@ -164,6 +161,12 @@ export default function TaskDetailsDrawer({
                      key: "3",
                      label: "Tổng thời lượng",
                      render: (_, e) => `${e.totalTime} phút`,
+                  },
+                  {
+                     key: "priority",
+                     label: "Mức độ",
+                     render: (_, e) =>
+                        e.priority ? <Tag color="red">{"Uư tiên"}</Tag> : <Tag color="green">{"Bình thường"}</Tag>,
                   },
                   {
                      key: "4",

@@ -29,7 +29,7 @@ export type IssueDetailsDrawerRefType = {
 }
 
 type Props = {
-   children: (handleOpen: (issueId: string, deviceId: string, showActions?: boolean) => void) => ReactNode
+   children?: (handleOpen: (issueId: string, deviceId: string, showActions?: boolean) => void) => ReactNode
    showActions?: boolean
    showIssueStatus?: boolean
    drawerProps?: DrawerProps
@@ -202,8 +202,8 @@ const IssueDetailsDrawer = forwardRef<IssueDetailsDrawerRefType, Props>(function
 
    return (
       <>
-         {children(handleOpen)}
-         <Drawer open={open} onClose={handleClose} title="Thông tin vấn đề" {...drawerProps}>
+         {children?.(handleOpen)}
+         <Drawer open={open} onClose={handleClose} title="Thông tin lỗi" {...drawerProps}>
             <ProDescriptions<FixRequestIssueDto>
                title={
                   <div className="flex items-center gap-2">
@@ -334,41 +334,48 @@ const IssueDetailsDrawer = forwardRef<IssueDetailsDrawerRefType, Props>(function
                ]}
             />
 
-            {issue.data?.status === IssueStatusEnum.RESOLVED && (
-               <Card size="small" className="my-layout">
-                  <section>
-                     <h2 className="mb-2 text-sub-base font-medium">Hình ảnh minh chứng</h2>
-                     <div className="flex items-center gap-2">
-                        {issue.isSuccess && (
-                           <Image
-                              src={clientEnv.BACKEND_URL + `/file-image/${issue.data.imagesVerify?.[0]}`}
-                              alt="image"
-                              className="h-20 w-20 rounded-lg"
-                           />
-                        )}
-                        <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
-                        <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
-                     </div>
-                  </section>
-                  <section className="mt-4">
-                     <h2 className="mb-2 text-sub-base font-medium">Video minh chứng</h2>
-                     {issue.isSuccess ? (
-                        !!issue.data.videosVerify ? (
-                           <video width="100%" height="240" controls>
-                              <source
-                                 src={clientEnv.BACKEND_URL + `/file-video/${issue.data.videosVerify}`}
-                                 type="video/mp4"
-                              />
-                           </video>
+            {issue.data?.status === IssueStatusEnum.RESOLVED &&
+               (issue.data.videosVerify || issue.data.imagesVerify.find((img) => !!img)) && (
+                  <Card size="small" className="my-layout">
+                     <section>
+                        <h2 className="mb-2 text-sub-base font-medium">Hình ảnh minh chứng</h2>
+                        {issue.data.imagesVerify.find((img) => !!img) ? (
+                           <div className="flex items-center gap-2">
+                              {issue.isSuccess && (
+                                 <Image
+                                    src={clientEnv.BACKEND_URL + `/file-image/${issue.data.imagesVerify?.[0]}`}
+                                    alt="image"
+                                    className="h-20 w-20 rounded-lg"
+                                 />
+                              )}
+                              <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
+                              <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
+                           </div>
                         ) : (
                            <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">
                               Không có
                            </div>
-                        )
-                     ) : null}
-                  </section>
-               </Card>
-            )}
+                        )}
+                     </section>
+                     <section className="mt-4">
+                        <h2 className="mb-2 text-sub-base font-medium">Video minh chứng</h2>
+                        {issue.isSuccess ? (
+                           !!issue.data.videosVerify ? (
+                              <video width="100%" height="240" controls>
+                                 <source
+                                    src={clientEnv.BACKEND_URL + `/file-video/${issue.data.videosVerify}`}
+                                    type="video/mp4"
+                                 />
+                              </video>
+                           ) : (
+                              <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">
+                                 Không có
+                              </div>
+                           )
+                        ) : null}
+                     </section>
+                  </Card>
+               )}
 
             <section className="mb-3 mt-layout">
                <header className="mb-2 mt-2 flex items-center justify-between">

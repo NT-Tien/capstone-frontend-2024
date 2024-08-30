@@ -1,10 +1,11 @@
 import { ReactNode, useState } from "react"
 import useModalControls from "@/common/hooks/useModalControls"
-import { App, Button, Card, Drawer, Form, Input } from "antd"
+import { App, Button, Card, Col, Drawer, Form, Input, Rate, Row } from "antd"
 import { InfoCircleFilled } from "@ant-design/icons"
 import { ProFormTextArea } from "@ant-design/pro-components"
 import { useMutation } from "@tanstack/react-query"
 import Head_Request_UpdateClose from "@/app/head/_api/request/update-close.api"
+import { UserOutlined } from "@ant-design/icons"
 
 type Props = {
    onSuccess?: () => void
@@ -78,6 +79,17 @@ export default function FeedbackDrawer({
                <InfoCircleFilled className="mr-1" />
                Vui lòng đánh giá quá trình sửa chữa
             </Card>
+            <section className="mb-3 flex justify-center">
+               <Col>
+                  <Row className="flex justify-center font-medium text-3xl">
+                     <UserOutlined />
+                  </Row>
+                  <Row className="font-medium">Chấm điểm cho nhân viên?</Row>
+                  <Row className="flex justify-center">
+                     <Rate />
+                  </Row>
+               </Col>
+            </section>
             <ProFormTextArea
                label="Đánh giá"
                fieldProps={{

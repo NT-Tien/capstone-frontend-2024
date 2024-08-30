@@ -1,4 +1,7 @@
+import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
 import HeadStaff_Issue_Create from "@/app/head-staff/_api/issue/create.api"
+import headstaff_qk from "@/app/head-staff/_api/qk"
+import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
 import HeadStaff_Task_Create from "@/app/head-staff/_api/task/create.api"
 import DataListView from "@/common/components/DataListView"
@@ -7,7 +10,7 @@ import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { FixType } from "@/common/enum/fix-type.enum"
 import useModalControls from "@/common/hooks/useModalControls"
 import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { App, Button, Drawer, Form, Input } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
@@ -25,13 +28,15 @@ export type SendWarrantyDrawerRefType = {
    ) => void
 }
 
-type Props = {}
+type Props = {
+   params: { id: string }
+}
 
 type FieldType = {
    note: string
 }
 
-const SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function Component(_, ref) {
+const SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function Component({ params }, ref) {
    const { open, handleOpen, handleClose } = useModalControls({
       onOpen: (
          requestId: string,
@@ -137,6 +142,34 @@ const SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function
    useImperativeHandle(ref, () => ({
       handleOpen,
    }))
+
+   const api = useQuery({
+      queryKey: headstaff_qk.request.byId(params.id),
+      queryFn: () => HeadStaff_Request_OneById({ id: params.id }),
+   })
+
+   const deviceWarranty = useQuery({
+      queryKey: headstaff_qk.device.byId(api.data?.device.id ?? ""),
+      queryFn: () => HeadStaff_Device_OneById({ id: api.data?.device.id ?? "" }),
+      enabled: api.isSuccess,
+   })
+
+   useEffect(() => {
+      if (deviceWarranty.isSuccess && deviceWarranty.data) {
+         const { machineModel } = deviceWarranty.data
+         const warrantyTerm = machineModel.warrantyTerm
+
+         if (warrantyTerm) {
+            const warrantyEndDate = dayjs(warrantyTerm)
+            const currentDate = dayjs()
+            const twoWeeksFromNow = currentDate.add(2, "week")
+
+            if (warrantyEndDate.isBefore(twoWeeksFromNow)) {
+               message.warning("Thời hạn bảo hành còn dưới 2 tuần.")
+            }
+         }
+      }
+   }, [deviceWarranty.isSuccess, deviceWarranty.data])
 
    return (
       <>

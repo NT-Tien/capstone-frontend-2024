@@ -10,7 +10,6 @@ type Props = {
 export default function DeviceTab(props: Props) {
    return (
       <section className="std-layout-outer rounded-lg bg-white py-layout">
-         <h2 className="mb-2 px-layout text-base font-semibold">Chi tiết thiết bị</h2>
          <DataListView
             dataSource={props.api.data?.device}
             bordered

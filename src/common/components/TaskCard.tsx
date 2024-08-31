@@ -62,7 +62,7 @@ export default function TaskCard(props: Props) {
                {props.task.totalTime} phút
             </Tag>
             <Tag className="m-0 flex items-center gap-1">
-               <UserOutlined /> {props.task.fixer.username}
+               <UserOutlined /> {props.task.fixer?.username}
             </Tag>
          </section>
       </Card>

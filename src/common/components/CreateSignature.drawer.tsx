@@ -1,7 +1,7 @@
 import { forwardRef, ReactNode, useImperativeHandle, useRef, useState } from "react"
 import useModalControls from "../hooks/useModalControls"
 import { CanvasPath, ReactSketchCanvas, ReactSketchCanvasRef } from "react-sketch-canvas"
-import { Button, Card, Drawer, Radio, Segmented, Slider } from "antd"
+import { Button, Card, Checkbox, Drawer, Radio, Segmented, Slider } from "antd"
 import { Eraser, Pen } from "@phosphor-icons/react"
 import { UndoOutlined, RedoOutlined, DeleteOutlined } from "@ant-design/icons"
 import { useMutation } from "@tanstack/react-query"
@@ -29,6 +29,7 @@ const CreateSignatureDrawer = forwardRef<CreateSignatureDrawerRefType, Props>(fu
    const [tool, setTool] = useState<"pen" | "eraser">("pen")
    const [strokeWidth, setStrokeWidth] = useState(5)
    const [eraserWidth, setEraserWidth] = useState(10)
+   const [isChecked, setIsChecked] = useState(false)
 
    function handleChangeTool(tool: string) {
       setTool(tool as any)
@@ -155,12 +156,20 @@ const CreateSignatureDrawer = forwardRef<CreateSignatureDrawerRefType, Props>(fu
                strokeWidth={strokeWidth}
                eraserWidth={eraserWidth}
             />
+            <section className="pt-3">
+            <Checkbox
+                  checked={isChecked}
+                  onChange={(e) => setIsChecked(e.target.checked)}
+               >
+                  Tôi cam kết đã hoàn thành tác vụ
+               </Checkbox>
+            </section>
             <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-lg">
                <Button
                   size="large"
                   className="w-full"
                   type="primary"
-                  disabled={strokes.length === 0}
+                  disabled={!isChecked || strokes.length == 0}
                   onClick={handleExport}
                >
                   Gửi

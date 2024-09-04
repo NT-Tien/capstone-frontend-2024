@@ -594,7 +594,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
          )}
          <RejectRequestDrawer ref={rejectRequestRef} refetchFn={api_request.refetch} />
          <ApproveRequestDrawer ref={approveRequestRef} refetchFn={api_request.refetch} />
-         <SendWarrantyDrawer ref={sendWarrantyRef} />
+         <SendWarrantyDrawer ref={sendWarrantyRef} params={{ id: params.id }} />
       </div>
    )
 }

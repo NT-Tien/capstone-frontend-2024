@@ -148,16 +148,9 @@ const SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function
       queryFn: () => HeadStaff_Request_OneById({ id: params.id }),
    })
 
-   const deviceWarranty = useQuery({
-      queryKey: headstaff_qk.device.byId(api.data?.device.id ?? ""),
-      queryFn: () => HeadStaff_Device_OneById({ id: api.data?.device.id ?? "" }),
-      enabled: api.isSuccess,
-   })
-
    useEffect(() => {
-      if (deviceWarranty.isSuccess && deviceWarranty.data) {
-         const { machineModel } = deviceWarranty.data
-         const warrantyTerm = machineModel.warrantyTerm
+         const machineModel = device?.machineModel
+         const warrantyTerm = machineModel?.warrantyTerm
 
          if (warrantyTerm) {
             const warrantyEndDate = dayjs(warrantyTerm)
@@ -168,8 +161,7 @@ const SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function
                message.warning("Thời hạn bảo hành còn dưới 2 tuần.")
             }
          }
-      }
-   }, [deviceWarranty.isSuccess, deviceWarranty.data])
+   }, [device?.machineModel])
 
    return (
       <>

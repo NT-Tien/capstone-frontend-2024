@@ -122,57 +122,6 @@ function Component({ params, searchParams }: { params: { id: string }; searchPar
                </div>
             </>
          )}
-         {/* <RootHeader
-            title="Thông tin chi tiết"
-            icon={<LeftOutlined />}
-            onIconClick={() =>
-               api.isSuccess
-                  ? searchParams.get("goto") === "request"
-                     ? router.push(`/head-staff/mobile/requests/${api.data.request.id}/approved?tab=tasks`)
-                     : router.push("/head-staff/mobile/tasks")
-                  : undefined
-            }
-            className="std-layout-outer p-4"
-         />
-         <Tabs
-            className="main-tabs std-layout-outer"
-            type="line"
-            activeKey={tab}
-            onChange={(key) => setTab(key)}
-            items={[
-               {
-                  key: "details",
-                  label: (
-                     <div className="flex items-center gap-2">
-                        <CheckSquareOffset size={16} />
-                        Tác vụ
-                     </div>
-                  ),
-               },
-               {
-                  key: "device",
-                  label: (
-                     <div className="flex items-center gap-2">
-                        <MapPin size={16} />
-                        Thiết bị
-                     </div>
-                  ),
-               },
-               {
-                  key: "issues",
-                  label: (
-                     <div className="flex items-center gap-2">
-                        <Wrench size={16} />
-                        Vấn đề
-                     </div>
-                  ),
-               },
-            ]}
-         />
-
-         {tab === "details" && <DetailsTab api={api} setTab={setTab} />}
-         {tab === "device" && <DeviceTab api={api} />}
-         {tab === "issues" && <IssuesTab api_task={api} />} */}
       </div>
    )
 }

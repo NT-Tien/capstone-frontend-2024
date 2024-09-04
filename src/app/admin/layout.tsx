@@ -15,6 +15,8 @@ import {
    RobotOutlined,
    SettingOutlined,
    UserOutlined,
+   CheckSquareOutlined,
+   InboxOutlined,
 } from "@ant-design/icons"
 import Link from "next/link"
 import { Dropdown } from "antd"
@@ -113,6 +115,30 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         path: "/admin/dashboard",
                         name: "Dashboard",
                         icon: <DashboardOutlined />,
+                     },
+                     {
+                        key: "requests",
+                        name: "Requests",
+                        icon: <InboxOutlined />,
+                        children: [
+                           {
+                              key: "requests-dashboard",
+                              name: "Dashboard",
+                              path: "/admin/requests",
+                           },
+                        ],
+                     },
+                     {
+                        key: "tasks",
+                        name: "Tasks",
+                        icon: <CheckSquareOutlined />,
+                        children: [
+                           {
+                              key: "tasks-dashboard",
+                              name: "Dashboard",
+                              path: "/admin/tasks",
+                           },
+                        ],
                      },
                   ],
                },

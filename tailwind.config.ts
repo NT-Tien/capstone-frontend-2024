@@ -23,7 +23,7 @@ const config: Config = {
                800: "var(--primary-800)",
                900: "var(--primary-900)",
             },
-            customLightBlue: "#EEF3F6",
+            customLightBlue: "#",
          },
          padding: {
             base: "1rem",

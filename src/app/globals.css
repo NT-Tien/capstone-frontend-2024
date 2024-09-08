@@ -29,7 +29,7 @@
 
 html, body {
     height: 100%;
-    @apply bg-neutral-200;
+    @apply bg-neutral-50;
 }
 
 * {

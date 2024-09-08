@@ -7,6 +7,7 @@ import Cookies from "js-cookie"
 import { CSSProperties, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { UserOutlined, MenuOutlined } from "@ant-design/icons"
+import Image from "next/image"
 
 type HeadStaffDashboardHeaderProps = {
    className?: string
@@ -27,31 +28,49 @@ export default function HomeHeader(props: HeadStaffDashboardHeaderProps) {
    }, [router])
 
    return (
-      <Col className={cn(props.className)} style={props.style}>
-         <Row gutter={[16, 0]} align="middle">
-            <Col>
-               <Flex justify="flex-start" className="w-full">
-                  <MenuOutlined style={{ color: '#FFFFFF', fontSize: '1.5rem' }} />
-               </Flex>
-            </Col>
-            <Col flex="auto">
-               <Row justify="end">
-                  <Typography.Text className="text-base text-white">Chào buổi sáng</Typography.Text>
-               </Row>
-               <Row justify="end">
-                  {token ? (
-                     <h1 className="mb-0 mt-1 text-3xl font-bold text-white" key="name">
-                        {decodeJwt(token).username}
-                     </h1>
-                  ) : (
-                     <Skeleton.Button className="h-12 w-full" key="load" />
-                  )}
-               </Row>
-            </Col>
-            <Col>
-               <Avatar style={{ backgroundColor: '#FFFFFF' }} size={60} icon={<UserOutlined style={{ color: '#6A7A91' }} />} />
-            </Col>
-         </Row>
-      </Col>
+      <div>
+         <Image
+            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
+            src="/images/requests.jpg"
+            alt="image"
+            width={784}
+            height={100}
+            style={{
+               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               objectFit: "fill",
+            }}
+         />
+         <Col className={cn(props.className)} style={props.style}>
+            <Row gutter={[16, 0]} align="middle">
+               <Col>
+                  <Flex justify="flex-start" className="w-full">
+                     <MenuOutlined className="text-neutral-600" style={{ fontSize: "1.25rem" }} />
+                  </Flex>
+               </Col>
+               <Col flex="auto">
+                  <Row justify="end">
+                     <Typography.Text className="text-sm text-neutral-600 mb-0">Chào buổi sáng</Typography.Text>
+                  </Row>
+                  <Row justify="end">
+                     {token ? (
+                        <h1 className="mb-0 mt-0 text-lg font-bold text-neutral-600" key="name">
+                           {decodeJwt(token).username}
+                        </h1>
+                     ) : (
+                        <Skeleton.Button className="h-12 w-full" key="load" />
+                     )}
+                  </Row>
+               </Col>
+               <Col>
+                  <Avatar
+                     style={{ backgroundColor: "#FFFFFF" }}
+                     size={50}
+                     icon={<UserOutlined style={{ color: "#6A7A91" }} />}
+                  />
+               </Col>
+            </Row>
+         </Col>
+      </div>
    )
 }

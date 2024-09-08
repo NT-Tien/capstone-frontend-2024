@@ -22,10 +22,11 @@ import {
    CalendarSlash,
    CheckSquareOffset,
    Gear,
+   Note,
    NotePencil,
    SealCheck,
    Sphere,
-   Timer,
+   HourglassSimpleMedium,
 } from "@phosphor-icons/react"
 
 function useTask(current: number, pageSize: number, status: TaskStatus) {
@@ -129,7 +130,7 @@ function DashboardPage() {
 
    return (
       <div>
-         <div style={{ backgroundImage: "linear-gradient(to right, #579A0D, #1C6014)" }}>
+         <div>
             <div className="std-layout">
                <HomeHeader className="std-layout-inner pb-8 pt-4" />
             </div>
@@ -145,16 +146,17 @@ function DashboardPage() {
                      cancelledResult.isLoading
                   }
                   onClick={() => router.push("tasks")}
+                  className="border-2 shadow-lg"
                >
                   <div className="bottom-4 left-4 flex flex-col gap-2">
                      <Col>
                         <Row>
-                           <CheckSquareOffset className="mb-3" size={45} weight="duotone" />
+                           <CheckSquareOffset className="mb-3" size={45} />
                         </Row>
                         <Row className="text-2xl font-medium">Tổng cộng</Row>
                         <Row>
                            <CountUp className="flex align-bottom text-3xl font-bold" end={totalTasks} separator={","} />
-                           <Typography.Text className="flex items-end"> tác vụ</Typography.Text>
+                           <Typography.Text className="m-2 flex items-end text-base">tác vụ</Typography.Text>
                         </Row>
                      </Col>
                   </div>
@@ -168,16 +170,15 @@ function DashboardPage() {
                      requestClosed.isLoading
                   }
                   onClick={() => router.push("requests")}
+                  className="border-2 shadow-lg"
                >
                   <div className="bottom-4 left-4 flex flex-col gap-2">
                      <Col>
-                        {/* <Row>
-                           <Timer className="mb-3" size={45} weight="duotone" />
-                        </Row> */}
+                        <Note className="mb-3" size={45} weight="duotone" />
                         <Row className="text-2xl font-medium">Tổng cộng</Row>
                         <Row>
                            <CountUp className="text-3xl font-bold" end={totalRequests} separator={","} />
-                           <Typography.Text className="flex items-end"> yêu cầu</Typography.Text>
+                           <Typography.Text className="m-2 flex items-end text-base"> yêu cầu</Typography.Text>
                         </Row>
                      </Col>
                   </div>
@@ -185,231 +186,135 @@ function DashboardPage() {
             </section>
             <section className="mt-5 space-y-4">
                <Collapse accordion className="bg-white">
-                  <Panel header="Task" key="1" className="flex-none text-xl font-medium">
-                     <Card
-                        className="flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
-                        loading={assignedResult.isLoading}
-                        onClick={() => router.push("tasks")}
-                        classNames={{
-                           body: "w-full",
-                        }}
-                     >
-                        <div className="flex w-full items-center justify-between">
-                           <div className="flex flex-col items-start">
-                              <div className="flex items-center">
-                                 <div className="text-3xl font-bold">
-                                    <CountUp end={assignedTasks} separator={","} />
+                  <Panel header="Task" key="1" className="flex-none border-2 text-xl font-semibold shadow-lg">
+                     {[
+                        {
+                           loading: assignedResult.isLoading,
+                           count: assignedTasks,
+                           label: "Đã phân công",
+                           icon: <CalendarCheck size={45} weight="duotone" />,
+                           route: "tasks",
+                           bgColor: "bg-blue-200"
+                        },
+                        {
+                           loading: inProgressResult.isLoading,
+                           count: progressingTasks,
+                           label: "Đang làm",
+                           icon: <HourglassSimpleMedium size={45} weight="duotone" />,
+                           route: "tasks",
+                           bgColor: "bg-orange-200"
+                        },
+                        {
+                           loading: completedResult.isLoading,
+                           count: completedTasks,
+                           label: "Hoàn thành",
+                           icon: <SealCheck size={45} />,
+                           route: "tasks",
+                           bgColor: "bg-green-200"
+                        },
+                        {
+                           loading: headstaffConfirmResult.isLoading,
+                           count: headstaffConfirmTasks,
+                           label: "Chờ kiểm tra",
+                           icon: <NotePencil size={45} weight="duotone" />,
+                           route: "tasks",
+                           bgColor: "bg-purple-200"
+                        },
+                        {
+                           loading: cancelledResult.isLoading,
+                           count: cancelledTasks,
+                           label: "Đã hủy",
+                           icon: <CalendarSlash size={45} weight="duotone" />,
+                           route: "tasks",
+                           bgColor: "bg-red-200"
+                        },
+                     ].map(({ loading, count, label, icon, route, bgColor }, index) => (
+                        <Card
+                           key={index}
+                           className={`mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-sm ${bgColor}`}
+                           loading={loading}
+                           onClick={() => router.push(route)}
+                           classNames={{ body: "w-full" }}
+                        >
+                           <div className="flex w-full items-center justify-between">
+                              <div className="flex flex-col items-start">
+                                 <div className="flex items-center">
+                                    <div className="text-3xl font-bold">
+                                       <CountUp end={count} separator="," />
+                                    </div>
                                  </div>
+                                 <div className="text-xl">{label}</div>
                               </div>
-                              <div className="text-xl">Đã giao</div>
+                              <div className="flex items-center">{icon}</div>
                            </div>
-                           <div className="flex items-center">
-                              <CalendarCheck size={45} weight="duotone" />
-                           </div>
-                        </div>
-                     </Card>
-                     <Card
-                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
-                        loading={inProgressResult.isLoading}
-                        onClick={() => router.push("tasks")}
-                        classNames={{
-                           body: "w-full",
-                        }}
-                     >
-                        <div className="flex w-full items-center justify-between">
-                           <div className="flex flex-col items-start">
-                              <div className="flex items-center">
-                                 <div className="text-3xl font-bold">
-                                    <CountUp end={progressingTasks} separator={","} />
-                                 </div>
-                              </div>
-                              <div className="text-xl">Đang tiến hành</div>
-                           </div>
-                           <div className="flex items-center">
-                              <Timer size={45} weight="duotone" className="text-blue-500" />
-                           </div>
-                        </div>
-                     </Card>
-                     <Card
-                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
-                        loading={completedResult.isLoading}
-                        onClick={() => router.push("tasks")}
-                        classNames={{
-                           body: "w-full",
-                        }}
-                     >
-                        <div className="flex w-full items-center justify-between">
-                           <div className="flex flex-col items-start">
-                              <div className="flex items-center">
-                                 <div className="text-3xl font-bold">
-                                    <CountUp end={completedTasks} separator={","} />
-                                 </div>
-                              </div>
-                              <div className="text-xl">Hoàn thành</div>
-                           </div>
-                           <div className="flex items-center">
-                              <SealCheck size={45} weight="duotone" className="text-blue-500" />
-                           </div>
-                        </div>
-                     </Card>
-                     <Card
-                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
-                        loading={headstaffConfirmResult.isLoading}
-                        onClick={() => router.push("tasks")}
-                        classNames={{
-                           body: "w-full",
-                        }}
-                     >
-                        <div className="flex w-full items-center justify-between">
-                           <div className="flex flex-col items-start">
-                              <div className="flex items-center">
-                                 <div className="text-3xl font-bold">
-                                    <CountUp end={headstaffConfirmTasks} separator={","} />
-                                 </div>
-                              </div>
-                              <div className="text-xl">Chờ đánh giá</div>
-                           </div>
-                           <div className="flex items-center">
-                              <NotePencil size={45} weight="duotone" />{" "}
-                           </div>
-                        </div>
-                     </Card>
-                     <Card
-                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
-                        loading={cancelledResult.isLoading}
-                        onClick={() => router.push("tasks")}
-                        classNames={{
-                           body: "w-full",
-                        }}
-                     >
-                        <div className="flex w-full items-center justify-between">
-                           <div className="flex flex-col items-start">
-                              <div className="flex items-center">
-                                 <div className="text-3xl font-bold">
-                                    <CountUp end={cancelledTasks} separator={","} />
-                                 </div>
-                              </div>
-                              <div className="text-xl">Đã hủy</div>
-                           </div>
-                           <div className="flex items-center">
-                              <CalendarSlash size={45} weight="duotone" className="text-blue-500" />
-                           </div>
-                        </div>
-                     </Card>
+                        </Card>
+                     ))}
                   </Panel>
                </Collapse>
+
                <Collapse accordion className="bg-white">
-                  <Panel header="Request" key="1" className="flex-none text-xl font-medium">
-                     <Card
-                        className="flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
-                        loading={requestPending.isLoading}
-                        onClick={() => router.push("requests?status=PENDING")}
-                        classNames={{
-                           body: "w-full",
-                        }}
-                     >
-                        <div className="flex w-full items-center justify-between">
-                           <div className="flex flex-col items-start">
-                              <div className="flex items-center">
-                                 <div className="text-3xl font-bold">
-                                    <CountUp end={pendingRequest} separator={","} />
+                  <Panel header="Request" key="1" className="flex-none border-2 text-xl font-semibold shadow-lg">
+                     {[
+                        {
+                           loading: requestPending.isLoading,
+                           count: pendingRequest,
+                           label: "Chưa xử lý",
+                           icon: <NotePencil size={45} weight="duotone" />,
+                           route: "requests?status=PENDING",
+                        },
+                        {
+                           loading: requestApproved.isLoading,
+                           count: approvedRequest,
+                           label: "Xác nhận",
+                           icon: <CalendarCheck size={45} weight="duotone" />,
+                           route: "requests?status=APPROVED",
+                           bgColor: "bg-green-200"
+                        },
+                        {
+                           loading: requestInProgress.isLoading,
+                           count: inProgressRequest,
+                           label: "Đang thực hiện",
+                           icon: <HourglassSimpleMedium size={45} weight="duotone" />,
+                           route: "requests?status=IN_PROGRESS",
+                           bgColor: "bg-blue-200"
+                        },
+                        {
+                           loading: requestClosed.isLoading,
+                           count: closedRequest,
+                           label: "Đóng",
+                           icon: <SealCheck size={45} />,
+                           route: "requests?status=CLOSED",
+                           bgColor: "bg-purple-200"
+                        },
+                        {
+                           loading: requestRejected.isLoading,
+                           count: rejectedRequest,
+                           label: "Không tiếp nhận",
+                           icon: <CalendarSlash size={45} weight="duotone" />,
+                           route: "requests?status=REJECTED",
+                           bgColor: "bg-red-200"
+                        },
+                     ].map(({ loading, count, label, icon, route, bgColor }, index) => (
+                        <Card
+                           key={index}
+                           className={`mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-sm ${bgColor}`}
+                           loading={loading}
+                           onClick={() => router.push(route)}
+                           classNames={{ body: "w-full" }}
+                        >
+                           <div className="flex w-full items-center justify-between">
+                              <div className="flex flex-col items-start">
+                                 <div className="flex items-center">
+                                    <div className="text-3xl font-bold">
+                                       <CountUp end={count} separator="," />
+                                    </div>
                                  </div>
+                                 <div className="text-xl">{label}</div>
                               </div>
-                              <div className="text-xl">Đang chờ</div>
+                              <div className="flex items-center">{icon}</div>
                            </div>
-                           <div className="flex items-center">
-                              <NotePencil size={45} weight="duotone" />
-                           </div>
-                        </div>
-                     </Card>
-                     <Card
-                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
-                        loading={requestApproved.isLoading}
-                        onClick={() => router.push("requests?status=APPROVED")}
-                        classNames={{
-                           body: "w-full",
-                        }}
-                     >
-                        <div className="flex w-full items-center justify-between">
-                           <div className="flex flex-col items-start">
-                              <div className="flex items-center">
-                                 <div className="text-3xl font-bold">
-                                    <CountUp end={approvedRequest} separator={","} />
-                                 </div>
-                              </div>
-                              <div className="text-xl">Đã duyệt</div>
-                           </div>
-                           <div className="flex items-center">
-                              <CalendarCheck size={45} weight="duotone" className="text-blue-500" />
-                           </div>
-                        </div>
-                     </Card>
-                     <Card
-                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
-                        loading={requestInProgress.isLoading}
-                        onClick={() => router.push("requests?status=IN_PROGRESS")}
-                        classNames={{
-                           body: "w-full",
-                        }}
-                     >
-                        <div className="flex w-full items-center justify-between">
-                           <div className="flex flex-col items-start">
-                              <div className="flex items-center">
-                                 <div className="text-3xl font-bold">
-                                    <CountUp end={inProgressRequest} separator={","} />
-                                 </div>
-                              </div>
-                              <div className="text-xl">Đang tiến hành</div>
-                           </div>
-                           <div className="flex items-center">
-                              <Timer size={45} weight="duotone" className="text-blue-500" />
-                           </div>
-                        </div>
-                     </Card>
-                     <Card
-                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
-                        loading={requestClosed.isLoading}
-                        onClick={() => router.push("requests?status=CLOSED")}
-                        classNames={{
-                           body: "w-full",
-                        }}
-                     >
-                        <div className="flex w-full items-center justify-between">
-                           <div className="flex flex-col items-start">
-                              <div className="flex items-center">
-                                 <div className="text-3xl font-bold">
-                                    <CountUp end={closedRequest} separator={","} />
-                                 </div>
-                              </div>
-                              <div className="text-xl">Hoàn thành</div>
-                           </div>
-                           <div className="flex items-center">
-                              <SealCheck size={45} weight="duotone" className="text-blue-500" />
-                           </div>
-                        </div>
-                     </Card>
-                     <Card
-                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
-                        loading={requestRejected.isLoading}
-                        onClick={() => router.push("requests?status=REJECTED")}
-                        classNames={{
-                           body: "w-full",
-                        }}
-                     >
-                        <div className="flex w-full items-center justify-between">
-                           <div className="flex flex-col items-start">
-                              <div className="flex items-center">
-                                 <div className="text-3xl font-bold">
-                                    <CountUp end={rejectedRequest} separator={","} />
-                                 </div>
-                              </div>
-                              <div className="text-xl">Không tiếp nhận</div>
-                           </div>
-                           <div className="flex items-center">
-                              <CalendarSlash size={45} weight="duotone" className="text-blue-500" />
-                           </div>
-                        </div>
-                     </Card>
+                        </Card>
+                     ))}
                   </Panel>
                </Collapse>
             </section>

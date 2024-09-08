@@ -62,13 +62,6 @@ function Component() {
                objectFit: "fill",
             }}
          />
-         {/* <Image
-            className="std-layout-outer absolute left-0 top-0 z-0 h-24 w-full object-fill opacity-30"
-            src="/images/requests.jpg"
-            width={784}
-            height={240}
-            alt="image"
-         /> */}
          <Input
             type="text"
             className="relative z-30 w-full rounded-full border border-neutral-200 bg-neutral-100 px-4 py-3"

@@ -1,5 +1,7 @@
 "use client"
 
+import headstaff_qk from "@/app/head-staff/_api/qk"
+import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
 import head_qk from "@/app/head/_api/qk"
 import Head_Request_All from "@/app/head/_api/request/all.api"
 import ColumnChart from "@/common/components/ChartComponent"
@@ -9,28 +11,136 @@ import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { ArrowUpOutlined } from "@ant-design/icons"
 import { StatisticCard } from "@ant-design/pro-card"
 import { ProCard } from "@ant-design/pro-components"
+import { CalendarCheck, SealCheck, Timer } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
-import { Col, Row, Typography } from "antd"
+import { Card, Col, Collapse, Row, Typography } from "antd"
+import { useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import CountUp from "react-countup"
 
-function Page() {
-   const api_requests = useQuery({
-      queryKey: head_qk.requests.all(),
-      queryFn: () => Head_Request_All(),
-      // select: (data) =>
-      //    data.sort((a, b) => dayjs(b.createdAt).add(7, "hours").diff(dayjs(a.createdAt).add(7, "hours"))).slice(0, 4),
+function useRequest(current: number, pageSize: number, currentStatus: FixRequestStatus) {
+   return useQuery({
+      queryKey: headstaff_qk.request.all({
+         page: current,
+         limit: pageSize,
+         status: currentStatus,
+      }),
+      queryFn: () =>
+         HeadStaff_Request_All30Days({
+            page: current,
+            limit: pageSize,
+            status: currentStatus as any,
+         }),
    })
+}
+
+function Page() {
+   const router = useRouter()
+   const currentDefault = 1,
+      pageSizeDefault = 10
+
+   const searchParams = useSearchParams()
+   const [current, setCurrent] = useState(Number(searchParams.get("current")) || currentDefault)
+   const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || pageSizeDefault)
+
+
+   const requestPending = useRequest(current, pageSize, FixRequestStatus.PENDING)
+   const requestApproved = useRequest(current, pageSize, FixRequestStatus.APPROVED)
+   const requestInProgress = useRequest(current, pageSize, FixRequestStatus.IN_PROGRESS)
+   const requestClosed = useRequest(current, pageSize, FixRequestStatus.CLOSED)
+   const requestRejected = useRequest(current, pageSize, FixRequestStatus.REJECTED)
+
+   const totalRequests = [
+      requestPending.data?.total ?? 0,
+      requestApproved.data?.total ?? 0,
+      requestInProgress.data?.total ?? 0,
+      requestClosed.data?.total ?? 0,
+      requestRejected.data?.total ?? 0,
+   ].reduce((acc, curr) => acc + curr, 0)
+
+   const pendingRequest = requestPending.data?.list.length ?? 0
+   const approvedRequest = requestApproved.data?.list.length ?? 0
+   const inProgressRequest = requestInProgress.data?.list.length ?? 0
+   const closedRequest = requestClosed.data?.list.length ?? 0
+   const rejectedRequest = requestRejected.data?.list.length ?? 0
 
    return (
       <div>
-         <div style={{ backgroundImage: "linear-gradient(to right, #579A0D, #1C6014)" }}>
+         <div>
             <div className="std-layout">
                <HomeHeader className="pb-8 pt-4" />
             </div>
          </div>
          <div className="std-layout">
             <section className="mt-5 grid grid-cols-2 gap-4">
-               <StatisticCard
+            <Card
+                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
+                        loading={requestApproved.isLoading}
+                        onClick={() => router.push("requests?status=APPROVED")}
+                        classNames={{
+                           body: "w-full",
+                        }}
+                     >
+                        <div className="flex w-full items-center justify-between">
+                           <div className="flex flex-col items-start">
+                              <div className="flex items-center">
+                                 <div className="text-3xl font-bold">
+                                    <CountUp end={approvedRequest} separator={","} />
+                                 </div>
+                              </div>
+                              <div className="text-xl">Đã duyệt</div>
+                           </div>
+                           <div className="flex items-center">
+                              <CalendarCheck size={45} weight="duotone" className="text-blue-500" />
+                           </div>
+                        </div>
+                     </Card>
+                     <Card
+                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
+                        loading={requestInProgress.isLoading}
+                        onClick={() => router.push("requests?status=IN_PROGRESS")}
+                        classNames={{
+                           body: "w-full",
+                        }}
+                     >
+                        <div className="flex w-full items-center justify-between">
+                           <div className="flex flex-col items-start">
+                              <div className="flex items-center">
+                                 <div className="text-3xl font-bold">
+                                    <CountUp end={inProgressRequest} separator={","} />
+                                 </div>
+                              </div>
+                              <div className="text-xl">Đang tiến hành</div>
+                           </div>
+                           <div className="flex items-center">
+                              <Timer size={45} weight="duotone" className="text-blue-500" />
+                           </div>
+                        </div>
+                     </Card>
+                     <Card
+                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
+                        loading={requestClosed.isLoading}
+                        onClick={() => router.push("requests?status=CLOSED")}
+                        classNames={{
+                           body: "w-full",
+                        }}
+                     >
+                        <div className="flex w-full items-center justify-between">
+                           <div className="flex flex-col items-start">
+                              <div className="flex items-center">
+                                 <div className="text-3xl font-bold">
+                                    <CountUp end={closedRequest} separator={","} />
+                                 </div>
+                              </div>
+                              <div className="text-xl">Hoàn thành</div>
+                           </div>
+                           <div className="flex items-center">
+                              <SealCheck size={45} weight="duotone" className="text-blue-500" />
+                           </div>
+                        </div>
+                     </Card>
+               {/* <StatisticCard
                   className="relative flex h-40 w-full items-center justify-center rounded-[2rem] bg-gradient-to-b from-[#FEFEFE] via-[#F5F7EC] to-[#D3E2A1] p-4 text-center shadow-fb"
                   loading={api_requests.isLoading}
                >
@@ -43,7 +153,7 @@ function Page() {
                            </div>
                            {/* <div>
                                  <ArrowRightOutlined />
-                              </div> */}
+                              </div>
                         </Row>
                      </Col>
                   </div>
@@ -115,7 +225,7 @@ function Page() {
                         </Row>
                      </Col>
                   </div>
-               </StatisticCard>
+               </StatisticCard> */}
             </section>
             {/* <section className="mt-8">
                <ProCard

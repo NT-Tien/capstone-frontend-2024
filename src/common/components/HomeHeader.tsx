@@ -7,7 +7,6 @@ import Cookies from "js-cookie"
 import { CSSProperties, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { UserOutlined, MenuOutlined } from "@ant-design/icons"
-import Image from "next/image"
 
 type HeadStaffDashboardHeaderProps = {
    className?: string
@@ -29,18 +28,6 @@ export default function HomeHeader(props: HeadStaffDashboardHeaderProps) {
 
    return (
       <div>
-         <Image
-            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
-            src="/images/requests.jpg"
-            alt="image"
-            width={784}
-            height={100}
-            style={{
-               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-               objectFit: "fill",
-            }}
-         />
          <Col className={cn(props.className)} style={props.style}>
             <Row gutter={[16, 0]} align="middle">
                <Col>

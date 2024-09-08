@@ -15,6 +15,7 @@ import dynamic from "next/dynamic"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 import CountUp from "react-countup"
+import Image from "next/image"
 
 export default dynamic(() => Promise.resolve(StaffDashboard), {
    ssr: false,
@@ -80,8 +81,20 @@ function StaffDashboard() {
    return (
       <div>
          <div>
+         <Image
+            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
+            src="/images/background5.jpg"
+            alt="image"
+            width={784}
+            height={100}
+            style={{
+               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               objectFit: "fill",
+            }}
+         />
             <div className="std-layout">
-               <HomeHeader className="pb-8 pt-4" />
+               <HomeHeader className="std-layout-inner pb-8 pt-4" />
             </div>
          </div>
          <div className="std-layout">

@@ -22,6 +22,7 @@ import {
    SealCheck,
    HourglassSimpleMedium,
 } from "@phosphor-icons/react"
+import Image from "next/image"
 
 function useTask(current: number, pageSize: number, status: TaskStatus) {
    return useQuery({
@@ -125,6 +126,18 @@ function DashboardPage() {
    return (
       <div>
          <div>
+         <Image
+            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
+            src="/images/background5.jpg"
+            alt="image"
+            width={784}
+            height={100}
+            style={{
+               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               objectFit: "fill",
+            }}
+         />
             <div className="std-layout">
                <HomeHeader className="std-layout-inner pb-8 pt-4" />
             </div>
@@ -147,7 +160,7 @@ function DashboardPage() {
                         <Row>
                            <CheckSquareOffset className="mb-3" size={45} />
                         </Row>
-                        <Row className="text-2xl font-medium">Tổng cộng</Row>
+                        <Row className="text-2xl font-normal">Tổng cộng</Row>
                         <Row>
                            <CountUp className="flex align-bottom text-3xl font-bold" end={totalTasks} separator={","} />
                            <Typography.Text className="m-2 flex items-end text-base">tác vụ</Typography.Text>
@@ -169,7 +182,7 @@ function DashboardPage() {
                   <div className="bottom-4 left-4 flex flex-col gap-2">
                      <Col>
                         <Note className="mb-3" size={45} weight="duotone" />
-                        <Row className="text-2xl font-medium">Tổng cộng</Row>
+                        <Row className="text-2xl font-normal">Tổng cộng</Row>
                         <Row>
                            <CountUp className="text-3xl font-bold" end={totalRequests} separator={","} />
                            <Typography.Text className="m-2 flex items-end text-base"> yêu cầu</Typography.Text>
@@ -180,7 +193,7 @@ function DashboardPage() {
             </section>
             <section className="mt-5 space-y-4">
                <Collapse accordion className="bg-white">
-                  <Panel header="Task" key="1" className="flex-none border-2 text-xl font-medium shadow-lg">
+                  <Panel header="Tác vụ" key="1" className="flex-none border-2 text-xl font-medium shadow-lg">
                      {[
                         {
                            loading: assignedResult.isLoading,
@@ -247,7 +260,7 @@ function DashboardPage() {
                </Collapse>
 
                <Collapse accordion className="bg-white">
-                  <Panel header="Request" key="1" className="flex-none border-2 text-xl font-medium shadow-lg">
+                  <Panel header="Yêu cầu" key="1" className="flex-none border-2 text-xl font-medium shadow-lg">
                      {[
                         {
                            loading: requestPending.isLoading,

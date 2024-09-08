@@ -186,7 +186,7 @@ function DashboardPage() {
             </section>
             <section className="mt-5 space-y-4">
                <Collapse accordion className="bg-white">
-                  <Panel header="Task" key="1" className="flex-none border-2 text-xl font-semibold shadow-lg">
+                  <Panel header="Task" key="1" className="flex-none border-2 text-xl font-medium shadow-lg">
                      {[
                         {
                            loading: assignedResult.isLoading,
@@ -210,7 +210,7 @@ function DashboardPage() {
                            label: "Hoàn thành",
                            icon: <SealCheck size={45} />,
                            route: "tasks",
-                           bgColor: "bg-green-200"
+                           bgColor: "bg-green-300"
                         },
                         {
                            loading: headstaffConfirmResult.isLoading,
@@ -253,7 +253,7 @@ function DashboardPage() {
                </Collapse>
 
                <Collapse accordion className="bg-white">
-                  <Panel header="Request" key="1" className="flex-none border-2 text-xl font-semibold shadow-lg">
+                  <Panel header="Request" key="1" className="flex-none border-2 text-xl font-medium shadow-lg">
                      {[
                         {
                            loading: requestPending.isLoading,
@@ -268,7 +268,7 @@ function DashboardPage() {
                            label: "Xác nhận",
                            icon: <CalendarCheck size={45} weight="duotone" />,
                            route: "requests?status=APPROVED",
-                           bgColor: "bg-green-200"
+                           bgColor: "bg-green-300"
                         },
                         {
                            loading: requestInProgress.isLoading,
@@ -276,7 +276,7 @@ function DashboardPage() {
                            label: "Đang thực hiện",
                            icon: <HourglassSimpleMedium size={45} weight="duotone" />,
                            route: "requests?status=IN_PROGRESS",
-                           bgColor: "bg-blue-200"
+                           bgColor: "bg-blue-300"
                         },
                         {
                            loading: requestClosed.isLoading,

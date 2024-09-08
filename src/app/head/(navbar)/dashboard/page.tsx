@@ -11,7 +11,7 @@ import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { ArrowUpOutlined } from "@ant-design/icons"
 import { StatisticCard } from "@ant-design/pro-card"
 import { ProCard } from "@ant-design/pro-components"
-import { CalendarCheck, SealCheck, Timer } from "@phosphor-icons/react"
+import { CalendarCheck, CalendarSlash, Gear, HourglassSimpleMedium, NotePencil, SealCheck, Timer } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
 import { Card, Col, Collapse, Row, Typography } from "antd"
 import { useSearchParams } from "next/navigation"
@@ -21,17 +21,8 @@ import CountUp from "react-countup"
 
 function useRequest(current: number, pageSize: number, currentStatus: FixRequestStatus) {
    return useQuery({
-      queryKey: headstaff_qk.request.all({
-         page: current,
-         limit: pageSize,
-         status: currentStatus,
-      }),
-      queryFn: () =>
-         HeadStaff_Request_All30Days({
-            page: current,
-            limit: pageSize,
-            status: currentStatus as any,
-         }),
+      queryKey: head_qk.requests.all(),
+      queryFn: () => Head_Request_All(),
    })
 }
 
@@ -44,7 +35,6 @@ function Page() {
    const [current, setCurrent] = useState(Number(searchParams.get("current")) || currentDefault)
    const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || pageSizeDefault)
 
-
    const requestPending = useRequest(current, pageSize, FixRequestStatus.PENDING)
    const requestApproved = useRequest(current, pageSize, FixRequestStatus.APPROVED)
    const requestInProgress = useRequest(current, pageSize, FixRequestStatus.IN_PROGRESS)
@@ -52,18 +42,18 @@ function Page() {
    const requestRejected = useRequest(current, pageSize, FixRequestStatus.REJECTED)
 
    const totalRequests = [
-      requestPending.data?.total ?? 0,
-      requestApproved.data?.total ?? 0,
-      requestInProgress.data?.total ?? 0,
-      requestClosed.data?.total ?? 0,
-      requestRejected.data?.total ?? 0,
+      requestPending.data?.length ?? 0,
+      requestApproved.data?.length ?? 0,
+      requestInProgress.data?.length ?? 0,
+      requestClosed.data?.length ?? 0,
+      requestRejected.data?.length ?? 0,
    ].reduce((acc, curr) => acc + curr, 0)
 
-   const pendingRequest = requestPending.data?.list.length ?? 0
-   const approvedRequest = requestApproved.data?.list.length ?? 0
-   const inProgressRequest = requestInProgress.data?.list.length ?? 0
-   const closedRequest = requestClosed.data?.list.length ?? 0
-   const rejectedRequest = requestRejected.data?.list.length ?? 0
+   const pendingRequest = requestPending.data?.length ?? 0
+   const approvedRequest = requestApproved.data?.length ?? 0
+   const inProgressRequest = requestInProgress.data?.length ?? 0
+   const closedRequest = requestClosed.data?.length ?? 0
+   const rejectedRequest = requestRejected.data?.length ?? 0
 
    return (
       <div>
@@ -73,73 +63,145 @@ function Page() {
             </div>
          </div>
          <div className="std-layout">
-            <section className="mt-5 grid grid-cols-2 gap-4">
-            <Card
-                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
-                        loading={requestApproved.isLoading}
-                        onClick={() => router.push("requests?status=APPROVED")}
-                        classNames={{
-                           body: "w-full",
-                        }}
-                     >
-                        <div className="flex w-full items-center justify-between">
-                           <div className="flex flex-col items-start">
-                              <div className="flex items-center">
-                                 <div className="text-3xl font-bold">
-                                    <CountUp end={approvedRequest} separator={","} />
-                                 </div>
-                              </div>
-                              <div className="text-xl">Đã duyệt</div>
-                           </div>
-                           <div className="flex items-center">
-                              <CalendarCheck size={45} weight="duotone" className="text-blue-500" />
-                           </div>
-                        </div>
-                     </Card>
-                     <Card
-                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
-                        loading={requestInProgress.isLoading}
-                        onClick={() => router.push("requests?status=IN_PROGRESS")}
-                        classNames={{
-                           body: "w-full",
-                        }}
-                     >
-                        <div className="flex w-full items-center justify-between">
-                           <div className="flex flex-col items-start">
-                              <div className="flex items-center">
-                                 <div className="text-3xl font-bold">
-                                    <CountUp end={inProgressRequest} separator={","} />
-                                 </div>
-                              </div>
-                              <div className="text-xl">Đang tiến hành</div>
-                           </div>
-                           <div className="flex items-center">
-                              <Timer size={45} weight="duotone" className="text-blue-500" />
+            <section className="mt-5 flex-none space-y-4">
+               <Card
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-orange-200 border-2 border-neutral-300 p-0 text-center shadow-md"
+                  loading={
+                     requestPending.isLoading ||
+                     requestInProgress.isLoading ||
+                     requestApproved.isLoading ||
+                     requestRejected.isLoading ||
+                     requestClosed.isLoading
+                  }
+                  onClick={() => router.push("history")}
+                  classNames={{
+                     body: "w-full",
+                  }}
+               >
+                  <div className="flex w-full items-center justify-between">
+                     <div className="flex flex-col items-start">
+                        <div className="flex items-center">
+                           <div className="text-3xl font-bold">
+                              <CountUp end={totalRequests} separator={","} />
                            </div>
                         </div>
-                     </Card>
-                     <Card
-                        className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-50 p-0 text-center shadow-md"
-                        loading={requestClosed.isLoading}
-                        onClick={() => router.push("requests?status=CLOSED")}
-                        classNames={{
-                           body: "w-full",
-                        }}
-                     >
-                        <div className="flex w-full items-center justify-between">
-                           <div className="flex flex-col items-start">
-                              <div className="flex items-center">
-                                 <div className="text-3xl font-bold">
-                                    <CountUp end={closedRequest} separator={","} />
-                                 </div>
-                              </div>
-                              <div className="text-xl">Hoàn thành</div>
-                           </div>
-                           <div className="flex items-center">
-                              <SealCheck size={45} weight="duotone" className="text-blue-500" />
+                        <div className="text-xl">Tổng cộng</div>
+                     </div>
+                     <div className="flex items-center">
+                        <Gear size={45} weight="duotone"/>
+                     </div>
+                  </div>
+               </Card>
+               <Card
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-neutral-200 border-2 border-neutral-300 p-0 text-center shadow-md"
+                  loading={requestPending.isLoading}
+                  onClick={() => router.push("history")}
+                  classNames={{
+                     body: "w-full",
+                  }}
+               >
+                  <div className="flex w-full items-center justify-between">
+                     <div className="flex flex-col items-start">
+                        <div className="flex items-center">
+                           <div className="text-3xl font-bold">
+                              <CountUp end={pendingRequest} separator={","} />
                            </div>
                         </div>
-                     </Card>
+                        <div className="text-xl">Chưa xử lý</div>
+                     </div>
+                     <div className="flex items-center">
+                        <NotePencil size={45} weight="duotone" />
+                     </div>
+                  </div>
+               </Card>
+               <Card
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-green-200 border-2 border-neutral-300 p-0 text-center shadow-md"
+                  loading={requestApproved.isLoading}
+                  onClick={() => router.push("history")}
+                  classNames={{
+                     body: "w-full",
+                  }}
+               >
+                  <div className="flex w-full items-center justify-between">
+                     <div className="flex flex-col items-start">
+                        <div className="flex items-center">
+                           <div className="text-3xl font-bold">
+                              <CountUp end={approvedRequest} separator={","} />
+                           </div>
+                        </div>
+                        <div className="text-xl">Xác nhận</div>
+                     </div>
+                     <div className="flex items-center">
+                        <CalendarCheck size={45} />
+                     </div>
+                  </div>
+               </Card>
+               <Card
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-blue-200 border-2 border-neutral-300 p-0 text-center shadow-md"
+                  loading={requestInProgress.isLoading}
+                  onClick={() => router.push("history")}
+                  classNames={{
+                     body: "w-full",
+                  }}
+               >
+                  <div className="flex w-full items-center justify-between">
+                     <div className="flex flex-col items-start">
+                        <div className="flex items-center">
+                           <div className="text-3xl font-bold">
+                              <CountUp end={inProgressRequest} separator={","} />
+                           </div>
+                        </div>
+                        <div className="text-xl">Đang thực hiện</div>
+                     </div>
+                     <div className="flex items-center">
+                        <HourglassSimpleMedium size={45} weight="duotone" />
+                     </div>
+                  </div>
+               </Card>
+               <Card
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-purple-200 border-2 border-neutral-300 p-0 text-center shadow-md"
+                  loading={requestClosed.isLoading}
+                  onClick={() => router.push("history")}
+                  classNames={{
+                     body: "w-full",
+                  }}
+               >
+                  <div className="flex w-full items-center justify-between">
+                     <div className="flex flex-col items-start">
+                        <div className="flex items-center">
+                           <div className="text-3xl font-bold">
+                              <CountUp end={closedRequest} separator={","} />
+                           </div>
+                        </div>
+                        <div className="text-xl">Đóng</div>
+                     </div>
+                     <div className="flex items-center">
+                        <SealCheck size={45} />
+                     </div>
+                  </div>
+               </Card>
+               <Card
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg bg-red-200 border-2 border-neutral-300 p-0 text-center shadow-md"
+                  loading={requestRejected.isLoading}
+                  onClick={() => router.push("history")}
+                  classNames={{
+                     body: "w-full",
+                  }}
+               >
+                  <div className="flex w-full items-center justify-between">
+                     <div className="flex flex-col items-start">
+                        <div className="flex items-center">
+                           <div className="text-3xl font-bold">
+                              <CountUp end={rejectedRequest} separator={","} />
+                           </div>
+                        </div>
+                        <div className="text-xl">Không tiếp nhận</div>
+                     </div>
+                     <div className="flex items-center">
+                        <CalendarSlash size={45} weight="duotone" />
+                     </div>
+                  </div>
+               </Card>
                {/* <StatisticCard
                   className="relative flex h-40 w-full items-center justify-center rounded-[2rem] bg-gradient-to-b from-[#FEFEFE] via-[#F5F7EC] to-[#D3E2A1] p-4 text-center shadow-fb"
                   loading={api_requests.isLoading}

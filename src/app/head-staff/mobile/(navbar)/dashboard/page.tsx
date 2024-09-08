@@ -3,12 +3,9 @@
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
 import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
-import ColumnChart from "@/common/components/ChartComponent"
 import HomeHeader from "@/common/components/HomeHeader"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { TaskStatus } from "@/common/enum/task-status.enum"
-import { ArrowUpOutlined } from "@ant-design/icons"
-import { ProCard, StatisticCard } from "@ant-design/pro-components"
 import { useQuery } from "@tanstack/react-query"
 import { Card, Col, Collapse, Row, Spin, Typography } from "antd"
 import dynamic from "next/dynamic"
@@ -17,15 +14,12 @@ import { Suspense, useState } from "react"
 import CountUp from "react-countup"
 import { useRouter } from "next/navigation"
 import {
-   BellSimpleRinging,
    CalendarCheck,
    CalendarSlash,
    CheckSquareOffset,
-   Gear,
    Note,
    NotePencil,
    SealCheck,
-   Sphere,
    HourglassSimpleMedium,
 } from "@phosphor-icons/react"
 

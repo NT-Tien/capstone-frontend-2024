@@ -4,28 +4,42 @@ import staff_qk from "@/app/staff/_api/qk"
 import Staff_Task_All from "@/app/staff/_api/task/all.api"
 import TaskCard from "@/app/staff/_components/TaskCard"
 import TaskDetailsDrawer from "@/app/staff/_components/TaskDetails.drawer"
-import ColumnChart from "@/common/components/ChartComponent"
 import HomeHeader from "@/common/components/HomeHeader"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { TaskStatus } from "@/common/enum/task-status.enum"
-import { ArrowUpOutlined } from "@ant-design/icons"
-import { ProCard, StatisticCard } from "@ant-design/pro-components"
+import { CalendarCheck, CalendarSlash, Gear, HourglassSimpleMedium, NotePencil, SealCheck } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
-import { Col, Row, Typography } from "antd"
+import { Card } from "antd"
 import dayjs from "dayjs"
 import dynamic from "next/dynamic"
-import { useMemo } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useMemo, useState } from "react"
 import CountUp from "react-countup"
 
 export default dynamic(() => Promise.resolve(StaffDashboard), {
    ssr: false,
 })
 
+function useTask(current: number, pageSize: number, currentStatus: TaskStatus) {
+   return useQuery({
+      queryKey: staff_qk.task.all(),
+      queryFn: () => Staff_Task_All(),
+   })
+}
+
 function StaffDashboard() {
    const response = useQuery({
       queryKey: staff_qk.task.all(),
       queryFn: Staff_Task_All,
    })
+
+   const router = useRouter()
+   const currentDefault = 1,
+      pageSizeDefault = 10
+
+   const searchParams = useSearchParams()
+   const [current, setCurrent] = useState(Number(searchParams.get("current")) || currentDefault)
+   const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || pageSizeDefault)
 
    const ongoingtask = useMemo(() => {
       if (!response.isSuccess) return
@@ -34,6 +48,30 @@ function StaffDashboard() {
       return null
    }, [response.data, response.isSuccess])
 
+   const awaitingFixerResult = useTask(current, pageSize, TaskStatus.AWAITING_FIXER)
+   // const pendingStockResult = result(TaskStatus.PENDING_STOCK)
+   const assignedResult = useTask(current, pageSize, TaskStatus.ASSIGNED)
+   const inProgressResult = useTask(current, pageSize, TaskStatus.IN_PROGRESS)
+   const headstaffConfirmResult = useTask(current, pageSize, TaskStatus.HEAD_STAFF_CONFIRM)
+   const completedResult = useTask(current, pageSize, TaskStatus.COMPLETED)
+   const cancelledResult = useTask(current, pageSize, TaskStatus.CANCELLED)
+
+   const totalTasks = [
+      awaitingFixerResult.data?.length ?? 0,
+      // pendingStockResult.data?.length ?? 0,
+      assignedResult.data?.length ?? 0,
+      inProgressResult.data?.length ?? 0,
+      completedResult.data?.length ?? 0,
+      headstaffConfirmResult.data?.length ?? 0,
+      cancelledResult.data?.length ?? 0,
+   ].reduce((acc, curr) => acc + curr, 0)
+
+   const progressingTasks = inProgressResult.data?.length ?? 0
+   const completedTasks = completedResult.data?.length ?? 0
+   const headstaffConfirmTasks = headstaffConfirmResult.data?.length ?? 0
+   const assignedTasks = assignedResult.data?.length ?? 0
+   const cancelledTasks = cancelledResult.data?.length ?? 0
+
    const tasksToday = useMemo(() => {
       if (!response.isSuccess) return []
       return response.data?.filter((task: TaskDto) => dayjs(task.fixerDate).isSame(dayjs(), "day"))
@@ -41,7 +79,7 @@ function StaffDashboard() {
 
    return (
       <div>
-         <div style={{ backgroundImage: "linear-gradient(to right, #579A0D, #1C6014)" }}>
+         <div>
             <div className="std-layout">
                <HomeHeader className="pb-8 pt-4" />
             </div>
@@ -62,137 +100,148 @@ function StaffDashboard() {
                   </TaskDetailsDrawer>
                </section>
             )}
-            <section className="grid grid-cols-2 gap-4">
-               <StatisticCard
-                  className="relative flex h-40 w-full items-center justify-center rounded-[2rem] bg-gradient-to-b from-[#FEFEFE] via-[#F5F7EC] to-[#D3E2A1] p-4 text-center shadow-fb"
-                  loading={response.isLoading}
-                  bodyStyle={{
-                     padding: "1rem",
-                  }}
-               >
-                  <div className="absolute bottom-4 left-4 flex flex-col gap-2">
-                     <Col>
-                        <Row className="text-2xl font-medium">Tổng cộng</Row>
-                        <Row className="flex items-center">
-                           <div className="text-3xl font-bold">
-                              <CountUp end={response.data?.length ?? 0} separator={","} />
+            <div className="std-layout">
+               <section className="mt-5 flex-none space-y-4">
+                  <Card
+                     className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-md"
+                     loading={
+                        awaitingFixerResult.isLoading ||
+                        assignedResult.isLoading ||
+                        inProgressResult.isLoading ||
+                        completedResult.isLoading ||
+                        cancelledResult.isLoading
+                     }
+                     onClick={() => router.push("tasks")}
+                     classNames={{
+                        body: "w-full",
+                     }}
+                  >
+                     <div className="flex w-full items-center justify-between">
+                        <div className="flex flex-col items-start">
+                           <div className="flex items-center">
+                              <div className="text-3xl font-bold">
+                                 <CountUp end={totalTasks} separator={","} />
+                              </div>
                            </div>
-                        </Row>
-                     </Col>
-                  </div>
-               </StatisticCard>
-               <StatisticCard
-                  className="flex h-40 w-full items-center justify-center rounded-[2rem] p-4 text-center shadow-fb"
-                  bodyStyle={{
-                     padding: "1rem",
-                  }}
-                  loading={response.isLoading}
-                  style={{
-                     backgroundImage: "linear-gradient(135deg, #F7F9EB 40%, #E5EFCA 60%, #D9E6B1 80%, #D6E3AB)",
-                  }}
-               >
-                  <div className="absolute bottom-4 left-4 flex flex-col gap-2">
-                     <Col>
-                        <Row className="text-2xl font-medium">Cần làm</Row>
-                        <Row className="text-3xl font-bold">
-                           <CountUp
-                              end={
-                                 response.data?.filter((value: TaskDto) => value.status === TaskStatus.ASSIGNED)
-                                    .length ?? 0
-                              }
-                              separator={","}
-                           />
-                        </Row>
-                     </Col>
-                  </div>
-               </StatisticCard>
-               <StatisticCard
-                  className="flex h-40 w-full items-center justify-center rounded-[2rem] p-4 text-center shadow-fb"
-                  loading={response.isLoading}
-                  bodyStyle={{
-                     padding: "1rem",
-                  }}
-                  style={{
-                     backgroundImage: "linear-gradient(-135deg, #FEFEFE, #F5F7EC, #D7E4AC, #D3E2A1)",
-                  }}
-               >
-                  <div className="absolute bottom-4 left-4 flex flex-col gap-2">
-                     <Col>
-                        <Row className="text-2xl font-medium">Hoàn tất</Row>
-                        <Row className="text-3xl font-bold">
-                           <CountUp
-                              end={
-                                 response.data?.filter((value: TaskDto) => value.status === TaskStatus.COMPLETED)
-                                    .length ?? 0
-                              }
-                              separator={","}
-                           />
-                        </Row>
-                     </Col>
-                  </div>
-               </StatisticCard>
-               <StatisticCard
-                  className="flex h-40 w-full items-center justify-center rounded-[2rem] p-4 text-center shadow-fb"
-                  loading={response.isLoading}
-                  bodyStyle={{
-                     padding: "1rem",
-                  }}
-                  style={{
-                     backgroundImage: "linear-gradient(to bottom, #D3E2A1, #D7E4AC, #F5F7EC, #FEFEFE)",
-                  }}
-               >
-                  <div className="absolute bottom-4 left-4 flex flex-col gap-2">
-                     <Col>
-                        <Row className="text-2xl font-medium text-left">Đang tiến hành</Row>
-                        <Row className="text-3xl font-bold">
-                           <CountUp
-                              end={
-                                 response.data?.filter((value: TaskDto) => value.status === TaskStatus.IN_PROGRESS)
-                                    .length ?? 0
-                              }
-                              separator={","}
-                           />
-                        </Row>
-                     </Col>
-                  </div>
-               </StatisticCard>
-            </section>
-            <section className="mt-8">
-               <ProCard
-                  style={{
-                     maxWidth: "100%",
-                     borderRadius: "2rem",
-                     position: "relative",
-                     overflow: "hidden",
-                  }}
-                  boxShadow
-               >
-                  <Row style={{ display: "flex", justifyContent: "center" }}>
-                     <Typography.Text className="text-2xl font-medium">Báo cáo hàng tuần</Typography.Text>
-                  </Row>
-                  <Row>
-                     <Col
-                        style={{
-                           position: "relative",
-                           height: "250px",
-                           width: "250px",
-                           bottom: "0",
-                           left: "0",
-                           display: "flex",
-                           alignItems: "flex-end",
-                        }}
-                     >
-                        <ColumnChart />
-                     </Col>
-                     <Col style={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                        <Typography.Text className="text-3xl font-medium" style={{ color: '#008B1A' }}>
-                        <ArrowUpOutlined />
-                           65%
-                        </Typography.Text>
-                     </Col>
-                  </Row>
-               </ProCard>
-            </section>
+                           <div className="text-xl">Tổng cộng</div>
+                        </div>
+                        <div className="flex items-center">
+                           <Gear size={45} weight="duotone" />
+                        </div>
+                     </div>
+                  </Card>
+                  <Card
+                     className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-blue-200 p-0 text-center shadow-md"
+                     loading={assignedResult.isLoading}
+                     onClick={() => router.push("tasks")}
+                     classNames={{
+                        body: "w-full",
+                     }}
+                  >
+                     <div className="flex w-full items-center justify-between">
+                        <div className="flex flex-col items-start">
+                           <div className="flex items-center">
+                              <div className="text-3xl font-bold">
+                                 <CountUp end={assignedTasks} separator={","} />
+                              </div>
+                           </div>
+                           <div className="text-xl">Đã phân công</div>
+                        </div>
+                        <div className="flex items-center">
+                           <NotePencil size={45} weight="duotone" />
+                        </div>
+                     </div>
+                  </Card>
+                  <Card
+                     className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-orange-200 p-0 text-center shadow-md"
+                     loading={inProgressResult.isLoading}
+                     onClick={() => router.push("tasks")}
+                     classNames={{
+                        body: "w-full",
+                     }}
+                  >
+                     <div className="flex w-full items-center justify-between">
+                        <div className="flex flex-col items-start">
+                           <div className="flex items-center">
+                              <div className="text-3xl font-bold">
+                                 <CountUp end={progressingTasks} separator={","} />
+                              </div>
+                           </div>
+                           <div className="text-xl">Đang làm</div>
+                        </div>
+                        <div className="flex items-center">
+                           <CalendarCheck size={45} />
+                        </div>
+                     </div>
+                  </Card>
+                  <Card
+                     className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-green-200 p-0 text-center shadow-md"
+                     loading={completedResult.isLoading}
+                     onClick={() => router.push("tasks")}
+                     classNames={{
+                        body: "w-full",
+                     }}
+                  >
+                     <div className="flex w-full items-center justify-between">
+                        <div className="flex flex-col items-start">
+                           <div className="flex items-center">
+                              <div className="text-3xl font-bold">
+                                 <CountUp end={completedTasks} separator={","} />
+                              </div>
+                           </div>
+                           <div className="text-xl">Hoàn thành</div>
+                        </div>
+                        <div className="flex items-center">
+                           <HourglassSimpleMedium size={45} weight="duotone" />
+                        </div>
+                     </div>
+                  </Card>
+                  <Card
+                     className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-purple-200 p-0 text-center shadow-md"
+                     loading={headstaffConfirmResult.isLoading}
+                     onClick={() => router.push("tasks")}
+                     classNames={{
+                        body: "w-full",
+                     }}
+                  >
+                     <div className="flex w-full items-center justify-between">
+                        <div className="flex flex-col items-start">
+                           <div className="flex items-center">
+                              <div className="text-3xl font-bold">
+                                 <CountUp end={headstaffConfirmTasks} separator={","} />
+                              </div>
+                           </div>
+                           <div className="text-xl">Chờ kiểm tra</div>
+                        </div>
+                        <div className="flex items-center">
+                           <SealCheck size={45} />
+                        </div>
+                     </div>
+                  </Card>
+                  <Card
+                     className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-red-200 p-0 text-center shadow-md"
+                     loading={cancelledResult.isLoading}
+                     onClick={() => router.push("tasks")}
+                     classNames={{
+                        body: "w-full",
+                     }}
+                  >
+                     <div className="flex w-full items-center justify-between">
+                        <div className="flex flex-col items-start">
+                           <div className="flex items-center">
+                              <div className="text-3xl font-bold">
+                                 <CountUp end={cancelledTasks} separator={","} />
+                              </div>
+                           </div>
+                           <div className="text-xl">Đã hủy</div>
+                        </div>
+                        <div className="flex items-center">
+                           <CalendarSlash size={45} weight="duotone" />
+                        </div>
+                     </div>
+                  </Card>
+               </section>
+            </div>
          </div>
       </div>
    )

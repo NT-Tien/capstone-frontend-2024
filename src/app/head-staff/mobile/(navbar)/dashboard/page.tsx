@@ -3,19 +3,26 @@
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
 import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
-import ColumnChart from "@/common/components/ChartComponent"
 import HomeHeader from "@/common/components/HomeHeader"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { TaskStatus } from "@/common/enum/task-status.enum"
-import { ArrowUpOutlined } from "@ant-design/icons"
-import { ProCard, StatisticCard } from "@ant-design/pro-components"
 import { useQuery } from "@tanstack/react-query"
-import { Col, Row, Spin, Typography } from "antd"
+import { Card, Col, Collapse, Row, Spin, Typography } from "antd"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { Suspense, useState } from "react"
 import CountUp from "react-countup"
 import { useRouter } from "next/navigation"
+import {
+   CalendarCheck,
+   CalendarSlash,
+   CheckSquareOffset,
+   Note,
+   NotePencil,
+   SealCheck,
+   HourglassSimpleMedium,
+} from "@phosphor-icons/react"
+import Image from "next/image"
 
 function useTask(current: number, pageSize: number, status: TaskStatus) {
    return useQuery({
@@ -79,6 +86,10 @@ function DashboardPage() {
    const cancelledResult = useTask(current, pageSize, TaskStatus.CANCELLED)
 
    const requestPending = useRequest(current, pageSize, FixRequestStatus.PENDING)
+   const requestApproved = useRequest(current, pageSize, FixRequestStatus.APPROVED)
+   const requestInProgress = useRequest(current, pageSize, FixRequestStatus.IN_PROGRESS)
+   const requestClosed = useRequest(current, pageSize, FixRequestStatus.CLOSED)
+   const requestRejected = useRequest(current, pageSize, FixRequestStatus.REJECTED)
 
    const totalTasks = [
       awaitingFixerResult.data?.total ?? 0,
@@ -90,22 +101,50 @@ function DashboardPage() {
       cancelledResult.data?.total ?? 0,
    ].reduce((acc, curr) => acc + curr, 0)
 
+   const totalRequests = [
+      requestPending.data?.total ?? 0,
+      requestApproved.data?.total ?? 0,
+      requestInProgress.data?.total ?? 0,
+      requestClosed.data?.total ?? 0,
+      requestRejected.data?.total ?? 0,
+   ].reduce((acc, curr) => acc + curr, 0)
+
    const progressingTasks = inProgressResult.data?.list.length ?? 0
    const completedTasks = completedResult.data?.list.length ?? 0
    const headstaffConfirmTasks = headstaffConfirmResult.data?.list.length ?? 0
+   const assignedTasks = assignedResult.data?.list.length ?? 0
+   const cancelledTasks = cancelledResult.data?.list.length ?? 0
 
    const pendingRequest = requestPending.data?.list.length ?? 0
+   const approvedRequest = requestApproved.data?.list.length ?? 0
+   const inProgressRequest = requestInProgress.data?.list.length ?? 0
+   const closedRequest = requestClosed.data?.list.length ?? 0
+   const rejectedRequest = requestRejected.data?.list.length ?? 0
+
+   const { Panel } = Collapse
+
    return (
       <div>
-         <div style={{ backgroundImage: "linear-gradient(to right, #579A0D, #1C6014)" }}>
+         <div>
+         <Image
+            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
+            src="/images/background5.jpg"
+            alt="image"
+            width={784}
+            height={100}
+            style={{
+               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               objectFit: "fill",
+            }}
+         />
             <div className="std-layout">
                <HomeHeader className="std-layout-inner pb-8 pt-4" />
             </div>
          </div>
          <div className="std-layout">
             <section className="mt-5 grid grid-cols-2 gap-4">
-               <StatisticCard
-                  className="relative flex h-40 w-full items-center justify-center rounded-[2rem] bg-gradient-to-b from-[#FEFEFE] via-[#F5F7EC] to-[#D3E2A1] p-4 text-center shadow-fb"
+               <Card
                   loading={
                      awaitingFixerResult.isLoading ||
                      assignedResult.isLoading ||
@@ -113,136 +152,179 @@ function DashboardPage() {
                      completedResult.isLoading ||
                      cancelledResult.isLoading
                   }
+                  onClick={() => router.push("tasks")}
+                  className="border-2 shadow-lg"
                >
-                  <div className="absolute bottom-4 left-4 flex flex-col gap-2">
+                  <div className="bottom-4 left-4 flex flex-col gap-2">
                      <Col>
-                        <Row className="text-2xl font-medium">Tổng cộng</Row>
-                        <Row className="flex items-center">
-                           <div className="text-3xl font-bold">
-                              <CountUp end={totalTasks} separator={","} />
-                           </div>
+                        <Row>
+                           <CheckSquareOffset className="mb-3" size={45} />
+                        </Row>
+                        <Row className="text-2xl font-normal">Tổng cộng</Row>
+                        <Row>
+                           <CountUp className="flex align-bottom text-3xl font-bold" end={totalTasks} separator={","} />
+                           <Typography.Text className="m-2 flex items-end text-base">tác vụ</Typography.Text>
                         </Row>
                      </Col>
                   </div>
-               </StatisticCard>
-               <StatisticCard
-                  className="flex h-40 w-full items-center justify-center rounded-[2rem] p-4 text-center shadow-fb"
-                  loading={inProgressResult.isLoading}
-                  style={{
-                     backgroundImage: "linear-gradient(135deg, #F7F9EB 40%, #E5EFCA 60%, #D9E6B1 80%, #D6E3AB)",
-                  }}
-               >
-                  <div className="absolute bottom-4 left-4 flex flex-col gap-2">
-                     <Col>
-                        <Row className="text-2xl font-medium">Thực hiện</Row>
-                        <Row className="text-3xl font-bold">
-                           <CountUp end={progressingTasks} separator={","} />
-                        </Row>
-                     </Col>
-                  </div>
-               </StatisticCard>
-               <StatisticCard
-                  className="flex h-40 w-full items-center justify-center rounded-[2rem] p-4 text-center shadow-fb"
-                  loading={requestPending.isLoading}
-                  style={{
-                     backgroundImage: "linear-gradient(-135deg, #FEFEFE, #F5F7EC, #D7E4AC, #D3E2A1)",
-                  }}
+               </Card>
+               <Card
+                  loading={
+                     requestPending.isLoading ||
+                     requestInProgress.isLoading ||
+                     requestApproved.isLoading ||
+                     requestRejected.isLoading ||
+                     requestClosed.isLoading
+                  }
                   onClick={() => router.push("requests")}
+                  className="border-2 shadow-lg"
                >
-                  <div className="absolute bottom-4 left-4 flex flex-col gap-2">
+                  <div className="bottom-4 left-4 flex flex-col gap-2">
                      <Col>
-                        <Row className="text-2xl font-medium">Chưa xử lý</Row>
-                        <Row className="text-3xl font-bold">
-                           <CountUp end={pendingRequest} separator={","} />
+                        <Note className="mb-3" size={45} weight="duotone" />
+                        <Row className="text-2xl font-normal">Tổng cộng</Row>
+                        <Row>
+                           <CountUp className="text-3xl font-bold" end={totalRequests} separator={","} />
+                           <Typography.Text className="m-2 flex items-end text-base"> yêu cầu</Typography.Text>
                         </Row>
                      </Col>
                   </div>
-               </StatisticCard>
-               <StatisticCard
-                  className="relative flex h-40 w-full items-end justify-start rounded-[2rem] p-4 text-left shadow-fb"
-                  loading={completedResult.isLoading}
-                  style={{
-                     backgroundImage: "linear-gradient(to bottom, #D3E2A1, #D7E4AC, #F5F7EC, #FEFEFE)",
-                  }}
-               >
-                  <div className="absolute bottom-4 left-4 flex flex-col gap-2">
-                     <Col>
-                        <Row className="text-2xl font-medium">Hoàn tất</Row>
-                        <Row className="text-3xl font-bold">
-                           <CountUp end={completedTasks} separator={","} />
-                        </Row>
-                     </Col>
-                  </div>
-               </StatisticCard>
+               </Card>
             </section>
-            <section className="mt-8">
-               <ProCard
-                  style={{
-                     maxWidth: "100%",
-                     borderRadius: "2rem",
-                     position: "relative",
-                     overflow: "hidden",
-                  }}
-                  boxShadow
-               >
-                  <Row style={{ display: "flex", justifyContent: "center" }}>
-                     <Typography.Text className="text-2xl font-medium">Báo cáo hàng tuần</Typography.Text>
-                  </Row>
-                  <Row>
-                     <Col
-                        style={{
-                           position: "relative",
-                           height: "250px",
-                           width: "250px",
-                           bottom: "0",
-                           left: "0",
-                           display: "flex",
-                           alignItems: "flex-end",
-                        }}
-                     >
-                        <ColumnChart />
-                     </Col>
-                     <Col style={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                        <Typography.Text className="text-3xl font-medium" style={{ color: '#008B1A' }}>
-                        <ArrowUpOutlined />
-                           65%
-                        </Typography.Text>
-                     </Col>
-                  </Row>
-               </ProCard>
+            <section className="mt-5 space-y-4">
+               <Collapse accordion className="bg-white">
+                  <Panel header="Tác vụ" key="1" className="flex-none border-2 text-xl font-medium shadow-lg">
+                     {[
+                        {
+                           loading: assignedResult.isLoading,
+                           count: assignedTasks,
+                           label: "Đã phân công",
+                           icon: <CalendarCheck size={45} weight="duotone" />,
+                           route: "tasks",
+                           bgColor: "bg-blue-200"
+                        },
+                        {
+                           loading: inProgressResult.isLoading,
+                           count: progressingTasks,
+                           label: "Đang làm",
+                           icon: <HourglassSimpleMedium size={45} weight="duotone" />,
+                           route: "tasks",
+                           bgColor: "bg-orange-200"
+                        },
+                        {
+                           loading: completedResult.isLoading,
+                           count: completedTasks,
+                           label: "Hoàn thành",
+                           icon: <SealCheck size={45} />,
+                           route: "tasks",
+                           bgColor: "bg-green-300"
+                        },
+                        {
+                           loading: headstaffConfirmResult.isLoading,
+                           count: headstaffConfirmTasks,
+                           label: "Chờ kiểm tra",
+                           icon: <NotePencil size={45} weight="duotone" />,
+                           route: "tasks",
+                           bgColor: "bg-purple-200"
+                        },
+                        {
+                           loading: cancelledResult.isLoading,
+                           count: cancelledTasks,
+                           label: "Đã hủy",
+                           icon: <CalendarSlash size={45} weight="duotone" />,
+                           route: "tasks",
+                           bgColor: "bg-red-200"
+                        },
+                     ].map(({ loading, count, label, icon, route, bgColor }, index) => (
+                        <Card
+                           key={index}
+                           className={`mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-sm ${bgColor}`}
+                           loading={loading}
+                           onClick={() => router.push(route)}
+                           classNames={{ body: "w-full" }}
+                        >
+                           <div className="flex w-full items-center justify-between">
+                              <div className="flex flex-col items-start">
+                                 <div className="flex items-center">
+                                    <div className="text-3xl font-bold">
+                                       <CountUp end={count} separator="," />
+                                    </div>
+                                 </div>
+                                 <div className="text-xl">{label}</div>
+                              </div>
+                              <div className="flex items-center">{icon}</div>
+                           </div>
+                        </Card>
+                     ))}
+                  </Panel>
+               </Collapse>
+
+               <Collapse accordion className="bg-white">
+                  <Panel header="Yêu cầu" key="1" className="flex-none border-2 text-xl font-medium shadow-lg">
+                     {[
+                        {
+                           loading: requestPending.isLoading,
+                           count: pendingRequest,
+                           label: "Chưa xử lý",
+                           icon: <NotePencil size={45} weight="duotone" />,
+                           route: "requests?status=PENDING",
+                        },
+                        {
+                           loading: requestApproved.isLoading,
+                           count: approvedRequest,
+                           label: "Xác nhận",
+                           icon: <CalendarCheck size={45} weight="duotone" />,
+                           route: "requests?status=APPROVED",
+                           bgColor: "bg-green-300"
+                        },
+                        {
+                           loading: requestInProgress.isLoading,
+                           count: inProgressRequest,
+                           label: "Đang thực hiện",
+                           icon: <HourglassSimpleMedium size={45} weight="duotone" />,
+                           route: "requests?status=IN_PROGRESS",
+                           bgColor: "bg-blue-300"
+                        },
+                        {
+                           loading: requestClosed.isLoading,
+                           count: closedRequest,
+                           label: "Đóng",
+                           icon: <SealCheck size={45} />,
+                           route: "requests?status=CLOSED",
+                           bgColor: "bg-purple-200"
+                        },
+                        {
+                           loading: requestRejected.isLoading,
+                           count: rejectedRequest,
+                           label: "Không tiếp nhận",
+                           icon: <CalendarSlash size={45} weight="duotone" />,
+                           route: "requests?status=REJECTED",
+                           bgColor: "bg-red-200"
+                        },
+                     ].map(({ loading, count, label, icon, route, bgColor }, index) => (
+                        <Card
+                           key={index}
+                           className={`mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-sm ${bgColor}`}
+                           loading={loading}
+                           onClick={() => router.push(route)}
+                           classNames={{ body: "w-full" }}
+                        >
+                           <div className="flex w-full items-center justify-between">
+                              <div className="flex flex-col items-start">
+                                 <div className="flex items-center">
+                                    <div className="text-3xl font-bold">
+                                       <CountUp end={count} separator="," />
+                                    </div>
+                                 </div>
+                                 <div className="text-xl">{label}</div>
+                              </div>
+                              <div className="flex items-center">{icon}</div>
+                           </div>
+                        </Card>
+                     ))}
+                  </Panel>
+               </Collapse>
             </section>
-            {/* <section className="std-layout-inner mt-8 flex items-center justify-between">
-               <div className="flex items-center gap-2">
-                  <ClockCircleOutlined />
-                  <h2 className="text-lg font-semibold">Tác vụ gần đây</h2>
-               </div>
-               <Link href="/head-staff/mobile/tasks">
-                  <Button type="link" className="p-0">
-                     Xem tất cả
-                  </Button>
-               </Link>
-            </section>
-            <div>
-               {completedResult.data?.list.length === 0 ? (
-                  <Card className="mt-2.5">
-                     <Empty description="Không có tác vụ" />
-                  </Card>
-               ) : (
-                  completedResult.data?.list.map((task) => (
-                     <TaskCard
-                        className="std-layout-inner mt-2.5 grid grid-cols-1 gap-10"
-                        title={task.name}
-                        description={`Est. ${task.totalTime} minutes`}
-                        key={task.id}
-                        extra={
-                           <Typography.Text className="text-gray-500">
-                              {extended_dayjs(task.createdAt).add(7, "hours").locale("en").fromNow(false)}
-                           </Typography.Text>
-                        }
-                     />
-                  ))
-               )}
-            </div> */}
          </div>
       </div>
    )

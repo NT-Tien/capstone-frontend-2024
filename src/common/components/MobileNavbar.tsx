@@ -61,8 +61,8 @@ export type NavbarItemProps = {
 function NavbarItem({ name, icon, active = false, countBadge = 0, onClick, href, router }: NavbarItemProps) {
    const displayIcon = cloneElement(icon, {
       style: {
-         fontSize: "18px",
-         color: active ? "#5FAF32" : "#49454F",
+         fontSize: "25px",
+         color: active ? "#0577e2" : "#49454F",
          opacity: active ? 1 : 0.7,
       },
    })

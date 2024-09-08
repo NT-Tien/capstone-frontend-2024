@@ -29,7 +29,7 @@
 
 html, body {
     height: 100%;
-    @apply bg-customLightBlue;
+    @apply bg-neutral-50;
 }
 
 * {

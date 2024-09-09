@@ -1,63 +1,26 @@
 "use client"
 
+import HeadStaff_Dashboard_Count from "@/app/head-staff/_api/dashboard/count.api"
 import headstaff_qk from "@/app/head-staff/_api/qk"
-import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
-import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
 import HomeHeader from "@/common/components/HomeHeader"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import { FixRequest_StatusData } from "@/common/dto/status/FixRequest.status"
 import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import { useQuery } from "@tanstack/react-query"
-import { App, Card, Col, Collapse, Row, Spin, Typography } from "antd"
-import dynamic from "next/dynamic"
-import { useSearchParams } from "next/navigation"
-import { Suspense, useEffect, useMemo, useState } from "react"
-import CountUp from "react-countup"
-import { useRouter } from "next/navigation"
+import { cn } from "@/common/util/cn.util"
 import {
    CalendarCheck,
    CalendarSlash,
    CheckSquareOffset,
+   HourglassSimpleMedium,
    Note,
    NotePencil,
-   SealCheck,
-   HourglassSimpleMedium,
 } from "@phosphor-icons/react"
+import { useQuery } from "@tanstack/react-query"
+import { App, Button, Card, Col, Collapse, Row, Spin, Typography } from "antd"
+import dynamic from "next/dynamic"
 import Image from "next/image"
-import HeadStaff_Dashboard_Count from "@/app/head-staff/_api/dashboard/count.api"
-import { FixRequest_StatusData } from "@/common/dto/status/FixRequest.status"
-import { cn } from "@/common/util/cn.util"
-
-function useTask(current: number, pageSize: number, status: TaskStatus) {
-   return useQuery({
-      queryKey: headstaff_qk.task.all({
-         page: current.toString(),
-         limit: pageSize.toString(),
-         status,
-      }),
-      queryFn: () =>
-         HeadStaff_Task_All({
-            page: current,
-            limit: pageSize,
-            status,
-         }),
-   })
-}
-
-function useRequest(current: number, pageSize: number, currentStatus: FixRequestStatus) {
-   return useQuery({
-      queryKey: headstaff_qk.request.all({
-         page: current,
-         limit: pageSize,
-         status: currentStatus,
-      }),
-      queryFn: () =>
-         HeadStaff_Request_All30Days({
-            page: current,
-            limit: pageSize,
-            status: currentStatus as any,
-         }),
-   })
-}
+import { useRouter } from "next/navigation"
+import { Suspense, useEffect, useMemo } from "react"
+import CountUp from "react-countup"
 
 function Page() {
    return (
@@ -73,7 +36,7 @@ export default dynamic(() => Promise.resolve(Page), {
 
 function DashboardPage() {
    const router = useRouter()
-   const { modal } = App.useApp()
+   const { notification } = App.useApp()
 
    const api_counts = useQuery({
       queryKey: headstaff_qk.dashboard.count(),
@@ -90,13 +53,13 @@ function DashboardPage() {
       const values = Object.entries(data)
       const returnValue = values.reduce(
          (prev, [key, val]) => {
-            if (key.includes("request")) {
+            if (key.toLowerCase().includes("request")) {
                return {
                   ...prev,
                   request: prev.request + val,
                }
             }
-            if (key.includes("task")) {
+            if (key.toLowerCase().includes("task")) {
                return {
                   ...prev,
                   request: prev.task + val,
@@ -115,21 +78,35 @@ function DashboardPage() {
       return returnValue
    }, [api_counts.data])
 
+   console.log(total)
+
    useEffect(() => {
       if (!api_counts.isSuccess) return
 
       if (api_counts.data.headStaffConfirmTasks > 0) {
-         modal.info({
-            title: "Lưu ý",
-            content: `Có ${api_counts.data.headStaffConfirmTasks} tác vụ cần được kiểm tra`,
-            okText: "Xem",
-            onOk: () => {
-               router.push(`/head-staff/mobile/tasks?status=${TaskStatus.HEAD_STAFF_CONFIRM}`)
-            },
-            cancelText: "Đóng",
+         notification.destroy("headStaffConfirmTasks")
+         notification.info({
+            message: "Thông báo",
+            description: `Có ${api_counts.data.headStaffConfirmTasks} tác vụ cần được kiểm tra`,
+            btn: (
+               <Button
+                  onClick={() => {
+                     router.push(`/head-staff/mobile/tasks?status=${TaskStatus.HEAD_STAFF_CONFIRM}`)
+                  }}
+                  type="primary"
+                  size="large"
+               >
+                  Xem chi tiết
+               </Button>
+            ),
+            key: "headStaffConfirmTasks",
          })
       }
-   }, [])
+
+      return () => {
+         notification.destroy("headStaffConfirmTasks")
+      }
+   }, [api_counts.data, api_counts.isSuccess, notification, router])
 
    const { Panel } = Collapse
 

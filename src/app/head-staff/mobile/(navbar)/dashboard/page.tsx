@@ -62,7 +62,7 @@ function DashboardPage() {
             if (key.toLowerCase().includes("task")) {
                return {
                   ...prev,
-                  request: prev.task + val,
+                  task: prev.task + val,
                }
             }
             return prev

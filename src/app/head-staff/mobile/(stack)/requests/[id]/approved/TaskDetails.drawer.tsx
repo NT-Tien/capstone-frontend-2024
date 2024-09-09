@@ -29,6 +29,7 @@ import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState }
 import AssignFixerDrawer, { AssignFixerDrawerRefType } from "../../../tasks/[id]/AssignFixer.drawer"
 import CheckSignatureDrawer, { CheckSignatureDrawerRefType } from "./CheckSignature.drawer"
 import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
+import UpdateTaskFixDateDrawer, { UpdateTaskFixDateDrawerRefType } from "./UpdateTaskFixDate.drawer"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto) => void
@@ -58,6 +59,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
    const issueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)
    const assignFixerDrawerRef = useRef<AssignFixerDrawerRefType | null>(null)
    const checkSignatureDrawerRef = useRef<CheckSignatureDrawerRefType | null>(null)
+   const updateTaskFixDateDrawerRef = useRef<UpdateTaskFixDateDrawerRefType | null>(null)
 
    const api_task = useQuery({
       queryKey: headstaff_qk.task.byId(task?.id ?? ""),
@@ -96,7 +98,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
          id: api_task.data.request.id,
          payload: {
             return_date_warranty: warrantyDate,
-         }
+         },
       })
 
       await mutate_updateStatus.mutateAsync(
@@ -107,7 +109,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
             onSuccess: async () => {
                handleClose()
                await props.refetchFn?.()
-               if(isWarrantyTask) {
+               if (isWarrantyTask) {
                   props.autoCreateTaskFn?.(warrantyDate)
                }
             },
@@ -115,7 +117,6 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
       )
    }
 
-   
    const isReceiveWarrantyTask = useMemo(() => {
       if (!api_task.isSuccess) return
       return !!api_task.data.issues.find((issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId)
@@ -156,6 +157,17 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                               fixerDate: dayjs(task.fixerDate).add(7, "hours"),
                               fixer: task.fixer,
                            })
+                        }}
+                     ></Button>
+                  )}
+                  {task && task.status === TaskStatus.AWAITING_FIXER && (
+                     <Button
+                        icon={<EditOutlined />}
+                        type="text"
+                        size="large"
+                        onClick={() => {
+                           if (!task) return
+                           updateTaskFixDateDrawerRef.current?.handleOpen(task)
                         }}
                      ></Button>
                   )}
@@ -212,7 +224,9 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                   </div>
                   <div className="mt-layout flex items-center gap-3">
                      <CalendarBlank weight="fill" size={18} color="#737373" />
-                     <div>{dayjs(task.fixerDate).add(7, "hours").format("DD/MM/YYYY") ?? "Chưa có"}</div>
+                     <div>
+                        {task.fixerDate ? dayjs(task.fixerDate).add(7, "hours").format("DD/MM/YYYY") : "Chưa có"}
+                     </div>
                   </div>
                   <div className="mt-layout flex items-center gap-3">
                      <Users size={18} weight="fill" color="#737373" />
@@ -349,6 +363,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
             }}
          />
          <CheckSignatureDrawer ref={checkSignatureDrawerRef} onSubmit={handleUpdateConfirmCheck} />
+         <UpdateTaskFixDateDrawer ref={updateTaskFixDateDrawerRef} refetchFn={props.refetchFn} />
       </>
    )
 })

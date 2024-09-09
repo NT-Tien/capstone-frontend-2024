@@ -10,8 +10,9 @@ import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { FixType } from "@/common/enum/fix-type.enum"
 import useModalControls from "@/common/hooks/useModalControls"
 import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
+import { Info } from "@phosphor-icons/react"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Button, Drawer, Form, Input } from "antd"
+import { App, Button, Card, Drawer, Form, Input } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react"
@@ -82,6 +83,11 @@ const SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function
 
    async function handleSubmit(values: FieldType) {
       try {
+         message.destroy("loading")
+         message.loading({
+            content: "Vui lòng chờ...",
+            key: "loading",
+         })
          if (!requestId || !data) return
          const issueSend = await mutate_createIssues.mutateAsync({
             description: values.note,
@@ -114,6 +120,7 @@ const SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function
             totalTime: 60,
          })
 
+         message.destroy("loading")
          message.success({
             content: "Cập nhật thành công",
          })
@@ -126,18 +133,8 @@ const SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function
    }
 
    const isLoading = useMemo(() => {
-      return mutate_createIssues.isPending && mutate_updateRequest.isPending && mutate_createTask.isPending
+      return mutate_createIssues.isPending || mutate_updateRequest.isPending || mutate_createTask.isPending
    }, [mutate_createIssues.isPending, mutate_createTask.isPending, mutate_updateRequest.isPending])
-
-   useEffect(() => {
-      message.destroy("send-warranty")
-      if (isLoading) {
-         message.loading({
-            content: "Đang xử lý...",
-            key: "send-warranty",
-         })
-      }
-   }, [isLoading, message])
 
    useImperativeHandle(ref, () => ({
       handleOpen,
@@ -154,7 +151,7 @@ const SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function
       enabled: api.isSuccess,
    })
 
-   useEffect(() => {
+   const isTwoWeeks = useMemo(() => {
       if (deviceWarranty.isSuccess && deviceWarranty.data) {
          const { machineModel } = deviceWarranty.data
          const warrantyTerm = machineModel.warrantyTerm
@@ -165,15 +162,27 @@ const SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function
             const twoWeeksFromNow = currentDate.add(2, "week")
 
             if (warrantyEndDate.isBefore(twoWeeksFromNow)) {
-               message.warning("Thời hạn bảo hành còn dưới 2 tuần.")
+               return true
             }
          }
       }
-   }, [deviceWarranty.isSuccess, deviceWarranty.data, message])
+      return false
+   }, [deviceWarranty.data, deviceWarranty.isSuccess])
 
    return (
       <>
          <Drawer title="Gửi bảo hành" open={open} onClose={handleClose} placement="bottom" height="max-content">
+            {isTwoWeeks && (
+               <section className="mb-layout">
+                  <Card size="small" className="border-2 border-yellow-200 bg-yellow-100">
+                     <div className="mb-2 flex items-center gap-1 font-bold text-yellow-600">
+                        <Info weight="fill" size={20} />
+                        Lưu ý
+                     </div>
+                     <div className="text-yellow-600">Thiết bị này sẽ hết bảo hành trong dưới 2 tuần.</div>
+                  </Card>
+               </section>
+            )}
             <section className="mb-layout">
                <h3 className="text-lg font-semibold leading-8 text-neutral-700">THÔNG TIN BẢO HÀNH</h3>
 

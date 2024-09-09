@@ -215,7 +215,7 @@ function TabbedLayout(props: Props) {
                               <span>Không có bảo hành</span>
                            ) : (
                               <span className="flex flex-col">
-                                 <span className="text-right">{s.machineModel?.warrantyTerm}</span>
+                                 <span className="text-right">{dayjs(s.machineModel?.warrantyTerm).add(7, 'days').format("DD/MM/YYYY")}</span>
                                  {hasExpired && (
                                     <Tag color="red-inverse" className="m-0">
                                        Hết bảo hành

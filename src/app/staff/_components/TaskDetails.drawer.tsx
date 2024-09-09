@@ -8,15 +8,15 @@ import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/common/enum/issue-s
 import { TaskStatus } from "@/common/enum/task-status.enum"
 import useModalControls from "@/common/hooks/useModalControls"
 import { cn } from "@/common/util/cn.util"
+import { ReceiveWarrantyTypeErrorId } from "@/constants/Warranty"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { CheckCircle, Gear, MapPin } from "@phosphor-icons/react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { App, Badge, Button, Card, Drawer, List, Tag, Image } from "antd"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { App, Badge, Button, Card, Drawer, Image, List, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react"
+import { ReactNode, useMemo, useRef, useState } from "react"
 import { clientEnv } from "../../../env"
-import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
 
 export default function TaskDetailsDrawer({
    children,
@@ -42,7 +42,6 @@ export default function TaskDetailsDrawer({
    const [shouldContinue, setShouldContinue] = useState<boolean>(false)
    const router = useRouter()
    const { message } = App.useApp()
-   const queryClient = useQueryClient()
 
    const qrCodeDisplayRef = useRef<QrCodeDisplayModalRefType | null>(null)
 
@@ -171,7 +170,7 @@ export default function TaskDetailsDrawer({
                   {
                      key: "4",
                      label: "Ngày sửa",
-                     render: (_, e) => dayjs(e.fixerDate).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
+                     render: (_, e) => dayjs(e.fixerDate).add(7, "hours").format("DD/MM/YYYY"),
                   },
                   ...(hasSparePart
                      ? [

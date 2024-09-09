@@ -7,11 +7,10 @@ import TaskCard from "@/common/components/TaskCard"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
 import qk from "@/common/querykeys"
-import { Car } from "@phosphor-icons/react"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { Button, Card, Divider, Empty, List, Result, Skeleton, Spin } from "antd"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Suspense, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 
 export default function Page() {
    return (
@@ -36,6 +35,12 @@ function TasksPage() {
       },
    })
 
+   useEffect(() => {
+      if(searchParams.get("status")) {
+         setStatus(searchParams.get("status") as any)
+      }
+   }, [searchParams])
+
    return (
       <div className="std-layout">
          <RootHeader title="Tác vụ" className="std-layout-outer p-4" />
@@ -48,6 +53,7 @@ function TasksPage() {
             classNames={{
                content: "mt-layout",
             }}
+            defaultActiveTab={searchParams.get("status") ?? undefined}
             items={[
                {
                   key: TaskStatus.AWAITING_FIXER,
@@ -65,12 +71,12 @@ function TasksPage() {
                   icon: TaskStatusTagMapper[TaskStatus.IN_PROGRESS].icon,
                },
                {
-                  key: TaskStatus.COMPLETED,
+                  key: TaskStatus.HEAD_STAFF_CONFIRM,
                   title: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text, // TODO temporary replacement
                   icon: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].icon,
                },
                {
-                  key: TaskStatus.HEAD_STAFF_CONFIRM,
+                  key: TaskStatus.COMPLETED,
                   title: TaskStatusTagMapper[TaskStatus.COMPLETED].text,
                   icon: TaskStatusTagMapper[TaskStatus.COMPLETED].icon,
                },

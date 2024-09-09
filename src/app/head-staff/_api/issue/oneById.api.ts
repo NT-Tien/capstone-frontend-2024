@@ -1,9 +1,7 @@
+import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
+import { parseApiResponse } from "@/common/util/parseApiResponse.util"
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { FixRequestIssueSparePartDto } from "@/common/dto/FixRequestIssueSparePart.dto"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 
 export type Request = {
    id: string

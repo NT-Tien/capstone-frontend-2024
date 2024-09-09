@@ -216,16 +216,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       }
    }, [api_request.data, api_request.isSuccess, params.id])
 
-   // useEffect(() => {
-   //    if (!hasExpired && api_request.data?.status === FixRequestStatus.PENDING) {
-   //       message.destroy("warranty-info")
-   //       message.info({
-   //          content: "Lưu ý. Thiết bị này vẫn còn trong thời hạn bảo hành.",
-   //          key: "warranty-info",
-   //       })
-   //    }
-   // }, [api_request.data?.status, hasExpired, message])
-
    useEffect(() => {
       if (api_request.isSuccess && isApproved(api_request.data.status)) {
          router.push(`/head-staff/mobile/requests/${params.id}/approved`)

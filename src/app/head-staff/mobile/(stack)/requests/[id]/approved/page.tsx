@@ -13,7 +13,7 @@ import { NotFoundError } from "@/common/error/not-found.error"
 import { Info } from "@phosphor-icons/react"
 import { MoreOutlined } from "@ant-design/icons"
 import { useQuery } from "@tanstack/react-query"
-import { Dropdown, Progress } from "antd"
+import { App, Dropdown, Progress } from "antd"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
 import Result from "antd/es/result"
@@ -28,11 +28,15 @@ import isApproved from "./is-approved.util"
 import RejectRequestDrawer, { RejectRequestDrawerRefType } from "../RejectRequest.drawer"
 import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
 import { cn } from "@/common/util/cn.util"
+import TaskDetailsDrawer, { TaskDetailsDrawerRefType } from "./TaskDetails.drawer"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
+   const { modal, notification } = App.useApp()
 
    const rejectRequestRef = useRef<RejectRequestDrawerRefType | null>(null)
+   const taskDetailsRef = useRef<TaskDetailsDrawerRefType | null>(null)
 
    const api_request = useQuery({
       queryKey: headstaff_qk.request.byId(params.id),
@@ -87,6 +91,61 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
          router.push(`/head-staff/mobile/requests/${params.id}`)
       }
    }, [api_request.data, api_request.isSuccess, params.id, router])
+
+   useEffect(() => {
+      if (!api_request.isSuccess) return
+
+      const task = api_request.data.tasks.find((task) => task.status === TaskStatus.HEAD_STAFF_CONFIRM)
+
+      if (!!task) {
+         notification.destroy("head-staff-confirm")
+         notification.info({
+            message: "Thông báo",
+            description: "Trên hệ thống có tác vụ đã hoàn thành và đang chờ xác nhận từ trưởng phòng",
+            placement: "bottomRight",
+            key: "head-staff-confirm",
+            btn: (
+               <Button
+                  type="primary"
+                  size="large"
+                  onClick={() => {
+                     notification.destroy("head-staff-confirm")
+                     taskDetailsRef.current?.handleOpen(task)
+                  }}
+               >
+                  Xem tác vụ
+               </Button>
+            ),
+         })
+      }
+
+      return () => {
+         notification.destroy("head-staff-confirm")
+      }
+   }, [api_request.data?.tasks, api_request.isSuccess, notification])
+
+   useEffect(() => {
+      if (!api_request.isSuccess) return
+      if (!api_request.data.return_date_warranty) return
+
+      const now = dayjs()
+      const warrantyDate = dayjs(api_request.data.return_date_warranty).add(7, "hours")
+      const returnWarrantyTask = api_request.data.issues.find(
+         (issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId,
+      )?.task
+
+      if (now.isAfter(warrantyDate) && returnWarrantyTask?.status === TaskStatus.AWAITING_FIXER) {
+         modal.info({
+            title: "Thông báo",
+            content: "Thiết bị đã bảo hành xong. Vui lòng tạo tác vụ để nhận và lắp đặt thiết bị",
+            okText: "Xem tác vụ",
+            onOk: () => {
+               taskDetailsRef.current?.handleOpen(returnWarrantyTask)
+            },
+            cancelText: "Đóng",
+         })
+      }
+   }, [api_request.data, api_request.isSuccess, modal])
 
    return (
       <div className="std-layout relative h-max min-h-full bg-white pb-24">
@@ -240,13 +299,11 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
 
                {api_request.isSuccess && api_request.data.status === FixRequestStatus.CLOSED && (
                   <section className="std-layout">
-                  <div className="flex w-full gap-2 rounded-b-lg bg-purple-500 p-3 text-white">
-                     <div className="font-semibold">Đánh giá</div>
-                     <div>
-                        {(api_request.data as any)?.feedback?.content ?? "Không có"}
+                     <div className="flex w-full gap-2 rounded-b-lg bg-purple-500 p-3 text-white">
+                        <div className="font-semibold">Đánh giá</div>
+                        <div>{(api_request.data as any)?.feedback?.content ?? "Không có"}</div>
                      </div>
-                  </div>
-               </section>
+                  </section>
                )}
 
                <Suspense fallback={<Spin />}>
@@ -264,6 +321,13 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
             onSuccess={() => {
                router.push(`/head-staff/mobile/requests/${params.id}`)
             }}
+         />
+         <TaskDetailsDrawer
+            ref={taskDetailsRef}
+            refetchFn={async () => {
+               await api_request.refetch()
+            }}
+            autoCreateTaskFn={async () => {}}
          />
       </div>
    )

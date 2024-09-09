@@ -49,8 +49,8 @@ export default function TaskCardBasic(props: Props) {
                   </Tag>
                )}
             </div>
-            <div className="mt-2 flex items-center gap-1">
-               <Tag className="m-0" color={TaskStatusTagMapper[status]?.colorInverse ?? "default"}>
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
+               <Tag className="m-0" color={TaskStatusTagMapper[status]?.color ?? "default"}>
                   {TaskStatusTagMapper[status]?.text ?? "-"}
                </Tag>
                {fixerDate && (

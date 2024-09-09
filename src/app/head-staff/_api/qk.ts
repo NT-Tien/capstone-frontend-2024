@@ -1,6 +1,9 @@
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum";
 
 const headstaff_qk = {
+   dashboard: {
+      count: () => ["headstaff", "dashboard", "count"],
+   },
    request: {
       base: () => ["headstaff", "request"],
       all: (props?: { page: number; limit: number; status: FixRequestStatus }) => ["headstaff", "request", "all", props],

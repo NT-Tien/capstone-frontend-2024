@@ -55,14 +55,14 @@ export default function TaskCard(props: Props) {
          <section className="mt-2 flex gap-1">
             <Tag className="m-0 flex items-center gap-1">
                <CalendarOutlined />
-               {dayjs(fixerDate).isSame(dayjs(), "day") ? "Today" : dayjs(fixerDate).add(7, "hours").format("DD/MM/YY")}
+               {fixerDate ? dayjs(fixerDate).isSame(dayjs(), "day") ? "Today" : dayjs(fixerDate).add(7, "hours").format("DD/MM/YY") : "-"}
             </Tag>
             <Tag className="m-0 flex items-center gap-1">
                <ClockCircleOutlined />
                {props.task.totalTime} phút
             </Tag>
             <Tag className="m-0 flex items-center gap-1">
-               <UserOutlined /> {props.task.fixer?.username}
+               <UserOutlined /> {props.task.fixer?.username ?? "-"}
             </Tag>
          </section>
       </Card>

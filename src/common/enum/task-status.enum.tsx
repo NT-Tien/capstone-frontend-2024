@@ -27,7 +27,7 @@ export const TaskStatusTagMapper: {
       icon: <UserMinus size={16} />,
    },
    [TaskStatus.AWAITING_SPARE_SPART]: {
-      text: "Chờ hàng",
+      text: "Chờ linh kiện",
       colorInverse: "orange-inverse",
       color: "orange",
       icon: <Package size={16} />,

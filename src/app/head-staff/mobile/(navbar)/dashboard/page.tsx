@@ -5,12 +5,12 @@ import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days
 import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
 import HomeHeader from "@/common/components/HomeHeader"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { TaskStatus } from "@/common/enum/task-status.enum"
+import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
 import { useQuery } from "@tanstack/react-query"
-import { Card, Col, Collapse, Row, Spin, Typography } from "antd"
+import { App, Card, Col, Collapse, Row, Spin, Typography } from "antd"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
-import { Suspense, useState } from "react"
+import { Suspense, useEffect, useMemo, useState } from "react"
 import CountUp from "react-countup"
 import { useRouter } from "next/navigation"
 import {
@@ -23,6 +23,9 @@ import {
    HourglassSimpleMedium,
 } from "@phosphor-icons/react"
 import Image from "next/image"
+import HeadStaff_Dashboard_Count from "@/app/head-staff/_api/dashboard/count.api"
+import { FixRequest_StatusData } from "@/common/dto/status/FixRequest.status"
+import { cn } from "@/common/util/cn.util"
 
 function useTask(current: number, pageSize: number, status: TaskStatus) {
    return useQuery({
@@ -70,121 +73,106 @@ export default dynamic(() => Promise.resolve(Page), {
 
 function DashboardPage() {
    const router = useRouter()
-   const currentDefault = 1,
-      pageSizeDefault = 10
+   const { modal } = App.useApp()
 
-   const searchParams = useSearchParams()
-   const [current, setCurrent] = useState(Number(searchParams.get("current")) || currentDefault)
-   const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || pageSizeDefault)
+   const api_counts = useQuery({
+      queryKey: headstaff_qk.dashboard.count(),
+      queryFn: HeadStaff_Dashboard_Count,
+   })
 
-   const awaitingFixerResult = useTask(current, pageSize, TaskStatus.AWAITING_FIXER)
-   // const pendingStockResult = result(TaskStatus.PENDING_STOCK)
-   const assignedResult = useTask(current, pageSize, TaskStatus.ASSIGNED)
-   const inProgressResult = useTask(current, pageSize, TaskStatus.IN_PROGRESS)
-   const headstaffConfirmResult = useTask(current, pageSize, TaskStatus.HEAD_STAFF_CONFIRM)
-   const completedResult = useTask(current, pageSize, TaskStatus.COMPLETED)
-   const cancelledResult = useTask(current, pageSize, TaskStatus.CANCELLED)
+   const total = useMemo(() => {
+      const data = api_counts.data
+      if (!data)
+         return {
+            task: 0,
+            request: 0,
+         }
+      const values = Object.entries(data)
+      const returnValue = values.reduce(
+         (prev, [key, val]) => {
+            if (key.includes("request")) {
+               return {
+                  ...prev,
+                  request: prev.request + val,
+               }
+            }
+            if (key.includes("task")) {
+               return {
+                  ...prev,
+                  request: prev.task + val,
+               }
+            }
+            return prev
+         },
+         {
+            task: 0,
+            request: 0,
+         } as {
+            task: number
+            request: number
+         },
+      )
+      return returnValue
+   }, [api_counts.data])
 
-   const requestPending = useRequest(current, pageSize, FixRequestStatus.PENDING)
-   const requestApproved = useRequest(current, pageSize, FixRequestStatus.APPROVED)
-   const requestInProgress = useRequest(current, pageSize, FixRequestStatus.IN_PROGRESS)
-   const requestClosed = useRequest(current, pageSize, FixRequestStatus.CLOSED)
-   const requestRejected = useRequest(current, pageSize, FixRequestStatus.REJECTED)
+   useEffect(() => {
+      if (!api_counts.isSuccess) return
 
-   const totalTasks = [
-      awaitingFixerResult.data?.total ?? 0,
-      // pendingStockResult.data?.total ?? 0,
-      assignedResult.data?.total ?? 0,
-      inProgressResult.data?.total ?? 0,
-      completedResult.data?.total ?? 0,
-      headstaffConfirmResult.data?.total ?? 0,
-      cancelledResult.data?.total ?? 0,
-   ].reduce((acc, curr) => acc + curr, 0)
-
-   const totalRequests = [
-      requestPending.data?.total ?? 0,
-      requestApproved.data?.total ?? 0,
-      requestInProgress.data?.total ?? 0,
-      requestClosed.data?.total ?? 0,
-      requestRejected.data?.total ?? 0,
-   ].reduce((acc, curr) => acc + curr, 0)
-
-   const progressingTasks = inProgressResult.data?.list.length ?? 0
-   const completedTasks = completedResult.data?.list.length ?? 0
-   const headstaffConfirmTasks = headstaffConfirmResult.data?.list.length ?? 0
-   const assignedTasks = assignedResult.data?.list.length ?? 0
-   const cancelledTasks = cancelledResult.data?.list.length ?? 0
-
-   const pendingRequest = requestPending.data?.list.length ?? 0
-   const approvedRequest = requestApproved.data?.list.length ?? 0
-   const inProgressRequest = requestInProgress.data?.list.length ?? 0
-   const closedRequest = requestClosed.data?.list.length ?? 0
-   const rejectedRequest = requestRejected.data?.list.length ?? 0
+      if (api_counts.data.headStaffConfirmTasks > 0) {
+         modal.info({
+            title: "Lưu ý",
+            content: `Có ${api_counts.data.headStaffConfirmTasks} tác vụ cần được kiểm tra`,
+            okText: "Xem",
+            onOk: () => {
+               router.push(`/head-staff/mobile/tasks?status=${TaskStatus.HEAD_STAFF_CONFIRM}`)
+            },
+            cancelText: "Đóng",
+         })
+      }
+   }, [])
 
    const { Panel } = Collapse
 
    return (
       <div>
          <div>
-         <Image
-            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
-            src="/images/background5.jpg"
-            alt="image"
-            width={784}
-            height={100}
-            style={{
-               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-               objectFit: "fill",
-            }}
-         />
+            <Image
+               className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
+               src="/images/background5.jpg"
+               alt="image"
+               width={784}
+               height={100}
+               style={{
+                  WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+                  maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+                  objectFit: "fill",
+               }}
+            />
             <div className="std-layout">
                <HomeHeader className="std-layout-inner pb-8 pt-4" />
             </div>
          </div>
          <div className="std-layout">
             <section className="mt-5 grid grid-cols-2 gap-4">
-               <Card
-                  loading={
-                     awaitingFixerResult.isLoading ||
-                     assignedResult.isLoading ||
-                     inProgressResult.isLoading ||
-                     completedResult.isLoading ||
-                     cancelledResult.isLoading
-                  }
-                  onClick={() => router.push("tasks")}
-                  className="border-2 shadow-lg"
-               >
+               <Card loading={api_counts.isPending} onClick={() => router.push("tasks")} className="">
                   <div className="bottom-4 left-4 flex flex-col gap-2">
                      <Col>
-                        <Row>
-                           <CheckSquareOffset className="mb-3" size={45} />
-                        </Row>
-                        <Row className="text-2xl font-normal">Tổng cộng</Row>
-                        <Row>
-                           <CountUp className="flex align-bottom text-3xl font-bold" end={totalTasks} separator={","} />
+                        <CheckSquareOffset className="mb-1" size={36} />
+                        <Row className="text-xl font-normal">Tổng cộng</Row>
+                        <Row className="mt-2">
+                           <CountUp className="flex align-bottom text-3xl font-bold" end={total.task} separator={","} />
                            <Typography.Text className="m-2 flex items-end text-base">tác vụ</Typography.Text>
                         </Row>
                      </Col>
                   </div>
                </Card>
-               <Card
-                  loading={
-                     requestPending.isLoading ||
-                     requestInProgress.isLoading ||
-                     requestApproved.isLoading ||
-                     requestRejected.isLoading ||
-                     requestClosed.isLoading
-                  }
-                  onClick={() => router.push("requests")}
-                  className="border-2 shadow-lg"
-               >
+               <Card loading={api_counts.isPending} onClick={() => router.push("requests")} className="">
                   <div className="bottom-4 left-4 flex flex-col gap-2">
                      <Col>
-                        <Note className="mb-3" size={45} weight="duotone" />
-                        <Row className="text-2xl font-normal">Tổng cộng</Row>
-                        <Row>
-                           <CountUp className="text-3xl font-bold" end={totalRequests} separator={","} />
+                        <Note className="mb-1" size={36} weight="duotone" />
+                        <Row className="text-xl font-normal">Tổng cộng</Row>
+                        <Row className="mt-2">
+                           <CountUp className="text-3xl font-bold" end={total.request} separator={","} />
                            <Typography.Text className="m-2 flex items-end text-base"> yêu cầu</Typography.Text>
                         </Row>
                      </Col>
@@ -192,48 +180,48 @@ function DashboardPage() {
                </Card>
             </section>
             <section className="mt-5 space-y-4">
-               <Collapse accordion className="bg-white">
-                  <Panel header="Tác vụ" key="1" className="flex-none border-2 text-xl font-medium shadow-lg">
+               <Collapse accordion className="bg-white" defaultActiveKey="1">
+                  <Panel header="Tác vụ" key="1" className="flex-none text-xl font-medium">
                      {[
                         {
-                           loading: assignedResult.isLoading,
-                           count: assignedTasks,
-                           label: "Đã phân công",
-                           icon: <CalendarCheck size={45} weight="duotone" />,
+                           loading: api_counts.isPending,
+                           count: api_counts.data?.pendingSparePartTasks,
+                           label: TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].text,
+                           icon: <CalendarSlash size={36} weight="duotone" className="text-red-500" />,
                            route: "tasks",
-                           bgColor: "bg-blue-200"
+                           bgColor: "bg-red-200",
                         },
                         {
-                           loading: inProgressResult.isLoading,
-                           count: progressingTasks,
-                           label: "Đang làm",
-                           icon: <HourglassSimpleMedium size={45} weight="duotone" />,
+                           loading: api_counts.isPending,
+                           count: api_counts.data?.awaitingFixerTasks,
+                           label: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text,
+                           icon: <CalendarSlash size={36} weight="duotone" className="text-red-500" />,
                            route: "tasks",
-                           bgColor: "bg-orange-200"
+                           bgColor: "bg-red-200",
                         },
                         {
-                           loading: completedResult.isLoading,
-                           count: completedTasks,
-                           label: "Hoàn thành",
-                           icon: <SealCheck size={45} />,
+                           loading: api_counts.isPending,
+                           count: api_counts.data?.assignedTasks,
+                           label: TaskStatusTagMapper[TaskStatus.ASSIGNED].text,
+                           icon: <CalendarCheck size={36} weight="duotone" className="text-blue-500" />,
                            route: "tasks",
-                           bgColor: "bg-green-300"
+                           bgColor: "bg-blue-200",
                         },
                         {
-                           loading: headstaffConfirmResult.isLoading,
-                           count: headstaffConfirmTasks,
-                           label: "Chờ kiểm tra",
-                           icon: <NotePencil size={45} weight="duotone" />,
+                           loading: api_counts.isPending,
+                           count: api_counts.data?.inProgressTasks,
+                           label: TaskStatusTagMapper[TaskStatus.IN_PROGRESS].text,
+                           icon: <HourglassSimpleMedium size={36} className="text-orange-500" weight="duotone" />,
                            route: "tasks",
-                           bgColor: "bg-purple-200"
+                           bgColor: "bg-orange-200",
                         },
                         {
-                           loading: cancelledResult.isLoading,
-                           count: cancelledTasks,
-                           label: "Đã hủy",
-                           icon: <CalendarSlash size={45} weight="duotone" />,
+                           loading: api_counts.isPending,
+                           count: api_counts.data?.headStaffConfirmTasks,
+                           label: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text,
+                           icon: <NotePencil size={36} weight="duotone" className="text-purple-500" />,
                            route: "tasks",
-                           bgColor: "bg-red-200"
+                           bgColor: "bg-purple-200",
                         },
                      ].map(({ loading, count, label, icon, route, bgColor }, index) => (
                         <Card
@@ -241,16 +229,17 @@ function DashboardPage() {
                            className={`mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-sm ${bgColor}`}
                            loading={loading}
                            onClick={() => router.push(route)}
-                           classNames={{ body: "w-full" }}
+                           classNames={{ body: "w-full px-4" }}
                         >
-                           <div className="flex w-full items-center justify-between">
+                           <div className="flex w-full items-start justify-between">
                               <div className="flex flex-col items-start">
+                                 <div className="mb-2 text-lg">{label}</div>
                                  <div className="flex items-center">
-                                    <div className="text-3xl font-bold">
-                                       <CountUp end={count} separator="," />
+                                    <div className="text-2xl font-bold">
+                                       <CountUp end={count ?? 0} separator="," />
+                                       <span className="ml-2 text-xs font-normal text-neutral-500">Tác vụ</span>
                                     </div>
                                  </div>
-                                 <div className="text-xl">{label}</div>
                               </div>
                               <div className="flex items-center">{icon}</div>
                            </div>
@@ -259,64 +248,59 @@ function DashboardPage() {
                   </Panel>
                </Collapse>
 
-               <Collapse accordion className="bg-white">
-                  <Panel header="Yêu cầu" key="1" className="flex-none border-2 text-xl font-medium shadow-lg">
+               <Collapse accordion className="bg-white" defaultActiveKey="1">
+                  <Panel header="Yêu cầu" key="1" className="flex-none text-xl font-medium">
                      {[
                         {
-                           loading: requestPending.isLoading,
-                           count: pendingRequest,
-                           label: "Chưa xử lý",
-                           icon: <NotePencil size={45} weight="duotone" />,
+                           loading: api_counts.isPending,
+                           count: api_counts.data?.pendingRequests,
+                           label: FixRequest_StatusData("pending").text,
+                           icon: FixRequest_StatusData("pending", {
+                              phosphor: { size: 36, weight: "duotone", className: "text-neutral-500" },
+                           }).icon,
                            route: "requests?status=PENDING",
+                           bgColor: "bg-neutral-200",
                         },
                         {
-                           loading: requestApproved.isLoading,
-                           count: approvedRequest,
-                           label: "Xác nhận",
-                           icon: <CalendarCheck size={45} weight="duotone" />,
+                           loading: api_counts.isPending,
+                           count: api_counts.data?.approvedRequests,
+                           label: FixRequest_StatusData("approved").text,
+                           icon: FixRequest_StatusData("approved", {
+                              phosphor: { size: 36, weight: "duotone", className: "text-green-500" },
+                           }).icon,
                            route: "requests?status=APPROVED",
-                           bgColor: "bg-green-300"
+                           bgColor: "bg-green-200",
                         },
                         {
-                           loading: requestInProgress.isLoading,
-                           count: inProgressRequest,
-                           label: "Đang thực hiện",
-                           icon: <HourglassSimpleMedium size={45} weight="duotone" />,
+                           loading: api_counts.isPending,
+                           count: api_counts.data?.inProgressRequests,
+                           label: FixRequest_StatusData("in_progress").text,
+                           icon: FixRequest_StatusData("in_progress", {
+                              phosphor: { size: 36, weight: "duotone", className: "text-blue-500" },
+                           }).icon,
                            route: "requests?status=IN_PROGRESS",
-                           bgColor: "bg-blue-300"
-                        },
-                        {
-                           loading: requestClosed.isLoading,
-                           count: closedRequest,
-                           label: "Đóng",
-                           icon: <SealCheck size={45} />,
-                           route: "requests?status=CLOSED",
-                           bgColor: "bg-purple-200"
-                        },
-                        {
-                           loading: requestRejected.isLoading,
-                           count: rejectedRequest,
-                           label: "Không tiếp nhận",
-                           icon: <CalendarSlash size={45} weight="duotone" />,
-                           route: "requests?status=REJECTED",
-                           bgColor: "bg-red-200"
+                           bgColor: "bg-blue-200",
                         },
                      ].map(({ loading, count, label, icon, route, bgColor }, index) => (
                         <Card
                            key={index}
-                           className={`mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-sm ${bgColor}`}
+                           className={cn(
+                              "mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-sm",
+                              bgColor,
+                           )}
                            loading={loading}
                            onClick={() => router.push(route)}
-                           classNames={{ body: "w-full" }}
+                           classNames={{ body: "w-full px-4" }}
                         >
-                           <div className="flex w-full items-center justify-between">
+                           <div className="flex w-full items-start justify-between">
                               <div className="flex flex-col items-start">
+                                 <div className="mb-2 text-lg">{label}</div>
                                  <div className="flex items-center">
-                                    <div className="text-3xl font-bold">
-                                       <CountUp end={count} separator="," />
+                                    <div className="text-2xl font-bold">
+                                       <CountUp end={count ?? 0} separator="," />
+                                       <span className="ml-2 text-xs font-normal text-neutral-500">Yêu cầu</span>
                                     </div>
                                  </div>
-                                 <div className="text-xl">{label}</div>
                               </div>
                               <div className="flex items-center">{icon}</div>
                            </div>

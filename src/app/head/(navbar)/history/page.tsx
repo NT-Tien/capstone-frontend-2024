@@ -11,20 +11,22 @@ import { ClockCircleOutlined } from "@ant-design/icons"
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 import { Button, Card, Empty, Result, Skeleton } from "antd"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
    FixRequest_StatusData,
    FixRequest_StatusMapper,
    FixRequestStatuses,
 } from "@/common/dto/status/FixRequest.status"
 import RequestCard from "@/app/head/_components/RequestCard"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 
-function Page() {
+function Page({ searchParams }: { searchParams: { status: FixRequestStatuses } }) {
+   const router = useRouter()
    const api_requests = useQuery({
       queryKey: head_qk.requests.all(),
       queryFn: () => Head_Request_All(),
    })
-   const [tab, setTab] = useState<FixRequestStatuses>(FixRequest_StatusData("pending").name)
+   const [tab, setTab] = useState<FixRequestStatuses>(searchParams.status ?? FixRequest_StatusData("pending").name)
 
    const datasets = useMemo(() => {
       const response: Partial<{
@@ -50,6 +52,11 @@ function Page() {
       return response
    }, [api_requests])
 
+   function handleTabChange(tab: FixRequestStatuses) {
+      router.push(`/head/history?status=${tab}`)
+      setTab(tab)
+   }
+
    return (
       <div className="std-layout">
          <RootHeader title={"Lịch sử"} className="std-layout-outer p-4" icon={<ClockCircleOutlined />} />
@@ -59,7 +66,7 @@ function Page() {
                content: "mt-layout",
             }}
             tab={tab}
-            onTabChange={setTab}
+            onTabChange={handleTabChange}
             items={[
                {
                   key: FixRequest_StatusData("pending").name,

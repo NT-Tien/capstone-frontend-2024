@@ -79,25 +79,25 @@ function StaffDashboard() {
    }, [response.data, response.isSuccess])
 
    return (
-      <div>
-         <div>
-         <Image
-            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
-            src="/images/background5.jpg"
-            alt="image"
-            width={784}
-            height={100}
-            style={{
-               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-               objectFit: "fill",
-            }}
-         />
+      <div className="std-layout">
+         <div className="std-layout-outer">
+            <Image
+               className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
+               src="/images/background5.jpg"
+               alt="image"
+               width={784}
+               height={100}
+               style={{
+                  WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+                  maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+                  objectFit: "fill",
+               }}
+            />
             <div className="std-layout">
                <HomeHeader className="std-layout-inner pb-8 pt-4" />
             </div>
          </div>
-         <div className="std-layout">
+         <div>
             {ongoingtask && (
                <section className="mb-8 mt-5 flex space-x-4">
                   <TaskDetailsDrawer>
@@ -113,8 +113,11 @@ function StaffDashboard() {
                   </TaskDetailsDrawer>
                </section>
             )}
-            <div className="std-layout">
-               <section className="mt-5 flex-none space-y-4">
+            <div>
+               <section>
+                  <h2 className="text-2xl font-semibold">Dashboard</h2>
+               </section>
+               {/* <section className="flex-none space-y-2">
                   <Card
                      className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-md"
                      loading={
@@ -253,7 +256,7 @@ function StaffDashboard() {
                         </div>
                      </div>
                   </Card>
-               </section>
+               </section> */}
             </div>
          </div>
       </div>

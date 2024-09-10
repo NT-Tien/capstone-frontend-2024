@@ -7,9 +7,12 @@ export type Response = {
    checkedRequests: number
    approvedRequests: number
    inProgressRequests: number
+   headConfirmRequests: number
+   rejectedRequests: number
+   closedRequests: number
    awaitingFixerTasks: number
    assignedTasks: number
-   pendingSparePartTasks: number
+   awaitingSparePartTasks: number
    inProgressTasks: number
    headStaffConfirmTasks: number
 }

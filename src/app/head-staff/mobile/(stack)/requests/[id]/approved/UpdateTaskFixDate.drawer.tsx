@@ -4,7 +4,7 @@ import useModalControls from "@/common/hooks/useModalControls"
 import { useMutation } from "@tanstack/react-query"
 import { App, Button, DatePicker, Drawer, Form } from "antd"
 import dayjs, { Dayjs } from "dayjs"
-import { forwardRef, useEffect, useState } from "react"
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react"
 
 export type UpdateTaskFixDateDrawerRefType = {
    handleOpen: (task: TaskDto) => void
@@ -78,9 +78,13 @@ const UpdateTaskFixDateDrawer = forwardRef<UpdateTaskFixDateDrawerRefType, Props
       )
    }
 
+   useImperativeHandle(ref, () => ({
+      handleOpen,
+   }))
+
    return (
       <>
-         <Drawer open={open} onClose={handleClose} placement="bottom" height="max-content">
+         <Drawer open={open} onClose={handleClose} placement="bottom" height="max-content" title="Cập nhật thời gian">
             <DatePicker
                size="large"
                className="w-full"
@@ -106,4 +110,4 @@ const UpdateTaskFixDateDrawer = forwardRef<UpdateTaskFixDateDrawerRefType, Props
    )
 })
 
-export default UpdateTaskFixDateDrawer;
+export default UpdateTaskFixDateDrawer

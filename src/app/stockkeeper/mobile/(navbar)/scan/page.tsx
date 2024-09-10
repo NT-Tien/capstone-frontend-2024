@@ -52,7 +52,7 @@ export default function ScanPage() {
 
       setTimeout(() => {
          startTransition(() => {
-            router.push(`/stockkeeper/mobile/tasks/${id}`)
+            router.push(`/stockkeeper/mobile/scan-results/${id}`)
          })
       }, 200)
 
@@ -60,7 +60,7 @@ export default function ScanPage() {
    }
 
    useEffect(() => {
-      router.prefetch("/stockkeeper/mobile/tasks/e31d662e-05db-4bc4-8bfd-773f56618725", { kind: PrefetchKind.AUTO })
+      router.prefetch("/stockkeeper/mobile/scan-results/e31d662e-05db-4bc4-8bfd-773f56618725", { kind: PrefetchKind.AUTO })
    }, [router])
 
    return (

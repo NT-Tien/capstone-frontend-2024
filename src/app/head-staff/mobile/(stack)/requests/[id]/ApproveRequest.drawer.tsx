@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useState } from "react"
 import CreateSingleIssueDrawer from "./CreateSingleIssue.drawer"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import HeadStaff_TypeError_Common from "@/app/head-staff/_api/typeError/common.api"
 
 export type ApproveRequestDrawerRefType = {
    handleOpen: (requestId: string) => void
@@ -61,6 +62,10 @@ const ApproveRequestDrawer = forwardRef<ApproveRequestDrawerRefType, Props>(func
       queryFn: () => HeadStaff_Device_OneById({ id: api_request.data?.device.id ?? "" }),
       enabled: api_request.isSuccess,
    })
+   const api_commonIssues = useQuery({
+      queryKey: headstaff_qk.typeError.common(),
+      queryFn: () => HeadStaff_TypeError_Common(),
+   })
 
    const mutate_createIssues = useMutation({
       mutationFn: HeadStaff_Issue_CreateMany,
@@ -84,14 +89,21 @@ const ApproveRequestDrawer = forwardRef<ApproveRequestDrawerRefType, Props>(func
    })
 
    const availableTypeErrors = useMemo(() => {
-      if (!api_request.isSuccess || !api_device.isSuccess) {
+      if (!api_request.isSuccess || !api_device.isSuccess || !api_commonIssues.isSuccess) {
          return undefined
       }
 
       const addedErrors = new Set(selectedIssues.map((issue) => issue.typeError.id))
-
-      return api_device.data.machineModel.typeErrors.filter((error) => !addedErrors.has(error.id))
-   }, [api_device.data?.machineModel.typeErrors, api_device.isSuccess, api_request.isSuccess, selectedIssues])
+      const allErrors = [...api_device.data.machineModel.typeErrors, ...api_commonIssues.data]
+      return allErrors.filter((error) => !addedErrors.has(error.id))
+   }, [
+      api_commonIssues.data,
+      api_commonIssues.isSuccess,
+      api_device.data?.machineModel.typeErrors,
+      api_device.isSuccess,
+      api_request.isSuccess,
+      selectedIssues,
+   ])
 
    async function handleSubmit() {
       if (!selectedIssues.length) {

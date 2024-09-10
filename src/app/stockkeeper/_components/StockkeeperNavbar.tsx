@@ -26,10 +26,10 @@ export default function StockkeeperNavbar() {
          onClick: () => setCurrentActive("dashboard"),
       },
       {
-         name: "Kho máy",
-         key: "warehouse",
+         name: "Tác vụ",
+         key: "tasks",
          icon: <ContainerFilled />,
-         onClick: () => setCurrentActive("warehouse"),
+         onClick: () => setCurrentActive("tasks"),
       },
       {
          name: "Quét QR",

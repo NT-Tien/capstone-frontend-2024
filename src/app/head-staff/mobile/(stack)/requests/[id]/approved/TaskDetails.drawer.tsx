@@ -18,6 +18,7 @@ import {
    Circle,
    Clock,
    ImageSquare,
+   Info,
    Users,
    XCircle,
 } from "@phosphor-icons/react"
@@ -30,6 +31,7 @@ import AssignFixerDrawer, { AssignFixerDrawerRefType } from "../../../tasks/[id]
 import CheckSignatureDrawer, { CheckSignatureDrawerRefType } from "./CheckSignature.drawer"
 import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
 import UpdateTaskFixDateDrawer, { UpdateTaskFixDateDrawerRefType } from "./UpdateTaskFixDate.drawer"
+import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/app/head-staff/_api/task/update-awaitSparePartToAssignFixer.api"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto) => void
@@ -91,6 +93,10 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
       mutationFn: HeadStaff_Request_UpdateStatus,
    })
 
+   const mutate_checkSparePartStock = useMutation({
+      mutationFn: HeadStaff_Task_UpdateAwaitSparePartToAssignFixer,
+   })
+
    async function handleUpdateConfirmCheck(warrantyDate?: string) {
       if (!task || !api_task.isSuccess) return
 
@@ -130,6 +136,14 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
    const isWarrantyTask = useMemo(() => {
       return isReceiveWarrantyTask || isSendWarrantyTask
    }, [isReceiveWarrantyTask, isSendWarrantyTask])
+
+   const isMissingSpareParts = useMemo(() => {
+      return api_task.data?.issues.find(
+         (issue) => issue.issueSpareParts.filter((sp) => sp.quantity > sp.sparePart.quantity).length > 0,
+      )
+   }, [api_task.data?.issues])
+
+   // console.log("look", isMissingSpareParts, !!isMissingSpareParts)
 
    useImperativeHandle(ref, () => ({
       handleOpen,
@@ -282,6 +296,38 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                         </div>
                      </div>
                   </div>
+
+                  {task.status === TaskStatus.AWAITING_SPARE_SPART && (
+                     <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-lg">
+                        {!!isMissingSpareParts && (
+                           <Card size="small" className="mb-4 bg-blue-100 border-2 border-blue-200">
+                              <div className="flex items-center gap-1 mb-2">
+                                 <Info size={18} weight="fill" />
+                                 <h5>Lưu ý</h5>
+                              </div>
+                              <div>Tác vụ này hiện tại đang thiếu linh kiện trong kho. Vui lòng kiểm tra lại.</div>
+                           </Card>
+                        )}
+                        <Button
+                           type="primary"
+                           className="w-full"
+                           size="large"
+                           disabled={!!isMissingSpareParts}
+                           onClick={() => {
+                              mutate_checkSparePartStock.mutate({
+                                 id: task.id
+                              }, {
+                                 onSuccess: async () => {
+                                    handleClose()
+                                    await props.refetchFn?.()
+                                 }
+                              })
+                           }}
+                        >
+                           ???
+                        </Button>
+                     </section>
+                  )}
 
                   {task.status === TaskStatus.AWAITING_FIXER && (
                      <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-lg">

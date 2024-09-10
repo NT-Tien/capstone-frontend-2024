@@ -24,6 +24,9 @@ const headstaff_qk = {
    user: {
       all: () => ["headstaff", "user", "all"],
    },
+   typeError: {
+      common: () => ["headstaff", "typeError", "common"],
+   },
 }
 
 export default headstaff_qk

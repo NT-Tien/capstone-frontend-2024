@@ -1,207 +1,161 @@
 "use client"
 
-import RootHeader from "@/common/components/RootHeader"
-import qk from "@/common/querykeys"
-import { InfoCircleFilled, LeftOutlined } from "@ant-design/icons"
-import { ProDescriptions } from "@ant-design/pro-components"
-import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Button, Card, Checkbox, List, Tag, Typography } from "antd"
-import dayjs from "dayjs"
-import { useRouter } from "next/navigation"
-import Stockkeeper_Task_GetById from "../../../../_api/task/getById.api"
+import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"
+import Stockkeeper_Task_GetById from "@/app/stockkeeper/_api/task/getById.api"
+import PageHeader from "@/common/components/PageHeader"
 import { TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import Stockkeeper_Task_ReceiveSpareParts from "@/app/stockkeeper/_api/task/receive-spare-parts.api"
 import { cn } from "@/common/util/cn.util"
-import { CheckCard } from "@ant-design/pro-card"
-import { useMemo, useState } from "react"
-import { ReceiveWarrantyTypeErrorId } from "@/constants/Warranty"
-import DataListView from "@/common/components/DataListView"
+import { RightOutlined } from "@ant-design/icons"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { Button, Divider, Spin, Tag } from "antd"
+import dayjs from "dayjs"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { Fragment, useMemo, useRef } from "react"
+import SparePartDetailsDrawer, { SparePartDetailsDrawerRefType } from "./SparePartDetails.drawer"
 
-export default function TaskDetails({ params }: { params: { id: string } }) {
-   const { message } = App.useApp()
+function Page({ params }: { params: { id: string } }) {
+   const router = useRouter()
+   const sparePartDetailsDrawerRef = useRef<SparePartDetailsDrawerRefType | null>(null)
+   const queryClient = useQueryClient()
 
    const api_task = useQuery({
-      queryKey: qk.task.one_byId(params.id),
+      queryKey: stockkeeper_qk.tasks.one_byId(params.id),
       queryFn: () => Stockkeeper_Task_GetById({ id: params.id }),
    })
-   const router = useRouter()
-
-   const isWarranty = useMemo(() => {
-      return false
-   }, [])
 
    const spareParts = useMemo(() => {
-      return api_task.data?.issues.flatMap((i) => i.issueSpareParts) ?? []
-   }, [api_task.data])
+      const issues = api_task.data?.issues.flatMap((issue) => issue.issueSpareParts)
+      const spareParts = issues?.sort((a, b) => {
+         if (a.sparePart.quantity < a.quantity) return -1
+         if (b.sparePart.quantity < b.quantity) return 1
+         return 0
+      })
 
-   const mutate_confirmReceipt = useMutation({
-      mutationFn: Stockkeeper_Task_ReceiveSpareParts,
-      onMutate: async () => {
-         message.destroy("confirmReceipt")
-         message.loading({
-            content: "Đang thực hiện...",
-            key: "confirmReceipt",
-         })
-      },
-      onError: async (e) => {
-         message.error({
-            content: e.message,
-            key: "confirmReceipt",
-         })
-      },
-      onSuccess: async () => {
-         message.success({
-            content: "Thành công",
-         })
-      },
-      onSettled: () => {
-         message.destroy("confirmReceipt")
-      },
-   })
+      return spareParts
+   }, [api_task.data?.issues])
 
-   function handleConfirmReceipt() {
-      mutate_confirmReceipt.mutate(
-         {
-            id: params.id,
-         },
-         {
-            onSuccess: async () => {
-               await api_task.refetch()
-               router.push("/stockkeeper/mobile/scan")
-            },
-         },
-      )
-   }
+   const missingSpareParts = useMemo(() => {
+      return spareParts?.filter((item) => item.sparePart.quantity < item.quantity)
+   }, [spareParts])
 
    return (
-      <div className="std-layout pb-44">
-         <RootHeader
-            title="Chi tiết tác vụ"
-            icon={<LeftOutlined />}
-            onIconClick={() => router.back()}
-            className="std-layout-outer p-4"
+      <div className="std-layout relative">
+         <PageHeader
+            title={"Tác vụ"}
+            handleClickIcon={() => router.back()}
+            icon={PageHeader.BackIcon}
+            className="std-layout-outer relative z-30"
          />
-         <ProDescriptions
-            className="mt-layout"
-            bordered={true}
-            dataSource={api_task.data}
-            loading={api_task.isLoading}
-            size="small"
-            columns={[
-               {
-                  key: "name",
-                  label: "Tên tác vụ",
-                  dataIndex: "name",
-               },
-               {
-                  key: "created",
-                  label: "Ngày tạo",
-                  dataIndex: "createdAt",
-                  render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
-               },
-               {
-                  key: "status",
-                  label: "Trạng thái",
-                  dataIndex: "status",
-                  render: (_, e) => (
-                     <Tag color={TaskStatusTagMapper[e.status].colorInverse}>{TaskStatusTagMapper[e.status].text}</Tag>
-                  ),
-               },
-               {
-                  key: "priority",
-                  label: "Độ ưu tiên",
-                  render: (_, e) =>
-                     e.priority ? <Tag color="red">{"Quan trọng"}</Tag> : <Tag color="green">{"Bình thường"}</Tag>,
-               },
-               {
-                  key: "totalTime",
-                  label: "Thời gian thực hiện",
-                  dataIndex: "totalTime",
-               },
-               {
-                  key: "operator",
-                  label: "Thông số máy",
-                  dataIndex: "operator",
-               },
-               {
-                  key: "sp",
-                  label: "Lấy linh kiện",
-                  dataIndex: "confirmReceipt",
-                  render: (_, e) =>
-                     e.confirmReceipt ? <Tag color="green">{"Đã lấy"}</Tag> : <Tag color="red">{"Chưa lấy"}</Tag>,
-               },
-               ...(isWarranty
-                  ? [
-                       {
-                          key: "type",
-                          label: "Ghi chú",
-                          render: () => "Tác vụ bảo hành",
-                       },
-                    ]
-                  : []),
-            ]}
+         <Image
+            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
+            src="/images/requests.jpg"
+            alt="image"
+            width={784}
+            height={100}
+            style={{
+               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+            }}
          />
-         {isWarranty ? (
+
+         {api_task.isPending && (
+            <div className="z-50 grid place-items-center py-32" key="api_task_pending">
+               <Spin />
+            </div>
+         )}
+
+         {api_task.isSuccess && (
             <>
-               <div className="std-layout-outer mt-layout">
-                  <h2 className="mb-2 px-layout text-lg font-semibold">Chi tiết thiết bị</h2>
-                  <DataListView
-                     dataSource={api_task.data?.device}
-                     bordered
-                     itemClassName="py-2"
-                     labelClassName="font-normal text-neutral-500"
-                     items={[
-                        {
-                           label: "Mẫu máy",
-                           value: (s) => s.machineModel?.name,
-                        },
-                        {
-                           label: "Nhà sản xuất",
-                           value: (s) => s.machineModel.manufacturer,
-                        },
-                        {
-                           label: "Năm sản xuất",
-                           value: (s) => s.machineModel.yearOfProduction,
-                        },
-                        {
-                           label: "Mô tả",
-                           value: (s) => s.description,
-                        },
-                     ]}
-                  />
-               </div>
+               <section id="task-details" key="task-details" className="z-50 rounded-lg bg-white">
+                  <div className="flex items-center justify-between p-3">
+                     <h2 className="text-base font-medium text-gray-800">Tên tác vụ</h2>
+                     <span className="text-sm text-gray-500">{api_task.data?.name}</span>
+                  </div>
+                  <Divider className="my-0" />
+                  <div className="flex items-center justify-between p-3">
+                     <h2 className="text-base font-medium text-gray-800">Độ ưu tiên</h2>
+                     <span className="text-sm text-gray-500">
+                        {api_task.data?.priority ? "Ưu tiên" : "Bình thường"}
+                     </span>
+                  </div>
+                  <Divider className="my-0" />
+                  <div className="flex items-center justify-between p-3">
+                     <h2 className="text-base font-medium text-gray-800">Ngày tạo</h2>
+                     <span className="text-sm text-gray-500">
+                        {dayjs(api_task.data?.createdAt).add(7, "hours").format("DD/MM/YYYY")}
+                     </span>
+                  </div>
+                  <Divider className="my-0" />
+                  <div className="flex items-center justify-between p-3">
+                     <h2 className="text-base font-medium text-gray-800">Trạng thái</h2>
+                     <span className="text-sm text-gray-500">
+                        <Tag color={TaskStatusTagMapper[api_task.data.status as any].colorInverse} className="m-0">
+                           {TaskStatusTagMapper[api_task.data.status as any].text}
+                        </Tag>
+                     </span>
+                  </div>
+               </section>
+               <section id="spare-parts" key="spare-parts" className="mt-6">
+                  <div className="mb-2 flex items-center justify-between">
+                     <h2 className="text-base font-medium text-gray-800">Linh kiện còn thiếu</h2>
+                     <span className="text-sm text-gray-500">{missingSpareParts?.length}</span>
+                  </div>
+                  <div className="z-50 rounded-lg bg-white">
+                     {spareParts?.map((item, index) => (
+                        <Fragment key={item.id}>
+                           <div
+                              className={cn(
+                                 "flex cursor-pointer items-center justify-between p-3 pr-1",
+                                 item.quantity <= item.sparePart.quantity && "opacity-50",
+                              )}
+                              onClick={() => {
+                                 sparePartDetailsDrawerRef.current?.handleOpen(item)
+                              }}
+                           >
+                              <div>
+                                 <h2 className="text-base font-medium text-gray-800">{item.sparePart.name}</h2>
+                                 <div className="text-sm font-light text-neutral-600">
+                                    Số lượng cần:{" "}
+                                    {item.quantity - item.sparePart.quantity > 0
+                                       ? `+${item.quantity - item.sparePart.quantity}`
+                                       : "Đủ"}
+                                 </div>
+                              </div>
+                              <div>
+                                 <Button size="large" type="text" icon={<RightOutlined />} iconPosition="end">
+                                    <span className="text-sm text-neutral-500">Cập nhật</span>
+                                 </Button>
+                              </div>
+                           </div>
+                           {index !== spareParts.length - 1 && <Divider className="my-0" />}
+                        </Fragment>
+                     ))}
+                  </div>
+               </section>
             </>
-         ) : (
-            <section>
-               <List
-                  dataSource={spareParts}
-                  grid={{
-                     column: 1,
-                  }}
-                  size={"small"}
-                  itemLayout={"vertical"}
-                  className={cn("mt-3")}
-                  header={
-                     <Typography.Title level={5} className="m-0">
-                        Linh kiện ({spareParts.length})
-                     </Typography.Title>
-                  }
-                  split={false}
-                  renderItem={(item) => (
-                     <List.Item>
-                        <List.Item.Meta title={item.sparePart.name} description={"Số lượng: " + item.quantity} />
-                     </List.Item>
-                  )}
-               />
-            </section>
          )}
-         {!(api_task.isSuccess && api_task.data.confirmReceipt) && (
-            <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-fb">
-               <Button type="primary" size="large" className="w-full" onClick={handleConfirmReceipt}>
-                  Hoàn tất lấy linh kiện
-               </Button>
-            </section>
-         )}
+         <SparePartDetailsDrawer
+            ref={sparePartDetailsDrawerRef}
+            refetchFn={async () => {
+               const task = await api_task.refetch()
+               queryClient.invalidateQueries({
+                  queryKey: stockkeeper_qk.tasks.base,
+                  exact: false,
+                  refetchType: "all",
+               })
+
+               if (
+                  !!task.data?.issues.find((issue) =>
+                     issue.issueSpareParts.some((item) => item.quantity > item.sparePart.quantity),
+                  ) === false
+               ) {
+                  router.push("/stockkeeper/mobile/tasks")
+               }
+            }}
+         />
       </div>
    )
 }
+
+export default Page

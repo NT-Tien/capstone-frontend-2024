@@ -36,7 +36,7 @@ export default function DataListView<T>(props: Props<T>) {
             <li
                key={index}
                className={cn(
-                  "flex items-start justify-between px-layout py-3",
+                  "flex items-start justify-between px-layout py-3 gap-3",
                   !props.dataSource && index === 0 && "pt-layout",
                   !props.dataSource && index === props.items.length - 1 && "pb-layout",
                   props.itemClassName,
@@ -48,7 +48,7 @@ export default function DataListView<T>(props: Props<T>) {
                      {item.isDivider && <Divider style={dividerStyle} />}
                      <div
                         className={cn(
-                           "flex flex-grow items-center gap-2 text-base font-semibold",
+                           "flex flex-grow items-center gap-2 text-base font-semibold whitespace-nowrap",
                            props.labelClassName,
                         )}
                         style={props.labelStyle}
@@ -60,8 +60,8 @@ export default function DataListView<T>(props: Props<T>) {
                            </Tooltip>
                         )}
                      </div>
-                     <div className="flex-shrink-0">
-                        <span className={cn("text-base", props.valueClassName)} style={props.valueStyle}>
+                     <div className="">
+                        <span className={cn("text-base whitespace-pre-wrap block", props.valueClassName)} style={props.valueStyle}>
                            {item.value(props.dataSource as NonNullable<T>)}
                         </span>
                      </div>

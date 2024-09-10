@@ -51,6 +51,7 @@ function DashboardPage() {
             request: 0,
          }
       const values = Object.entries(data)
+
       const returnValue = values.reduce(
          (prev, [key, val]) => {
             if (key.toLowerCase().includes("request")) {
@@ -77,8 +78,6 @@ function DashboardPage() {
       )
       return returnValue
    }, [api_counts.data])
-
-   console.log(total)
 
    useEffect(() => {
       if (!api_counts.isSuccess) return
@@ -162,7 +161,7 @@ function DashboardPage() {
                      {[
                         {
                            loading: api_counts.isPending,
-                           count: api_counts.data?.pendingSparePartTasks,
+                           count: api_counts.data?.awaitingSparePartTasks,
                            label: TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].text,
                            icon: <CalendarSlash size={36} weight="duotone" className="text-red-500" />,
                            route: "tasks",
@@ -257,6 +256,36 @@ function DashboardPage() {
                            }).icon,
                            route: "requests?status=IN_PROGRESS",
                            bgColor: "bg-blue-200",
+                        },
+                        {
+                           loading: api_counts.isPending,
+                           count: api_counts.data?.rejectedRequests,
+                           label: FixRequest_StatusData("rejected").text,
+                           icon: FixRequest_StatusData("rejected", {
+                              phosphor: { size: 36, weight: "duotone", className: "text-red-500" },
+                           }).icon,
+                           route: "requests?status=REJECTED",
+                           bgColor: "bg-red-200",
+                        },
+                        {
+                           loading: api_counts.isPending,
+                           count: api_counts.data?.headConfirmRequests,
+                           label: FixRequest_StatusData("head_confirm").text,
+                           icon: FixRequest_StatusData("head_confirm", {
+                              phosphor: { size: 36, weight: "duotone", className: "text-purple-500" },
+                           }).icon,
+                           route: "requests?status=HEAD_CONFIRM",
+                           bgColor: "bg-purple-200",
+                        },
+                        {
+                           loading: api_counts.isPending,
+                           count: api_counts.data?.closedRequests,
+                           label: FixRequest_StatusData("closed").text,
+                           icon: FixRequest_StatusData("closed", {
+                              phosphor: { size: 36, weight: "duotone", className: "text-green-500" },
+                           }).icon,
+                           route: "requests?status=CLOSED",
+                           bgColor: "bg-green-200",
                         },
                      ].map(({ loading, count, label, icon, route, bgColor }, index) => (
                         <Card

@@ -1,109 +1,180 @@
 "use client"
 
+import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"
+import Stockkeeper_Task_All from "@/app/stockkeeper/_api/task/getAll.api"
 import RootHeader from "@/common/components/RootHeader"
-import { TaskDto } from "@/common/dto/Task.dto"
-import qk from "@/common/querykeys"
-import { RightOutlined } from "@ant-design/icons"
-import { ProDescriptions } from "@ant-design/pro-components"
-import { useInfiniteQuery } from "@tanstack/react-query"
-import { Button, Card, Divider, List, Spin, Tag } from "antd"
+import { ContainerFilled } from "@ant-design/icons"
+import { useQuery } from "@tanstack/react-query"
+import { Button, Card, Empty, Input, Result, Skeleton, Tabs } from "antd"
+import { FilterOutlined } from "@ant-design/icons"
+import TaskCard from "@/app/stockkeeper/_components/TaskCard"
+import { TaskStatus } from "@/common/enum/task-status.enum"
+import { useMemo, useRef, useState } from "react"
+import SortDrawer, { SortDrawerRefType } from "./Sort.drawer"
+import { Sort } from "./Sort"
 import dayjs from "dayjs"
-import { useRouter, useSearchParams } from "next/navigation"
-import { Suspense } from "react"
-import Stockkeeper_Task_All from "../../../_api/task/getAll.api"
+import { ArrowDown, ArrowUp, Square } from "@phosphor-icons/react"
+import { useRouter } from "next/navigation"
+import ScrollableTabs from "@/common/components/ScrollableTabs"
+import { TaskDto } from "@/common/dto/Task.dto"
 
-export default function Page() {
-   return (
-      <Suspense fallback={<Spin fullscreen />}>
-         <TasksPage />
-      </Suspense>
-   )
-}
+function Page({ searchParams }: { searchParams: { tab?: string } }) {
+   const router = useRouter()
 
-function TasksPage() {
-   const searchParams = useSearchParams()
-   const page = Number(searchParams.get("page")) ?? 1
-   const limit = 5
-   const result = useInfiniteQuery({
-      queryKey: qk.task.all(page, limit),
-      queryFn: (req) => Stockkeeper_Task_All({ page: req.pageParam, limit }),
-      initialPageParam: 1,
-      getNextPageParam: (lastPage, allPages, lastPageParam, allPageParams) => {
-         return lastPageParam + 1
+   const api_tasks = useQuery({
+      queryKey: stockkeeper_qk.tasks.all({ page: 1, limit: 1000 }),
+      queryFn: () => Stockkeeper_Task_All({ page: 1, limit: 1000 }),
+      select: (data) => {
+         const filtered = data.list.filter((item) => item.status === TaskStatus.AWAITING_SPARE_SPART)
+         return {
+            list: filtered,
+            total: filtered.length,
+         }
       },
    })
 
-   return (
-      <div className="std-layout">
-         <RootHeader title="Tác vụ" className="std-layout-outer p-4" />
-         <div className="mt-3">
-            <ListView
-               total={result.data?.pages[0].total ?? 0}
-               loadMore={result.fetchNextPage}
-               loading={result.isLoading}
-               items={result.data?.pages.flatMap((res) => res.list) ?? []}
-            />
-         </div>
-      </div>
-   )
-}
+   const [sort, setSort] = useState<Sort>({ type: "createdAt", order: "asc" })
+   const [tab, setTab] = useState(searchParams.tab ?? "missing")
+   const sortDrawerRef = useRef<SortDrawerRefType | null>(null)
 
-type ListViewType = {
-   items: TaskDto[]
-   loading: boolean
-   loadMore: () => void
-   total: number
-}
+   function handleTabChange(key: string) {
+      setTab(key)
+      router.push("/stockkeeper/mobile/tasks?tab=" + key)
+   }
 
-function ListView(props: ListViewType) {
-   const router = useRouter()
+   const tasksByCategory = useMemo(() => {
+      const tasks = api_tasks.data?.list
+      const missing = tasks?.filter(
+         (task) =>
+            !!task.issues.find((issue) => !!issue.issueSpareParts.find((sp) => sp.quantity > sp.sparePart.quantity)),
+      )
+      const done = tasks?.filter((task) =>
+         task.issues.every((issue) => issue.issueSpareParts.every((sp) => sp.quantity <= sp.sparePart.quantity)),
+      )
+
+      return {
+         missing: sortTasks(missing || [], sort),
+         done: sortTasks(done || [], sort),
+      }
+   }, [tab, api_tasks.data?.list, api_tasks.isSuccess])
+
    return (
-      <List
-         loading={props.loading}
-         loadMore={
-            props.items.length !== 0 &&
-            (props.total === props.items.length ? (
-               <Divider className="text-sm">Bạn đang ở cuối danh sách</Divider>
-            ) : (
-               <Button onClick={props.loadMore}>Tải thêm</Button>
-            ))
-         }
-         dataSource={props.items}
-         itemLayout={"horizontal"}
-         size={"small"}
-         renderItem={(item) => (
-            <Card
-               key={item.id}
-               title={item.name}
-               extra={<Button icon={<RightOutlined />} size="small" type="text" />}
-               size="small"
-               className="mb-3"
-               hoverable={true}
-               onClick={() => router.push(`/stockkeeper/mobile/tasks/${item.id}`)}
-            >
-               <ProDescriptions
-                  size="small"
-                  dataSource={item}
-                  columns={[
-                     {
-                        key: "mm",
-                        label: "Mẫu máy",
-                        render: (_, e) => e.device?.machineModel.name ?? "-",
-                     },
-                     {
-                        key: "Created",
-                        label: "Ngày tạo",
-                        render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
-                     },
-                     {
-                        key: "priority",
-                        label: "Mức độ ưu tiên",
-                        render: (_, e) => (e.priority ? <Tag color="red">Cao</Tag> : <Tag color="green">Thấp</Tag>),
-                     },
-                  ]}
-               />
-            </Card>
+      <main className="std-layout">
+         <RootHeader title="Tác vụ" className="std-layout-outer p-4" icon={<ContainerFilled />} />
+         <ScrollableTabs
+            className="std-layout-outer sticky left-0 top-0 z-50"
+            classNames={{
+               content: "mt-layout",
+            }}
+            tab={tab}
+            onTabChange={handleTabChange}
+            items={[
+               {
+                  key: "missing",
+                  title: "Thiếu linh kiện",
+                  icon: <Square size={16} />,
+               },
+               {
+                  key: "done",
+                  title: "Đã đủ linh kiện",
+                  icon: <Square size={16} weight="fill" />,
+               },
+            ]}
+         />
+
+         {api_tasks.isPending && (
+            <section id="loading">
+               <Skeleton />
+               <Skeleton />
+               <Skeleton />
+               <Skeleton />
+               <Skeleton />
+            </section>
          )}
-      />
+
+         {api_tasks.isError && (
+            <section id="error">
+               <Result title="Có lỗi đã xảy ra" status="error" subTitle="Đã có lỗi xảy ra" />
+            </section>
+         )}
+
+         {api_tasks.isSuccess &&
+            ((tab === "missing" && tasksByCategory.missing.length === 0) ||
+               (tab === "done" && tasksByCategory.done.length === 0)) && (
+               <>
+                  <Card>
+                     <Empty description="Không có tác vụ nào" />  
+                  </Card>
+               </>
+            )}
+
+         {api_tasks.isSuccess &&
+            ((tasksByCategory.done.length !== 0 && tab === "done") ||
+               (tasksByCategory.missing.length !== 0 && tab === "missing")) && (
+               <>
+                  <section id="filter-and-search" className="flex items-center justify-between">
+                     <Button type="text" size="small" onClick={() => sortDrawerRef.current?.handleOpen(sort)}>
+                        Sắp xếp:{" "}
+                        {(function () {
+                           switch (sort.type) {
+                              case "createdAt":
+                                 return "Ngày tạo"
+                              case "priority":
+                                 return "Ưu tiên"
+                              case "spareParts":
+                                 return "Số linh kiện cần"
+                              case "name":
+                                 return "Tên tác vụ"
+                           }
+                        })()}
+                        <span className="ml-1">
+                           {sort.order === "asc" ? <ArrowUp className="inline" /> : <ArrowDown className="inline" />}
+                        </span>
+                     </Button>
+                     <Button icon={<FilterOutlined />} type="text" size="small">
+                        Lọc
+                     </Button>
+                  </section>
+                  <section id="list" className="mt-2 flex flex-col gap-2">
+                     {tab === "missing" &&
+                        tasksByCategory.missing.map((task) => (
+                           <TaskCard
+                              task={task}
+                              key={task.id}
+                              onClick={() => router.push(`/stockkeeper/mobile/tasks/${task.id}`)}
+                           />
+                        ))}
+                     {tab === "done" &&
+                        tasksByCategory.done.map((task) => (
+                           <TaskCard
+                              task={task}
+                              key={task.id}
+                              onClick={() => router.push(`/stockkeeper/mobile/tasks/${task.id}`)}
+                           />
+                        ))}
+                  </section>
+               </>
+            )}
+         <SortDrawer ref={sortDrawerRef} setSort={setSort} />
+      </main>
    )
 }
+
+function sortTasks(tasks: TaskDto[], sort: Sort) {
+   return tasks.sort((a, b) => {
+      let result = 0
+      if (sort.type === "createdAt") {
+         result = dayjs(a.createdAt).diff(dayjs(b.createdAt))
+      } else if (sort.type === "priority") {
+         result = a.priority ? -1 : 1
+      } else if (sort.type === "spareParts") {
+         result = a.issues?.length - b.issues?.length
+      } else if (sort.type === "name") {
+         result = a.name.localeCompare(b.name)
+      }
+
+      return sort.order === "asc" ? result : -result
+   })
+}
+
+export default Page

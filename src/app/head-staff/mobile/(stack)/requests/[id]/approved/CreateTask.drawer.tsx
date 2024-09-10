@@ -3,6 +3,7 @@
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import HeadStaff_Task_Create from "@/app/head-staff/_api/task/create.api"
+import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/app/head-staff/_api/task/update-awaitSparePartToAssignFixer.api"
 import HeadStaff_Users_AllStaff from "@/app/head-staff/_api/users/all.api"
 import DataListView from "@/common/components/DataListView"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
@@ -119,46 +120,57 @@ const CreateTaskDrawer = forwardRef<CreateTaskDrawerRefType, Props>(function Com
 
    const mutate_createTask = useMutation({
       mutationFn: HeadStaff_Task_Create,
-      onMutate: async () => {
+   })
+
+   const mutate_checkSparePartStock = useMutation({
+      mutationFn: HeadStaff_Task_UpdateAwaitSparePartToAssignFixer,
+   })
+
+   async function handleFormSubmit(fixerId?: string) {
+      if (!api_request.isSuccess || !requestId) return
+
+      try {
          message.destroy("loading")
          message.open({
             type: "loading",
             content: "Vui lòng chờ đợi...",
             key: "loading",
          })
-      },
-      onSuccess: async () => {
-         message.success("Tạo tác vụ thành công")
-      },
-      onError: async (error) => {
-         message.error("Tạo tác vụ thất bại: " + error.message)
-      },
-      onSettled: async () => {
-         message.destroy("loading")
-      },
-   })
-
-   async function handleFormSubmit(fixerId?: string) {
-      if (!api_request.isSuccess || !requestId) return
-
-      mutate_createTask.mutate(
-         {
-            name,
-            fixerDate: fixerDate?.toISOString(),
-            fixer: fixerId ?? undefined,
-            priority,
-            issueIDs,
-            totalTime,
-            request: requestId,
-            operator: 0,
-         },
-         {
-            onSuccess: () => {
-               handleClose()
-               props.refetchFn?.()
+         const task = await mutate_createTask.mutateAsync(
+            {
+               name,
+               fixerDate: fixerDate?.toISOString(),
+               fixer: fixerId ?? undefined,
+               priority,
+               issueIDs,
+               totalTime,
+               request: requestId,
+               operator: 0,
             },
-         },
-      )
+            {
+               onSuccess: () => {},
+            },
+         )
+
+         const updated = await mutate_checkSparePartStock.mutateAsync({ id: task.id })
+            .catch((error) => {
+               console.log(error, typeof error)
+               if(error instanceof Error && error.message.includes("Not enough spare part")) {
+                  message.info("Không đủ linh kiện để tạo tác vụ. Tác vụ sẽ được chuyển qua trạng thái chờ linh kiện.")
+               } else {
+                  throw error
+               }
+            })
+
+         message.destroy("loading")
+         message.success("Tạo tác vụ thành công")
+         handleClose()
+         props.refetchFn?.()
+      } catch (error) {
+         message.destroy("loading")
+         message.error("Tạo tác vụ thất bại")
+         console.log(error)
+      }
    }
 
    function resetFields() {
@@ -245,7 +257,7 @@ function FormStep_0() {
       api_request,
       setFormStep,
       formStep,
-      form: { setIssueIDs, issueIDs, setTotalTime, totalTime },
+      form: { setIssueIDs, issueIDs, setTotalTime },
    } = useFormContext()
 
    const [selectedIssues, setSelectedIssues] = useState<{ [key: string]: FixRequestIssueDto }>({})
@@ -380,9 +392,6 @@ function FormStep_0() {
             <div className="mb-layout-half">
                <DataListView
                   itemClassName="py-2"
-                  itemStyle={{
-                     paddingInline: 0,
-                  }}
                   labelClassName="font-normal text-neutral-400 text-[14px]"
                   valueClassName="text-[14px] font-medium"
                   dataSource={{
@@ -420,82 +429,14 @@ function FormStep_0() {
    )
 }
 
-type SortedUserDto = Omit<UserDto, "tasks"> & {
-   sorted_tasks: {
-      priority: TaskDto[]
-      normal: TaskDto[]
-   }
-   totalTime: number
-   hasPriority: boolean
-}
-
 function FormStep_1() {
    const {
       api_request,
       setFormStep,
       formStep,
-      form: { fixerDate, setFixerDate, fixer, setFixer, name, setName, priority, setPriority, issueIDs },
+      form: { fixerDate, setFixerDate, name, setName, priority, setPriority, issueIDs, totalTime },
       handleFormSubmit,
    } = useFormContext()
-
-   // const selectedPriority = Form.useWatch<boolean>("priority", form)
-   // const fixerDate = Form.useWatch<Dayjs>("fixerDate", form)
-
-   const [showAddFixer, setShowAddFixer] = useState<boolean>(false)
-   const [selectedFixer, setSelectedFixer] = useState<UserDto | undefined>(undefined)
-
-   const api_user = useQuery({
-      queryKey: headstaff_qk.user.all(),
-      queryFn: () => HeadStaff_Users_AllStaff(),
-   })
-
-   const sorted = useMemo(() => {
-      if (!api_user.isSuccess) return
-      const selectedFixDate = fixerDate
-
-      if (!selectedFixDate?.isValid()) return
-
-      const response: SortedUserDto[] = []
-
-      for (const row of api_user.data) {
-         const { tasks, ...user } = row
-         let total: number = 0,
-            hasPriority: boolean = false
-
-         const rowData = tasks.reduce(
-            (acc, task) => {
-               if (task.status !== TaskStatus.ASSIGNED) return acc
-               if (dayjs(task.fixerDate).add(7, "hours").isSame(selectedFixDate, "date")) {
-                  total += task.totalTime
-
-                  if (task.priority) {
-                     hasPriority = true
-                     acc.priority.push(task)
-                  } else {
-                     acc.normal.push(task)
-                  }
-               }
-               return acc
-            },
-            {
-               priority: [],
-               normal: [],
-            } as {
-               priority: TaskDto[]
-               normal: TaskDto[]
-            },
-         )
-
-         response.push({
-            ...user,
-            sorted_tasks: rowData,
-            totalTime: total,
-            hasPriority,
-         })
-      }
-
-      return response
-   }, [api_user.data, api_user.isSuccess, fixerDate])
 
    useEffect(() => {
       if (!api_request.isSuccess) return
@@ -505,9 +446,7 @@ function FormStep_1() {
    }, [api_request.data, api_request.isSuccess, issueIDs, setName])
 
    function handleSubmit() {
-      const fixerId = undefined // make selectedFixer?.id if you want to assign fixer
-      setFixer(fixerId)
-      handleFormSubmit(fixerId)
+      handleFormSubmit()
    }
 
    if (formStep !== 1) return null
@@ -539,7 +478,7 @@ function FormStep_1() {
 
             <Divider className="mb-0" />
 
-            <div className={cn("sticky left-0 top-0 z-50 bg-white px-layout py-layout", showAddFixer && "shadow-md")}>
+            <div className={cn("sticky left-0 top-0 z-50 bg-white px-layout py-layout")}>
                <Form.Item<FieldType> rules={[{ required: true }]} label="Ngày sửa">
                   <DatePicker
                      size="large"
@@ -567,73 +506,38 @@ function FormStep_1() {
                      </Radio.Button>
                   </Radio.Group>
                </Form.Item>
-               {/* <section className="mt-layout flex items-center gap-2">
-                  <Checkbox
-                     id="showAddFixer"
-                     checked={showAddFixer}
-                     onChange={(e) => setShowAddFixer(e.target.checked)}
-                  />
-                  <label htmlFor="showAddFixer">Phân công người sửa</label>
-               </section> */}
             </div>
-            {/* {showAddFixer && (
-               <>
-                  <Divider className="mt-0" />
-                  <section className="px-layout">
-                     <h3 className="mb-2 text-base font-medium">Chọn nhân viên sửa chữa</h3>
-                     {!!sorted === false ? (
-                        <Card>
-                           <Empty description="Vui lòng chọn ngày sửa chữa trước khi chọn nhân viên sửa chữa" />
-                        </Card>
-                     ) : (
-                        <div className="grid grid-cols-1 gap-2">
-                           {api_user.isSuccess &&
-                              sorted
-                                 ?.sort((a, b) => {
-                                    return a.totalTime - b.totalTime
-                                 })
-                                 .map((e) => (
-                                    <>
-                                       <CheckCard
-                                          key={e.id}
-                                          title={
-                                             <div className="flex items-center gap-2">
-                                                <Checkbox checked={selectedFixer?.username === e.username} />
-                                                <span>{e.username}</span>
-                                             </div>
-                                          }
-                                          size="small"
-                                          description={"Tổng thời gian làm việc: " + e.totalTime + ` phút`}
-                                          onClick={() => {
-                                             const { hasPriority, sorted_tasks, ...rest } = e
-                                             setSelectedFixer({
-                                                ...rest,
-                                                tasks: [],
-                                             })
-                                          }}
-                                          checked={e.id === selectedFixer?.id}
-                                          className="m-0 w-full"
-                                          extra={
-                                             e.hasPriority &&
-                                             priority && <Tag color="red-inverse">Đã có công việc ưu tiên</Tag>
-                                          }
-                                          disabled={e.hasPriority && priority}
-                                       ></CheckCard>
-                                    </>
-                                 ))}
-                        </div>
-                     )}
-                  </section>
-               </>
-            )} */}
          </main>
-         <section className="fixed bottom-0 left-0 flex w-full justify-between gap-3 bg-white p-layout shadow-lg">
-            <Button type="default" size="large" onClick={() => setFormStep(0)} className="w-full">
-               Quay lại
-            </Button>
-            <Button type="primary" size="large" className="w-full" onClick={handleSubmit}>
-               Tạo tác vụ
-            </Button>
+         <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-fb">
+            <div className="mb-layout-half">
+               <DataListView
+                  itemClassName="py-2"
+                  labelClassName="font-normal text-neutral-400 text-[14px]"
+                  valueClassName="text-[14px] font-medium"
+                  dataSource={{
+                     totalIssues: issueIDs.length,
+                     totalFixTime: totalTime,
+                  }}
+                  items={[
+                     {
+                        label: "Tổng số lỗi",
+                        value: (e) => e.totalIssues,
+                     },
+                     {
+                        label: "Tổng thời gian sửa",
+                        value: (e) => e.totalFixTime + " phút",
+                     },
+                  ]}
+               />
+            </div>
+            <div className="flex justify-between gap-3">
+               <Button type="default" size="large" onClick={() => setFormStep(0)} className="w-full">
+                  Quay lại
+               </Button>
+               <Button type="primary" size="large" className="w-full" onClick={handleSubmit}>
+                  Tạo tác vụ
+               </Button>
+            </div>
          </section>
       </>
    )

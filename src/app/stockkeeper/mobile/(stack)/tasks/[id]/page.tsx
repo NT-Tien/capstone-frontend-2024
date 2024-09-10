@@ -139,7 +139,7 @@ function Page({ params }: { params: { id: string } }) {
             ref={sparePartDetailsDrawerRef}
             refetchFn={async () => {
                const task = await api_task.refetch()
-               queryClient.invalidateQueries({
+               await queryClient.invalidateQueries({
                   queryKey: stockkeeper_qk.tasks.base,
                   exact: false,
                   refetchType: "all",

@@ -120,13 +120,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         key: "requests",
                         name: "Requests",
                         icon: <InboxOutlined />,
-                        children: [
-                           {
-                              key: "requests-dashboard",
-                              name: "Dashboard",
-                              path: "/admin/requests",
-                           },
-                        ],
+                        path: "/admin/requests",
                      },
                      {
                         key: "tasks",

@@ -41,20 +41,28 @@ const values = {
 export default function RequestListPage() {
    const { message } = App.useApp()
    const [query, setQuery] = useState<Partial<types["dto"]>>({})
-   const response = useQuery({
-      queryKey: values.mainQueryKey({
-         page: 1,
-         limit: 10,
-         status: FixRequestStatus.PENDING,
-         time: 1,
-       }),
-       queryFn: () => values.mainQueryFn({
-         page: 1,
-         limit: 10,
-         status: FixRequestStatus.PENDING,
-         time: 1,
-       }),   })
    const actionRef = useRef()
+
+   const fetchAllRequests = async () => {
+      const statuses = Object.values(FixRequestStatus);
+      const promises = statuses.map(status => 
+        Admin_Requests_All({
+          page: 1,
+          limit: 10,
+          status,
+          time: 1,
+        })
+      );
+      const results = await Promise.all(promises);
+      const combinedList = results.flatMap(result => result.list);
+      const total = results.reduce((sum, result) => sum + result.total, 0);
+      return { list: combinedList, total };
+    };
+  
+    const response = useQuery({
+      queryKey: ['tasks', { page: 1, limit: 10, time: 1 }],
+      queryFn: fetchAllRequests,
+    });
 
    const mutate_delete = useMutation({
       mutationFn: values.deleteMutationFn,
@@ -199,7 +207,7 @@ export default function RequestListPage() {
             }}
             columns={[
                {
-                  title: "No.",
+                  title: "STT",
                   valueType: "indexBorder",
                   width: 48,
                   hideInSearch: true,
@@ -210,19 +218,9 @@ export default function RequestListPage() {
                   hideInTable: true,
                   valueType: "text",
                },
-               {
-                  title: "Name",
-                  dataIndex: "name",
-                  width: 200,
-                  ellipsis: {
-                     showTitle: true,
-                  },
-                  valueType: "text",
-               },
                // {
-               //    title: "Machine Model",
-               //    key: "machineModel",
-               //    render: (_, record) => record.machineModel.name,
+               //    title: "Name",
+               //    dataIndex: "name",
                //    width: 200,
                //    ellipsis: {
                //       showTitle: true,
@@ -230,65 +228,75 @@ export default function RequestListPage() {
                //    valueType: "text",
                // },
                {
-                  title: "Quantity",
-                  dataIndex: "quantity",
+                  title: "Tên thiết bị",
+                  key: "machineModel",
+                  render: (_, record) => record.device.machineModel.name,
+                  width: 200,
+                  ellipsis: {
+                     showTitle: true,
+                  },
+                  valueType: "text",
+               },
+               {
+                  title: "Trạng thái",
+                  dataIndex: "status",
                   width: 100,
-                  valueType: "digit",
+                  valueType: "text",
                },
+               // {
+               //    title: "Expiration Date",
+               //    dataIndex: "expirationDate",
+               //    valueType: "date",
+               //    sorter: (a, b) => dayjs(a.).add(7, "hours").unix() - dayjs(b.expirationDate).add(7, "hours").unix(),
+               // },
                {
-                  title: "Expiration Date",
-                  dataIndex: "expirationDate",
-                  valueType: "date",
-                  sorter: (a, b) => dayjs(a.expirationDate).add(7, "hours").unix() - dayjs(b.expirationDate).add(7, "hours").unix(),
-               },
-               {
-                  title: "Created At",
+                  title: "Ngày tạo",
                   dataIndex: "createdAt",
                   valueType: "date",
                   sorter: (a, b) => dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
                },
                {
-                  title: "Updated At",
+                  title: "Ngày cập nhật",
                   dataIndex: "updatedAt",
                   valueType: "date",
                   sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                   defaultSortOrder: "descend",
                },
                {
-                  title: "Deleted At",
+                  title: "Ngày xóa",
                   dataIndex: "deletedAt",
                   valueType: "date",
                   sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).add(7, "hours").unix() - dayjs(b.deletedAt ?? dayjs()).add(7, "hours").unix(),
                },
-               {
-                  title: "Options",
-                  valueType: "option",
-                  width: 100,
-                  key: "option",
-                  render: (text, record, _, action) => [
-                     <Link key={"View"} href={values.detailsHref(record.id)}>
-                        View
-                     </Link>,
-                     <TableDropdown
-                        key="actionGroup"
-                        onSelect={() => action?.reload()}
-                        menus={[
-                           CopyToClipboard({ value: record.id }),
-                           {
-                              key: record.deletedAt ? "restore" : "delete",
-                              icon: record.deletedAt ? <RollbackOutlined /> : <DeleteOutlined />,
-                              name: record.deletedAt ? "Restore" : "Delete",
-                              danger: true,
-                              onClick: async () => {
-                                 record.deletedAt
-                                    ? await mutate_restore.mutateAsync({ id: record.id })
-                                    : await mutate_delete.mutateAsync({ id: record.id })
-                              },
-                           },
-                        ]}
-                     />,
-                  ],
-               },
+               // {
+               //    title: "Options",
+               //    valueType: "option",
+               //    width: 100,
+               //    key: "option",
+               //    render: (text, record, _, action) => [
+               //       <Link key={"View"} href={values.detailsHref(record.)}>
+               //          View
+               //       </Link>,
+               //       <TableDropdown
+               //          key="actionGroup"
+               //          onSelect={() => action?.reload()}
+               //          menus={[
+               //             CopyToClipboard({ value: record.id }),
+               //             {
+               //                key: record.deletedAt ? "restore" : "delete",
+               //                icon: record.deletedAt ? <RollbackOutlined /> : <DeleteOutlined />,
+               //                name: record.deletedAt ? "Restore" : "Delete",
+               //                danger: true,
+               //                onClick: async () => {
+               //                   record.deletedAt
+               //                      ? await mutate_restore.mutateAsync({ id: record.id })
+               //                      : await mutate_delete.mutateAsync({ id: record.id })
+               //                },
+               //             },
+               //          ]}
+               //       />,
+               //    ],
+               // },
             ]}
          />
       </PageContainer>

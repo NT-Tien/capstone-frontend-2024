@@ -126,13 +126,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         key: "tasks",
                         name: "Tasks",
                         icon: <CheckSquareOutlined />,
-                        children: [
-                           {
-                              key: "tasks-dashboard",
-                              name: "Dashboard",
-                              path: "/admin/tasks",
-                           },
-                        ],
+                        path: "/admin/tasks",
                      },
                   ],
                },

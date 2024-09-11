@@ -90,6 +90,7 @@ export default function RequestListPage({ searchParams }: {searchParams: { area?
                },
             }}
             virtual
+            search={false}
             form={{
                syncToUrl: (values, type) => {
                   if (type === "get") {

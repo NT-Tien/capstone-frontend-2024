@@ -97,6 +97,7 @@ export default function RequestListPage({ searchParams }: { searchParams: { area
                   return values
                },
             }}
+            search={false}
             onSubmit={(props) => {
                setQuery(props)
             }}

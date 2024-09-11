@@ -102,61 +102,72 @@ export default function DevicesListPage({ searchParams }: { searchParams: { area
    })
 
    const responseData = useMemo(() => {
-      return (
-         response.data?.filter((area) => {
-            let result = false
-            const queryEntries = Object.entries(query)
-            if (queryEntries.length === 0) return true
-            for (const [key, value] of queryEntries) {
-               switch (key) {
-                  case "id":
-                     result = result || area.id.includes(value as string)
-                     break
-                  case "description":
-                     result = result || area.description.includes(value as string)
-                     break
-                  case "operationStatus":
-                     result = result || Number(area.operationStatus) === Number(value)
-                     break
-                  case "area":
-                     result = result || area.area.name.includes(value as string)
-                     break
-                  case "machineModel":
-                     result = result || area.machineModel.name.includes(value as string)
-                     break
-                  case "positionX":
-                     result = result || Number(area.positionX) === Number(value)
-                     break
-                  case "positionY":
-                     result = result || Number(area.positionY) === Number(value)
-                     break
-                  case "createdAt":
-                     result =
-                        result ||
-                        dayjs(area.createdAt)
-                           .add(7, "hours")
-                           .isSame(value as string, "day")
-                     break
-                  case "updatedAt":
-                     result =
-                        result ||
-                        dayjs(area.updatedAt)
-                           .add(7, "hours")
-                           .isSame(value as string, "day")
-                     break
-                  case "deletedAt":
-                     result =
-                        result || value === null
-                           ? area.deletedAt === null
-                           : dayjs(area.deletedAt)
-                                .add(7, "hours")
-                                .isSame(dayjs(value as string), "day")
-               }
-            }
-            return result
-         }) ?? []
-      )
-   }, [response.data, query])
+      const searchArea = searchParams.area
+
+      if(searchArea) {
+         return response.data?.filter((data) => {
+            return data.area?.name.includes(searchArea)
+         })
+      }
+      return response.data
+   }, [response.data, searchParams.area])
+
+   // const responseData = useMemo(() => {
+   //    return (
+   //       response.data?.filter((area) => {
+   //          let result = false
+   //          const queryEntries = Object.entries(query)
+   //          if (queryEntries.length === 0) return true
+   //          for (const [key, value] of queryEntries) {
+   //             switch (key) {
+   //                case "id":
+   //                   result = result || area.id.includes(value as string)
+   //                   break
+   //                case "description":
+   //                   result = result || area.description.includes(value as string)
+   //                   break
+   //                case "operationStatus":
+   //                   result = result || Number(area.operationStatus) === Number(value)
+   //                   break
+   //                case "area":
+   //                   result = result || area.area.name.includes(value as string)
+   //                   break
+   //                case "machineModel":
+   //                   result = result || area.machineModel.name.includes(value as string)
+   //                   break
+   //                case "positionX":
+   //                   result = result || Number(area.positionX) === Number(value)
+   //                   break
+   //                case "positionY":
+   //                   result = result || Number(area.positionY) === Number(value)
+   //                   break
+   //                case "createdAt":
+   //                   result =
+   //                      result ||
+   //                      dayjs(area.createdAt)
+   //                         .add(7, "hours")
+   //                         .isSame(value as string, "day")
+   //                   break
+   //                case "updatedAt":
+   //                   result =
+   //                      result ||
+   //                      dayjs(area.updatedAt)
+   //                         .add(7, "hours")
+   //                         .isSame(value as string, "day")
+   //                   break
+   //                case "deletedAt":
+   //                   result =
+   //                      result || value === null
+   //                         ? area.deletedAt === null
+   //                         : dayjs(area.deletedAt)
+   //                              .add(7, "hours")
+   //                              .isSame(dayjs(value as string), "day")
+   //             }
+   //          }
+   //          return result
+   //       }) ?? []
+   //    )
+   // }, [response.data, query])
 
    if (response.isError) {
       return response.error.message
@@ -190,6 +201,7 @@ export default function DevicesListPage({ searchParams }: { searchParams: { area
                   }}
                   rowKey="id"
                   virtual
+                  search={false}
                   form={{
                      syncToUrl: (values, type) => {
                         if (type === "get") {

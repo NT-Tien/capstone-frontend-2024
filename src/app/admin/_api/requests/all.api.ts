@@ -10,21 +10,18 @@ export type Request = {
    status: FixRequestStatus
    time: 1 | 2 | 3
 }
-type Response = {
-    list: FixRequestDto[]
-    total: number
-}
+type Response = FixRequestDto[]
 
 Admin_Requests_All.URL = ({ page, limit, status, time = 1 }: Request) =>
-   `/admin/request/${page}/${limit}/${status}?time=${time}`
+   `/admin/request/${page}/${limit}/${status}?time=${time}&all=true`
 export default async function Admin_Requests_All(request: Request): Promise<Response> {
    return api
       .get<Response>(Admin_Requests_All.URL(request), {
-         transformResponse: (data) =>
-            parseApiResponse<any>(data, (res) => ({
-               list: res.data[0],
-               total: res.data[1],
-            })),
+         transformResponse: (data) => parseApiResponse<any>(data, (res) => res.data),
+         // ({
+         //    list: res.data[0],
+         //    total: res.data[1],
+         // })
          headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,
          },

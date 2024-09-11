@@ -26,47 +26,46 @@ const values = {
    deleteMutationFn: Admin_SpareParts_DeleteSoft,
    restoreMutationFn: Admin_SpareParts_Restore,
    CreateDrawer: CreateSparePartDrawer,
-   detailsHref: (page: number, limit: number, status: string, time: number) => `/admin/request/${page}/${limit}/${status}?time=${time}`,
+   detailsHref: (page: number, limit: number, status: string, time: number) =>
+      `/admin/request/${page}/${limit}/${status}?time=${time}`,
 }
 
-export default function RequestListPage() {
+export default function RequestListPage({ searchParams }: { searchParams: { area?: string } }) {
    const { message } = App.useApp()
    const [query, setQuery] = useState<Partial<types["dto"]>>({})
    const actionRef = useRef()
 
    const fetchAllRequests = async () => {
-      const statuses = Object.values(FixRequestStatus);
-      const promises = statuses.map(status => 
-        Admin_Requests_All({
-          page: 1,
-          limit: 10,
-          status,
-          time: 1,
-        })
-      );
-      const results = await Promise.all(promises);
-      const combinedList = results.flatMap(result => result.list);
-      const total = results.reduce((sum, result) => sum + result.total, 0);
-      return { list: combinedList, total };
-    };
-  
-    const response = useQuery({
-      queryKey: ['requests', { page: 1, limit: 10, time: 1 }],
-      queryFn: fetchAllRequests,
-    });
+      const statuses = Object.values(FixRequestStatus)
+      const promises = statuses.map((status) =>
+         Admin_Requests_All({
+            page: 1,
+            limit: 10,
+            status,
+            time: 1,
+         }),
+      )
+      const results = await Promise.all(promises)
+      const combinedList = results.flatMap((result) => result.list)
+      const total = results.reduce((sum, result) => sum + result.total, 0)
+      return { list: combinedList, total }
+   }
 
-    const responseData = useMemo(() => {
-      return (
-        response.data?.list.filter((data: Partial<FixRequestDto>) => {
-          if (query.area) {
-            const areaName = data.device?.area?.name?.toLowerCase() ?? "";
-            const searchQuery = query.area.toLowerCase();
-            return areaName.includes(searchQuery);
-          }
-          return true;
-        }) ?? []
-      );
-    }, [response.data, query.area]);
+   const response = useQuery({
+      queryKey: ["requests", { page: 1, limit: 10, time: 1 }],
+      queryFn: fetchAllRequests,
+   })
+
+   const responseData = useMemo(() => {
+      const searchArea = searchParams.area
+
+      if(searchArea) {
+         return response.data?.list.filter((data: Partial<FixRequestDto>) => {
+            return data.device?.area?.name.includes(searchArea)
+         })
+      }
+      return response.data?.list
+   }, [response.data, searchParams.area])
 
    if (response.isError) {
       return response.error.message
@@ -151,13 +150,15 @@ export default function RequestListPage() {
                   title: "Ngày tạo",
                   dataIndex: "createdAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
                },
                {
                   title: "Ngày cập nhật",
                   dataIndex: "updatedAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                   defaultSortOrder: "descend",
                },
                {

@@ -1,14 +1,14 @@
 "use client"
 
 import { PageContainer } from "@ant-design/pro-layout"
-import { ProTable, TableDropdown } from "@ant-design/pro-components"
+import { ActionType, ProTable, TableDropdown } from "@ant-design/pro-components"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import qk from "@/common/querykeys"
-import { Key, useMemo, useRef, useState } from "react"
+import { Key, useEffect, useMemo, useRef, useState } from "react"
 import dayjs from "dayjs"
 import { App, Button, Flex } from "antd"
 import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
-import { DeleteOutlined, DownloadOutlined, QrcodeOutlined, RollbackOutlined } from "@ant-design/icons"
+import { DeleteOutlined, DownloadOutlined, QrcodeOutlined, RollbackOutlined, SelectOutlined } from "@ant-design/icons"
 import Link from "next/link"
 import { DeviceDto } from "@/common/dto/Device.dto"
 import Admin_Devices_DeleteSoft from "@/app/admin/_api/devices/delete-soft.api"
@@ -35,15 +35,17 @@ const values = {
    detailsHref: (id: string) => `/admin/devices/${id}`,
 }
 
-export default function DevicesListPage() {
+export default function DevicesListPage({ searchParams }: { searchParams: { area?: string } }) {
    const { message } = App.useApp()
    const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([])
-   const [query, setQuery] = useState<Partial<types["dto"]>>({})
+   const [query, setQuery] = useState<Partial<types["dto"]>>({
+      area: (searchParams.area as any) ?? undefined,
+   })
    const response = useQuery({
       queryKey: values.mainQueryKey,
       queryFn: () => values.mainQueryFn(),
    })
-   const actionRef = useRef()
+   const actionRef = useRef<ActionType | undefined>(undefined)
 
    function onSelectChange(newSelectedRowKeys: Key[]) {
       setSelectedRowKeys(newSelectedRowKeys)
@@ -116,6 +118,9 @@ export default function DevicesListPage() {
                   case "operationStatus":
                      result = result || Number(area.operationStatus) === Number(value)
                      break
+                  case "area":
+                     result = result || area.area.name.includes(value as string)
+                     break
                   case "machineModel":
                      result = result || area.machineModel.name.includes(value as string)
                      break
@@ -126,16 +131,26 @@ export default function DevicesListPage() {
                      result = result || Number(area.positionY) === Number(value)
                      break
                   case "createdAt":
-                     result = result || dayjs(area.createdAt).add(7, "hours").isSame(value as string, "day")
+                     result =
+                        result ||
+                        dayjs(area.createdAt)
+                           .add(7, "hours")
+                           .isSame(value as string, "day")
                      break
                   case "updatedAt":
-                     result = result || dayjs(area.updatedAt).add(7, "hours").isSame(value as string, "day")
+                     result =
+                        result ||
+                        dayjs(area.updatedAt)
+                           .add(7, "hours")
+                           .isSame(value as string, "day")
                      break
                   case "deletedAt":
                      result =
                         result || value === null
                            ? area.deletedAt === null
-                           : dayjs(area.deletedAt).add(7, "hours").isSame(dayjs(value as string), "day")
+                           : dayjs(area.deletedAt)
+                                .add(7, "hours")
+                                .isSame(dayjs(value as string), "day")
                }
             }
             return result
@@ -213,7 +228,7 @@ export default function DevicesListPage() {
                   )}
                   columns={[
                      {
-                        title: "No.",
+                        title: "STT",
                         valueType: "indexBorder",
                         width: 48,
                         hideInSearch: true,
@@ -227,7 +242,7 @@ export default function DevicesListPage() {
                      },
                      {
                         key: "machineModel",
-                        title: "Machine Model",
+                        title: "Mẫu máy",
                         dataIndex: "machineModel",
                         width: 200,
                         render: (_, record) => record.machineModel.name,
@@ -239,7 +254,7 @@ export default function DevicesListPage() {
                      },
                      {
                         key: "description",
-                        title: "Description",
+                        title: "Mô tả",
                         dataIndex: "description",
                         width: 200,
                         ellipsis: {
@@ -250,7 +265,7 @@ export default function DevicesListPage() {
                      },
                      {
                         key: "area",
-                        title: "Area",
+                        title: "Khu vực",
                         width: 200,
                         ellipsis: {
                            showTitle: true,
@@ -262,14 +277,14 @@ export default function DevicesListPage() {
                      {
                         key: "positionX",
                         dataIndex: "positionX",
-                        title: "Position X",
+                        title: "Vị trí (X)",
                         width: 100,
                         valueType: "digit",
                         render: (_, record) => record.positionX,
                      },
                      {
                         key: "positionY",
-                        title: "Position Y",
+                        title: "Vị trí (Y)",
                         dataIndex: "positionY",
                         width: 100,
                         valueType: "digit",
@@ -277,39 +292,47 @@ export default function DevicesListPage() {
                      },
                      {
                         key: "operationStatus",
-                        title: "Operation Status",
+                        title: "Thông số",
                         dataIndex: "operationStatus",
-                        width: 150,
+                        width: 200,
                         valueType: "digit",
                         sorter: (a, b) => a.operationStatus - b.operationStatus,
                      },
                      {
                         key: "createdAt",
-                        title: "Created At",
+                        title: "Ngày tạo",
                         dataIndex: "createdAt",
                         width: 150,
                         valueType: "date",
-                        sorter: (a, b) => dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
+                        sorter: (a, b) =>
+                           dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
                      },
                      {
                         key: "updatedAt",
-                        title: "Updated At",
+                        title: "Lần cập nhật cuối",
                         dataIndex: "updatedAt",
-                        width: 150,
+                        width: 200,
                         valueType: "date",
-                        sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
+                        sorter: (a, b) =>
+                           dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                         defaultSortOrder: "descend",
                      },
                      {
                         key: "deletedAt",
-                        title: "Deleted At",
+                        title: "Ngày xóa",
                         dataIndex: "deletedAt",
                         width: 150,
                         valueType: "date",
-                        sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).add(7, "hours").unix() - dayjs(b.deletedAt ?? dayjs()).add(7, "hours").unix(),
+                        sorter: (a, b) =>
+                           dayjs(a.deletedAt ?? dayjs())
+                              .add(7, "hours")
+                              .unix() -
+                           dayjs(b.deletedAt ?? dayjs())
+                              .add(7, "hours")
+                              .unix(),
                      },
                      {
-                        title: "Options",
+                        title: "Lựa chọn",
                         valueType: "option",
                         width: 100,
                         key: "option",

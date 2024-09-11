@@ -1,11 +1,13 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { Card, Select, Table, Typography } from "antd"
+import { Button, Card, Select, Table, Typography } from "antd"
 import Admin_Devices_OneByAreaId from "../_api/devices/one-byAreaId.api"
 import { CheckSquareOffset, Note } from "@phosphor-icons/react"
 import CountUp from "react-countup"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { SelectOutlined } from "@ant-design/icons"
 
 const areaIds = [
    "13734c3c-5f3b-472e-805f-557c1f08eeb2",
@@ -15,31 +17,9 @@ const areaIds = [
    "3d78678d-1f25-4df7-8a84-6640a7692456",
 ]
 
-const columns = [
-   {
-      title: "Khu vực",
-      dataIndex: "areaNames",
-      key: "areaNames",
-   },
-   {
-      title: "Yêu cầu",
-      dataIndex: "totalRequests",
-      key: "totalRequests",
-   },
-   {
-      title: "Tác vụ",
-      dataIndex: "totalTasks",
-      key: "totalTasks",
-   },
-   {
-      title: "Thiết bị",
-      dataIndex: "totalDevices",
-      key: "totalDevices",
-   },
-]
-
 export default function AdminHomePage() {
-   const [selectedTime, setSelectedTime] = useState<number>(1);
+   const [selectedTime, setSelectedTime] = useState<number>(1)
+   const router = useRouter()
    const { data, isLoading } = useQuery({
       queryKey: ["areaData"],
       queryFn: async () => {
@@ -60,17 +40,13 @@ export default function AdminHomePage() {
    const totalRequests = tableData?.reduce((acc, area) => acc + (area.totalRequests || 0), 0)
    return (
       <div className="mt-5">
-         <div className="flex justify-end mb-4">
-        <Select
-          defaultValue={1}
-          style={{ width: 120 }}
-          onChange={(value) => setSelectedTime(value)}
-        >
-          <Select.Option value={1}>1 Tuần</Select.Option>
-          <Select.Option value={2}>1 Tháng</Select.Option>
-          <Select.Option value={3}>1 Năm</Select.Option>
-        </Select>
-      </div>
+         <div className="mb-4 flex justify-end">
+            <Select defaultValue={1} style={{ width: 120 }} onChange={(value) => setSelectedTime(value)}>
+               <Select.Option value={1}>1 Tuần</Select.Option>
+               <Select.Option value={2}>1 Tháng</Select.Option>
+               <Select.Option value={3}>1 Năm</Select.Option>
+            </Select>
+         </div>
          <div className="grid grid-cols-2 gap-12">
             <Card
                loading={isLoading}
@@ -78,12 +54,18 @@ export default function AdminHomePage() {
                classNames={{
                   body: "w-full",
                }}
+               hoverable
+               onClick={() => router.push("/admin/requests")}
             >
                <div className="flex w-full items-center justify-between">
                   <div className="flex flex-col items-start">
                      <div className="text-xl">Tổng cộng</div>
                      <div className="flex items-center">
-                        <CountUp className="flex align-bottom text-3xl font-bold" end={totalRequests as number} separator={","}></CountUp>
+                        <CountUp
+                           className="flex align-bottom text-3xl font-bold"
+                           end={totalRequests as number}
+                           separator={","}
+                        ></CountUp>
                         <Typography.Text className="ml-2 flex items-end text-base">yêu cầu</Typography.Text>
                      </div>
                   </div>
@@ -98,13 +80,19 @@ export default function AdminHomePage() {
                classNames={{
                   body: "w-full",
                }}
+               hoverable
+               onClick={() => router.push("/admin/tasks")}
             >
                <div className="flex w-full items-center justify-between">
                   <div className="flex flex-col items-start">
                      <div className="text-xl">Tổng cộng</div>
                      <div className="flex items-center">
-                     <CountUp className="flex align-bottom text-3xl font-bold" end={totalTasks as number} separator={","}></CountUp>
-                     <Typography.Text className="ml-2 flex items-end text-base">tác vụ</Typography.Text>
+                        <CountUp
+                           className="flex align-bottom text-3xl font-bold"
+                           end={totalTasks as number}
+                           separator={","}
+                        ></CountUp>
+                        <Typography.Text className="ml-2 flex items-end text-base">tác vụ</Typography.Text>
                      </div>
                   </div>
                   <div className="flex items-center">
@@ -118,11 +106,65 @@ export default function AdminHomePage() {
                borderRadius: "12px",
                overflow: "hidden",
                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-               marginTop: "2rem"
+               marginTop: "2rem",
             }}
          >
             <Table
-               columns={columns}
+               columns={[
+                  {
+                     title: "Khu vực",
+                     dataIndex: "areaNames",
+                     key: "areaNames",
+                  },
+                  {
+                     title: "Yêu cầu",
+                     dataIndex: "totalRequests",
+                     key: "totalRequests",
+                     render: (value, record) => {
+                        return (
+                           <Button
+                              type="link"
+                              size="small"
+                              onClick={() => router.push(`/admin/requests?area=${record.areaNames}`)}
+                           >
+                              {value}
+                           </Button>
+                        )
+                     },
+                  },
+                  {
+                     title: "Tác vụ",
+                     dataIndex: "totalTasks",
+                     key: "totalTasks",
+                     render: (value, record) => {
+                        return (
+                           <Button
+                              type="link"
+                              size="small"
+                              onClick={() => router.push(`/admin/tasks?area=${record.areaNames}`)}
+                           >
+                              {value}
+                           </Button>
+                        )
+                     },
+                  },
+                  {
+                     title: "Thiết bị",
+                     dataIndex: "totalDevices",
+                     key: "totalDevices",
+                     render: (value, record) => {
+                        return (
+                           <Button
+                              type="link"
+                              size="small"
+                              onClick={() => router.push(`/admin/devices?area=${record.areaNames}`)}
+                           >
+                              {value}
+                           </Button>
+                        )
+                     },
+                  },
+               ]}
                dataSource={tableData}
                loading={isLoading}
                pagination={false}

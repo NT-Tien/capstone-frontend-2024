@@ -20,7 +20,7 @@ const qk = {
       one_byId: (id: string) => ["warehouse", id],
    },
    devices: {
-      all: () => ["devices"],
+      all: () => ["admin", "devices"],
       all_withDeleted: () => ["devices", "all_withDeleted"],
       one_byId: (id: string) => ["devices", id],
    },

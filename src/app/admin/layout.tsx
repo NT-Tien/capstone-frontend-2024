@@ -75,7 +75,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                            {
                               key: "logout",
                               icon: <LogoutOutlined />,
-                              label: "Logout",
+                              label: "Đăng xuất",
                               danger: true,
                               onClick: () => {
                                  router.push("/login?logout=success")
@@ -85,12 +85,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                            {
                               key: "settings",
                               icon: <SettingOutlined />,
-                              label: "Settings",
-                           },
-                           {
-                              key: "Profile",
-                              icon: <UserOutlined />,
-                              label: "Profile",
+                              label: "Cài đặt",
                            },
                         ],
                      }}
@@ -100,7 +95,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                )
             },
          }}
-         title="Admin Panel"
+         title="Quản lý"
          layout="side"
          fixSiderbar={true}
          onMenuHeaderClick={() => router.push("/admin/dashboard")}
@@ -108,53 +103,53 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             routes: [
                {
                   key: "general",
-                  name: "General",
+                  name: "Thông tin chung",
                   children: [
                      {
                         key: "dashboard",
                         path: "/admin/dashboard",
-                        name: "Dashboard",
+                        name: "Thống kê",
                         icon: <DashboardOutlined />,
-                     },
-                     {
-                        key: "requests",
-                        name: "Requests",
-                        icon: <InboxOutlined />,
-                        path: "/admin/requests",
-                     },
-                     {
-                        key: "tasks",
-                        name: "Tasks",
-                        icon: <CheckSquareOutlined />,
-                        path: "/admin/tasks",
                      },
                   ],
                },
                {
                   key: "data management",
-                  name: "Data Management",
+                  name: "Trường dữ liệu",
                   children: [
                      {
                         key: "areas",
-                        name: "Areas",
+                        name: "Khu vực",
                         icon: <AreaChartOutlined />,
                         path: "/admin/area",
                      },
-                     {
-                        key: "machine models",
-                        name: "Machine Models",
-                        icon: <RobotOutlined />,
-                        path: "/admin/machine-models",
-                     },
+                     // {
+                     //    key: "machine models",
+                     //    name: "Machine Models",
+                     //    icon: <RobotOutlined />,
+                     //    path: "/admin/machine-models",
+                     // },
                      {
                         key: "devices",
-                        name: "Devices",
+                        name: "Thiết bị",
                         icon: <LaptopOutlined />,
                         path: "/admin/devices",
                      },
                      {
+                        key: "requests",
+                        name: "Yêu cầu",
+                        icon: <InboxOutlined />,
+                        path: "/admin/requests",
+                     },
+                     {
+                        key: "tasks",
+                        name: "Tác vụ",
+                        icon: <CheckSquareOutlined />,
+                        path: "/admin/tasks",
+                     },
+                     {
                         key: "spare parts",
-                        name: "Spare Parts",
+                        name: "Linh kiện",
                         icon: <ApiOutlined />,
                         path: "/admin/spare-parts",
                      },
@@ -162,11 +157,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                },
                {
                   key: "site settings",
-                  name: "Site Settings",
+                  name: "Quản lý trang",
                   children: [
                      {
                         key: "users",
-                        name: "Users",
+                        name: "Tài khoản",
                         path: "/admin/users",
                         icon: <UserOutlined />,
                      },

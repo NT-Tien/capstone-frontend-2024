@@ -29,7 +29,7 @@ const values = {
    detailsHref: (page: number, limit: number, status: string, time: number) => `/admin/task/${page}/${limit}/${status}?time=${time}`,
 }
 
-export default function RequestListPage() {
+export default function RequestListPage({ searchParams }: {searchParams: { area?: string}}) {
    const { message } = App.useApp()
    const [query, setQuery] = useState<Partial<types["dto"]>>({})
    const actionRef = useRef()
@@ -58,17 +58,16 @@ export default function RequestListPage() {
 
 
     const responseData = useMemo(() => {
-      return (
-        response.data?.list.filter((data: Partial<TaskDto>) => {
-          if (query.area) {
-            const areaName = data.device?.area?.name?.toLowerCase() ?? "";
-            const searchQuery = query.area.toLowerCase();
-            return areaName.includes(searchQuery);
-          }
-          return true;
-        }) ?? []
-      );
-    }, [response.data, query.area]);
+      const searchArea = searchParams.area;
+
+      if(searchArea) {
+         return response.data?.list.filter((data) => {
+            return data.device?.area?.name.includes(searchArea)
+         })
+      }
+
+      return response.data?.list
+    }, [searchParams.area, response.data?.list]);
     
 
    if (response.isError) {

@@ -21,11 +21,11 @@ type types = {
 }
 
 const values = {
-   nameSingle: "area",
-   nameSingleCapitalized: "Area",
-   namePlural: "areas",
-   namePluralCapitalized: "Areas",
-   namePluralCapitalizedOptional: "Area(s)",
+   nameSingle: "khu vực",
+   nameSingleCapitalized: "Khu vực",
+   namePlural: "khu vực",
+   namePluralCapitalized: "Khu vực",
+   namePluralCapitalizedOptional: "Khu vực",
    mainQueryFn: Admin_Areas_All,
    mainQueryKey: qk.areas.all(),
    deleteMutationFn: Admin_Areas_DeleteSoft,
@@ -141,13 +141,13 @@ export default function AreasListPage() {
    return (
       <PageContainer
          title={`${values.namePluralCapitalized} List`}
-         subTitle={`Total ${responseData?.length ?? "..."} ${values.namePluralCapitalizedOptional}(s) found.`}
+         subTitle={`Đã tìm thấy tổng ${responseData?.length ?? "..."} ${values.namePluralCapitalizedOptional}`}
          loading={response.isLoading}
          extra={
             <values.CreateDrawer>
                {(handleOpen) => (
                   <Button key="create-position-btn" type="primary" onClick={handleOpen}>
-                     Create
+                     Tạo mới
                   </Button>
                )}
             </values.CreateDrawer>
@@ -185,7 +185,7 @@ export default function AreasListPage() {
             }}
             columns={[
                {
-                  title: "No.",
+                  title: "STT",
                   key: "index",
                   valueType: "indexBorder",
                   width: 48,
@@ -199,7 +199,7 @@ export default function AreasListPage() {
                   valueType: "text",
                },
                {
-                  title: "Name",
+                  title: "Tên",
                   key: "name",
                   dataIndex: "name",
                   width: 200,
@@ -207,7 +207,7 @@ export default function AreasListPage() {
                   valueType: "text",
                },
                {
-                  title: "Instruction",
+                  title: "Hướng dẫn",
                   key: "instruction",
                   dataIndex: "instruction",
                   width: 200,
@@ -215,28 +215,28 @@ export default function AreasListPage() {
                   valueType: "text",
                },
                {
-                  title: "Width",
+                  title: "Chiều rộng",
                   key: "width",
                   dataIndex: "width",
-                  width: 100,
+                  width: 130,
                   valueType: "digit",
                },
                {
-                  title: "Height",
+                  title: "Chiều dài",
                   key: "height",
                   dataIndex: "height",
-                  width: 100,
+                  width: 130,
                   valueType: "digit",
                },
                {
-                  title: "Created At",
+                  title: "Ngày tạo",
                   key: "createdAt",
                   dataIndex: "createdAt",
                   valueType: "date",
                   sorter: (a, b) => dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
                },
                {
-                  title: "Updated At",
+                  title: "Lần trước cập nhật",
                   key: "updatedAt",
                   dataIndex: "updatedAt",
                   valueType: "date",
@@ -244,19 +244,19 @@ export default function AreasListPage() {
                   defaultSortOrder: "descend",
                },
                {
-                  title: "Deleted At",
+                  title: "Ngày xóa",
                   key: "deletedAt",
                   dataIndex: "deletedAt",
                   valueType: "date",
                   sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).add(7, "hours").unix() - dayjs(b.deletedAt ?? dayjs()).add(7, "hours").unix(),
                },
                {
-                  title: "Options",
+                  title: "Lựa chọn",
                   valueType: "option",
                   key: "option",
                   render: (text, record, _, action) => [
                      <Link key={"View"} href={values.detailsHref(record.id)}>
-                        View
+                        Xem
                      </Link>,
                      <TableDropdown
                         key="actionGroup"

@@ -1,20 +1,14 @@
 "use client"
 
 import { PageContainer } from "@ant-design/pro-layout"
-import { ProTable, TableDropdown } from "@ant-design/pro-components"
+import { ProTable } from "@ant-design/pro-components"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import qk from "@/common/querykeys"
 import { useMemo, useRef, useState } from "react"
 import dayjs from "dayjs"
-import { App, Button } from "antd"
-import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
-import { DeleteOutlined, RollbackOutlined } from "@ant-design/icons"
-import Link from "next/link"
+import { App } from "antd"
 import Admin_SpareParts_DeleteSoft from "@/app/admin/_api/spare-parts/delete-soft.api"
 import Admin_SpareParts_Restore from "@/app/admin/_api/spare-parts/restore.api"
 import CreateSparePartDrawer from "@/app/admin/spare-parts/_components/create-spare-part.drawer"
-import { SparePartDto } from "@/common/dto/SparePart.dto"
-import Admin_SpareParts_All from "@/app/admin/_api/spare-parts/all.api"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import Admin_Requests_All from "../_api/requests/all.api"
 import { admin_qk } from "../_api/qk"
@@ -27,9 +21,6 @@ type types = {
 const values = {
    nameSingle: "yêu cầu",
    nameSingleCapitalized: "Yêu cầu",
-   // namePlural: "requests",
-   // namePluralCapitalized: "Requests",
-   // namePluralCapitalizedOptional: "Request(s)",
    mainQueryFn: Admin_Requests_All,
    mainQueryKey: admin_qk.requests.all,
    deleteMutationFn: Admin_SpareParts_DeleteSoft,
@@ -63,56 +54,6 @@ export default function RequestListPage() {
       queryKey: ['requests', { page: 1, limit: 10, time: 1 }],
       queryFn: fetchAllRequests,
     });
-
-   const mutate_delete = useMutation({
-      mutationFn: values.deleteMutationFn,
-      onMutate: async () => {
-         message.open({
-            type: "loading",
-            content: `Deleting ${values.nameSingleCapitalized}...`,
-            key: `delete-${values.nameSingle}`,
-         })
-      },
-      onError: async (error) => {
-         message.error({
-            content: `Failed to delete ${values.nameSingleCapitalized}. See logs.`,
-         })
-      },
-      onSuccess: async () => {
-         message.success({
-            content: `${values.nameSingleCapitalized} deleted successfully.`,
-         })
-         await response.refetch()
-      },
-      onSettled: () => {
-         message.destroy(`delete-${values.nameSingle}`)
-      },
-   })
-
-   const mutate_restore = useMutation({
-      mutationFn: values.restoreMutationFn,
-      onMutate: async () => {
-         message.open({
-            type: "loading",
-            content: `Restoring ${values.nameSingleCapitalized}...`,
-            key: `restore-${values.nameSingle}`,
-         })
-      },
-      onError: async (error) => {
-         message.error({
-            content: `Failed to restore ${values.nameSingleCapitalized}. See logs.`,
-         })
-      },
-      onSuccess: async () => {
-         message.success({
-            content: `${values.nameSingleCapitalized} restored successfully.`,
-         })
-         await response.refetch()
-      },
-      onSettled: () => {
-         message.destroy(`restore-${values.nameSingle}`)
-      },
-   })
 
    const responseData = useMemo(() => {
       return (
@@ -164,15 +105,6 @@ export default function RequestListPage() {
          title={`Danh sách ${values.nameSingle}`}
          subTitle={`Tổng cộng ${responseData?.length ?? "..."} ${values.nameSingle} đã được tìm thấy.`}
          loading={response.isLoading}
-         // extra={
-         //    <values.CreateDrawer>
-         //       {(handleOpen) => (
-         //          <Button key="create-position-btn" type="primary" onClick={handleOpen}>
-         //             Create
-         //          </Button>
-         //       )}
-         //    </values.CreateDrawer>
-         // }
       >
          <ProTable
             actionRef={actionRef}
@@ -218,15 +150,6 @@ export default function RequestListPage() {
                   hideInTable: true,
                   valueType: "text",
                },
-               // {
-               //    title: "Name",
-               //    dataIndex: "name",
-               //    width: 200,
-               //    ellipsis: {
-               //       showTitle: true,
-               //    },
-               //    valueType: "text",
-               // },
                {
                   title: "Tên thiết bị",
                   key: "machineModel",
@@ -243,12 +166,6 @@ export default function RequestListPage() {
                   width: 200,
                   valueType: "text",
                },
-               // {
-               //    title: "Expiration Date",
-               //    dataIndex: "expirationDate",
-               //    valueType: "date",
-               //    sorter: (a, b) => dayjs(a.).add(7, "hours").unix() - dayjs(b.expirationDate).add(7, "hours").unix(),
-               // },
                {
                   title: "Ngày tạo",
                   dataIndex: "createdAt",
@@ -282,35 +199,6 @@ export default function RequestListPage() {
                   },
                   valueType: "text",
                },
-               // {
-               //    title: "Options",
-               //    valueType: "option",
-               //    width: 100,
-               //    key: "option",
-               //    render: (text, record, _, action) => [
-               //       <Link key={"View"} href={values.detailsHref(record.)}>
-               //          View
-               //       </Link>,
-               //       <TableDropdown
-               //          key="actionGroup"
-               //          onSelect={() => action?.reload()}
-               //          menus={[
-               //             CopyToClipboard({ value: record.id }),
-               //             {
-               //                key: record.deletedAt ? "restore" : "delete",
-               //                icon: record.deletedAt ? <RollbackOutlined /> : <DeleteOutlined />,
-               //                name: record.deletedAt ? "Restore" : "Delete",
-               //                danger: true,
-               //                onClick: async () => {
-               //                   record.deletedAt
-               //                      ? await mutate_restore.mutateAsync({ id: record.id })
-               //                      : await mutate_delete.mutateAsync({ id: record.id })
-               //                },
-               //             },
-               //          ]}
-               //       />,
-               //    ],
-               // },
             ]}
          />
       </PageContainer>

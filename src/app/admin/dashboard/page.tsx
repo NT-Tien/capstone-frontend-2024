@@ -1,10 +1,9 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { Card, Col, Row, Table, Typography } from "antd"
+import { Card, Table, Typography } from "antd"
 import Admin_Devices_OneByAreaId from "../_api/devices/one-byAreaId.api"
-import { CheckSquareOffset, Devices, Gear, Note } from "@phosphor-icons/react"
-import { admin_qk } from "../_api/qk"
+import { CheckSquareOffset, Note } from "@phosphor-icons/react"
 import CountUp from "react-countup"
 
 const areaIds = [

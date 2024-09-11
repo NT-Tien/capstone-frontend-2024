@@ -11,6 +11,9 @@ import { Suspense, useEffect, useState } from "react"
 import TabDetails from "./TabDetails.component"
 import { useRouter, useSearchParams } from "next/navigation"
 import { SearchOutlined, FilterOutlined } from "@ant-design/icons"
+import { useQueries } from "@tanstack/react-query"
+import headstaff_qk from "@/app/head-staff/_api/qk"
+import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
 
 function Page() {
    return (
@@ -24,6 +27,22 @@ function Component() {
    const searchParams = useSearchParams()
    const router = useRouter()
    const [tab, setTab] = useState<FixRequestStatus | undefined>(undefined)
+
+   const counts = useQueries({
+      queries: Object.values(FixRequestStatus).map((status) => ({
+         queryKey: headstaff_qk.request.all({ page: 1, limit: 1000, status: status }),
+         queryFn: () => HeadStaff_Request_All30Days({ limit: 1000, page: 1, status: status }),
+      })),
+      combine: (results) => {
+         return results.reduce(
+            (acc, { data }, index) => {
+               acc[Object.values(FixRequestStatus)[index]] = data?.total ?? 0
+               return acc
+            },
+            {} as Record<FixRequestStatus, number>,
+         )
+      },
+   })
 
    function handleChangeTab(tab: FixRequestStatus) {
       setTab(tab)
@@ -81,7 +100,7 @@ function Component() {
                label: (
                   <div className="flex w-min items-center justify-center gap-3 break-words font-medium">
                      <div className="text-lg">{FixRequest_StatusData(status).icon}</div>
-                     {FixRequest_StatusData(status).text}
+                     {FixRequest_StatusData(status).text} ({counts[status.toUpperCase() as FixRequestStatus]})
                   </div>
                ),
             }))}

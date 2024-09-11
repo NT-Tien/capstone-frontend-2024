@@ -10,6 +10,7 @@ import { taskPercentCalculator } from "../util/taskPercentCalculator.util"
 type Props = {
    task: TaskDto
    onClick?: () => void
+   highlighted?: boolean
 }
 
 export default function TaskCardBasic(props: Props) {
@@ -37,7 +38,10 @@ export default function TaskCardBasic(props: Props) {
          size={"small"}
          onClick={props.onClick}
          hoverable
-         className={cn(props.task.priority && "border-red-300 bg-red-50")}
+         className={cn(
+            props.task.priority && "border-red-300 bg-red-50",
+            props.highlighted && "border-2 border-primary-600 bg-primary-100 border-l-primary-500 border-l-8 text-primary-600",
+         )}
       >
          <section className="flex w-full flex-col">
             <div className="flex items-start justify-between">
@@ -49,7 +53,7 @@ export default function TaskCardBasic(props: Props) {
                   </Tag>
                )}
             </div>
-            <div className="mt-2 flex items-center gap-2 flex-wrap">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
                <Tag className="m-0" color={TaskStatusTagMapper[status]?.color ?? "default"}>
                   {TaskStatusTagMapper[status]?.text ?? "-"}
                </Tag>

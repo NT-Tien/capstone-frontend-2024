@@ -16,6 +16,7 @@ import { Card, Empty, Progress, Skeleton } from "antd"
 import dayjs from "dayjs"
 import { useMemo, useState } from "react"
 import { taskPercentCalculator } from "../../../../common/util/taskPercentCalculator.util"
+import { useRouter } from "next/navigation"
 
 type TasksType = {
    today_priority: TaskDto[]
@@ -28,6 +29,8 @@ type TasksType = {
 }
 
 export default function StaffTasksPage() {
+   const router = useRouter()
+
    const [tab, setTab] = useState("today")
 
    const api_tasks = useQuery({
@@ -94,7 +97,7 @@ export default function StaffTasksPage() {
          {(handleOpen) => (
             <div className="std-layout">
                <RootHeader title="Tác vụ" className="std-layout-outer p-4" />
-               {!!tasks.ongoing && (
+               {!!tasks.ongoing === true && (
                   <section className="std-layout-outer w-full bg-white p-layout shadow-bottom">
                      <TaskCard
                         title="Tác vụ đang thực hiện"
@@ -102,9 +105,7 @@ export default function StaffTasksPage() {
                         bottom={<Progress percent={taskPercentCalculator(tasks.ongoing)} />}
                         priority={tasks.ongoing.priority ?? false}
                         onClick={() =>
-                           handleOpen({
-                              taskId: tasks.ongoing?.id ?? "",
-                           })
+                           router.push(`/staff/tasks/${tasks.ongoing?.id}/start`,)
                         }
                      />
                   </section>

@@ -5,7 +5,7 @@ import { Card, List, Modal, QRCode } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle, useState } from "react"
 
 type Props = {
-   children: (
+   children?: (
       handleOpen: (qrCode: string, issueSpareParts: FixRequestIssueSparePartDto[], isWarranty?: boolean) => void,
    ) => ReactNode
    title?: string
@@ -45,7 +45,7 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
 
    return (
       <>
-         {children(handleOpen)}
+         {children?.(handleOpen)}
          <Modal title={props.title ?? "Qr Code"} open={open} onCancel={handleClose} footer={null}>
             {props.description && (
                <Card

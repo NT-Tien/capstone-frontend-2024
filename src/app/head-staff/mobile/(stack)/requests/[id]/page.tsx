@@ -358,7 +358,10 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                            },
                            {
                               label: "Ngày nhận máy",
-                              value: (s) => s.machineModel?.dateOfReceipt ? dayjs(s.machineModel?.dateOfReceipt).format("DD-MM-YYYY") : "Không có",
+                              value: (s) =>
+                                 s.machineModel?.dateOfReceipt
+                                    ? dayjs(s.machineModel?.dateOfReceipt).format("DD-MM-YYYY")
+                                    : "Không có",
                            },
                            {
                               label: "Thời hạn bảo hành",
@@ -578,7 +581,10 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                  {
                                     key: "reject",
                                     label: "Hủy yêu cầu",
-                                    onClick: () => rejectRequestRef.current?.handleOpen(params.id),
+                                    onClick: () =>
+                                       api_request.isSuccess && rejectRequestRef.current?.handleOpen({
+                                          request: api_request.data,
+                                       }),
                                     danger: true,
                                  },
                               ],

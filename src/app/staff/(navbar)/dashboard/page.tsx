@@ -107,7 +107,7 @@ function StaffDashboard() {
                      title="Tác vụ đang thực hiện"
                      description={ongoingtask?.name ?? ""}
                      priority={ongoingtask?.priority ?? false}
-                     onClick={() => taskDetailsDrawerRef.current?.handleOpen({ taskId: ongoingtask.id })}
+                     onClick={() => router.push(`/staff/tasks/${ongoingtask.id}/start`)}
                   />
                </section>
             )}

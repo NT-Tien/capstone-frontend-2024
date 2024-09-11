@@ -25,6 +25,8 @@ import TasksList from "./TasksList.tab"
 import DeviceRequestHistoryDrawer from "../DeviceRequestHistory.drawer"
 import isApproved from "./is-approved.util"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import { SendWarrantyTypeErrorId } from "@/constants/Warranty"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 
 type Props = {
    requestId: string
@@ -45,6 +47,52 @@ function TabbedLayout(props: Props) {
       if (!props.api_device.isSuccess) return false
       return dayjs().isAfter(dayjs(props.api_device.data.machineModel?.warrantyTerm))
    }, [props.api_device.isSuccess, props.api_device.data?.machineModel?.warrantyTerm])
+
+   const sendToWarrantyTask = useMemo(() => {
+      const issue = props.api_request.data?.issues.find((issue) => issue.typeError.id === SendWarrantyTypeErrorId)
+      const task = issue?.task
+      return task
+   }, [props.api_request.data?.issues])
+
+   const returnFromWarrantyTask = useMemo(() => {}, [])
+
+   const highlightedId = useMemo(() => {
+      if (!props.api_request.isSuccess || !props.api_request.data.is_warranty) return
+
+      // TODO improve performance
+      const sendToWarrantyTaskFull = props.api_request.data.tasks.find((task) => task.id === sendToWarrantyTask?.id)
+
+      const result = []
+      if (sendToWarrantyTaskFull && (sendToWarrantyTaskFull.fixer === null || sendToWarrantyTaskFull.fixer === undefined))
+         result.push(sendToWarrantyTaskFull.id) // highlight if send to warranty task is not assigned
+
+      return new Set(result)
+   }, [props.api_request.data?.is_warranty, props.api_request.data?.tasks, props.api_request.isSuccess, sendToWarrantyTask?.id])
+
+   const createTaskBtnText = useMemo(() => {
+      if (!props.api_request.isSuccess) return
+
+      // if there exists a send to warranty task that is not completed, and there are no other issues, disable
+      if (
+         props.api_request.data.is_warranty &&
+         !!sendToWarrantyTask === true &&
+         sendToWarrantyTask?.status !== TaskStatus.COMPLETED
+      ) {
+         return true
+      }
+
+      // if there are no more unassigned issues, disable
+      if (props.api_request.data.issues.find((issue) => issue.task === null) === undefined) {
+         return true
+      }
+
+      return false
+   }, [
+      props.api_request.data?.is_warranty,
+      props.api_request.data?.issues,
+      props.api_request.isSuccess,
+      sendToWarrantyTask,
+   ])
 
    function handleTabChange(value: string) {
       setTab(value)
@@ -90,7 +138,11 @@ function TabbedLayout(props: Props) {
                         <Empty description="Chưa có tác vụ nào được tạo" image={Empty.PRESENTED_IMAGE_DEFAULT} />
                      </Card>
                   ) : (
-                     <TasksList api_request={props.api_request} className="std-layout-outer mt-2" />
+                     <TasksList
+                        api_request={props.api_request}
+                        className="std-layout-outer mt-2"
+                        highlightTaskId={highlightedId}
+                     />
                   )}
                </>
 
@@ -105,7 +157,7 @@ function TabbedLayout(props: Props) {
                            size="large"
                            icon={<PlusOutlined />}
                            onClick={() => createTaskRef.current?.handleOpen(props.requestId)}
-                           disabled={!props.api_request.data?.issues.find((issue) => issue.task === null)}
+                           disabled={createTaskBtnText}
                         >
                            Tạo tác vụ
                         </Button>
@@ -141,7 +193,7 @@ function TabbedLayout(props: Props) {
                                              <Tag color={FixTypeTagMapper[item.fixType].color}>
                                                 {FixTypeTagMapper[item.fixType].text}
                                              </Tag>
-                                             <div className="truncate w-60">{item.description}</div>
+                                             <div className="w-60 truncate">{item.description}</div>
                                           </div>
                                        }
                                     ></List.Item.Meta>
@@ -215,7 +267,9 @@ function TabbedLayout(props: Props) {
                               <span>Không có bảo hành</span>
                            ) : (
                               <span className="flex flex-col">
-                                 <span className="text-right">{dayjs(s.machineModel?.warrantyTerm).add(7, 'days').format("DD/MM/YYYY")}</span>
+                                 <span className="text-right">
+                                    {dayjs(s.machineModel?.warrantyTerm).add(7, "days").format("DD/MM/YYYY")}
+                                 </span>
                                  {hasExpired && (
                                     <Tag color="red-inverse" className="m-0">
                                        Hết bảo hành

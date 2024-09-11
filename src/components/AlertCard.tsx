@@ -7,6 +7,7 @@ const styles = cva("border-l-4 p-4", {
       type: {
          warning: ["border-yellow-400 bg-yellow-50 text-yellow-700"],
          info: ["border-blue-400 bg-blue-50 text-blue-700"],
+         error: ["border-red-400 bg-red-50 text-red-700"],
       },
    },
    defaultVariants: {

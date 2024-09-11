@@ -5,21 +5,24 @@ import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
-import { Card, Collapse, Empty } from "antd"
+import { App, Card, Collapse, Empty } from "antd"
 import { useMemo, useRef } from "react"
 import TaskDetailsDrawer, { TaskDetailsDrawerRefType } from "./TaskDetails.drawer"
 import HeadStaff_Task_Create from "@/app/head-staff/_api/task/create.api"
 import { ReceiveWarrantyTypeErrorId } from "@/constants/Warranty"
 import { generateTaskName } from "./CreateTask.drawer"
 import dayjs from "dayjs"
+import HeadStaff_Task_Update from "@/app/head-staff/_api/task/update.api"
 
 type Props = {
    api_request: UseQueryResult<FixRequestDto, Error>
    className?: string
+   highlightTaskId?: Set<String>
 }
 
 export default function TasksList(props: Props) {
    const taskDetailsRef = useRef<TaskDetailsDrawerRefType | null>(null)
+   const { message } = App.useApp()
 
    const taskSorted = useMemo(() => {
       if (!props.api_request.data) return []
@@ -39,6 +42,10 @@ export default function TasksList(props: Props) {
       mutationFn: HeadStaff_Task_Create,
    })
 
+   const mutate_updateTaskStatus = useMutation({
+      mutationFn: HeadStaff_Task_Update,
+   })
+
    const taskGrouped = useMemo(() => {
       let result = {
          completed: [],
@@ -46,12 +53,14 @@ export default function TasksList(props: Props) {
          awaitFixer: [],
          remaining: [],
          awaitSparePart: [],
+         cancelled: [],
       } as {
          completed: TaskDto[]
          headstaffConfirm: TaskDto[]
          awaitFixer: TaskDto[]
          remaining: TaskDto[]
          awaitSparePart: TaskDto[]
+         cancelled: TaskDto[]
       }
       taskSorted.forEach((task) => {
          if (task.status === TaskStatus.COMPLETED) {
@@ -62,6 +71,8 @@ export default function TasksList(props: Props) {
             result.awaitFixer.push(task)
          } else if (task.status === TaskStatus.AWAITING_SPARE_SPART) {
             result.awaitSparePart.push(task)
+         } else if (task.status === TaskStatus.CANCELLED) {
+            result.cancelled.push(task)
          } else {
             result.remaining.push(task)
          }
@@ -71,15 +82,26 @@ export default function TasksList(props: Props) {
    }, [taskSorted])
 
    async function handleAutoCreateWarrantyTask(returnDate?: string) {
-      if (!props.api_request.isSuccess) return
-      const issue = props.api_request.data.issues.find((issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId)
-      if (!issue) return
+      try {
+         console.log("Test")
+         if (!props.api_request.isSuccess) {
+            console.log("Failed 1")
+            return
+         }
+         const issue = props.api_request.data.issues.find((issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId)
+         if (!issue) {
+            console.log("Failed 2")
+            return
+         }
+         console.log("Reacted herer")
 
-      // check if already has warranty task
-      if (issue.task !== null) return
+         // check if already has warranty task
+         if (issue.task !== null) {
+            console.log("Failed 3")
+            return
+         }
 
-      mutate_createTask.mutateAsync(
-         {
+         const task = await mutate_createTask.mutateAsync({
             issueIDs: [issue.id],
             name: `${dayjs(props.api_request.data.createdAt).add(7, "hours").format("DDMMYY")}_${props.api_request.data.device.area.name}_${props.api_request.data.device.machineModel.name}_Lắp máy bảo hành`,
             operator: 0,
@@ -87,13 +109,22 @@ export default function TasksList(props: Props) {
             request: props.api_request.data.id,
             totalTime: issue.typeError.duration,
             fixerDate: returnDate ?? props.api_request.data.return_date_warranty ?? undefined,
-         },
-         {
-            onSuccess: () => {
-               props.api_request.refetch()
+         })
+
+         console.log("stuff")
+
+         const taskUpdate = await mutate_updateTaskStatus.mutateAsync({
+            id: task.id,
+            payload: {
+               status: TaskStatus.AWAITING_FIXER,
             },
-         },
-      )
+         })
+
+         props.api_request.refetch()
+      } catch (error) {
+         console.error(error)
+         message.error("Có lỗi xảy ra khi tạo tác vụ bảo hành, vui lòng thử lại")
+      }
    }
 
    return (
@@ -105,13 +136,18 @@ export default function TasksList(props: Props) {
          )}
          <Collapse
             ghost
-            defaultActiveKey={["headstaffconfirm", "awaitfixer", "remaining", "awaitSparePart"]}
+            defaultActiveKey={[
+               TaskStatus.HEAD_STAFF_CONFIRM,
+               TaskStatus.AWAITING_FIXER,
+               TaskStatus.AWAITING_SPARE_SPART,
+               "doing",
+            ]}
             className="custom-collapse-padding p-0"
             items={[
                ...(taskGrouped.headstaffConfirm.length > 0
                   ? [
                        {
-                          key: "headstaffconfirm",
+                          key: TaskStatus.HEAD_STAFF_CONFIRM,
                           label:
                              TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text +
                              ` (${taskGrouped.headstaffConfirm.length})`,
@@ -122,6 +158,7 @@ export default function TasksList(props: Props) {
                                       key={task.id}
                                       task={task}
                                       onClick={() => taskDetailsRef.current?.handleOpen(task)}
+                                      highlighted={props.highlightTaskId?.has(task.id)}
                                    />
                                 ))}
                              </div>
@@ -132,7 +169,7 @@ export default function TasksList(props: Props) {
                ...(taskGrouped.awaitSparePart.length > 0
                   ? [
                        {
-                          key: "awaitSparePart",
+                          key: TaskStatus.AWAITING_SPARE_SPART,
                           label:
                              TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].text +
                              ` (${taskGrouped.awaitSparePart.length})`,
@@ -143,6 +180,7 @@ export default function TasksList(props: Props) {
                                       key={task.id}
                                       task={task}
                                       onClick={() => taskDetailsRef.current?.handleOpen(task)}
+                                      highlighted={props.highlightTaskId?.has(task.id)}
                                    />
                                 ))}
                              </div>
@@ -153,7 +191,7 @@ export default function TasksList(props: Props) {
                ...(taskGrouped.awaitFixer.length > 0
                   ? [
                        {
-                          key: "awaitfixer",
+                          key: TaskStatus.AWAITING_FIXER,
                           label:
                              TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text +
                              ` (${taskGrouped.awaitFixer.length})`,
@@ -164,6 +202,7 @@ export default function TasksList(props: Props) {
                                       key={task.id}
                                       task={task}
                                       onClick={() => taskDetailsRef.current?.handleOpen(task)}
+                                      highlighted={props.highlightTaskId?.has(task.id)}
                                    />
                                 ))}
                              </div>
@@ -181,6 +220,7 @@ export default function TasksList(props: Props) {
                               key={task.id}
                               task={task}
                               onClick={() => taskDetailsRef.current?.handleOpen(task)}
+                              highlighted={props.highlightTaskId?.has(task.id)}
                            />
                         ))}
                      </div>
@@ -198,6 +238,27 @@ export default function TasksList(props: Props) {
                                       key={task.id}
                                       task={task}
                                       onClick={() => taskDetailsRef.current?.handleOpen(task)}
+                                      highlighted={props.highlightTaskId?.has(task.id)}
+                                   />
+                                ))}
+                             </div>
+                          ),
+                       },
+                    ]
+                  : []),
+               ...(taskGrouped.cancelled.length > 0
+                  ? [
+                       {
+                          key: "cancelled",
+                          label: TaskStatusTagMapper[TaskStatus.CANCELLED].text + ` (${taskGrouped.cancelled.length})`,
+                          children: (
+                             <div className="grid grid-cols-1 gap-2">
+                                {taskGrouped.cancelled.map((task) => (
+                                   <TaskCardBasic
+                                      key={task.id}
+                                      task={task}
+                                      onClick={() => taskDetailsRef.current?.handleOpen(task)}
+                                      highlighted={props.highlightTaskId?.has(task.id)}
                                    />
                                 ))}
                              </div>

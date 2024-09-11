@@ -276,7 +276,9 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                           label: "Hủy yêu cầu",
                                           danger: true,
                                           onClick: () => {
-                                             rejectRequestRef.current?.handleOpen(params.id)
+                                             rejectRequestRef.current?.handleOpen({
+                                                request: api_request.data,
+                                             })
                                           },
                                        },
                                     ],

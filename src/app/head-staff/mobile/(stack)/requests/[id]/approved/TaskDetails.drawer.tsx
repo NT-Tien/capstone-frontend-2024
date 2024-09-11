@@ -33,6 +33,7 @@ import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/update
 import UpdateTaskFixDateDrawer, { UpdateTaskFixDateDrawerRefType } from "./UpdateTaskFixDate.drawer"
 import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/app/head-staff/_api/task/update-awaitSparePartToAssignFixer.api"
 import AlertCard from "@/components/AlertCard"
+import CancelTaskDrawer, { CancelTaskDrawerRefType } from "./CancelTask.drawer"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto) => void
@@ -63,6 +64,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
    const assignFixerDrawerRef = useRef<AssignFixerDrawerRefType | null>(null)
    const checkSignatureDrawerRef = useRef<CheckSignatureDrawerRefType | null>(null)
    const updateTaskFixDateDrawerRef = useRef<UpdateTaskFixDateDrawerRefType | null>(null)
+   const cancelTaskDrawerRef = useRef<CancelTaskDrawerRefType | null>(null)
 
    const api_task = useQuery({
       queryKey: headstaff_qk.task.byId(task?.id ?? ""),
@@ -282,6 +284,24 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                               key: "detail",
                               onClick: () => task && router.push(`/head-staff/mobile/tasks/${task.id}?goto=request`),
                            },
+                           ...(task &&
+                           new Set([
+                              TaskStatus.AWAITING_SPARE_SPART,
+                              TaskStatus.ASSIGNED,
+                              TaskStatus.AWAITING_FIXER,
+                           ]).has(task.status)
+                              ? [
+                                   {
+                                      label: "Hủy tác vụ",
+                                      danger: true,
+                                      key: "cancel",
+                                      onClick: () => {
+                                         if (!task) return
+                                         cancelTaskDrawerRef.current?.handleOpen({ task })
+                                      },
+                                   },
+                                ]
+                              : []),
                         ],
                      }}
                   >
@@ -292,7 +312,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
             classNames={{
                body: "px-0 pt-0 pb-0 std-layout text-neutral-800",
                header: "px-layout border-none",
-               footer: "p-layout"
+               footer: "p-layout",
             }}
          >
             {task && api_task.isSuccess ? (
@@ -415,6 +435,10 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
          />
          <CheckSignatureDrawer ref={checkSignatureDrawerRef} onSubmit={handleUpdateConfirmCheck} />
          <UpdateTaskFixDateDrawer ref={updateTaskFixDateDrawerRef} refetchFn={props.refetchFn} />
+         <CancelTaskDrawer ref={cancelTaskDrawerRef} refetchFn={() => {
+            props.refetchFn?.()
+            handleClose()
+         }} />
       </>
    )
 })

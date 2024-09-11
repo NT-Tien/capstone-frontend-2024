@@ -16,6 +16,8 @@ import { App, Button, Card, Drawer, Form, Input } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react"
+import HeadStaff_Task_Update from "@/app/head-staff/_api/task/update.api"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 
 export type SendWarrantyDrawerRefType = {
    handleOpen: (
@@ -81,6 +83,10 @@ const SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function
       mutationFn: HeadStaff_Task_Create,
    })
 
+   const mutate_updateTaskStatus = useMutation({
+      mutationFn: HeadStaff_Task_Update,
+   })
+
    async function handleSubmit(values: FieldType) {
       try {
          message.destroy("loading")
@@ -111,13 +117,20 @@ const SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function
             },
          })
 
-         await mutate_createTask.mutateAsync({
+         const task = await mutate_createTask.mutateAsync({
             name: `${dayjs(data.createdAt).add(7, "hours").format("DDMMYY")}_${data.areaName}_${data.machineModelName}_Bảo hành`,
             operator: 0,
             priority: false,
             issueIDs: [issueSend.id],
             request: requestId,
             totalTime: 60,
+         })
+
+         const updateTask = await mutate_updateTaskStatus.mutateAsync({
+            id: task.id,
+            payload: {
+               status: TaskStatus.AWAITING_FIXER,
+            },
          })
 
          message.destroy("loading")

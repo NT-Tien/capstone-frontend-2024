@@ -1,11 +1,12 @@
 import { forwardRef, ReactNode, useImperativeHandle, useRef, useState } from "react"
 import useModalControls from "../hooks/useModalControls"
 import { CanvasPath, ReactSketchCanvas, ReactSketchCanvasRef } from "react-sketch-canvas"
-import { Button, Card, Checkbox, Drawer, Radio, Segmented, Slider } from "antd"
+import { App, Button, Card, Checkbox, Drawer, Radio, Segmented, Slider } from "antd"
 import { Eraser, Pen } from "@phosphor-icons/react"
 import { UndoOutlined, RedoOutlined, DeleteOutlined } from "@ant-design/icons"
 import { useMutation } from "@tanstack/react-query"
 import { File_Image_Upload } from "@/_api/file/upload_image.api"
+import AlertCard from "@/components/AlertCard"
 
 export type CreateSignatureDrawerRefType = {
    handleOpen: () => void
@@ -23,6 +24,7 @@ const CreateSignatureDrawer = forwardRef<CreateSignatureDrawerRefType, Props>(fu
          canvasRef.current?.clearCanvas()
       },
    })
+   const { message } = App.useApp()
    const canvasRef = useRef<ReactSketchCanvasRef | null>(null)
 
    const [strokes, setStrokes] = useState<CanvasPath[]>([])
@@ -43,28 +45,33 @@ const CreateSignatureDrawer = forwardRef<CreateSignatureDrawerRefType, Props>(fu
    async function handleExport() {
       const canvas = canvasRef.current
       if (canvas) {
-         const image = await canvas.exportImage("png")
-         const base64Data = image.replace(/^data:image\/png;base64,/, "")
+         try {
+            const image = await canvas.exportImage("png")
+            const base64Data = image.replace(/^data:image\/png;base64,/, "")
 
-         // Decode the base64 string
-         const byteCharacters = atob(base64Data)
-         const byteNumbers = new Array(byteCharacters.length)
-         for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i)
+            // Decode the base64 string
+            const byteCharacters = atob(base64Data)
+            const byteNumbers = new Array(byteCharacters.length)
+            for (let i = 0; i < byteCharacters.length; i++) {
+               byteNumbers[i] = byteCharacters.charCodeAt(i)
+            }
+            const byteArray = new Uint8Array(byteNumbers)
+            // Create a Blob
+            const blob = new Blob([byteArray], { type: "image/png" })
+
+            // Create a File
+            const file = new File([blob], "signature", { type: "image/png" })
+
+            const result = await mutate_uploadFile.mutateAsync({
+               file: file,
+            })
+
+            const path = result.data?.path
+            props.onSubmit(path)
+         } catch (error) {
+            console.error(error)
+            message.error("Có lỗi xảy ra khi gửi chữ ký, vui lòng thử lại")
          }
-         const byteArray = new Uint8Array(byteNumbers)
-         // Create a Blob
-         const blob = new Blob([byteArray], { type: "image/png" })
-
-         // Create a File
-         const file = new File([blob], "signature", { type: "image/png" })
-
-         const result = await mutate_uploadFile.mutateAsync({
-            file: file,
-         })
-
-         const path = result.data?.path
-         props.onSubmit(path)
       }
    }
 
@@ -77,7 +84,7 @@ const CreateSignatureDrawer = forwardRef<CreateSignatureDrawerRefType, Props>(fu
       <>
          {props.children?.(handleOpen)}
          <Drawer open={open} onClose={handleClose} placement="bottom" height="100%" title="Ký tên">
-            <Card size="small">Vui lòng ký tên vào ô bên dưới</Card>
+            <AlertCard text="Vui lòng ký tên vào phía dưới" type="info" />
             <section className="mb-3 mt-layout flex items-center">
                <div className="flex-grow">
                   <Segmented
@@ -157,10 +164,7 @@ const CreateSignatureDrawer = forwardRef<CreateSignatureDrawerRefType, Props>(fu
                eraserWidth={eraserWidth}
             />
             <section className="pt-3">
-            <Checkbox
-                  checked={isChecked}
-                  onChange={(e) => setIsChecked(e.target.checked)}
-               >
+               <Checkbox checked={isChecked} onChange={(e) => setIsChecked(e.target.checked)}>
                   Tôi cam kết đã hoàn thành tác vụ
                </Checkbox>
             </section>

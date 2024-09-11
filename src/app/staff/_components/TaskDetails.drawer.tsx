@@ -1,14 +1,16 @@
+import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
 import useModalControls from "@/common/hooks/useModalControls"
-import { Button, Divider, Drawer, Empty, Result, Spin, Tag } from "antd"
-import { forwardRef, ReactNode, useImperativeHandle, useMemo, useState } from "react"
-import { LeftOutlined, CloseOutlined } from "@ant-design/icons"
+import AlertCard from "@/components/AlertCard"
+import { CloseOutlined } from "@ant-design/icons"
+import { Gear, Package, Wrench } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
+import { Button, Divider, Drawer, Empty, Result, Spin, Tag } from "antd"
+import dayjs from "dayjs"
+import { useRouter } from "next/navigation"
+import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
 import staff_qk from "../_api/qk"
 import Staff_Task_OneById from "../_api/task/one-byId.api"
-import dayjs from "dayjs"
-import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import { Gear, Package, Wrench } from "@phosphor-icons/react"
-import AlertCard from "@/components/AlertCard"
+import QrCodeDisplayModal, { QrCodeDisplayModalRefType } from "./QrCodeDisplay.modal"
 
 type HandleOpenProps = {
    taskId: string
@@ -31,8 +33,11 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
          setTaskId(null)
       },
    })
+   const router = useRouter()
 
    const [taskId, setTaskId] = useState<string | null>(null)
+
+   const qrCodeDisplayRef = useRef<QrCodeDisplayModalRefType | null>(null)
 
    const api_task = useQuery({
       queryKey: staff_qk.task.one_byId(taskId ?? ""),
@@ -49,7 +54,15 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
 
       if (spareParts && spareParts.length > 0 && !api_task.data.confirmReceipt) {
          return (
-            <Button type="primary" className="w-full" size="large" icon={<Package size={20} />}>
+            <Button
+               type="primary"
+               className="w-full"
+               size="large"
+               icon={<Package size={20} />}
+               onClick={() => {
+                  qrCodeDisplayRef.current?.handleOpen(api_task.data.id, spareParts, false)
+               }}
+            >
                Lấy linh kiện
             </Button>
          )
@@ -57,15 +70,27 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
 
       if (api_task.data.status === TaskStatus.ASSIGNED) {
          return (
-            <Button type="primary" className="w-full" size="large" icon={<Wrench size={20} />}>
-               Hoàn thành tác vụ
+            <Button
+               type="primary"
+               className="w-full"
+               size="large"
+               icon={<Wrench size={20} />}
+               onClick={() => router.push(`/staff/tasks/${api_task.data.id}/start`)}
+            >
+               Bắt đầu tác vụ
             </Button>
          )
       }
 
       if (api_task.data.status === TaskStatus.IN_PROGRESS) {
          return (
-            <Button type="primary" className="w-full" size="large" icon={<Wrench size={20} />}>
+            <Button
+               type="primary"
+               className="w-full"
+               size="large"
+               icon={<Wrench size={20} />}
+               onClick={() => router.push(`/staff/tasks/${api_task.data.id}/start`)}
+            >
                Tiếp tục tác vụ
             </Button>
          )
@@ -105,7 +130,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                   <Button size="large" type="text" icon={<CloseOutlined />} onClick={handleClose}></Button>
                </div>
             }
-            classNames={{ header: "border-none pb-0", body: "pt-0" }}
+            classNames={{ header: "border-none pb-0", body: "pt-0", footer: "p-layout" }}
             closeIcon={null}
             placement="right"
             width="100%"
@@ -123,7 +148,12 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
             )}
             {api_task.isSuccess && (
                <>
-                  <AlertCard text="Tác vụ này có linh kiện. Vui lòng lấy các linh kiện ở kho." className="mt-layout" />
+                  {spareParts && !api_task.data.confirmReceipt && spareParts.length > 0 && (
+                     <AlertCard
+                        text="Tác vụ này có linh kiện. Vui lòng lấy các linh kiện ở kho."
+                        className="mt-layout"
+                     />
+                  )}
                   <Divider className="mb-layout mt-0" />
                   <section className="grid grid-cols-2 gap-4">
                      <div>
@@ -185,10 +215,15 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                         )}
                      </div>
                   </section>
-                  <div className="fixed bottom-0 left-0 w-full border-t-2 border-t-neutral-100 bg-white p-layout"></div>
                </>
             )}
          </Drawer>
+         <QrCodeDisplayModal
+            title="Lấy linh kiện"
+            description="Hãy xuống kho và đưa mã QR sau cho chủ kho."
+            refetch={api_task.refetch}
+            ref={qrCodeDisplayRef}
+         />
       </>
    )
 })

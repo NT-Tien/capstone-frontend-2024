@@ -57,46 +57,19 @@ export default function RequestListPage() {
 
 
 
-   const responseData = useMemo(() => {
+    const responseData = useMemo(() => {
       return (
-         response.data?.list.filter((data) => {
-            let result = false
-            const queryEntries = Object.entries(query)
-            if (queryEntries.length === 0) return true
-            for (const [key, value] of queryEntries) {
-               switch (key) {
-                  case "id":
-                     result = result || data.id.includes(value as string)
-                     break
-                  // case "name":
-                  //    result = result || data.device..includes(value as string)
-                  //    break
-                  // case "quantity":
-                  //    result = result || Number(data.) === Number(value)
-                  //    break
-                  // case "machineModel":
-                  //    result = result || data.machineModel.name.includes(value as string)
-                  //    break
-                  // case "expirationDate":
-                  //    result = result || dayjs(data.expirationDate).add(7, "hours").isSame(value as string, "day")
-                  //    break
-                  case "createdAt":
-                     result = result || dayjs(data.createdAt).add(7, "hours").isSame(value as string, "day")
-                     break
-                  case "updatedAt":
-                     result = result || dayjs(data.updatedAt).add(7, "hours").isSame(value as string, "day")
-                     break
-                  case "deletedAt":
-                     result =
-                        result || value === null
-                           ? data.deletedAt === null
-                           : dayjs(data.deletedAt).add(7, "hours").isSame(dayjs(value as string), "day")
-               }
-            }
-            return result
-         }) ?? []
-      )
-   }, [response.data, query])
+        response.data?.list.filter((data: Partial<TaskDto>) => {
+          if (query.area) {
+            const areaName = data.device?.area?.name?.toLowerCase() ?? "";
+            const searchQuery = query.area.toLowerCase();
+            return areaName.includes(searchQuery);
+          }
+          return true;
+        }) ?? []
+      );
+    }, [response.data, query.area]);
+    
 
    if (response.isError) {
       return response.error.message
@@ -129,7 +102,10 @@ export default function RequestListPage() {
                },
             }}
             onSubmit={(props) => {
-               setQuery(props)
+               setQuery((prev) => ({
+                  ...prev,
+                  ...props,
+               }));
             }}
             onReset={() => {
                setQuery({})
@@ -151,12 +127,22 @@ export default function RequestListPage() {
                   dataIndex: "id",
                   hideInTable: true,
                   valueType: "text",
+                  hideInSearch: true,
                },
                {
                   title: "Tên tác vụ",
                   key: "taskName",
                   render: (_, record) => record.name,
                   width: 300,
+                  ellipsis: {
+                     showTitle: true,
+                  },
+                  valueType: "text",
+               },
+               {
+                  title: "Khu vực",
+                  key: "area",
+                  render: (_, record) => record.device.area.name,
                   ellipsis: {
                      showTitle: true,
                   },

@@ -68,18 +68,15 @@ export default function RequestListPage() {
                   case "id":
                      result = result || data.id.includes(value as string)
                      break
-                  // case "name":
-                  //    result = result || data.device..includes(value as string)
-                  //    break
-                  // case "quantity":
-                  //    result = result || Number(data.) === Number(value)
-                  //    break
-                  // case "machineModel":
-                  //    result = result || data.machineModel.name.includes(value as string)
-                  //    break
-                  // case "expirationDate":
-                  //    result = result || dayjs(data.expirationDate).add(7, "hours").isSame(value as string, "day")
-                  //    break
+                  case "taskName":
+                     result = result || data.name.includes(value as string)
+                     break
+                  case "status":
+                     result = result || data.status.includes(value as string)
+                     break
+                  case "area":
+                     result = result || data.device.area.name.includes(value as string)
+                     break
                   case "createdAt":
                      result = result || dayjs(data.createdAt).add(7, "hours").isSame(value as string, "day")
                      break
@@ -157,6 +154,15 @@ export default function RequestListPage() {
                   key: "taskName",
                   render: (_, record) => record.name,
                   width: 300,
+                  ellipsis: {
+                     showTitle: true,
+                  },
+                  valueType: "text",
+               },
+               {
+                  title: "Khu vực",
+                  key: "area",
+                  render: (_, record) => record.device.area.name,
                   ellipsis: {
                      showTitle: true,
                   },

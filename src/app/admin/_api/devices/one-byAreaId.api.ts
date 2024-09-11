@@ -34,7 +34,7 @@ import { parseApiResponse } from "@/common/util/parseApiResponse.util";
 import api from "@/config/axios.config";
 import Cookies from "js-cookie";
 
-export type Request = { id: string };
+export type Request = { id: string, time: number };
 export type Response =  {
         total_requests: number,
         total_tasks: number,
@@ -62,7 +62,7 @@ export type Response =  {
       }
 };
 
-Admin_Devices_OneByAreaId.URL = (req: Request) => `/admin/device/get-all-by-area-id/${req.id}`;
+Admin_Devices_OneByAreaId.URL = (req: Request) => `/admin/device/get-all-by-area-id/${req.id}?time=${req.time}`;
 
 export default async function Admin_Devices_OneByAreaId(req: Request): Promise<Response> {
   return api

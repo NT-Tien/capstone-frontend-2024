@@ -1,10 +1,11 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { Card, Table, Typography } from "antd"
+import { Card, Select, Table, Typography } from "antd"
 import Admin_Devices_OneByAreaId from "../_api/devices/one-byAreaId.api"
 import { CheckSquareOffset, Note } from "@phosphor-icons/react"
 import CountUp from "react-countup"
+import { useState } from "react"
 
 const areaIds = [
    "13734c3c-5f3b-472e-805f-557c1f08eeb2",
@@ -38,10 +39,11 @@ const columns = [
 ]
 
 export default function AdminHomePage() {
+   const [selectedTime, setSelectedTime] = useState<number>(1);
    const { data, isLoading } = useQuery({
       queryKey: ["areaData"],
       queryFn: async () => {
-         const promises = areaIds.map((id) => Admin_Devices_OneByAreaId({ id }))
+         const promises = areaIds.map((id) => Admin_Devices_OneByAreaId({ id, time: selectedTime }))
          return Promise.all(promises)
       },
    })
@@ -58,6 +60,17 @@ export default function AdminHomePage() {
    const totalRequests = tableData?.reduce((acc, area) => acc + (area.totalRequests || 0), 0)
    return (
       <div className="mt-5">
+         <div className="flex justify-end mb-4">
+        <Select
+          defaultValue={1}
+          style={{ width: 120 }}
+          onChange={(value) => setSelectedTime(value)}
+        >
+          <Select.Option value={1}>1 Tuần</Select.Option>
+          <Select.Option value={2}>1 Tháng</Select.Option>
+          <Select.Option value={3}>1 Năm</Select.Option>
+        </Select>
+      </div>
          <div className="grid grid-cols-2 gap-12">
             <Card
                loading={isLoading}

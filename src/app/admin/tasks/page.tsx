@@ -521,11 +521,11 @@ type types = {
 }
 
 const values = {
-   nameSingle: "request",
-   nameSingleCapitalized: "Request",
-   namePlural: "requests",
-   namePluralCapitalized: "Requests",
-   namePluralCapitalizedOptional: "Request(s)",
+   nameSingle: "task",
+   nameSingleCapitalized: "Task",
+   namePlural: "tasks",
+   namePluralCapitalized: "Tasks",
+   namePluralCapitalizedOptional: "Task(s)",
    mainQueryFn: Admin_Tasks_All,
    mainQueryKey: admin_qk.tasks.all,
    deleteMutationFn: Admin_SpareParts_DeleteSoft,

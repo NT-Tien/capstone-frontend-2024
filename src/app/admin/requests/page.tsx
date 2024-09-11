@@ -25,11 +25,11 @@ type types = {
 }
 
 const values = {
-   nameSingle: "request",
-   nameSingleCapitalized: "Request",
-   namePlural: "requests",
-   namePluralCapitalized: "Requests",
-   namePluralCapitalizedOptional: "Request(s)",
+   nameSingle: "yêu cầu",
+   nameSingleCapitalized: "Yêu cầu",
+   // namePlural: "requests",
+   // namePluralCapitalized: "Requests",
+   // namePluralCapitalizedOptional: "Request(s)",
    mainQueryFn: Admin_Requests_All,
    mainQueryKey: admin_qk.requests.all,
    deleteMutationFn: Admin_SpareParts_DeleteSoft,
@@ -60,7 +60,7 @@ export default function RequestListPage() {
     };
   
     const response = useQuery({
-      queryKey: ['tasks', { page: 1, limit: 10, time: 1 }],
+      queryKey: ['requests', { page: 1, limit: 10, time: 1 }],
       queryFn: fetchAllRequests,
     });
 
@@ -161,18 +161,18 @@ export default function RequestListPage() {
 
    return (
       <PageContainer
-         title={`${values.namePluralCapitalized} List`}
-         subTitle={`Total ${responseData?.length ?? "..."} ${values.namePluralCapitalizedOptional}(s) found.`}
+         title={`Danh sách ${values.nameSingle}`}
+         subTitle={`Tổng cộng ${responseData?.length ?? "..."} ${values.nameSingle} đã được tìm thấy.`}
          loading={response.isLoading}
-         extra={
-            <values.CreateDrawer>
-               {(handleOpen) => (
-                  <Button key="create-position-btn" type="primary" onClick={handleOpen}>
-                     Create
-                  </Button>
-               )}
-            </values.CreateDrawer>
-         }
+         // extra={
+         //    <values.CreateDrawer>
+         //       {(handleOpen) => (
+         //          <Button key="create-position-btn" type="primary" onClick={handleOpen}>
+         //             Create
+         //          </Button>
+         //       )}
+         //    </values.CreateDrawer>
+         // }
       >
          <ProTable
             actionRef={actionRef}
@@ -231,7 +231,7 @@ export default function RequestListPage() {
                   title: "Tên thiết bị",
                   key: "machineModel",
                   render: (_, record) => record.device.machineModel.name,
-                  width: 200,
+                  width: 300,
                   ellipsis: {
                      showTitle: true,
                   },
@@ -240,7 +240,7 @@ export default function RequestListPage() {
                {
                   title: "Trạng thái",
                   dataIndex: "status",
-                  width: 100,
+                  width: 200,
                   valueType: "text",
                },
                // {
@@ -263,10 +263,24 @@ export default function RequestListPage() {
                   defaultSortOrder: "descend",
                },
                {
-                  title: "Ngày xóa",
-                  dataIndex: "deletedAt",
-                  valueType: "date",
-                  sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).add(7, "hours").unix() - dayjs(b.deletedAt ?? dayjs()).add(7, "hours").unix(),
+                  title: "Người báo cáo",
+                  key: "machineModel",
+                  render: (_, record) => record.requester?.username,
+                  width: 200,
+                  ellipsis: {
+                     showTitle: true,
+                  },
+                  valueType: "text",
+               },
+               {
+                  title: "Ghi chú",
+                  key: "machineModel",
+                  render: (_, record) => record.requester_note,
+                  width: 300,
+                  ellipsis: {
+                     showTitle: true,
+                  },
+                  valueType: "text",
                },
                // {
                //    title: "Options",

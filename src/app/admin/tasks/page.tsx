@@ -521,11 +521,11 @@ type types = {
 }
 
 const values = {
-   nameSingle: "task",
-   nameSingleCapitalized: "Task",
-   namePlural: "tasks",
-   namePluralCapitalized: "Tasks",
-   namePluralCapitalizedOptional: "Task(s)",
+   nameSingle: "tác vụ",
+   nameSingleCapitalized: "Tác vụ",
+   // namePlural: "tasks",
+   // namePluralCapitalized: "Tasks",
+   // namePluralCapitalizedOptional: "Task(s)",
    mainQueryFn: Admin_Tasks_All,
    mainQueryKey: admin_qk.tasks.all,
    deleteMutationFn: Admin_SpareParts_DeleteSoft,
@@ -657,18 +657,18 @@ export default function RequestListPage() {
 
    return (
       <PageContainer
-         title={`${values.namePluralCapitalized} List`}
-         subTitle={`Total ${responseData?.length ?? "..."} ${values.namePluralCapitalizedOptional}(s) found.`}
+         title={`Danh sách ${values.nameSingle}`}
+         subTitle={`Tổng cộng ${responseData?.length ?? "..."} ${values.nameSingle} đã được tìm thấy.`}
          loading={response.isLoading}
-         extra={
-            <values.CreateDrawer>
-               {(handleOpen) => (
-                  <Button key="create-position-btn" type="primary" onClick={handleOpen}>
-                     Create
-                  </Button>
-               )}
-            </values.CreateDrawer>
-         }
+         // extra={
+         //    <values.CreateDrawer>
+         //       {(handleOpen) => (
+         //          <Button key="create-position-btn" type="primary" onClick={handleOpen}>
+         //             Create
+         //          </Button>
+         //       )}
+         //    </values.CreateDrawer>
+         // }
       >
          <ProTable
             actionRef={actionRef}
@@ -724,10 +724,10 @@ export default function RequestListPage() {
                //    valueType: "text",
                // },
                {
-                  title: "Tên thiết bị",
-                  key: "machineModel",
-                  render: (_, record) => record.device.machineModel.name,
-                  width: 200,
+                  title: "Tên tác vụ",
+                  key: "taskName",
+                  render: (_, record) => record.name,
+                  width: 300,
                   ellipsis: {
                      showTitle: true,
                   },
@@ -736,15 +736,9 @@ export default function RequestListPage() {
                {
                   title: "Trạng thái",
                   dataIndex: "status",
-                  width: 100,
+                  width: 200,
                   valueType: "text",
                },
-               // {
-               //    title: "Expiration Date",
-               //    dataIndex: "expirationDate",
-               //    valueType: "date",
-               //    sorter: (a, b) => dayjs(a.).add(7, "hours").unix() - dayjs(b.expirationDate).add(7, "hours").unix(),
-               // },
                {
                   title: "Ngày tạo",
                   dataIndex: "createdAt",
@@ -759,11 +753,30 @@ export default function RequestListPage() {
                   defaultSortOrder: "descend",
                },
                {
-                  title: "Ngày xóa",
-                  dataIndex: "deletedAt",
-                  valueType: "date",
-                  sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).add(7, "hours").unix() - dayjs(b.deletedAt ?? dayjs()).add(7, "hours").unix(),
+                  title: "Tổng thời gian",
+                  key: "taskName",
+                  render: (_, record) => record.totalTime,
+                  ellipsis: {
+                     showTitle: true,
+                  },
+                  valueType: "number",
                },
+               {
+                  title: "Nhân viên",
+                  key: "taskName",
+                  render: (_, record) => record.fixer?.username,
+                  ellipsis: {
+                     showTitle: true,
+                  },
+                  width: 100,
+                  valueType: "text",
+               },
+               // {
+               //    title: "Ngày xóa",
+               //    dataIndex: "deletedAt",
+               //    valueType: "date",
+               //    sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).add(7, "hours").unix() - dayjs(b.deletedAt ?? dayjs()).add(7, "hours").unix(),
+               // },
                // {
                //    title: "Options",
                //    valueType: "option",

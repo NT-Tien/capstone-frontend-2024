@@ -13,6 +13,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Fragment, useMemo, useRef } from "react"
 import SparePartDetailsDrawer, { SparePartDetailsDrawerRefType } from "./SparePartDetails.drawer"
+import { FixRequestIssueSparePartDto } from "@/common/dto/FixRequestIssueSparePart.dto"
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -22,13 +23,37 @@ function Page({ params }: { params: { id: string } }) {
    const api_task = useQuery({
       queryKey: stockkeeper_qk.tasks.one_byId(params.id),
       queryFn: () => Stockkeeper_Task_GetById({ id: params.id }),
+      select: (data) => {
+         console.log("INITIA:L")
+         console.log(data)
+         return data
+      }
    })
 
    const spareParts = useMemo(() => {
-      const issues = api_task.data?.issues.flatMap((issue) => issue.issueSpareParts)
-      const spareParts = issues?.sort((a, b) => {
+      let returnValue: {
+         [id: string]: FixRequestIssueSparePartDto
+      } = {}
+
+      const issues = api_task.data?.issues
+
+      issues?.forEach((issue) => {
+         issue.issueSpareParts.forEach((isp, index) => {
+            console.log(isp)
+            if (!returnValue[isp.sparePart.id]) {
+               returnValue[isp.sparePart.id] = isp
+            } else {
+               returnValue[isp.sparePart.id].quantity += isp.quantity
+            }
+         })
+      })
+
+      const values = Object.values(returnValue)
+      console.log(values)
+
+      const spareParts = values.sort((a, b) => {
          if (a.sparePart.quantity < a.quantity) return -1
-         if (b.sparePart.quantity < b.quantity) return 1
+         if (b.sparePart.quantity > b.quantity) return 1
          return 0
       })
 

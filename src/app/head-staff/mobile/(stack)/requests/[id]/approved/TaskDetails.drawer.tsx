@@ -32,6 +32,7 @@ import CheckSignatureDrawer, { CheckSignatureDrawerRefType } from "./CheckSignat
 import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
 import UpdateTaskFixDateDrawer, { UpdateTaskFixDateDrawerRefType } from "./UpdateTaskFixDate.drawer"
 import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/app/head-staff/_api/task/update-awaitSparePartToAssignFixer.api"
+import AlertCard from "@/components/AlertCard"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto) => void
@@ -143,7 +144,94 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
       )
    }, [api_task.data?.issues])
 
-   // console.log("look", isMissingSpareParts, !!isMissingSpareParts)
+   function Footer() {
+      if (!task) return null
+      if (task.status === TaskStatus.AWAITING_SPARE_SPART) {
+         return (
+            <>
+               {!!isMissingSpareParts && (
+                  <AlertCard
+                     text="Một số linh kiện trong tác vụ này không còn đủ hàng trong kho. Vui lòng liên hệ chủ kho để tiếp tục."
+                     className="mb-layout-half"
+                  />
+               )}
+               <Button
+                  type="primary"
+                  className="w-full"
+                  size="large"
+                  disabled={!!isMissingSpareParts}
+                  onClick={() => {
+                     mutate_checkSparePartStock.mutate(
+                        {
+                           id: task.id,
+                        },
+                        {
+                           onSuccess: async () => {
+                              handleClose()
+                              await props.refetchFn?.()
+                           },
+                        },
+                     )
+                  }}
+               >
+                  Cập nhật linh kiện
+               </Button>
+            </>
+         )
+      }
+
+      if (task.status === TaskStatus.AWAITING_FIXER) {
+         return (
+            <Button
+               type="primary"
+               className="w-full"
+               size="large"
+               onClick={() => {
+                  assignFixerDrawerRef.current?.handleOpen(task.id, {
+                     priority: task.priority,
+                     fixerDate: dayjs(task.fixerDate).add(7, "hours"),
+                     fixer: task.fixer,
+                  })
+               }}
+            >
+               Phân công tác vụ
+            </Button>
+         )
+      }
+
+      const check = new Set([TaskStatus.ASSIGNED, TaskStatus.IN_PROGRESS, TaskStatus.CANCELLED, TaskStatus.COMPLETED])
+      if (check.has(task.status)) {
+         return (
+            <Button
+               type="default"
+               className="w-full"
+               size="large"
+               onClick={() => {
+                  router.push(`/head-staff/mobile/tasks/${task.id}?goto=request`)
+               }}
+            >
+               Xem chi tiết
+            </Button>
+         )
+      }
+
+      if (task.status === TaskStatus.HEAD_STAFF_CONFIRM) {
+         return (
+            <Button
+               type="primary"
+               className="w-full"
+               size="large"
+               onClick={() =>
+                  api_task.isSuccess && checkSignatureDrawerRef.current?.handleOpen(api_task.data, isSendWarrantyTask)
+               }
+            >
+               Xác nhận hoàn thành
+            </Button>
+         )
+      }
+
+      return null
+   }
 
    useImperativeHandle(ref, () => ({
       handleOpen,
@@ -157,6 +245,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
             onClose={handleClose}
             placement="bottom"
             height="85%"
+            footer={<Footer />}
             extra={
                <div className="flex items-center gap-1">
                   {task && new Set(TaskStatus.ASSIGNED).has(task.status) && (
@@ -203,6 +292,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
             classNames={{
                body: "px-0 pt-0 pb-0 std-layout text-neutral-800",
                header: "px-layout border-none",
+               footer: "p-layout"
             }}
          >
             {task && api_task.isSuccess ? (
@@ -275,7 +365,9 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                                        </div>
                                        <div className="flex-grow">
                                           {issue.typeError.name}
-                                          <div className="mt-1 text-neutral-400">{issue.description}</div>
+                                          <div className="mt-1 w-[50vw] truncate text-neutral-400">
+                                             {issue.description}
+                                          </div>
                                        </div>
                                        <div className="flex gap-1">
                                           {task.status === TaskStatus.HEAD_STAFF_CONFIRM &&
@@ -296,93 +388,6 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                         </div>
                      </div>
                   </div>
-
-                  {task.status === TaskStatus.AWAITING_SPARE_SPART && (
-                     <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-lg">
-                        {!!isMissingSpareParts && (
-                           <Card size="small" className="mb-4 bg-blue-100 border-2 border-blue-200">
-                              <div className="flex items-center gap-1 mb-2">
-                                 <Info size={18} weight="fill" />
-                                 <h5>Lưu ý</h5>
-                              </div>
-                              <div>Tác vụ này hiện tại đang thiếu linh kiện trong kho. Vui lòng kiểm tra lại.</div>
-                           </Card>
-                        )}
-                        <Button
-                           type="primary"
-                           className="w-full"
-                           size="large"
-                           disabled={!!isMissingSpareParts}
-                           onClick={() => {
-                              mutate_checkSparePartStock.mutate({
-                                 id: task.id
-                              }, {
-                                 onSuccess: async () => {
-                                    handleClose()
-                                    await props.refetchFn?.()
-                                 }
-                              })
-                           }}
-                        >
-                           ???
-                        </Button>
-                     </section>
-                  )}
-
-                  {task.status === TaskStatus.AWAITING_FIXER && (
-                     <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-lg">
-                        <Button
-                           type="primary"
-                           className="w-full"
-                           size="large"
-                           onClick={() => {
-                              assignFixerDrawerRef.current?.handleOpen(task.id, {
-                                 priority: task.priority,
-                                 fixerDate: dayjs(task.fixerDate).add(7, "hours"),
-                                 fixer: task.fixer,
-                              })
-                           }}
-                        >
-                           Phân công tác vụ
-                        </Button>
-                     </section>
-                  )}
-
-                  {new Set([
-                     TaskStatus.ASSIGNED,
-                     TaskStatus.IN_PROGRESS,
-                     TaskStatus.CANCELLED,
-                     TaskStatus.COMPLETED,
-                  ]).has(task.status) && (
-                     <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-lg">
-                        <Button
-                           type="default"
-                           className="w-full"
-                           size="large"
-                           onClick={() => {
-                              router.push(`/head-staff/mobile/tasks/${task.id}?goto=request`)
-                           }}
-                        >
-                           Xem chi tiết
-                        </Button>
-                     </section>
-                  )}
-
-                  {task.status === TaskStatus.HEAD_STAFF_CONFIRM && (
-                     <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-lg">
-                        <Button
-                           type="primary"
-                           className="w-full"
-                           size="large"
-                           onClick={() =>
-                              api_task.isSuccess &&
-                              checkSignatureDrawerRef.current?.handleOpen(api_task.data, isSendWarrantyTask)
-                           }
-                        >
-                           Xác nhận hoàn thành
-                        </Button>
-                     </section>
-                  )}
                </>
             ) : (
                <Card>

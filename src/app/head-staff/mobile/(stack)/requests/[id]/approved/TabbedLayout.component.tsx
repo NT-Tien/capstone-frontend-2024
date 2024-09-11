@@ -1,5 +1,5 @@
 import IssueDetailsDrawer from "@/app/head-staff/_components/IssueDetailsDrawer"
-import DataListView from "@/common/components/DataListView"
+import DataListView from "@/components/DataListView"
 import { DeviceDto } from "@/common/dto/Device.dto"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
@@ -137,12 +137,12 @@ function TabbedLayout(props: Props) {
                                     <List.Item.Meta
                                        title={item.typeError.name}
                                        description={
-                                          <span>
+                                          <div>
                                              <Tag color={FixTypeTagMapper[item.fixType].color}>
                                                 {FixTypeTagMapper[item.fixType].text}
                                              </Tag>
-                                             <span className="truncate">{item.description}</span>
-                                          </span>
+                                             <div className="truncate w-60">{item.description}</div>
+                                          </div>
                                        }
                                     ></List.Item.Meta>
                                  </List.Item>

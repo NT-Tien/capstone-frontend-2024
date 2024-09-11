@@ -17,16 +17,26 @@ export function parseApiResponse<T extends ApiResponse<T>>(
       throw new Error(res.message)
    },
 ) {
-   const parsedResponse = JSON.parse(response) as any
+   console.log("before parse")
+   console.log(response)
+
+   const parseCustom = JSON.parse(response)
+   console.log("custom parse")
+   console.log(parseCustom)
+   const parsedResponse = JSON.parse(response) // TODO some shit breaks here idfk wtf
+   console.log("PARSED")
+   console.log(parsedResponse)
    if (parsedResponse.data !== undefined) {
+      console.log("ok parse")
+      console.log(parsedResponse)
       // Response was successful
       return onSuccess(parsedResponse as ApiSuccessResponse<T>)
    } else {
-      if ((parsedResponse as ApiErrorResponse).statusCode === 403) {
+      if ((parseCustom as ApiErrorResponse).statusCode === 403) {
          throw new UnauthorizedError()
       }
 
       // error response
-      return onError(parsedResponse as ApiErrorResponse)
+      return onError(parseCustom as ApiErrorResponse)
    }
 }

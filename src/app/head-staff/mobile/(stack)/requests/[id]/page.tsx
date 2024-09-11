@@ -5,7 +5,7 @@ import HeadStaff_Device_OneByIdWithHistory from "@/app/head-staff/_api/device/on
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
-import DataListView from "@/common/components/DataListView"
+import DataListView from "@/components/DataListView"
 import PageHeader from "@/common/components/PageHeader"
 import ScannerDrawer from "@/common/components/Scanner.drawer"
 import { FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"

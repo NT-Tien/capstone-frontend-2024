@@ -4,20 +4,16 @@ import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import HeadStaff_Task_Create from "@/app/head-staff/_api/task/create.api"
 import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/app/head-staff/_api/task/update-awaitSparePartToAssignFixer.api"
-import HeadStaff_Users_AllStaff from "@/app/head-staff/_api/users/all.api"
-import DataListView from "@/common/components/DataListView"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import { TaskDto } from "@/common/dto/Task.dto"
-import { UserDto } from "@/common/dto/User.dto"
 import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
-import { TaskStatus } from "@/common/enum/task-status.enum"
 import useModalControls from "@/common/hooks/useModalControls"
 import { cn } from "@/common/util/cn.util"
+import DataListView from "@/components/DataListView"
 import { InfoCircleFilled, ReloadOutlined, WarningOutlined } from "@ant-design/icons"
 import { CheckCard } from "@ant-design/pro-components"
 import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query"
-import { Card, Divider, Empty, Input } from "antd"
+import { Divider, Input } from "antd"
 import App from "antd/es/app"
 import Button from "antd/es/button"
 import Checkbox from "antd/es/checkbox"
@@ -152,15 +148,14 @@ const CreateTaskDrawer = forwardRef<CreateTaskDrawerRefType, Props>(function Com
             },
          )
 
-         const updated = await mutate_checkSparePartStock.mutateAsync({ id: task.id })
-            .catch((error) => {
-               console.log(error, typeof error)
-               if(error instanceof Error && error.message.includes("Not enough spare part")) {
-                  message.info("Không đủ linh kiện để tạo tác vụ. Tác vụ sẽ được chuyển qua trạng thái chờ linh kiện.")
-               } else {
-                  throw error
-               }
-            })
+         const updated = await mutate_checkSparePartStock.mutateAsync({ id: task.id }).catch((error) => {
+            console.log(error, typeof error)
+            if (error instanceof Error && error.message.includes("Not enough spare part")) {
+               message.info("Không đủ linh kiện để tạo tác vụ. Tác vụ sẽ được chuyển qua trạng thái chờ linh kiện.")
+            } else {
+               throw error
+            }
+         })
 
          message.destroy("loading")
          message.success("Tạo tác vụ thành công")
@@ -292,7 +287,7 @@ function FormStep_0() {
 
    return (
       <>
-         <main className="mt-layout px-layout">
+         <main className="mt-layout px-layout pb-40">
             <Form.Item<FieldType> name="issueIDs">
                <section className="mx-auto mb-layout w-max rounded-lg border-2 border-neutral-200 bg-white p-1 px-3 text-center">
                   Chọn các lỗi cho tác vụ
@@ -300,8 +295,8 @@ function FormStep_0() {
                </section>
                <section className="mb-2 grid grid-cols-2 gap-2">
                   <Button
-                     size="large"
-                     className="w-full bg-amber-500 text-white"
+                     size="middle"
+                     className="w-full bg-amber-500 text-sm text-white"
                      onClick={() => {
                         setSelectedIssues(() => ({
                            ...api_request.data?.issues.reduce((acc, issue) => {
@@ -316,8 +311,8 @@ function FormStep_0() {
                      Chọn SỬA CHỮA
                   </Button>
                   <Button
-                     size="large"
-                     className="w-full bg-blue-700 text-white"
+                     size="middle"
+                     className="w-full bg-blue-700 text-sm text-white"
                      onClick={() => {
                         setSelectedIssues(() => ({
                            ...api_request.data?.issues.reduce((acc, issue) => {
@@ -388,35 +383,26 @@ function FormStep_0() {
                </div>
             </Form.Item>
          </main>
-         <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-fb">
+         <section className="fixed bottom-0 left-0 w-full border-t-2 border-t-neutral-100 bg-white p-layout shadow-fb">
             <div className="mb-layout-half">
-               <DataListView
-                  itemClassName="py-2"
-                  labelClassName="font-normal text-neutral-400 text-[14px]"
-                  valueClassName="text-[14px] font-medium"
-                  dataSource={{
-                     totalIssues: selectedIssuesValues.length,
-                     totalFixTime: totalFixTime,
-                  }}
-                  items={[
-                     {
-                        label: "Tổng số lỗi",
-                        value: (e) => e.totalIssues,
-                     },
-                     {
-                        label: "Tổng thời gian sửa",
-                        value: (e) => e.totalFixTime + " phút",
-                     },
-                  ]}
-               />
+               <section className="flex flex-col gap-2">
+                  <div className="flex justify-between">
+                     <h5 className="font-medium text-gray-500">Tổng số lỗi</h5>
+                     <p className="mt-1">{selectedIssuesValues.length}</p>
+                  </div>
+                  <div className="flex justify-between">
+                     <h5 className="font-medium text-gray-500">Tổng thời gian sửa</h5>
+                     <p className="mt-1">{totalFixTime} phút</p>
+                  </div>
+               </section>
             </div>
             <div className="flex justify-between gap-3">
-               <Button type="default" size="large" onClick={handleClose} className="w-full">
+               <Button type="default" size="middle" onClick={handleClose} className="w-full">
                   Đóng
                </Button>
                <Button
                   type="primary"
-                  size="large"
+                  size="middle"
                   disabled={selectedIssuesValues.length === 0}
                   onClick={handleFinish}
                   className="w-full"
@@ -510,31 +496,22 @@ function FormStep_1() {
          </main>
          <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-fb">
             <div className="mb-layout-half">
-               <DataListView
-                  itemClassName="py-2"
-                  labelClassName="font-normal text-neutral-400 text-[14px]"
-                  valueClassName="text-[14px] font-medium"
-                  dataSource={{
-                     totalIssues: issueIDs.length,
-                     totalFixTime: totalTime,
-                  }}
-                  items={[
-                     {
-                        label: "Tổng số lỗi",
-                        value: (e) => e.totalIssues,
-                     },
-                     {
-                        label: "Tổng thời gian sửa",
-                        value: (e) => e.totalFixTime + " phút",
-                     },
-                  ]}
-               />
+               <section className="flex flex-col gap-2">
+                  <div className="flex justify-between">
+                     <h5 className="font-medium text-gray-500">Tổng số lỗi</h5>
+                     <p className="mt-1">{issueIDs.length}</p>
+                  </div>
+                  <div className="flex justify-between">
+                     <h5 className="font-medium text-gray-500">Tổng thời gian sửa</h5>
+                     <p className="mt-1">{totalTime} phút</p>
+                  </div>
+               </section>
             </div>
             <div className="flex justify-between gap-3">
-               <Button type="default" size="large" onClick={() => setFormStep(0)} className="w-full">
+               <Button type="default" size="middle" onClick={() => setFormStep(0)} className="w-full">
                   Quay lại
                </Button>
-               <Button type="primary" size="large" className="w-full" onClick={handleSubmit}>
+               <Button type="primary" size="middle" className="w-full" onClick={handleSubmit}>
                   Tạo tác vụ
                </Button>
             </div>

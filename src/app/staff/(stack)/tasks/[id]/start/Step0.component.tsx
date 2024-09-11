@@ -6,7 +6,7 @@ import Staff_Task_ReceiveSpareParts from "@/app/staff/_api/task/receive-spare-pa
 import staff_qk from "@/app/staff/_api/qk"
 import { cn } from "@/common/util/cn.util"
 import { CheckCard } from "@ant-design/pro-card"
-import { GeneralProps } from "@/app/staff/(stack)/tasks/[id]/start/page"
+import { GeneralProps } from "./page"
 
 type Step1Props = GeneralProps & {
    data: FixRequestIssueDto[]

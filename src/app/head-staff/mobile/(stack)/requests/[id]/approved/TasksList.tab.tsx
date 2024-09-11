@@ -45,11 +45,13 @@ export default function TasksList(props: Props) {
          headstaffConfirm: [],
          awaitFixer: [],
          remaining: [],
+         awaitSparePart: [],
       } as {
          completed: TaskDto[]
          headstaffConfirm: TaskDto[]
          awaitFixer: TaskDto[]
          remaining: TaskDto[]
+         awaitSparePart: TaskDto[]
       }
       taskSorted.forEach((task) => {
          if (task.status === TaskStatus.COMPLETED) {
@@ -58,6 +60,8 @@ export default function TasksList(props: Props) {
             result.headstaffConfirm.push(task)
          } else if (task.status === TaskStatus.AWAITING_FIXER) {
             result.awaitFixer.push(task)
+         } else if (task.status === TaskStatus.AWAITING_SPARE_SPART) {
+            result.awaitSparePart.push(task)
          } else {
             result.remaining.push(task)
          }
@@ -72,21 +76,24 @@ export default function TasksList(props: Props) {
       if (!issue) return
 
       // check if already has warranty task
-      if(issue.task !== null) return
+      if (issue.task !== null) return
 
-      mutate_createTask.mutateAsync({
-         issueIDs: [issue.id],
-         name: `${dayjs(props.api_request.data.createdAt).add(7, "hours").format("DDMMYY")}_${props.api_request.data.device.area.name}_${props.api_request.data.device.machineModel.name}_Lắp máy bảo hành`,
-         operator: 0,
-         priority: false,
-         request: props.api_request.data.id,
-         totalTime: issue.typeError.duration,
-         fixerDate: returnDate ?? props.api_request.data.return_date_warranty ?? undefined,
-      }, {
-         onSuccess: () => {
-            props.api_request.refetch()
-         }
-      })
+      mutate_createTask.mutateAsync(
+         {
+            issueIDs: [issue.id],
+            name: `${dayjs(props.api_request.data.createdAt).add(7, "hours").format("DDMMYY")}_${props.api_request.data.device.area.name}_${props.api_request.data.device.machineModel.name}_Lắp máy bảo hành`,
+            operator: 0,
+            priority: false,
+            request: props.api_request.data.id,
+            totalTime: issue.typeError.duration,
+            fixerDate: returnDate ?? props.api_request.data.return_date_warranty ?? undefined,
+         },
+         {
+            onSuccess: () => {
+               props.api_request.refetch()
+            },
+         },
+      )
    }
 
    return (
@@ -98,7 +105,7 @@ export default function TasksList(props: Props) {
          )}
          <Collapse
             ghost
-            defaultActiveKey={["headstaffconfirm", "awaitfixer", "remaining"]}
+            defaultActiveKey={["headstaffconfirm", "awaitfixer", "remaining", "awaitSparePart"]}
             className="custom-collapse-padding p-0"
             items={[
                ...(taskGrouped.headstaffConfirm.length > 0
@@ -111,6 +118,27 @@ export default function TasksList(props: Props) {
                           children: (
                              <div className="grid grid-cols-1 gap-2">
                                 {taskGrouped.headstaffConfirm.map((task) => (
+                                   <TaskCardBasic
+                                      key={task.id}
+                                      task={task}
+                                      onClick={() => taskDetailsRef.current?.handleOpen(task)}
+                                   />
+                                ))}
+                             </div>
+                          ),
+                       },
+                    ]
+                  : []),
+               ...(taskGrouped.awaitSparePart.length > 0
+                  ? [
+                       {
+                          key: "awaitSparePart",
+                          label:
+                             TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].text +
+                             ` (${taskGrouped.awaitSparePart.length})`,
+                          children: (
+                             <div className="grid grid-cols-1 gap-2">
+                                {taskGrouped.awaitSparePart.map((task) => (
                                    <TaskCardBasic
                                       key={task.id}
                                       task={task}
@@ -179,15 +207,6 @@ export default function TasksList(props: Props) {
                   : []),
             ]}
          />
-         {/* <div className="grid grid-cols-1 gap-2">
-            {taskGrouped.remaining.map((task) => (
-               <TaskCardBasic
-                  key={task.id}
-                  task={task}
-                  onClick={() => router.push(`/head-staff/mobile/tasks/${task.id}?goto=request`)}
-               />
-            ))}
-         </div> */}
          <TaskDetailsDrawer
             ref={taskDetailsRef}
             refetchFn={async () => {

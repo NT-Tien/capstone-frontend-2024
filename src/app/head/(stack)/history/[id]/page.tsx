@@ -1,7 +1,7 @@
 "use client"
 
 import Head_Request_All from "@/app/head/_api/request/all.api"
-import DataListView from "@/common/components/DataListView"
+import DataListView from "@/components/DataListView"
 import RootHeader from "@/common/components/RootHeader"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { NotFoundError } from "@/common/error/not-found.error"

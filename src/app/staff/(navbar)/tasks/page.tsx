@@ -101,7 +101,11 @@ export default function StaffTasksPage() {
                         description={tasks.ongoing.name}
                         bottom={<Progress percent={taskPercentCalculator(tasks.ongoing)} />}
                         priority={tasks.ongoing.priority ?? false}
-                        onClick={() => handleOpen(tasks.ongoing?.id ?? "", true)}
+                        onClick={() =>
+                           handleOpen({
+                              taskId: tasks.ongoing?.id ?? "",
+                           })
+                        }
                      />
                   </section>
                )}
@@ -168,7 +172,12 @@ export default function StaffTasksPage() {
                                           "rounded-tl-none border-r-4 border-red-300 bg-red-50",
                                           isDisabled && "opacity-50",
                                        )}
-                                       onClick={() => !isDisabled && handleOpen(item.id)}
+                                       onClick={() =>
+                                          !isDisabled &&
+                                          handleOpen({
+                                             taskId: item.id,
+                                          })
+                                       }
                                     >
                                        <div className="flex flex-col">
                                           <section>
@@ -226,7 +235,13 @@ export default function StaffTasksPage() {
                                     classNames={{
                                        body: "pb-2",
                                     }}
-                                    onClick={() => (!isDisabled ? handleOpen(item.id) : null)}
+                                    onClick={() =>
+                                       !isDisabled
+                                          ? handleOpen({
+                                               taskId: item.id,
+                                            })
+                                          : null
+                                    }
                                  >
                                     <div className="flex flex-col">
                                        <section>
@@ -288,7 +303,9 @@ export default function StaffTasksPage() {
                                           "rounded-tl-none border-r-4 border-red-300 bg-red-50",
                                           isDisabled && "opacity-50",
                                        )}
-                                       onClick={() => !isDisabled && handleOpen(item.id)}
+                                       onClick={() => !isDisabled && handleOpen({
+                                          taskId: item.id
+                                       })}
                                     >
                                        <div className="flex flex-col">
                                           <section>
@@ -350,7 +367,9 @@ export default function StaffTasksPage() {
                                        classNames={{
                                           body: "pb-2",
                                        }}
-                                       onClick={() => (!isDisabled ? handleOpen(item.id) : null)}
+                                       onClick={() => (!isDisabled ? handleOpen({
+                                          taskId: item.id
+                                       }) : null)}
                                     >
                                        <div className="flex flex-col">
                                           <section>
@@ -385,7 +404,7 @@ export default function StaffTasksPage() {
                   </div>
                )}
                {tab === "checking" && (
-                  <TaskDetailsDrawer hideButtons>
+                  <TaskDetailsDrawer>
                      {(handleOpenInner) => (
                         <div className="flex flex-col gap-6">
                            {tasks.checking.length === 0 ? (
@@ -413,7 +432,9 @@ export default function StaffTasksPage() {
                                        classNames={{
                                           body: "pb-2",
                                        }}
-                                       onClick={() => handleOpenInner(item.id)}
+                                       onClick={() => handleOpenInner({
+                                          taskId: item.id
+                                       })}
                                     >
                                        <div className="flex flex-col">
                                           <section>

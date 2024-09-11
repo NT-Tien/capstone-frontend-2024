@@ -20,6 +20,7 @@
     "antd-img-crop": "^4.22.0",
     "apexcharts": "^3.53.0",
     "axios": "^1.7.2",
+    "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.11",
     "js-cookie": "^3.0.5",

@@ -1,7 +1,7 @@
 "use client"
 
 import Stockkeeper_Task_ReceiveSpareParts from "@/app/stockkeeper/_api/task/receive-spare-parts.api"
-import DataListView from "@/common/components/DataListView"
+import DataListView from "@/components/DataListView"
 import RootHeader from "@/common/components/RootHeader"
 import { TaskStatusTagMapper } from "@/common/enum/task-status.enum"
 import qk from "@/common/querykeys"

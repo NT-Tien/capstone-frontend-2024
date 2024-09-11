@@ -34,12 +34,12 @@ export default function CompletedTasksPage() {
             icon={<LeftOutlined />}
             onIconClick={() => router.back()}
          />
-         <TaskDetailsDrawer showNextButton={false}>
+         <TaskDetailsDrawer>
             {(handleOpen) => (
                <Renderer
                   data={tasks.data}
                   loading={tasks.isLoading}
-                  onItemClick={(taskId) => handleOpen(taskId)}
+                  onItemClick={(taskId) => handleOpen({ taskId })}
                   className="mt-layout"
                />
             )}

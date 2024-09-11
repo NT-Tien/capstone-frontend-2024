@@ -19,8 +19,6 @@ export default function DeviceRequestHistoryDrawer({
 }: {
    children: (handleOpen: (deviceId: string, currentRequestId: string) => void) => ReactNode
 }) {
-   const router = useRouter()
-
    const [deviceId, setDeviceId] = useState<string | undefined>()
    const [currentRequestId, setCurrentRequestId] = useState<string | undefined>()
    const [currentTab, setCurrentTab] = useState<Tabs>("fix")

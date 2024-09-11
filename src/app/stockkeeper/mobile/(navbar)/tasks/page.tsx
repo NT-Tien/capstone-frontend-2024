@@ -56,7 +56,7 @@ function Page({ searchParams }: { searchParams: { tab?: string } }) {
          missing: sortTasks(missing || [], sort),
          done: sortTasks(done || [], sort),
       }
-   }, [tab, api_tasks.data?.list, api_tasks.isSuccess])
+   }, [api_tasks.data?.list, sort])
 
    return (
       <main className="std-layout">

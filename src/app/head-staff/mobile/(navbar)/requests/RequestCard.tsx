@@ -23,7 +23,7 @@ function RequestCard(props: Props) {
       <div
          className={cn(
             "flex flex-col",
-            props.onClick && "cursor-pointer rounded-lg transition-all hover:bg-primary-50 hover:p-2",
+            props.onClick && "cursor-pointer rounded-lg transition-all hover:bg-primary-50",
             props.className,
          )}
          onClick={props.onClick}

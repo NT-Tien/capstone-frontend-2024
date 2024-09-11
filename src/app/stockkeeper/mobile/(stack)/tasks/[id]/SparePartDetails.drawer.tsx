@@ -107,9 +107,9 @@ const SparePartDetailsDrawer = forwardRef<SparePartDetailsDrawerRefType, Props>(
                <div className="flex items-center justify-between p-3">
                   <h2 className="text-base font-medium text-gray-800">Số lượng còn thiếu</h2>
                   <span className="text-sm text-gray-500">
-                     {issueSparePart ? (
+                     +{issueSparePart ? (
                          issueSparePart?.quantity - issueSparePart?.sparePart.quantity > 0 ? `${issueSparePart?.quantity - issueSparePart?.sparePart.quantity}` : "Đủ"
-                     ) : 0}
+                     ) : 0} (cần {issueSparePart?.quantity})
                   </span>
                </div>
                <div></div>

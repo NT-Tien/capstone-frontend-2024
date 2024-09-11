@@ -39,6 +39,7 @@ export default function GlobalProvider({ children }: Readonly<{ children: ReactN
                         token: {
                            colorPrimary: primaryColor,
                            colorInfo: primaryColor,
+                           fontSize: 16,
                         },
                      }}
                   >

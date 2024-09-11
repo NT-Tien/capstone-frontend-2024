@@ -3,7 +3,6 @@
 import staff_qk from "@/app/staff/_api/qk"
 import Staff_Task_All from "@/app/staff/_api/task/all.api"
 import TaskCard from "@/app/staff/_components/TaskCard"
-import TaskDetailsDrawer from "@/app/staff/_components/TaskDetails.drawer"
 import HomeHeader from "@/common/components/HomeHeader"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { TaskStatus } from "@/common/enum/task-status.enum"
@@ -13,9 +12,10 @@ import { Card } from "antd"
 import dayjs from "dayjs"
 import dynamic from "next/dynamic"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import CountUp from "react-countup"
 import Image from "next/image"
+import TaskDetailsDrawer, { TaskDetailsDrawerRefType } from "../../_components/TaskDetails.drawer"
 
 export default dynamic(() => Promise.resolve(StaffDashboard), {
    ssr: false,
@@ -41,6 +41,8 @@ function StaffDashboard() {
    const searchParams = useSearchParams()
    const [current, setCurrent] = useState(Number(searchParams.get("current")) || currentDefault)
    const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || pageSizeDefault)
+
+   const taskDetailsDrawerRef = useRef<TaskDetailsDrawerRefType | null>(null)
 
    const ongoingtask = useMemo(() => {
       if (!response.isSuccess) return
@@ -100,17 +102,13 @@ function StaffDashboard() {
          <div>
             {ongoingtask && (
                <section className="mb-8 mt-5 flex space-x-4">
-                  <TaskDetailsDrawer>
-                     {(handleOpen) => (
-                        <TaskCard
-                           className="h-full w-full flex-1 shadow-fb"
-                           title="Tác vụ đang thực hiện"
-                           description={ongoingtask?.name ?? ""}
-                           priority={ongoingtask?.priority ?? false}
-                           onClick={() => handleOpen(ongoingtask?.id ?? "", true)}
-                        />
-                     )}
-                  </TaskDetailsDrawer>
+                  <TaskCard
+                     className="h-full w-full flex-1 shadow-fb"
+                     title="Tác vụ đang thực hiện"
+                     description={ongoingtask?.name ?? ""}
+                     priority={ongoingtask?.priority ?? false}
+                     onClick={() => taskDetailsDrawerRef.current?.handleOpen({ taskId: ongoingtask.id })}
+                  />
                </section>
             )}
             <div>
@@ -259,6 +257,7 @@ function StaffDashboard() {
                </section> */}
             </div>
          </div>
+         <TaskDetailsDrawer ref={taskDetailsDrawerRef} />
       </div>
    )
 }

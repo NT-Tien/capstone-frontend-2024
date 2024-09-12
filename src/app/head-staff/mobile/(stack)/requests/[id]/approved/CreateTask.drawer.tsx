@@ -13,7 +13,7 @@ import DataListView from "@/components/DataListView"
 import { InfoCircleFilled, ReloadOutlined, WarningOutlined } from "@ant-design/icons"
 import { CheckCard } from "@ant-design/pro-components"
 import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query"
-import { Divider, Input } from "antd"
+import { Divider, Input, message } from "antd"
 import App from "antd/es/app"
 import Button from "antd/es/button"
 import Checkbox from "antd/es/checkbox"
@@ -254,7 +254,9 @@ function FormStep_0() {
       formStep,
       form: { setIssueIDs, issueIDs, setTotalTime },
    } = useFormContext()
-
+   const mutate_checkSparePartStock = useMutation({
+      mutationFn: HeadStaff_Task_UpdateAwaitSparePartToAssignFixer,
+   })
    const [selectedIssues, setSelectedIssues] = useState<{ [key: string]: FixRequestIssueDto }>({})
    const selectedIssuesValues = useMemo(() => Object.values(selectedIssues), [selectedIssues])
    const totalFixTime = useMemo(
@@ -366,12 +368,23 @@ function FormStep_0() {
                            </Tag>
                         }
                         checked={!!selectedIssues[issue.id]}
-                        onChange={(checked) => {
+                        onChange={async (checked) => {
                            if (checked) {
                               setSelectedIssues((prev) => ({
                                  ...prev,
                                  [issue.id]: issue,
                               }))
+                              try {
+                                 const updated = await mutate_checkSparePartStock.mutateAsync({ id: issue.id })
+                                 message.success("Kiểm tra linh kiện thành công")
+                               } catch (error) {
+                                 if (error instanceof Error && error.message.includes("Not enough spare part")) {
+                                   message.info("Không đủ linh kiện để kiểm tra.")
+                                 } else {
+                                   message.error("Kiểm tra linh kiện thất bại")
+                                   console.log(error)
+                                 }
+                               }
                            } else {
                               const { [issue.id]: _, ...rest } = selectedIssues
                               setSelectedIssues(rest)

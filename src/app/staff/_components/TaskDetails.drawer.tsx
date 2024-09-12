@@ -260,7 +260,10 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
          <QrCodeDisplayModal
             title="Lấy linh kiện"
             description="Hãy xuống kho và đưa mã QR sau cho chủ kho."
-            refetch={api_task.refetch}
+            refetch={() => {
+               api_task.refetch()
+               handleClose()
+            }}
             ref={qrCodeDisplayRef}
          />
       </>

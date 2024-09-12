@@ -3,14 +3,15 @@ import useModalControls from "@/common/hooks/useModalControls"
 import AlertCard from "@/components/AlertCard"
 import { CloseOutlined } from "@ant-design/icons"
 import { Gear, Package, Wrench } from "@phosphor-icons/react"
-import { useQuery } from "@tanstack/react-query"
-import { Button, Divider, Drawer, Empty, Result, Spin, Tag } from "antd"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { App, Button, Divider, Drawer, Empty, Result, Spin, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
 import staff_qk from "../_api/qk"
 import Staff_Task_OneById from "../_api/task/one-byId.api"
 import QrCodeDisplayModal, { QrCodeDisplayModalRefType } from "./QrCodeDisplay.modal"
+import Staff_Task_UpdateStart from "../_api/task/update-start.api"
 
 type HandleOpenProps = {
    taskId: string
@@ -34,6 +35,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
       },
    })
    const router = useRouter()
+   const { message } = App.useApp()
 
    const [taskId, setTaskId] = useState<string | null>(null)
 
@@ -43,6 +45,32 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
       queryKey: staff_qk.task.one_byId(taskId ?? ""),
       queryFn: () => Staff_Task_OneById({ id: taskId ?? "" }),
       enabled: !!taskId,
+   })
+
+   const mutate_startTask = useMutation({
+      mutationFn: Staff_Task_UpdateStart,
+      onMutate: async () => {
+         message.open({
+            type: "loading",
+            content: `Loading...`,
+            key: `loading`,
+         })
+      },
+      onError: async (error) => {
+         message.error({
+            content: "Đã xảy ra lỗi. Vui lòng thử lại.",
+         })
+         console.error(error)
+      },
+      onSuccess: async () => {
+         message.success({
+            content: `Bắt đầu tác vụ.`,
+         })
+         await api_task.refetch()
+      },
+      onSettled: () => {
+         message.destroy(`loading`)
+      },
    })
 
    const spareParts = useMemo(() => {
@@ -75,7 +103,18 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                className="w-full"
                size="large"
                icon={<Wrench size={20} />}
-               onClick={() => router.push(`/staff/tasks/${api_task.data.id}/start`)}
+               onClick={() => {
+                  mutate_startTask.mutate(
+                     {
+                        id: api_task.data.id,
+                     },
+                     {
+                        onSuccess: () => {
+                           router.push(`/staff/tasks/${api_task.data.id}/start`)
+                        },
+                     },
+                  )
+               }}
             >
                Bắt đầu tác vụ
             </Button>

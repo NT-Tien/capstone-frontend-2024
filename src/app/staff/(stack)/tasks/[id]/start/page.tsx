@@ -23,7 +23,7 @@ export default function StartTask({ params }: { params: { id: string } }) {
    })
 
    return (
-      <div className="std-layout">
+      <div className="std-layout pb-28">
          <RootHeader title="Thông tin chi tiết" className="std-layout-outer p-4" />
          {currentStep === -1 && <Spin fullscreen={true} />}
          {currentStep === 0 && (

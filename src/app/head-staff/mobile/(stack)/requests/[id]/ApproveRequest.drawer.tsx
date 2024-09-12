@@ -24,6 +24,7 @@ import { DrawerProps } from "antd/lib"
 import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
 import CreateSingleIssueDrawer, { CreateSingleIssueDrawerRefType } from "./CreateSingleIssue.drawer"
+import dayjs from "dayjs"
 
 export type ApproveRequestDrawerRefType = {
    handleOpen: (requestId: string) => void
@@ -110,6 +111,8 @@ const ApproveRequestDrawer = forwardRef<ApproveRequestDrawerRefType, Props>(func
    ])
 
    async function handleSubmit() {
+      if (!api_device.isSuccess) return
+
       if (!selectedIssues.length) {
          message.error("Chưa có lỗi nào được tạo").then()
          return
@@ -117,32 +120,15 @@ const ApproveRequestDrawer = forwardRef<ApproveRequestDrawerRefType, Props>(func
 
       if (!requestId) return
 
+      const warrantyTerm = dayjs(api_device.data.machineModel.warrantyTerm)
+      const hasWarranty = (warrantyTerm.isValid() && warrantyTerm.isAfter(dayjs())) ?? false
+
       modal.confirm({
-         onOk: () => {
-            mutate_createIssues.mutate(
-               {
-                  request: requestId,
-                  issues: selectedIssues.map((issue) => ({
-                     fixType: issue.fixType,
-                     description: issue.description,
-                     typeError: issue.typeError.id,
-                     spareParts: issue.issueSpareParts.map((sp) => ({
-                        sparePart: sp.sparePart.id,
-                        quantity: sp.quantity,
-                     })),
-                  })),
-               },
-               {
-                  onSuccess: async () => {
-                     props.refetchFn?.()
-                     handleClose()
-                     router.push(`/head-staff/mobile/requests?status=${FixRequestStatus.APPROVED}`)
-                  },
-               },
-            )
-         },
+         onOk: () => ok(requestId),
          title: "Lưu ý",
-         content: "Thiết bị này vẫn còn trong thời gian bảo hành. Bạn có chắc chắn muốn xác nhận yêu cầu này?",
+         content: hasWarranty
+            ? "Thiết bị này vẫn còn trong thời gian bảo hành. Bạn có chắc chắn muốn xác nhận yêu cầu này?"
+            : "Bạn có chắc chắn muốn xác nhận yêu cầu này?",
          okText: "Tiếp tục",
          cancelText: "Đóng",
          cancelButtonProps: {
@@ -154,6 +140,29 @@ const ApproveRequestDrawer = forwardRef<ApproveRequestDrawerRefType, Props>(func
          },
          closable: true,
       })
+   }
+
+   function ok(requestId: string) {
+      mutate_createIssues.mutate(
+         {
+            request: requestId,
+            issues: selectedIssues.map((issue) => ({
+               fixType: issue.fixType,
+               description: issue.description,
+               typeError: issue.typeError.id,
+               spareParts: issue.issueSpareParts.map((sp) => ({
+                  sparePart: sp.sparePart.id,
+                  quantity: sp.quantity,
+               })),
+            })),
+         },
+         {
+            onSuccess: async () => {
+               router.push(`/head-staff/mobile/requests?status=${FixRequestStatus.APPROVED}`)
+               // props.refetchFn?.()
+            },
+         },
+      )
    }
 
    function handleCreateOrUpdateSingleIssue(newIssue: FixRequestIssueDto) {

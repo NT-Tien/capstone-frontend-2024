@@ -56,6 +56,11 @@ function TasksPage() {
             defaultActiveTab={searchParams.get("status") ?? undefined}
             items={[
                {
+                  key: TaskStatus.AWAITING_SPARE_SPART,
+                  title: TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].text,
+                  icon: TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].icon,
+               },
+               {
                   key: TaskStatus.AWAITING_FIXER,
                   title: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text,
                   icon: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].icon,

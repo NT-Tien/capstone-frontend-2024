@@ -19,7 +19,7 @@ import { App, Button, Card, Col, Collapse, Row, Spin, Typography } from "antd"
 import dynamic from "next/dynamic"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { Suspense, useEffect, useMemo } from "react"
+import { Suspense, useEffect, useMemo, useState } from "react"
 import CountUp from "react-countup"
 
 function Page() {
@@ -38,6 +38,7 @@ function DashboardPage() {
    const router = useRouter()
    const { notification } = App.useApp()
 
+   const [tab, setTab] = useState("tasks")
    const api_counts = useQuery({
       queryKey: headstaff_qk.dashboard.count(),
       queryFn: HeadStaff_Dashboard_Count,
@@ -130,7 +131,12 @@ function DashboardPage() {
          </div>
          <div className="std-layout">
             <section className="mt-5 grid grid-cols-2 gap-4">
-               <Card loading={api_counts.isPending} onClick={() => router.push("tasks")} className="">
+               <Card
+                  loading={api_counts.isPending}
+                  onClick={() => setTab("tasks")}
+                  className={cn(tab === "tasks" && "border-2 border-primary-400")}
+                  hoverable
+               >
                   <div className="bottom-4 left-4 flex flex-col gap-2">
                      <Col>
                         <CheckSquareOffset className="mb-1" size={36} />
@@ -142,7 +148,12 @@ function DashboardPage() {
                      </Col>
                   </div>
                </Card>
-               <Card loading={api_counts.isPending} onClick={() => router.push("requests")} className="">
+               <Card
+                  loading={api_counts.isPending}
+                  onClick={() => setTab("requests")}
+                  className={cn(tab === "requests" && "border-2 border-primary-400")}
+                  hoverable
+               >
                   <div className="bottom-4 left-4 flex flex-col gap-2">
                      <Col>
                         <Note className="mb-1" size={36} weight="duotone" />
@@ -156,8 +167,8 @@ function DashboardPage() {
                </Card>
             </section>
             <section className="mt-5 space-y-4">
-               <Collapse accordion className="bg-white" defaultActiveKey="1">
-                  <Panel header="Tác vụ" key="1" className="flex-none text-xl font-medium">
+               {tab === "tasks" && (
+                  <div className="bg-white rounded-md p-3 space-y-3">
                      {[
                         {
                            loading: api_counts.isPending,
@@ -202,7 +213,7 @@ function DashboardPage() {
                      ].map(({ loading, count, label, icon, route, bgColor }, index) => (
                         <Card
                            key={index}
-                           className={`mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-sm ${bgColor}`}
+                           className={`flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-sm ${bgColor}`}
                            loading={loading}
                            onClick={() => router.push(route)}
                            classNames={{ body: "w-full px-4" }}
@@ -221,11 +232,11 @@ function DashboardPage() {
                            </div>
                         </Card>
                      ))}
-                  </Panel>
-               </Collapse>
+                  </div>
+               )}
 
-               <Collapse accordion className="bg-white" defaultActiveKey="1">
-                  <Panel header="Yêu cầu" key="1" className="flex-none text-xl font-medium">
+               {tab === "requests" && (
+                  <div className="bg-white rounded-md p-3 space-y-3">
                      {[
                         {
                            loading: api_counts.isPending,
@@ -291,7 +302,7 @@ function DashboardPage() {
                         <Card
                            key={index}
                            className={cn(
-                              "mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-sm",
+                              "flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-sm",
                               bgColor,
                            )}
                            loading={loading}
@@ -312,8 +323,8 @@ function DashboardPage() {
                            </div>
                         </Card>
                      ))}
-                  </Panel>
-               </Collapse>
+                  </div>
+               )}
             </section>
          </div>
       </div>

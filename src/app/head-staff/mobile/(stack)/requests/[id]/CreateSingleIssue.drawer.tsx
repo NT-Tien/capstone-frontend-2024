@@ -11,7 +11,7 @@ import { cn } from "@/common/util/cn.util"
 import AlertCard from "@/components/AlertCard"
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons"
 import { DotOutline, Info, Timer, Warning } from "@phosphor-icons/react"
-import { Button, Divider, Drawer, DrawerProps, Form, Input, Radio, Select } from "antd"
+import { Button, Divider, Drawer, DrawerProps, Form, Input, Radio, Select, Tag } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
 
 type HandleOpen = {
@@ -239,7 +239,16 @@ const CreateSingleIssueDrawer = forwardRef<CreateSingleIssueDrawerRefType, Props
                >
                   <Select
                      options={unselectedSpareParts.map((sparePart) => ({
-                        label: sparePart.name,
+                        label: (
+                           <span className="flex justify-between">
+                              {sparePart.name}
+                              {sparePart.quantity <= 0 && (
+                                 <Tag color="yellow" className="ml-2">
+                                    Hết hàng
+                                 </Tag>
+                              )}
+                           </span>
+                        ),
                         value: sparePart.id,
                      }))}
                      className="w-full"

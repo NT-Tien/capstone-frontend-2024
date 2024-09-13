@@ -38,6 +38,7 @@ type Props = {
 function TabbedLayout(props: Props) {
    const router = useRouter()
    const searchParams = useSearchParams()
+   const [isHovered, setIsHovered] = useState(false)
 
    const [tab, setTab] = useState<string | undefined>()
 
@@ -63,11 +64,19 @@ function TabbedLayout(props: Props) {
       const sendToWarrantyTaskFull = props.api_request.data.tasks.find((task) => task.id === sendToWarrantyTask?.id)
 
       const result = []
-      if (sendToWarrantyTaskFull && (sendToWarrantyTaskFull.fixer === null || sendToWarrantyTaskFull.fixer === undefined))
+      if (
+         sendToWarrantyTaskFull &&
+         (sendToWarrantyTaskFull.fixer === null || sendToWarrantyTaskFull.fixer === undefined)
+      )
          result.push(sendToWarrantyTaskFull.id) // highlight if send to warranty task is not assigned
 
       return new Set(result)
-   }, [props.api_request.data?.is_warranty, props.api_request.data?.tasks, props.api_request.isSuccess, sendToWarrantyTask?.id])
+   }, [
+      props.api_request.data?.is_warranty,
+      props.api_request.data?.tasks,
+      props.api_request.isSuccess,
+      sendToWarrantyTask?.id,
+   ])
 
    const createTaskBtnText = useMemo(() => {
       if (!props.api_request.isSuccess) return
@@ -150,17 +159,28 @@ function TabbedLayout(props: Props) {
                   new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
                      props.api_request.data.status,
                   ) && (
-                     <section className="fixed bottom-0 left-0 flex w-full justify-center gap-3 bg-inherit p-layout">
-                        <Button
-                           className="w-full"
-                           type="primary"
-                           size="large"
-                           icon={<PlusOutlined />}
-                           onClick={() => createTaskRef.current?.handleOpen(props.requestId)}
-                           disabled={createTaskBtnText}
-                        >
-                           Tạo tác vụ
-                        </Button>
+                     <section className="fixed bottom-0 left-0 w-full bg-inherit p-layout">
+                        <div className="grid w-full grid-cols-3 gap-3">
+                           <Button
+                              className="col-span-2 w-full"
+                              type="primary"
+                              size="large"
+                              icon={<PlusOutlined />}
+                              onClick={() => createTaskRef.current?.handleOpen(props.requestId)}
+                              disabled={createTaskBtnText}
+                           >
+                              Tạo tác vụ
+                           </Button>
+                           <Button
+                              className="col-span-1 w-full"
+                              size="large"
+                              type={isHovered ? "primary" : "default"}
+                              onMouseEnter={() => setIsHovered(true)}
+                              onMouseLeave={() => setIsHovered(false)}
+                           >
+                              Hoàn tất
+                           </Button>
+                        </div>
                      </section>
                   )}
             </>

@@ -3,7 +3,7 @@
 import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"
 import Stockkeeper_Task_All from "@/app/stockkeeper/_api/task/getAll.api"
 import RootHeader from "@/common/components/RootHeader"
-import { ContainerFilled } from "@ant-design/icons"
+import { LeftOutlined } from "@ant-design/icons"
 import { useQuery } from "@tanstack/react-query"
 import { Button, Card, Empty, Input, Result, Skeleton, Tabs } from "antd"
 import { FilterOutlined } from "@ant-design/icons"
@@ -60,7 +60,12 @@ function Page({ searchParams }: { searchParams: { tab?: string } }) {
 
    return (
       <main className="std-layout">
-         <RootHeader title="Tác vụ" className="std-layout-outer p-4" icon={<ContainerFilled />} />
+         <RootHeader
+            title="Tác vụ"
+            className="std-layout-outer p-4"
+            icon={<LeftOutlined />}
+            onIconClick={() => router.back()}
+         />
          <ScrollableTabs
             className="std-layout-outer sticky left-0 top-0 z-50"
             classNames={{
@@ -103,7 +108,7 @@ function Page({ searchParams }: { searchParams: { tab?: string } }) {
                (tab === "done" && tasksByCategory.done.length === 0)) && (
                <>
                   <Card>
-                     <Empty description="Không có tác vụ nào" />  
+                     <Empty description="Không có tác vụ nào" />
                   </Card>
                </>
             )}

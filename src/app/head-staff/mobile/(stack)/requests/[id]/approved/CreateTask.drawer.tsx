@@ -4,11 +4,13 @@ import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import HeadStaff_Task_Create from "@/app/head-staff/_api/task/create.api"
 import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/app/head-staff/_api/task/update-awaitSparePartToAssignFixer.api"
+import IssueDetailsDrawer, { IssueDetailsDrawerRefType } from "@/app/head-staff/_components/IssueDetailsDrawer"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 import useModalControls from "@/common/hooks/useModalControls"
 import { cn } from "@/common/util/cn.util"
+import AlertCard from "@/components/AlertCard"
 import DataListView from "@/components/DataListView"
 import { InfoCircleFilled, ReloadOutlined, WarningOutlined } from "@ant-design/icons"
 import { CheckCard } from "@ant-design/pro-components"
@@ -32,6 +34,7 @@ import {
    useEffect,
    useImperativeHandle,
    useMemo,
+   useRef,
    useState,
 } from "react"
 
@@ -47,7 +50,7 @@ type FieldType = {
 }
 
 export type CreateTaskDrawerRefType = {
-   handleOpen: (requestId: string) => void
+   handleOpen: (requestId: string, defaultIssueIds?: string[]) => void
 }
 
 type FormContextType = {
@@ -79,15 +82,16 @@ function useFormContext() {
 }
 
 type Props = {
-   children?: (handleOpen: (requestId: string) => void) => ReactNode
+   children?: (handleOpen: (requestId: string, defaultIssueIds?: string[]) => void) => ReactNode
    drawerProps?: DrawerProps
    refetchFn?: () => void
 }
 
 const CreateTaskDrawer = forwardRef<CreateTaskDrawerRefType, Props>(function Component({ children, ...props }, ref) {
    const { open, handleOpen, handleClose } = useModalControls({
-      onOpen: (requestId: string) => {
+      onOpen: (requestId: string, defaultIssueIds?: string[]) => {
          setRequestId(requestId)
+         setIssueIDs(defaultIssueIds ?? [])
       },
       onClose: () => {
          setRequestId(undefined)
@@ -256,11 +260,19 @@ function FormStep_0() {
    } = useFormContext()
 
    const [selectedIssues, setSelectedIssues] = useState<{ [key: string]: FixRequestIssueDto }>({})
+
+   const issueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)
+
    const selectedIssuesValues = useMemo(() => Object.values(selectedIssues), [selectedIssues])
    const totalFixTime = useMemo(
       () => selectedIssuesValues.reduce((acc, issue) => acc + issue.typeError.duration, 0),
       [selectedIssuesValues],
    )
+   const hasChosenIssueWithMissingSpareParts = useMemo(() => {
+      return !!Object.values(selectedIssues).find((issue) =>
+         issue.issueSpareParts.find((isp) => isp.quantity > isp.sparePart.quantity),
+      )
+   }, [selectedIssues])
 
    function handleFinish() {
       if (selectedIssuesValues.length === 0) return
@@ -287,7 +299,7 @@ function FormStep_0() {
 
    return (
       <>
-         <main className="mt-layout px-layout pb-40">
+         <main className={cn("mt-layout px-layout pb-40", hasChosenIssueWithMissingSpareParts && "pb-64")}>
             <Form.Item<FieldType> name="issueIDs">
                <section className="mx-auto mb-layout w-max rounded-lg border-2 border-neutral-200 bg-white p-1 px-3 text-center">
                   Chọn các lỗi cho tác vụ
@@ -329,62 +341,79 @@ function FormStep_0() {
                </section>
                <div className="grid grid-cols-1 gap-2">
                   {api_request.data?.issues.map((issue) => (
-                     <CheckCard
-                        key={issue.id}
-                        title={
-                           <div className="flex items-center gap-2">
-                              <Checkbox checked={!!selectedIssues[issue.id]} />
-                              <span>{issue.typeError.name}</span>
-                           </div>
-                        }
-                        disabled={issue.task !== null}
-                        description={
-                           <div className="mt-2 flex flex-col gap-1">
-                              <div className="w-9/12 truncate">{issue.description}</div>
-                              <div>
-                                 <Tag>{issue.typeError.duration} phút</Tag>
-                                 <Tag color={issue.issueSpareParts.length === 0 ? "red" : "default"}>
-                                    {issue.issueSpareParts.length === 0 ? (
-                                       <>
-                                          <WarningOutlined className="mr-1" />
-                                          Chưa có linh kiện
-                                       </>
-                                    ) : (
-                                       `${issue.issueSpareParts.length} linh kiện`
-                                    )}
-                                 </Tag>
+                     <div key={issue.id} className="relative">
+                        <CheckCard
+                           title={
+                              <div className="flex items-center gap-2">
+                                 <Checkbox checked={!!selectedIssues[issue.id]} />
+                                 <span>{issue.typeError.name}</span>
                               </div>
-                           </div>
-                        }
-                        extra={
-                           <Tag
-                              color={FixTypeTagMapper[String(issue.fixType)].colorInverse}
-                              className="m-0 flex items-center gap-1"
-                           >
-                              {FixTypeTagMapper[String(issue.fixType)].icon}
-                              {FixTypeTagMapper[String(issue.fixType)].text}
-                           </Tag>
-                        }
-                        checked={!!selectedIssues[issue.id]}
-                        onChange={(checked) => {
-                           if (checked) {
-                              setSelectedIssues((prev) => ({
-                                 ...prev,
-                                 [issue.id]: issue,
-                              }))
-                           } else {
-                              const { [issue.id]: _, ...rest } = selectedIssues
-                              setSelectedIssues(rest)
                            }
-                        }}
-                        className="m-0 w-full"
-                     ></CheckCard>
+                           disabled={issue.task !== null}
+                           description={
+                              <div className="mt-2 flex flex-col gap-1">
+                                 <div className="w-9/12 truncate">
+                                    {issue.typeError.duration} phút | {issue.description}
+                                 </div>
+                                 <div className="mt-2 flex items-center gap-0">
+                                    {issue.issueSpareParts.find((isp) => isp.quantity > isp.sparePart.quantity) && (
+                                       <Tag color="yellow-inverse">Không đủ linh kiện</Tag>
+                                    )}
+                                 </div>
+                              </div>
+                           }
+                           extra={
+                              <Tag
+                                 color={FixTypeTagMapper[String(issue.fixType)].colorInverse}
+                                 className="m-0 flex items-center gap-1"
+                              >
+                                 {FixTypeTagMapper[String(issue.fixType)].icon}
+                                 {FixTypeTagMapper[String(issue.fixType)].text}
+                              </Tag>
+                           }
+                           checked={!!selectedIssues[issue.id]}
+                           onChange={(checked) => {
+                              if (checked) {
+                                 setSelectedIssues((prev) => ({
+                                    ...prev,
+                                    [issue.id]: issue,
+                                 }))
+                              } else {
+                                 const { [issue.id]: _, ...rest } = selectedIssues
+                                 setSelectedIssues(rest)
+                              }
+                           }}
+                           className={cn(
+                              "m-0 w-full",
+                              issue.task === null &&
+                                 issue.issueSpareParts.find((isp) => isp.quantity > isp.sparePart.quantity) &&
+                                 "border-2 border-yellow-100 bg-yellow-50",
+                           )}
+                        ></CheckCard>
+                        <Button
+                           type="link"
+                           size="small"
+                           className="absolute bottom-4 right-2"
+                           onClick={() =>
+                              api_request.isSuccess &&
+                              issueDetailsDrawerRef.current?.openDrawer(issue.id, api_request.data.device.id, false)
+                           }
+                        >
+                           Xem thêm
+                        </Button>
+                     </div>
                   ))}
                </div>
             </Form.Item>
          </main>
          <section className="fixed bottom-0 left-0 w-full border-t-2 border-t-neutral-100 bg-white p-layout shadow-fb">
-            <div className="mb-layout-half">
+            {hasChosenIssueWithMissingSpareParts && (
+               <AlertCard
+                  text="Một số linh kiện trong các lỗi được chọn không còn đủ hàng trong kho."
+                  className="mb-layout"
+               />
+            )}
+            <div className="mb-layout">
                <section className="flex flex-col gap-2">
                   <div className="flex justify-between">
                      <h5 className="font-medium text-gray-500">Tổng số lỗi</h5>
@@ -405,12 +434,13 @@ function FormStep_0() {
                   size="middle"
                   disabled={selectedIssuesValues.length === 0}
                   onClick={handleFinish}
-                  className="w-full"
+                  className={cn("w-full", hasChosenIssueWithMissingSpareParts && "bg-yellow-500")}
                >
                   Tiếp tục
                </Button>
             </div>
          </section>
+         <IssueDetailsDrawer refetch={() => {}} ref={issueDetailsDrawerRef} />
       </>
    )
 }
@@ -423,6 +453,7 @@ function FormStep_1() {
       form: { fixerDate, setFixerDate, name, setName, priority, setPriority, issueIDs, totalTime },
       handleFormSubmit,
    } = useFormContext()
+   const { modal } = App.useApp()
 
    useEffect(() => {
       if (!api_request.isSuccess) return
@@ -430,6 +461,14 @@ function FormStep_1() {
       const name = generateTaskName(api_request.data, issues)
       setName(name)
    }, [api_request.data, api_request.isSuccess, issueIDs, setName])
+
+   const hasChosenIssueWithMissingSpareParts = useMemo(() => {
+      return !!issueIDs.find((issueId) =>
+         api_request.data?.issues
+            .find((issue) => issue.id === issueId)
+            ?.issueSpareParts.find((isp) => isp.quantity > isp.sparePart.quantity),
+      )
+   }, [api_request.data?.issues, issueIDs])
 
    function handleSubmit() {
       handleFormSubmit()
@@ -439,7 +478,7 @@ function FormStep_1() {
 
    return (
       <>
-         <main className="relative mt-layout pb-32">
+         <main className={cn("relative mt-layout pb-40", hasChosenIssueWithMissingSpareParts && "pb-64")}>
             <Form.Item<FieldType> rules={[{ required: true }]} label="Tên tác vụ" className="flex-grow px-layout">
                <Input
                   size="large"
@@ -495,7 +534,13 @@ function FormStep_1() {
             </div>
          </main>
          <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-fb">
-            <div className="mb-layout-half">
+            {hasChosenIssueWithMissingSpareParts && (
+               <AlertCard
+                  text="Một số linh kiện trong các lỗi được chọn không còn đủ hàng trong kho."
+                  className="mb-layout"
+               />
+            )}
+            <div className="mb-layout">
                <section className="flex flex-col gap-2">
                   <div className="flex justify-between">
                      <h5 className="font-medium text-gray-500">Tổng số lỗi</h5>
@@ -511,7 +556,41 @@ function FormStep_1() {
                <Button type="default" size="middle" onClick={() => setFormStep(0)} className="w-full">
                   Quay lại
                </Button>
-               <Button type="primary" size="middle" className="w-full" onClick={handleSubmit}>
+               <Button
+                  type="primary"
+                  size="middle"
+                  className={cn("w-full", hasChosenIssueWithMissingSpareParts && "bg-yellow-500")}
+                  onClick={() => {
+                     if (hasChosenIssueWithMissingSpareParts) {
+                        modal.confirm({
+                           centered: true,
+                           title: "Lưu ý",
+                           content: (
+                              <div>
+                                 <div>
+                                    Một số linh kiện trong các lỗi được chọn{" "}
+                                    <strong>không còn đủ hàng trong kho</strong>. Bạn sẽ không thể phân công tác vụ
+                                    trước nếu chưa có đủ linh kiện.
+                                 </div>
+                                 <div className="mt-layout">Bạn có chắc chắn muốn tiếp tục?</div>
+                              </div>
+                           ),
+                           onOk: () => {
+                              handleSubmit()
+                           },
+                           okText: "Tiếp tục",
+                           okButtonProps: {
+                              className: "bg-yellow-500",
+                           },
+                           closable: true,
+                           maskClosable: true,
+                           cancelText: "Hủy",
+                        })
+                     } else {
+                        handleSubmit()
+                     }
+                  }}
+               >
                   Tạo tác vụ
                </Button>
             </div>

@@ -31,8 +31,10 @@
     "react-apexcharts": "^1.4.1",
     "react-countup": "^6.5.3",
     "react-dom": "^18.2.0",
+    "react-infinite-scroll-component": "^6.1.0",
     "react-qr-scanner": "^1.0.0-alpha.11",
     "react-sketch-canvas": "^6.2.0",
+    "react-webcam": "^7.2.0",
     "socket.io-client": "^4.7.5",
     "tailwind-merge": "^2.3.0",
     "uuid": "^9.0.1"
@@ -46,13 +48,13 @@
     "@types/react-dom": "^18",
     "@types/react-highlight-words": "^0.20.0",
     "@types/uuid": "^9.0.8",
+    "cross-env": "^7.0.3",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "postcss": "^8",
     "prettier": "^3.3.0",
     "prettier-plugin-tailwindcss": "^0.6.1",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5",
-    "cross-env": "^7.0.3"
+    "typescript": "^5"
   }
 }

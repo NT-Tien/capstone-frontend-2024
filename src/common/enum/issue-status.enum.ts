@@ -12,21 +12,25 @@ export const IssueStatusEnumTagMapper: {
       text: string
       color: LiteralUnion<PresetColorType | PresetStatusColorType>
       colorInverse: LiteralUnion<PresetColorType | PresetStatusColorType>
+      className: string
    }
 } = {
    [IssueStatusEnum.PENDING]: {
       text: "Chưa xử lý",
       color: "default",
       colorInverse: "default",
+      className: "text-gray-400",
    },
    [IssueStatusEnum.FAILED]: {
       text: "Thất bại",
       color: "red",
       colorInverse: "red-inverse",
+      className: "text-red-400",
    },
    [IssueStatusEnum.RESOLVED]: {
       text: "Thành công",
       color: "green",
       colorInverse: "green-inverse",
+      className: "text-green-400",
    },
 }

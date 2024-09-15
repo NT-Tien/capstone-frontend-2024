@@ -14,6 +14,7 @@ export const FixTypeTagMapper: {
       color: LiteralUnion<PresetColorType | PresetStatusColorType>
       colorInverse: LiteralUnion<PresetColorType | PresetStatusColorType>
       icon: ReactNode
+      className: string
    }
 } = {
    [FixType.REPLACE]: {
@@ -21,17 +22,20 @@ export const FixTypeTagMapper: {
       colorInverse: "geekblue-inverse",
       color: "geekblue",
       icon: <ReloadOutlined />,
+      className: "text-blue-400",
    },
    [FixType.REPAIR]: {
       text: "Sửa chữa",
       colorInverse: "gold-inverse",
       color: "gold",
       icon: <SettingOutlined />,
+      className: "text-yellow-400",
    },
    undefined: {
       text: "-",
       colorInverse: "default",
       color: "default",
       icon: <DashOutlined />,
+      className: "text-gray-400",
    },
 }

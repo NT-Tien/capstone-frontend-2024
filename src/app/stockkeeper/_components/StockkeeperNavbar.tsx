@@ -1,7 +1,7 @@
 "use client"
 
 import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
-import { ContainerFilled, DashboardFilled, EllipsisOutlined, ScanOutlined } from "@ant-design/icons"
+import { ToolOutlined, DashboardFilled, EllipsisOutlined, ScanOutlined } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -26,10 +26,10 @@ export default function StockkeeperNavbar() {
          onClick: () => setCurrentActive("dashboard"),
       },
       {
-         name: "Tác vụ",
-         key: "tasks",
-         icon: <ContainerFilled />,
-         onClick: () => setCurrentActive("tasks"),
+         name: "Công cụ",
+         key: "tools",
+         icon: <ToolOutlined />,
+         onClick: () => setCurrentActive("tools"),
       },
       {
          name: "Quét QR",

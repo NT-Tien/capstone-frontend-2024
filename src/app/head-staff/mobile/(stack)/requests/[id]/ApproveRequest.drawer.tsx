@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
 import CreateSingleIssueDrawer, { CreateSingleIssueDrawerRefType } from "./CreateSingleIssue.drawer"
 import dayjs from "dayjs"
+import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
 
 export type ApproveRequestDrawerRefType = {
    handleOpen: (requestId: string) => void
@@ -99,6 +100,8 @@ const ApproveRequestDrawer = forwardRef<ApproveRequestDrawerRefType, Props>(func
       }
 
       const addedErrors = new Set(selectedIssues.map((issue) => issue.typeError.id))
+      addedErrors.add(SendWarrantyTypeErrorId)
+      addedErrors.add(ReceiveWarrantyTypeErrorId)
       const allErrors = [...api_device.data.machineModel.typeErrors, ...api_commonIssues.data]
       return allErrors.filter((error) => !addedErrors.has(error.id))
    }, [
@@ -159,7 +162,6 @@ const ApproveRequestDrawer = forwardRef<ApproveRequestDrawerRefType, Props>(func
          {
             onSuccess: async () => {
                router.push(`/head-staff/mobile/requests?status=${FixRequestStatus.APPROVED}`)
-               // props.refetchFn?.()
             },
          },
       )

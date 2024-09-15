@@ -1,7 +1,7 @@
 import { FixRequestIssueSparePartDto } from "@/common/dto/FixRequestIssueSparePart.dto"
 import useModalControls from "@/common/hooks/useModalControls"
 import { InfoCircleOutlined } from "@ant-design/icons"
-import { Card, List, Modal, QRCode } from "antd"
+import { Button, Card, List, Modal, QRCode } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle, useState } from "react"
 
 type Props = {
@@ -25,6 +25,7 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
    const [qrCode, setQrCode] = useState<string | undefined>(undefined)
    const [spareParts, setSpareParts] = useState<FixRequestIssueSparePartDto[]>([])
    const [isWarranty, setIsWarranty] = useState<boolean>(false)
+   const [isHovered, setIsHovered] = useState(false)
    const { open, handleOpen, handleClose } = useModalControls({
       onOpen: (qrCode: string, issueSpareParts: FixRequestIssueSparePartDto[], isWarranty?: boolean) => {
          setQrCode(qrCode)
@@ -37,6 +38,11 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
          props.refetch()
       },
    })
+
+   const handleCompleteSpareParts = () => {
+      handleClose()
+      props.refetch()
+   }
 
    useImperativeHandle(ref, () => ({
       handleOpen,
@@ -76,6 +82,18 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
                   />
                </section>
             )}
+            <section className="mt-layout">
+               <Button
+                  className="w-full"
+                  size="large"
+                  type={isHovered ? "primary" : "default"}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                  onClick={handleCompleteSpareParts}
+               >
+                  Hoàn tất lấy linh kiện
+               </Button>
+            </section>
          </Modal>
       </>
    )

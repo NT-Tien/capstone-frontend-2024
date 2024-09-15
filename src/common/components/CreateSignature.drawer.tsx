@@ -165,7 +165,7 @@ const CreateSignatureDrawer = forwardRef<CreateSignatureDrawerRefType, Props>(fu
             />
             <section className="pt-3">
                <Checkbox checked={isChecked} onChange={(e) => setIsChecked(e.target.checked)}>
-                  Tôi cam kết đã hoàn thành tác vụ
+                  Tôi xác nhận tác vụ đã hoàn thành
                </Checkbox>
             </section>
             <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-lg">

@@ -15,7 +15,7 @@ import DataListView from "@/components/DataListView"
 import { InfoCircleFilled, ReloadOutlined, WarningOutlined } from "@ant-design/icons"
 import { CheckCard } from "@ant-design/pro-components"
 import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query"
-import { Divider, Input } from "antd"
+import { Divider, Input, message } from "antd"
 import App from "antd/es/app"
 import Button from "antd/es/button"
 import Checkbox from "antd/es/checkbox"
@@ -258,7 +258,9 @@ function FormStep_0() {
       formStep,
       form: { setIssueIDs, issueIDs, setTotalTime },
    } = useFormContext()
-
+   const mutate_checkSparePartStock = useMutation({
+      mutationFn: HeadStaff_Task_UpdateAwaitSparePartToAssignFixer,
+   })
    const [selectedIssues, setSelectedIssues] = useState<{ [key: string]: FixRequestIssueDto }>({})
 
    const issueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)

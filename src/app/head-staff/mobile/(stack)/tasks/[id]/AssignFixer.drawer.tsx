@@ -245,7 +245,7 @@ const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function C
                                           key={e.id}
                                           title={
                                              <div className="flex items-center gap-2">
-                                                <Checkbox checked={fixer?.username === e.username} />
+                                                <Radio checked={fixer?.username === e.username} />
                                                 <span>{e.username}</span>
                                              </div>
                                           }

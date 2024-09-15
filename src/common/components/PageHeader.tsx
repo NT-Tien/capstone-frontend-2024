@@ -25,7 +25,7 @@ function PageHeader({ icon, title, className, handleClickIcon, iconProps }: Prop
    }
 
    return (
-      <header className={cn("std-layout py-layout", className)}>
+      <header className={cn("px-layout py-layout", className)}>
          <div className="flex items-center gap-3">
             <Button className="bg-neutral-100/50 p-2" classNames={{
                icon: ""

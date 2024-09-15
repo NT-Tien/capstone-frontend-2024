@@ -3,7 +3,7 @@
 import RootHeader from "@/common/components/RootHeader"
 import ScannerInputManualDrawer from "@/common/components/ScannerInputManual.drawer"
 import { isUUID } from "@/common/util/isUUID.util"
-import { InfoCircleOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons"
+import { InfoCircleOutlined, LeftOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons"
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
 import { App, Avatar, Button, Card, Spin } from "antd"
 import { useRouter } from "next/navigation"
@@ -60,14 +60,16 @@ export default function ScanPage() {
    }
 
    useEffect(() => {
-      router.prefetch("/stockkeeper/mobile/scan-results/e31d662e-05db-4bc4-8bfd-773f56618725", { kind: PrefetchKind.AUTO })
+      router.prefetch("/stockkeeper/mobile/scan-results/e31d662e-05db-4bc4-8bfd-773f56618725", {
+         kind: PrefetchKind.AUTO,
+      })
    }, [router])
 
    return (
       <div className="h-full">
          {isLoading && <Spin fullscreen className="z-[5000]" />}
          <div>
-            <RootHeader title="Quét mã QR" className="p-4" icon={<SearchOutlined />} />
+            <RootHeader title="Quét mã QR" className="p-4" icon={<LeftOutlined />} onIconClick={() => router.back()} />
             <section className="my-6 grid place-items-center">
                <div className="flex items-center rounded-full bg-white px-6 py-1">
                   Vui lòng đặt <strong className="mx-1.5 font-semibold">mã QR của tác vụ</strong> vào khung hình

@@ -36,11 +36,20 @@ export default function GlobalProvider({ children }: Readonly<{ children: ReactN
                   <ConfigProvider
                      locale={vi_VN}
                      theme={{
+                        components: {
+                           Result: {
+                              colorTextDescription: "#737373",
+                           }
+                        },
                         token: {
                            colorPrimary: primaryColor,
                            colorInfo: primaryColor,
                            fontSize: 16,
                         },
+                     }}
+                     
+                     modal={{
+                        
                      }}
                   >
                      <DayjsProvider>

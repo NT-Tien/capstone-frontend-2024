@@ -1,10 +1,9 @@
-import dayjs from "dayjs"
-
+import Webcam from "react-webcam"
 
 function Page() {
    return (
       <div>
-         {dayjs().format("YYYY-MM-DD HH:mm:ss")}
+         <Webcam />
       </div>
    )
 }

@@ -37,7 +37,21 @@ const SortDrawer = forwardRef<SortDrawerRefType, Props>(function Component(props
    return (
       <>
          {props.children?.(handleOpen)}
-         <Drawer open={open} onClose={handleClose} title="Sắp xếp" placement="bottom" height="max-content">
+         <Drawer
+            open={open}
+            onClose={handleClose}
+            title="Sắp xếp"
+            placement="bottom"
+            height="max-content"
+            footer={
+               <Button size="large" type="primary" className="w-full" onClick={handleFinish}>
+                  Cập nhật
+               </Button>
+            }
+            classNames={{
+               footer: "p-layout",
+            }}
+         >
             <Radio.Group
                onChange={(e) => {
                   setSort((prev) => ({
@@ -81,9 +95,6 @@ const SortDrawer = forwardRef<SortDrawerRefType, Props>(function Component(props
                   </Radio.Button>
                </Radio.Group>
             </section>
-            <Button size="large" type="primary" className="mt-layout w-full" onClick={handleFinish}>
-               Cập nhật
-            </Button>
          </Drawer>
       </>
    )

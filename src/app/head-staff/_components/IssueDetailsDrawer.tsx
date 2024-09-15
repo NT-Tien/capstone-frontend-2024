@@ -1,28 +1,27 @@
-import React, { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
-import { App, Badge, Button, Card, Drawer, DrawerProps, Empty, Image, Tag } from "antd"
-import { ProDescriptions } from "@ant-design/pro-components"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import dayjs from "dayjs"
-import ProList from "@ant-design/pro-list/lib"
-import SelectSparePartDrawer from "@/app/head-staff/_components/SelectSparePart.drawer"
-import { useMutation, useQuery } from "@tanstack/react-query"
-import HeadStaff_SparePart_Create from "@/app/head-staff/_api/spare-part/create.api"
-import { cn } from "@/common/util/cn.util"
-import ProCard from "@ant-design/pro-card"
-import { ArrowRightOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons"
-import headstaff_qk from "@/app/head-staff/_api/qk"
-import HeadStaff_Issue_OneById from "@/app/head-staff/_api/issue/oneById.api"
 import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
 import HeadStaff_Issue_Delete from "@/app/head-staff/_api/issue/delete.api"
-import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
+import HeadStaff_Issue_OneById from "@/app/head-staff/_api/issue/oneById.api"
 import HeadStaff_Issue_Update from "@/app/head-staff/_api/issue/update.api"
-import ModalConfirm from "@/common/components/ModalConfirm"
+import headstaff_qk from "@/app/head-staff/_api/qk"
+import HeadStaff_SparePart_Create from "@/app/head-staff/_api/spare-part/create.api"
 import IssueSparePartDetailsModal from "@/app/head-staff/_components/IssueSparePartDetailsModal"
-import useModalControls from "@/common/hooks/useModalControls"
-import Link from "next/link"
+import SelectSparePartDrawer from "@/app/head-staff/_components/SelectSparePart.drawer"
+import ModalConfirm from "@/common/components/ModalConfirm"
+import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 import { Issue_StatusMapper } from "@/common/dto/status/Issue.status"
+import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
+import useModalControls from "@/common/hooks/useModalControls"
+import { cn } from "@/common/util/cn.util"
 import { clientEnv } from "@/env"
+import { ArrowRightOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons"
+import { ProDescriptions } from "@ant-design/pro-components"
+import ProList from "@ant-design/pro-list/lib"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { App, Badge, Button, Card, Drawer, DrawerProps, Empty, Image, Tag } from "antd"
+import dayjs from "dayjs"
+import Link from "next/link"
+import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
 
 export type IssueDetailsDrawerRefType = {
    openDrawer: (issueId: string, deviceId: string, showActions?: boolean) => void
@@ -419,26 +418,34 @@ const IssueDetailsDrawer = forwardRef<IssueDetailsDrawerRefType, Props>(function
                            renderItem={(item) => {
                               return (
                                  <IssueSparePartRibbon id={item.id}>
-                                    <ProCard
+                                    <Card
                                        size="small"
                                        className={cn(
-                                          "mb-2 p-2",
+                                          "mb-2",
                                           item.id === highlightedId && "border-green-200 bg-green-50",
+                                          item.quantity > item.sparePart.quantity && "border-yellow-100 bg-yellow-50",
                                        )}
                                        bordered
                                        hoverable={true}
                                        onClick={() => handleOpen1(item)}
                                     >
                                        <div className="flex flex-col">
-                                          <span className="text-sub-base font-medium">{item.sparePart.name}</span>
-                                          <div className="flex items-center">
+                                          <div className="flex justify-between">
+                                             <span className="text-sub-base font-medium">{item.sparePart.name}</span>
+                                             {item.quantity > item.sparePart.quantity && (
+                                                <Tag color="gold-inverse">
+                                                   Hết hàng
+                                                </Tag>
+                                             )}
+                                          </div>
+                                          <div className="flex items-center mt-2">
                                              <span className="flex-grow text-sub-base text-neutral-500">
                                                 Quantity: {item.quantity}
                                              </span>
                                              <Button size="small" icon={<ArrowRightOutlined />} type="text"></Button>
                                           </div>
                                        </div>
-                                    </ProCard>
+                                    </Card>
                                  </IssueSparePartRibbon>
                               )
                            }}

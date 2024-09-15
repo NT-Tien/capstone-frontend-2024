@@ -5,14 +5,25 @@ import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
-import { App, Card, Collapse, Empty } from "antd"
-import { useMemo, useRef } from "react"
+import { Alert, App, Badge, Card, Collapse, ConfigProvider, Divider, Empty, Segmented, Tabs, Tag } from "antd"
+import { Fragment, useMemo, useRef, useState } from "react"
 import TaskDetailsDrawer, { TaskDetailsDrawerRefType } from "./TaskDetails.drawer"
 import HeadStaff_Task_Create from "@/app/head-staff/_api/task/create.api"
 import { ReceiveWarrantyTypeErrorId } from "@/constants/Warranty"
 import { generateTaskName } from "./CreateTask.drawer"
 import dayjs from "dayjs"
 import HeadStaff_Task_Update from "@/app/head-staff/_api/task/update.api"
+import { cn } from "@/common/util/cn.util"
+import {
+   CalendarBlank,
+   Dot,
+   HourglassMedium,
+   Package,
+   Prohibit,
+   ShieldWarning,
+   UserCheck,
+   UserCircleDashed,
+} from "@phosphor-icons/react"
 
 type Props = {
    api_request: UseQueryResult<FixRequestDto, Error>
@@ -20,9 +31,11 @@ type Props = {
    highlightTaskId?: Set<String>
 }
 
-export default function TasksList(props: Props) {
+export default function TasksListTab(props: Props) {
    const taskDetailsRef = useRef<TaskDetailsDrawerRefType | null>(null)
    const { message } = App.useApp()
+
+   const [tab, setTab] = useState<string>("1")
 
    const taskSorted = useMemo(() => {
       if (!props.api_request.data) return []
@@ -51,16 +64,18 @@ export default function TasksList(props: Props) {
          completed: [],
          headstaffConfirm: [],
          awaitFixer: [],
-         remaining: [],
          awaitSparePart: [],
          cancelled: [],
+         assigned: [],
+         inProgress: [],
       } as {
          completed: TaskDto[]
          headstaffConfirm: TaskDto[]
          awaitFixer: TaskDto[]
-         remaining: TaskDto[]
          awaitSparePart: TaskDto[]
          cancelled: TaskDto[]
+         assigned: TaskDto[]
+         inProgress: TaskDto[]
       }
       taskSorted.forEach((task) => {
          if (task.status === TaskStatus.COMPLETED) {
@@ -73,8 +88,10 @@ export default function TasksList(props: Props) {
             result.awaitSparePart.push(task)
          } else if (task.status === TaskStatus.CANCELLED) {
             result.cancelled.push(task)
+         } else if (task.status === TaskStatus.ASSIGNED) {
+            result.assigned.push(task)
          } else {
-            result.remaining.push(task)
+            result.inProgress.push(task)
          }
       })
 
@@ -127,147 +144,213 @@ export default function TasksList(props: Props) {
       }
    }
 
+   function getCount(...ints: number[]) {
+      const total = ints.reduce((acc, cur) => acc + cur, 0)
+      if (total === 0) return ""
+      if (total > 99) return "(99+)"
+      return `(${total.toString()})`
+   }
+
    return (
-      <section className={props.className}>
-         {taskSorted.length === 0 && (
-            <Card size="small">
-               <Empty description="Không có tác vụ" />
-            </Card>
-         )}
-         <Collapse
-            ghost
-            defaultActiveKey={[
-               TaskStatus.HEAD_STAFF_CONFIRM,
-               TaskStatus.AWAITING_FIXER,
-               TaskStatus.AWAITING_SPARE_SPART,
-               "doing",
-            ]}
-            className="custom-collapse-padding p-0"
-            items={[
-               ...(taskGrouped.headstaffConfirm.length > 0
-                  ? [
-                       {
-                          key: TaskStatus.HEAD_STAFF_CONFIRM,
-                          label:
-                             TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text +
-                             ` (${taskGrouped.headstaffConfirm.length})`,
-                          children: (
-                             <div className="grid grid-cols-1 gap-2">
-                                {taskGrouped.headstaffConfirm.map((task) => (
-                                   <TaskCardBasic
-                                      key={task.id}
-                                      task={task}
-                                      onClick={() => taskDetailsRef.current?.handleOpen(task)}
-                                      highlighted={props.highlightTaskId?.has(task.id)}
-                                   />
-                                ))}
-                             </div>
-                          ),
-                       },
-                    ]
-                  : []),
-               ...(taskGrouped.awaitSparePart.length > 0
-                  ? [
-                       {
-                          key: TaskStatus.AWAITING_SPARE_SPART,
-                          label:
-                             TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].text +
-                             ` (${taskGrouped.awaitSparePart.length})`,
-                          children: (
-                             <div className="grid grid-cols-1 gap-2">
-                                {taskGrouped.awaitSparePart.map((task) => (
-                                   <TaskCardBasic
-                                      key={task.id}
-                                      task={task}
-                                      onClick={() => taskDetailsRef.current?.handleOpen(task)}
-                                      highlighted={props.highlightTaskId?.has(task.id)}
-                                   />
-                                ))}
-                             </div>
-                          ),
-                       },
-                    ]
-                  : []),
-               ...(taskGrouped.awaitFixer.length > 0
-                  ? [
-                       {
-                          key: TaskStatus.AWAITING_FIXER,
-                          label:
-                             TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text +
-                             ` (${taskGrouped.awaitFixer.length})`,
-                          children: (
-                             <div className="grid grid-cols-1 gap-2">
-                                {taskGrouped.awaitFixer.map((task) => (
-                                   <TaskCardBasic
-                                      key={task.id}
-                                      task={task}
-                                      onClick={() => taskDetailsRef.current?.handleOpen(task)}
-                                      highlighted={props.highlightTaskId?.has(task.id)}
-                                   />
-                                ))}
-                             </div>
-                          ),
-                       },
-                    ]
-                  : []),
-               {
-                  key: "doing",
-                  label: "Chưa/Đang thực hiện" + ` (${taskGrouped.remaining.length})`,
-                  children: (
-                     <div className="grid grid-cols-1 gap-2">
-                        {taskGrouped.remaining.map((task) => (
-                           <TaskCardBasic
-                              key={task.id}
-                              task={task}
-                              onClick={() => taskDetailsRef.current?.handleOpen(task)}
-                              highlighted={props.highlightTaskId?.has(task.id)}
-                           />
-                        ))}
-                     </div>
-                  ),
+      <section className={cn("flex-1", props.className)}>
+         <ConfigProvider
+            theme={{
+               components: {
+                  Tabs: {
+                     inkBarColor: "#a3a3a3",
+                     itemActiveColor: "#737373",
+                     itemSelectedColor: "#737373",
+                     itemColor: "#a3a3a3",
+                     titleFontSize: 14,
+                  },
                },
-               ...(taskGrouped.completed.length > 0
-                  ? [
-                       {
-                          key: "remaining",
-                          label: TaskStatusTagMapper[TaskStatus.COMPLETED].text + ` (${taskGrouped.completed.length})`,
-                          children: (
-                             <div className="grid grid-cols-1 gap-2">
-                                {taskGrouped.completed.map((task) => (
-                                   <TaskCardBasic
-                                      key={task.id}
-                                      task={task}
-                                      onClick={() => taskDetailsRef.current?.handleOpen(task)}
-                                      highlighted={props.highlightTaskId?.has(task.id)}
-                                   />
-                                ))}
-                             </div>
-                          ),
-                       },
-                    ]
-                  : []),
-               ...(taskGrouped.cancelled.length > 0
-                  ? [
-                       {
-                          key: "cancelled",
-                          label: TaskStatusTagMapper[TaskStatus.CANCELLED].text + ` (${taskGrouped.cancelled.length})`,
-                          children: (
-                             <div className="grid grid-cols-1 gap-2">
-                                {taskGrouped.cancelled.map((task) => (
-                                   <TaskCardBasic
-                                      key={task.id}
-                                      task={task}
-                                      onClick={() => taskDetailsRef.current?.handleOpen(task)}
-                                      highlighted={props.highlightTaskId?.has(task.id)}
-                                   />
-                                ))}
-                             </div>
-                          ),
-                       },
-                    ]
-                  : []),
-            ]}
-         />
+            }}
+         >
+            <Tabs
+               activeKey={tab}
+               onChange={setTab}
+               className="test-tabs"
+               items={[
+                  {
+                     key: "1",
+                     label: (
+                        <div className="py-1">
+                           Chưa xử lý{" "}
+                           {getCount(
+                              taskGrouped.awaitFixer.length,
+                              taskGrouped.awaitSparePart.length,
+                              taskGrouped.assigned.length,
+                           )}
+                        </div>
+                     ),
+                  },
+                  {
+                     key: "2",
+                     label: (
+                        <div className="py-1">
+                           Đang thực hiện {getCount(taskGrouped.inProgress.length, taskGrouped.headstaffConfirm.length)}
+                        </div>
+                     ),
+                  },
+                  { key: "3", label: <div className="py-1">Hoàn thành {getCount(taskGrouped.completed.length)}</div> },
+               ]}
+            />
+         </ConfigProvider>
+         {tab === "1" && (
+            <div className="grid grid-cols-1 px-layout">
+               {taskGrouped.awaitFixer.length === 0 &&
+                  taskGrouped.assigned.length === 0 &&
+                  taskGrouped.awaitSparePart.length === 0 && (
+                     <div className="grid place-items-center py-12">
+                        <Empty description="Không có tác vụ" />
+                     </div>
+                  )}
+               {[...taskGrouped.awaitFixer, ...taskGrouped.assigned, ...taskGrouped.awaitSparePart].map(
+                  (task, index, array) => (
+                     <Fragment key={task.id}>
+                        {index !== 0 && (
+                           <div className="grid grid-cols-[24px_1fr] gap-4">
+                              {(array[index - 1] === undefined || array[index - 1]?.status === task.status) && (
+                                 <div></div>
+                              )}
+                              <Divider
+                                 className={cn(
+                                    "my-3",
+                                    array[index - 1] !== undefined &&
+                                       array[index - 1]?.status !== task.status &&
+                                       "col-span-2",
+                                 )}
+                              />
+                           </div>
+                        )}
+                        <div
+                           className="grid cursor-pointer grid-cols-[24px_1fr] gap-4"
+                           onClick={() => taskDetailsRef.current?.handleOpen(task)}
+                        >
+                           <div className="grid place-items-center">
+                              {task.status === TaskStatus.AWAITING_FIXER && (
+                                 <UserCircleDashed
+                                    size={24}
+                                    weight="fill"
+                                    className={TaskStatusTagMapper[task.status].className ?? "text-lime-600"}
+                                 />
+                              )}
+                              {task.status === TaskStatus.AWAITING_SPARE_SPART && (
+                                 <Package
+                                    size={24}
+                                    weight="fill"
+                                    className={TaskStatusTagMapper[task.status].className}
+                                 />
+                              )}
+                              {task.status === TaskStatus.ASSIGNED && (
+                                 <UserCheck
+                                    size={24}
+                                    weight="fill"
+                                    className={TaskStatusTagMapper[task.status].className}
+                                 />
+                              )}
+                           </div>
+                           <div className="flex flex-col gap-0.5">
+                              <h3 className="text-sm text-neutral-800">{task.name}</h3>
+                              <div className="flex items-center">
+                                 <div className={cn(TaskStatusTagMapper[task.status].className)}>
+                                    {TaskStatusTagMapper[task.status].text}
+                                 </div>
+                                 {task.fixerDate && (
+                                    <>
+                                       <Dot size={24} className="text-neutral-500" />
+                                       <div className="flex items-center">
+                                          <CalendarBlank size={16} className="mr-1 inline" />
+                                          <span className="text-sm">{dayjs(task.fixerDate).format("DD/MM")}</span>
+                                       </div>
+                                    </>
+                                 )}
+                              </div>
+                           </div>
+                        </div>
+                     </Fragment>
+                  ),
+               )}
+            </div>
+         )}
+         {tab === "2" && (
+            <div className="grid grid-cols-1 px-layout">
+               {taskGrouped.headstaffConfirm.length === 0 &&
+                  taskGrouped.inProgress.length === 0 &&
+                  taskGrouped.cancelled.length === 0 && (
+                     <div className="grid place-items-center py-12">
+                        <Empty description="Không có tác vụ" />
+                     </div>
+                  )}
+               {[...taskGrouped.headstaffConfirm, ...taskGrouped.inProgress, ...taskGrouped.cancelled].map(
+                  (task, index, array) => (
+                     <Fragment key={task.id}>
+                        {index !== 0 && (
+                           <div className="grid grid-cols-[24px_1fr] gap-4">
+                              {(array[index - 1] === undefined || array[index - 1]?.status === task.status) && (
+                                 <div></div>
+                              )}
+                              <Divider
+                                 className={cn(
+                                    "my-3",
+                                    array[index - 1] !== undefined &&
+                                       array[index - 1]?.status !== task.status &&
+                                       "col-span-2",
+                                 )}
+                              />
+                           </div>
+                        )}
+                        <div
+                           className="grid cursor-pointer grid-cols-[24px_1fr] gap-4"
+                           onClick={() => taskDetailsRef.current?.handleOpen(task)}
+                        >
+                           <div className="grid place-items-center">
+                              {task.status === TaskStatus.HEAD_STAFF_CONFIRM && (
+                                 <ShieldWarning
+                                    size={24}
+                                    weight="fill"
+                                    className={TaskStatusTagMapper[task.status].className}
+                                 />
+                              )}
+                              {task.status === TaskStatus.IN_PROGRESS && (
+                                 <HourglassMedium
+                                    size={24}
+                                    weight="fill"
+                                    className={TaskStatusTagMapper[task.status].className}
+                                 />
+                              )}
+                              {task.status === TaskStatus.CANCELLED && (
+                                 <Prohibit
+                                    size={24}
+                                    weight="fill"
+                                    className={TaskStatusTagMapper[task.status].className}
+                                 />
+                              )}
+                           </div>
+                           <div className="flex flex-col gap-0.5">
+                              <h3 className="text-sm text-neutral-800">{task.name}</h3>
+                              <div className="flex items-center">
+                                 <div className={cn(TaskStatusTagMapper[task.status].className)}>
+                                    {TaskStatusTagMapper[task.status].text}
+                                 </div>
+                                 {task.fixerDate && (
+                                    <>
+                                       <Dot size={24} className="text-neutral-500" />
+                                       <div className="flex items-center">
+                                          <CalendarBlank size={16} className="mr-1 inline" />
+                                          <span className="text-sm">{dayjs(task.fixerDate).format("DD/MM")}</span>
+                                       </div>
+                                    </>
+                                 )}
+                              </div>
+                           </div>
+                        </div>
+                     </Fragment>
+                  ),
+               )}
+            </div>
+         )}
+         {tab === "3" && <div>Test</div>}
          <TaskDetailsDrawer
             ref={taskDetailsRef}
             refetchFn={async () => {

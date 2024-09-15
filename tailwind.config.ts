@@ -6,6 +6,7 @@ const config: Config = {
       "./src/common/components/**/*.{js,ts,jsx,tsx}",
       "./src/common/providers/**/*.{js,ts,jsx,tsx}",
       "./src/components/**/*.{js,ts,jsx,tsx}",
+      "./sec/common/enum/**/*.{js,ts,jsx,tsx}",
    ],
    theme: {
       fontFamily: { sans: ["Poppins"] },

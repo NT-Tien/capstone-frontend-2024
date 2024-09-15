@@ -148,15 +148,15 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    }, [api_request.data, api_request.isSuccess, modal])
 
    return (
-      <div className="std-layout relative h-max min-h-full bg-white pb-24">
+      <div className="relative min-h-screen flex flex-col">
          <PageHeader
             title={searchParams.viewingHistory === "true" ? "Quay Lại | Yêu cầu" : "Yêu cầu"}
             handleClickIcon={handleBack}
             icon={PageHeader.BackIcon}
-            className="std-layout-outer relative z-30"
+            className="relative z-30"
          />
          <Image
-            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
+            className="absolute top-0 h-32 w-full object-cover opacity-40"
             src="/images/requests.jpg"
             alt="image"
             width={784}
@@ -169,7 +169,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
          {api_request.isError ? (
             <>
                {api_request.error instanceof NotFoundError ? (
-                  <Card>
+                  <Card className="mx-layout">
                      <Result
                         status="404"
                         title="Không tìm thấy yêu cầu"
@@ -178,7 +178,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                      />
                   </Card>
                ) : (
-                  <Card>
+                  <Card className="mx-layout">
                      <Result
                         status="error"
                         title="Có lỗi xảy ra"
@@ -197,116 +197,120 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
             </>
          ) : (
             <>
-               <section
-                  className={cn(
-                     "relative z-50 rounded-lg border-2 border-neutral-200 bg-white shadow-lg",
-                     isWarranty && "rounded-b-none",
-                  )}
-               >
-                  <DataListView
-                     bordered
-                     dataSource={api_request.data}
-                     itemClassName="py-2"
-                     labelClassName="font-normal text-neutral-400 text-[14px]"
-                     valueClassName="text-[14px] font-medium"
-                     items={[
-                        {
-                           label: "Ngày tạo",
-                           value: (e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
-                        },
-                        {
-                           label: "Người yêu cầu",
-                           value: (e) => e.requester?.username ?? "-",
-                        },
-                        {
-                           label: "Trạng thái",
-                           value: (e) => (
-                              <Tag className="m-0" color={FixRequest_StatusMapper(e).colorInverse}>
-                                 {FixRequest_StatusMapper(e).text}
-                              </Tag>
-                           ),
-                        },
-                        {
-                           label: "Ghi chú",
-                           value: (e) => e.requester_note,
-                        },
-                     ]}
-                  />
-               </section>
-               {isWarranty && (
-                  <div className="rounded-b-lg border-[2px] border-yellow-400 bg-yellow-50 py-2 text-center font-medium text-yellow-600">
-                     Thiết bị được bảo hành
-                  </div>
-               )}
-               {api_request.data?.status === FixRequestStatus.APPROVED && api_request.data?.tasks.length === 0 && (
-                  <section className="std-layout">
-                     <div className="flex w-full items-start rounded-b-lg bg-primary-500 p-3 text-white">
-                        <Info size={32} className="mr-2" />
-                        <div className="text-sm font-medium">
-                           Yêu cầu đã được xác nhận. Vui lòng tạo tác vụ để tiếp tục.
-                        </div>
-                     </div>
+               <div className="px-layout">
+                  <section
+                     className={cn(
+                        "relative z-50 rounded-lg border-2 border-neutral-200 bg-white shadow-lg",
+                        isWarranty && "rounded-b-none",
+                     )}
+                  >
+                     <DataListView
+                        bordered
+                        dataSource={api_request.data}
+                        itemClassName="py-2"
+                        labelClassName="font-normal text-neutral-400 text-[14px]"
+                        valueClassName="text-[14px] font-medium"
+                        items={[
+                           {
+                              label: "Ngày tạo",
+                              value: (e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
+                           },
+                           {
+                              label: "Người yêu cầu",
+                              value: (e) => e.requester?.username ?? "-",
+                           },
+                           {
+                              label: "Trạng thái",
+                              value: (e) => (
+                                 <Tag className="m-0" color={FixRequest_StatusMapper(e).colorInverse}>
+                                    {FixRequest_StatusMapper(e).text}
+                                 </Tag>
+                              ),
+                           },
+                           {
+                              label: "Ghi chú",
+                              value: (e) => e.requester_note,
+                           },
+                        ]}
+                     />
                   </section>
-               )}
-               {api_request.isSuccess &&
-                  api_request.data.tasks.length > 0 &&
-                  new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(api_request.data.status) && (
+                  {/* {isWarranty && (
+                     <div className="rounded-b-lg border-[2px] border-yellow-400 bg-yellow-50 py-2 text-center font-medium text-yellow-600">
+                        Thiết bị được bảo hành
+                     </div>
+                  )}
+                  {api_request.data?.status === FixRequestStatus.APPROVED && api_request.data?.tasks.length === 0 && (
                      <section className="std-layout">
-                        <div className="flex w-full gap-4 rounded-b-lg bg-blue-600 p-3 text-white">
-                           <div className="flex flex-grow flex-col items-start">
-                              <div className="flex w-full justify-between">
-                                 <h5 className="font-semibold text-neutral-100">Phần trăm hoàn thành </h5>
-                                 <div className="font-semibold text-neutral-100">{percentFinished}%</div>
-                              </div>
-                              <Progress
-                                 size={"default"}
-                                 status="active"
-                                 strokeColor="rgba(255, 255, 255, 0.8)"
-                                 showInfo={false}
-                                 type="line"
-                                 percent={percentFinished}
-                              />
-                           </div>
-                           <div className="grid place-items-center">
-                              <Dropdown
-                                 menu={{
-                                    items: [
-                                       {
-                                          key: "cancel-request",
-                                          label: "Hủy yêu cầu",
-                                          danger: true,
-                                          onClick: () => {
-                                             rejectRequestRef.current?.handleOpen({
-                                                request: api_request.data,
-                                             })
-                                          },
-                                       },
-                                    ],
-                                 }}
-                              >
-                                 <Button icon={<MoreOutlined />} />
-                              </Dropdown>
+                        <div className="flex w-full items-start rounded-b-lg bg-primary-500 p-3 text-white">
+                           <Info size={32} className="mr-2" />
+                           <div className="text-sm font-medium">
+                              Yêu cầu đã được xác nhận. Vui lòng tạo tác vụ để tiếp tục.
                            </div>
                         </div>
                      </section>
                   )}
+                  {api_request.isSuccess &&
+                     api_request.data.tasks.length > 0 &&
+                     new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
+                        api_request.data.status,
+                     ) && (
+                        <section className="std-layout">
+                           <div className="flex w-full gap-4 rounded-b-lg bg-blue-600 p-3 text-white">
+                              <div className="flex flex-grow flex-col items-start">
+                                 <div className="flex w-full justify-between">
+                                    <h5 className="font-semibold text-neutral-100">Phần trăm hoàn thành </h5>
+                                    <div className="font-semibold text-neutral-100">{percentFinished}%</div>
+                                 </div>
+                                 <Progress
+                                    size={"default"}
+                                    status="active"
+                                    strokeColor="rgba(255, 255, 255, 0.8)"
+                                    showInfo={false}
+                                    type="line"
+                                    percent={percentFinished}
+                                 />
+                              </div>
+                              <div className="grid place-items-center">
+                                 <Dropdown
+                                    menu={{
+                                       items: [
+                                          {
+                                             key: "cancel-request",
+                                             label: "Hủy yêu cầu",
+                                             danger: true,
+                                             onClick: () => {
+                                                rejectRequestRef.current?.handleOpen({
+                                                   request: api_request.data,
+                                                })
+                                             },
+                                          },
+                                       ],
+                                    }}
+                                 >
+                                    <Button icon={<MoreOutlined />} />
+                                 </Dropdown>
+                              </div>
+                           </div>
+                        </section>
+                     )}
 
-               {api_request.isSuccess && new Set([FixRequestStatus.HEAD_CONFIRM]).has(api_request.data.status) && (
-                  <section className="std-layout">
-                     <div className="flex w-full gap-4 rounded-b-lg bg-yellow-500 p-3 text-white">
-                        Yêu cầu này đã được hoàn thành và đang chờ xác nhận từ trưởng phòng
-                     </div>
-                  </section>
-               )}
+                  {api_request.isSuccess && new Set([FixRequestStatus.HEAD_CONFIRM]).has(api_request.data.status) && (
+                     <section className="std-layout">
+                        <div className="flex w-full gap-4 rounded-b-lg bg-yellow-500 p-3 text-white">
+                           Yêu cầu này đã được hoàn thành và đang chờ xác nhận từ trưởng phòng
+                        </div>
+                     </section>
+                  )}
 
-               {api_request.isSuccess && api_request.data.status === FixRequestStatus.CLOSED && (
-                  <section className="std-layout">
-                     <div className="flex w-full gap-2 rounded-b-lg bg-purple-500 p-3 text-white">
-                        <div className="font-semibold">Đánh giá</div>
-                        <div>{(api_request.data as any)?.feedback?.content ?? "Không có"}</div>
-                     </div>
-                  </section>
-               )}
+                  {api_request.isSuccess && api_request.data.status === FixRequestStatus.CLOSED && (
+                     <section className="std-layout">
+                        <div className="flex w-full gap-2 rounded-b-lg bg-purple-500 p-3 text-white">
+                           <div className="font-semibold">Đánh giá</div>
+                           <div>{(api_request.data as any)?.feedback?.content ?? "Không có"}</div>
+                        </div>
+                     </section>
+                  )} */}
+               </div>
 
                <Suspense fallback={<Spin />}>
                   <TabbedLayout

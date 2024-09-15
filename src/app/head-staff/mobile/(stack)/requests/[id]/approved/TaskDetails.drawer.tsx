@@ -162,21 +162,21 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                   className="w-full"
                   size="large"
                   disabled={!!isMissingSpareParts}
-                  onClick={() => {
-                     mutate_checkSparePartStock.mutate(
+                  onClick={async () => {
+                     await mutate_checkSparePartStock.mutateAsync(
                         {
                            id: task.id,
                         },
                         {
                            onSuccess: async () => {
-                              handleClose()
                               await props.refetchFn?.()
+                              handleClose()
                            },
                         },
                      )
                   }}
                >
-                  Cập nhật linh kiện
+                  Cập nhật trạng thái
                </Button>
             </>
          )

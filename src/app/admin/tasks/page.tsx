@@ -119,7 +119,7 @@ export default function RequestListPage({ searchParams }: {searchParams: { area?
                {
                   title: "STT",
                   valueType: "indexBorder",
-                  width: 48,
+                  width: 40,
                   hideInSearch: true,
                },
                {
@@ -133,7 +133,7 @@ export default function RequestListPage({ searchParams }: {searchParams: { area?
                   title: "Tên tác vụ",
                   key: "taskName",
                   render: (_, record) => record.name,
-                  width: 300,
+                  width: 150,
                   ellipsis: {
                      showTitle: true,
                   },
@@ -147,11 +147,12 @@ export default function RequestListPage({ searchParams }: {searchParams: { area?
                      showTitle: true,
                   },
                   valueType: "text",
+                  width: 60,
                },
                {
                   title: "Trạng thái",
                   dataIndex: "status",
-                  width: 200,
+                  width: 60,
                   valueType: "text",
                },
                {
@@ -159,6 +160,7 @@ export default function RequestListPage({ searchParams }: {searchParams: { area?
                   dataIndex: "createdAt",
                   valueType: "date",
                   sorter: (a, b) => dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
+                  width: 100,
                },
                {
                   title: "Ngày cập nhật",
@@ -166,6 +168,7 @@ export default function RequestListPage({ searchParams }: {searchParams: { area?
                   valueType: "date",
                   sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                   defaultSortOrder: "descend",
+                  width: 100,
                },
                {
                   title: "Tổng thời gian",
@@ -175,6 +178,7 @@ export default function RequestListPage({ searchParams }: {searchParams: { area?
                      showTitle: true,
                   },
                   valueType: "number",
+                  width: 80,
                },
                {
                   title: "Nhân viên",
@@ -183,7 +187,7 @@ export default function RequestListPage({ searchParams }: {searchParams: { area?
                   ellipsis: {
                      showTitle: true,
                   },
-                  width: 100,
+                  width: 60,
                   valueType: "text",
                },
             ]}

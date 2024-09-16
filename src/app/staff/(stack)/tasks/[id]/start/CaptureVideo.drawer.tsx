@@ -68,8 +68,13 @@ function CaptureVideoDrawer({
             body: "p-0",
          }}
       >
-         <Webcam audio={true} width="100%" ref={webcamRef} videoConstraints={{ facingMode: "user" }} />
-         <div className="flex justify-center p-3">
+         <Webcam
+            audio={true}
+            className="h-full w-full object-cover"
+            ref={webcamRef}
+            videoConstraints={{ facingMode: "user" }}
+         />
+         <div className="absolute bottom-0 flex w-full items-center justify-center p-3">
             <Button
                type="default"
                onClick={recording ? stopRecording : startRecording}

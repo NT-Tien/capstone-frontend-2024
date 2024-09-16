@@ -52,7 +52,7 @@ function CaptureImageDrawer({
          <Webcam
             audio={false}
             screenshotFormat="image/jpeg"
-            width="100%"
+            className="h-full w-full object-cover"
             ref={webcamRef}
             onUserMediaError={(err) => {
                console.error("Error capturing image:", err)
@@ -62,7 +62,7 @@ function CaptureImageDrawer({
             }}
             videoConstraints={{ facingMode: "environment" }}
          />
-         <div className="flex justify-center p-3">
+         <div className="flex w-full justify-center items-center p-3 absolute bottom-0">
             <Button
                type="default"
                onClick={capture}

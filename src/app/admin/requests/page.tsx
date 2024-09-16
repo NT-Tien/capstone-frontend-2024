@@ -101,7 +101,7 @@ export default function RequestListPage({ searchParams }: { searchParams: { area
                {
                   title: "STT",
                   valueType: "indexBorder",
-                  width: 48,
+                  width: 40,
                   hideInSearch: true,
                },
                {
@@ -114,7 +114,7 @@ export default function RequestListPage({ searchParams }: { searchParams: { area
                   title: "Tên thiết bị",
                   key: "machineModel",
                   render: (_, record) => record.device.machineModel.name,
-                  width: 300,
+                  width: 150,
                   ellipsis: {
                      showTitle: true,
                   },
@@ -128,11 +128,12 @@ export default function RequestListPage({ searchParams }: { searchParams: { area
                      showTitle: true,
                   },
                   valueType: "text",
+                  width: 60,
                },
                {
                   title: "Trạng thái",
                   dataIndex: "status",
-                  width: 200,
+                  width: 60,
                   valueType: "text",
                },
                {
@@ -141,6 +142,7 @@ export default function RequestListPage({ searchParams }: { searchParams: { area
                   valueType: "date",
                   sorter: (a, b) =>
                      dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
+                  width: 100,
                },
                {
                   title: "Ngày cập nhật",
@@ -149,12 +151,13 @@ export default function RequestListPage({ searchParams }: { searchParams: { area
                   sorter: (a, b) =>
                      dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                   defaultSortOrder: "descend",
+                  width: 100,
                },
                {
                   title: "Người báo cáo",
                   key: "machineModel",
                   render: (_, record) => record.requester?.username,
-                  width: 200,
+                  width: 100,
                   ellipsis: {
                      showTitle: true,
                   },
@@ -164,7 +167,7 @@ export default function RequestListPage({ searchParams }: { searchParams: { area
                   title: "Ghi chú",
                   key: "machineModel",
                   render: (_, record) => record.requester_note,
-                  width: 300,
+                  width: 100,
                   ellipsis: {
                      showTitle: true,
                   },

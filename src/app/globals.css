@@ -212,4 +212,8 @@ body {
         text-align: center !important;
         width: 100% !important;
     }
+
+    .ant-tabs-nav-operations {
+        display: none;
+    }
 }

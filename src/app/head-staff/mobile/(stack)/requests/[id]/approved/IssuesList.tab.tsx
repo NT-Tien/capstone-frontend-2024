@@ -14,6 +14,7 @@ import { Fragment, useMemo, useRef, useState } from "react"
 import CreateIssueModal, { CreateIssueModalRefType } from "./CreateIssue.modal"
 import { CreateTaskDrawerRefType } from "./CreateTask.drawer"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 
 type Props = {
    api_request: UseQueryResult<FixRequestDto, Error>
@@ -83,6 +84,12 @@ function IssuesListTab(props: Props) {
       return result
    }, [props.api_request.data?.issues, props.api_request.isSuccess])
 
+   const canMutateIssues = useMemo(() => {
+      if (!props.api_request.isSuccess) return false
+
+      return props.api_request.data.tasks.length === 0 && props.api_request.data.status === FixRequestStatus.APPROVED
+   }, [props.api_request.data?.status, props.api_request.data?.tasks.length, props.api_request.isSuccess])
+
    async function handleDeleteIssue(issue: FixRequestIssueDto) {
       message.destroy("delete-issue")
       message.loading({
@@ -132,217 +139,226 @@ function IssuesListTab(props: Props) {
                activeKey={tab}
                onChange={setTab}
                className="test-tabs"
+               animated={{
+                  inkBar: true,
+                  tabPane: true,
+               }}
                items={[
                   {
                      key: "1",
                      label: <div className="py-1">Chưa có tác vụ {getCount(issuesGrouped?.noTask.length || 0)}</div>,
+                     children: (
+                        <div className="px-layout">
+                           {canMutateIssues && (
+                              <FloatButton
+                                 type="primary"
+                                 icon={<PlusOutlined />}
+                                 onClick={() =>
+                                    props.api_request.isSuccess &&
+                                    createIssuesDrawerRef.current?.handleOpen({
+                                       deviceId: props.api_request.data.device.id,
+                                       request: props.api_request.data,
+                                    })
+                                 }
+                              />
+                           )}
+                           {issuesGrouped?.noTask.length === 0 && (
+                              <div className="grid place-items-center py-12">
+                                 <Empty description="Không tìm thấy lỗi nào" />
+                              </div>
+                           )}
+                           {issuesGrouped?.noTask.map((issue, index) => (
+                              <Fragment key={issue.id}>
+                                 {index !== 0 && <Divider className="my-3" />}
+                                 <div className="flex">
+                                    <div
+                                       className="flex flex-grow cursor-pointer flex-col gap-1"
+                                       onClick={() =>
+                                          props.api_request.isSuccess &&
+                                          IssueDetailsDrawerRef.current?.openDrawer(
+                                             issue.id,
+                                             props.api_request.data.device.id,
+                                             false,
+                                          )
+                                       }
+                                    >
+                                       <h4>{issue.typeError.name}</h4>
+                                       <div className="flex text-neutral-500">
+                                          <div className={cn("flex gap-1", FixTypeTagMapper[issue.fixType].className)}>
+                                             {FixTypeTagMapper[issue.fixType].icon}
+                                             {FixTypeTagMapper[issue.fixType].text}
+                                          </div>
+                                          <Dot size={24} />
+                                          <div className="flex items-center gap-1">
+                                             <Clock size={16} />
+                                             {issue.typeError.duration} phút
+                                          </div>
+                                       </div>
+                                    </div>
+                                    <Dropdown
+                                       menu={{
+                                          items: [
+                                             {
+                                                key: "create-task",
+                                                label: "Thêm vào tác vụ",
+                                                icon: <PlusOutlined />,
+                                                onClick: () => {
+                                                   props.api_request.isSuccess &&
+                                                      createTaskDrawerRef.current?.handleOpen(
+                                                         props.api_request.data.id,
+                                                         [issue.id],
+                                                      )
+                                                },
+                                             },
+                                             ...(canMutateIssues
+                                                ? [
+                                                     {
+                                                        key: "edit",
+                                                        label: "Cập nhật",
+                                                        icon: <EditOutlined />,
+                                                     },
+                                                     {
+                                                        key: "delete-issue",
+                                                        label: "Xóa",
+                                                        icon: <DeleteOutlined />,
+                                                        danger: true,
+                                                        onClick: () => {
+                                                           modal.confirm({
+                                                              closable: true,
+                                                              maskClosable: true,
+                                                              type: "warn",
+                                                              title: "Lưu ý",
+                                                              content: "Bạn có chắc chắn muốn xóa lỗi này?",
+                                                              okText: "Xóa",
+                                                              centered: true,
+                                                              okButtonProps: {
+                                                                 danger: true,
+                                                              },
+                                                              cancelText: "Hủy",
+                                                              onOk: () => {
+                                                                 handleDeleteIssue(issue)
+                                                              },
+                                                           })
+                                                        },
+                                                     },
+                                                  ]
+                                                : []),
+                                          ],
+                                       }}
+                                    >
+                                       <Button icon={<MoreOutlined />} size="small" type="text" />
+                                    </Dropdown>
+                                 </div>
+                              </Fragment>
+                           ))}
+                        </div>
+                     ),
                   },
                   {
                      key: "2",
                      label: <div className="py-1">Đã có tác vụ {getCount(issuesGrouped?.hasTask.length || 0)}</div>,
+                     children: (
+                        <div className="grid grid-cols-1 px-layout">
+                           {issuesGrouped?.hasTask.length === 0 && (
+                              <div className="grid place-items-center py-12">
+                                 <Empty description="Không tìm thấy lỗi nào" />
+                              </div>
+                           )}
+                           {issuesGrouped?.hasTask.map((issue, index, array) => (
+                              <Fragment key={issue.id}>
+                                 {index !== 0 && (
+                                    <div className="grid grid-cols-[24px_1fr] gap-4">
+                                       {(array[index - 1] === undefined ||
+                                          array[index - 1]?.status === issue.status) && <div></div>}
+                                       <Divider
+                                          className={cn(
+                                             "my-3",
+                                             array[index - 1] !== undefined &&
+                                                array[index - 1]?.status !== issue.status &&
+                                                "col-span-2",
+                                          )}
+                                       />
+                                    </div>
+                                 )}
+                                 <div className="grid cursor-pointer grid-cols-[24px_1fr_24px] gap-4">
+                                    <div
+                                       onClick={() =>
+                                          props.api_request.isSuccess &&
+                                          IssueDetailsDrawerRef.current?.openDrawer(
+                                             issue.id,
+                                             props.api_request.data.device.id,
+                                             false,
+                                          )
+                                       }
+                                    >
+                                       {issue.status === IssueStatusEnum.PENDING && (
+                                          <MinusCircle
+                                             size={24}
+                                             weight="fill"
+                                             className={IssueStatusEnumTagMapper[issue.status].className}
+                                          />
+                                       )}
+                                       {issue.status === IssueStatusEnum.RESOLVED && (
+                                          <CheckCircle
+                                             size={24}
+                                             weight="fill"
+                                             className={IssueStatusEnumTagMapper[issue.status].className}
+                                          />
+                                       )}
+                                       {issue.status === IssueStatusEnum.FAILED && (
+                                          <XCircle
+                                             size={24}
+                                             weight="fill"
+                                             className={IssueStatusEnumTagMapper[issue.status].className}
+                                          />
+                                       )}
+                                    </div>
+                                    <div
+                                       className="flex flex-col gap-1"
+                                       onClick={() =>
+                                          props.api_request.isSuccess &&
+                                          IssueDetailsDrawerRef.current?.openDrawer(
+                                             issue.id,
+                                             props.api_request.data.device.id,
+                                             false,
+                                          )
+                                       }
+                                    >
+                                       <h4>{issue.typeError.name}</h4>
+                                       <div className="flex text-neutral-500">
+                                          <div className={cn("flex gap-1", FixTypeTagMapper[issue.fixType].className)}>
+                                             {FixTypeTagMapper[issue.fixType].icon}
+                                             {FixTypeTagMapper[issue.fixType].text}
+                                          </div>
+                                          <Dot size={24} />
+                                          <div className="flex items-center gap-1">
+                                             <Clock size={16} />
+                                             {issue.typeError.duration} phút
+                                          </div>
+                                       </div>
+                                    </div>
+                                    <Dropdown
+                                       menu={{
+                                          items: [
+                                             {
+                                                key: "view-task",
+                                                label: "Xem tác vụ",
+                                                icon: <Eye />,
+                                             },
+                                          ],
+                                       }}
+                                    >
+                                       <Button icon={<MoreOutlined />} size="small" type="text" />
+                                    </Dropdown>
+                                 </div>
+                              </Fragment>
+                           ))}
+                        </div>
+                     ),
                   },
                ]}
             />
          </ConfigProvider>
-         {tab === "1" && (
-            <div className="px-layout">
-               {(props.api_request.data?.status === FixRequestStatus.APPROVED ||
-                  props.api_request.data?.status === FixRequestStatus.IN_PROGRESS) && (
-                  <FloatButton
-                     type="primary"
-                     icon={<PlusOutlined />}
-                     onClick={() =>
-                        props.api_request.isSuccess &&
-                        createIssuesDrawerRef.current?.handleOpen({
-                           deviceId: props.api_request.data.device.id,
-                           request: props.api_request.data,
-                        })
-                     }
-                  />
-               )}
-               {issuesGrouped?.noTask.length === 0 && (
-                  <div className="grid place-items-center py-12">
-                     <Empty description="Không tìm thấy lỗi nào" />
-                  </div>
-               )}
-               {issuesGrouped?.noTask.map((issue, index) => (
-                  <Fragment key={issue.id}>
-                     {index !== 0 && <Divider className="my-3" />}
-                     <div className="flex">
-                        <div
-                           className="flex flex-grow cursor-pointer flex-col gap-1"
-                           onClick={() =>
-                              props.api_request.isSuccess &&
-                              IssueDetailsDrawerRef.current?.openDrawer(
-                                 issue.id,
-                                 props.api_request.data.device.id,
-                                 false,
-                              )
-                           }
-                        >
-                           <h4>{issue.typeError.name}</h4>
-                           <div className="flex text-neutral-500">
-                              <div className={cn("flex gap-1", FixTypeTagMapper[issue.fixType].className)}>
-                                 {FixTypeTagMapper[issue.fixType].icon}
-                                 {FixTypeTagMapper[issue.fixType].text}
-                              </div>
-                              <Dot size={24} />
-                              <div className="flex items-center gap-1">
-                                 <Clock size={16} />
-                                 {issue.typeError.duration} phút
-                              </div>
-                           </div>
-                        </div>
-                        <Dropdown
-                           menu={{
-                              items: [
-                                 {
-                                    key: "create-task",
-                                    label: "Thêm vào tác vụ",
-                                    icon: <PlusOutlined />,
-                                    onClick: () => {
-                                       props.api_request.isSuccess &&
-                                          createTaskDrawerRef.current?.handleOpen(props.api_request.data.id, [issue.id])
-                                    },
-                                 },
-                                 {
-                                    key: "edit",
-                                    label: "Cập nhật",
-                                    icon: <EditOutlined />,
-                                 },
-                                 {
-                                    key: "delete-issue",
-                                    label: "Xóa",
-                                    icon: <DeleteOutlined />,
-                                    danger: true,
-                                    onClick: () => {
-                                       modal.confirm({
-                                          closable: true,
-                                          maskClosable: true,
-                                          type: "warn",
-                                          title: "Lưu ý",
-                                          content: "Bạn có chắc chắn muốn xóa lỗi này?",
-                                          okText: "Xóa",
-                                          centered: true,
-                                          okButtonProps: {
-                                             danger: true,
-                                          },
-                                          cancelText: "Hủy",
-                                          onOk: () => {
-                                             handleDeleteIssue(issue)
-                                          },
-                                       })
-                                    },
-                                 },
-                              ],
-                           }}
-                        >
-                           <Button icon={<MoreOutlined />} size="small" type="text" />
-                        </Dropdown>
-                     </div>
-                  </Fragment>
-               ))}
-            </div>
-         )}
-         {tab === "2" && (
-            <div className="grid grid-cols-1 px-layout">
-               {issuesGrouped?.hasTask.length === 0 && (
-                  <div className="grid place-items-center py-12">
-                     <Empty description="Không tìm thấy lỗi nào" />
-                  </div>
-               )}
-               {issuesGrouped?.hasTask.map((issue, index, array) => (
-                  <Fragment key={issue.id}>
-                     {index !== 0 && (
-                        <div className="grid grid-cols-[24px_1fr] gap-4">
-                           {(array[index - 1] === undefined || array[index - 1]?.status === issue.status) && (
-                              <div></div>
-                           )}
-                           <Divider
-                              className={cn(
-                                 "my-3",
-                                 array[index - 1] !== undefined &&
-                                    array[index - 1]?.status !== issue.status &&
-                                    "col-span-2",
-                              )}
-                           />
-                        </div>
-                     )}
-                     <div className="grid cursor-pointer grid-cols-[24px_1fr_24px] gap-4">
-                        <div
-                           onClick={() =>
-                              props.api_request.isSuccess &&
-                              IssueDetailsDrawerRef.current?.openDrawer(
-                                 issue.id,
-                                 props.api_request.data.device.id,
-                                 false,
-                              )
-                           }
-                        >
-                           {issue.status === IssueStatusEnum.PENDING && (
-                              <MinusCircle
-                                 size={24}
-                                 weight="fill"
-                                 className={IssueStatusEnumTagMapper[issue.status].className}
-                              />
-                           )}
-                           {issue.status === IssueStatusEnum.RESOLVED && (
-                              <CheckCircle
-                                 size={24}
-                                 weight="fill"
-                                 className={IssueStatusEnumTagMapper[issue.status].className}
-                              />
-                           )}
-                           {issue.status === IssueStatusEnum.FAILED && (
-                              <XCircle
-                                 size={24}
-                                 weight="fill"
-                                 className={IssueStatusEnumTagMapper[issue.status].className}
-                              />
-                           )}
-                        </div>
-                        <div
-                           className="flex flex-col gap-1"
-                           onClick={() =>
-                              props.api_request.isSuccess &&
-                              IssueDetailsDrawerRef.current?.openDrawer(
-                                 issue.id,
-                                 props.api_request.data.device.id,
-                                 false,
-                              )
-                           }
-                        >
-                           <h4>{issue.typeError.name}</h4>
-                           <div className="flex text-neutral-500">
-                              <div className={cn("flex gap-1", FixTypeTagMapper[issue.fixType].className)}>
-                                 {FixTypeTagMapper[issue.fixType].icon}
-                                 {FixTypeTagMapper[issue.fixType].text}
-                              </div>
-                              <Dot size={24} />
-                              <div className="flex items-center gap-1">
-                                 <Clock size={16} />
-                                 {issue.typeError.duration} phút
-                              </div>
-                           </div>
-                        </div>
-                        <Dropdown
-                           menu={{
-                              items: [
-                                 {
-                                    key: "view-task",
-                                    label: "Xem tác vụ",
-                                    icon: <Eye />,
-                                 },
-                              ],
-                           }}
-                        >
-                           <Button icon={<MoreOutlined />} size="small" type="text" />
-                        </Dropdown>
-                     </div>
-                  </Fragment>
-               ))}
-            </div>
-         )}
          <IssueDetailsDrawer refetch={() => {}} ref={IssueDetailsDrawerRef} />
          <CreateIssueModal onFinish={props.api_request.refetch} ref={createIssuesDrawerRef} />
       </div>

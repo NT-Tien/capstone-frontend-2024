@@ -4,10 +4,12 @@ import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
 import { ToolOutlined, DashboardFilled, EllipsisOutlined, ScanOutlined } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import ToolboxDrawer from "./Toolbox.drawer"
 
 export default function StockkeeperNavbar() {
    const pathname = usePathname()
    const [currentActive, setCurrentActive] = useState<string | undefined>()
+   const [toolboxOpen, setToolboxOpen] = useState(false)
    const router = useRouter()
 
    useEffect(() => {
@@ -29,7 +31,7 @@ export default function StockkeeperNavbar() {
          name: "Công cụ",
          key: "tools",
          icon: <ToolOutlined />,
-         onClick: () => setCurrentActive("tools"),
+         onClick: () => setToolboxOpen(true),
       },
       {
          name: "Quét QR",
@@ -45,5 +47,13 @@ export default function StockkeeperNavbar() {
       },
    ]
 
-   return <MobileNavbar items={items} currentActive={currentActive} />
+   return (
+      <>
+         <MobileNavbar items={items} currentActive={currentActive} />
+         <ToolboxDrawer
+            open={toolboxOpen}
+            setOpen={setToolboxOpen}
+         />
+      </>
+   )
 }

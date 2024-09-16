@@ -6,6 +6,8 @@ import { ProFormTextArea } from "@ant-design/pro-components"
 import { useMutation } from "@tanstack/react-query"
 import Head_Request_UpdateClose from "@/app/head/_api/request/update-close.api"
 import { UserOutlined } from "@ant-design/icons"
+import { useRouter } from 'next/navigation'
+import { FixRequestStatuses } from "@/common/dto/status/FixRequest.status"
 
 type Props = {
    onSuccess?: () => void
@@ -26,6 +28,7 @@ export default function FeedbackDrawer({
          setRequestId(undefined)
       },
    })
+   const router = useRouter()
 
    const mutate_UpdateCloseRequest = useMutation({
       mutationFn: Head_Request_UpdateClose,
@@ -62,10 +65,7 @@ export default function FeedbackDrawer({
          },
          {
             onSuccess: () => {
-               handleClose()
-               setTimeout(() => {
-                  props.onSuccess?.()
-               })
+               router.push(`/head/history?status=${"closed" satisfies FixRequestStatuses}`)
             },
          },
       )

@@ -13,6 +13,7 @@ import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { GeneralProps } from "./page"
+import { ReceiveWarrantyTypeErrorId } from "@/constants/Warranty"
 
 type Step2Props = GeneralProps & {
    data?: TaskDto
@@ -48,6 +49,12 @@ export default function Step1(props: Step2Props) {
    }
 
    useEffect(() => {
+      if (props.data?.issues.find((i) => i.typeError.id === ReceiveWarrantyTypeErrorId)) {
+         setHasScanned(true)
+         setTab("issues")
+         return
+      }
+
       if (props.data?.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)) {
          setHasScanned(true)
          return

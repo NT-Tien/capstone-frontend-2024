@@ -1,7 +1,9 @@
 "use client"
 
 import headstaff_qk from "@/app/head-staff/_api/qk"
+import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
 import HeadStaff_Task_OneById from "@/app/head-staff/_api/task/one-byId.api"
+import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/app/head-staff/_api/task/update-awaitSparePartToAssignFixer.api"
 import HeadStaff_Task_UpdateComplete from "@/app/head-staff/_api/task/update-complete.api"
 import IssueDetailsDrawer, { IssueDetailsDrawerRefType } from "@/app/head-staff/_components/IssueDetailsDrawer"
 import { TaskDto } from "@/common/dto/Task.dto"
@@ -9,6 +11,7 @@ import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
 import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
 import useModalControls from "@/common/hooks/useModalControls"
 import { cn } from "@/common/util/cn.util"
+import AlertCard from "@/components/AlertCard"
 import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
 import { EditOutlined, MoreOutlined, RightOutlined } from "@ant-design/icons"
 import {
@@ -18,7 +21,6 @@ import {
    Circle,
    Clock,
    ImageSquare,
-   Info,
    Users,
    XCircle,
 } from "@phosphor-icons/react"
@@ -28,12 +30,9 @@ import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
 import AssignFixerDrawer, { AssignFixerDrawerRefType } from "../../../tasks/[id]/AssignFixer.drawer"
-import CheckSignatureDrawer, { CheckSignatureDrawerRefType } from "./CheckSignature.drawer"
-import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
-import UpdateTaskFixDateDrawer, { UpdateTaskFixDateDrawerRefType } from "./UpdateTaskFixDate.drawer"
-import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/app/head-staff/_api/task/update-awaitSparePartToAssignFixer.api"
-import AlertCard from "@/components/AlertCard"
 import CancelTaskDrawer, { CancelTaskDrawerRefType } from "./CancelTask.drawer"
+import CheckSignatureDrawer, { CheckSignatureDrawerRefType } from "./CheckSignature.drawer"
+import UpdateTaskFixDateDrawer, { UpdateTaskFixDateDrawerRefType } from "./UpdateTaskFixDate.drawer"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto) => void
@@ -112,7 +111,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
 
       await mutate_updateStatus.mutateAsync(
          {
-            id: task.id,
+            id: api_task.data.id,
          },
          {
             onSuccess: async () => {
@@ -170,13 +169,17 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                         {
                            onSuccess: async () => {
                               await props.refetchFn?.()
-                              handleClose()
+                              assignFixerDrawerRef.current?.handleOpen(task.id, {
+                                 priority: task.priority,
+                                 fixerDate: dayjs(task.fixerDate).add(7, "hours"),
+                                 fixer: task.fixer,
+                              })
                            },
                         },
                      )
                   }}
                >
-                  Cập nhật trạng thái
+                  Phân công tác vụ
                </Button>
             </>
          )
@@ -362,48 +365,42 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                         <h3 className="mb-2 font-semibold">Lỗi cần sửa</h3>
                         <div className="flex w-full flex-col gap-3">
                            {api_task.data?.issues.map((issue) => (
-                              <>
-                                 <div
-                                    key={issue.id}
-                                    onClick={() =>
-                                       issueDetailsDrawerRef.current?.openDrawer(
-                                          issue.id,
-                                          api_task.data.device.id,
-                                          false,
-                                       )
-                                    }
-                                 >
-                                    <div className="flex items-stretch justify-start gap-2">
-                                       <div>
-                                          {issue.status === IssueStatusEnum.PENDING && <Circle size={18} />}
-                                          {issue.status === IssueStatusEnum.RESOLVED && (
-                                             <CheckCircle size={18} weight="fill" color="rgb(2, 134, 6)" />
-                                          )}
-                                          {issue.status === IssueStatusEnum.FAILED && (
-                                             <XCircle size={18} weight="fill" color="rgb(173, 14, 14)" />
-                                          )}
-                                       </div>
-                                       <div className="flex-grow">
-                                          {issue.typeError.name}
-                                          <div className="mt-1 w-[50vw] truncate text-neutral-400">
-                                             {issue.description}
-                                          </div>
-                                       </div>
-                                       <div className="flex gap-1">
-                                          {task.status === TaskStatus.HEAD_STAFF_CONFIRM &&
-                                             (issue.imagesVerify.find((e) => !!e) || !!issue.videosVerify) && (
-                                                <ImageSquare
-                                                   size={18}
-                                                   weight="fill"
-                                                   className="mt-[3px]"
-                                                   color="rgb(51, 179, 22)"
-                                                />
-                                             )}
-                                          <Button type="text" size="small" icon={<RightOutlined />} />
+                              <div
+                                 key={issue.id}
+                                 onClick={() =>
+                                    issueDetailsDrawerRef.current?.openDrawer(issue.id, api_task.data.device.id, false)
+                                 }
+                              >
+                                 <div className="flex items-stretch justify-start gap-2">
+                                    <div>
+                                       {issue.status === IssueStatusEnum.PENDING && <Circle size={18} />}
+                                       {issue.status === IssueStatusEnum.RESOLVED && (
+                                          <CheckCircle size={18} weight="fill" color="rgb(2, 134, 6)" />
+                                       )}
+                                       {issue.status === IssueStatusEnum.FAILED && (
+                                          <XCircle size={18} weight="fill" color="rgb(173, 14, 14)" />
+                                       )}
+                                    </div>
+                                    <div className="flex-grow">
+                                       {issue.typeError.name}
+                                       <div className="mt-1 w-[50vw] truncate text-neutral-400">
+                                          {issue.description}
                                        </div>
                                     </div>
+                                    <div className="flex gap-1">
+                                       {task.status === TaskStatus.HEAD_STAFF_CONFIRM &&
+                                          (issue.imagesVerify.find((e) => !!e) || !!issue.videosVerify) && (
+                                             <ImageSquare
+                                                size={18}
+                                                weight="fill"
+                                                className="mt-[3px]"
+                                                color="rgb(51, 179, 22)"
+                                             />
+                                          )}
+                                       <Button type="text" size="small" icon={<RightOutlined />} />
+                                    </div>
                                  </div>
-                              </>
+                              </div>
                            ))}
                         </div>
                      </div>
@@ -435,10 +432,13 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
          />
          <CheckSignatureDrawer ref={checkSignatureDrawerRef} onSubmit={handleUpdateConfirmCheck} />
          <UpdateTaskFixDateDrawer ref={updateTaskFixDateDrawerRef} refetchFn={props.refetchFn} />
-         <CancelTaskDrawer ref={cancelTaskDrawerRef} refetchFn={() => {
-            props.refetchFn?.()
-            handleClose()
-         }} />
+         <CancelTaskDrawer
+            ref={cancelTaskDrawerRef}
+            refetchFn={() => {
+               props.refetchFn?.()
+               handleClose()
+            }}
+         />
       </>
    )
 })

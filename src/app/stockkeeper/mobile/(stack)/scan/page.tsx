@@ -69,7 +69,7 @@ export default function ScanPage() {
       <div className="h-full">
          {isLoading && <Spin fullscreen className="z-[5000]" />}
          <div>
-            <RootHeader title="Quét mã QR" className="p-4" icon={<LeftOutlined />} onIconClick={() => router.back()} />
+            <RootHeader title="Quét mã QR" className="p-4" icon={<LeftOutlined />} onIconClick={() => router.push("/stockkeeper/mobile/dashboard")} />
             <section className="my-6 grid place-items-center">
                <div className="flex items-center rounded-full bg-white px-6 py-1">
                   Vui lòng đặt <strong className="mx-1.5 font-semibold">mã QR của tác vụ</strong> vào khung hình

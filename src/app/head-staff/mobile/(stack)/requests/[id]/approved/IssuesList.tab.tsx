@@ -6,13 +6,13 @@ import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
 import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
 import { cn } from "@/common/util/cn.util"
-import { MoreOutlined, PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons"
-import { CheckCircle, Clock, Dot, MinusCircle, XCircle } from "@phosphor-icons/react"
+import { DeleteOutlined, EditOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons"
+import { CheckCircle, Clock, Dot, Eye, MinusCircle, XCircle } from "@phosphor-icons/react"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
-import { App, Button, ConfigProvider, Divider, Dropdown, FloatButton, Tabs } from "antd"
+import { App, Button, ConfigProvider, Divider, Dropdown, Empty, FloatButton, Tabs } from "antd"
 import { Fragment, useMemo, useRef, useState } from "react"
 import CreateIssueModal, { CreateIssueModalRefType } from "./CreateIssue.modal"
-import CreateTaskDrawer, { CreateTaskDrawerRefType } from "./CreateTask.drawer"
+import { CreateTaskDrawerRefType } from "./CreateTask.drawer"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 
 type Props = {
@@ -146,17 +146,25 @@ function IssuesListTab(props: Props) {
          </ConfigProvider>
          {tab === "1" && (
             <div className="px-layout">
-               <FloatButton
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={() =>
-                     props.api_request.isSuccess &&
-                     createIssuesDrawerRef.current?.handleOpen({
-                        deviceId: props.api_request.data.device.id,
-                        request: props.api_request.data,
-                     })
-                  }
-               />
+               {(props.api_request.data?.status === FixRequestStatus.APPROVED ||
+                  props.api_request.data?.status === FixRequestStatus.IN_PROGRESS) && (
+                  <FloatButton
+                     type="primary"
+                     icon={<PlusOutlined />}
+                     onClick={() =>
+                        props.api_request.isSuccess &&
+                        createIssuesDrawerRef.current?.handleOpen({
+                           deviceId: props.api_request.data.device.id,
+                           request: props.api_request.data,
+                        })
+                     }
+                  />
+               )}
+               {issuesGrouped?.noTask.length === 0 && (
+                  <div className="grid place-items-center py-12">
+                     <Empty description="Không tìm thấy lỗi nào" />
+                  </div>
+               )}
                {issuesGrouped?.noTask.map((issue, index) => (
                   <Fragment key={issue.id}>
                      {index !== 0 && <Divider className="my-3" />}
@@ -238,6 +246,11 @@ function IssuesListTab(props: Props) {
          )}
          {tab === "2" && (
             <div className="grid grid-cols-1 px-layout">
+               {issuesGrouped?.hasTask.length === 0 && (
+                  <div className="grid place-items-center py-12">
+                     <Empty description="Không tìm thấy lỗi nào" />
+                  </div>
+               )}
                {issuesGrouped?.hasTask.map((issue, index, array) => (
                   <Fragment key={issue.id}>
                      {index !== 0 && (
@@ -316,9 +329,9 @@ function IssuesListTab(props: Props) {
                            menu={{
                               items: [
                                  {
-                                    key: "delete-issue",
-                                    label: "Xóa",
-                                    danger: true,
+                                    key: "view-task",
+                                    label: "Xem tác vụ",
+                                    icon: <Eye />,
                                  },
                               ],
                            }}
@@ -332,7 +345,6 @@ function IssuesListTab(props: Props) {
          )}
          <IssueDetailsDrawer refetch={() => {}} ref={IssueDetailsDrawerRef} />
          <CreateIssueModal onFinish={props.api_request.refetch} ref={createIssuesDrawerRef} />
-         <CreateTaskDrawer ref={createTaskDrawerRef} />
       </div>
    )
 }

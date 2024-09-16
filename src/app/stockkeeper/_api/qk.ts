@@ -7,5 +7,6 @@ export const stockkeeper_qk = {
     sparePart: {
         base: ['stockkeeper', 'spare-part'],
         all: (props: {page: number, limit: number}) => [...stockkeeper_qk.sparePart.base, 'all', props],
+        allNeedMore: () => [...stockkeeper_qk.sparePart.base, 'all-need-more'],
     },
 }

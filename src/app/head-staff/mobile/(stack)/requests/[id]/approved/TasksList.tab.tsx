@@ -16,6 +16,7 @@ import HeadStaff_Task_Update from "@/app/head-staff/_api/task/update.api"
 import { cn } from "@/common/util/cn.util"
 import {
    CalendarBlank,
+   CheckCircle,
    Dot,
    HourglassMedium,
    Package,
@@ -350,7 +351,63 @@ export default function TasksListTab(props: Props) {
                )}
             </div>
          )}
-         {tab === "3" && <div>Test</div>}
+         {tab === "3" && (
+            <div className="grid grid-cols-1 px-layout">
+               {taskGrouped.completed.length === 0 && (
+                  <div className="grid place-items-center py-12">
+                     <Empty description="Không có tác vụ" />
+                  </div>
+               )}
+               {[...taskGrouped.completed].map((task, index, array) => (
+                  <Fragment key={task.id}>
+                     {index !== 0 && (
+                        <div className="grid grid-cols-[24px_1fr] gap-4">
+                           {(array[index - 1] === undefined || array[index - 1]?.status === task.status) && <div></div>}
+                           <Divider
+                              className={cn(
+                                 "my-3",
+                                 array[index - 1] !== undefined &&
+                                    array[index - 1]?.status !== task.status &&
+                                    "col-span-2",
+                              )}
+                           />
+                        </div>
+                     )}
+                     <div
+                        className="grid cursor-pointer grid-cols-[24px_1fr] gap-4"
+                        onClick={() => taskDetailsRef.current?.handleOpen(task)}
+                     >
+                        <div className="grid place-items-center">
+                           {task.status === TaskStatus.COMPLETED && (
+                              <CheckCircle
+                                 size={24}
+                                 weight="fill"
+                                 className={TaskStatusTagMapper[task.status].className}
+                              />
+                           )}
+                        </div>
+                        <div className="flex flex-col gap-0.5">
+                           <h3 className="text-sm text-neutral-800">{task.name}</h3>
+                           <div className="flex items-center">
+                              <div className={cn(TaskStatusTagMapper[task.status].className)}>
+                                 {TaskStatusTagMapper[task.status].text}
+                              </div>
+                              {task.fixerDate && (
+                                 <>
+                                    <Dot size={24} className="text-neutral-500" />
+                                    <div className="flex items-center">
+                                       <CalendarBlank size={16} className="mr-1 inline" />
+                                       <span className="text-sm">{dayjs(task.fixerDate).format("DD/MM")}</span>
+                                    </div>
+                                 </>
+                              )}
+                           </div>
+                        </div>
+                     </div>
+                  </Fragment>
+               ))}
+            </div>
+         )}
          <TaskDetailsDrawer
             ref={taskDetailsRef}
             refetchFn={async () => {

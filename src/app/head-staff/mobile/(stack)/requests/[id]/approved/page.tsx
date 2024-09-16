@@ -12,7 +12,7 @@ import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
 import { NotFoundError } from "@/common/error/not-found.error"
 import { Info } from "@phosphor-icons/react"
 import { MoreOutlined } from "@ant-design/icons"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { App, Dropdown, Progress } from "antd"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
@@ -30,10 +30,12 @@ import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants
 import { cn } from "@/common/util/cn.util"
 import TaskDetailsDrawer, { TaskDetailsDrawerRefType } from "./TaskDetails.drawer"
 import { TaskStatus } from "@/common/enum/task-status.enum"
+import HeadStaff_Task_Create from "@/app/head-staff/_api/task/create.api"
+import HeadStaff_Task_Update from "@/app/head-staff/_api/task/update.api"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
-   const { modal, notification } = App.useApp()
+   const { modal, notification, message } = App.useApp()
 
    const rejectRequestRef = useRef<RejectRequestDrawerRefType | null>(null)
    const taskDetailsRef = useRef<TaskDetailsDrawerRefType | null>(null)
@@ -63,6 +65,14 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       enabled: api_request.isSuccess,
    })
 
+   const mutate_createTask = useMutation({
+      mutationFn: HeadStaff_Task_Create,
+   })
+
+   const mutate_updateTaskStatus = useMutation({
+      mutationFn: HeadStaff_Task_Update,
+   })
+
    const percentFinished = useMemo(() => {
       if (!api_request.isSuccess) return
       return (
@@ -83,6 +93,52 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
          router.back()
       } else {
          router.push(`/head-staff/mobile/requests?status=${api_request.data?.status}`)
+      }
+   }
+
+   async function handleAutoCreateWarrantyTask(returnDate?: string) {
+      try {
+         console.log("Test")
+         if (!api_request.isSuccess) {
+            console.log("Failed 1")
+            return
+         }
+         const issue = api_request.data.issues.find((issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId)
+         if (!issue) {
+            console.log("Failed 2")
+            return
+         }
+         console.log("Reacted herer")
+
+         // check if already has warranty task
+         if (issue.task !== null) {
+            console.log("Failed 3")
+            return
+         }
+
+         const task = await mutate_createTask.mutateAsync({
+            issueIDs: [issue.id],
+            name: `${dayjs(api_request.data.createdAt).add(7, "hours").format("DDMMYY")}_${api_request.data.device.area.name}_${api_request.data.device.machineModel.name}_Lắp máy bảo hành`,
+            operator: 0,
+            priority: false,
+            request: api_request.data.id,
+            totalTime: issue.typeError.duration,
+            fixerDate: returnDate ?? api_request.data.return_date_warranty ?? undefined,
+         })
+
+         console.log("stuff")
+
+         const taskUpdate = await mutate_updateTaskStatus.mutateAsync({
+            id: task.id,
+            payload: {
+               status: TaskStatus.AWAITING_FIXER,
+            },
+         })
+
+         api_request.refetch()
+      } catch (error) {
+         console.error(error)
+         message.error("Có lỗi xảy ra khi tạo tác vụ bảo hành, vui lòng thử lại")
       }
    }
 
@@ -148,7 +204,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    }, [api_request.data, api_request.isSuccess, modal])
 
    return (
-      <div className="relative min-h-screen flex flex-col">
+      <div className="relative flex min-h-screen flex-col">
          <PageHeader
             title={searchParams.viewingHistory === "true" ? "Quay Lại | Yêu cầu" : "Yêu cầu"}
             handleClickIcon={handleBack}
@@ -213,7 +269,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                         items={[
                            {
                               label: "Ngày tạo",
-                              value: (e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
+                              value: (e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
                            },
                            {
                               label: "Người yêu cầu",
@@ -231,6 +287,14 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                               label: "Ghi chú",
                               value: (e) => e.requester_note,
                            },
+                           ...(api_request.data?.return_date_warranty
+                              ? [
+                                   {
+                                      label: "Ngày nhận máy bảo hành",
+                                      value: (e: any) => dayjs(e.return_date_warranty).format("DD/MM/YYYY - HH:mm"),
+                                   },
+                                ]
+                              : []),
                         ]}
                      />
                   </section>
@@ -293,7 +357,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                            </div>
                         </section>
                      )}
-
+*/}
                   {api_request.isSuccess && new Set([FixRequestStatus.HEAD_CONFIRM]).has(api_request.data.status) && (
                      <section className="std-layout">
                         <div className="flex w-full gap-4 rounded-b-lg bg-yellow-500 p-3 text-white">
@@ -301,7 +365,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                         </div>
                      </section>
                   )}
-
                   {api_request.isSuccess && api_request.data.status === FixRequestStatus.CLOSED && (
                      <section className="std-layout">
                         <div className="flex w-full gap-2 rounded-b-lg bg-purple-500 p-3 text-white">
@@ -309,7 +372,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                            <div>{(api_request.data as any)?.feedback?.content ?? "Không có"}</div>
                         </div>
                      </section>
-                  )} */}
+                  )}
                </div>
 
                <Suspense fallback={<Spin />}>
@@ -333,7 +396,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
             refetchFn={async () => {
                await api_request.refetch()
             }}
-            autoCreateTaskFn={async () => {}}
+            autoCreateTaskFn={async (warrantyDate) => handleAutoCreateWarrantyTask(warrantyDate)}
          />
       </div>
    )

@@ -136,7 +136,7 @@ const CreateIssueModal = forwardRef<CreateIssueModalRefType, Props>(function Com
    return (
       <>
          {props.children?.(handleOpen)}
-         <Modal open={open} onCancel={handleClose} title="Tạo lỗi" centered>
+         <Modal open={open} onCancel={handleClose} title="Tạo lỗi" centered footer={false}>
             {api_device.isSuccess && api_commonTypeErrors.isSuccess && (
                <div>
                   <AlertCard type="info" text="Vui lòng chọn loại lỗi phía dưới" className="mb-layout" />

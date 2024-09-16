@@ -8,8 +8,8 @@ import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 import { cn } from "@/common/util/cn.util"
 import { PlusOutlined } from "@ant-design/icons"
 import { CheckSquareOffset, Devices, MapPin, WarningDiamond } from "@phosphor-icons/react"
-import { UseQueryResult } from "@tanstack/react-query"
-import { Divider, Empty, Skeleton } from "antd"
+import { useMutation, UseQueryResult } from "@tanstack/react-query"
+import { App, Divider, Empty, Skeleton } from "antd"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
 import List from "antd/es/list"
@@ -28,6 +28,8 @@ import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { SendWarrantyTypeErrorId } from "@/constants/Warranty"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 import IssuesListTab from "./IssuesList.tab"
+import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
+import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
 
 type Props = {
    requestId: string
@@ -38,12 +40,57 @@ type Props = {
 
 function TabbedLayout(props: Props) {
    const router = useRouter()
+   const { message, modal } = App.useApp()
    const searchParams = useSearchParams()
-   const [isHovered, setIsHovered] = useState(false)
 
    const [tab, setTab] = useState<string | undefined>()
 
    const createTaskRef = useRef<CreateTaskDrawerRefType | null>(null)
+
+   const mutate_finishRequest = useMutation({
+      mutationFn: HeadStaff_Request_UpdateStatus,
+      onMutate: () => {
+         message.destroy("finishRequest")
+         message.loading({
+            content: "Đang hoàn tất yêu cầu...",
+            key: "finishRequest",
+         })
+      },
+      onSettled: () => {
+         message.destroy("finishRequest")
+      },
+      onSuccess: () => {
+         message.success({
+            content: "Hoàn tất yêu cầu thành công",
+         })
+      },
+      onError: (error) => {
+         console.error(error)
+         message.error({
+            content: "Hoàn tất yêu cầu thất bại",
+         })
+      },
+   })
+
+   function handleFinishRequest() {
+      modal.confirm({
+         title: "Hoàn tất yêu cầu",
+         content: "Bạn có chắc chắn muốn hoàn tất yêu cầu này?",
+         onOk: () => {
+            mutate_finishRequest.mutate(
+               { id: props.requestId, payload: { status: FixRequestStatus.HEAD_CONFIRM } },
+               {
+                  onSettled: () => props.api_request.refetch(),
+               },
+            )
+         },
+         cancelText: "Hủy",
+         okText: "Hoàn tất",
+         closable: true,
+         centered: true,
+         maskClosable: true,
+      })
+   }
 
    const hasExpired = useMemo(() => {
       if (!props.api_device.isSuccess) return false
@@ -154,34 +201,35 @@ function TabbedLayout(props: Props) {
                <>
                   <TasksListTab api_request={props.api_request} className="flex-1" highlightTaskId={highlightedId} />
 
-               {props.api_request.isSuccess &&
-                  new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
-                     props.api_request.data.status,
-                  ) && (
-                     <section className="fixed bottom-0 left-0 w-full bg-inherit p-layout">
-                        <div className="grid w-full grid-cols-3 gap-3">
-                           <Button
-                              className="col-span-2 w-full"
-                              type="primary"
-                              size="large"
-                              icon={<PlusOutlined />}
-                              onClick={() => createTaskRef.current?.handleOpen(props.requestId)}
-                              disabled={createTaskBtnText}
-                           >
-                              Tạo tác vụ
-                           </Button>
-                           <Button
-                              className="col-span-1 w-full"
-                              size="large"
-                              type="primary"
-                           >
-                              Hoàn tất
-                           </Button>
-                        </div>
-                     </section>
-                  )}
-            </>
-         )}
+                  {props.api_request.isSuccess &&
+                     new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
+                        props.api_request.data.status,
+                     ) && (
+                        <section className="fixed bottom-0 left-0 w-full bg-inherit p-layout">
+                           <div className="flex w-full items-center gap-3">
+                              <Button
+                                 className="w-full"
+                                 type="primary"
+                                 size="large"
+                                 icon={<PlusOutlined />}
+                                 onClick={() => createTaskRef.current?.handleOpen(props.requestId)}
+                                 disabled={createTaskBtnText}
+                              >
+                                 Tạo tác vụ
+                              </Button>
+                              {props.api_request.data?.tasks.every((task) => task.status === TaskStatus.COMPLETED) &&
+                                 props.api_request.data?.issues.every(
+                                    (issue) => issue.status === IssueStatusEnum.RESOLVED,
+                                 ) && (
+                                    <Button className="" size="large" type="primary" onClick={handleFinishRequest}>
+                                       Hoàn tất
+                                    </Button>
+                                 )}
+                           </div>
+                        </section>
+                     )}
+               </>
+            )}
             {tab === "issues" && <IssuesListTab api_request={props.api_request} />}
             {tab === "device" && (
                <div className="mt-layout-half rounded-lg">

@@ -11,11 +11,11 @@ import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 import useModalControls from "@/common/hooks/useModalControls"
 import { cn } from "@/common/util/cn.util"
 import AlertCard from "@/components/AlertCard"
-import DataListView from "@/components/DataListView"
-import { InfoCircleFilled, ReloadOutlined, WarningOutlined } from "@ant-design/icons"
+import { ReloadOutlined, MoreOutlined, DeleteOutlined } from "@ant-design/icons"
 import { CheckCard } from "@ant-design/pro-components"
+import { Clock, Note } from "@phosphor-icons/react"
 import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query"
-import { Divider, Input, message } from "antd"
+import { Card, Divider, Dropdown, Input } from "antd"
 import App from "antd/es/app"
 import Button from "antd/es/button"
 import Checkbox from "antd/es/checkbox"
@@ -54,7 +54,7 @@ export type CreateTaskDrawerRefType = {
 }
 
 type FormContextType = {
-   handleClose: () => void
+   handleClose: (justClose?: boolean) => void
    requestId: string | undefined
    api_request: UseQueryResult<FixRequestDto, Error>
    setFormStep: React.Dispatch<React.SetStateAction<number>>
@@ -101,7 +101,7 @@ const CreateTaskDrawer = forwardRef<CreateTaskDrawerRefType, Props>(function Com
       },
    })
    const [form] = Form.useForm<FieldType>()
-   const { message } = App.useApp()
+   const { message, modal } = App.useApp()
 
    const [formStep, setFormStep] = useState<number>(0)
    const [requestId, setRequestId] = useState<string | undefined>(undefined)
@@ -125,6 +125,31 @@ const CreateTaskDrawer = forwardRef<CreateTaskDrawerRefType, Props>(function Com
    const mutate_checkSparePartStock = useMutation({
       mutationFn: HeadStaff_Task_UpdateAwaitSparePartToAssignFixer,
    })
+
+   function handleClose_proxy(justClose?: boolean) {
+      if (justClose) {
+         handleClose()
+         return
+      }
+
+      console.log(issueIDs, fixerDate, name)
+
+      if (issueIDs.length > 0 || fixerDate) {
+         modal.confirm({
+            centered: true,
+            closable: true,
+            maskClosable: true,
+            title: "Lưu ý",
+            content: "Bạn có chắc chắn muốn đóng mà không lưu tác vụ?",
+            onOk: handleClose,
+            okText: "Đóng",
+            cancelText: "Hủy",
+         })
+         return
+      }
+
+      handleClose()
+   }
 
    async function handleFormSubmit(fixerId?: string) {
       if (!api_request.isSuccess || !requestId) return
@@ -189,7 +214,7 @@ const CreateTaskDrawer = forwardRef<CreateTaskDrawerRefType, Props>(function Com
       <FormContext.Provider
          value={{
             formStep,
-            handleClose,
+            handleClose: handleClose_proxy,
             api_request,
             requestId,
             setFormStep,
@@ -213,7 +238,7 @@ const CreateTaskDrawer = forwardRef<CreateTaskDrawerRefType, Props>(function Com
          {children?.(handleOpen)}
          <Drawer
             open={open}
-            onClose={handleClose}
+            onClose={() => handleClose_proxy()}
             title="Tạo tác vụ"
             placement="right"
             width="100%"
@@ -258,9 +283,7 @@ function FormStep_0() {
       formStep,
       form: { setIssueIDs, issueIDs, setTotalTime },
    } = useFormContext()
-   const mutate_checkSparePartStock = useMutation({
-      mutationFn: HeadStaff_Task_UpdateAwaitSparePartToAssignFixer,
-   })
+
    const [selectedIssues, setSelectedIssues] = useState<{ [key: string]: FixRequestIssueDto }>({})
 
    const issueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)
@@ -275,6 +298,14 @@ function FormStep_0() {
          issue.issueSpareParts.find((isp) => isp.quantity > isp.sparePart.quantity),
       )
    }, [selectedIssues])
+
+   const sortedIssues = useMemo(() => {
+      return api_request.data?.issues.sort((a, b) => {
+         if (a.task !== null && b.task === null) return 1
+         if (a.task === null && b.task !== null) return -1
+         return 0
+      })
+   }, [api_request.data?.issues])
 
    function handleFinish() {
       if (selectedIssuesValues.length === 0) return
@@ -303,46 +334,65 @@ function FormStep_0() {
       <>
          <main className={cn("mt-layout px-layout pb-40", hasChosenIssueWithMissingSpareParts && "pb-64")}>
             <Form.Item<FieldType> name="issueIDs">
-               <section className="mx-auto mb-layout w-max rounded-lg border-2 border-neutral-200 bg-white p-1 px-3 text-center">
-                  Chọn các lỗi cho tác vụ
-                  <InfoCircleFilled className="ml-2" />
-               </section>
-               <section className="mb-2 grid grid-cols-2 gap-2">
-                  <Button
-                     size="middle"
-                     className="w-full bg-amber-500 text-sm text-white"
-                     onClick={() => {
-                        setSelectedIssues(() => ({
-                           ...api_request.data?.issues.reduce((acc, issue) => {
-                              if (issue.fixType === FixType.REPAIR && issue.task === null) {
-                                 acc[issue.id] = issue
-                              }
-                              return acc
-                           }, {} as any),
-                        }))
+               <AlertCard text="Chọn lỗi để tạo tác vụ" type="info" className="mb-layout" />
+               <section className="mb-2 flex items-center gap-3">
+                  <Card size="small" classNames={{ body: "p-2" }} className="flex-grow">
+                     <div className="flex justify-between">
+                        <div className="text-sm">Đã chọn {selectedIssuesValues.length} lỗi</div>
+                        <div>
+                           {Object.values(selectedIssues).length > 0 && (
+                              <Button
+                                 type="link"
+                                 size="small"
+                                 danger
+                                 onClick={() => setSelectedIssues({})}
+                                 icon={<DeleteOutlined />}
+                              ></Button>
+                           )}
+                        </div>
+                     </div>
+                  </Card>
+                  <Dropdown
+                     menu={{
+                        items: [
+                           {
+                              type: "item",
+                              key: "fix",
+                              label: "Chọn tất cả sửa chữa",
+                              onClick: () => {
+                                 setSelectedIssues(() => ({
+                                    ...api_request.data?.issues.reduce((acc, issue) => {
+                                       if (issue.fixType === "REPAIR" && issue.task === null) {
+                                          acc[issue.id] = issue
+                                       }
+                                       return acc
+                                    }, {} as any),
+                                 }))
+                              },
+                           },
+                           {
+                              type: "item",
+                              key: "replace",
+                              label: "Chọn tất cả thay thế",
+                              onClick: () => {
+                                 setSelectedIssues(() => ({
+                                    ...api_request.data?.issues.reduce((acc, issue) => {
+                                       if (issue.fixType === "REPLACE" && issue.task === null) {
+                                          acc[issue.id] = issue
+                                       }
+                                       return acc
+                                    }, {} as any),
+                                 }))
+                              },
+                           },
+                        ],
                      }}
                   >
-                     Chọn SỬA CHỮA
-                  </Button>
-                  <Button
-                     size="middle"
-                     className="w-full bg-blue-700 text-sm text-white"
-                     onClick={() => {
-                        setSelectedIssues(() => ({
-                           ...api_request.data?.issues.reduce((acc, issue) => {
-                              if (issue.fixType === FixType.REPLACE && issue.task === null) {
-                                 acc[issue.id] = issue
-                              }
-                              return acc
-                           }, {} as any),
-                        }))
-                     }}
-                  >
-                     Chọn THAY THẾ
-                  </Button>
+                     <Button icon={<MoreOutlined />} />
+                  </Dropdown>
                </section>
                <div className="grid grid-cols-1 gap-2">
-                  {api_request.data?.issues.map((issue) => (
+                  {sortedIssues?.map((issue) => (
                      <div key={issue.id} className="relative">
                         <CheckCard
                            title={
@@ -354,24 +404,44 @@ function FormStep_0() {
                            disabled={issue.task !== null}
                            description={
                               <div className="mt-2 flex flex-col gap-1">
-                                 <div className="w-9/12 truncate">
-                                    {issue.typeError.duration} phút | {issue.description}
+                                 <div className="flex gap-2">
+                                    <div
+                                       className={cn(
+                                          "flex items-center gap-1",
+                                          FixTypeTagMapper[issue.fixType].className,
+                                       )}
+                                    >
+                                       {FixTypeTagMapper[issue.fixType].icon}
+                                       {FixTypeTagMapper[issue.fixType].text}
+                                    </div>
+                                    •
+                                    <div className="flex flex-grow items-center gap-1">
+                                       <Clock />
+                                       {issue.typeError.duration} phút
+                                    </div>
+                                    {issue.task === null &&
+                                       issue.issueSpareParts.find((isp) => isp.quantity > isp.sparePart.quantity) && (
+                                          <div className="">
+                                             <Tag color="yellow" className="m-0">Không đủ linh kiện</Tag>
+                                          </div>
+                                       )}
                                  </div>
-                                 <div className="mt-2 flex items-center gap-0">
-                                    {issue.issueSpareParts.find((isp) => isp.quantity > isp.sparePart.quantity) && (
-                                       <Tag color="yellow-inverse">Không đủ linh kiện</Tag>
-                                    )}
-                                 </div>
+                                 <Button
+                                    type="link"
+                                    size="small"
+                                    className="absolute right-2 top-4 text-sm"
+                                    onClick={() =>
+                                       api_request.isSuccess &&
+                                       issueDetailsDrawerRef.current?.openDrawer(
+                                          issue.id,
+                                          api_request.data.device.id,
+                                          false,
+                                       )
+                                    }
+                                 >
+                                    Xem thêm
+                                 </Button>
                               </div>
-                           }
-                           extra={
-                              <Tag
-                                 color={FixTypeTagMapper[String(issue.fixType)].colorInverse}
-                                 className="m-0 flex items-center gap-1"
-                              >
-                                 {FixTypeTagMapper[String(issue.fixType)].icon}
-                                 {FixTypeTagMapper[String(issue.fixType)].text}
-                              </Tag>
                            }
                            checked={!!selectedIssues[issue.id]}
                            onChange={(checked) => {
@@ -392,17 +462,6 @@ function FormStep_0() {
                                  "border-2 border-yellow-100 bg-yellow-50",
                            )}
                         ></CheckCard>
-                        <Button
-                           type="link"
-                           size="small"
-                           className="absolute bottom-4 right-2"
-                           onClick={() =>
-                              api_request.isSuccess &&
-                              issueDetailsDrawerRef.current?.openDrawer(issue.id, api_request.data.device.id, false)
-                           }
-                        >
-                           Xem thêm
-                        </Button>
                      </div>
                   ))}
                </div>
@@ -428,7 +487,7 @@ function FormStep_0() {
                </section>
             </div>
             <div className="flex justify-between gap-3">
-               <Button type="default" size="middle" onClick={handleClose} className="w-full">
+               <Button type="default" size="middle" onClick={() => handleClose()} className="w-full">
                   Đóng
                </Button>
                <Button
@@ -605,14 +664,17 @@ export function generateTaskName(data: FixRequestDto, selectedIssues: string[]) 
    const requestDate = dayjs(data.createdAt).format("DDMMYY")
    const area = data.device.area.name
    const machine = data.device.machineModel.name.split(" ").join("-")
-   const issueCodes = selectedIssues
-      ?.map((e) => {
-         return e.substring(0, 3)
-      })
-      .join("")
-      .toUpperCase()
 
-   return `${requestDate}_${area}_${machine}_${issueCodes}`
+   return `${requestDate}_${area}_${machine}_${generateRandomText(6)}`
+}
+
+function generateRandomText(len: number) {
+   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+   let result = ""
+   for (let i = 0; i < len; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length))
+   }
+   return result
 }
 
 export default CreateTaskDrawer

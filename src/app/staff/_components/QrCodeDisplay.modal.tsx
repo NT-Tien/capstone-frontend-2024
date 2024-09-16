@@ -1,21 +1,22 @@
 import { FixRequestIssueSparePartDto } from "@/common/dto/FixRequestIssueSparePart.dto"
 import useModalControls from "@/common/hooks/useModalControls"
 import { InfoCircleOutlined } from "@ant-design/icons"
-import { Button, Card, List, Modal, QRCode } from "antd"
+import { Wrench } from "@phosphor-icons/react"
+import { Button, Card, Empty, List, Modal, QRCode } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle, useState } from "react"
 
 type Props = {
    children?: (
-      handleOpen: (qrCode: string, issueSpareParts: FixRequestIssueSparePartDto[], isWarranty?: boolean) => void,
+      handleOpen: (qrCode: string, issueSpareParts: FixRequestIssueSparePartDto[]) => void,
    ) => ReactNode
    title?: string
    description?: string
    refetch: () => void
+   onComplete?: () => void
 }
 
 export type QrCodeDisplayModalRefType = {
-   handleOpen: (qrCode: string, issueSpareParts: FixRequestIssueSparePartDto[], isWarranty?: boolean) => void
-   handleClose: () => void
+   handleOpen: (qrCode: string, issueSpareParts: FixRequestIssueSparePartDto[]) => void
 }
 
 const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function Component(
@@ -24,24 +25,23 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
 ) {
    const [qrCode, setQrCode] = useState<string | undefined>(undefined)
    const [spareParts, setSpareParts] = useState<FixRequestIssueSparePartDto[]>([])
-   const [isWarranty, setIsWarranty] = useState<boolean>(false)
-   const [isHovered, setIsHovered] = useState(false)
    const { open, handleOpen, handleClose } = useModalControls({
-      onOpen: (qrCode: string, issueSpareParts: FixRequestIssueSparePartDto[], isWarranty?: boolean) => {
+      onOpen: (qrCode: string, issueSpareParts: FixRequestIssueSparePartDto[]) => {
          setQrCode(qrCode)
          setSpareParts(issueSpareParts)
-         setIsWarranty(isWarranty ?? false)
       },
       onClose: () => {
          setQrCode(undefined)
          setSpareParts([])
-         props.refetch()
       },
    })
 
-   const handleCompleteSpareParts = () => {
+   function handleCompleteSpareParts() {
       handleClose()
-      props.refetch()
+      props.onComplete?.()
+      setTimeout(() => {
+         props.refetch?.()
+      }, 500)
    }
 
    useImperativeHandle(ref, () => ({
@@ -52,7 +52,7 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
    return (
       <>
          {children?.(handleOpen)}
-         <Modal title={props.title ?? "Qr Code"} open={open} onCancel={handleClose} footer={null}>
+         <Modal title={props.title ?? "Qr Code"} open={open} onCancel={handleClose} footer={null} centered>
             {props.description && (
                <Card
                   size="small"
@@ -66,31 +66,29 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
                </Card>
             )}
             <QRCode value={qrCode ?? ""} className="aspect-square h-full w-full" />
-            {!isWarranty && (
-               <section className="mt-layout">
-                  <h2 className="mb-2 text-base font-semibold">Linh kiện thay thế</h2>
-                  <List
-                     grid={{
-                        column: 2,
-                     }}
-                     dataSource={spareParts}
-                     renderItem={(item) => (
-                        <List.Item>
-                           <List.Item.Meta title={item.sparePart.name} description={`Số lượng: ${item.quantity}`} />
-                        </List.Item>
-                     )}
-                  />
-               </section>
-            )}
+            <section className="my-layout">
+               <h4 className="mb-2 text-lg font-medium">
+                  <Wrench size={24} weight="duotone" className="mr-1 inline" />
+                  Linh kiện
+               </h4>
+               <div className="h-max max-h-44 overflow-auto rounded-md border-2 border-neutral-100 bg-neutral-50 p-2 pb-4">
+                  {spareParts?.map((issueSparePart, index) => (
+                     <div key={issueSparePart.id} className="flex items-center justify-between">
+                        <span>
+                           {index + 1}. {issueSparePart.sparePart.name}
+                        </span>
+                        <span>x{issueSparePart.quantity}</span>
+                     </div>
+                  ))}
+                  {spareParts?.length === 0 && (
+                     <div className="grid h-full place-items-center">
+                        <Empty description="Không có linh kiện" />
+                     </div>
+                  )}
+               </div>
+            </section>
             <section className="mt-layout">
-               <Button
-                  className="w-full"
-                  size="large"
-                  type={isHovered ? "primary" : "default"}
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                  onClick={handleCompleteSpareParts}
-               >
+               <Button className="w-full" size="large" type="primary" onClick={handleCompleteSpareParts}>
                   Hoàn tất lấy linh kiện
                </Button>
             </section>

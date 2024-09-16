@@ -27,7 +27,7 @@ function Page({ params }: { params: { id: string } }) {
          console.log("INITIA:L")
          console.log(data)
          return data
-      }
+      },
    })
 
    const spareParts = useMemo(() => {
@@ -106,9 +106,11 @@ function Page({ params }: { params: { id: string } }) {
                   </div>
                   <Divider className="my-0" />
                   <div className="flex items-center justify-between p-3">
-                     <h2 className="text-base font-medium text-gray-800">Ngày tạo</h2>
+                     <h2 className="text-base font-medium text-gray-800">Ngày sửa chữa</h2>
                      <span className="text-sm text-gray-500">
-                        {dayjs(api_task.data?.createdAt).add(7, "hours").format("DD/MM/YYYY")}
+                        {api_task.data.fixerDate
+                           ? dayjs(api_task.data?.fixerDate).add(7, "hours").format("DD/MM/YYYY")
+                           : "Chưa xác định"}
                      </span>
                   </div>
                   <Divider className="my-0" />
@@ -141,10 +143,10 @@ function Page({ params }: { params: { id: string } }) {
                               <div>
                                  <h2 className="text-base font-medium text-gray-800">{item.sparePart.name}</h2>
                                  <div className="text-sm font-light text-neutral-600">
-                                    Số lượng cần:{" "}
-                                    {item.quantity - item.sparePart.quantity > 0
-                                       ? `+${item.quantity - item.sparePart.quantity}`
-                                       : "Đủ"}
+                                    <span className={cn(item.sparePart.quantity < item.quantity && "text-red-500")}>
+                                       Trong kho: {item.sparePart.quantity}
+                                    </span>{" "}
+                                    • Cần: {item.quantity}
                                  </div>
                               </div>
                               <div>

@@ -73,6 +73,9 @@ const SparePartDetailsDrawer = forwardRef<SparePartDetailsDrawerRefType, Props>(
                handleClose()
                props.refetchFn?.()
             },
+            onError: () => {
+               props.refetchFn?.()
+            },
          },
       )
    }
@@ -101,16 +104,12 @@ const SparePartDetailsDrawer = forwardRef<SparePartDetailsDrawerRefType, Props>(
                <Divider className="my-0" />
                <div className="flex items-center justify-between p-3">
                   <h2 className="text-base font-medium text-gray-800">Số lượng trong kho</h2>
-                  <span className="text-sm text-gray-500">{issueSparePart?.sparePart.quantity}</span>
+                  <span className="text-sm text-red-500">{issueSparePart?.sparePart.quantity}</span>
                </div>
                <Divider className="my-0" />
                <div className="flex items-center justify-between p-3">
-                  <h2 className="text-base font-medium text-gray-800">Số lượng còn thiếu</h2>
-                  <span className="text-sm text-gray-500">
-                     +{issueSparePart ? (
-                         issueSparePart?.quantity - issueSparePart?.sparePart.quantity > 0 ? `${issueSparePart?.quantity - issueSparePart?.sparePart.quantity}` : "Đủ"
-                     ) : 0} (cần {issueSparePart?.quantity})
-                  </span>
+                  <h2 className="text-base font-medium text-gray-800">Số lượng cần</h2>
+                  <span className="text-sm text-green-500">{issueSparePart?.quantity}</span>
                </div>
                <div></div>
             </section>
@@ -119,6 +118,7 @@ const SparePartDetailsDrawer = forwardRef<SparePartDetailsDrawerRefType, Props>(
                   <Button
                      icon={<MinusOutlined />}
                      size="large"
+                     disabled={quantity === 0}
                      onClick={() => {
                         setQuantity((prev) => (prev && prev > 0 ? prev - 1 : 0))
                      }}
@@ -134,8 +134,13 @@ const SparePartDetailsDrawer = forwardRef<SparePartDetailsDrawerRefType, Props>(
                   <Button
                      icon={<PlusOutlined />}
                      size="large"
+                     disabled={quantity === issueSparePart?.quantity}
                      onClick={() => {
-                        setQuantity((prev) => (prev || 0) + 1)
+                        setQuantity((prev) => {
+                           if (prev === undefined) return 0
+                           if (prev >= (issueSparePart?.quantity ?? 0)) return issueSparePart?.quantity
+                           return prev + 1
+                        })
                      }}
                      type="primary"
                   />

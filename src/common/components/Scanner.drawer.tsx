@@ -29,12 +29,13 @@ export default function ScannerDrawer({ children, ...props }: Props) {
             open={open}
             onClose={handleClose}
             title="Quét mã QR"
-placement="bottom"
+            placement="bottom"
             height="max-content"
+            destroyOnClose
             {...props.drawerProps}
          >
             <section className="grid place-items-center">
-               <div className="mb-6 flex items-center rounded-full border-2 border-neutral-200 bg-white px-2 py-1 gap-3">
+               <div className="mb-6 flex items-center gap-3 rounded-full border-2 border-neutral-200 bg-white px-2 py-1">
                   <InfoCircleOutlined />
                   <span className="text-xs">
                      Vui lòng đặt<strong className="mx-1 font-semibold">mã QR của thiết bị</strong>vào khung hình

@@ -1,11 +1,5 @@
-import Webcam from "react-webcam"
-
 function Page() {
-   return (
-      <div>
-         <Webcam />
-      </div>
-   )
+   return <div></div>
 }
 
 export default Page

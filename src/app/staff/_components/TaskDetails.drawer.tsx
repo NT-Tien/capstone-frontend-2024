@@ -88,7 +88,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                size="large"
                icon={<Package size={20} />}
                onClick={() => {
-                  qrCodeDisplayRef.current?.handleOpen(api_task.data.id, spareParts, false)
+                  qrCodeDisplayRef.current?.handleOpen(api_task.data.id, spareParts)
                }}
             >
                Lấy linh kiện
@@ -241,10 +241,13 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                         <Wrench size={24} weight="duotone" className="mr-1 inline" />
                         Linh kiện
                      </h4>
-                     <div className="h-44 overflow-auto rounded-md border-2 border-neutral-100 bg-neutral-50 p-2">
+                     <div className="h-max max-h-44 overflow-auto rounded-md border-2 border-neutral-100 bg-neutral-50 p-2 pb-4">
                         {spareParts?.map((issueSparePart, index) => (
-                           <div key={issueSparePart.id}>
-                              {index + 1}. {issueSparePart.sparePart.name} (x{issueSparePart.quantity})
+                           <div key={issueSparePart.id} className="flex items-center justify-between">
+                              <span>
+                                 {index + 1}. {issueSparePart.sparePart.name}
+                              </span>
+                              <span>x{issueSparePart.quantity}</span>
                            </div>
                         ))}
                         {spareParts?.length === 0 && (
@@ -262,9 +265,9 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
             description="Hãy xuống kho và đưa mã QR sau cho chủ kho."
             refetch={() => {
                api_task.refetch()
-               handleClose()
             }}
             ref={qrCodeDisplayRef}
+            onComplete={() => handleClose()}
          />
       </>
    )

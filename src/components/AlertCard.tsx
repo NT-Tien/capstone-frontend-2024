@@ -1,6 +1,7 @@
 import { cn } from "@/common/util/cn.util"
 import { Warning } from "@phosphor-icons/react"
 import { cva, VariantProps } from "class-variance-authority"
+import { ReactNode } from "react"
 
 const styles = cva("border-l-4 p-4", {
    variants: {
@@ -16,7 +17,7 @@ const styles = cva("border-l-4 p-4", {
 })
 
 type Props = {
-   text: string
+   text: ReactNode
    icon?: React.ReactNode
    className?: string
    textClassName?: string

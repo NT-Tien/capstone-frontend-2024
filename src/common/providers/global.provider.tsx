@@ -5,11 +5,11 @@ import EnvEditorProvider from "@/common/providers/EnvEditor.provider"
 import ModalStackProvider from "@/common/providers/modal-stack.provider"
 import { makeQueryClient } from "@/common/util/makeQueryClient.util"
 import { AntdRegistry } from "@ant-design/nextjs-registry"
-import { enUSIntl, ProConfigProvider } from "@ant-design/pro-provider"
+import { ProConfigProvider, viVNIntl } from "@ant-design/pro-provider"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { App, ConfigProvider } from "antd"
-import en_US from "antd/lib/locale/en_US"
+import vi_VN from "antd/lib/locale/vi_VN"
 import "dayjs/locale/vi"
 import "moment/locale/vi"
 import { ReactNode } from "react"
@@ -26,7 +26,7 @@ export default function GlobalProvider({ children }: Readonly<{ children: ReactN
             <App className="h-full">
                {/* Config for Ant Design Pro-components (Set language to ENGLISH - packaged default is Chinese)*/}
                <ProConfigProvider
-                  intl={enUSIntl}
+                  intl={viVNIntl}
                   token={{
                      colorPrimary: primaryColor,
                      colorInfo: primaryColor,
@@ -34,7 +34,7 @@ export default function GlobalProvider({ children }: Readonly<{ children: ReactN
                >
                   {/* Config for Ant Design (Set language to ENGLISH) */}
                   <ConfigProvider
-                     locale={en_US}
+                     locale={vi_VN}
                      theme={{
                         token: {
                            colorPrimary: primaryColor,
@@ -44,9 +44,7 @@ export default function GlobalProvider({ children }: Readonly<{ children: ReactN
                   >
                      <DayjsProvider>
                         <ModalStackProvider>
-                           <EnvEditorProvider>
-                             {children}
-                           </EnvEditorProvider>
+                           <EnvEditorProvider>{children}</EnvEditorProvider>
                         </ModalStackProvider>
                      </DayjsProvider>
                   </ConfigProvider>

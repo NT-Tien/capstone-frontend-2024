@@ -169,7 +169,7 @@ const SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function
             }
          }
       }
-   }, [deviceWarranty.isSuccess, deviceWarranty.data])
+   }, [deviceWarranty.isSuccess, deviceWarranty.data, message])
 
    return (
       <>

@@ -13,6 +13,7 @@ export type Request = {
       checker_date?: string
       is_seen?: boolean
       is_warranty?: boolean
+      return_date_warranty?: string
    }
 }
 export type Response = FixRequestDto

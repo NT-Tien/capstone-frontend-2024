@@ -2,7 +2,7 @@ import { Upload, UploadProps } from "antd"
 import ImgCrop, { type ImgCropProps } from "antd-img-crop"
 
 type Props = {
-   cropProps?: ImgCropProps
+   cropProps?: Omit<ImgCropProps, 'children'>
 } & UploadProps
 
 export default function ImageWithCrop(props: Props) {

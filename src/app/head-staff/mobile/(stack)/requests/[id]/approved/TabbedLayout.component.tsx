@@ -105,7 +105,6 @@ function TabbedLayout(props: Props) {
                            size="large"
                            icon={<PlusOutlined />}
                            onClick={() => createTaskRef.current?.handleOpen(props.requestId)}
-                           // onClick={() => router.push(`/head-staff/mobile/requests/${props.requestId}/task/new`)}
                            disabled={!props.api_request.data?.issues.find((issue) => issue.task === null)}
                         >
                            Tạo tác vụ
@@ -211,16 +210,19 @@ function TabbedLayout(props: Props) {
                      },
                      {
                         label: "Thời hạn bảo hành",
-                        value: (s) => (
-                           <span className="flex flex-col">
-                              <span className="text-right">{s.machineModel?.warrantyTerm}</span>
-                              {hasExpired && (
-                                 <Tag color="red-inverse" className="m-0">
-                                    Hết bảo hành
-                                 </Tag>
-                              )}
-                           </span>
-                        ),
+                        value: (s) =>
+                           s.machineModel?.warrantyTerm === null || s.machineModel.warrantyTerm === undefined ? (
+                              <span>Không có bảo hành</span>
+                           ) : (
+                              <span className="flex flex-col">
+                                 <span className="text-right">{s.machineModel?.warrantyTerm}</span>
+                                 {hasExpired && (
+                                    <Tag color="red-inverse" className="m-0">
+                                       Hết bảo hành
+                                    </Tag>
+                                 )}
+                              </span>
+                           ),
                      },
                      {
                         label: "Mô tả",

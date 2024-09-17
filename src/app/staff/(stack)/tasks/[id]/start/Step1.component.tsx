@@ -205,7 +205,7 @@ export default function Step1(props: Step2Props) {
                                              item.status === IssueStatusEnum.FAILED && "bg-red-100 opacity-40",
                                           )}
                                           hoverable
-                                          onClick={() => handleOpen(item)}
+                                          onClick={() => props.data && handleOpen(item, props.data)}
                                        >
                                           <div className="flex flex-col">
                                              <div>

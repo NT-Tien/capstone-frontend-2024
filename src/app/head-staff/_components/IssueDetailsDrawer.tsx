@@ -340,16 +340,15 @@ const IssueDetailsDrawer = forwardRef<IssueDetailsDrawerRefType, Props>(function
                      <section>
                         <h2 className="mb-2 text-sub-base font-medium">Hình ảnh minh chứng</h2>
                         {issue.data.imagesVerify.find((img) => !!img) ? (
-                           <div className="flex items-center gap-2">
-                              {issue.isSuccess && (
+                           <div className="flex items-center gap-3">
+                              {issue.data.imagesVerify.map((img) => (
                                  <Image
-                                    src={clientEnv.BACKEND_URL + `/file-image/${issue.data.imagesVerify?.[0]}`}
+                                    key={img}
+                                    src={clientEnv.BACKEND_URL + `/file-image/${img}`}
                                     alt="image"
                                     className="h-20 w-20 rounded-lg"
                                  />
-                              )}
-                              <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
-                              <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
+                              ))}
                            </div>
                         ) : (
                            <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">

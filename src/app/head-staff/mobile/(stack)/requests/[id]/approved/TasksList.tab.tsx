@@ -4,10 +4,14 @@ import TaskCardBasic from "@/common/components/TaskCardBasic"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import { UseQueryResult } from "@tanstack/react-query"
+import { useMutation, UseQueryResult } from "@tanstack/react-query"
 import { Card, Collapse, Empty } from "antd"
 import { useMemo, useRef } from "react"
 import TaskDetailsDrawer, { TaskDetailsDrawerRefType } from "./TaskDetails.drawer"
+import HeadStaff_Task_Create from "@/app/head-staff/_api/task/create.api"
+import { ReceiveWarrantyTypeErrorId } from "@/constants/Warranty"
+import { generateTaskName } from "./CreateTask.drawer"
+import dayjs from "dayjs"
 
 type Props = {
    api_request: UseQueryResult<FixRequestDto, Error>
@@ -30,6 +34,10 @@ export default function TasksList(props: Props) {
          return a.status === TaskStatus.COMPLETED ? -1 : 1
       })
    }, [props.api_request.data])
+
+   const mutate_createTask = useMutation({
+      mutationFn: HeadStaff_Task_Create,
+   })
 
    const taskGrouped = useMemo(() => {
       let result = {
@@ -58,6 +66,29 @@ export default function TasksList(props: Props) {
       return result
    }, [taskSorted])
 
+   async function handleAutoCreateWarrantyTask(returnDate?: string) {
+      if (!props.api_request.isSuccess) return
+      const issue = props.api_request.data.issues.find((issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId)
+      if (!issue) return
+
+      // check if already has warranty task
+      if(issue.task !== null) return
+
+      mutate_createTask.mutateAsync({
+         issueIDs: [issue.id],
+         name: `${dayjs(props.api_request.data.createdAt).add(7, "hours").format("DDMMYY")}_${props.api_request.data.device.area.name}_${props.api_request.data.device.machineModel.name}_Lắp máy bảo hành`,
+         operator: 0,
+         priority: false,
+         request: props.api_request.data.id,
+         totalTime: issue.typeError.duration,
+         fixerDate: returnDate ?? props.api_request.data.return_date_warranty ?? undefined,
+      }, {
+         onSuccess: () => {
+            props.api_request.refetch()
+         }
+      })
+   }
+
    return (
       <section className={props.className}>
          {taskSorted.length === 0 && (
@@ -68,13 +99,15 @@ export default function TasksList(props: Props) {
          <Collapse
             ghost
             defaultActiveKey={["headstaffconfirm", "awaitfixer", "remaining"]}
-            className="p-0 custom-collapse-padding"
+            className="custom-collapse-padding p-0"
             items={[
                ...(taskGrouped.headstaffConfirm.length > 0
                   ? [
                        {
                           key: "headstaffconfirm",
-                          label: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text + ` (${taskGrouped.headstaffConfirm.length})`,
+                          label:
+                             TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text +
+                             ` (${taskGrouped.headstaffConfirm.length})`,
                           children: (
                              <div className="grid grid-cols-1 gap-2">
                                 {taskGrouped.headstaffConfirm.map((task) => (
@@ -93,7 +126,9 @@ export default function TasksList(props: Props) {
                   ? [
                        {
                           key: "awaitfixer",
-                          label: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text + ` (${taskGrouped.awaitFixer.length})`,
+                          label:
+                             TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text +
+                             ` (${taskGrouped.awaitFixer.length})`,
                           children: (
                              <div className="grid grid-cols-1 gap-2">
                                 {taskGrouped.awaitFixer.map((task) => (
@@ -153,7 +188,13 @@ export default function TasksList(props: Props) {
                />
             ))}
          </div> */}
-         <TaskDetailsDrawer ref={taskDetailsRef} refetchFn={props.api_request.refetch} />
+         <TaskDetailsDrawer
+            ref={taskDetailsRef}
+            refetchFn={async () => {
+               await props.api_request.refetch()
+            }}
+            autoCreateTaskFn={handleAutoCreateWarrantyTask}
+         />
       </section>
    )
 }

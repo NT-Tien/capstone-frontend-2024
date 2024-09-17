@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react"
+import { ReactNode, useMemo, useState } from "react"
 import useModalControls from "@/common/hooks/useModalControls"
 import { App, Button, Drawer, Form, Typography, Upload } from "antd"
 import { ProFormItem, ProFormTextArea } from "@ant-design/pro-components"
@@ -10,9 +10,11 @@ import checkImageUrl from "@/common/util/checkImageUrl.util"
 import { File_Video_Upload } from "@/_api/file/upload_video.api"
 import { useMutation } from "@tanstack/react-query"
 import Staff_Issue_UpdateFinish from "@/app/staff/_api/issue/update-finish"
+import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
+import { SendWarrantyTypeErrorId } from "@/constants/Warranty"
 
 type SubmitFieldType = {
-   imagesVerify?: UploadFile
+   imagesVerify?: UploadFile[]
    videosVerify?: UploadFile
 }
 
@@ -24,25 +26,29 @@ export default function FinishIssueDrawer({
    children,
    ...props
 }: {
-   children: (handleOpen: (issueId: string) => void) => ReactNode
+   children: (handleOpen: (issue: FixRequestIssueDto) => void) => ReactNode
 } & Props) {
    const { message } = App.useApp()
    const [form] = Form.useForm<SubmitFieldType>()
 
    const { open, handleOpen, handleClose } = useModalControls({
-      onOpen: (issueId: string) => {
-         setIssueId(issueId)
+      onOpen: (issue: FixRequestIssueDto) => {
+         setIssue(issue)
       },
       onClose: () => {
          setTimeout(() => {
             form.resetFields()
-            setIssueId(undefined)
+            setIssue(undefined)
          }, 200)
       },
    })
 
    const [loadingImage, setLoadingImage] = useState(false)
-   const [issueId, setIssueId] = useState<string | undefined>(undefined)
+   const [issue, setIssue] = useState<FixRequestIssueDto | undefined>(undefined)
+
+   const isWarrantyIssue = useMemo(() => {
+      return issue?.typeError.id === SendWarrantyTypeErrorId
+   }, [issue])
 
    const mutate_resolveIssue = useMutation({
       mutationFn: Staff_Issue_UpdateFinish,
@@ -70,13 +76,20 @@ export default function FinishIssueDrawer({
    })
 
    function handleSubmit(values: SubmitFieldType) {
-      if (!issueId) return
+      if (!issue) return
+
+      if(isWarrantyIssue) {
+         if(!values.imagesVerify || values.imagesVerify.length === 0) {
+            message.error("Vui lòng tải ảnh lên.")
+            return
+         }
+      }
 
       mutate_resolveIssue.mutate(
          {
-            id: issueId!,
+            id: issue.id,
             payload: {
-               imagesVerify: [values.imagesVerify?.response ?? ""],
+               imagesVerify: values.imagesVerify?.map((file) => file.response) ?? [""],
                videosVerify: values.videosVerify?.response ?? "",
             },
          },
@@ -101,11 +114,15 @@ export default function FinishIssueDrawer({
                onValuesChange={(values) => {
                   console.log(values, typeof values.imagesVerify?.[0])
                }}
+               initialValues={{
+                  imagesVerify: [],
+               }}
             >
                <ProFormItem
                   name="imagesVerify"
-                  label="Hình ảnh xác nhận"
+                  label={isWarrantyIssue ? "Biên nhận bảo hành" : "Hình ảnh xác nhận"}
                   shouldUpdate
+                  rules={[{ required: isWarrantyIssue }]}
                >
                   <ImageWithCrop
                      name="image"
@@ -119,17 +136,20 @@ export default function FinishIssueDrawer({
                      showUploadList={true}
                      listType="picture"
                      multiple={false}
-                     maxCount={1}
+                     maxCount={5}
                      method="POST"
                      headers={{
                         Authorization: `Bearer ${Cookies.get("token")}`,
                      }}
                      isImageUrl={checkImageUrl}
+                     cropProps={{
+                        cropShape: "rect"
+                     }}
                      className="w-full"
                      onChange={(info) => {
                         setLoadingImage(false)
                         if (info.file.status === "done") {
-                           form.setFieldsValue({ imagesVerify: info.file })
+                           form.setFieldsValue({ imagesVerify: info.fileList })
                         }
                         if (info.file.status === "uploading") {
                            setLoadingImage(true)
@@ -138,7 +158,7 @@ export default function FinishIssueDrawer({
                            message.error("Tải tệp thất bại")
                         }
                         if (info.file.status === "removed") {
-                           form.setFieldsValue({ imagesVerify: {} })
+                           form.setFieldsValue({ imagesVerify: info.fileList })
                            message.success("Tệp đã bị xóa")
                         }
                      }}

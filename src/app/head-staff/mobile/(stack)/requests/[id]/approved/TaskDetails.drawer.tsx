@@ -2,6 +2,7 @@
 
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Task_OneById from "@/app/head-staff/_api/task/one-byId.api"
+import HeadStaff_Task_UpdateComplete from "@/app/head-staff/_api/task/update-complete.api"
 import IssueDetailsDrawer, { IssueDetailsDrawerRefType } from "@/app/head-staff/_components/IssueDetailsDrawer"
 import { TaskDto } from "@/common/dto/Task.dto"
 import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
@@ -27,7 +28,7 @@ import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
 import AssignFixerDrawer, { AssignFixerDrawerRefType } from "../../../tasks/[id]/AssignFixer.drawer"
 import CheckSignatureDrawer, { CheckSignatureDrawerRefType } from "./CheckSignature.drawer"
-import HeadStaff_Task_UpdateComplete from "@/app/head-staff/_api/task/update-complete.api"
+import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto) => void
@@ -35,7 +36,8 @@ export type TaskDetailsDrawerRefType = {
 
 type Props = {
    children?: (handleOpen: (task: TaskDto) => void) => ReactNode
-   refetchFn?: () => void
+   refetchFn?: () => Promise<void>
+   autoCreateTaskFn?: (warrantyDate?: string) => Promise<void>
 }
 
 const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function Component(props, ref) {
@@ -83,27 +85,50 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
       },
    })
 
-   function handleUpdateConfirmCheck() {
-      if (!task) return
+   const mutate_updateRequest = useMutation({
+      mutationFn: HeadStaff_Request_UpdateStatus,
+   })
 
-      mutate_updateStatus.mutate(
+   async function handleUpdateConfirmCheck(warrantyDate?: string) {
+      if (!task || !api_task.isSuccess) return
+
+      await mutate_updateRequest.mutateAsync({
+         id: api_task.data.request.id,
+         payload: {
+            return_date_warranty: warrantyDate,
+         }
+      })
+
+      await mutate_updateStatus.mutateAsync(
          {
             id: task.id,
          },
          {
             onSuccess: async () => {
-               props.refetchFn?.()
                handleClose()
+               await props.refetchFn?.()
+               if(isWarrantyTask) {
+                  props.autoCreateTaskFn?.(warrantyDate)
+               }
             },
          },
       )
    }
 
-   const isWarrantyTask = useMemo(() => {
+   
+   const isReceiveWarrantyTask = useMemo(() => {
       if (!api_task.isSuccess) return
-      const set = new Set([SendWarrantyTypeErrorId, ReceiveWarrantyTypeErrorId])
-      return api_task.data.issues.find((issue) => set.has(issue.typeError.id))
+      return !!api_task.data.issues.find((issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId)
    }, [api_task.data?.issues, api_task.isSuccess])
+
+   const isSendWarrantyTask = useMemo(() => {
+      if (!api_task.isSuccess) return
+      return !!api_task.data.issues.find((issue) => issue.typeError.id === SendWarrantyTypeErrorId)
+   }, [api_task.data?.issues, api_task.isSuccess])
+
+   const isWarrantyTask = useMemo(() => {
+      return isReceiveWarrantyTask || isSendWarrantyTask
+   }, [isReceiveWarrantyTask, isSendWarrantyTask])
 
    useImperativeHandle(ref, () => ({
       handleOpen,
@@ -119,7 +144,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
             height="85%"
             extra={
                <div className="flex items-center gap-1">
-                  {task?.status !== TaskStatus.AWAITING_FIXER && (
+                  {task && new Set(TaskStatus.ASSIGNED).has(task.status) && (
                      <Button
                         icon={<EditOutlined />}
                         type="text"
@@ -128,7 +153,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                            if (!task) return
                            assignFixerDrawerRef.current?.handleOpen(task.id, {
                               priority: task.priority,
-                              fixerDate: dayjs(task.fixerDate),
+                              fixerDate: dayjs(task.fixerDate).add(7, "hours"),
                               fixer: task.fixer,
                            })
                         }}
@@ -187,7 +212,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                   </div>
                   <div className="mt-layout flex items-center gap-3">
                      <CalendarBlank weight="fill" size={18} color="#737373" />
-                     <div>{task.fixerDate ?? "Chưa có"}</div>
+                     <div>{dayjs(task.fixerDate).add(7, "hours").format("DD/MM/YYYY") ?? "Chưa có"}</div>
                   </div>
                   <div className="mt-layout flex items-center gap-3">
                      <Users size={18} weight="fill" color="#737373" />
@@ -253,7 +278,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                            onClick={() => {
                               assignFixerDrawerRef.current?.handleOpen(task.id, {
                                  priority: task.priority,
-                                 fixerDate: dayjs(task.fixerDate),
+                                 fixerDate: dayjs(task.fixerDate).add(7, "hours"),
                                  fixer: task.fixer,
                               })
                            }}
@@ -289,7 +314,10 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                            type="primary"
                            className="w-full"
                            size="large"
-                           onClick={() => checkSignatureDrawerRef.current?.handleOpen(task)}
+                           onClick={() =>
+                              api_task.isSuccess &&
+                              checkSignatureDrawerRef.current?.handleOpen(api_task.data, isSendWarrantyTask)
+                           }
                         >
                            Xác nhận hoàn thành
                         </Button>

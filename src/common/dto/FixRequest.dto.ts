@@ -22,4 +22,5 @@ export type FixRequestDto = {
    issues: FixRequestIssueDto[]
    is_seen: boolean
    is_warranty: boolean
+   return_date_warranty: string | null
 }

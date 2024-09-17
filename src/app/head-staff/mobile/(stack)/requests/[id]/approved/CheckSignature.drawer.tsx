@@ -1,35 +1,45 @@
 import { TaskDto } from "@/common/dto/Task.dto"
 import useModalControls from "@/common/hooks/useModalControls"
+import { SendWarrantyTypeErrorId } from "@/constants/Warranty"
 import { clientEnv } from "@/env"
-import { Button, Card, Drawer, Image } from "antd"
-import { forwardRef, useImperativeHandle, useState } from "react"
+import { App, Button, Card, DatePicker, Drawer, Form, Image } from "antd"
+import { Dayjs } from "dayjs"
+import { forwardRef, useImperativeHandle, useMemo, useState } from "react"
 
 export type CheckSignatureDrawerRefType = {
-   handleOpen: (task: TaskDto) => void
+   handleOpen: (task: TaskDto, isWarranty?: boolean) => void
 }
 
 type Props = {
-   children?: (handleOpen: (task: TaskDto) => void) => React.ReactNode
-   onSubmit: () => void
+   children?: (handleOpen: (task: TaskDto, isWarranty?: boolean) => void) => React.ReactNode
+   onSubmit: (warrantyDate?: string) => void
 }
 
 const CheckSignatureDrawer = forwardRef<CheckSignatureDrawerRefType, Props>(function Component(props, ref) {
    const { open, handleOpen, handleClose } = useModalControls({
-      onOpen: (task: TaskDto) => {
+      onOpen: (task: TaskDto, isWarranty?: boolean) => {
          setTask(task)
+         setIsWarranty(isWarranty ?? false)
       },
       onClose: () => {
-        setTimeout(() => {
+         setTimeout(() => {
             setTask(null)
-        }, 500)
+         }, 500)
       },
    })
+   const { message } = App.useApp()
 
    const [task, setTask] = useState<TaskDto | null>(null)
+   const [isWarranty, setIsWarranty] = useState<boolean>(false)
+   const [warrantyDate, setWarrantyDate] = useState<Dayjs | null>(null)
 
    function handleSubmit() {
-        props.onSubmit()
-        handleClose()
+      if(isWarranty && !warrantyDate) {
+         message.error('Vui lòng chọn ngày bảo hành')
+         return
+      }
+      props.onSubmit(warrantyDate?.toISOString())
+      handleClose()
    }
 
    useImperativeHandle(ref, () => ({
@@ -43,9 +53,39 @@ const CheckSignatureDrawer = forwardRef<CheckSignatureDrawerRefType, Props>(func
             <Card size="small" className="mb-3">
                <div className="grid place-items-center">Vui lòng kiểm tra chữ ký bên dưới</div>
             </Card>
-            <div className="grid place-items-center">
-               <Image src={clientEnv.BACKEND_URL + `/file-image/${task?.imagesVerify[0]}`} alt="Chữ ký" />
-            </div>
+            <Card size="small" className="grid place-items-center">
+               <Image
+                  src={clientEnv.BACKEND_URL + `/file-image/${task?.imagesVerify[0]}`}
+                  alt="Chữ ký"
+                  className="h-36"
+               />
+            </Card>
+            {isWarranty && (
+               <section className="mt-3">
+                  <h3 className="text-base text-gray-600 font-medium mb-2">Biên lai bảo hành</h3>
+                  <div className="grid grid-cols-4 gap-3 mb-3">
+                     {task?.issues.find((issue) => issue.typeError?.id === SendWarrantyTypeErrorId)?.imagesVerify.map((img) => (
+                        <Image
+                           key={img}
+                           src={clientEnv.BACKEND_URL + `/file-image/${img}`}
+                           alt="image"
+                           className="aspect-square h-full rounded-lg"
+                        />
+                     ))}
+                  </div>
+                  <Form.Item rules={[{ required: true }]}>
+                     <DatePicker
+                        className="w-full"
+                        placeholder="Chọn ngày bảo hành xong"
+                        size="large"
+                        value={warrantyDate}
+                        onChange={(date) => {
+                           setWarrantyDate(date)
+                        }}
+                     />
+                  </Form.Item>
+               </section>
+            )}
             <Button size="large" className="mt-3 w-full" type="primary" onClick={handleSubmit}>
                Xác nhận
             </Button>

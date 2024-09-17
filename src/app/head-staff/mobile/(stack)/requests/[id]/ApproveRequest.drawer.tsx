@@ -2,26 +2,26 @@ import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
 import HeadStaff_Issue_CreateMany from "@/app/head-staff/_api/issue/create-many.api"
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
-import useModalControls from "@/common/hooks/useModalControls"
-import { useMutation, useQuery } from "@tanstack/react-query"
-import { forwardRef, ReactNode, useImperativeHandle, useMemo, useState } from "react"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import CreateSingleIssueDrawer from "./CreateSingleIssue.drawer"
 import { TypeErrorDto } from "@/common/dto/TypeError.dto"
-import Drawer from "antd/es/drawer"
+import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
+import useModalControls from "@/common/hooks/useModalControls"
+import { DeleteOutlined, SendOutlined } from "@ant-design/icons"
+import { Info } from "@phosphor-icons/react"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import App from "antd/es/app"
-import Select from "antd/es/select"
+import Button from "antd/es/button"
 import Card from "antd/es/card"
+import Drawer from "antd/es/drawer"
 import Empty from "antd/es/empty"
 import List from "antd/es/list"
-import Button from "antd/es/button"
-import { DeleteOutlined, SendOutlined } from "@ant-design/icons"
+import Select from "antd/es/select"
 import Tag from "antd/es/tag"
-import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
-import { Info } from "@phosphor-icons/react"
-import { propagateServerField } from "next/dist/server/lib/render-server"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
+import { forwardRef, ReactNode, useImperativeHandle, useMemo, useState } from "react"
+import CreateSingleIssueDrawer from "./CreateSingleIssue.drawer"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 
 export type ApproveRequestDrawerRefType = {
    handleOpen: (requestId: string) => void
@@ -120,7 +120,7 @@ const ApproveRequestDrawer = forwardRef<ApproveRequestDrawerRefType, Props>(func
                   onSuccess: async () => {
                      props.refetchFn?.()
                      handleClose()
-                     router.push(`/head-staff/mobile/requests/${requestId}/approved`)
+                     router.push(`/head-staff/mobile/requests?status=${FixRequestStatus.APPROVED}`)
                   },
                },
             )

@@ -3,7 +3,6 @@
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
 import HeadStaff_Task_Create from "@/app/head-staff/_api/task/create.api"
-import HeadStaff_Task_UpdateAssignFixer from "@/app/head-staff/_api/task/update-assignFixer.api"
 import HeadStaff_Users_AllStaff from "@/app/head-staff/_api/users/all.api"
 import DataListView from "@/common/components/DataListView"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
@@ -74,7 +73,7 @@ type FormContextType = {
       setIssueIDs: React.Dispatch<React.SetStateAction<string[]>>
       issueIDs: string[]
    }
-   handleFormSubmit: () => void
+   handleFormSubmit: (fixerId?: string) => void // must include fixerId because setting state is asynchronous
 }
 
 const FormContext = createContext<FormContextType | undefined>(undefined)
@@ -139,18 +138,14 @@ const CreateTaskDrawer = forwardRef<CreateTaskDrawerRefType, Props>(function Com
       },
    })
 
-   async function handleFormSubmit() {
+   async function handleFormSubmit(fixerId?: string) {
       if (!api_request.isSuccess || !requestId) return
-      // const totalTime = values.issueIDs.reduce((acc, id) => {
-      //    const issue = api_request.data.issues.find((e) => e.id === id)
-      //    if (!issue) return acc
-      //    return acc + issue.typeError.duration
-      // }, 0)
-      const task = await mutate_createTask.mutateAsync(
+
+      mutate_createTask.mutate(
          {
             name,
-            fixerDate: fixerDate?.toISOString() ?? undefined,
-            fixer: fixer ?? undefined,
+            fixerDate: fixerDate?.toISOString(),
+            fixer: fixerId ?? undefined,
             priority,
             issueIDs,
             totalTime,
@@ -456,9 +451,9 @@ function FormStep_1() {
 
    const sorted = useMemo(() => {
       if (!api_user.isSuccess) return
-      const selectedFixDate = dayjs(fixerDate).add(7, "hours")
+      const selectedFixDate = fixerDate
 
-      if (!selectedFixDate.isValid()) return
+      if (!selectedFixDate?.isValid()) return
 
       const response: SortedUserDto[] = []
 
@@ -510,8 +505,9 @@ function FormStep_1() {
    }, [api_request.data, api_request.isSuccess, issueIDs, setName])
 
    function handleSubmit() {
-      setFixer(selectedFixer?.id)
-      handleFormSubmit()
+      const fixerId = undefined // make selectedFixer?.id if you want to assign fixer
+      setFixer(fixerId)
+      handleFormSubmit(fixerId)
    }
 
    if (formStep !== 1) return null
@@ -552,6 +548,7 @@ function FormStep_1() {
                      disabledDate={(current) => current && current < dayjs().startOf("day")}
                      onChange={(date) => setFixerDate(date)}
                      value={fixerDate}
+                     format={"DD/MM/YYYY"}
                   />
                </Form.Item>
                <Form.Item<FieldType> label="Mức độ ưu tiên">
@@ -570,16 +567,16 @@ function FormStep_1() {
                      </Radio.Button>
                   </Radio.Group>
                </Form.Item>
-               <section className="mt-layout flex items-center gap-2">
+               {/* <section className="mt-layout flex items-center gap-2">
                   <Checkbox
                      id="showAddFixer"
                      checked={showAddFixer}
                      onChange={(e) => setShowAddFixer(e.target.checked)}
                   />
                   <label htmlFor="showAddFixer">Phân công người sửa</label>
-               </section>
+               </section> */}
             </div>
-            {showAddFixer && (
+            {/* {showAddFixer && (
                <>
                   <Divider className="mt-0" />
                   <section className="px-layout">
@@ -628,7 +625,7 @@ function FormStep_1() {
                      )}
                   </section>
                </>
-            )}
+            )} */}
          </main>
          <section className="fixed bottom-0 left-0 flex w-full justify-between gap-3 bg-white p-layout shadow-lg">
             <Button type="default" size="large" onClick={() => setFormStep(0)} className="w-full">
@@ -642,7 +639,7 @@ function FormStep_1() {
    )
 }
 
-function generateTaskName(data: FixRequestDto, selectedIssues: string[]) {
+export function generateTaskName(data: FixRequestDto, selectedIssues: string[]) {
    const requestDate = dayjs(data.createdAt).format("DDMMYY")
    const area = data.device.area.name
    const machine = data.device.machineModel.name.split(" ").join("-")

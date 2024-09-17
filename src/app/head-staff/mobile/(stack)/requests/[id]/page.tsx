@@ -124,6 +124,12 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
 
    const hasExpired = useMemo(() => {
       if (!api_device.isSuccess) return false
+      if (
+         api_device.data.machineModel?.warrantyTerm === null ||
+         api_device.data.machineModel?.warrantyTerm === undefined
+      ) {
+         return true
+      }
       return dayjs().isAfter(dayjs(api_device.data.machineModel?.warrantyTerm))
    }, [api_device.isSuccess, api_device.data?.machineModel?.warrantyTerm])
 
@@ -354,7 +360,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                            },
                            {
                               label: "Nhà sản xuất",
-                              value: (s) => s.machineModel?.manufacturer,
+                              value: (s) => s.machineModel?.manufacturer ?? "Không có",
                            },
                            {
                               label: "Năm sản xuất",
@@ -362,22 +368,25 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                            },
                            {
                               label: "Ngày nhận máy",
-                              value: (s) => dayjs(s.machineModel?.dateOfReceipt).format("DD-MM-YYYY"),
+                              value: (s) => s.machineModel?.dateOfReceipt ? dayjs(s.machineModel?.dateOfReceipt).format("DD-MM-YYYY") : "Không có",
                            },
                            {
                               label: "Thời hạn bảo hành",
-                              value: (s) => (
-                                 <span className="flex flex-col">
-                                    <span className="text-right">
-                                       {dayjs(s.machineModel?.warrantyTerm).format("DD-MM-YYYY")}
+                              value: (s) =>
+                                 s.machineModel.warrantyTerm === null || s.machineModel.warrantyTerm === undefined ? (
+                                    <span>Không bảo hành</span>
+                                 ) : (
+                                    <span className="flex flex-col">
+                                       <span className="text-right">
+                                          {dayjs(s.machineModel?.warrantyTerm).format("DD-MM-YYYY")}
+                                       </span>
+                                       {hasExpired && (
+                                          <Tag color="red-inverse" className="m-0">
+                                             Hết bảo hành
+                                          </Tag>
+                                       )}
                                     </span>
-                                    {hasExpired && (
-                                       <Tag color="red-inverse" className="m-0">
-                                          Hết bảo hành
-                                       </Tag>
-                                    )}
-                                 </span>
-                              ),
+                                 ),
                            },
                            {
                               label: "Mô tả",

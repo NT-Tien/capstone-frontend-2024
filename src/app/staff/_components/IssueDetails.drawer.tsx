@@ -1,44 +1,66 @@
-import React, { ReactNode, useState } from "react"
+import FinishIssueDrawer from "@/app/staff/(stack)/tasks/[id]/start/FinishIssue.drawer"
 import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import { App, Button, Card, Drawer, Image, List, Tag, Typography } from "antd"
-import { ProDescriptions } from "@ant-design/pro-components"
-import { useMutation } from "@tanstack/react-query"
-import Staff_Task_UpdateIssueStatus from "@/app/staff/_api/task/update-issue-status.api"
-import staff_qk from "@/app/staff/_api/qk"
+import { TaskDto } from "@/common/dto/Task.dto"
+import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
 import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
 import useModalControls from "@/common/hooks/useModalControls"
-import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
-import FinishIssueDrawer from "@/app/staff/(stack)/tasks/[id]/start/FinishIssue.drawer"
+import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
 import { clientEnv } from "@/env"
+import { ProDescriptions } from "@ant-design/pro-components"
+import { Button, Card, Drawer, Image, List, Tag, Typography } from "antd"
+import { ReactNode, useMemo, useState } from "react"
 
 export default function IssueDetailsDrawer({
    children,
    afterSuccess,
    scanCompleted,
 }: {
-   children: (handleOpen: (issue: FixRequestIssueDto) => void) => ReactNode
+   children: (handleOpen: (issue: FixRequestIssueDto, task: TaskDto) => void) => ReactNode
    afterSuccess?: () => void
    scanCompleted: boolean
 }) {
    const { open, handleOpen, handleClose } = useModalControls({
       onClose: () => {
+         setTask(undefined)
          setTimeout(() => {
             setCurrentIssue(undefined)
          }, 200)
       },
-      onOpen: (issue: FixRequestIssueDto) => {
+      onOpen: (issue: FixRequestIssueDto, task: TaskDto) => {
+         setTask(task)
          setCurrentIssue(issue)
       },
    })
 
+   const [task, setTask] = useState<TaskDto | undefined>(undefined)
    const [currentIssue, setCurrentIssue] = useState<FixRequestIssueDto | undefined>(undefined)
+
+   const isWarrantyReturnTask = useMemo(() => {
+      return currentIssue?.typeError.id === ReceiveWarrantyTypeErrorId
+   }, [currentIssue?.typeError.id])
+
+   const warrantyReceipts = useMemo(() => {
+      if (!isWarrantyReturnTask) return
+      const targetTask = task?.request.tasks.find((task) =>
+         task.issues.find((issue) => issue.typeError.id === SendWarrantyTypeErrorId),
+      )
+
+      return targetTask?.issues.find((issue) => issue.typeError.id === SendWarrantyTypeErrorId)?.imagesVerify
+   }, [isWarrantyReturnTask, task?.request.tasks])
 
    return (
       <>
          {children(handleOpen)}
-         <Drawer open={open} onClose={handleClose} placement="bottom" height="100%" title="Chi tiết lỗi" classNames={{
-            body: "overflow-y-auto"
-         }}>
+         <Drawer
+            open={open}
+            onClose={handleClose}
+            placement="bottom"
+            height="100%"
+            title="Chi tiết lỗi"
+            classNames={{
+               body: "overflow-y-auto",
+            }}
+         >
             <ProDescriptions
                title={currentIssue?.typeError.name ?? "-"}
                extra={
@@ -70,15 +92,16 @@ export default function IssueDetailsDrawer({
                   <Card size="small" className="my-layout">
                      <section>
                         <h2 className="mb-2 text-sub-base font-medium">Hình ảnh minh chứng</h2>
-                        {currentIssue.imagesVerify.length === 0 ? (
-                           <div className="flex items-center gap-2">
-                              <Image
-                                 src={clientEnv.BACKEND_URL + `/file-image/${currentIssue.imagesVerify?.[0]}`}
-                                 alt="image"
-                                 className="h-20 w-20 rounded-lg"
-                              />
-                              <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
-                              <div className="grid h-20 w-20 place-content-center rounded-lg border-2 border-dashed border-neutral-200"></div>
+                        {currentIssue.imagesVerify.length !== 0 ? (
+                           <div className="grid grid-cols-3 gap-3">
+                              {currentIssue.imagesVerify.map((img) => (
+                                 <Image
+                                    key={img}
+                                    src={clientEnv.BACKEND_URL + `/file-image/${img}`}
+                                    alt="image"
+                                    className="aspect-square h-full rounded-lg"
+                                 />
+                              ))}
                            </div>
                         ) : (
                            <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">
@@ -103,6 +126,21 @@ export default function IssueDetailsDrawer({
                      </section>
                   </Card>
                )}
+            {isWarrantyReturnTask && (
+               <div>
+                  <Typography.Title level={5}>Biên lai bảo hành</Typography.Title>
+                  <div className="grid grid-cols-3 gap-3">
+                     {warrantyReceipts?.map((img) => (
+                        <Image
+                           key={img}
+                           src={clientEnv.BACKEND_URL + `/file-image/${img}`}
+                           alt="image"
+                           className="aspect-square h-full rounded-lg"
+                        />
+                     ))}
+                  </div>
+               </div>
+            )}
             <div className="mt-6">
                <Typography.Title level={5}>
                   Linh kiện thay thế ({currentIssue?.issueSpareParts.length ?? 0})
@@ -132,7 +170,7 @@ export default function IssueDetailsDrawer({
                            type="primary"
                            onClick={() => {
                               console.log(currentIssue)
-                              if (currentIssue) handleOpen(currentIssue.id)
+                              if (currentIssue) handleOpen(currentIssue)
                            }}
                            disabled={!scanCompleted}
                         >

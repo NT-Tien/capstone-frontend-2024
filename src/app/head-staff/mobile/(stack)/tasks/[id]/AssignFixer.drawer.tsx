@@ -76,7 +76,7 @@ const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function C
    const api_user = useQuery({
       queryKey: headstaff_qk.user.all(),
       queryFn: () => HeadStaff_Users_AllStaff(),
-      enabled: !!fixerDate
+      enabled: !!fixerDate,
    })
 
    const sorted = useMemo(() => {
@@ -151,6 +151,7 @@ const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function C
    function handleSubmit() {
       if (!taskId) return
       if (fixer === undefined || fixerDate === undefined) return
+
       mutate_update.mutate(
          {
             id: taskId,
@@ -177,40 +178,55 @@ const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function C
 
    return (
       <>
-         <Drawer open={open} onClose={handleClose} title="Cập nhật tác vụ" placement="bottom" height="100%">
+         <Drawer
+            open={open}
+            onClose={handleClose}
+            title="Cập nhật tác vụ"
+            placement="bottom"
+            height="100%"
+            className="pb-24"
+            classNames={{
+               body: "py-0 px-0",
+            }}
+         >
             <Form>
-               <main className="overflow-y-auto">
-                  <Form.Item<FieldType> rules={[{ required: true }]} label="Ngày sửa">
-                     <DatePicker
-                        size="large"
-                        className="w-full"
-                        placeholder="Chọn ngày sửa chữa cho tác vụ"
-                        disabledDate={(current) => current && current < dayjs().startOf("day")}
-                        onChange={(date) => {
-                           setFixerDate(date)
-                           setFixer(undefined)
-                        }}
-                        value={fixerDate}
-                     />
-                  </Form.Item>
-                  <Form.Item<FieldType> label="Mức độ ưu tiên">
-                     <Radio.Group
-                        buttonStyle="solid"
-                        size="large"
-                        className="flex"
-                        value={priority}
-                        onChange={(e) => setPriority(e.target.value)}
-                     >
-                        <Radio.Button value={false} className="w-full text-center">
-                           Thường
-                        </Radio.Button>
-                        <Radio.Button value={true} className="w-full text-center">
-                           Ưu tiên
-                        </Radio.Button>
-                     </Radio.Group>
-                  </Form.Item>
+               <main className="std-layout">
+                  <section className="std-layout-outer sticky top-0 z-50 bg-white px-layout shadow-lg">
+                     <Form.Item<FieldType> rules={[{ required: true }]} label="Ngày sửa">
+                        <DatePicker
+                           size="large"
+                           className="w-full"
+                           placeholder="Chọn ngày sửa chữa cho tác vụ"
+                           disabledDate={(current) => current && current < dayjs().startOf("day")}
+                           onChange={(date) => {
+                              setFixerDate(date)
+                              setFixer(undefined)
+                           }}
+                           value={fixerDate}
+                        />
+                     </Form.Item>
+                     <Form.Item<FieldType> label="Mức độ ưu tiên">
+                        <Radio.Group
+                           buttonStyle="solid"
+                           size="large"
+                           className="flex"
+                           value={priority}
+                           onChange={(e) => {
+                              setFixer(undefined)
+                              setPriority(e.target.value)
+                           }}
+                        >
+                           <Radio.Button value={false} className="w-full text-center">
+                              Thường
+                           </Radio.Button>
+                           <Radio.Button value={true} className="w-full text-center">
+                              Ưu tiên
+                           </Radio.Button>
+                        </Radio.Group>
+                     </Form.Item>
+                  </section>
 
-                  <section>
+                  <section className="mt-4">
                      <h3 className="mb-2 text-base font-medium">Chọn nhân viên sửa chữa</h3>
                      {!!sorted === false ? (
                         <Card>
@@ -257,7 +273,7 @@ const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function C
                   </section>
                </main>
 
-               <section className="fixed bottom-0 left-0 flex w-full justify-between gap-3 bg-white p-layout shadow-lg">
+               <section className="fixed bottom-0 left-0 flex w-full justify-between gap-3 bg-white p-layout shadow-fb">
                   <Button type="primary" size="large" className="w-full" onClick={handleSubmit} disabled={!fixer}>
                      Cập nhật tác vụ
                   </Button>

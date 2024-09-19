@@ -283,6 +283,7 @@ function FormStep_0() {
       formStep,
       form: { setIssueIDs, issueIDs, setTotalTime },
    } = useFormContext()
+   const { modal } = App.useApp()
 
    const [selectedIssues, setSelectedIssues] = useState<{ [key: string]: FixRequestIssueDto }>({})
 
@@ -422,7 +423,9 @@ function FormStep_0() {
                                     {issue.task === null &&
                                        issue.issueSpareParts.find((isp) => isp.quantity > isp.sparePart.quantity) && (
                                           <div className="">
-                                             <Tag color="yellow" className="m-0">Không đủ linh kiện</Tag>
+                                             <Tag color="yellow" className="m-0">
+                                                Không đủ linh kiện
+                                             </Tag>
                                           </div>
                                        )}
                                  </div>
@@ -494,7 +497,37 @@ function FormStep_0() {
                   type="primary"
                   size="middle"
                   disabled={selectedIssuesValues.length === 0}
-                  onClick={handleFinish}
+                  onClick={() => {
+                     if (hasChosenIssueWithMissingSpareParts) {
+                        modal.confirm({
+                           centered: true,
+                           title: "Lưu ý",
+                           content: (
+                              <div>
+                                 <div>
+                                    Một số linh kiện trong các lỗi được chọn{" "}
+                                    <strong>không còn đủ hàng trong kho</strong>. Bạn sẽ không thể phân công tác vụ
+                                    trước nếu chưa có đủ linh kiện.
+                                 </div>
+                                 <div className="mt-layout">
+                                    <strong>Bên kho sẽ được thông báo để cung cấp linh kiện.</strong> Bạn có chắc chắn
+                                    muốn tiếp tục?
+                                 </div>
+                              </div>
+                           ),
+                           onOk: () => {
+                              handleFinish()
+                           },
+                           okText: "Tiếp tục",
+                           okButtonProps: {
+                              className: "bg-yellow-500",
+                           },
+                           closable: true,
+                           maskClosable: true,
+                           cancelText: "Hủy",
+                        })
+                     }
+                  }}
                   className={cn("w-full", hasChosenIssueWithMissingSpareParts && "bg-yellow-500")}
                >
                   Tiếp tục
@@ -539,7 +572,7 @@ function FormStep_1() {
 
    return (
       <>
-         <main className={cn("relative mt-layout pb-40", hasChosenIssueWithMissingSpareParts && "pb-64")}>
+         <main className={cn("mt-layout pb-40", hasChosenIssueWithMissingSpareParts && "pb-64")}>
             <Form.Item<FieldType> rules={[{ required: true }]} label="Tên tác vụ" className="flex-grow px-layout">
                <Input
                   size="large"
@@ -562,9 +595,7 @@ function FormStep_1() {
                />
             </Form.Item>
 
-            <Divider className="mb-0" />
-
-            <div className={cn("sticky left-0 top-0 z-50 bg-white px-layout py-layout")}>
+            <div className={cn("bg-white px-layout")}>
                <Form.Item<FieldType> rules={[{ required: true }]} label="Ngày sửa">
                   <DatePicker
                      size="large"
@@ -584,10 +615,10 @@ function FormStep_1() {
                      value={priority}
                      onChange={(e) => setPriority(e.target.value)}
                   >
-                     <Radio.Button value={false} className="w-full text-center">
+                     <Radio.Button value={false} className="z-0 w-full text-center">
                         Thường
                      </Radio.Button>
-                     <Radio.Button value={true} className="w-full text-center">
+                     <Radio.Button value={true} className="z-0 w-full text-center">
                         Ưu tiên
                      </Radio.Button>
                   </Radio.Group>
@@ -622,34 +653,7 @@ function FormStep_1() {
                   size="middle"
                   className={cn("w-full", hasChosenIssueWithMissingSpareParts && "bg-yellow-500")}
                   onClick={() => {
-                     if (hasChosenIssueWithMissingSpareParts) {
-                        modal.confirm({
-                           centered: true,
-                           title: "Lưu ý",
-                           content: (
-                              <div>
-                                 <div>
-                                    Một số linh kiện trong các lỗi được chọn{" "}
-                                    <strong>không còn đủ hàng trong kho</strong>. Bạn sẽ không thể phân công tác vụ
-                                    trước nếu chưa có đủ linh kiện.
-                                 </div>
-                                 <div className="mt-layout">Bạn có chắc chắn muốn tiếp tục?</div>
-                              </div>
-                           ),
-                           onOk: () => {
-                              handleSubmit()
-                           },
-                           okText: "Tiếp tục",
-                           okButtonProps: {
-                              className: "bg-yellow-500",
-                           },
-                           closable: true,
-                           maskClosable: true,
-                           cancelText: "Hủy",
-                        })
-                     } else {
-                        handleSubmit()
-                     }
+                     handleSubmit()
                   }}
                >
                   Tạo tác vụ

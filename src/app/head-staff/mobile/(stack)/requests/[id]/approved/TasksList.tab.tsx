@@ -11,6 +11,7 @@ import {
    CalendarBlank,
    CheckCircle,
    Dot,
+   ExclamationMark,
    HourglassMedium,
    Package,
    Prohibit,
@@ -199,7 +200,7 @@ export default function TasksListTab(props: Props) {
                         </div>
                      ),
                      children: (
-                        <div className="grid grid-cols-1 px-layout">
+                        <div className="grid grid-cols-1">
                            {taskGrouped.awaitFixer.length === 0 &&
                               taskGrouped.assigned.length === 0 &&
                               taskGrouped.awaitSparePart.length === 0 && (
@@ -211,12 +212,12 @@ export default function TasksListTab(props: Props) {
                               (task, index, array) => (
                                  <Fragment key={task.id}>
                                     {index !== 0 && (
-                                       <div className="grid grid-cols-[24px_1fr] gap-4">
+                                       <div className="grid grid-cols-[24px_1fr] gap-4 px-layout">
                                           {(array[index - 1] === undefined ||
                                              array[index - 1]?.status === task.status) && <div></div>}
                                           <Divider
                                              className={cn(
-                                                "my-3",
+                                                "my-2",
                                                 array[index - 1] !== undefined &&
                                                    array[index - 1]?.status !== task.status &&
                                                    "col-span-2",
@@ -225,7 +226,10 @@ export default function TasksListTab(props: Props) {
                                        </div>
                                     )}
                                     <div
-                                       className="grid cursor-pointer grid-cols-[24px_1fr] gap-4"
+                                       className={cn(
+                                          "grid cursor-pointer grid-cols-[24px_1fr] gap-4 px-layout py-1",
+                                          task.priority && "bg-red-100",
+                                       )}
                                        onClick={() => taskDetailsRef.current?.handleOpen(task)}
                                     >
                                        <div className="grid place-items-center">
@@ -256,9 +260,18 @@ export default function TasksListTab(props: Props) {
                                        <div className="flex flex-col gap-0.5">
                                           <h3 className="text-sm text-neutral-800">{task.name}</h3>
                                           <div className="flex items-center">
-                                             <div className={cn(TaskStatusTagMapper[task.status].className)}>
+                                             <div className={cn("text-sm", TaskStatusTagMapper[task.status].className)}>
                                                 {TaskStatusTagMapper[task.status].text}
                                              </div>
+                                             {task.priority && (
+                                                <>
+                                                   <Dot size={24} className="text-neutral-500" />
+                                                   <div className="flex items-center">
+                                                      <ExclamationMark size={16} className="mr-1 inline text-red-500" />
+                                                      <span className="text-sm text-red-500">Ưu tiên</span>
+                                                   </div>
+                                                </>
+                                             )}
                                              {task.fixerDate && (
                                                 <>
                                                    <Dot size={24} className="text-neutral-500" />
@@ -287,7 +300,7 @@ export default function TasksListTab(props: Props) {
                         </div>
                      ),
                      children: (
-                        <div className="grid grid-cols-1 px-layout">
+                        <div className="grid grid-cols-1">
                            {taskGrouped.headstaffConfirm.length === 0 &&
                               taskGrouped.inProgress.length === 0 &&
                               taskGrouped.cancelled.length === 0 && (
@@ -313,7 +326,10 @@ export default function TasksListTab(props: Props) {
                                        </div>
                                     )}
                                     <div
-                                       className="grid cursor-pointer grid-cols-[24px_1fr] gap-4"
+                                       className={cn(
+                                          "grid cursor-pointer grid-cols-[24px_1fr] gap-4 px-layout",
+                                          task.priority && "bg-red-100",
+                                       )}
                                        onClick={() => taskDetailsRef.current?.handleOpen(task)}
                                     >
                                        <div className="grid place-items-center">
@@ -342,9 +358,18 @@ export default function TasksListTab(props: Props) {
                                        <div className="flex flex-col gap-0.5">
                                           <h3 className="text-sm text-neutral-800">{task.name}</h3>
                                           <div className="flex items-center">
-                                             <div className={cn(TaskStatusTagMapper[task.status].className)}>
+                                             <div className={cn("text-sm", TaskStatusTagMapper[task.status].className)}>
                                                 {TaskStatusTagMapper[task.status].text}
                                              </div>
+                                             {task.priority && (
+                                                <>
+                                                   <Dot size={24} className="text-neutral-500" />
+                                                   <div className="flex items-center">
+                                                      <ExclamationMark size={16} className="mr-1 inline text-red-500" />
+                                                      <span className="text-sm text-red-500">Ưu tiên</span>
+                                                   </div>
+                                                </>
+                                             )}
                                              {task.fixerDate && (
                                                 <>
                                                    <Dot size={24} className="text-neutral-500" />
@@ -369,7 +394,7 @@ export default function TasksListTab(props: Props) {
                      key: "3",
                      label: <div className="py-1">Hoàn thành {getCount(taskGrouped.completed.length)}</div>,
                      children: (
-                        <div className="grid grid-cols-1 px-layout">
+                        <div className="grid grid-cols-1">
                            {taskGrouped.completed.length === 0 && (
                               <div className="grid place-items-center py-12">
                                  <Empty description="Không có tác vụ" />
@@ -392,7 +417,10 @@ export default function TasksListTab(props: Props) {
                                     </div>
                                  )}
                                  <div
-                                    className="grid cursor-pointer grid-cols-[24px_1fr] gap-4"
+                                    className={cn(
+                                       "grid cursor-pointer grid-cols-[24px_1fr] gap-4 px-layout",
+                                       task.priority && "bg-red-100",
+                                    )}
                                     onClick={() => taskDetailsRef.current?.handleOpen(task)}
                                  >
                                     <div className="grid place-items-center">
@@ -407,9 +435,18 @@ export default function TasksListTab(props: Props) {
                                     <div className="flex flex-col gap-0.5">
                                        <h3 className="text-sm text-neutral-800">{task.name}</h3>
                                        <div className="flex items-center">
-                                          <div className={cn(TaskStatusTagMapper[task.status].className)}>
+                                          <div className={cn("text-sm", TaskStatusTagMapper[task.status].className)}>
                                              {TaskStatusTagMapper[task.status].text}
                                           </div>
+                                          {task.priority && (
+                                                <>
+                                                   <Dot size={24} className="text-neutral-500" />
+                                                   <div className="flex items-center">
+                                                      <ExclamationMark size={16} className="mr-1 inline text-red-500" />
+                                                      <span className="text-sm text-red-500">Ưu tiên</span>
+                                                   </div>
+                                                </>
+                                             )}
                                           {task.fixerDate && (
                                              <>
                                                 <Dot size={24} className="text-neutral-500" />

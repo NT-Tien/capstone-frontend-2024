@@ -191,6 +191,18 @@ export default function StaffTasksPage() {
                                              </span>
                                              <span>{item.totalTime} phút</span>
                                           </section>
+                                          <section className="flex items-center justify-between mt-1">
+                                             {item.confirmReceipt ? (
+                                                <span className="text-xs text-neutral-500">Đã lấy linh kiện</span>
+                                             ) : <div></div>}
+                                             {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
+                                                <section>
+                                                   <span className="text-xs text-neutral-500">
+                                                      {dayjs(item.fixerDate).format("DD/MM/YY")}
+                                                   </span>
+                                                </section>
+                                             )}
+                                          </section>
                                        </div>
                                     </Card>
                                     <Skeleton
@@ -239,8 +251,8 @@ export default function StaffTasksPage() {
                                     onClick={() =>
                                        !isDisabled
                                           ? handleOpen({
-                                               taskId: item.id,
-                                            })
+                                             taskId: item.id,
+                                          })
                                           : null
                                     }
                                  >
@@ -255,13 +267,18 @@ export default function StaffTasksPage() {
                                           </span>
                                           <span>{item.totalTime} phút</span>
                                        </section>
-                                       {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
-                                          <section className="mt-1 text-right">
-                                             <span className="text-xs text-neutral-500">
-                                                {dayjs(item.fixerDate).add(7, "hours").format("DD/MM/YY")}
-                                             </span>
-                                          </section>
-                                       )}
+                                       <section className="flex items-center justify-between mt-1">
+                                          {item.confirmReceipt ? (
+                                             <span className="text-xs text-neutral-500">Đã lấy linh kiện</span>
+                                          ) : <div></div>}
+                                          {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
+                                             <section>
+                                                <span className="text-xs text-neutral-500">
+                                                   {dayjs(item.fixerDate).format("DD/MM/YY")}
+                                                </span>
+                                             </section>
+                                          )}
+                                       </section>
                                     </div>
                                  </Card>
                               )
@@ -318,6 +335,18 @@ export default function StaffTasksPage() {
                                                 {item.device.area.name}
                                              </span>
                                              <span>{item.totalTime} phút</span>
+                                          </section>
+                                          <section className="flex items-center justify-between mt-1">
+                                             {item.confirmReceipt ? (
+                                                <span className="text-xs text-neutral-500">Đã lấy linh kiện</span>
+                                             ) : <div></div>}
+                                             {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
+                                                <section>
+                                                   <span className="text-xs text-neutral-500">
+                                                      {dayjs(item.fixerDate).format("DD/MM/YY")}
+                                                   </span>
+                                                </section>
+                                             )}
                                           </section>
                                        </div>
                                     </Card>
@@ -383,13 +412,18 @@ export default function StaffTasksPage() {
                                              </span>
                                              <span>{item.totalTime} phút</span>
                                           </section>
-                                          {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
-                                             <section className="mt-1 text-right">
-                                                <span className="text-xs text-neutral-500">
-                                                   {dayjs(item.fixerDate).add(7, "hours").format("DD/MM/YY")}
-                                                </span>
-                                             </section>
-                                          )}
+                                          <section className="flex items-center justify-between mt-1">
+                                             {item.confirmReceipt ? (
+                                                <span className="text-xs text-neutral-500">Đã lấy linh kiện</span>
+                                             ) : <div></div>}
+                                             {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
+                                                <section>
+                                                   <span className="text-xs text-neutral-500">
+                                                      {dayjs(item.fixerDate).format("DD/MM/YY")}
+                                                   </span>
+                                                </section>
+                                             )}
+                                          </section>
                                        </div>
                                     </Card>
                                     <Skeleton

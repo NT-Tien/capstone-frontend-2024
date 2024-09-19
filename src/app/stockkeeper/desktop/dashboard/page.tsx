@@ -1,3 +1,7 @@
+"use client"
+
+import { PageContainer } from "@ant-design/pro-components"
+
 export default function Page() {
-   return "Db"
+   return <PageContainer title={`Thống kê`}></PageContainer>
 }

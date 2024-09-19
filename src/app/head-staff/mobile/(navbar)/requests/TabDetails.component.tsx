@@ -52,11 +52,12 @@ function TabDetails(props: Props) {
       <List
          rowKey="id"
          split
+         className="std-layout-outer"
          dataSource={api_requests.data?.list}
          renderItem={(item, index) => (
             <List.Item className={cn("w-full", index === 0 && "mt-0")}>
                <RequestCard
-                  className={cn("w-full", item.is_seen === false && "rounded-lg p-2 bg-green-100 hover:bg-green-200 transition-all border-[1px] border-green-100")}
+                  className={cn("w-full px-layout", item.is_seen === false && " p-2 bg-green-100 hover:bg-green-200 transition-all border-[1px] border-green-100")}
                   headerClassName={cn(item.is_seen === false && "rounded-lg p-1")}
                   description={item.requester_note}
                   footerLeft={

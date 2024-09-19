@@ -2,7 +2,7 @@ import { FixRequestIssueSparePartDto } from "@/common/dto/FixRequestIssueSparePa
 import useModalControls from "@/common/hooks/useModalControls"
 import { InfoCircleOutlined } from "@ant-design/icons"
 import { Wrench } from "@phosphor-icons/react"
-import { Button, Card, Empty, List, Modal, QRCode } from "antd"
+import { Button, Card, Drawer, Empty, List, Modal, QRCode } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle, useState } from "react"
 
 type Props = {
@@ -31,8 +31,10 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
          setSpareParts(issueSpareParts)
       },
       onClose: () => {
-         setQrCode(undefined)
-         setSpareParts([])
+         setTimeout(() => {
+            setQrCode(undefined)
+            setSpareParts([])
+         }, 500)
       },
    })
 
@@ -52,7 +54,11 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
    return (
       <>
          {children?.(handleOpen)}
-         <Modal title={props.title ?? "Qr Code"} open={open} onCancel={handleClose} footer={null} centered>
+         <Drawer title={props.title ?? "Qr Code"} open={open} onClose={handleClose} placement="bottom" height="max-content" classNames={{
+            footer: "p-layout"
+         }} footer={<Button className="w-full" size="large" type="primary" onClick={handleCompleteSpareParts}>
+            Hoàn tất lấy linh kiện
+         </Button>}>
             {props.description && (
                <Card
                   size="small"
@@ -87,12 +93,7 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
                   )}
                </div>
             </section>
-            <section className="mt-layout">
-               <Button className="w-full" size="large" type="primary" onClick={handleCompleteSpareParts}>
-                  Hoàn tất lấy linh kiện
-               </Button>
-            </section>
-         </Modal>
+         </Drawer>
       </>
    )
 })

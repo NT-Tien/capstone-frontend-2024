@@ -23,8 +23,8 @@ type Step2Props = GeneralProps & {
 }
 
 export default function Step1(props: Step2Props) {
-   const [hasScanned, setHasScanned] = useState(false)
-   const [tab, setTab] = useState<"task" | "issues">("task")
+   const [hasScanned, setHasScanned] = useState(true)
+   const [tab, setTab] = useState<"task" | "issues">("issues")
 
    const { message } = App.useApp()
    const router = useRouter()

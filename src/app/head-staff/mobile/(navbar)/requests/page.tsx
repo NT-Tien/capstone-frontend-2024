@@ -106,15 +106,13 @@ function Component() {
             }))}
             className="hide-scrollbar mt-layout w-full overflow-auto"
          />
-         <section>
-            {tab ? (
-               <TabDetails status={tab} />
-            ) : (
-               <Card>
-                  <Spin fullscreen />
-               </Card>
-            )}
-         </section>
+         {tab ? (
+            <TabDetails status={tab} />
+         ) : (
+            <Card>
+               <Spin fullscreen />
+            </Card>
+         )}
       </div>
    )
 }

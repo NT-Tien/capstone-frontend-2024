@@ -1,10 +1,8 @@
-import api from "@/config/axios.config"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
-import Cookies from "js-cookie"
-import { MachineModelDto } from "@/common/dto/MachineModel.dto"
 import { SparePartDto } from "@/common/dto/SparePart.dto"
 import { TaskDto } from "@/common/dto/Task.dto"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
+import { parseApiResponse } from "@/common/util/parseApiResponse.util"
+import api from "@/config/axios.config"
+import Cookies from "js-cookie"
 
 export type Response = {
    [id: string]: {

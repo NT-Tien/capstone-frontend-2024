@@ -173,14 +173,18 @@ const CreateTaskDrawer = forwardRef<CreateTaskDrawerRefType, Props>(function Com
                operator: 0,
             },
             {
-               onSuccess: () => {},
+               onSuccess: () => { },
             },
          )
 
          const updated = await mutate_checkSparePartStock.mutateAsync({ id: task.id }).catch((error) => {
             console.log(error, typeof error)
+            message.destroy("info")
             if (error instanceof Error && error.message.includes("Not enough spare part")) {
-               message.info("Không đủ linh kiện để tạo tác vụ. Tác vụ sẽ được chuyển qua trạng thái chờ linh kiện.")
+               message.info({
+                  content: "Không đủ linh kiện để tạo tác vụ. Tác vụ sẽ được chuyển qua trạng thái chờ linh kiện.",
+                  key: "info",
+               })
             } else {
                throw error
             }
@@ -461,8 +465,8 @@ function FormStep_0() {
                            className={cn(
                               "m-0 w-full",
                               issue.task === null &&
-                                 issue.issueSpareParts.find((isp) => isp.quantity > isp.sparePart.quantity) &&
-                                 "border-2 border-yellow-100 bg-yellow-50",
+                              issue.issueSpareParts.find((isp) => isp.quantity > isp.sparePart.quantity) &&
+                              "border-2 border-yellow-100 bg-yellow-50",
                            )}
                         ></CheckCard>
                      </div>
@@ -526,6 +530,8 @@ function FormStep_0() {
                            maskClosable: true,
                            cancelText: "Hủy",
                         })
+                     } else {
+                        handleFinish()
                      }
                   }}
                   className={cn("w-full", hasChosenIssueWithMissingSpareParts && "bg-yellow-500")}
@@ -534,7 +540,7 @@ function FormStep_0() {
                </Button>
             </div>
          </section>
-         <IssueDetailsDrawer refetch={() => {}} ref={issueDetailsDrawerRef} />
+         <IssueDetailsDrawer refetch={() => { }} ref={issueDetailsDrawerRef} />
       </>
    )
 }

@@ -4,6 +4,8 @@ import {
    ApiOutlined,
    BellOutlined,
    DashboardOutlined,
+   OrderedListOutlined,
+   ImportOutlined,
    LogoutOutlined
 } from "@ant-design/icons"
 import { ProLayout } from "@ant-design/pro-layout"
@@ -104,7 +106,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                      {
                         key: "spareparts-list",
                         name: "Danh sách",
-                        icon: <ApiOutlined />,
+                        icon: <OrderedListOutlined />,
                         path: "/stockkeeper/desktop/spare-parts",
                      },
                      {
@@ -116,7 +118,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                      {
                         key: "import",
                         name: "Nhập linh kiện",
-                        icon: <ApiOutlined />,
+                        icon: <ImportOutlined />,
                         path: "/stockkeeper/desktop/spare-parts/import",
                      }
                   ],
@@ -128,7 +130,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                      {
                         key: "task list",
                         name: "Danh sách",
-                        icon: <ApiOutlined />,
+                        icon: <OrderedListOutlined />,
                         path: "/stockkeeper/desktop/tasks",
                      },
                   ],

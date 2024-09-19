@@ -122,10 +122,10 @@ const BasicSelectSparePartDrawer = forwardRef<BasicSelectSparePartDrawerRefType,
                            onChange={(e) => {
                               let num = e
                               if (num === null) num = 1
-                              else if (num > sparePart.quantity) num = sparePart.quantity
 
                               setSelectedQuantity(num)
                            }}
+                           min={0}
                            size="large"
                            inputMode="numeric"
                         />

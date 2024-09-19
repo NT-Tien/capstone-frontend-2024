@@ -178,7 +178,7 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
          title="Nhập linh kiện vào kho"
          content={
             <AlertCard
-               text="Chào mừng bạn đến với trang Đăng tải hàng loạt linh kiện. Hãy sử dụng các biểu mẫu được cung cấp để cập nhật linh kiện nhanh chóng hơn."
+               text="Hãy sử dụng các biểu mẫu được cung cấp để cập nhật linh kiện nhanh chóng hơn."
                type="info"
             />
          }

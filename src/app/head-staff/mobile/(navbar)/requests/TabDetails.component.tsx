@@ -100,7 +100,7 @@ function TabDetails(props: Props) {
 
 function getCreatedAt(request: FixRequestDto) {
    const dateRaw = request.createdAt
-   const date = dayjs(dateRaw).add(7, "hours").locale("vi")
+   const date = dayjs(dateRaw).locale("vi")
    const now = dayjs()
 
    if (now.isSame(date, "day")) {

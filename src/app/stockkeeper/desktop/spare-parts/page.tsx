@@ -1,19 +1,18 @@
 "use client"
 
 import { SparePartDto } from "@/common/dto/SparePart.dto"
+import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
 import { ProTable, TableDropdown } from "@ant-design/pro-components"
 import { PageContainer } from "@ant-design/pro-layout"
+import { CaretDown, CaretUp } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
-import { App, Button, Form, InputNumber, Space } from "antd"
-import dayjs from "dayjs"
+import { Button, Form, InputNumber, Space } from "antd"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useMemo, useRef, useState } from "react"
+import Stockkeeper_MachineModel_All from "../../_api/machine-model/getAll.api"
 import { stockkeeper_qk } from "../../_api/qk"
 import Stockkeeper_SparePart_All, { type Request } from "../../_api/spare-part/all.api"
-import Link from "next/link"
-import Stockkeeper_MachineModel_All from "../../_api/machine-model/getAll.api"
-import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
-import { CaretDown, CaretUp } from "@phosphor-icons/react"
-import { useRouter } from "next/navigation"
 
 const values = {
    nameSingle: "linh kiện",
@@ -229,8 +228,7 @@ export default function DevicesListPage() {
                   dataIndex: "createdAt",
                   valueType: "date",
                   width: 200,
-                  sorter: (a, b) =>
-                     dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
+                  sorter: true,
                   hideInSearch: true,
                },
                {
@@ -238,9 +236,7 @@ export default function DevicesListPage() {
                   dataIndex: "updatedAt",
                   valueType: "date",
                   width: 200,
-                  sorter: (a, b) =>
-                     dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
-                  defaultSortOrder: "descend",
+                  sorter: true,
                   hideInSearch: true,
                },
                {

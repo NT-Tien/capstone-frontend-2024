@@ -241,7 +241,7 @@ export default function FinishIssueDrawer({
             }}
          />
 
-         {/* <CaptureVideoDrawer
+         <CaptureVideoDrawer
             open={videoDrawerOpen}
             onClose={() => setVideoDrawerOpen(false)}
             onRecord={async (file) => {
@@ -249,7 +249,7 @@ export default function FinishIssueDrawer({
                setUploadVideo(result.data.path)
                setVideoDrawerOpen(false)
             }}
-         /> */}
+         />
       </>
    )
 }

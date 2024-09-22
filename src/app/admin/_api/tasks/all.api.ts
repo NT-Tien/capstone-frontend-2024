@@ -10,21 +10,15 @@ export type Task = {
    status: TaskStatus
    time: 1 | 2 | 3
 }
-type Response = {
-    list: TaskDto[]
-    total: number
-}
+type Response = TaskDto[]
 
 Admin_Tasks_All.URL = ({ page, limit, status, time = 1 }: Task) =>
-   `/admin/task/${page}/${limit}/${status}?time=${time}`
+   `/admin/task/${page}/${limit}/${status}?time=${time}&all=true`
 export default async function Admin_Tasks_All(request: Task): Promise<Response> {
    return api
       .get<Response>(Admin_Tasks_All.URL(request), {
          transformResponse: (data) =>
-            parseApiResponse<any>(data, (res) => ({
-               list: res.data[0],
-               total: res.data[1],
-            })),
+            parseApiResponse<any>(data, (res) => res.data),
          headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,
          },

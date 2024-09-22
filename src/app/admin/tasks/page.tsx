@@ -14,8 +14,12 @@ import { TaskDto } from "@/common/dto/Task.dto"
 import Admin_Tasks_All from "../_api/tasks/all.api"
 import { TaskStatus } from "@/common/enum/task-status.enum"
 
-type types = {
-   dto: TaskDto
+
+type QueryState = {
+   area?: string
+   status?: TaskStatus
+   createdAt?: string
+   fixer?: string
 }
 
 const values = {
@@ -29,45 +33,38 @@ const values = {
    detailsHref: (page: number, limit: number, status: string, time: number) => `/admin/task/${page}/${limit}/${status}?time=${time}`,
 }
 
-export default function RequestListPage({ searchParams }: {searchParams: { area?: string}}) {
-   const { message } = App.useApp()
-   const [query, setQuery] = useState<Partial<types["dto"]>>({})
+export default function RequestListPage() {
    const actionRef = useRef()
+   const [query, setQuery] = useState<QueryState>({})
 
-   const fetchAllTasks = async () => {
-      const statuses = Object.values(TaskStatus);
-      const promises = statuses.map(status => 
-        Admin_Tasks_All({
-          page: 1,
-          limit: 10,
-          status,
-          time: 1,
-        })
-      );
-      const results = await Promise.all(promises);
-      const combinedList = results.flatMap(result => result.list);
-      const total = results.reduce((sum, result) => sum + result.total, 0);
-      return { list: combinedList, total };
-    };
   
     const response = useQuery({
       queryKey: ['tasks', { page: 1, limit: 10, time: 1 }],
-      queryFn: fetchAllTasks,
+      queryFn: () => Admin_Tasks_All({
+         page: 1,
+         limit: 10,
+         status: TaskStatus.ASSIGNED,
+         time: 1
+      }),
     });
 
 
-
     const responseData = useMemo(() => {
-      const searchArea = searchParams.area;
-
-      if(searchArea) {
-         return response.data?.list.filter((data) => {
-            return data.device?.area?.name.includes(searchArea)
-         })
-      }
-
-      return response.data?.list
-    }, [searchParams.area, response.data?.list]);
+      if (!response.data) return [];
+    
+      return response.data.filter((item) => {
+        const matchStatus = query.status ? item.status.toLocaleLowerCase() === query.status : true;
+        const matchCreatedAt = query.createdAt
+          ? dayjs(item.createdAt).isSame(query.createdAt, 'day')
+          : true;
+         // const matchFixer = query.fixer ? item.fixer.username.toLowerCase().includes(query.fixer.toLocaleLowerCase()) : true;
+        return (
+          matchStatus &&
+          matchCreatedAt
+         //  matchFixer
+        );
+      });
+    }, [response.data, query]);
     
 
    if (response.isError) {
@@ -90,7 +87,6 @@ export default function RequestListPage({ searchParams }: {searchParams: { area?
                },
             }}
             virtual
-            search={false}
             form={{
                syncToUrl: (values, type) => {
                   if (type === "get") {
@@ -101,12 +97,12 @@ export default function RequestListPage({ searchParams }: {searchParams: { area?
                   return values
                },
             }}
-            onSubmit={(props) => {
-               setQuery((prev) => ({
-                  ...prev,
-                  ...props,
-               }));
-            }}
+            onSubmit={(values) => {
+               setQuery({
+                 ...values,
+               //   fixer: values.fixer || '',
+               });
+             }}
             onReset={() => {
                setQuery({})
             }}
@@ -138,16 +134,7 @@ export default function RequestListPage({ searchParams }: {searchParams: { area?
                      showTitle: true,
                   },
                   valueType: "text",
-               },
-               {
-                  title: "Khu vực",
-                  key: "area",
-                  render: (_, record) => record.device.area.name,
-                  ellipsis: {
-                     showTitle: true,
-                  },
-                  valueType: "text",
-                  width: 60,
+                  hideInSearch: true,
                },
                {
                   title: "Trạng thái",
@@ -169,27 +156,29 @@ export default function RequestListPage({ searchParams }: {searchParams: { area?
                   sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                   defaultSortOrder: "descend",
                   width: 100,
+                  hideInSearch: true,
                },
                {
                   title: "Tổng thời gian",
-                  key: "taskName",
+                  key: "totalTime",
                   render: (_, record) => record.totalTime,
                   ellipsis: {
                      showTitle: true,
                   },
                   valueType: "number",
                   width: 80,
+                  hideInSearch: true,
                },
-               {
-                  title: "Nhân viên",
-                  key: "taskName",
-                  render: (_, record) => record.fixer?.username,
-                  ellipsis: {
-                     showTitle: true,
-                  },
-                  width: 60,
-                  valueType: "text",
-               },
+               // {
+               //    title: "Nhân viên",
+               //    key: "fixer",
+               //    render: (_, record) => record.fixer?.username,
+               //    ellipsis: {
+               //       showTitle: true,
+               //    },
+               //    width: 60,
+               //    valueType: "text",
+               // },
             ]}
          />
       </PageContainer>

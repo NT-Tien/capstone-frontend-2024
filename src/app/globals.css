@@ -223,3 +223,8 @@ body {
         width: 100%;
     }
 }
+
+.ant-pro-checkcard-content {
+    padding: 0 !important;
+  }
+  

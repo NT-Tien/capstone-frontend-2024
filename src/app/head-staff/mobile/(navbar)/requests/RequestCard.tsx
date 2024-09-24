@@ -38,7 +38,7 @@ function RequestCard(props: Props) {
             </div>
             <div className="flex items-center gap-1">
                {props.tag && <div>{props.tag}</div>}
-               <Button type="text" size="small" icon={<MoreOutlined />} className="m-0 p-0" />
+               {/* <Button type="text" size="small" icon={<MoreOutlined />} className="m-0 p-0" /> */}
             </div>
          </div>
          <div className="mt-2 line-clamp-1 text-neutral-400">{props.description}</div>

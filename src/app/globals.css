@@ -224,7 +224,13 @@ body {
     }
 }
 
-.ant-pro-checkcard-content {
+.wrapper-class {
+    .ant-pro-checkcard-content {
+        padding: 0 !important;
+    }
+}
+
+/* .ant-pro-checkcard-content {
     padding: 0 !important;
-  }
+  } */
   

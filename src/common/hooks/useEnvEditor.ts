@@ -1,5 +1,5 @@
 import { useContext, useRef } from "react"
-import { EnvEditorContext } from "@/common/providers/EnvEditor.provider"
+import { EnvEditorContext } from "@/providers/EnvEditor.provider"
 import { App } from "antd"
 
 const clickTimes: number = 5

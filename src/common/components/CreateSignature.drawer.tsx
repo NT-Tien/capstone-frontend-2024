@@ -1,12 +1,12 @@
-import { forwardRef, ReactNode, useImperativeHandle, useRef, useState } from "react"
-import useModalControls from "../hooks/useModalControls"
-import { CanvasPath, ReactSketchCanvas, ReactSketchCanvasRef } from "react-sketch-canvas"
-import { App, Button, Card, Checkbox, Drawer, Radio, Segmented, Slider } from "antd"
-import { Eraser, Pen } from "@phosphor-icons/react"
-import { UndoOutlined, RedoOutlined, DeleteOutlined } from "@ant-design/icons"
-import { useMutation } from "@tanstack/react-query"
 import { File_Image_Upload } from "@/_api/file/upload_image.api"
 import AlertCard from "@/components/AlertCard"
+import { DeleteOutlined, RedoOutlined, UndoOutlined } from "@ant-design/icons"
+import { Eraser, Pen } from "@phosphor-icons/react"
+import { useMutation } from "@tanstack/react-query"
+import { App, Button, Checkbox, Drawer, DrawerProps, Segmented, Slider } from "antd"
+import { forwardRef, ReactNode, useImperativeHandle, useRef, useState } from "react"
+import { CanvasPath, ReactSketchCanvas, ReactSketchCanvasRef } from "react-sketch-canvas"
+import useModalControls from "../hooks/useModalControls"
 
 export type CreateSignatureDrawerRefType = {
    handleOpen: () => void
@@ -16,6 +16,8 @@ export type CreateSignatureDrawerRefType = {
 type Props = {
    children?: (handleOpen: () => void) => ReactNode
    onSubmit: (res: string) => void
+   text?: string
+   drawerProps?: Omit<DrawerProps, "children">
 }
 
 const CreateSignatureDrawer = forwardRef<CreateSignatureDrawerRefType, Props>(function Component(props, ref) {
@@ -83,7 +85,28 @@ const CreateSignatureDrawer = forwardRef<CreateSignatureDrawerRefType, Props>(fu
    return (
       <>
          {props.children?.(handleOpen)}
-         <Drawer open={open} onClose={handleClose} placement="bottom" height="100%" title="Ký tên">
+         <Drawer
+            open={open}
+            onClose={handleClose}
+            placement="bottom"
+            height="100%"
+            title="Ký tên"
+            footer={
+               <Button
+                  size="large"
+                  className="w-full"
+                  type="primary"
+                  disabled={!isChecked || strokes.length == 0}
+                  onClick={handleExport}
+               >
+                  Gửi
+               </Button>
+            }
+            classNames={{
+               footer: "p-layout",
+            }}
+            {...props.drawerProps}
+         >
             <AlertCard text="Vui lòng ký tên vào phía dưới" type="info" />
             <section className="mb-3 mt-layout flex items-center">
                <div className="flex-grow">
@@ -165,19 +188,8 @@ const CreateSignatureDrawer = forwardRef<CreateSignatureDrawerRefType, Props>(fu
             />
             <section className="pt-3">
                <Checkbox checked={isChecked} onChange={(e) => setIsChecked(e.target.checked)}>
-                  Tôi xác nhận nhân viên đã hoàn thành tác vụ.
+                  {props.text ?? "Tôi xác nhận nhân viên đã hoàn thành tác vụ."}
                </Checkbox>
-            </section>
-            <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-lg">
-               <Button
-                  size="large"
-                  className="w-full"
-                  type="primary"
-                  disabled={!isChecked || strokes.length == 0}
-                  onClick={handleExport}
-               >
-                  Gửi
-               </Button>
             </section>
          </Drawer>
       </>

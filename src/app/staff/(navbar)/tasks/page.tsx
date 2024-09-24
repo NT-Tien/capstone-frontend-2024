@@ -104,9 +104,7 @@ export default function StaffTasksPage() {
                         description={tasks.ongoing.name}
                         bottom={<Progress percent={taskPercentCalculator(tasks.ongoing)} />}
                         priority={tasks.ongoing.priority ?? false}
-                        onClick={() =>
-                           router.push(`/staff/tasks/${tasks.ongoing?.id}/start`,)
-                        }
+                        onClick={() => router.push(`/staff/tasks/${tasks.ongoing?.id}/start`)}
                      />
                   </section>
                )}
@@ -182,7 +180,7 @@ export default function StaffTasksPage() {
                                     >
                                        <div className="flex flex-col">
                                           <section>
-                                             <h3 className="text-base font-medium">{item.name}</h3>
+                                             <h3 className="font-mediume text-base">{item.name}</h3>
                                           </section>
                                           <section className="mt-1 flex w-full items-center justify-between text-neutral-500">
                                              <span className="flex items-center gap-1">
@@ -191,10 +189,12 @@ export default function StaffTasksPage() {
                                              </span>
                                              <span>{item.totalTime} phút</span>
                                           </section>
-                                          <section className="flex items-center justify-between mt-1">
+                                          <section className="mt-1 flex items-center justify-between">
                                              {item.confirmReceipt ? (
                                                 <span className="text-xs text-neutral-500">Đã lấy linh kiện</span>
-                                             ) : <div></div>}
+                                             ) : (
+                                                <div></div>
+                                             )}
                                              {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
                                                 <section>
                                                    <span className="text-xs text-neutral-500">
@@ -251,8 +251,8 @@ export default function StaffTasksPage() {
                                     onClick={() =>
                                        !isDisabled
                                           ? handleOpen({
-                                             taskId: item.id,
-                                          })
+                                               taskId: item.id,
+                                            })
                                           : null
                                     }
                                  >
@@ -267,10 +267,12 @@ export default function StaffTasksPage() {
                                           </span>
                                           <span>{item.totalTime} phút</span>
                                        </section>
-                                       <section className="flex items-center justify-between mt-1">
+                                       <section className="mt-1 flex items-center justify-between">
                                           {item.confirmReceipt ? (
                                              <span className="text-xs text-neutral-500">Đã lấy linh kiện</span>
-                                          ) : <div></div>}
+                                          ) : (
+                                             <div></div>
+                                          )}
                                           {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
                                              <section>
                                                 <span className="text-xs text-neutral-500">
@@ -321,13 +323,16 @@ export default function StaffTasksPage() {
                                           "rounded-tl-none border-r-4 border-red-300 bg-red-50",
                                           isDisabled && "opacity-50",
                                        )}
-                                       onClick={() => !isDisabled && handleOpen({
-                                          taskId: item.id
-                                       })}
+                                       onClick={() =>
+                                          !isDisabled &&
+                                          handleOpen({
+                                             taskId: item.id,
+                                          })
+                                       }
                                     >
                                        <div className="flex flex-col">
                                           <section>
-                                             <h3 className="text-base font-medium">{item.name}</h3>
+                                             <h3 className="font-mediume text-base">{item.name}</h3>
                                           </section>
                                           <section className="mt-1 flex w-full items-center justify-between text-neutral-500">
                                              <span className="flex items-center gap-1">
@@ -336,10 +341,12 @@ export default function StaffTasksPage() {
                                              </span>
                                              <span>{item.totalTime} phút</span>
                                           </section>
-                                          <section className="flex items-center justify-between mt-1">
+                                          <section className="mt-1 flex items-center justify-between">
                                              {item.confirmReceipt ? (
                                                 <span className="text-xs text-neutral-500">Đã lấy linh kiện</span>
-                                             ) : <div></div>}
+                                             ) : (
+                                                <div></div>
+                                             )}
                                              {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
                                                 <section>
                                                    <span className="text-xs text-neutral-500">
@@ -397,9 +404,13 @@ export default function StaffTasksPage() {
                                        classNames={{
                                           body: "pb-2",
                                        }}
-                                       onClick={() => (!isDisabled ? handleOpen({
-                                          taskId: item.id
-                                       }) : null)}
+                                       onClick={() =>
+                                          !isDisabled
+                                             ? handleOpen({
+                                                  taskId: item.id,
+                                               })
+                                             : null
+                                       }
                                     >
                                        <div className="flex flex-col">
                                           <section>
@@ -412,10 +423,12 @@ export default function StaffTasksPage() {
                                              </span>
                                              <span>{item.totalTime} phút</span>
                                           </section>
-                                          <section className="flex items-center justify-between mt-1">
+                                          <section className="mt-1 flex items-center justify-between">
                                              {item.confirmReceipt ? (
                                                 <span className="text-xs text-neutral-500">Đã lấy linh kiện</span>
-                                             ) : <div></div>}
+                                             ) : (
+                                                <div></div>
+                                             )}
                                              {!dayjs(item.fixerDate).add(7, "hours").isSame(dayjs(), "day") && (
                                                 <section>
                                                    <span className="text-xs text-neutral-500">
@@ -467,9 +480,11 @@ export default function StaffTasksPage() {
                                        classNames={{
                                           body: "pb-2",
                                        }}
-                                       onClick={() => handleOpenInner({
-                                          taskId: item.id
-                                       })}
+                                       onClick={() =>
+                                          handleOpenInner({
+                                             taskId: item.id,
+                                          })
+                                       }
                                     >
                                        <div className="flex flex-col">
                                           <section>

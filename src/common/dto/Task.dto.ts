@@ -25,6 +25,8 @@ export type TaskDto = {
    request: FixRequestDto
    fixer: UserDto
    issues: FixRequestIssueDto[]
+   confirmReceiptStaffSignature: string
+   confirmReceiptStockkeeperSignature: string
 }
 
 export const PriorityTagMapper: {

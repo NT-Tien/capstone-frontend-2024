@@ -179,7 +179,15 @@ export default function DevicesListPage() {
                      showTitle: true,
                   },
                   valueType: "text",
-                  render: (_, record) => <a>{record.name}</a>,
+                  render: (_, record) => (
+                     <a
+                        onClick={() => {
+                           router.push(`/stockkeeper/desktop/tasks/scan?taskid=${record.id}`)
+                        }}
+                     >
+                        {record.name}
+                     </a>
+                  ),
                   sorter: true,
                },
                {
@@ -231,6 +239,13 @@ export default function DevicesListPage() {
                   valueType: "date",
                   width: 200,
                   render: (_, record) => (record.fixerDate ? dayjs(record.fixerDate).format("DD/MM/YYYY") : "-"),
+               },
+               {
+                  title: "Đã lấy linh kiện",
+                  dataIndex: ["confirmReceipt"],
+                  valueType: "switch",
+                  width: 100,
+                  hideInTable: true,
                },
                {
                   title: "Người sửa",

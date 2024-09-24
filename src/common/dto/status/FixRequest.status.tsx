@@ -106,7 +106,7 @@ export function FixRequest_StatusData(
             index: 3,
             name: "head_confirm",
             text: "Chờ đánh giá",
-            description: "Chờ bạn xác nhận và đánh giá quá trình kiểm tra",
+            description: "Chờ bạn đánh giá quá trình kiểm tra",
             colorInverse: "gold-inverse",
             color: "gold",
             conditionFn: (dto) => dto.status === FixRequestStatus.HEAD_CONFIRM,

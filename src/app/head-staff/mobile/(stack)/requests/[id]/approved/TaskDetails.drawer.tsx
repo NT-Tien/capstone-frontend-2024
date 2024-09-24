@@ -33,6 +33,7 @@ import AssignFixerDrawer, { AssignFixerDrawerRefType } from "../../../tasks/[id]
 import CancelTaskDrawer, { CancelTaskDrawerRefType } from "./CancelTask.drawer"
 import CheckSignatureDrawer, { CheckSignatureDrawerRefType } from "./CheckSignature.drawer"
 import UpdateTaskFixDateDrawer, { UpdateTaskFixDateDrawerRefType } from "./UpdateTaskFixDate.drawer"
+import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/common/components/ScannerV2.drawer"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto) => void
@@ -59,6 +60,8 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
    const { message } = App.useApp()
 
    const [task, setTask] = useState<TaskDto | null>(null)
+
+   const scannerV2DrawerRef = useRef<ScannerV2DrawerRefType | null>(null)
    const issueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)
    const assignFixerDrawerRef = useRef<AssignFixerDrawerRefType | null>(null)
    const checkSignatureDrawerRef = useRef<CheckSignatureDrawerRefType | null>(null)
@@ -140,9 +143,12 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
    }, [isReceiveWarrantyTask, isSendWarrantyTask])
 
    const isMissingSpareParts = useMemo(() => {
-      return api_task.data?.issues.find(
-         (issue) => issue.issueSpareParts.filter((sp) => sp.quantity > sp.sparePart.quantity).length > 0,
-      )
+
+      return api_task.data?.issues.flatMap((issue) => issue.issueSpareParts).find((sp) => sp.quantity > sp.sparePart.quantity)
+
+      // return api_task.data?.issues.find(
+      //    (issue) => issue.issueSpareParts.filter((sp) => sp.quantity > sp.sparePart.quantity).length > 0,
+      // )
    }, [api_task.data?.issues])
 
    function Footer() {
@@ -222,16 +228,38 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
 
       if (task.status === TaskStatus.HEAD_STAFF_CONFIRM) {
          return (
-            <Button
-               type="primary"
-               className="w-full"
-               size="large"
-               onClick={() =>
-                  api_task.isSuccess && checkSignatureDrawerRef.current?.handleOpen(api_task.data, isSendWarrantyTask)
-               }
-            >
-               Xác nhận hoàn thành
-            </Button>
+            <>
+               <AlertCard
+                  text="Vui lòng kiểm tra kết quả sửa chữa máy và chữ ký của nhân viên."
+                  className="mb-layout-half"
+                  type="info"
+               />
+               <Button
+                  type="primary"
+                  className="w-full"
+                  size="large"
+                  onClick={() => {
+                     if (!api_task.isSuccess) return
+                     if (isSendWarrantyTask) {
+                        checkSignatureDrawerRef.current?.handleOpen(api_task.data, isSendWarrantyTask)
+                        return
+                     }
+                     const cache = localStorage.getItem("head_staff_confirm_device_ids")
+                     if (cache) {
+                        const cacheArr = JSON.parse(cache) as string[]
+                        if (cacheArr.includes(api_task.data.device.id)) {
+                           checkSignatureDrawerRef.current?.handleOpen(api_task.data, isSendWarrantyTask)
+                        } else {
+                           scannerV2DrawerRef.current?.handleOpen()
+                        }
+                     } else {
+                        scannerV2DrawerRef.current?.handleOpen()
+                     }
+                  }}
+               >
+                  Xác nhận hoàn thành
+               </Button>
+            </>
          )
       }
 
@@ -437,6 +465,27 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
             refetchFn={() => {
                props.refetchFn?.()
                handleClose()
+            }}
+         />
+         <ScannerV2Drawer
+            ref={scannerV2DrawerRef}
+            onScan={(result) => {
+               if (!api_task.isSuccess) return
+               if (result !== api_task.data.device.id) {
+                  message.error("Mã QR không đúng")
+                  return
+               }
+               const cache = localStorage.getItem("head_staff_confirm_device_ids")
+               if (cache) {
+                  const cacheArr = JSON.parse(cache) as string[]
+                  localStorage.setItem("head_staff_confirm_device_ids", JSON.stringify([...cacheArr, result]))
+               } else {
+                  localStorage.setItem("head_staff_confirm_device_ids", JSON.stringify([result]))
+               }
+               // scannerV2DrawerRef.current?.handleClose()
+               setTimeout(() => {
+                  checkSignatureDrawerRef.current?.handleOpen(api_task.data, isSendWarrantyTask)
+               }, 500)
             }}
          />
       </>

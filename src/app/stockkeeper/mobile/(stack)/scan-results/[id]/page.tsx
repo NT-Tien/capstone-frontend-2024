@@ -12,11 +12,13 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { App, Button, List, Tag, Typography } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import { useMemo } from "react"
+import { useMemo, useRef } from "react"
 import Stockkeeper_Task_GetById from "../../../../_api/task/getById.api"
+import CreateSignatureDrawer, { CreateSignatureDrawerRefType } from "@/common/components/CreateSignature.drawer"
 
 export default function TaskDetails({ params }: { params: { id: string } }) {
    const { message } = App.useApp()
+   const createSignatureDrawerRef = useRef<CreateSignatureDrawerRefType | null>(null)
 
    const api_task = useQuery({
       queryKey: qk.task.one_byId(params.id),
@@ -57,10 +59,13 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
       },
    })
 
-   function handleConfirmReceipt() {
+   function handleConfirmReceipt(signature: string) {
       mutate_confirmReceipt.mutate(
          {
             id: params.id,
+            payload: {
+               signature: "",
+            },
          },
          {
             onSuccess: async () => {
@@ -195,11 +200,17 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
          )}
          {!(api_task.isSuccess && api_task.data.confirmReceipt) && (
             <section className="fixed bottom-0 left-0 w-full bg-white p-layout shadow-fb">
-               <Button type="primary" size="large" className="w-full" onClick={handleConfirmReceipt}>
+               <Button
+                  type="primary"
+                  size="large"
+                  className="w-full"
+                  onClick={createSignatureDrawerRef.current?.handleOpen}
+               >
                   Hoàn tất lấy linh kiện
                </Button>
             </section>
          )}
+         <CreateSignatureDrawer onSubmit={(result) => handleConfirmReceipt(result)} ref={createSignatureDrawerRef} />
       </div>
    )
 }

@@ -79,8 +79,8 @@ export default function FeedbackDrawer({
                <InfoCircleFilled className="mr-1" />
                Vui lòng đánh giá quá trình sửa chữa
             </Card>
-            <section className="mb-3 flex justify-center">
-               <Col>
+            {/* <section className="mb-3 flex justify-center"> */}
+               {/* <Col>
                   <Row className="flex text-3xl font-medium">
                      <UserOutlined />
                      <Row className="m-1 font-medium">Đánh giá nhân viên</Row>
@@ -117,8 +117,8 @@ export default function FeedbackDrawer({
                         </CheckCard>
                      </Col>
                   </Row>
-               </Col>
-            </section>
+               </Col> */}
+            {/* </section> */}
             <ProFormTextArea
                label="Đánh giá"
                fieldProps={{

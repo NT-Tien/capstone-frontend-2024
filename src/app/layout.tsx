@@ -1,5 +1,5 @@
 import "@/app/globals.css"
-import GlobalProvider from "@/common/providers/global.provider"
+import IndexProvider from "@/providers"
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import { ReactNode } from "react"
@@ -30,7 +30,7 @@ export default function RootLayout({
    return (
       <html lang="en">
          <body className={`${font.variable} antialiased`}>
-            <GlobalProvider>{children}</GlobalProvider>
+            <IndexProvider>{children}</IndexProvider>
          </body>
       </html>
    )

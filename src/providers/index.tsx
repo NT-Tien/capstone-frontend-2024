@@ -1,8 +1,8 @@
 "use client"
 
 import DayjsProvider from "@/common/providers/dayjs.provider"
-import EnvEditorProvider from "@/common/providers/EnvEditor.provider"
-import ModalStackProvider from "@/common/providers/modal-stack.provider"
+import EnvEditorProvider from "@/providers/EnvEditor.provider"
+import ModalStackProvider from "@/providers/ModalStack.provider"
 import { makeQueryClient } from "@/common/util/makeQueryClient.util"
 import { AntdRegistry } from "@ant-design/nextjs-registry"
 import { ProConfigProvider, viVNIntl } from "@ant-design/pro-provider"
@@ -71,8 +71,6 @@ const showInsetEffect: WaveConfig["showEffect"] = (node, { event, component }) =
 
    const dot = createDot(holder, color, left, top)
 
-   requestAnimationFrame
-
    // Motion
    requestAnimationFrame(() => {
       dot.ontransitionend = () => {
@@ -85,7 +83,7 @@ const showInsetEffect: WaveConfig["showEffect"] = (node, { event, component }) =
    })
 }
 
-export default function GlobalProvider({ children }: Readonly<{ children: ReactNode }>) {
+export default function IndexProvider({ children }: Readonly<{ children: ReactNode }>) {
    const queryClient = makeQueryClient()
 
    const primaryColor: string = "#3c6cf5"

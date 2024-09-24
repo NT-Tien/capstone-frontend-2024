@@ -273,7 +273,7 @@ export default function HistoryDetails({
                                                                  className="mt-1"
                                                                  onClick={() => handleOpen(params.id)}
                                                               >
-                                                                 Xác nhận
+                                                                 Đánh giá
                                                               </Button>
                                                            )}
                                                         </FeedbackDrawer>

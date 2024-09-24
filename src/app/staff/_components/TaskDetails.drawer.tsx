@@ -14,6 +14,7 @@ import QrCodeDisplayModal, { QrCodeDisplayModalRefType } from "./QrCodeDisplay.m
 import Staff_Task_UpdateStart from "../_api/task/update-start.api"
 import ScannerDrawer from "@/common/components/Scanner.drawer"
 import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/common/components/ScannerV2.drawer"
+import { ReceiveWarrantyTypeErrorId } from "@/constants/Warranty"
 
 type HandleOpenProps = {
    taskId: string
@@ -101,9 +102,22 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
 
       if (api_task.data.status === TaskStatus.ASSIGNED) {
          return (
-            <Button type="primary" className="w-full" size="large" icon={<Wrench size={20} />} onClick={() => {
-               scannerV2DrawerRef.current?.handleOpen()
-            }}>
+            <Button
+               type="primary"
+               className="w-full"
+               size="large"
+               icon={<Wrench size={20} />}
+               onClick={() => {
+                  const warrantyIssue = api_task.data.issues.find(
+                     (issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId,
+                  )
+                  if (!!warrantyIssue) {
+                     router.push(`/staff/tasks/${api_task.data.id}/start`)
+                  } else {
+                     scannerV2DrawerRef.current?.handleOpen()
+                  }
+               }}
+            >
                Bắt đầu tác vụ
             </Button>
          )
@@ -263,24 +277,27 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
             ref={qrCodeDisplayRef}
             onComplete={() => handleClose()}
          />
-         <ScannerV2Drawer onScan={(result) => {
-            if (result !== api_task.data?.device.id) {
-               message.error({
-                  content: "Mã QR không đúng. Vui lòng thử lại.",
-               })
-               return
-            }
-            mutate_startTask.mutate(
-               {
-                  id: api_task.data.id,
-               },
-               {
-                  onSuccess: () => {
-                     router.push(`/staff/tasks/${api_task.data?.id}/start`)
+         <ScannerV2Drawer
+            onScan={(result) => {
+               if (result !== api_task.data?.device.id) {
+                  message.error({
+                     content: "Mã QR không đúng. Vui lòng thử lại.",
+                  })
+                  return
+               }
+               mutate_startTask.mutate(
+                  {
+                     id: api_task.data.id,
                   },
-               },
-            )
-         }} ref={scannerV2DrawerRef} />
+                  {
+                     onSuccess: () => {
+                        router.push(`/staff/tasks/${api_task.data?.id}/start`)
+                     },
+                  },
+               )
+            }}
+            ref={scannerV2DrawerRef}
+         />
       </>
    )
 })

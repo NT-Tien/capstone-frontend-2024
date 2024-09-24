@@ -16,6 +16,7 @@ import { ChartLineUp, Keyboard } from "@phosphor-icons/react"
 import CountUp from "react-countup"
 import Stockkeeper_SparePart_UpdateMany from "@/app/stockkeeper/_api/spare-part/update-many.api"
 import { useRouter } from "next/navigation"
+import Stockkeeper_SparePart_All from "@/app/stockkeeper/_api/spare-part/all.api"
 
 type UploadFileResult = {
    "Mã linh kiện": string
@@ -30,15 +31,22 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
 
    const [uploadJson, setUploadJson] = useState<UploadFileResult[] | null>(null)
    const [selectedDownload, setSelectedDownload] = useState<"empty" | "filled">(
-      searchParams.from === "missing" ? "filled" : "empty",
+      // searchParams.from === "missing" ? "filled" : "empty",
+      "filled",
    )
 
-   const api_missingSpareParts = useQuery({
-      queryKey: stockkeeper_qk.sparePart.allNeedMore(),
-      queryFn: Stockkeeper_SparePart_AllAddMore,
-      select: (data) => {
-         return Object.values(data)
-      },
+   // const api_missingSpareParts = useQuery({
+   //    queryKey: stockkeeper_qk.sparePart.allNeedMore(),
+   //    queryFn: Stockkeeper_SparePart_AllAddMore,
+   //    select: (data) => {
+   //       return Object.values(data)
+   //    },
+   //    enabled: selectedDownload === "filled",
+   // })
+
+   const api_allSpareParts = useQuery({
+      queryKey: stockkeeper_qk.sparePart.all({ page: 1, limit: 5000 }),
+      queryFn: () => Stockkeeper_SparePart_All({ page: 1, limit: 5000 }),
       enabled: selectedDownload === "filled",
    })
 
@@ -66,14 +74,14 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
    })
 
    function handleCustomDownload() {
-      if (!api_missingSpareParts.isSuccess) return
+      if (!api_allSpareParts.isSuccess) return
 
       const wb = xlsx.utils.book_new()
       const ws = xlsx.utils.json_to_sheet(
-         api_missingSpareParts.data.map((item) => ({
-            "Mã linh kiện": item.sparePart.id,
-            "Tên linh kiện": item.sparePart.name,
-            "Tên mẫu máy": item.sparePart.machineModel.name,
+         api_allSpareParts.data.list.map((item) => ({
+            "Mã linh kiện": item.id,
+            "Tên linh kiện": item.name,
+            "Tên mẫu máy": item.machineModel.name,
             "Số lượng nhập": 0,
          })),
       )
@@ -115,7 +123,8 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
             return
          }
 
-         setUploadJson(data)
+         const parsedData = (data as UploadFileResult[]).filter((item) => item["Số lượng nhập"] > 0)
+         setUploadJson(parsedData)
       }
       fileReader.onerror = (e) => {
          console.log(e)
@@ -185,7 +194,7 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
       >
          <div className="space-y-2">
             <Card title="1. Tải về và điền thông tin vào mẫu">
-               <Radio.Group
+               {/* <Radio.Group
                   className="mb-3 flex items-center gap-4"
                   value={selectedDownload}
                   onChange={(e) => setSelectedDownload(e.target.value as any)}
@@ -218,7 +227,7 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
                         </div>
                      </div>
                   </Card>
-               </Radio.Group>
+               </Radio.Group> */}
                {selectedDownload === "empty" && (
                   <Button
                      className="mt-layout"
@@ -232,58 +241,13 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
                )}
                {selectedDownload === "filled" && (
                   <section>
-                     <ProTable
-                        headerTitle="Danh sách linh kiện cần thêm"
-                        dataSource={api_missingSpareParts.data}
-                        loading={api_missingSpareParts.isPending}
-                        search={false}
-                        cardProps={{ bodyStyle: { padding: 0 } }}
-                        scroll={{
-                           x: "max-content",
-                        }}
-                        pagination={{
-                           pageSize: 5,
-                        }}
-                        columns={[
-                           {
-                              title: "STT",
-                              dataIndex: "index",
-                              valueType: "indexBorder",
-                              width: 48,
-                              align: "center",
-                           },
-                           {
-                              dataIndex: ["sparePart", "name"],
-                              title: "Tên linh kiện",
-                              width: 400,
-                              ellipsis: true,
-                              render: (_, e) => <a>{e.sparePart.name}</a>,
-                           },
-                           {
-                              dataIndex: ["sparePart", "machineModel", "name"],
-                              title: "Mẫu máy",
-                              width: 400,
-                              ellipsis: true,
-                           },
-                           {
-                              dataIndex: ["sparePart", "quantity"],
-                              title: "Số lượng trong kho",
-                              render: (_, e) => <span className="text-red-500">{e.sparePart.quantity}</span>,
-                           },
-                           {
-                              dataIndex: ["quantityNeedToAdd"],
-                              title: "Số lượng được yêu cầu",
-                              render: (_, e) => <span className="text-green-500">{e.quantityNeedToAdd}</span>,
-                           },
-                        ]}
-                     />
-                     <div className="mt-layout">
+                     <div>
                         <Button type="primary" icon={<DownloadOutlined />} onClick={handleCustomDownload}>
-                           Tải về mẫu *
+                           Tải về mẫu
                         </Button>
-                        <div className="mt-3 text-sm text-red-400">
+                        {/* <div className="mt-3 text-sm text-red-400">
                            * Các linh kiện trên sẽ được tự động điền vào mẫu khi tải về
-                        </div>
+                        </div> */}
                      </div>
                   </section>
                )}
@@ -299,11 +263,10 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
                   <p className="ant-upload-drag-icon">
                      <InboxOutlined />
                   </p>
-                  <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                  <p className="ant-upload-hint">
-                     Support for a single or bulk upload. Strictly prohibited from uploading company data or other
-                     banned files.
+                  <p className="ant-upload-text">
+                     Vui lòng kéo thả hoặc nhấn vào đây để tải lên file Excel chứa thông tin linh kiện
                   </p>
+                  <p className="ant-upload-hint">Chỉ chấp nhận file Excel (.xlsx, .xls) theo mẫu đã tải về</p>
                </Upload.Dragger>
             </Card>
          </div>
@@ -315,6 +278,7 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
             width="50%"
             okButtonProps={{
                disabled: !uploadJson,
+               loading: mutate_updateMany.isPending,
             }}
             okText="Cập nhật"
             onOk={() =>
@@ -337,7 +301,7 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
                      <Card size="small">
                         <div className="flex justify-between gap-10">
                            <div>
-                              <h5 className="text-xs text-neutral-500">TỔNG SỐ LINH KIỆN</h5>
+                              <h5 className="text-xs text-neutral-500">SỐ LOẠI LINH KIỆN</h5>
                               <CountUp
                                  className="text-lg font-bold"
                                  end={uploadJson.length}

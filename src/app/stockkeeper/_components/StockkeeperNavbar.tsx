@@ -1,6 +1,6 @@
 "use client"
 
-import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
+import MobileBottomNavbar, { NavbarMenuItem } from "@/components/layout/MobileBottomNavbar"
 import { ToolOutlined, DashboardFilled, EllipsisOutlined, ScanOutlined } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -49,11 +49,8 @@ export default function StockkeeperNavbar() {
 
    return (
       <>
-         <MobileNavbar items={items} currentActive={currentActive} />
-         <ToolboxDrawer
-            open={toolboxOpen}
-            setOpen={setToolboxOpen}
-         />
+         <MobileBottomNavbar items={items} currentActive={currentActive} />
+         <ToolboxDrawer open={toolboxOpen} setOpen={setToolboxOpen} />
       </>
    )
 }

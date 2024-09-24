@@ -2,6 +2,7 @@ import { createContext, ReactNode, useState } from "react"
 import { App, Form, Modal } from "antd"
 import { ProFormText } from "@ant-design/pro-components"
 import { clientEnv } from "@/env"
+import api from "@/config/axios.config"
 
 type EnvEditorContextType = {
    handleOpen: () => void
@@ -29,6 +30,7 @@ export default function EnvEditorProvider({ children }: { children: ReactNode })
 
    async function handleFinishForm(values: FieldType) {
       clientEnv.BACKEND_URL = values.BACKEND_URL
+      api.defaults.baseURL = values.BACKEND_URL
       message.success("ENV updated")
       handleClose()
    }

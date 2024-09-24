@@ -113,7 +113,9 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
       <>
          {loading && <Spin fullscreen tip="Logging in..." />}
          <div className="grid h-full place-content-center gap-3">
-            <Card onClick={handleDelayedOpenEnvEditor}>
+            <Card onClick={() => {
+               handleDelayedOpenEnvEditor()
+            }}>
                <Typography.Title level={4} className="select-none">
                   Đăng nhập
                </Typography.Title>

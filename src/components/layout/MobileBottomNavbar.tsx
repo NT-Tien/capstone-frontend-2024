@@ -21,7 +21,7 @@ export type MobileNavbarProps = {
    currentActive?: string
 }
 
-export default function MobileNavbar(props: MobileNavbarProps) {
+export default function MobileBottomNavbar(props: MobileNavbarProps) {
    const router = useRouter()
 
    useEffect(() => {
@@ -31,7 +31,7 @@ export default function MobileNavbar(props: MobileNavbarProps) {
    }, [props.items, router])
 
    return (
-      <div className="sticky bottom-0 left-0 flex h-[88px] w-full justify-between gap-2 border-t-2 border-t-slate-100 bg-white px-2 shadow-fb rounded-3xl">
+      <div className="sticky bottom-0 left-0 flex h-[88px] w-full justify-between gap-2 rounded-3xl border-t-2 border-t-slate-100 bg-white px-2 shadow-fb">
          {props.items.map((item) => (
             <NavbarItem
                key={item.key}
@@ -68,7 +68,7 @@ function NavbarItem({ name, icon, active = false, countBadge = 0, onClick, href,
    })
 
    function handleClick() {
-      if (!!onClick === false) return
+      if (!onClick) return
       onClick()
       if (!href) return
       router.push(href)

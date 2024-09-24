@@ -47,14 +47,20 @@ export default function ScannerInputManualDrawer(props: {
          {props.children(handleOpen)}
          <Drawer
             title="Nhập thủ công"
-placement="bottom"
+            placement="bottom"
             onClose={handleClose}
             open={open}
             height="max-content"
             classNames={{
-               body: "flex flex-col",
+               body: "flex flex-col pb-3",
+               footer: "p-layout",
             }}
             className="z-[1000]"
+            footer={
+               <Button key="submit-btn" type="primary" onClick={handleFinish} className="w-full" size="large">
+                  Gửi
+               </Button>
+            }
             {...props.drawerProps}
          >
             <Form<FieldType> disabled={props.disabled} form={form} layout="horizontal">
@@ -100,7 +106,6 @@ placement="bottom"
                      }
                      return value
                   }}
-                  className="flex-grow"
                >
                   <Input
                      placeholder="e.g., e31d662e-05db-4bc4-8bfd-773f56618725"
@@ -111,9 +116,6 @@ placement="bottom"
                      allowClear
                   />
                </Form.Item>
-               <Button key="submit-btn" type="primary" onClick={handleFinish} className="w-full" size="large">
-                  Gửi
-               </Button>
             </Form>
          </Drawer>
       </>

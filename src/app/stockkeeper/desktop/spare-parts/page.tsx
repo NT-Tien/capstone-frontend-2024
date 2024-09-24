@@ -186,6 +186,7 @@ export default function DevicesListPage() {
                   ellipsis: {
                      showTitle: true,
                   },
+                  copyable: true,
                   valueType: "select",
                   valueEnum: machineModels,
                   fieldProps: {

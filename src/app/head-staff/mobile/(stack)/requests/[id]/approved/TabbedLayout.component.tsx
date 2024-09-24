@@ -1,35 +1,33 @@
-import IssueDetailsDrawer from "@/app/head-staff/_components/IssueDetailsDrawer"
-import DataListView from "@/components/DataListView"
+import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
 import { DeviceDto } from "@/common/dto/Device.dto"
 import { FixRequestDto } from "@/common/dto/FixRequest.dto"
 import { FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
-import { Issue_StatusData } from "@/common/dto/status/Issue.status"
-import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
+import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
+import { TaskStatus } from "@/common/enum/task-status.enum"
 import { cn } from "@/common/util/cn.util"
+import DataListView from "@/components/DataListView"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import { SendWarrantyTypeErrorId } from "@/constants/Warranty"
 import { PlusOutlined } from "@ant-design/icons"
 import { CheckSquareOffset, Devices, MapPin, WarningDiamond } from "@phosphor-icons/react"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
-import { App, Divider, Empty, Skeleton } from "antd"
+import { App } from "antd"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
 import List from "antd/es/list"
 import Result from "antd/es/result"
-import Segmented from "antd/es/segmented"
 import Spin from "antd/es/spin"
 import Tag from "antd/es/tag"
 import dayjs from "dayjs"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Suspense, useEffect, useMemo, useRef, useState } from "react"
-import CreateTaskDrawer, { CreateTaskDrawerRefType } from "./CreateTask.drawer"
-import TasksListTab from "./TasksList.tab"
+import { useEffect, useMemo, useRef, useState } from "react"
 import DeviceRequestHistoryDrawer from "../DeviceRequestHistory.drawer"
+import CreateTaskV2Drawer, { CreateTaskV2DrawerProps } from "./_drawers/CreateTaskV2.drawer"
+import { CreateTaskDrawerRefType } from "./CreateTask.drawer"
 import isApproved from "./is-approved.util"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { SendWarrantyTypeErrorId } from "@/constants/Warranty"
-import { TaskStatus } from "@/common/enum/task-status.enum"
 import IssuesListTab from "./IssuesList.tab"
-import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
-import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
+import TasksListTab from "./TasksList.tab"
 
 type Props = {
    requestId: string
@@ -45,7 +43,7 @@ function TabbedLayout(props: Props) {
 
    const [tab, setTab] = useState<string | undefined>()
 
-   const createTaskRef = useRef<CreateTaskDrawerRefType | null>(null)
+   const createTaskDrawerRef = useRef<RefType<CreateTaskV2DrawerProps> | null>(null)
 
    const mutate_finishRequest = useMutation({
       mutationFn: HeadStaff_Request_UpdateStatus,
@@ -74,8 +72,8 @@ function TabbedLayout(props: Props) {
 
    function handleFinishRequest() {
       modal.confirm({
-         title: "Hoàn tất yêu cầu",
-         content: "Bạn có chắc chắn muốn hoàn tất yêu cầu này?",
+         title: "Đóng yêu cầu",
+         content: "Bạn có chắc chắn muốn đóng yêu cầu này?",
          onOk: () => {
             mutate_finishRequest.mutate(
                { id: props.requestId, payload: { status: FixRequestStatus.HEAD_CONFIRM } },
@@ -212,7 +210,7 @@ function TabbedLayout(props: Props) {
                                  type="primary"
                                  size="large"
                                  icon={<PlusOutlined />}
-                                 onClick={() => createTaskRef.current?.handleOpen(props.requestId)}
+                                 onClick={() => createTaskDrawerRef.current?.handleOpen({ requestId: props.requestId })}
                                  disabled={createTaskBtnText}
                               >
                                  Tạo tác vụ
@@ -222,7 +220,7 @@ function TabbedLayout(props: Props) {
                                     (issue) => issue.status === IssueStatusEnum.RESOLVED,
                                  ) && (
                                     <Button className="" size="large" type="primary" onClick={handleFinishRequest}>
-                                       Hoàn tất
+                                       Đóng yêu cầu
                                     </Button>
                                  )}
                            </div>
@@ -389,7 +387,9 @@ function TabbedLayout(props: Props) {
                </div>
             )}
          </div>
-         <CreateTaskDrawer ref={createTaskRef} refetchFn={props.api_request.refetch} />
+         <OverlayControllerWithRef ref={createTaskDrawerRef}>
+            <CreateTaskV2Drawer refetchFn={props.api_request.refetch} />
+         </OverlayControllerWithRef>
       </>
    )
 }

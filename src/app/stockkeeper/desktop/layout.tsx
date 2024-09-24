@@ -6,7 +6,8 @@ import {
    DashboardOutlined,
    OrderedListOutlined,
    ImportOutlined,
-   LogoutOutlined
+   LogoutOutlined,
+   QrcodeOutlined,
 } from "@ant-design/icons"
 import { ProLayout } from "@ant-design/pro-layout"
 import { Dropdown } from "antd"
@@ -120,7 +121,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         name: "Nhập linh kiện",
                         icon: <ImportOutlined />,
                         path: "/stockkeeper/desktop/spare-parts/import",
-                     }
+                     },
                   ],
                },
                {
@@ -132,6 +133,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         name: "Danh sách",
                         icon: <OrderedListOutlined />,
                         path: "/stockkeeper/desktop/tasks",
+                     },
+                     {
+                        key: "scan",
+                        name: "Quét QR",
+                        icon: <QrcodeOutlined />,
+                        path: "/stockkeeper/desktop/tasks/scan",
                      },
                   ],
                },

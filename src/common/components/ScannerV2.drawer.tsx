@@ -7,6 +7,7 @@ import { forwardRef, ReactNode, useImperativeHandle } from "react"
 
 export type ScannerV2DrawerRefType = {
    handleOpen: () => void
+   handleClose: () => void
 }
 
 type Props = {
@@ -22,6 +23,7 @@ const ScannerV2Drawer = forwardRef<ScannerV2DrawerRefType, Props>(function Compo
 
    useImperativeHandle(ref, () => ({
       handleOpen,
+      handleClose
    }))
 
    async function handleFinish(res: string, handleCloseManual?: () => void) {

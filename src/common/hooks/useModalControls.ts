@@ -1,4 +1,4 @@
-import { useModalStack } from "@/common/providers/modal-stack.provider"
+import { useModalStack } from "@/providers/ModalStack.provider"
 import { useCallback, useState } from "react"
 
 type OnOpenFunctionType<T extends any[]> = (...args: T) => void

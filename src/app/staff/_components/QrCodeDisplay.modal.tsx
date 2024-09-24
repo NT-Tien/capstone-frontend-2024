@@ -1,14 +1,14 @@
+import CreateSignatureDrawer, { CreateSignatureDrawerRefType } from "@/common/components/CreateSignature.drawer"
 import { FixRequestIssueSparePartDto } from "@/common/dto/FixRequestIssueSparePart.dto"
 import useModalControls from "@/common/hooks/useModalControls"
 import { InfoCircleOutlined } from "@ant-design/icons"
 import { Wrench } from "@phosphor-icons/react"
 import { Button, Card, Drawer, Empty, List, Modal, QRCode } from "antd"
-import { forwardRef, ReactNode, useImperativeHandle, useState } from "react"
+import { create } from "domain"
+import { forwardRef, ReactNode, useImperativeHandle, useRef, useState } from "react"
 
 type Props = {
-   children?: (
-      handleOpen: (qrCode: string, issueSpareParts: FixRequestIssueSparePartDto[]) => void,
-   ) => ReactNode
+   children?: (handleOpen: (qrCode: string, issueSpareParts: FixRequestIssueSparePartDto[]) => void) => ReactNode
    title?: string
    description?: string
    refetch: () => void
@@ -38,7 +38,10 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
       },
    })
 
+   const createSignatureDrawerRef = useRef<CreateSignatureDrawerRefType | null>(null)
+
    function handleCompleteSpareParts() {
+      createSignatureDrawerRef.current?.handleClose()
       handleClose()
       props.onComplete?.()
       setTimeout(() => {
@@ -54,11 +57,26 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
    return (
       <>
          {children?.(handleOpen)}
-         <Drawer title={props.title ?? "Qr Code"} open={open} onClose={handleClose} placement="bottom" height="max-content" classNames={{
-            footer: "p-layout"
-         }} footer={<Button className="w-full" size="large" type="primary" onClick={handleCompleteSpareParts}>
-            Hoàn tất lấy linh kiện
-         </Button>}>
+         <Drawer
+            title={props.title ?? "Qr Code"}
+            open={open}
+            onClose={handleClose}
+            placement="bottom"
+            height="max-content"
+            classNames={{
+               footer: "p-layout",
+            }}
+            footer={
+               <Button
+                  className="w-full"
+                  size="large"
+                  type="primary"
+                  onClick={() => createSignatureDrawerRef.current?.handleOpen()}
+               >
+                  Ký xác nhận
+               </Button>
+            }
+         >
             {props.description && (
                <Card
                   size="small"
@@ -94,6 +112,11 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
                </div>
             </section>
          </Drawer>
+         <CreateSignatureDrawer
+            ref={createSignatureDrawerRef}
+            onSubmit={handleCompleteSpareParts}
+            text="Tôi xác nhận đã lấy linh kiện thành công"
+         />
       </>
    )
 })

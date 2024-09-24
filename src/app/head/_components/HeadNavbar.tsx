@@ -1,6 +1,6 @@
 "use client"
 
-import MobileNavbar, { NavbarMenuItem } from "@/common/components/MobileNavbar"
+import MobileBottomNavbar, { NavbarMenuItem } from "@/components/layout/MobileBottomNavbar"
 import { SettingOutlined, HistoryOutlined, HomeFilled, QrcodeOutlined } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -54,5 +54,5 @@ export default function HeadNavbar() {
       },
    ]
 
-   return <MobileNavbar items={items} currentActive={currentActive} />
+   return <MobileBottomNavbar items={items} currentActive={currentActive} />
 }

@@ -171,7 +171,7 @@ export default function TasksListTab(props: Props) {
                onChange={setTab}
                renderTabBar={(props, Default) => {
                   return (
-                     <div className="px-layout">
+                     <div className="">
                         <Default {...props} />
                      </div>
                   )

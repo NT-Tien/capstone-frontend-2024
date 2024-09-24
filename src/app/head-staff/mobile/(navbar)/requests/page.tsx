@@ -4,7 +4,7 @@ import PageHeader from "@/common/components/PageHeader"
 import { FixRequest_StatusData, FixRequestStatuses } from "@/common/dto/status/FixRequest.status"
 import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
 import { AddressBook } from "@phosphor-icons/react"
-import { Card, Input, Skeleton, Spin } from "antd"
+import { Card, Input, Skeleton, Spin, Tabs } from "antd"
 import Segmented from "antd/es/segmented"
 import Image from "next/image"
 import { Suspense, useEffect, useState } from "react"
@@ -14,6 +14,7 @@ import { SearchOutlined, FilterOutlined } from "@ant-design/icons"
 import { useQueries } from "@tanstack/react-query"
 import headstaff_qk from "@/app/head-staff/_api/qk"
 import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
+import { cn } from "@/common/util/cn.util"
 
 function Page() {
    return (
@@ -81,30 +82,27 @@ function Component() {
                objectFit: "fill",
             }}
          />
-         <Input
-            type="text"
-            className="relative z-30 w-full rounded-full border border-neutral-200 bg-neutral-100 px-4 py-3"
-            placeholder="Tìm kiếm"
-            prefix={<SearchOutlined className="mr-2" />}
-            suffix={<FilterOutlined />}
-         />
-         <Segmented
-            onChange={handleChangeTab}
-            value={tab}
-            size="large"
-            options={(
+         <Tabs
+            className="std-layout-outer relative z-30"
+            activeKey={tab}
+            onChange={(e) => handleChangeTab(e as FixRequestStatus)}
+            items={(
                ["pending", "approved", "in_progress", "head_confirm", "closed", "rejected"] as FixRequestStatuses[]
-            ).map((status) => ({
-               className: "p-1",
-               value: FixRequest_StatusData(status).statusEnum,
+            ).map((status, index, array) => ({
+               key: FixRequest_StatusData(status).statusEnum,
                label: (
-                  <div className="flex w-min items-center justify-center gap-3 break-words font-medium">
-                     <div className="text-lg">{FixRequest_StatusData(status).icon}</div>
+                  <div
+                     className={cn(
+                        "flex w-min items-center justify-center gap-3 break-words font-base",
+                        index === 0 && "ml-layout",
+                        index === array.length - 1 && "mr-layout",
+                     )}
+                  >
+                     {/* <div className="text-lg">{FixRequest_StatusData(status).icon}</div> */}
                      {FixRequest_StatusData(status).text} ({counts[status.toUpperCase() as FixRequestStatus]})
                   </div>
                ),
             }))}
-            className="hide-scrollbar mt-layout w-full overflow-auto"
          />
          {tab ? (
             <TabDetails status={tab} />

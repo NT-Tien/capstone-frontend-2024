@@ -105,7 +105,13 @@ const CreateIssueModal = forwardRef<CreateIssueModalRefType, Props>(function Com
             label: te.name,
             value: JSON.stringify(te),
          }))
-   }, [api_commonTypeErrors.data, api_commonTypeErrors.isSuccess, api_device.data?.machineModel.typeErrors, api_device.isSuccess, request])
+   }, [
+      api_commonTypeErrors.data,
+      api_commonTypeErrors.isSuccess,
+      api_device.data?.machineModel.typeErrors,
+      api_device.isSuccess,
+      request,
+   ])
 
    function handleFinish(issue: FixRequestIssueDto) {
       if (!request) return

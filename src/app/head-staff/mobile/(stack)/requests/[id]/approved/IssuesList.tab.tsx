@@ -178,7 +178,7 @@ function IssuesListTab(props: Props) {
                                           IssueDetailsDrawerRef.current?.openDrawer(
                                              issue.id,
                                              props.api_request.data.device.id,
-                                             false,
+                                             true,
                                           )
                                        }
                                     >
@@ -359,7 +359,7 @@ function IssuesListTab(props: Props) {
                ]}
             />
          </ConfigProvider>
-         <IssueDetailsDrawer refetch={() => {}} ref={IssueDetailsDrawerRef} />
+         <IssueDetailsDrawer refetch={props.api_request.refetch} ref={IssueDetailsDrawerRef} />
          <CreateIssueModal onFinish={props.api_request.refetch} ref={createIssuesDrawerRef} />
       </div>
    )

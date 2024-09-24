@@ -9,7 +9,7 @@ import headstaff_qk from "@/app/head-staff/_api/qk"
 import ProCard from "@ant-design/pro-card"
 import { SparePartDto } from "@/common/dto/SparePart.dto"
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
-import { useModalStack } from "@/common/providers/modal-stack.provider"
+import { useModalStack } from "@/providers/ModalStack.provider"
 import useModalControls from "@/common/hooks/useModalControls"
 
 type ReturnType = {

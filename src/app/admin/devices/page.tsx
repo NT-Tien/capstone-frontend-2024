@@ -12,10 +12,11 @@ import { DeleteOutlined, DownloadOutlined, QrcodeOutlined, RollbackOutlined } fr
 import { ActionType, ProTable, TableDropdown } from "@ant-design/pro-components"
 import { PageContainer } from "@ant-design/pro-layout"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Button, Flex } from "antd"
+import { App, Button, Col, ConfigProvider, Flex, Popover, Row } from "antd"
 import dayjs from "dayjs"
 import Link from "next/link"
 import { Key, useMemo, useRef, useState } from "react"
+import { Bell } from "@phosphor-icons/react"
 
 type types = {
    dto: DeviceDto
@@ -179,13 +180,28 @@ export default function DevicesListPage({ searchParams }: { searchParams: { area
          subTitle={`Total ${responseData?.length ?? "..."} ${values.namePluralCapitalizedOptional}(s) found.`}
          loading={response.isLoading}
          extra={
-            <values.CreateDrawer>
-               {(handleOpen) => (
-                  <Button key="create-position-btn" type="primary" onClick={handleOpen}>
-                     Create
-                  </Button>
-               )}
-            </values.CreateDrawer>
+            <Row>
+               <Col className="mr-5">
+                  <ConfigProvider>
+                     <Popover
+                        placement="bottom"
+                        content={<div style={{ width: 500 }}>content</div>}
+                        overlayStyle={{ width: 500 }}
+                     >
+                        <Bell size={24} style={{ cursor: "pointer", margin: 4 }} />
+                     </Popover>
+                  </ConfigProvider>
+               </Col>
+               <Col>
+                  <values.CreateDrawer>
+                     {(handleOpen) => (
+                        <Button key="create-position-btn" type="primary" onClick={handleOpen}>
+                           Create
+                        </Button>
+                     )}
+                  </values.CreateDrawer>
+               </Col>
+            </Row>
          }
       >
          <QrCodeModal>

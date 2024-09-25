@@ -579,6 +579,13 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                     type: "divider",
                                  },
                                  {
+                                    key: "renew",
+                                    label: "Renew",
+                                 },
+                                 {
+                                    type: "divider",
+                                 },
+                                 {
                                     key: "reject",
                                     label: "Hủy yêu cầu",
                                     onClick: () =>

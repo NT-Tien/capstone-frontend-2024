@@ -1,4 +1,4 @@
-import useModalControls from "@/common/hooks/useModalControls"
+import useModalControls from "@/lib/hooks/useModalControls"
 import { Button, Divider, Drawer, Radio, Space } from "antd"
 import { Dispatch, forwardRef, SetStateAction, useImperativeHandle, useState } from "react"
 

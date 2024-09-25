@@ -1,8 +1,8 @@
 "use client"
 
-import { SparePartDto } from "@/common/dto/SparePart.dto"
-import useModalControls from "@/common/hooks/useModalControls"
-import { cn } from "@/common/util/cn.util"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import useModalControls from "@/lib/hooks/useModalControls"
+import { cn } from "@/lib/utils/cn.util"
 import AlertCard from "@/components/AlertCard"
 import { DeleteOutlined, MinusOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons"
 import { Button, Divider, Drawer, InputNumber } from "antd"

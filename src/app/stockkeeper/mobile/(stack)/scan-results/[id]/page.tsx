@@ -2,10 +2,10 @@
 
 import Stockkeeper_Task_ReceiveSpareParts from "@/app/stockkeeper/_api/task/receive-spare-parts.api"
 import DataListView from "@/components/DataListView"
-import RootHeader from "@/common/components/RootHeader"
-import { TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import qk from "@/common/querykeys"
-import { cn } from "@/common/util/cn.util"
+import RootHeader from "@/components/layout/RootHeader"
+import { TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import qk from "@/old/querykeys"
+import { cn } from "@/lib/utils/cn.util"
 import { LeftOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { useMutation, useQuery } from "@tanstack/react-query"
@@ -14,7 +14,7 @@ import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useMemo, useRef } from "react"
 import Stockkeeper_Task_GetById from "../../../../_api/task/getById.api"
-import CreateSignatureDrawer, { CreateSignatureDrawerRefType } from "@/common/components/CreateSignature.drawer"
+import CreateSignatureDrawer, { CreateSignatureDrawerRefType } from "@/components/overlays/CreateSignature.drawer"
 
 export default function TaskDetails({ params }: { params: { id: string } }) {
    const { message } = App.useApp()

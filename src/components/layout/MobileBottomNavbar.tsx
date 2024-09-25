@@ -2,7 +2,7 @@
 
 import { cloneElement, ReactElement, useEffect } from "react"
 import { Badge } from "antd"
-import { cn } from "@/common/util/cn.util"
+import { cn } from "@/lib/utils/cn.util"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
@@ -31,7 +31,7 @@ export default function MobileBottomNavbar(props: MobileNavbarProps) {
    }, [props.items, router])
 
    return (
-      <div className="sticky bottom-0 left-0 flex h-[88px] w-full justify-between gap-2 rounded-3xl border-t-2 border-t-slate-100 bg-white px-2 shadow-fb">
+      <div className="sticky bottom-0 left-0 flex h-[var(--navbar-height)] w-full justify-between gap-2 border-t-2 border-t-slate-100 bg-white px-2 shadow-fb">
          {props.items.map((item) => (
             <NavbarItem
                key={item.key}
@@ -61,7 +61,7 @@ export type NavbarItemProps = {
 function NavbarItem({ name, icon, active = false, countBadge = 0, onClick, href, router }: NavbarItemProps) {
    const displayIcon = cloneElement(icon, {
       style: {
-         fontSize: "25px",
+         fontSize: "20px",
          color: active ? "#0577e2" : "#49454F",
          opacity: active ? 1 : 0.7,
       },
@@ -76,7 +76,7 @@ function NavbarItem({ name, icon, active = false, countBadge = 0, onClick, href,
 
    return (
       <div
-         className="flex h-full w-full flex-col items-center justify-center gap-2 pb-5 pt-4"
+         className="flex h-full w-full flex-col items-center justify-center gap-1.5 pb-2 pt-2"
          style={{
             cursor: !!handleClick ? "pointer" : "default",
          }}
@@ -99,7 +99,7 @@ function NavbarItem({ name, icon, active = false, countBadge = 0, onClick, href,
          </div>
          <span
             className={cn(
-               "text-[14px] font-[600] leading-[16px] tracking-[0.15px] text-[#49454F]",
+               "text-center text-[12px] font-[600] leading-[16px] tracking-[0.15px] text-[#49454F]",
                active === false && "opacity-70",
                active === true && "text-primary-500",
             )}

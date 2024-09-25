@@ -2,8 +2,8 @@
 
 import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"
 import Stockkeeper_SparePart_AllAddMore from "@/app/stockkeeper/_api/spare-part/all-addmore"
-import { SparePartDto } from "@/common/dto/SparePart.dto"
-import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import { RollbackOutlined } from "@ant-design/icons"
 import { ProTable, TableDropdown } from "@ant-design/pro-components"
@@ -108,9 +108,7 @@ export default function DevicesListPage() {
          subTitle={`Tổng ${responseData?.length ?? "..."} ${values.namePluralCapitalizedOptional} còn thiếu.`}
          extra={[
             <Link key="update-many" href="/stockkeeper/desktop/spare-parts/import?from=missing">
-               <Button type="primary">
-                  Nhập kho linh kiện
-               </Button>
+               <Button type="primary">Nhập kho linh kiện</Button>
             </Link>,
          ]}
       >

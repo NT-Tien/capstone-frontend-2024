@@ -3,17 +3,17 @@
 import { PageContainer } from "@ant-design/pro-layout"
 import { ProTable, TableDropdown } from "@ant-design/pro-components"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import qk from "@/common/querykeys"
+import qk from "@/old/querykeys"
 import { useMemo, useRef, useState } from "react"
 import dayjs from "dayjs"
 import { App, Button } from "antd"
-import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
+import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
 import { DeleteOutlined, RollbackOutlined } from "@ant-design/icons"
 import Link from "next/link"
 import Admin_SpareParts_DeleteSoft from "@/app/admin/_api/spare-parts/delete-soft.api"
 import Admin_SpareParts_Restore from "@/app/admin/_api/spare-parts/restore.api"
 import CreateSparePartDrawer from "@/app/admin/spare-parts/_components/create-spare-part.drawer"
-import { SparePartDto } from "@/common/dto/SparePart.dto"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
 import Admin_SpareParts_All from "@/app/admin/_api/spare-parts/all.api"
 
 type types = {
@@ -114,19 +114,33 @@ export default function DevicesListPage() {
                   //    result = result || data.machineModel.name.includes(value as string)
                   //    break
                   case "expirationDate":
-                     result = result || dayjs(data.expirationDate).add(7, "hours").isSame(value as string, "day")
+                     result =
+                        result ||
+                        dayjs(data.expirationDate)
+                           .add(7, "hours")
+                           .isSame(value as string, "day")
                      break
                   case "createdAt":
-                     result = result || dayjs(data.createdAt).add(7, "hours").isSame(value as string, "day")
+                     result =
+                        result ||
+                        dayjs(data.createdAt)
+                           .add(7, "hours")
+                           .isSame(value as string, "day")
                      break
                   case "updatedAt":
-                     result = result || dayjs(data.updatedAt).add(7, "hours").isSame(value as string, "day")
+                     result =
+                        result ||
+                        dayjs(data.updatedAt)
+                           .add(7, "hours")
+                           .isSame(value as string, "day")
                      break
                   case "deletedAt":
                      result =
                         result || value === null
                            ? data.deletedAt === null
-                           : dayjs(data.deletedAt).add(7, "hours").isSame(dayjs(value as string), "day")
+                           : dayjs(data.deletedAt)
+                                .add(7, "hours")
+                                .isSame(dayjs(value as string), "day")
                }
             }
             return result
@@ -226,26 +240,35 @@ export default function DevicesListPage() {
                   title: "Expiration Date",
                   dataIndex: "expirationDate",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.expirationDate).add(7, "hours").unix() - dayjs(b.expirationDate).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.expirationDate).add(7, "hours").unix() - dayjs(b.expirationDate).add(7, "hours").unix(),
                },
                {
                   title: "Created At",
                   dataIndex: "createdAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
                },
                {
                   title: "Updated At",
                   dataIndex: "updatedAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                   defaultSortOrder: "descend",
                },
                {
                   title: "Deleted At",
                   dataIndex: "deletedAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).add(7, "hours").unix() - dayjs(b.deletedAt ?? dayjs()).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.deletedAt ?? dayjs())
+                        .add(7, "hours")
+                        .unix() -
+                     dayjs(b.deletedAt ?? dayjs())
+                        .add(7, "hours")
+                        .unix(),
                },
                {
                   title: "Options",

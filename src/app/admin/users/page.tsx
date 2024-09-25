@@ -3,15 +3,15 @@
 import { PageContainer } from "@ant-design/pro-layout"
 import { ProTable, TableDropdown } from "@ant-design/pro-components"
 import { useQuery } from "@tanstack/react-query"
-import qk from "@/common/querykeys"
+import qk from "@/old/querykeys"
 import Users_All from "@/app/admin/_api/users/all.api"
 import { Button } from "antd"
-import { Role } from "@/common/enum/role.enum"
+import { Role } from "@/lib/domain/User/role.enum"
 import { useMemo, useRef, useState } from "react"
 import dayjs from "dayjs"
-import { UserDto } from "@/common/dto/User.dto"
+import { UserDto } from "@/lib/domain/User/User.dto"
 import CreateUserDrawer from "@/app/admin/users/_components/create-user.drawer"
-import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
+import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
 
 export default function UsersListPage() {
    const [query, setQuery] = useState<Partial<UserDto>>({})
@@ -152,20 +152,28 @@ export default function UsersListPage() {
                   title: "Created At",
                   dataIndex: "createdAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
                },
                {
                   title: "Updated At",
                   dataIndex: "updatedAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                   defaultSortOrder: "descend",
                },
                {
                   title: "Deleted At",
                   dataIndex: "deletedAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).add(7, "hours").unix() - dayjs(b.deletedAt ?? dayjs()).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.deletedAt ?? dayjs())
+                        .add(7, "hours")
+                        .unix() -
+                     dayjs(b.deletedAt ?? dayjs())
+                        .add(7, "hours")
+                        .unix(),
                },
                {
                   title: "Options",

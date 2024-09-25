@@ -1,12 +1,12 @@
 "use client"
 
-import HeadStaff_Task_Create from "@/app/head-staff/_api/task/create.api"
-import HeadStaff_Task_Update from "@/app/head-staff/_api/task/update.api"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { TaskDto } from "@/common/dto/Task.dto"
-import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import { cn } from "@/common/util/cn.util"
-import { ReceiveWarrantyTypeErrorId } from "@/constants/Warranty"
+import HeadStaff_Task_Create from "@/features/head-maintenance/api/task/create.api"
+import HeadStaff_Task_Update from "@/features/head-maintenance/api/task/update.api"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import { cn } from "@/lib/utils/cn.util"
+import { ReceiveWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import {
    CalendarBlank,
    CheckCircle,
@@ -26,7 +26,7 @@ import { Fragment, useMemo, useRef, useState } from "react"
 import TaskDetailsDrawer, { TaskDetailsDrawerRefType } from "./TaskDetails.drawer"
 
 type Props = {
-   api_request: UseQueryResult<FixRequestDto, Error>
+   api_request: UseQueryResult<RequestDto, Error>
    className?: string
    highlightTaskId?: Set<String>
 }
@@ -439,14 +439,14 @@ export default function TasksListTab(props: Props) {
                                              {TaskStatusTagMapper[task.status].text}
                                           </div>
                                           {task.priority && (
-                                                <>
-                                                   <Dot size={24} className="text-neutral-500" />
-                                                   <div className="flex items-center">
-                                                      <ExclamationMark size={16} className="mr-1 inline text-red-500" />
-                                                      <span className="text-sm text-red-500">Ưu tiên</span>
-                                                   </div>
-                                                </>
-                                             )}
+                                             <>
+                                                <Dot size={24} className="text-neutral-500" />
+                                                <div className="flex items-center">
+                                                   <ExclamationMark size={16} className="mr-1 inline text-red-500" />
+                                                   <span className="text-sm text-red-500">Ưu tiên</span>
+                                                </div>
+                                             </>
+                                          )}
                                           {task.fixerDate && (
                                              <>
                                                 <Dot size={24} className="text-neutral-500" />

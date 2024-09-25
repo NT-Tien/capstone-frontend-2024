@@ -1,4 +1,4 @@
-import { cn } from "@/common/util/cn.util"
+import { cn } from "@/lib/utils/cn.util"
 import { Button, GetProps } from "antd"
 import { ReactNode } from "react"
 

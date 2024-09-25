@@ -5,7 +5,7 @@ import Step1 from "@/app/staff/(stack)/tasks/[id]/start/Step1.component"
 import Step2 from "@/app/staff/(stack)/tasks/[id]/start/Step2.component"
 import staff_qk from "@/app/staff/_api/qk"
 import Staff_Task_OneById from "@/app/staff/_api/task/one-byId.api"
-import RootHeader from "@/common/components/RootHeader"
+import RootHeader from "@/components/layout/RootHeader"
 import { useQuery } from "@tanstack/react-query"
 import {
    Spin

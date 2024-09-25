@@ -3,12 +3,12 @@
 import { PageContainer } from "@ant-design/pro-layout"
 import { ProTable, TableDropdown } from "@ant-design/pro-components"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import qk from "@/common/querykeys"
+import qk from "@/old/querykeys"
 import { useMemo, useRef, useState } from "react"
 import dayjs from "dayjs"
 import { App, Button } from "antd"
-import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
-import { AreaDto } from "@/common/dto/Area.dto"
+import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
+import { AreaDto } from "@/lib/domain/Area/Area.dto"
 import CreateAreaDrawer from "@/app/admin/area/_components/create-area.drawer"
 import Admin_Areas_DeleteSoft from "@/app/admin/_api/areas/delete-soft.api"
 import { DeleteOutlined, RollbackOutlined } from "@ant-design/icons"
@@ -117,16 +117,26 @@ export default function AreasListPage() {
                      result = result || Number(area.height) === value
                      break
                   case "createdAt":
-                     result = result || dayjs(area.createdAt).add(7, "hours").isSame(value as string, "day")
+                     result =
+                        result ||
+                        dayjs(area.createdAt)
+                           .add(7, "hours")
+                           .isSame(value as string, "day")
                      break
                   case "updatedAt":
-                     result = result || dayjs(area.updatedAt).add(7, "hours").isSame(value as string, "day")
+                     result =
+                        result ||
+                        dayjs(area.updatedAt)
+                           .add(7, "hours")
+                           .isSame(value as string, "day")
                      break
                   case "deletedAt":
                      result =
                         result || value === null
                            ? area.deletedAt === null
-                           : dayjs(area.deletedAt).add(7, "hours").isSame(dayjs(value as string), "day")
+                           : dayjs(area.deletedAt)
+                                .add(7, "hours")
+                                .isSame(dayjs(value as string), "day")
                }
             }
             return result
@@ -233,14 +243,16 @@ export default function AreasListPage() {
                   key: "createdAt",
                   dataIndex: "createdAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
                },
                {
                   title: "Lần trước cập nhật",
                   key: "updatedAt",
                   dataIndex: "updatedAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                   defaultSortOrder: "descend",
                },
                {
@@ -248,7 +260,13 @@ export default function AreasListPage() {
                   key: "deletedAt",
                   dataIndex: "deletedAt",
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).add(7, "hours").unix() - dayjs(b.deletedAt ?? dayjs()).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.deletedAt ?? dayjs())
+                        .add(7, "hours")
+                        .unix() -
+                     dayjs(b.deletedAt ?? dayjs())
+                        .add(7, "hours")
+                        .unix(),
                },
                {
                   title: "Lựa chọn",

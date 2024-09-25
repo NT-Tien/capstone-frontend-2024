@@ -1,7 +1,7 @@
 "use client"
 
 import Stockkeeper_SparePart_Update from "@/app/stockkeeper/_api/spare-part/update-spare-part-by-id.api"
-import { SparePartDto } from "@/common/dto/SparePart.dto"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import { Warehouse } from "@phosphor-icons/react"
 import { useMutation } from "@tanstack/react-query"

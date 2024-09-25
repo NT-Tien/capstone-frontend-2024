@@ -1,6 +1,6 @@
-import CreateSignatureDrawer, { CreateSignatureDrawerRefType } from "@/common/components/CreateSignature.drawer"
-import { FixRequestIssueSparePartDto } from "@/common/dto/FixRequestIssueSparePart.dto"
-import useModalControls from "@/common/hooks/useModalControls"
+import CreateSignatureDrawer, { CreateSignatureDrawerRefType } from "@/components/overlays/CreateSignature.drawer"
+import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
+import useModalControls from "@/lib/hooks/useModalControls"
 import { InfoCircleOutlined } from "@ant-design/icons"
 import { Wrench } from "@phosphor-icons/react"
 import { Button, Card, Drawer, Empty, List, Modal, QRCode } from "antd"
@@ -8,7 +8,7 @@ import { create } from "domain"
 import { forwardRef, ReactNode, useImperativeHandle, useRef, useState } from "react"
 
 type Props = {
-   children?: (handleOpen: (qrCode: string, issueSpareParts: FixRequestIssueSparePartDto[]) => void) => ReactNode
+   children?: (handleOpen: (qrCode: string, issueSpareParts: IssueSparePartDto[]) => void) => ReactNode
    title?: string
    description?: string
    refetch: () => void
@@ -16,7 +16,7 @@ type Props = {
 }
 
 export type QrCodeDisplayModalRefType = {
-   handleOpen: (qrCode: string, issueSpareParts: FixRequestIssueSparePartDto[]) => void
+   handleOpen: (qrCode: string, issueSpareParts: IssueSparePartDto[]) => void
 }
 
 const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function Component(
@@ -24,9 +24,9 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
    ref,
 ) {
    const [qrCode, setQrCode] = useState<string | undefined>(undefined)
-   const [spareParts, setSpareParts] = useState<FixRequestIssueSparePartDto[]>([])
+   const [spareParts, setSpareParts] = useState<IssueSparePartDto[]>([])
    const { open, handleOpen, handleClose } = useModalControls({
-      onOpen: (qrCode: string, issueSpareParts: FixRequestIssueSparePartDto[]) => {
+      onOpen: (qrCode: string, issueSpareParts: IssueSparePartDto[]) => {
          setQrCode(qrCode)
          setSpareParts(issueSpareParts)
       },

@@ -1,64 +1,30 @@
 "use client"
 
-import Head_Device_OneById from "@/app/head/_api/device/oneById.api"
-import Head_Device_WithRequests from "@/app/head/_api/device/with_requests.api"
-import head_qk from "@/app/head/_api/qk"
-import Head_Request_Create from "@/app/head/_api/request/create.api"
+import Head_Request_Create from "@/features/head-department/api/request/create.api"
 import DataListView from "@/components/DataListView"
-import RootHeader from "@/common/components/RootHeader"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { NotFoundError } from "@/common/error/not-found.error"
-import useCurrentUser from "@/common/hooks/useCurrentUser"
-import useModalControls from "@/common/hooks/useModalControls"
+import RootHeader from "@/components/layout/RootHeader"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import { NotFoundError } from "@/lib/error/not-found.error"
+import useCurrentUser from "@/lib/domain/User/useCurrentUser"
+import useModalControls from "@/lib/hooks/useModalControls"
 import { LeftOutlined, PlusOutlined, QrcodeOutlined, ReloadOutlined } from "@ant-design/icons"
 import { ProFormSelect, ProFormTextArea } from "@ant-design/pro-components"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQueries } from "@tanstack/react-query"
 import { App, Button, Card, Divider, Drawer, Empty, Form, Result, Space, Tag, Tooltip } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import Cookies from "js-cookie"
-import { decodeJwt } from "@/common/util/decodeJwt.util"
+import { decodeJwt } from "@/lib/domain/User/decodeJwt.util"
+import useDevice_OneByIdQuery from "@/features/head-department/queries/Device_OneById.query"
+import useDevice_OneById_WithRequestsQuery from "@/features/head-department/queries/Device_OneById_WithRequests.query"
 
 type FieldType = {
    description: string
    selection: string
 }
-
-const machineIssues = [
-   {
-      label: "+ Create new Issue",
-      value: "create",
-   },
-   {
-      label: "Power Issues",
-      options: [
-         { label: "Machine cannot start", value: "Machine cannot start" },
-         { label: "Cord is frayed", value: "Cord is frayed" },
-         { label: "Power fluctuations cause issues", value: "Power fluctuations cause issues" },
-      ],
-   },
-   {
-      label: "Mechanical Issues",
-      options: [
-         { label: "Motor is jammed", value: "Motor is jammed" },
-         { label: "Belts are slipping or broken", value: "Belts are slipping or broken" },
-         { label: "Gears are worn", value: "Gears are worn" },
-         { label: "Machine needs oiling", value: "Machine needs oiling" },
-      ],
-   },
-   {
-      label: "Thread Issues",
-      options: [
-         { label: "Thread keeps breaking", value: "Thread keeps breaking" },
-         { label: "Thread bunching under fabric", value: "Thread bunching under fabric" },
-         { label: "Bobbin thread not catching", value: "Bobbin thread not catching" },
-         { label: "Upper thread tension problems", value: "Upper thread tension problems" },
-      ],
-   },
-]
 
 const loiMay = [
    {
@@ -106,23 +72,21 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
    })
    const [currentlySelected, setCurrentlySelected] = useState<string | undefined>()
 
-   const results = useQuery({
-      queryKey: head_qk.devices.by_id(params.id),
-      queryFn: () => Head_Device_OneById({ id: params.id }),
-      retry: 0,
-      refetchOnWindowFocus: (query) => !(query.state.error?.name === NotFoundError.name),
-   })
-
-   const results_withRequest = useQuery({
-      queryKey: head_qk.devices.with_requests(params.id),
-      queryFn: () => Head_Device_WithRequests({ id: params.id }),
-      retry: 0,
-      refetchOnWindowFocus: (query) => !(query.state.error?.name === NotFoundError.name),
-      enabled: results.isSuccess,
+   const api = useQueries({
+      queries: [
+         useDevice_OneByIdQuery.queryOptions({ deviceId: params.id }),
+         useDevice_OneById_WithRequestsQuery.queryOptions({ deviceId: params.id }),
+      ],
+      combine: (result) => {
+         return {
+            device: result[0],
+            deviceWithRequests: result[1],
+         }
+      },
    })
 
    const filteredRequests = useMemo(() => {
-      return results_withRequest.data?.requests.reduce(
+      return api.deviceWithRequests.data?.requests.reduce(
          (acc, curr) => {
             if (curr.requester.id === user.id && curr.status === FixRequestStatus.PENDING) {
                return {
@@ -139,11 +103,11 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
             all: [],
             mine: undefined,
          } as {
-            all: FixRequestDto[]
-            mine: FixRequestDto | undefined
+            all: RequestDto[]
+            mine: RequestDto | undefined
          },
       )
-   }, [results_withRequest.data, user.id])
+   }, [api.deviceWithRequests.data, user.id])
 
    const mutate_submitIssue = useMutation({
       mutationFn: Head_Request_Create,
@@ -166,11 +130,11 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
    })
 
    function handleSubmit_createIssue(values: FieldType) {
-      if (!results.isSuccess) return
+      if (!api.device.isSuccess) return
       mutate_submitIssue.mutate(
          {
             requester_note: values.selection === "create" ? values.description : values.selection,
-            device: results.data.id,
+            device: api.device.data.id,
          },
          {
             onSuccess: async (res) => {
@@ -178,7 +142,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
 
                setTimeout(async () => {
                   router.push(`/head/history/${res.id}`)
-                  await results_withRequest.refetch()
+                  await api.deviceWithRequests.refetch()
                }, 500)
             },
          },
@@ -191,7 +155,11 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
             className="std-layout h-full overflow-auto"
             style={{
                gridTemplateRows:
-                  results.error instanceof NotFoundError ? "auto 1fr" : results.isSuccess ? "auto auto 1fr" : undefined,
+                  api.device.error instanceof NotFoundError
+                     ? "auto 1fr"
+                     : api.device.isSuccess
+                       ? "auto auto 1fr"
+                       : undefined,
             }}
          >
             <RootHeader
@@ -211,17 +179,19 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   type: "text",
                }}
             />
-            {results.isError ? (
+            {api.device.isError ? (
                <section className="grid h-full flex-grow place-content-center">
                   <Result
                      title={
                         <span className="text-lg">
-                           {results.error instanceof NotFoundError ? "Không tìm thấy thiết bị" : "Lỗi truy cập dữ liệu"}
+                           {api.device.error instanceof NotFoundError
+                              ? "Không tìm thấy thiết bị"
+                              : "Lỗi truy cập dữ liệu"}
                         </span>
                      }
                      status="error"
                      subTitle={
-                        results.error instanceof NotFoundError
+                        api.device.error instanceof NotFoundError
                            ? "Chúng tôi không thể tìm thấy thiết bị có ID bạn đã nhập. Vui lòng thử lại"
                            : "Một lỗi không mong muốn đã xảy ra"
                      }
@@ -230,12 +200,12 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                            <Button size="large" onClick={() => router.push("/head/scan")} icon={<QrcodeOutlined />}>
                               Quét lại
                            </Button>
-                           {!(results.error instanceof NotFoundError) && (
+                           {!(api.device.error instanceof NotFoundError) && (
                               <Button
                                  type={"primary"}
                                  icon={<ReloadOutlined />}
                                  size="large"
-                                 onClick={() => results.refetch()}
+                                 onClick={() => api.device.refetch()}
                               >
                                  Thử lại
                               </Button>
@@ -248,7 +218,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                <div className="std-layout-outer mt-layout">
                   <h2 className="mb-2 px-layout text-lg font-semibold">Chi tiết thiết bị</h2>
                   <DataListView
-                     dataSource={results.data}
+                     dataSource={api.device.data}
                      bordered
                      itemClassName="py-2"
                      labelClassName="font-normal text-neutral-500"
@@ -281,10 +251,10 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                <h2 className="mb-2 flex justify-between">
                   <span className="mr-2 text-lg font-semibold">Báo cáo của tôi</span>
                   <span className="text-base font-normal text-neutral-500">
-                     {results_withRequest.data?.requests.length ?? "-"} báo cáo
+                     {api.deviceWithRequests.data?.requests.length ?? "-"} báo cáo
                   </span>
                </h2>
-               {results_withRequest.isSuccess ? (
+               {api.deviceWithRequests.isSuccess ? (
                   <div className="grid grid-cols-1 gap-2">
                      {!!filteredRequests?.mine && (
                         <div>
@@ -357,12 +327,12 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                   </div>
                ) : (
                   <>
-                     {results_withRequest.isPending && <Card loading />}
-                     {results_withRequest.isError && (
+                     {api.deviceWithRequests.isPending && <Card loading />}
+                     {api.deviceWithRequests.isError && (
                         <Card size="small">
                            <div className="grid place-content-center gap-2">
                               <div>Đã xảy ra lỗi. Vui lòng thử lại</div>
-                              <Button type="primary" onClick={() => results_withRequest.refetch()}>
+                              <Button type="primary" onClick={() => api.deviceWithRequests.refetch()}>
                                  Thử lại
                               </Button>
                            </div>
@@ -372,7 +342,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                )}
             </section>
 
-            {results.isSuccess && (
+            {api.device.isSuccess && (
                <div className="std-layout-outer sticky bottom-0 left-0 mt-layout w-full border-t-neutral-200 bg-white p-layout shadow-fb">
                   <Tooltip
                      title={filteredRequests?.mine !== undefined && "You can only have one PENDING request at a time."}
@@ -383,7 +353,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                         icon={<PlusOutlined />}
                         type="primary"
                         disabled={
-                           results.isLoading || mutate_submitIssue.isPending || filteredRequests?.mine !== undefined
+                           api.device.isLoading || mutate_submitIssue.isPending || filteredRequests?.mine !== undefined
                         }
                         onClick={handleOpen}
                      >

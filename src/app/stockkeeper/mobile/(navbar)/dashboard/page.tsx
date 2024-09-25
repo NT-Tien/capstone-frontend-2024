@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, Skeleton } from "antd"
-import HomeHeader from "@/common/components/HomeHeader"
+import HomeHeader from "@/components/layout/HomeHeader"
 import Image from "next/image"
 import { useQuery } from "@tanstack/react-query"
 import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"

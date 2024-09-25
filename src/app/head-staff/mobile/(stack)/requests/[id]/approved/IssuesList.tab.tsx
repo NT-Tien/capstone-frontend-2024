@@ -1,11 +1,11 @@
-import HeadStaff_Issue_Delete from "@/app/head-staff/_api/issue/delete.api"
-import HeadStaff_SparePart_Delete from "@/app/head-staff/_api/spare-part/delete.api"
+import HeadStaff_Issue_Delete from "@/features/head-maintenance/api/issue/delete.api"
+import HeadStaff_SparePart_Delete from "@/features/head-maintenance/api/spare-part/delete.api"
 import IssueDetailsDrawer, { IssueDetailsDrawerRefType } from "@/app/head-staff/_components/IssueDetailsDrawer"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
-import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
-import { cn } from "@/common/util/cn.util"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
+import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
+import { cn } from "@/lib/utils/cn.util"
 import { DeleteOutlined, EditOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons"
 import { CheckCircle, Clock, Dot, Eye, MinusCircle, XCircle } from "@phosphor-icons/react"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
@@ -13,11 +13,11 @@ import { App, Button, ConfigProvider, Divider, Dropdown, Empty, FloatButton, Tab
 import { Fragment, useMemo, useRef, useState } from "react"
 import CreateIssueModal, { CreateIssueModalRefType } from "./CreateIssue.modal"
 import { CreateTaskDrawerRefType } from "./CreateTask.drawer"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { TaskStatus } from "@/common/enum/task-status.enum"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 
 type Props = {
-   api_request: UseQueryResult<FixRequestDto, Error>
+   api_request: UseQueryResult<RequestDto, Error>
 }
 
 function getCount(...ints: number[]) {
@@ -56,8 +56,8 @@ function IssuesListTab(props: Props) {
       if (!props.api_request.isSuccess) return
       const issues = props.api_request.data.issues
       const result: {
-         hasTask: FixRequestIssueDto[]
-         noTask: FixRequestIssueDto[]
+         hasTask: IssueDto[]
+         noTask: IssueDto[]
       } = {
          hasTask: [],
          noTask: [],
@@ -90,7 +90,7 @@ function IssuesListTab(props: Props) {
       return props.api_request.data.tasks.length === 0 && props.api_request.data.status === FixRequestStatus.APPROVED
    }, [props.api_request.data?.status, props.api_request.data?.tasks.length, props.api_request.isSuccess])
 
-   async function handleDeleteIssue(issue: FixRequestIssueDto) {
+   async function handleDeleteIssue(issue: IssueDto) {
       message.destroy("delete-issue")
       message.loading({
          content: "Đang xóa lỗi...",

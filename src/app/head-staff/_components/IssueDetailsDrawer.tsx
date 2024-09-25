@@ -1,18 +1,18 @@
-import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
-import HeadStaff_Issue_Delete from "@/app/head-staff/_api/issue/delete.api"
-import HeadStaff_Issue_OneById from "@/app/head-staff/_api/issue/oneById.api"
-import HeadStaff_Issue_Update from "@/app/head-staff/_api/issue/update.api"
-import headstaff_qk from "@/app/head-staff/_api/qk"
-import HeadStaff_SparePart_Create from "@/app/head-staff/_api/spare-part/create.api"
+import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
+import HeadStaff_Issue_Delete from "@/features/head-maintenance/api/issue/delete.api"
+import HeadStaff_Issue_OneById from "@/features/head-maintenance/api/issue/oneById.api"
+import HeadStaff_Issue_Update from "@/features/head-maintenance/api/issue/update.api"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import HeadStaff_SparePart_Create from "@/features/head-maintenance/api/spare-part/create.api"
 import IssueSparePartDetailsModal from "@/app/head-staff/_components/IssueSparePartDetailsModal"
 import SelectSparePartDrawer from "@/app/head-staff/_components/SelectSparePart.drawer"
-import ModalConfirm from "@/common/components/ModalConfirm"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import { Issue_StatusMapper } from "@/common/dto/status/Issue.status"
-import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
-import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
-import useModalControls from "@/common/hooks/useModalControls"
-import { cn } from "@/common/util/cn.util"
+import ModalConfirm from "@/old/ModalConfirm"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { Issue_StatusMapper } from "@/lib/domain/Issue/IssueStatus.mapper"
+import { FixType, FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import useModalControls from "@/lib/hooks/useModalControls"
+import { cn } from "@/lib/utils/cn.util"
 import { clientEnv } from "@/env"
 import { ArrowRightOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
@@ -203,7 +203,7 @@ const IssueDetailsDrawer = forwardRef<IssueDetailsDrawerRefType, Props>(function
       <>
          {children?.(handleOpen)}
          <Drawer open={open} onClose={handleClose} title="Thông tin lỗi" {...drawerProps}>
-            <ProDescriptions<FixRequestIssueDto>
+            <ProDescriptions<IssueDto>
                title={
                   <div className="flex items-center gap-2">
                      <span>Thông tin</span>
@@ -433,12 +433,10 @@ const IssueDetailsDrawer = forwardRef<IssueDetailsDrawerRefType, Props>(function
                                           <div className="flex justify-between">
                                              <span className="text-sub-base font-medium">{item.sparePart.name}</span>
                                              {item.quantity > item.sparePart.quantity && (
-                                                <Tag color="gold-inverse">
-                                                   Hết hàng
-                                                </Tag>
+                                                <Tag color="gold-inverse">Hết hàng</Tag>
                                              )}
                                           </div>
-                                          <div className="flex items-center mt-2">
+                                          <div className="mt-2 flex items-center">
                                              <span className="flex-grow text-sub-base text-neutral-500">
                                                 Quantity: {item.quantity}
                                              </span>

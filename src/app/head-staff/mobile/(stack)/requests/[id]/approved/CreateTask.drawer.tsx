@@ -1,15 +1,15 @@
 "use client"
 
-import headstaff_qk from "@/app/head-staff/_api/qk"
-import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
-import HeadStaff_Task_Create from "@/app/head-staff/_api/task/create.api"
-import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/app/head-staff/_api/task/update-awaitSparePartToAssignFixer.api"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import HeadStaff_Request_OneById from "@/features/head-maintenance/api/request/oneById.api"
+import HeadStaff_Task_Create from "@/features/head-maintenance/api/task/create.api"
+import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/features/head-maintenance/api/task/update-awaitSparePartToAssignFixer.api"
 import IssueDetailsDrawer, { IssueDetailsDrawerRefType } from "@/app/head-staff/_components/IssueDetailsDrawer"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
-import useModalControls from "@/common/hooks/useModalControls"
-import { cn } from "@/common/util/cn.util"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { FixType, FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
+import useModalControls from "@/lib/hooks/useModalControls"
+import { cn } from "@/lib/utils/cn.util"
 import AlertCard from "@/components/AlertCard"
 import { ReloadOutlined, MoreOutlined, DeleteOutlined } from "@ant-design/icons"
 import { CheckCard } from "@ant-design/pro-components"
@@ -56,7 +56,7 @@ export type CreateTaskDrawerRefType = {
 type FormContextType = {
    handleClose: (justClose?: boolean) => void
    requestId: string | undefined
-   api_request: UseQueryResult<FixRequestDto, Error>
+   api_request: UseQueryResult<RequestDto, Error>
    setFormStep: React.Dispatch<React.SetStateAction<number>>
    formStep: number
    form: {
@@ -77,6 +77,7 @@ type FormContextType = {
 }
 
 const FormContext = createContext<FormContextType | undefined>(undefined)
+
 function useFormContext() {
    return useContext(FormContext)! // cannot be undefined because it's an internal component only. DO NOT EXPORT YOU IDIOT
 }
@@ -173,7 +174,7 @@ const CreateTaskDrawer = forwardRef<CreateTaskDrawerRefType, Props>(function Com
                operator: 0,
             },
             {
-               onSuccess: () => { },
+               onSuccess: () => {},
             },
          )
 
@@ -289,7 +290,7 @@ function FormStep_0() {
    } = useFormContext()
    const { modal } = App.useApp()
 
-   const [selectedIssues, setSelectedIssues] = useState<{ [key: string]: FixRequestIssueDto }>({})
+   const [selectedIssues, setSelectedIssues] = useState<{ [key: string]: IssueDto }>({})
 
    const issueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)
 
@@ -465,8 +466,8 @@ function FormStep_0() {
                            className={cn(
                               "m-0 w-full",
                               issue.task === null &&
-                              issue.issueSpareParts.find((isp) => isp.quantity > isp.sparePart.quantity) &&
-                              "border-2 border-yellow-100 bg-yellow-50",
+                                 issue.issueSpareParts.find((isp) => isp.quantity > isp.sparePart.quantity) &&
+                                 "border-2 border-yellow-100 bg-yellow-50",
                            )}
                         ></CheckCard>
                      </div>
@@ -540,7 +541,7 @@ function FormStep_0() {
                </Button>
             </div>
          </section>
-         <IssueDetailsDrawer refetch={() => { }} ref={issueDetailsDrawerRef} />
+         <IssueDetailsDrawer refetch={() => {}} ref={issueDetailsDrawerRef} />
       </>
    )
 }
@@ -670,7 +671,7 @@ function FormStep_1() {
    )
 }
 
-export function generateTaskName(data: FixRequestDto, selectedIssues: string[]) {
+export function generateTaskName(data: RequestDto, selectedIssues: string[]) {
    const requestDate = dayjs(data.createdAt).format("DDMMYY")
    const area = data.device.area.name
    const machine = data.device.machineModel.name.split(" ").join("-")

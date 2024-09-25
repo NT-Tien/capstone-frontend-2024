@@ -1,5 +1,5 @@
-import { TaskDto } from "@/common/dto/Task.dto"
-import { cn } from "@/common/util/cn.util"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { cn } from "@/lib/utils/cn.util"
 import { Tag } from "antd"
 import dayjs from "dayjs"
 

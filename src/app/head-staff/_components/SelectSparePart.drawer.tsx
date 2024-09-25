@@ -3,14 +3,14 @@
 import { forwardRef, ReactNode, useEffect, useImperativeHandle, useState } from "react"
 import { Button, Card, Drawer, DrawerProps, Empty, Form, Input, InputNumber, Spin } from "antd"
 import { useQuery } from "@tanstack/react-query"
-import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
-import { cn } from "@/common/util/cn.util"
-import headstaff_qk from "@/app/head-staff/_api/qk"
+import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
+import { cn } from "@/lib/utils/cn.util"
+import headstaff_qk from "@/features/head-maintenance/qk"
 import ProCard from "@ant-design/pro-card"
-import { SparePartDto } from "@/common/dto/SparePart.dto"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import { useModalStack } from "@/providers/ModalStack.provider"
-import useModalControls from "@/common/hooks/useModalControls"
+import useModalControls from "@/lib/hooks/useModalControls"
 
 type ReturnType = {
    sparePartId: string

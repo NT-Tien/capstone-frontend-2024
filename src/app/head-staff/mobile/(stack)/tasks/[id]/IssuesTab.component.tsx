@@ -1,18 +1,18 @@
-import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
-import headstaff_qk from "@/app/head-staff/_api/qk"
+import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
+import headstaff_qk from "@/features/head-maintenance/qk"
 import IssueDetailsDrawer from "@/app/head-staff/_components/IssueDetailsDrawer"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import { TaskDto } from "@/common/dto/Task.dto"
-import { FixRequestStatusTagMapper } from "@/common/enum/fix-request-status.enum"
-import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
-import { TaskStatus } from "@/common/enum/task-status.enum"
-import { cn } from "@/common/util/cn.util"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { FixRequestStatusTagMapper } from "@/lib/domain/Request/RequestStatus.enum"
+import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import { cn } from "@/lib/utils/cn.util"
 import { ArrowRightOutlined } from "@ant-design/icons"
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 import { Badge, Button, Card, Empty, Tag } from "antd"
 import { RibbonProps } from "antd/lib/badge/Ribbon"
 import { ReactNode, useMemo, useRef } from "react"
-import { IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
+import { IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
 
 type Props = {
    api_task: UseQueryResult<TaskDto, Error>
@@ -40,7 +40,7 @@ export default function IssuesTab(props: Props) {
       ...rest
    }: {
       children: ReactNode
-      issue: FixRequestIssueDto
+      issue: IssueDto
       badgeProps?: RibbonProps
    }) {
       return (

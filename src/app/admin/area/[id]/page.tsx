@@ -3,13 +3,13 @@
 import { PageContainer } from "@ant-design/pro-layout"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import Admin_Areas_OneById from "@/app/admin/_api/areas/one-byId.api"
-import qk from "@/common/querykeys"
+import qk from "@/old/querykeys"
 import { App, Button, Tag } from "antd"
 import { LeftOutlined } from "@ant-design/icons"
 import { useRouter } from "next/navigation"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { useRef } from "react"
-import { AreaDto } from "@/common/dto/Area.dto"
+import { AreaDto } from "@/lib/domain/Area/Area.dto"
 import Admin_Areas_Update from "@/app/admin/_api/areas/update.api"
 import dayjs from "dayjs"
 
@@ -176,7 +176,9 @@ export default function AreaDetails({ params }: { params: { id: string } }) {
                         dataIndex: "deletedAt",
                         key: "deletedAt",
                         render: (_, entity) =>
-                           entity.deletedAt ? dayjs(entity.deletedAt).add(7, "hours").format("YYYY-MM-DD HH:mm:ss") : "-",
+                           entity.deletedAt
+                              ? dayjs(entity.deletedAt).add(7, "hours").format("YYYY-MM-DD HH:mm:ss")
+                              : "-",
                         editable: false,
                      },
                   ]}

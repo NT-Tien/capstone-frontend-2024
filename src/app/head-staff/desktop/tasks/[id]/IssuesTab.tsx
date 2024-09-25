@@ -1,17 +1,17 @@
 import { Button, Flex, Tag, Tooltip } from "antd"
 import IssueDetailsDrawer from "@/app/head-staff/_components/IssueDetailsDrawer"
 import { ProTable } from "@ant-design/pro-components"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { FixType, FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
 import extended_dayjs from "@/config/dayjs.config"
 import dayjs from "dayjs"
-import { DeviceDto } from "@/common/dto/Device.dto"
-import { Issue_StatusData, Issue_StatusMapper } from "@/common/dto/status/Issue.status"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
+import { Issue_StatusData, Issue_StatusMapper } from "@/lib/domain/Issue/IssueStatus.mapper"
 
 type Props = {
    refetch: () => void
    isLoading: boolean
-   issues: FixRequestIssueDto[] | undefined
+   issues: IssueDto[] | undefined
    device: DeviceDto | undefined
 }
 
@@ -19,7 +19,7 @@ export default function IssuesTab(props: Props) {
    return (
       <IssueDetailsDrawer refetch={props.refetch}>
          {(handleOpen) => (
-            <ProTable<FixRequestIssueDto>
+            <ProTable<IssueDto>
                cardBordered
                rowKey={(row) => row.id}
                headerTitle={

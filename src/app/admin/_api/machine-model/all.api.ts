@@ -1,6 +1,6 @@
-import { MachineModelDto } from "@/common/dto/MachineModel.dto"
+import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import api from "@/config/axios.config"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
 
 type Response = MachineModelDto[]

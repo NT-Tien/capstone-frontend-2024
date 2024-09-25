@@ -1,9 +1,9 @@
 "use client"
 
-import HeadStaff_Task_UpdateComplete from "@/app/head-staff/_api/task/update-complete.api"
-import { TaskDto } from "@/common/dto/Task.dto"
-import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
-import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
+import HeadStaff_Task_UpdateComplete from "@/features/head-maintenance/api/task/update-complete.api"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { clientEnv } from "@/env"
 import { LinkOutlined, UserOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"

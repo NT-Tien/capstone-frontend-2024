@@ -1,18 +1,16 @@
 "use client"
 
-import head_qk from "@/app/head/_api/qk"
-import Head_Request_All from "@/app/head/_api/request/all.api"
-import HomeHeader from "@/common/components/HomeHeader"
-import { FixRequest_StatusData } from "@/common/dto/status/FixRequest.status"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import HomeHeader from "@/components/layout/HomeHeader"
+import { FixRequest_StatusData } from "@/lib/domain/Request/RequestStatus.mapper"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { Gear } from "@phosphor-icons/react"
-import { useQuery } from "@tanstack/react-query"
 import { Card, Select } from "antd"
 import dayjs from "dayjs"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import CountUp from "react-countup"
+import useRequest_AllQuery from "@/features/head-department/queries/Request_All.query"
 
 type FilterOptions = "today" | "this week" | "this month" | "this year"
 
@@ -21,10 +19,7 @@ function Page() {
 
    const [filter, setFilter] = useState<FilterOptions>("today")
 
-   const api = useQuery({
-      queryKey: head_qk.requests.all(),
-      queryFn: () => Head_Request_All(),
-   })
+   const api_requests = useRequest_AllQuery()
 
    const counts = useMemo(() => {
       const counts = {
@@ -36,28 +31,28 @@ function Page() {
          [FixRequestStatus.HEAD_CANCEL]: 0,
          [FixRequestStatus.HEAD_CONFIRM]: 0,
       }
-      api.data?.forEach((request) => {
+      api_requests.data?.forEach((request) => {
          switch (filter) {
             case "today": {
-               if (dayjs(request.createdAt).add(7, 'hours').isSame(dayjs(), "day")) {
+               if (dayjs(request.createdAt).add(7, "hours").isSame(dayjs(), "day")) {
                   counts[request.status]++
                }
                return
             }
             case "this week": {
-               if (dayjs(request.createdAt).add(7, 'hours').isAfter(dayjs().subtract(7, "days"))) {
+               if (dayjs(request.createdAt).add(7, "hours").isAfter(dayjs().subtract(7, "days"))) {
                   counts[request.status]++
                }
                return
             }
             case "this month": {
-               if (dayjs(request.createdAt).add(7, 'hours').isAfter(dayjs().subtract(30, "days"))) {
+               if (dayjs(request.createdAt).add(7, "hours").isAfter(dayjs().subtract(30, "days"))) {
                   counts[request.status]++
                }
                return
             }
             case "this year": {
-               if (dayjs(request.createdAt).add(7, 'hours').isAfter(dayjs().subtract(365, "days"))) {
+               if (dayjs(request.createdAt).add(7, "hours").isAfter(dayjs().subtract(365, "days"))) {
                   counts[request.status]++
                }
                return
@@ -69,7 +64,7 @@ function Page() {
          }
       })
       return counts
-   }, [api.data, filter])
+   }, [api_requests.data, filter])
 
    return (
       <div className="pb-2">
@@ -111,7 +106,7 @@ function Page() {
             <section className="mt-3 space-y-2">
                <Card
                   className="flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-orange-200 p-0 text-center shadow-md"
-                  loading={api.isPending}
+                  loading={api_requests.isPending}
                   onClick={() => router.push(`history`)}
                   classNames={{
                      body: "w-full px-3",
@@ -120,7 +115,7 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">Tổng cộng</div>
-                        <div className="flex items-center mt-1.5">
+                        <div className="mt-1.5 flex items-center">
                            <div className="text-2xl font-bold">
                               <CountUp end={Object.values(counts).reduce((acc, cur) => acc + cur, 0)} separator={","} />
                               <span className="ml-1 text-xs font-light">Yêu cầu</span>
@@ -134,7 +129,7 @@ function Page() {
                </Card>
                <Card
                   className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-md"
-                  loading={api.isPending}
+                  loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.PENDING.toLowerCase()}`)}
                   classNames={{
                      body: "w-full px-3",
@@ -143,7 +138,7 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">{FixRequest_StatusData("pending").text}</div>
-                        <div className="flex items-center mt-1.5">
+                        <div className="mt-1.5 flex items-center">
                            <div className="text-2xl font-bold">
                               <CountUp end={counts[FixRequestStatus.PENDING]} separator={","} />
                               <span className="ml-1 text-xs font-light">Yêu cầu</span>
@@ -161,7 +156,7 @@ function Page() {
                </Card>
                <Card
                   className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-green-200 p-0 text-center shadow-md"
-                  loading={api.isPending}
+                  loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.APPROVED.toLowerCase()}`)}
                   classNames={{
                      body: "w-full px-3",
@@ -170,7 +165,7 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">{FixRequest_StatusData("approved").text}</div>
-                        <div className="flex items-center mt-1.5">
+                        <div className="mt-1.5 flex items-center">
                            <div className="text-2xl font-bold">
                               <CountUp end={counts[FixRequestStatus.APPROVED]} separator={","} />
                               <span className="ml-1 text-xs font-light">Yêu cầu</span>
@@ -188,7 +183,7 @@ function Page() {
                </Card>
                <Card
                   className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-blue-200 p-0 text-center shadow-md"
-                  loading={api.isPending}
+                  loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.IN_PROGRESS.toLowerCase()}`)}
                   classNames={{
                      body: "w-full px-3",
@@ -197,7 +192,7 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">{FixRequest_StatusData("in_progress").text}</div>
-                        <div className="flex items-center mt-1.5">
+                        <div className="mt-1.5 flex items-center">
                            <div className="text-2xl font-bold">
                               <CountUp end={counts[FixRequestStatus.IN_PROGRESS]} separator={","} />
                               <span className="ml-1 text-xs font-light">Yêu cầu</span>
@@ -215,7 +210,7 @@ function Page() {
                </Card>
                <Card
                   className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-purple-200 p-0 text-center shadow-md"
-                  loading={api.isPending}
+                  loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.HEAD_CONFIRM.toLowerCase()}`)}
                   classNames={{
                      body: "w-full px-3",
@@ -224,7 +219,7 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">{FixRequest_StatusData("head_confirm").text}</div>
-                        <div className="flex items-center mt-1.5">
+                        <div className="mt-1.5 flex items-center">
                            <div className="text-2xl font-bold">
                               <CountUp end={counts[FixRequestStatus.HEAD_CONFIRM]} separator={","} />
                               <span className="ml-1 text-xs font-light">Yêu cầu</span>
@@ -242,7 +237,7 @@ function Page() {
                </Card>
                <Card
                   className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-red-200 p-0 text-center shadow-md"
-                  loading={api.isPending}
+                  loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.REJECTED.toLowerCase()}`)}
                   classNames={{
                      body: "w-full px-3",
@@ -251,7 +246,7 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">{FixRequest_StatusData("rejected").text}</div>
-                        <div className="flex items-center mt-1.5">
+                        <div className="mt-1.5 flex items-center">
                            <div className="text-2xl font-bold">
                               <CountUp end={counts[FixRequestStatus.REJECTED]} separator={","} />
                               <span className="ml-1 text-xs font-light">Yêu cầu</span>
@@ -269,7 +264,7 @@ function Page() {
                </Card>
                <Card
                   className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-md"
-                  loading={api.isPending}
+                  loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.CLOSED.toLowerCase()}`)}
                   classNames={{
                      body: "w-full px-3",
@@ -278,7 +273,7 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">{FixRequest_StatusData("closed").text}</div>
-                        <div className="flex items-center mt-1.5">
+                        <div className="mt-1.5 flex items-center">
                            <div className="text-2xl font-bold">
                               <CountUp end={counts[FixRequestStatus.CLOSED]} separator={","} />
                               <span className="ml-1 text-xs font-light">Yêu cầu</span>

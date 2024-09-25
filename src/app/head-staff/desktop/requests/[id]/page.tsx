@@ -1,8 +1,8 @@
 "use client"
 
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import headstaff_qk from "@/app/head-staff/_api/qk"
-import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import HeadStaff_Request_OneById from "@/features/head-maintenance/api/request/oneById.api"
 import { App, Button, Card, Tag } from "antd"
 import { useRouter } from "next/navigation"
 import { PageContainer } from "@ant-design/pro-layout"
@@ -10,11 +10,11 @@ import { LeftOutlined, PlusOutlined } from "@ant-design/icons"
 import { ProDescriptions, ProTable } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 import { Key, useEffect, useState } from "react"
-import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
+import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
 import IssuesTab from "@/app/head-staff/desktop/requests/[id]/IssuesTab"
 import DesktopCreateTaskDrawer from "@/app/head-staff/_components/DesktopCreateTask.drawer"
 import dynamic from "next/dynamic"
-import { FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
+import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
 
 // render this component SOLELY on the client (no server side pre-rendering) because of a bug with the ProTable Footer
 export default dynamic(() => Promise.resolve(RequestDetails), {

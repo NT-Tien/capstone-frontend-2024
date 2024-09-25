@@ -1,4 +1,4 @@
-import useModalControls from "@/common/hooks/useModalControls"
+import useModalControls from "@/lib/hooks/useModalControls"
 import Button from "antd/es/button"
 import Drawer from "antd/es/drawer"
 import Form from "antd/es/form"
@@ -7,17 +7,17 @@ import { TextAreaRef } from "antd/es/input/TextArea"
 import { SendOutlined } from "@ant-design/icons"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
-import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
+import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
 import App from "antd/es/app"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { TaskStatus } from "@/common/enum/task-status.enum"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import AlertCard from "@/components/AlertCard"
 
 const sampleRejectionReasons = ["Thiết bị chưa cắm điện", "Không đủ nhân lực để thực hiện"]
 
 type HandleOpen = {
-   request: FixRequestDto
+   request: RequestDto
 }
 
 type RejectRequestDrawerRefType = {
@@ -54,7 +54,7 @@ const RejectRequestDrawer = forwardRef<RejectRequestDrawerRefType, Props>(functi
    const inputRef = useRef<TextAreaRef | null>(null)
    const { message } = App.useApp()
 
-   const [request, setRequest] = useState<FixRequestDto | undefined>(undefined)
+   const [request, setRequest] = useState<RequestDto | undefined>(undefined)
 
    const canRejectRequest = useMemo(() => {
       return request?.tasks.every(
@@ -137,7 +137,11 @@ const RejectRequestDrawer = forwardRef<RejectRequestDrawerRefType, Props>(functi
          >
             <Form<FieldType> form={form} onFinish={handleFinish}>
                {!canRejectRequest && (
-                  <AlertCard text="Bạn cần hoàn thành/hủy tất cả các tác vụ trước khi hủy yêu cầu" type="error" className="mb-layout" />
+                  <AlertCard
+                     text="Bạn cần hoàn thành/hủy tất cả các tác vụ trước khi hủy yêu cầu"
+                     type="error"
+                     className="mb-layout"
+                  />
                )}
                <Form.Item<FieldType> name="message" label="Lý do hủy yêu cầu" rules={[{ required: true }]}>
                   <Input.TextArea

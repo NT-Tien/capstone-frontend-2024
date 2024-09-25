@@ -1,4 +1,4 @@
-import useModalControls from "@/common/hooks/useModalControls";
+import useModalControls from "@/lib/hooks/useModalControls";
 import { forwardRef, ReactNode } from "react";
 
 type FilterDrawerRefType = {

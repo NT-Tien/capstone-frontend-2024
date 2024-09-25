@@ -5,8 +5,8 @@ import Stockkeeper_SparePart_Update, {
    Request as UpdateRequest,
    Response as UpdateResponse,
 } from "@/app/stockkeeper/_api/spare-part/update-spare-part-by-id.api"
-import RootHeader from "@/common/components/RootHeader"
-import qk from "@/common/querykeys"
+import RootHeader from "@/components/layout/RootHeader"
+import qk from "@/old/querykeys"
 import { LeftOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { useMutation, useQuery } from "@tanstack/react-query"

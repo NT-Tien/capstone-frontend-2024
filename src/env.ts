@@ -1,6 +1,6 @@
 "use client"
 
-import { EnvError } from "@/common/error/env.error"
+import { EnvError } from "@/lib/error/env.error"
 
 class ClientEnv {
    private _BACKEND_URL: string

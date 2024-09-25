@@ -3,17 +3,17 @@
 import { PageContainer } from "@ant-design/pro-layout"
 import { ProTable, TableDropdown } from "@ant-design/pro-components"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import qk from "@/common/querykeys"
+import qk from "@/old/querykeys"
 import { useMemo, useRef, useState } from "react"
 import dayjs from "dayjs"
 import { App, Button } from "antd"
-import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
+import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
 import { DeleteOutlined, RollbackOutlined } from "@ant-design/icons"
 import Link from "next/link"
 import Admin_MachineModel_DeleteSoft from "@/app/admin/_api/machine-model/delete-soft.api"
 import Admin_MachineModel_Restore from "@/app/admin/_api/machine-model/restore.api"
 import CreateMachineModelDrawer from "@/app/admin/machine-models/_components/create-machine-model.drawer"
-import { MachineModelDto } from "@/common/dto/MachineModel.dto"
+import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import Admin_MachineModel_All from "@/app/admin/_api/machine-model/all.api"
 
 type types = {
@@ -117,22 +117,40 @@ export default function MachineModelListPage() {
                      result = result || Number(area.yearOfProduction) === Number(value)
                      break
                   case "dateOfReceipt":
-                     result = result || dayjs(area.dateOfReceipt).add(7, "hours").isSame(dayjs(value as any), "day")
+                     result =
+                        result ||
+                        dayjs(area.dateOfReceipt)
+                           .add(7, "hours")
+                           .isSame(dayjs(value as any), "day")
                      break
                   case "warrantyTerm":
-                     result = result || dayjs(area.warrantyTerm).add(7, "hours").isSame(dayjs(value as any), "day")
+                     result =
+                        result ||
+                        dayjs(area.warrantyTerm)
+                           .add(7, "hours")
+                           .isSame(dayjs(value as any), "day")
                      break
                   case "createdAt":
-                     result = result || dayjs(area.createdAt).add(7, "hours").isSame(dayjs(value as any), "day")
+                     result =
+                        result ||
+                        dayjs(area.createdAt)
+                           .add(7, "hours")
+                           .isSame(dayjs(value as any), "day")
                      break
                   case "updatedAt":
-                     result = result || dayjs(area.updatedAt).add(7, "hours").isSame(dayjs(value as any), "day")
+                     result =
+                        result ||
+                        dayjs(area.updatedAt)
+                           .add(7, "hours")
+                           .isSame(dayjs(value as any), "day")
                      break
                   case "deletedAt":
                      result =
                         result || value === null
                            ? area.deletedAt === null
-                           : dayjs(area.deletedAt).add(7, "hours").isSame(dayjs(value as string), "day")
+                           : dayjs(area.deletedAt)
+                                .add(7, "hours")
+                                .isSame(dayjs(value as string), "day")
                }
             }
             return result
@@ -238,28 +256,32 @@ export default function MachineModelListPage() {
                   dataIndex: "dateOfReceipt",
                   width: 150,
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.dateOfReceipt).add(7, "hours").unix() - dayjs(b.dateOfReceipt).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.dateOfReceipt).add(7, "hours").unix() - dayjs(b.dateOfReceipt).add(7, "hours").unix(),
                },
                {
                   title: "Warranty Term",
                   dataIndex: "warrantyTerm",
                   width: 150,
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.warrantyTerm).add(7, "hours").unix() - dayjs(b.warrantyTerm).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.warrantyTerm).add(7, "hours").unix() - dayjs(b.warrantyTerm).add(7, "hours").unix(),
                },
                {
                   title: "Created At",
                   dataIndex: "createdAt",
                   width: 150,
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.createdAt).add(7, "hours").unix() - dayjs(b.createdAt).add(7, "hours").unix(),
                },
                {
                   title: "Updated At",
                   dataIndex: "updatedAt",
                   width: 150,
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                   defaultSortOrder: "descend",
                },
                {
@@ -267,7 +289,13 @@ export default function MachineModelListPage() {
                   dataIndex: "deletedAt",
                   width: 150,
                   valueType: "date",
-                  sorter: (a, b) => dayjs(a.deletedAt ?? dayjs()).add(7, "hours").unix() - dayjs(b.deletedAt ?? dayjs()).add(7, "hours").unix(),
+                  sorter: (a, b) =>
+                     dayjs(a.deletedAt ?? dayjs())
+                        .add(7, "hours")
+                        .unix() -
+                     dayjs(b.deletedAt ?? dayjs())
+                        .add(7, "hours")
+                        .unix(),
                },
                {
                   title: "Options",

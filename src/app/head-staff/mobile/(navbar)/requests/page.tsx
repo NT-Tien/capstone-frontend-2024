@@ -1,8 +1,8 @@
 "use client"
 
-import PageHeader from "@/common/components/PageHeader"
-import { FixRequest_StatusData, FixRequestStatuses } from "@/common/dto/status/FixRequest.status"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import PageHeader from "@/components/layout/PageHeader"
+import { FixRequest_StatusData, FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { AddressBook } from "@phosphor-icons/react"
 import { Card, Input, Skeleton, Spin, Tabs } from "antd"
 import Segmented from "antd/es/segmented"
@@ -12,9 +12,9 @@ import TabDetails from "./TabDetails.component"
 import { useRouter, useSearchParams } from "next/navigation"
 import { SearchOutlined, FilterOutlined } from "@ant-design/icons"
 import { useQueries } from "@tanstack/react-query"
-import headstaff_qk from "@/app/head-staff/_api/qk"
-import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
-import { cn } from "@/common/util/cn.util"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import HeadStaff_Request_All30Days from "@/features/head-maintenance/api/request/all30Days.api"
+import { cn } from "@/lib/utils/cn.util"
 
 function Page() {
    return (

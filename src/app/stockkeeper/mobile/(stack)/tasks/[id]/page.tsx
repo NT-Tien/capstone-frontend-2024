@@ -2,9 +2,9 @@
 
 import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"
 import Stockkeeper_Task_GetById from "@/app/stockkeeper/_api/task/getById.api"
-import PageHeader from "@/common/components/PageHeader"
-import { TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import { cn } from "@/common/util/cn.util"
+import PageHeader from "@/components/layout/PageHeader"
+import { TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import { cn } from "@/lib/utils/cn.util"
 import { RightOutlined } from "@ant-design/icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button, Divider, Spin, Tag } from "antd"
@@ -13,7 +13,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Fragment, useMemo, useRef } from "react"
 import SparePartDetailsDrawer, { SparePartDetailsDrawerRefType } from "./SparePartDetails.drawer"
-import { FixRequestIssueSparePartDto } from "@/common/dto/FixRequestIssueSparePart.dto"
+import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -32,7 +32,7 @@ function Page({ params }: { params: { id: string } }) {
 
    const spareParts = useMemo(() => {
       let returnValue: {
-         [id: string]: FixRequestIssueSparePartDto
+         [id: string]: IssueSparePartDto
       } = {}
 
       const issues = api_task.data?.issues

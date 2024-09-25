@@ -1,7 +1,7 @@
 import api from "@/config/axios.config"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
-import { DeleteResponse } from "@/common/types/DeleteResponse"
+import { DeleteResponse } from "@/lib/types/DeleteResponse"
 
 export type Request = { id: string }
 export type Response = DeleteResponse

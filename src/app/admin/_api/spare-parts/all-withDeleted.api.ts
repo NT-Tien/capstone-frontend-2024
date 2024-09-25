@@ -1,7 +1,7 @@
 import Cookies from "js-cookie"
 import api from "@/config/axios.config"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
-import { SparePartDto } from "@/common/dto/SparePart.dto"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
 
 export type Response = SparePartDto[]
 

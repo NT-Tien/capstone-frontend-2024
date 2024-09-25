@@ -1,6 +1,6 @@
 "use client"
 
-import RootHeader from "@/common/components/RootHeader"
+import RootHeader from "@/components/layout/RootHeader"
 import { ToolOutlined, ScanOutlined } from "@ant-design/icons"
 import { CheckSquareOffset, Gear, Scan } from "@phosphor-icons/react"
 import Link from "next/link"

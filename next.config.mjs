@@ -1,18 +1,18 @@
-import withBundleAnalyzer from '@next/bundle-analyzer'
+import withBundleAnalyzer from "@next/bundle-analyzer"
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
    webpack: (config, { isServer }) => {
       if (isServer) {
-         config.externals = config.externals || [];
+         config.externals = config.externals || []
          config.externals.push({
-            'localStorage': 'localStorage',
-            'window': 'window',
-         });
+            "localStorage": "localStorage",
+            "window": "window",
+         })
       }
 
-      return config;
-   }, 
+      return config
+   },
    async redirects() {
       return [
          {
@@ -62,10 +62,6 @@ const nextConfig = {
    eslint: {
       ignoreDuringBuilds: false, // Set to true if build errors occur
    },
-   // images: {
-   //    loader: "custom",
-   //    loaderFile: "./src/common/util/backendImageLoader.util.ts",
-   // },
    i18n: {
       locales: ["vie", "eng"],
       defaultLocale: "vie",

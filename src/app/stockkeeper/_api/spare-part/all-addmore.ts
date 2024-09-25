@@ -1,6 +1,6 @@
-import { SparePartDto } from "@/common/dto/SparePart.dto"
-import { TaskDto } from "@/common/dto/Task.dto"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
 

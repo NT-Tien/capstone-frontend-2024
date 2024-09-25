@@ -1,12 +1,12 @@
-import { TaskDto } from "@/common/dto/Task.dto"
-import useModalControls from "@/common/hooks/useModalControls"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import useModalControls from "@/lib/hooks/useModalControls"
 import { App, Button, Checkbox, Drawer, DrawerProps, Switch } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useState } from "react"
 import { DeleteOutlined } from "@ant-design/icons"
 import AlertCard from "@/components/AlertCard"
-import { TaskStatus } from "@/common/enum/task-status.enum"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import { useMutation } from "@tanstack/react-query"
-import HeadStaff_Task_Update from "@/app/head-staff/_api/task/update.api"
+import HeadStaff_Task_Update from "@/features/head-maintenance/api/task/update.api"
 
 type HandleOpen = {
    task: TaskDto

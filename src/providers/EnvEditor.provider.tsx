@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState } from "react"
+import { createContext, ReactNode, useContext, useRef, useState } from "react"
 import { App, Form, Modal } from "antd"
 import { ProFormText } from "@ant-design/pro-components"
 import { clientEnv } from "@/env"
@@ -11,6 +11,8 @@ type EnvEditorContextType = {
 type FieldType = {
    BACKEND_URL: string
 }
+
+const clickTimes = 5
 
 export const EnvEditorContext = createContext<null | EnvEditorContextType>(null)
 
@@ -45,4 +47,48 @@ export default function EnvEditorProvider({ children }: { children: ReactNode })
          </Modal>
       </>
    )
+}
+
+EnvEditorProvider.useContext = () => {
+   const context = useContext(EnvEditorContext)
+   const { message } = App.useApp()
+   const clickCountRef = useRef<number>(0)
+   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+   if (!context) {
+      throw new Error("useEnvEditor must be used within a EnvEditorProvider")
+   }
+
+   async function handleDelayedOpenEnvEditor() {
+      if (!context) return
+
+      clickCountRef.current += 1
+      message.destroy("env-editor-click-count")
+      message.open({
+         content: `Click ${clickTimes - clickCountRef.current} more times to open ENV editor`,
+         type: "info",
+         key: "env-editor-click-count",
+      })
+
+      if (clickCountRef.current === 5) {
+         context.handleOpen()
+         clickCountRef.current = 0
+         message.destroy("env-editor-click-count")
+         message.open({
+            content: "Opening ENV editor",
+            type: "success",
+            key: "env-editor-click-count",
+         })
+      }
+
+      if (timeoutRef.current) {
+         clearTimeout(timeoutRef.current)
+      }
+
+      timeoutRef.current = setTimeout(() => {
+         clickCountRef.current = 0
+      }, 1000) // 1s
+   }
+
+   return { context, handleDelayedOpenEnvEditor }
 }

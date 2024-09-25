@@ -1,19 +1,19 @@
 "use client"
 
-import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
-import HeadStaff_Device_OneByIdWithHistory from "@/app/head-staff/_api/device/one-byIdWithHistory.api"
-import headstaff_qk from "@/app/head-staff/_api/qk"
-import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
-import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
+import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
+import HeadStaff_Device_OneByIdWithHistory from "@/features/head-maintenance/api/device/one-byIdWithHistory.api"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import HeadStaff_Request_OneById from "@/features/head-maintenance/api/request/oneById.api"
+import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
 import DataListView from "@/components/DataListView"
-import PageHeader from "@/common/components/PageHeader"
-import ScannerDrawer from "@/common/components/Scanner.drawer"
-import { FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { TaskStatus } from "@/common/enum/task-status.enum"
-import { NotFoundError } from "@/common/error/not-found.error"
-import { cn } from "@/common/util/cn.util"
-import { isUUID } from "@/common/util/isUUID.util"
+import PageHeader from "@/components/layout/PageHeader"
+import ScannerDrawer from "@/components/overlays/Scanner.drawer"
+import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import { NotFoundError } from "@/lib/error/not-found.error"
+import { cn } from "@/lib/utils/cn.util"
+import { isUUID } from "@/lib/utils/isUUID.util"
 import { CheckCircleFilled, MoreOutlined, QrcodeOutlined, TruckFilled } from "@ant-design/icons"
 import { Info, MapPin } from "@phosphor-icons/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -582,7 +582,8 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                     key: "reject",
                                     label: "Hủy yêu cầu",
                                     onClick: () =>
-                                       api_request.isSuccess && rejectRequestRef.current?.handleOpen({
+                                       api_request.isSuccess &&
+                                       rejectRequestRef.current?.handleOpen({
                                           request: api_request.data,
                                        }),
                                     danger: true,

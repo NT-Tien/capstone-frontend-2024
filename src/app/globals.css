@@ -20,7 +20,7 @@
     --font-base: 16px;
     --font-sub-base: 15px;
 
-    --navbar-height: 88px;
+    --navbar-height: 70px;
 
     --shadow-fb: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
     --shadow-soft: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;
@@ -37,7 +37,7 @@ body {
     @apply font-base;
 }
 
-.select-pill>.ant-select-selector {
+.select-pill > .ant-select-selector {
     border-radius: 20px !important;
 }
 
@@ -47,19 +47,19 @@ body {
     grid-auto-rows: max-content;
     width: 100%;
 
-    &>* {
+    & > * {
         grid-column: inner-start / inner-end;
     }
 
-    &>.std-layout-outer {
+    & > .std-layout-outer {
         grid-column: outer-start / outer-end;
     }
 
-    &>.std-layout-inner {
+    & > .std-layout-inner {
         grid-column: inner-start / inner-end;
     }
 
-    &>.std-layout-grow {
+    & > .std-layout-grow {
         grid-row: span 100;
     }
 }
@@ -81,7 +81,7 @@ body {
         text-align: center;
     }
 
-    .ant-tabs-nav>div:nth-of-type(1) {
+    .ant-tabs-nav > div:nth-of-type(1) {
         display: unset !important;
         width: 100% !important;
     }
@@ -149,7 +149,7 @@ body {
 
 .descriptions-description {
     .ant-descriptions-item-content {
-        &>*:first-child {
+        & > *:first-child {
             width: 100%;
         }
     }

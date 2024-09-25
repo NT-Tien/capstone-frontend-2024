@@ -1,28 +1,28 @@
 import { ReactNode, useState } from "react"
 import { App, Button, InputNumber, Modal } from "antd"
 import { ProDescriptions } from "@ant-design/pro-components"
-import { FixRequestIssueSparePartDto } from "@/common/dto/FixRequestIssueSparePart.dto"
+import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
 import dayjs from "dayjs"
 import { DeleteOutlined, EditOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import HeadStaff_SparePart_Delete from "@/app/head-staff/_api/spare-part/delete.api"
-import ModalConfirm from "@/common/components/ModalConfirm"
-import HeadStaff_SparePart_Update from "@/app/head-staff/_api/spare-part/update.api"
-import useModalControls from "@/common/hooks/useModalControls"
+import HeadStaff_SparePart_Delete from "@/features/head-maintenance/api/spare-part/delete.api"
+import ModalConfirm from "@/old/ModalConfirm"
+import HeadStaff_SparePart_Update from "@/features/head-maintenance/api/spare-part/update.api"
+import useModalControls from "@/lib/hooks/useModalControls"
 
 export default function IssueSparePartDetailsModal({
    children,
    refetch,
    showActions,
 }: {
-   children: (handleOpen: (sparePart: FixRequestIssueSparePartDto) => void) => ReactNode
+   children: (handleOpen: (sparePart: IssueSparePartDto) => void) => ReactNode
    refetch: () => void
    showActions: boolean
 }) {
    const { message } = App.useApp()
 
    const { open, handleOpen, handleClose } = useModalControls({
-      onOpen: (sparePart: FixRequestIssueSparePartDto) => {
+      onOpen: (sparePart: IssueSparePartDto) => {
          setSparePart(sparePart)
          setSelectedQuantity(sparePart.quantity)
       },
@@ -31,7 +31,7 @@ export default function IssueSparePartDetailsModal({
          setSelectedQuantity(0)
       },
    })
-   const [sparePart, setSparePart] = useState<FixRequestIssueSparePartDto | undefined>(undefined)
+   const [sparePart, setSparePart] = useState<IssueSparePartDto | undefined>(undefined)
    const [selectedQuantity, setSelectedQuantity] = useState<number>(0)
 
    const mutate_updateSparePart = useMutation({

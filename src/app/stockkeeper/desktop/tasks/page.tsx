@@ -1,8 +1,8 @@
 "use client"
 
-import { TaskDto } from "@/common/dto/Task.dto"
-import { TaskStatus } from "@/common/enum/task-status.enum"
-import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
 import { ProTable, TableDropdown } from "@ant-design/pro-components"
 import { PageContainer } from "@ant-design/pro-layout"
 import { CaretDown, CaretUp } from "@phosphor-icons/react"
@@ -14,7 +14,7 @@ import Stockkeeper_MachineModel_All from "../../_api/machine-model/getAll.api"
 import { stockkeeper_qk } from "../../_api/qk"
 import { Tag } from "antd"
 import Stockkeeper_Task_AllSearch, { type Request } from "../../_api/task/all-search.api"
-import { TaskStatusTagMapper } from "@/common/enum/task-status.enum"
+import { TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 
 const values = {
    nameSingle: "tác vụ",

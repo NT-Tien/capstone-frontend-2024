@@ -1,6 +1,6 @@
-import { UserDto } from "@/common/dto/User.dto"
+import { UserDto } from "@/lib/domain/User/User.dto"
 import api from "@/config/axios.config"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 
 export type Request = Pick<UserDto, "username" | "phone"> & { password: string }
 export type Response = UserDto

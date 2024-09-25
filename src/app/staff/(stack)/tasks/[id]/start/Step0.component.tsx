@@ -1,15 +1,15 @@
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { useMemo, useState } from "react"
 import { App, Button, Card, Checkbox, List, QRCode, Tag, Tooltip, Typography } from "antd"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Staff_Task_ReceiveSpareParts from "@/app/staff/_api/task/receive-spare-parts.api"
 import staff_qk from "@/app/staff/_api/qk"
-import { cn } from "@/common/util/cn.util"
+import { cn } from "@/lib/utils/cn.util"
 import { CheckCard } from "@ant-design/pro-card"
 import { GeneralProps } from "./page"
 
 type Step1Props = GeneralProps & {
-   data: FixRequestIssueDto[]
+   data: IssueDto[]
    id: string
    confirmReceipt: boolean
 }

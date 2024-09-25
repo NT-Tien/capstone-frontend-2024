@@ -1,12 +1,12 @@
 import { ReactNode, useState } from "react"
 import { App, Button, Card, Drawer, Form } from "antd"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
-import qk from "@/common/querykeys"
+import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
+import qk from "@/old/querykeys"
 import { ProFormTextArea } from "@ant-design/pro-components"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { UploadOutlined } from "@ant-design/icons"
-import useModalControls from "@/common/hooks/useModalControls"
+import useModalControls from "@/lib/hooks/useModalControls"
 
 type FieldType = {
    rejectMsg: string

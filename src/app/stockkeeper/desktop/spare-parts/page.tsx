@@ -1,7 +1,7 @@
 "use client"
 
-import { SparePartDto } from "@/common/dto/SparePart.dto"
-import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
 import { ProTable, TableDropdown } from "@ant-design/pro-components"
 import { PageContainer } from "@ant-design/pro-layout"
 import { CaretDown, CaretUp } from "@phosphor-icons/react"

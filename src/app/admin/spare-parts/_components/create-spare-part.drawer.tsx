@@ -9,7 +9,7 @@ import {
 } from "@ant-design/pro-components"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { App } from "antd"
-import qk from "@/common/querykeys"
+import qk from "@/old/querykeys"
 import Admin_SpareParts_Create, { Request } from "@/app/admin/_api/spare-parts/create.api"
 import Admin_MachineModel_All from "@/app/admin/_api/machine-model/all.api"
 

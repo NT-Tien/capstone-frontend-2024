@@ -1,7 +1,7 @@
 import Cookies from "js-cookie"
-import { AreaDto } from "@/common/dto/Area.dto"
+import { AreaDto } from "@/lib/domain/Area/Area.dto"
 import api from "@/config/axios.config"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 
 export type Response = AreaDto[]
 

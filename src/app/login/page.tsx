@@ -1,10 +1,9 @@
 "use client"
 
-import LoginCredentials from "@/app/login/_api/login-credentials.api"
-import { Role } from "@/common/enum/role.enum"
-import { NotFoundError } from "@/common/error/not-found.error"
-import useEnvEditor from "@/common/hooks/useEnvEditor"
-import { decodeJwt } from "@/common/util/decodeJwt.util"
+import LoginCredentials from "@/features/common/api/login-credentials.api"
+import { Role } from "@/lib/domain/User/role.enum"
+import { NotFoundError } from "@/lib/error/not-found.error"
+import { decodeJwt } from "@/lib/domain/User/decodeJwt.util"
 import LockOutlined from "@ant-design/icons/LockOutlined"
 import UserOutlined from "@ant-design/icons/UserOutlined"
 import { useMutation } from "@tanstack/react-query"
@@ -18,6 +17,8 @@ import Typography from "antd/es/typography"
 import Cookies from "js-cookie"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import EnvEditorProvider from "@/providers/EnvEditor.provider"
+import useLoginMutation from "@/features/common/mutations/Login.mutation"
 
 type FieldType = {
    username: string
@@ -28,30 +29,16 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
    const { message } = App.useApp()
    const router = useRouter()
    const [form] = Form.useForm<FieldType>()
-   const { handleDelayedOpenEnvEditor } = useEnvEditor()
+   const { handleDelayedOpenEnvEditor } = EnvEditorProvider.useContext()
 
    const [loading, setLoading] = useState<boolean>(false)
 
-   const mutate_loginCredentials = useMutation({
-      mutationFn: LoginCredentials,
-      onMutate: async () => {
-         setLoading(true)
-      },
-      onError: async (error) => {
-         setLoading(false)
-
-         form.resetFields()
-         if (error instanceof NotFoundError) {
-            message.error("Login failed. Account not found.")
-            return
-         }
-
-         message.error("Login failed. Please try again.")
-      },
-   })
+   const mutations = {
+      loginCredentials: useLoginMutation(),
+   }
 
    function handleFinish(values: FieldType) {
-      mutate_loginCredentials.mutate(values, {
+      mutations.loginCredentials.mutate(values, {
          onSuccess: async (token: string) => {
             Cookies.set("token", token)
             const payload = decodeJwt(token)
@@ -113,9 +100,11 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
       <>
          {loading && <Spin fullscreen tip="Logging in..." />}
          <div className="grid h-full place-content-center gap-3">
-            <Card onClick={() => {
-               handleDelayedOpenEnvEditor()
-            }}>
+            <Card
+               onClick={() => {
+                  handleDelayedOpenEnvEditor()
+               }}
+            >
                <Typography.Title level={4} className="select-none">
                   Đăng nhập
                </Typography.Title>
@@ -127,20 +116,17 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                   form={form}
                   layout="vertical"
                   onFinish={handleFinish}
-                  disabled={mutate_loginCredentials.isPending}
+                  disabled={mutations.loginCredentials.isPending}
                >
-                  <Form.Item<FieldType>
-                     name="username"
-                     label="Tên đăng nhập"
-                     rules={[{ required: true }]}
-                  >
-                     <Input size="large" placeholder="Tên đăng nhập" autoFocus prefix={<UserOutlined className="mr-1" />} />
+                  <Form.Item<FieldType> name="username" label="Tên đăng nhập" rules={[{ required: true }]}>
+                     <Input
+                        size="large"
+                        placeholder="Tên đăng nhập"
+                        autoFocus
+                        prefix={<UserOutlined className="mr-1" />}
+                     />
                   </Form.Item>
-                  <Form.Item<FieldType>
-                     name="password"
-                     label="Mật khẩu"
-                     rules={[{ required: true }]}
-                  >
+                  <Form.Item<FieldType> name="password" label="Mật khẩu" rules={[{ required: true }]}>
                      <Input.Password placeholder="********" size="large" prefix={<LockOutlined className="mr-1" />} />
                   </Form.Item>
                   <Form.Item>

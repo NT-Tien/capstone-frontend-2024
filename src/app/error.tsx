@@ -1,6 +1,6 @@
 "use client"
 
-import { UnauthorizedError } from "@/common/error/unauthorized.error"
+import { UnauthorizedError } from "@/lib/error/unauthorized.error"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { Spin } from "antd"

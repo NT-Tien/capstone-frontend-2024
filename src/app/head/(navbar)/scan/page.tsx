@@ -1,8 +1,8 @@
 "use client"
 
-import RootHeader from "@/common/components/RootHeader"
-import ScannerInputManualDrawer from "@/common/components/ScannerInputManual.drawer"
-import { isUUID } from "@/common/util/isUUID.util"
+import RootHeader from "@/components/layout/RootHeader"
+import ScannerInputManualDrawer from "@/components/overlays/ScannerInputManual.drawer"
+import { isUUID } from "@/lib/utils/isUUID.util"
 import { InfoCircleOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons"
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
 import { App, Avatar, Button, Card, Spin } from "antd"
@@ -47,7 +47,6 @@ export default function ScanPage() {
          return
       }
 
-      console.log("CLOSING")
       handleClose?.()
 
       setTimeout(() => {
@@ -58,10 +57,6 @@ export default function ScanPage() {
 
       return
    }
-
-   // useEffect(() => {
-   //    router.prefetch("/head/scan/e31d662e-05db-4bc4-8bfd-773f56618725", { kind: PrefetchKind.AUTO })
-   // }, [router])
 
    return (
       <div className="h-full">

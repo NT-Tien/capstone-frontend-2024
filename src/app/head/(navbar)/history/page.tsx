@@ -1,36 +1,33 @@
 "use client"
 
-import head_qk from "@/app/head/_api/qk"
-import Head_Request_All from "@/app/head/_api/request/all.api"
-import RootHeader from "@/common/components/RootHeader"
-import ScrollableTabs from "@/common/components/ScrollableTabs"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { cn } from "@/common/util/cn.util"
+import RootHeader from "@/components/layout/RootHeader"
+import ScrollableTabs from "@/components/ScrollableTabs"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { cn } from "@/lib/utils/cn.util"
 import extended_dayjs from "@/config/dayjs.config"
 import { ClockCircleOutlined } from "@ant-design/icons"
-import { useQuery, UseQueryResult } from "@tanstack/react-query"
+import { UseQueryResult } from "@tanstack/react-query"
 import { Button, Card, Empty, Result, Skeleton } from "antd"
 import { useRouter } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import {
    FixRequest_StatusData,
    FixRequest_StatusMapper,
    FixRequestStatuses,
-} from "@/common/dto/status/FixRequest.status"
-import RequestCard from "@/app/head/_components/RequestCard"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+} from "@/lib/domain/Request/RequestStatus.mapper"
+import RequestCard from "@/features/head-department/components/RequestCard"
+import useRequest_AllQuery from "@/features/head-department/queries/Request_All.query"
 
 function Page({ searchParams }: { searchParams: { status: FixRequestStatuses } }) {
    const router = useRouter()
-   const api_requests = useQuery({
-      queryKey: head_qk.requests.all(),
-      queryFn: () => Head_Request_All(),
-   })
+
+   const api_requests = useRequest_AllQuery()
+
    const [tab, setTab] = useState<FixRequestStatuses>(searchParams.status ?? FixRequest_StatusData("pending").name)
 
    const datasets = useMemo(() => {
       const response: Partial<{
-         [key in FixRequestStatuses]: FixRequestDto[]
+         [key in FixRequestStatuses]: RequestDto[]
       }> = {
          pending: [],
          head_cancel: [],
@@ -76,12 +73,6 @@ function Page({ searchParams }: { searchParams: { status: FixRequestStatuses } }
                   }).icon,
                   badge: datasets.pending?.length,
                },
-               // {
-               //    key: FixRequest_StatusData("checked").name,
-               //    title: FixRequest_StatusData("checked").text,
-               //    icon: FixRequest_StatusData("checked").icon,
-               //    badge: datasets.checked.length,
-               // },
                {
                   key: FixRequest_StatusData("approved").name,
                   title: FixRequest_StatusData("approved").text,
@@ -138,8 +129,8 @@ function Page({ searchParams }: { searchParams: { status: FixRequestStatuses } }
 }
 
 type IssueListProps = {
-   data: FixRequestDto[]
-   api_requests: UseQueryResult<FixRequestDto[], Error>
+   data: RequestDto[]
+   api_requests: UseQueryResult<RequestDto[], Error>
    statusName: FixRequestStatuses
    className?: string
 }

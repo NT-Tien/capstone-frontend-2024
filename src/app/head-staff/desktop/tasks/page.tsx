@@ -1,19 +1,19 @@
 "use client"
 
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import headstaff_qk from "@/app/head-staff/_api/qk"
+import headstaff_qk from "@/features/head-maintenance/qk"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ProTable } from "@ant-design/pro-components"
 import dayjs from "dayjs"
 import Link from "next/link"
-import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
+import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
 import { PageContainer } from "@ant-design/pro-layout"
 import { Suspense, useEffect, useRef, useState } from "react"
 import { App, Button, Calendar, Dropdown, Radio, Spin, Tabs, Tag } from "antd"
 import { CalendarOutlined, MoreOutlined, OrderedListOutlined } from "@ant-design/icons"
-import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import HeadStaff_Task_All from "@/app/head-staff/_api/task/all.api"
-import { TaskDto } from "@/common/dto/Task.dto"
+import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import HeadStaff_Task_All from "@/features/head-maintenance/api/task/all.api"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
 
 export default function Page() {
    return (
@@ -288,7 +288,8 @@ function DataView(props: Props) {
                title: "Ngày cập nhật",
                key: "updatedAt",
                dataIndex: "updatedAt",
-               render: (_, e) => (e.updatedAt === e.createdAt ? "-" : dayjs(e.updatedAt).add(7, "hours").format("DD-MM-YYYY HH:mm")),
+               render: (_, e) =>
+                  e.updatedAt === e.createdAt ? "-" : dayjs(e.updatedAt).add(7, "hours").format("DD-MM-YYYY HH:mm"),
                valueType: "date",
                width: 120,
             },

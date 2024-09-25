@@ -1,4 +1,4 @@
-import { cn } from "@/common/util/cn.util"
+import { cn } from "@/lib/utils/cn.util"
 import { Warning } from "@phosphor-icons/react"
 import { cva, VariantProps } from "class-variance-authority"
 import { ReactNode } from "react"
@@ -28,15 +28,7 @@ function AlertCard(props: Props) {
       <div className={cn(styles({ type: props.type }), props.className)}>
          <div className="flex">
             <div className="flex-shrink-0">
-               {props.icon ? (
-                  props.icon
-               ) : (
-                  <Warning
-                     size={20}
-                     weight="fill"
-                     aria-hidden="true"
-                  />
-               )}
+               {props.icon ? props.icon : <Warning size={20} weight="fill" aria-hidden="true" />}
             </div>
             <div className="ml-3">
                <p className={cn(props.textClassName)}>{props.text}</p>

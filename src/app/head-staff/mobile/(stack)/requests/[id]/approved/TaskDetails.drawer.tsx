@@ -1,18 +1,18 @@
 "use client"
 
-import headstaff_qk from "@/app/head-staff/_api/qk"
-import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
-import HeadStaff_Task_OneById from "@/app/head-staff/_api/task/one-byId.api"
-import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/app/head-staff/_api/task/update-awaitSparePartToAssignFixer.api"
-import HeadStaff_Task_UpdateComplete from "@/app/head-staff/_api/task/update-complete.api"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
+import HeadStaff_Task_OneById from "@/features/head-maintenance/api/task/one-byId.api"
+import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/features/head-maintenance/api/task/update-awaitSparePartToAssignFixer.api"
+import HeadStaff_Task_UpdateComplete from "@/features/head-maintenance/api/task/update-complete.api"
 import IssueDetailsDrawer, { IssueDetailsDrawerRefType } from "@/app/head-staff/_components/IssueDetailsDrawer"
-import { TaskDto } from "@/common/dto/Task.dto"
-import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
-import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import useModalControls from "@/common/hooks/useModalControls"
-import { cn } from "@/common/util/cn.util"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import useModalControls from "@/lib/hooks/useModalControls"
+import { cn } from "@/lib/utils/cn.util"
 import AlertCard from "@/components/AlertCard"
-import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
+import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import { EditOutlined, MoreOutlined, RightOutlined } from "@ant-design/icons"
 import {
    ArrowElbowDownRight,
@@ -33,7 +33,7 @@ import AssignFixerDrawer, { AssignFixerDrawerRefType } from "../../../tasks/[id]
 import CancelTaskDrawer, { CancelTaskDrawerRefType } from "./CancelTask.drawer"
 import CheckSignatureDrawer, { CheckSignatureDrawerRefType } from "./CheckSignature.drawer"
 import UpdateTaskFixDateDrawer, { UpdateTaskFixDateDrawerRefType } from "./UpdateTaskFixDate.drawer"
-import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/common/components/ScannerV2.drawer"
+import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto) => void
@@ -143,8 +143,9 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
    }, [isReceiveWarrantyTask, isSendWarrantyTask])
 
    const isMissingSpareParts = useMemo(() => {
-
-      return api_task.data?.issues.flatMap((issue) => issue.issueSpareParts).find((sp) => sp.quantity > sp.sparePart.quantity)
+      return api_task.data?.issues
+         .flatMap((issue) => issue.issueSpareParts)
+         .find((sp) => sp.quantity > sp.sparePart.quantity)
 
       // return api_task.data?.issues.find(
       //    (issue) => issue.issueSpareParts.filter((sp) => sp.quantity > sp.sparePart.quantity).length > 0,

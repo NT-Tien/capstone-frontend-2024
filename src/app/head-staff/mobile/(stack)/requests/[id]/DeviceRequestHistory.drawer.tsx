@@ -1,9 +1,9 @@
-import HeadStaff_Device_OneByIdWithHistory from "@/app/head-staff/_api/device/one-byIdWithHistory.api"
-import headstaff_qk from "@/app/head-staff/_api/qk"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
-import useModalControls from "@/common/hooks/useModalControls"
-import { cn } from "@/common/util/cn.util"
+import HeadStaff_Device_OneByIdWithHistory from "@/features/head-maintenance/api/device/one-byIdWithHistory.api"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
+import useModalControls from "@/lib/hooks/useModalControls"
+import { cn } from "@/lib/utils/cn.util"
 import { useQuery } from "@tanstack/react-query"
 import { Card, Drawer, Empty, List, Result, Segmented, Tag } from "antd"
 import dayjs from "dayjs"
@@ -48,8 +48,8 @@ export default function DeviceRequestHistoryDrawer({
    const requests = useMemo(() => {
       if (!api_requestHistory.isSuccess) return
 
-      let fixed: FixRequestDto[] = [],
-         warranty: FixRequestDto[] = []
+      let fixed: RequestDto[] = [],
+         warranty: RequestDto[] = []
       api_requestHistory.data.requests.forEach((request) => {
          if (request.id === currentRequestId) {
             return
@@ -119,7 +119,7 @@ export default function DeviceRequestHistoryDrawer({
 }
 
 type RenderListProps = {
-   requests?: FixRequestDto[]
+   requests?: RequestDto[]
    currentTab: Tabs
 }
 

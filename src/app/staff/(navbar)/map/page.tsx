@@ -1,4 +1,4 @@
-import RootHeader from "@/common/components/RootHeader"
+import RootHeader from "@/components/layout/RootHeader"
 
 export default function MapPage() {
    return (

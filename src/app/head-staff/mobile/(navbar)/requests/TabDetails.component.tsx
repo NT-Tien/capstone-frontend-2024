@@ -1,8 +1,8 @@
-import headstaff_qk from "@/app/head-staff/_api/qk"
-import HeadStaff_Request_All30Days from "@/app/head-staff/_api/request/all30Days.api"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { cn } from "@/common/util/cn.util"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import HeadStaff_Request_All30Days from "@/features/head-maintenance/api/request/all30Days.api"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import { cn } from "@/lib/utils/cn.util"
 import { useQuery } from "@tanstack/react-query"
 import { Button, Card, List, Result, Skeleton, Tag } from "antd"
 import { TruckFilled } from "@ant-design/icons"
@@ -57,7 +57,11 @@ function TabDetails(props: Props) {
          renderItem={(item, index) => (
             <List.Item className={cn("w-full", index === 0 && "mt-0")}>
                <RequestCard
-                  className={cn("w-full px-layout", item.is_seen === false && " p-2 bg-green-100 hover:bg-green-200 transition-all border-[1px] border-green-100")}
+                  className={cn(
+                     "w-full px-layout",
+                     item.is_seen === false &&
+                        "border-[1px] border-green-100 bg-green-100 p-2 transition-all hover:bg-green-200",
+                  )}
                   headerClassName={cn(item.is_seen === false && "rounded-lg p-1")}
                   description={item.requester_note}
                   footerLeft={
@@ -98,7 +102,7 @@ function TabDetails(props: Props) {
    )
 }
 
-function getCreatedAt(request: FixRequestDto) {
+function getCreatedAt(request: RequestDto) {
    const dateRaw = request.createdAt
    const date = dayjs(dateRaw).locale("vi")
    const now = dayjs()

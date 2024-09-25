@@ -1,9 +1,8 @@
-import { Role } from "@/common/enum/role.enum"
-import { decodeJwt } from "@/common/util/decodeJwt.util"
+import { Role } from "@/lib/domain/User/role.enum"
+import { decodeJwt } from "@/lib/domain/User/decodeJwt.util"
 import { NextRequest, NextResponse } from "next/server"
 
 export function middleware(request: NextRequest) {
-
    // ignore static assets
    if (request.nextUrl.pathname.startsWith("/_next/static/") || request.nextUrl.pathname.startsWith("/images/")) {
       return NextResponse.next()

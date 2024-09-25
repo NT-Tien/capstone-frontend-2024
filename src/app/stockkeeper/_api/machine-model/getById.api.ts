@@ -1,8 +1,8 @@
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
-import { NotFoundError } from "@/common/error/not-found.error"
-import { MachineModelDto } from "@/common/dto/MachineModel.dto"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
+import { NotFoundError } from "@/lib/error/not-found.error"
+import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 
 export type Request = {
    id: string

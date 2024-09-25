@@ -1,10 +1,10 @@
 "use client"
 
 import { Button, Col, Flex, Row, Typography } from "antd"
-import { decodeJwt } from "@/common/util/decodeJwt.util"
+import { decodeJwt } from "@/lib/domain/User/decodeJwt.util"
 import Cookies from "js-cookie"
 import { MenuOutlined } from "@ant-design/icons"
-import { cn } from "@/common/util/cn.util"
+import { cn } from "@/lib/utils/cn.util"
 
 type HeadStaffDashboardHeaderProps = {
    className?: string

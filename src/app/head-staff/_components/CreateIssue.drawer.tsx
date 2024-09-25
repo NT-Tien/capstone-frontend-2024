@@ -2,15 +2,15 @@
 
 import React, { ReactNode, useState } from "react"
 import { App, Button, Drawer, DrawerProps, Form, Radio } from "antd"
-import { FixType } from "@/common/enum/fix-type.enum"
+import { FixType } from "@/lib/domain/Issue/FixType.enum"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import qk from "@/common/querykeys"
-import HeadStaff_Task_OneById from "@/app/head-staff/_api/task/one-byId.api"
+import qk from "@/old/querykeys"
+import HeadStaff_Task_OneById from "@/features/head-maintenance/api/task/one-byId.api"
 import { ProFormSelect, ProFormTextArea } from "@ant-design/pro-components"
-import HeadStaff_Issue_Create from "@/app/head-staff/_api/issue/create.api"
-import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
-import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
-import useModalControls from "@/common/hooks/useModalControls"
+import HeadStaff_Issue_Create from "@/features/head-maintenance/api/issue/create.api"
+import HeadStaff_Request_OneById from "@/features/head-maintenance/api/request/oneById.api"
+import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
+import useModalControls from "@/lib/hooks/useModalControls"
 
 type FieldType = {
    typeError: string

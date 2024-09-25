@@ -1,13 +1,13 @@
 import BasicSelectSparePartDrawer, {
    BasicSelectSparePartDrawerRefType,
 } from "@/app/head-staff/mobile/(stack)/requests/[id]/BasicSelectSpareParts.drawer"
-import { DeviceDto } from "@/common/dto/Device.dto"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import { SparePartDto } from "@/common/dto/SparePart.dto"
-import { TypeErrorDto } from "@/common/dto/TypeError.dto"
-import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
-import useModalControls from "@/common/hooks/useModalControls"
-import { cn } from "@/common/util/cn.util"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import { TypeErrorDto } from "@/lib/domain/TypeError/TypeError.dto"
+import { FixType, FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
+import useModalControls from "@/lib/hooks/useModalControls"
+import { cn } from "@/lib/utils/cn.util"
 import AlertCard from "@/components/AlertCard"
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons"
 import { DotOutline, Info, Timer, Warning } from "@phosphor-icons/react"
@@ -17,7 +17,7 @@ import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState }
 type HandleOpen = {
    typeError: TypeErrorDto
    device: DeviceDto
-   defaultIssue?: FixRequestIssueDto
+   defaultIssue?: IssueDto
 }
 
 type SparePartInputType = {
@@ -38,7 +38,7 @@ export type CreateSingleIssueDrawerRefType = {
 
 type Props = {
    drawerProps?: Omit<DrawerProps, "children">
-   onFinish: (newIssue: FixRequestIssueDto) => void
+   onFinish: (newIssue: IssueDto) => void
    children?: (handleOpen: (props: HandleOpen) => void) => ReactNode
 }
 
@@ -109,7 +109,7 @@ const CreateSingleIssueDrawer = forwardRef<CreateSingleIssueDrawerRefType, Props
             sparePart: sp.sparePart,
          })),
          fixType: values.fixType,
-      } as FixRequestIssueDto
+      } as IssueDto
 
       props.onFinish(issue)
 

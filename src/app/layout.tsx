@@ -1,8 +1,9 @@
 import "@/app/globals.css"
-import IndexProvider from "@/providers"
+import IndexProvider from "@/provider"
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import { ReactNode } from "react"
+import AppConsts from "@/lib/constants/AppConsts"
 
 const font = Inter({
    subsets: ["latin", "vietnamese"],
@@ -11,8 +12,7 @@ const font = Inter({
 })
 
 export const metadata: Metadata = {
-   title: "App",
-   description: "App",
+   title: AppConsts.name,
 }
 
 export const viewport: Viewport = {

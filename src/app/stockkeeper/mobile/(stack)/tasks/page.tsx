@@ -2,21 +2,21 @@
 
 import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"
 import Stockkeeper_Task_All from "@/app/stockkeeper/_api/task/getAll.api"
-import RootHeader from "@/common/components/RootHeader"
+import RootHeader from "@/components/layout/RootHeader"
 import { LeftOutlined } from "@ant-design/icons"
 import { useQuery } from "@tanstack/react-query"
 import { Button, Card, Empty, Input, Result, Skeleton, Tabs } from "antd"
 import { FilterOutlined } from "@ant-design/icons"
 import TaskCard from "@/app/stockkeeper/_components/TaskCard"
-import { TaskStatus } from "@/common/enum/task-status.enum"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import { useMemo, useRef, useState } from "react"
 import SortDrawer, { SortDrawerRefType } from "./Sort.drawer"
 import { Sort } from "./Sort"
 import dayjs from "dayjs"
 import { ArrowDown, ArrowUp, Square } from "@phosphor-icons/react"
 import { useRouter } from "next/navigation"
-import ScrollableTabs from "@/common/components/ScrollableTabs"
-import { TaskDto } from "@/common/dto/Task.dto"
+import ScrollableTabs from "@/components/ScrollableTabs"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
 
 function Page({ searchParams }: { searchParams: { tab?: string } }) {
    const router = useRouter()

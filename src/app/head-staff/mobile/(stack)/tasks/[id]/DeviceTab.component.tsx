@@ -1,5 +1,5 @@
 import DataListView from "@/components/DataListView"
-import { TaskDto } from "@/common/dto/Task.dto"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { MapPin } from "@phosphor-icons/react"
 import { UseQueryResult } from "@tanstack/react-query"
 

@@ -1,5 +1,5 @@
-import { SparePartDto } from "@/common/dto/SparePart.dto"
-import useModalControls from "@/common/hooks/useModalControls"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import useModalControls from "@/lib/hooks/useModalControls"
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import { CalendarCheck, Eye, IdentificationCard, Warehouse, WashingMachine } from "@phosphor-icons/react"
 import { App, Button, Drawer, DrawerProps, InputNumber } from "antd"
@@ -9,9 +9,9 @@ import UpdateSparePartQuantityModal, { UpdateSparePartQuantityModalRefType } fro
 import { useMutation } from "@tanstack/react-query"
 import Stockkeeper_SparePart_Update from "@/app/stockkeeper/_api/spare-part/update-spare-part-by-id.api"
 import AlertCard from "@/components/AlertCard"
-import { TaskDto } from "@/common/dto/Task.dto"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { useRouter } from "next/navigation"
-import { cn } from "@/common/util/cn.util"
+import { cn } from "@/lib/utils/cn.util"
 
 type HandleOpen = {
    sparePart: SparePartDto

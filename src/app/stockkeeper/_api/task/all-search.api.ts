@@ -1,8 +1,8 @@
 import api from "@/config/axios.config"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
-import { TaskDto } from "@/common/dto/Task.dto"
-import { TaskStatus } from "@/common/enum/task-status.enum"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 
 export type Request = {
    page: number
@@ -33,7 +33,8 @@ Stockkeeper_Task_AllSearch.URL = (req: Request) => {
    if (req.search) {
       const searchParams = Object.entries(req.search)
       for (const [key, value] of searchParams) {
-         if (key == "status" && value == "HEAD_STAFF_CONFIRM") { // TODO quick fix
+         if (key == "status" && value == "HEAD_STAFF_CONFIRM") {
+            // TODO quick fix
             query.append("status", "HEAD_DEPARTMENT_CONFIRM")
             continue
          }

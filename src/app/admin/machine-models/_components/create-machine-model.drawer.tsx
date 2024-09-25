@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react"
 import { DrawerForm, ProForm, ProFormDatePicker, ProFormText, ProFormTextArea } from "@ant-design/pro-components"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { App } from "antd"
-import qk from "@/common/querykeys"
+import qk from "@/old/querykeys"
 import Admin_MachineModels_Create, { Request } from "@/app/admin/_api/machine-model/create.api"
 import dayjs from "dayjs"
 

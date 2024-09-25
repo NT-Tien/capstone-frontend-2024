@@ -5,9 +5,9 @@ import Admin_Devices_DeleteSoft from "@/app/admin/_api/devices/delete-soft.api"
 import Admin_Devices_Restore from "@/app/admin/_api/devices/restore.api"
 import CreateDeviceDrawer from "@/app/admin/devices/_components/create-device.drawer"
 import QrCodeModal from "@/app/admin/devices/_components/QrCode.modal"
-import { DeviceDto } from "@/common/dto/Device.dto"
-import qk from "@/common/querykeys"
-import { CopyToClipboard } from "@/common/util/copyToClipboard.util"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
+import qk from "@/old/querykeys"
+import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
 import { DeleteOutlined, DownloadOutlined, QrcodeOutlined, RollbackOutlined } from "@ant-design/icons"
 import { ActionType, ProTable, TableDropdown } from "@ant-design/pro-components"
 import { PageContainer } from "@ant-design/pro-layout"
@@ -104,7 +104,7 @@ export default function DevicesListPage({ searchParams }: { searchParams: { area
    const responseData = useMemo(() => {
       const searchArea = searchParams.area
 
-      if(searchArea) {
+      if (searchArea) {
          return response.data?.filter((data) => {
             return data.area?.name.includes(searchArea)
          })

@@ -1,23 +1,23 @@
-import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
-import headstaff_qk from "@/app/head-staff/_api/qk"
-import HeadStaff_TypeError_Common from "@/app/head-staff/_api/typeError/common.api"
-import useModalControls from "@/common/hooks/useModalControls"
+import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import HeadStaff_TypeError_Common from "@/features/head-maintenance/api/type-error/common.api"
+import useModalControls from "@/lib/hooks/useModalControls"
 import AlertCard from "@/components/AlertCard"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { App, Button, Drawer, Form, Modal, Select } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
 import CreateSingleIssueDrawer, { CreateSingleIssueDrawerRefType } from "../CreateSingleIssue.drawer"
-import { TypeErrorDto } from "@/common/dto/TypeError.dto"
-import HeadStaff_Issue_Create from "@/app/head-staff/_api/issue/create.api"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import HeadStaff_Issue_CreateMany from "@/app/head-staff/_api/issue/create-many.api"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
-import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
+import { TypeErrorDto } from "@/lib/domain/TypeError/TypeError.dto"
+import HeadStaff_Issue_Create from "@/features/head-maintenance/api/issue/create.api"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import HeadStaff_Issue_CreateMany from "@/features/head-maintenance/api/issue/create-many.api"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 
 type HandleOpen = {
    deviceId: string
-   request: FixRequestDto
+   request: RequestDto
 }
 
 export type CreateIssueModalRefType = {
@@ -50,7 +50,7 @@ const CreateIssueModal = forwardRef<CreateIssueModalRefType, Props>(function Com
    const createSingleIssueDrawerRef = useRef<CreateSingleIssueDrawerRefType | null>(null)
 
    const [deviceId, setDeviceId] = useState<string | null>(null)
-   const [request, setRequest] = useState<FixRequestDto | null>(null)
+   const [request, setRequest] = useState<RequestDto | null>(null)
    const [selectedTypeErrorControl, setSelectedTypeErrorControl] = useState<string | null>(null)
 
    const api_device = useQuery({
@@ -113,7 +113,7 @@ const CreateIssueModal = forwardRef<CreateIssueModalRefType, Props>(function Com
       request,
    ])
 
-   function handleFinish(issue: FixRequestIssueDto) {
+   function handleFinish(issue: IssueDto) {
       if (!request) return
       mutate_createIssues.mutate(
          {

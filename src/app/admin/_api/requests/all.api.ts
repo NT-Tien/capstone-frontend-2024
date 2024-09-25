@@ -1,6 +1,6 @@
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
 
@@ -10,7 +10,7 @@ export type Request = {
    status: FixRequestStatus
    time: 1 | 2 | 3
 }
-type Response = FixRequestDto[]
+type Response = RequestDto[]
 
 Admin_Requests_All.URL = ({ page, limit, status, time = 1 }: Request) =>
    `/admin/request/${page}/${limit}/${status}?time=${time}&all=true`

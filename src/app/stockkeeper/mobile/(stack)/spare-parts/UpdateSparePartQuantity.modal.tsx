@@ -1,5 +1,5 @@
-import { SparePartDto } from "@/common/dto/SparePart.dto"
-import useModalControls from "@/common/hooks/useModalControls"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import useModalControls from "@/lib/hooks/useModalControls"
 import { Button, Input, InputNumber, Modal } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle, useState } from "react"
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"

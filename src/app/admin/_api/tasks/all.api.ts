@@ -1,6 +1,6 @@
-import { TaskDto } from "@/common/dto/Task.dto"
-import { TaskStatus } from "@/common/enum/task-status.enum"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
 
@@ -17,8 +17,7 @@ Admin_Tasks_All.URL = ({ page, limit, status, time = 1 }: Task) =>
 export default async function Admin_Tasks_All(request: Task): Promise<Response> {
    return api
       .get<Response>(Admin_Tasks_All.URL(request), {
-         transformResponse: (data) =>
-            parseApiResponse<any>(data, (res) => res.data),
+         transformResponse: (data) => parseApiResponse<any>(data, (res) => res.data),
          headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,
          },

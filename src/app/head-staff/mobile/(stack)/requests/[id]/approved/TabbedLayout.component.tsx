@@ -1,14 +1,14 @@
-import HeadStaff_Request_UpdateStatus from "@/app/head-staff/_api/request/updateStatus.api"
-import { DeviceDto } from "@/common/dto/Device.dto"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
-import { TaskStatus } from "@/common/enum/task-status.enum"
-import { cn } from "@/common/util/cn.util"
+import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import { cn } from "@/lib/utils/cn.util"
 import DataListView from "@/components/DataListView"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import { SendWarrantyTypeErrorId } from "@/constants/Warranty"
+import { SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import { PlusOutlined } from "@ant-design/icons"
 import { CheckSquareOffset, Devices, MapPin, WarningDiamond } from "@phosphor-icons/react"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
@@ -31,9 +31,9 @@ import TasksListTab from "./TasksList.tab"
 
 type Props = {
    requestId: string
-   api_request: UseQueryResult<FixRequestDto, Error>
+   api_request: UseQueryResult<RequestDto, Error>
    api_device: UseQueryResult<DeviceDto, Error>
-   api_deviceHistory: UseQueryResult<FixRequestDto[], Error>
+   api_deviceHistory: UseQueryResult<RequestDto[], Error>
 }
 
 function TabbedLayout(props: Props) {

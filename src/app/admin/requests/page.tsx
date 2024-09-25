@@ -9,15 +9,15 @@ import Admin_SpareParts_Restore from "@/app/admin/_api/spare-parts/restore.api"
 import CreateSparePartDrawer from "@/app/admin/spare-parts/_components/create-spare-part.drawer"
 import Admin_Requests_All from "../_api/requests/all.api"
 import { admin_qk } from "../_api/qk"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 
 type QueryState = {
-   machineModel?: string;
-   area?: string;
-   requesterName?: string;
-   status?: FixRequestStatus;
-   createdAt?: string;
- }
+   machineModel?: string
+   area?: string
+   requesterName?: string
+   status?: FixRequestStatus
+   createdAt?: string
+}
 
 const values = {
    nameSingle: "yêu cầu",
@@ -33,45 +33,36 @@ const values = {
 
 export default function RequestListPage() {
    const actionRef = useRef()
-   const [query, setQuery] = useState<QueryState>({});
+   const [query, setQuery] = useState<QueryState>({})
 
    const response = useQuery({
       queryKey: ["requests", { page: 1, limit: 10, time: 1 }],
-      queryFn: () => Admin_Requests_All({
-         page: 1,
-         limit: 10,
-         status: FixRequestStatus.PENDING,
-         time: 1,
-      }),
+      queryFn: () =>
+         Admin_Requests_All({
+            page: 1,
+            limit: 10,
+            status: FixRequestStatus.PENDING,
+            time: 1,
+         }),
    })
 
    const responseData = useMemo(() => {
-      if (!response.data) return [];
-    
+      if (!response.data) return []
+
       return response.data.filter((item) => {
-        const matchMachineModel = query.machineModel
-          ? item.device.machineModel.name.toLowerCase().includes(query.machineModel.toLowerCase())
-          : true;
-        const matchArea = query.area
-          ? item.device.area.name.toLowerCase().includes(query.area.toLowerCase())
-          : true;
-        const matchRequesterName = query.requesterName
-          ? item.requester?.username.toLowerCase().includes(query.requesterName.toLowerCase())
-          : true;
-        const matchStatus = query.status ? item.status === query.status : true;
-        const matchCreatedAt = query.createdAt
-          ? dayjs(item.createdAt).isSame(query.createdAt, 'day')
-          : true;
-    
-        return (
-          matchMachineModel &&
-          matchArea &&
-          matchRequesterName &&
-          matchStatus &&
-          matchCreatedAt
-        );
-      });
-    }, [response.data, query]);
+         const matchMachineModel = query.machineModel
+            ? item.device.machineModel.name.toLowerCase().includes(query.machineModel.toLowerCase())
+            : true
+         const matchArea = query.area ? item.device.area.name.toLowerCase().includes(query.area.toLowerCase()) : true
+         const matchRequesterName = query.requesterName
+            ? item.requester?.username.toLowerCase().includes(query.requesterName.toLowerCase())
+            : true
+         const matchStatus = query.status ? item.status === query.status : true
+         const matchCreatedAt = query.createdAt ? dayjs(item.createdAt).isSame(query.createdAt, "day") : true
+
+         return matchMachineModel && matchArea && matchRequesterName && matchStatus && matchCreatedAt
+      })
+   }, [response.data, query])
 
    if (response.isError) {
       return response.error.message
@@ -105,12 +96,12 @@ export default function RequestListPage() {
             }}
             onSubmit={(values) => {
                setQuery({
-                 ...values,
-                 machineModel: values.machineModel || '',
-                 area: values.area || '',
-                 requesterName: values.requesterName || '',
-               });
-             }}
+                  ...values,
+                  machineModel: values.machineModel || "",
+                  area: values.area || "",
+                  requesterName: values.requesterName || "",
+               })
+            }}
             onReset={() => {
                setQuery({})
             }}

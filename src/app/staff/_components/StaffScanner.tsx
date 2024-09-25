@@ -1,6 +1,6 @@
 "use client"
 
-import { isUUID } from "@/common/util/isUUID.util"
+import { isUUID } from "@/lib/utils/isUUID.util"
 import { InfoCircleFilled, RightOutlined } from "@ant-design/icons"
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
 import { App, Avatar, Button, Card, Drawer, Form, Input } from "antd"
@@ -97,7 +97,7 @@ export default function StaffScanner(props: StaffScanPageProps) {
          <Form<FieldType> form={form} onFinish={(e) => finishHandler(e.deviceId)} layout="horizontal">
             <Drawer
                title="Nhập thủ công"
-   placement="bottom"
+               placement="bottom"
                onClose={() => setManualOpen(false)}
                open={manualOpen}
                height="max-content"

@@ -1,22 +1,22 @@
-import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
+import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
 import { UseQueryResult } from "@tanstack/react-query"
-import { FixRequestDto } from "@/common/dto/FixRequest.dto"
-import { DeviceDto } from "@/common/dto/Device.dto"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import React, { forwardRef, ReactNode, useMemo, useRef, useState } from "react"
 import { Badge, Button, Card, Empty, Skeleton, Tag } from "antd"
 import { BaseSelectRef } from "rc-select"
 import IssueDetailsDrawer, { IssueDetailsDrawerRefType } from "@/app/head-staff/_components/IssueDetailsDrawer"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { ArrowRightOutlined } from "@ant-design/icons"
 import { RibbonProps } from "antd/lib/badge/Ribbon"
-import { cn } from "@/common/util/cn.util"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import { Issue_StatusMapper } from "@/common/dto/status/Issue.status"
-import { TaskStatus } from "@/common/enum/task-status.enum"
+import { cn } from "@/lib/utils/cn.util"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { Issue_StatusMapper } from "@/lib/domain/Issue/IssueStatus.mapper"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 
 type IssuesListProps = {
    id: string
-   api: UseQueryResult<FixRequestDto, Error>
+   api: UseQueryResult<RequestDto, Error>
    device: UseQueryResult<DeviceDto, Error>
    hasScanned: boolean
    className?: string
@@ -47,7 +47,7 @@ const IssuesList = function Component(props: IssuesListProps) {
       ...rest
    }: {
       children: ReactNode
-      issue: FixRequestIssueDto
+      issue: IssueDto
       badgeProps?: RibbonProps
    }) {
       if (props.api.isPending) return children

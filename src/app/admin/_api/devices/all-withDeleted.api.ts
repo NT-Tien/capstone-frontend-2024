@@ -1,7 +1,7 @@
 import Cookies from "js-cookie"
 import api from "@/config/axios.config"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
-import { DeviceDto } from "@/common/dto/Device.dto"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 
 export type Response = DeviceDto[]
 

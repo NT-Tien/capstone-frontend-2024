@@ -1,5 +1,5 @@
-import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import useModalControls from "@/common/hooks/useModalControls"
+import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import useModalControls from "@/lib/hooks/useModalControls"
 import AlertCard from "@/components/AlertCard"
 import { CloseOutlined } from "@ant-design/icons"
 import { Gear, Package, Wrench } from "@phosphor-icons/react"
@@ -12,9 +12,9 @@ import staff_qk from "../_api/qk"
 import Staff_Task_OneById from "../_api/task/one-byId.api"
 import QrCodeDisplayModal, { QrCodeDisplayModalRefType } from "./QrCodeDisplay.modal"
 import Staff_Task_UpdateStart from "../_api/task/update-start.api"
-import ScannerDrawer from "@/common/components/Scanner.drawer"
-import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/common/components/ScannerV2.drawer"
-import { ReceiveWarrantyTypeErrorId } from "@/constants/Warranty"
+import ScannerDrawer from "@/components/overlays/Scanner.drawer"
+import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
+import { ReceiveWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 
 type HandleOpenProps = {
    taskId: string

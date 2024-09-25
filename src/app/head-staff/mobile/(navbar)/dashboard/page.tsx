@@ -1,11 +1,11 @@
 "use client"
 
-import HeadStaff_Dashboard_Count from "@/app/head-staff/_api/dashboard/count.api"
-import headstaff_qk from "@/app/head-staff/_api/qk"
-import HomeHeader from "@/common/components/HomeHeader"
-import { FixRequest_StatusData } from "@/common/dto/status/FixRequest.status"
-import { TaskStatus, TaskStatusTagMapper } from "@/common/enum/task-status.enum"
-import { cn } from "@/common/util/cn.util"
+import HeadStaff_Dashboard_Count from "@/features/head-maintenance/api/dashboard/count.api"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import HomeHeader from "@/components/layout/HomeHeader"
+import { FixRequest_StatusData } from "@/lib/domain/Request/RequestStatus.mapper"
+import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import { cn } from "@/lib/utils/cn.util"
 import {
    CalendarCheck,
    CalendarSlash,
@@ -168,7 +168,7 @@ function DashboardPage() {
             </section>
             <section className="mt-5 space-y-4">
                {tab === "tasks" && (
-                  <div className="bg-white rounded-md p-3 space-y-3">
+                  <div className="space-y-3 rounded-md bg-white p-3">
                      {[
                         {
                            loading: api_counts.isPending,
@@ -236,7 +236,7 @@ function DashboardPage() {
                )}
 
                {tab === "requests" && (
-                  <div className="bg-white rounded-md p-3 space-y-3">
+                  <div className="space-y-3 rounded-md bg-white p-3">
                      {[
                         {
                            loading: api_counts.isPending,

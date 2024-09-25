@@ -1,13 +1,13 @@
-import HeadStaff_Device_OneById from "@/app/head-staff/_api/device/one-byId.api"
-import HeadStaff_Issue_CreateMany from "@/app/head-staff/_api/issue/create-many.api"
-import headstaff_qk from "@/app/head-staff/_api/qk"
-import HeadStaff_Request_OneById from "@/app/head-staff/_api/request/oneById.api"
-import HeadStaff_TypeError_Common from "@/app/head-staff/_api/typeError/common.api"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import { TypeErrorDto } from "@/common/dto/TypeError.dto"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
-import useModalControls from "@/common/hooks/useModalControls"
+import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
+import HeadStaff_Issue_CreateMany from "@/features/head-maintenance/api/issue/create-many.api"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import HeadStaff_Request_OneById from "@/features/head-maintenance/api/request/oneById.api"
+import HeadStaff_TypeError_Common from "@/features/head-maintenance/api/type-error/common.api"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { TypeErrorDto } from "@/lib/domain/TypeError/TypeError.dto"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
+import useModalControls from "@/lib/hooks/useModalControls"
 import AlertCard from "@/components/AlertCard"
 import { DeleteOutlined, SendOutlined, EditOutlined } from "@ant-design/icons"
 import { Info } from "@phosphor-icons/react"
@@ -25,7 +25,7 @@ import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
 import CreateSingleIssueDrawer, { CreateSingleIssueDrawerRefType } from "./CreateSingleIssue.drawer"
 import dayjs from "dayjs"
-import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
+import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 
 export type ApproveRequestDrawerRefType = {
    handleOpen: (requestId: string) => void
@@ -53,7 +53,7 @@ const ApproveRequestDrawer = forwardRef<ApproveRequestDrawerRefType, Props>(func
    const router = useRouter()
 
    const [requestId, setRequestId] = useState<string | undefined>(undefined)
-   const [selectedIssues, setSelectedIssues] = useState<FixRequestIssueDto[]>([])
+   const [selectedIssues, setSelectedIssues] = useState<IssueDto[]>([])
    const [selectedTypeErrorControl, setSelectedTypeErrorControl] = useState<undefined | string>()
 
    const createSingleIssueDrawerRef = useRef<CreateSingleIssueDrawerRefType | null>(null)
@@ -167,7 +167,7 @@ const ApproveRequestDrawer = forwardRef<ApproveRequestDrawerRefType, Props>(func
       )
    }
 
-   function handleCreateOrUpdateSingleIssue(newIssue: FixRequestIssueDto) {
+   function handleCreateOrUpdateSingleIssue(newIssue: IssueDto) {
       const index = selectedIssues.findIndex((i) => i.typeError.id === newIssue.typeError.id)
       if (index !== -1) {
          // update
@@ -181,7 +181,7 @@ const ApproveRequestDrawer = forwardRef<ApproveRequestDrawerRefType, Props>(func
       setSelectedTypeErrorControl(undefined)
    }
 
-   function handleDeleteSingleIssue(issue: FixRequestIssueDto) {
+   function handleDeleteSingleIssue(issue: IssueDto) {
       setSelectedIssues(selectedIssues.filter((i) => i !== issue))
    }
 

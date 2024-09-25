@@ -1,7 +1,7 @@
 import { Avatar, Button } from "antd"
 import { MoreOutlined } from "@ant-design/icons"
 import { ReactNode, useMemo } from "react"
-import { cn } from "@/common/util/cn.util"
+import { cn } from "@/lib/utils/cn.util"
 
 type Props = {
    title: string
@@ -79,7 +79,7 @@ function generateAvatarData(input: string) {
 
    return {
       content,
-      color
+      color,
    }
 }
 

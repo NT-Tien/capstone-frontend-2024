@@ -1,12 +1,12 @@
 import { ReactNode, useMemo, useState } from "react"
 import { App, Input, Modal, Tag } from "antd"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import headstaff_qk from "@/app/head-staff/_api/qk"
-import HeadStaff_Users_AllStaff from "@/app/head-staff/_api/users/all.api"
-import { UserDto } from "@/common/dto/User.dto"
-import { TaskDto } from "@/common/dto/Task.dto"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import HeadStaff_Users_AllStaff from "@/features/head-maintenance/api/users/all.api"
+import { UserDto } from "@/lib/domain/User/User.dto"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { CheckCard } from "@ant-design/pro-card"
-import HeadStaff_Task_UpdateAssignFixer from "@/app/head-staff/_api/task/update-assignFixer.api"
+import HeadStaff_Task_UpdateAssignFixer from "@/features/head-maintenance/api/task/update-assignFixer.api"
 import dayjs from "dayjs"
 
 type SortedUserDto = Omit<UserDto, "tasks"> & {

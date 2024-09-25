@@ -1,8 +1,8 @@
 "use client"
 
-import RootHeader from "@/common/components/RootHeader"
-import { MachineModelDto } from "@/common/dto/MachineModel.dto"
-import qk from "@/common/querykeys"
+import RootHeader from "@/components/layout/RootHeader"
+import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
+import qk from "@/old/querykeys"
 import { RightOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { useQuery } from "@tanstack/react-query"

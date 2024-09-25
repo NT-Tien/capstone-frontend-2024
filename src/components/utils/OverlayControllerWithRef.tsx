@@ -1,6 +1,6 @@
 "use client"
 
-import useModalControls from "@/common/hooks/useModalControls"
+import useModalControls from "@/lib/hooks/useModalControls"
 import {
    Children,
    cloneElement,

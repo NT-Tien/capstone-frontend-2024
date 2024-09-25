@@ -1,5 +1,5 @@
-import { TaskDto } from "@/common/dto/Task.dto"
-import useModalControls from "@/common/hooks/useModalControls"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import useModalControls from "@/lib/hooks/useModalControls"
 import { clientEnv } from "@/env"
 import { Button, Drawer, Image } from "antd"
 import { ReactNode, useState } from "react"

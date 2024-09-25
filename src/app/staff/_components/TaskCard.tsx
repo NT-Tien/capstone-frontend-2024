@@ -3,7 +3,7 @@
 import { Avatar, Button, Card, Tooltip, Typography } from "antd"
 import { CSSProperties, ReactNode } from "react"
 import { InfoOutlined, RightOutlined } from "@ant-design/icons"
-import { cn } from "@/common/util/cn.util"
+import { cn } from "@/lib/utils/cn.util"
 
 type Props = {
    title: string
@@ -48,9 +48,7 @@ export default function TaskCard(props: Props) {
                   {props.extra}
                   {!!props.onClick && <Button icon={<RightOutlined />} type="text" />}
                </div>
-               <section className="w-full mt-1">
-               {props.bottom}
-               </section>
+               <section className="mt-1 w-full">{props.bottom}</section>
             </div>
          </Card>
       </Tooltip>

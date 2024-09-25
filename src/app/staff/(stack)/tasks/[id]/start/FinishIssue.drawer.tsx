@@ -1,10 +1,10 @@
-import { File_Image_Upload } from "@/_api/file/upload_image.api"
-import { File_Video_Upload } from "@/_api/file/upload_video.api"
+import { File_Image_Upload } from "@/features/common/api/file/upload_image.api"
+import { File_Video_Upload } from "@/features/common/api/file/upload_video.api"
 import Staff_Issue_UpdateFinish from "@/app/staff/_api/issue/update-finish"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import useModalControls from "@/common/hooks/useModalControls"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import useModalControls from "@/lib/hooks/useModalControls"
 import AlertCard from "@/components/AlertCard"
-import { SendWarrantyTypeErrorId } from "@/constants/Warranty"
+import { SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import { clientEnv } from "@/env"
 import { Camera, ImageSquare, Video, VideoCamera } from "@phosphor-icons/react"
 import { useMutation } from "@tanstack/react-query"
@@ -28,13 +28,13 @@ export default function FinishIssueDrawer({
    children,
    ...props
 }: {
-   children: (handleOpen: (issue: FixRequestIssueDto) => void) => ReactNode
+   children: (handleOpen: (issue: IssueDto) => void) => ReactNode
 } & Props) {
    const { message } = App.useApp()
    const [form] = Form.useForm<SubmitFieldType>()
 
    const { open, handleOpen, handleClose } = useModalControls({
-      onOpen: (issue: FixRequestIssueDto) => {
+      onOpen: (issue: IssueDto) => {
          setIssue(issue)
       },
       onClose: () => {
@@ -55,7 +55,7 @@ export default function FinishIssueDrawer({
       mutationFn: File_Video_Upload,
    })
 
-   const [issue, setIssue] = useState<FixRequestIssueDto | undefined>(undefined)
+   const [issue, setIssue] = useState<IssueDto | undefined>(undefined)
    const [imageDrawerOpen, setImageDrawerOpen] = useState(false)
    const [videoDrawerOpen, setVideoDrawerOpen] = useState(false)
    const [uploadImages, setUploadImages] = useState<string[]>([])

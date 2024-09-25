@@ -1,27 +1,22 @@
 "use client"
 
-import Head_Request_All from "@/app/head/_api/request/all.api"
 import DataListView from "@/components/DataListView"
-import RootHeader from "@/common/components/RootHeader"
-import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-import { NotFoundError } from "@/common/error/not-found.error"
-import qk from "@/common/querykeys"
-import { LeftOutlined, DeleteOutlined } from "@ant-design/icons"
+import RootHeader from "@/components/layout/RootHeader"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import { NotFoundError } from "@/lib/error/not-found.error"
+import { DeleteOutlined, LeftOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { MapPin, XCircle } from "@phosphor-icons/react"
-import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Button, Card, Modal, Progress, Result, Skeleton, Steps, Tag } from "antd"
+import { Button, Card, Progress, Result, Skeleton, Steps, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import { FixRequest_StatusData, FixRequest_StatusMapper } from "@/common/dto/status/FixRequest.status"
-import Head_Request_UpdateClose from "@/app/head/_api/request/update-close.api"
-import FeedbackDrawer from "@/app/head/(stack)/history/[id]/Feedback.drawer"
-import { useMemo, useState } from "react"
-import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
-import ModalConfirm from "@/common/components/ModalConfirm"
-import Head_Request_OneById from "@/app/head/_api/request/oneById.api"
-import head_qk from "@/app/head/_api/qk"
-import Head_Request_UpdateCancel from "@/app/head/_api/request/update-cancel.api"
+import { FixRequest_StatusData, FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
+import FeedbackDrawer from "@/features/head-department/components/Feedback.drawer"
+import { useMemo } from "react"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import ModalConfirm from "@/old/ModalConfirm"
+import useRequest_OneByIdQuery from "@/features/head-department/queries/Request_OneById.query"
+import useCancelRequestMutation from "@/features/head-department/mutations/CancelRequest.mutation"
 
 export default function HistoryDetails({
    params,
@@ -31,51 +26,16 @@ export default function HistoryDetails({
    searchParams: { return?: "scan" }
 }) {
    const router = useRouter()
-   const { message } = App.useApp()
 
-   const api_requests = useQuery({
-      queryKey: head_qk.requests.by_id(params.id),
-      queryFn: () => Head_Request_OneById({ id: params.id }),
-      retry(failureCount, error) {
-         if (error instanceof NotFoundError) return false
-         return failureCount < 3
-      },
-      refetchOnWindowFocus(query) {
-         return !(query.state.error instanceof NotFoundError)
-      },
-   })
-
-   const mutate_cancelRequest = useMutation({
-      mutationFn: Head_Request_UpdateCancel,
-      onMutate: async () => {
-         message.loading({
-            content: "Đang hủy báo cáo...",
-            key: "cancelRequest",
-         })
-      },
-      onSettled: () => {
-         message.destroy("cancelRequest")
-      },
-      onError: async (error) => {
-         message.error({
-            content: "Đã xảy ra lỗi khi hủy báo cáo",
-            key: "cancelRequest",
-         })
-      },
-      onSuccess: async () => {
-         message.success({
-            content: "Đã hủy báo cáo",
-            key: "cancelRequest",
-         })
-      },
-   })
+   const api_requests = useRequest_OneByIdQuery({ requestId: params.id })
+   const mutate_cancelRequest = useCancelRequestMutation()
 
    function handleCancelRequest() {
       mutate_cancelRequest.mutate(
          { id: params.id },
          {
-            onSuccess: () => {
-               api_requests.refetch()
+            onSuccess: async () => {
+               await api_requests.refetch()
             },
          },
       )

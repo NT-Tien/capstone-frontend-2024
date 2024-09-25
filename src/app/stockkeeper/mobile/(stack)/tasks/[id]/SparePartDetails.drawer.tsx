@@ -1,17 +1,17 @@
 import Stockkeeper_SparePart_Update from "@/app/stockkeeper/_api/spare-part/update-spare-part-by-id.api"
-import { FixRequestIssueSparePartDto } from "@/common/dto/FixRequestIssueSparePart.dto"
-import useModalControls from "@/common/hooks/useModalControls"
+import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
+import useModalControls from "@/lib/hooks/useModalControls"
 import { LeftOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import { useMutation } from "@tanstack/react-query"
 import { App, Button, Divider, Drawer, InputNumber } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle, useState } from "react"
 
 export type SparePartDetailsDrawerRefType = {
-   handleOpen: (issueSparePart: FixRequestIssueSparePartDto) => void
+   handleOpen: (issueSparePart: IssueSparePartDto) => void
 }
 
 type Props = {
-   children?: (handleOpen: (issueSparePart: FixRequestIssueSparePartDto) => void) => ReactNode
+   children?: (handleOpen: (issueSparePart: IssueSparePartDto) => void) => ReactNode
    refetchFn?: () => void
 }
 
@@ -19,7 +19,7 @@ const SparePartDetailsDrawer = forwardRef<SparePartDetailsDrawerRefType, Props>(
    const { message } = App.useApp()
 
    const { open, handleOpen, handleClose } = useModalControls({
-      onOpen: (issueSparePart: FixRequestIssueSparePartDto) => {
+      onOpen: (issueSparePart: IssueSparePartDto) => {
          setIssueSparePart(issueSparePart)
          setQuantity(issueSparePart.sparePart.quantity)
       },
@@ -55,7 +55,7 @@ const SparePartDetailsDrawer = forwardRef<SparePartDetailsDrawerRefType, Props>(
       },
    })
 
-   const [issueSparePart, setIssueSparePart] = useState<FixRequestIssueSparePartDto | undefined>()
+   const [issueSparePart, setIssueSparePart] = useState<IssueSparePartDto | undefined>()
    const [quantity, setQuantity] = useState<number | undefined>()
 
    function handleUpdate() {

@@ -1,12 +1,11 @@
-import ClickableArea from "@/components/ClickableArea"
+import { ComponentProvider } from "@/app/test/Component"
+import Inner from "./Client"
 
 function Page() {
    return (
-      <div>
-         <ClickableArea className="p-10" type="default">
-            Test
-         </ClickableArea>
-      </div>
+      <ComponentProvider>
+         <Inner />
+      </ComponentProvider>
    )
 }
 

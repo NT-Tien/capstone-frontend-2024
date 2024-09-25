@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react"
 import { DrawerForm, ProForm, ProFormDigit, ProFormText, ProFormTextArea } from "@ant-design/pro-components"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { App } from "antd"
-import qk from "@/common/querykeys"
+import qk from "@/old/querykeys"
 import Areas_Create from "@/app/admin/_api/areas/create.api"
 
 type FieldType = {

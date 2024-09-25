@@ -1,10 +1,10 @@
 import FinishIssueDrawer from "@/app/staff/(stack)/tasks/[id]/start/FinishIssue.drawer"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
-import { TaskDto } from "@/common/dto/Task.dto"
-import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
-import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
-import useModalControls from "@/common/hooks/useModalControls"
-import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/constants/Warranty"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
+import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
+import useModalControls from "@/lib/hooks/useModalControls"
+import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import { clientEnv } from "@/env"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { Button, Card, Drawer, Image, List, Tag, Typography } from "antd"
@@ -15,7 +15,7 @@ export default function IssueDetailsDrawer({
    afterSuccess,
    scanCompleted,
 }: {
-   children: (handleOpen: (issue: FixRequestIssueDto, task: TaskDto) => void) => ReactNode
+   children: (handleOpen: (issue: IssueDto, task: TaskDto) => void) => ReactNode
    afterSuccess?: () => void
    scanCompleted: boolean
 }) {
@@ -26,14 +26,14 @@ export default function IssueDetailsDrawer({
             setCurrentIssue(undefined)
          }, 200)
       },
-      onOpen: (issue: FixRequestIssueDto, task: TaskDto) => {
+      onOpen: (issue: IssueDto, task: TaskDto) => {
          setTask(task)
          setCurrentIssue(issue)
       },
    })
 
    const [task, setTask] = useState<TaskDto | undefined>(undefined)
-   const [currentIssue, setCurrentIssue] = useState<FixRequestIssueDto | undefined>(undefined)
+   const [currentIssue, setCurrentIssue] = useState<IssueDto | undefined>(undefined)
 
    const isWarrantyReturnTask = useMemo(() => {
       return currentIssue?.typeError.id === ReceiveWarrantyTypeErrorId

@@ -4,18 +4,18 @@ import staff_qk from "@/app/staff/_api/qk"
 import Staff_Task_All from "@/app/staff/_api/task/all.api"
 import TaskCard from "@/app/staff/_components/TaskCard"
 import TaskDetailsDrawer from "@/app/staff/_components/TaskDetails.drawer"
-import RootHeader from "@/common/components/RootHeader"
-import ScrollableTabs from "@/common/components/ScrollableTabs"
-import { TaskDto } from "@/common/dto/Task.dto"
-import { TaskStatus } from "@/common/enum/task-status.enum"
-import { cn } from "@/common/util/cn.util"
+import RootHeader from "@/components/layout/RootHeader"
+import ScrollableTabs from "@/components/ScrollableTabs"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import { cn } from "@/lib/utils/cn.util"
 import { CalendarOutlined, CheckCircleFilled, EnvironmentFilled, ExclamationCircleFilled } from "@ant-design/icons"
 import { SkipForward } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
 import { Card, Empty, Progress, Skeleton } from "antd"
 import dayjs from "dayjs"
 import { useMemo, useState } from "react"
-import { taskPercentCalculator } from "../../../../common/util/taskPercentCalculator.util"
+import { taskPercentageCalculator } from "../../../../lib/domain/Task/taskPercentageCalculator.util"
 import { useRouter } from "next/navigation"
 
 type TasksType = {
@@ -102,7 +102,7 @@ export default function StaffTasksPage() {
                      <TaskCard
                         title="Tác vụ đang thực hiện"
                         description={tasks.ongoing.name}
-                        bottom={<Progress percent={taskPercentCalculator(tasks.ongoing)} />}
+                        bottom={<Progress percent={taskPercentageCalculator(tasks.ongoing)} />}
                         priority={tasks.ongoing.priority ?? false}
                         onClick={() => router.push(`/staff/tasks/${tasks.ongoing?.id}/start`)}
                      />

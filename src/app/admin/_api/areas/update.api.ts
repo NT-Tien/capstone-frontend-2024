@@ -1,6 +1,6 @@
-import { AreaDto } from "@/common/dto/Area.dto"
+import { AreaDto } from "@/lib/domain/Area/Area.dto"
 import api from "@/config/axios.config"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
 
 export type Request = { id: string; payload: Pick<AreaDto, "height" | "width" | "name" | "instruction"> }

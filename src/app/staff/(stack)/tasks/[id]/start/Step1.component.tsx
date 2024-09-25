@@ -1,9 +1,9 @@
 import IssueDetailsDrawer from "@/app/staff/_components/IssueDetails.drawer"
-import ScannerDrawer from "@/common/components/Scanner.drawer"
-import { TaskDto } from "@/common/dto/Task.dto"
-import { FixTypeTagMapper } from "@/common/enum/fix-type.enum"
-import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/common/enum/issue-status.enum"
-import { cn } from "@/common/util/cn.util"
+import ScannerDrawer from "@/components/overlays/Scanner.drawer"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
+import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
+import { cn } from "@/lib/utils/cn.util"
 import DataListView from "@/components/DataListView"
 import { HomeOutlined, RightOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
@@ -13,7 +13,7 @@ import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { GeneralProps } from "./page"
-import { ReceiveWarrantyTypeErrorId } from "@/constants/Warranty"
+import { ReceiveWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 
 type Step2Props = GeneralProps & {
    data?: TaskDto

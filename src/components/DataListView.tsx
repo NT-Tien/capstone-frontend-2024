@@ -1,4 +1,4 @@
-import { cn } from "@/common/util/cn.util"
+import { cn } from "@/lib/utils/cn.util"
 import { InfoCircleFilled } from "@ant-design/icons"
 import { Divider, Skeleton, Tooltip } from "antd"
 import { CSSProperties, ReactNode } from "react"
@@ -36,7 +36,7 @@ export default function DataListView<T>(props: Props<T>) {
             <li
                key={index}
                className={cn(
-                  "flex items-start justify-between px-layout py-3 gap-3",
+                  "flex items-start justify-between gap-3 px-layout py-3",
                   !props.dataSource && index === 0 && "pt-layout",
                   !props.dataSource && index === props.items.length - 1 && "pb-layout",
                   props.itemClassName,
@@ -48,7 +48,7 @@ export default function DataListView<T>(props: Props<T>) {
                      {item.isDivider && <Divider style={dividerStyle} />}
                      <div
                         className={cn(
-                           "flex flex-grow items-center gap-2 text-base font-semibold whitespace-nowrap",
+                           "flex flex-grow items-center gap-2 whitespace-nowrap text-base font-semibold",
                            props.labelClassName,
                         )}
                         style={props.labelStyle}
@@ -61,7 +61,10 @@ export default function DataListView<T>(props: Props<T>) {
                         )}
                      </div>
                      <div className="">
-                        <span className={cn("text-base whitespace-pre-wrap block", props.valueClassName)} style={props.valueStyle}>
+                        <span
+                           className={cn("block whitespace-pre-wrap text-base", props.valueClassName)}
+                           style={props.valueStyle}
+                        >
                            {item.value(props.dataSource as NonNullable<T>)}
                         </span>
                      </div>

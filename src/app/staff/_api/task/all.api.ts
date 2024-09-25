@@ -1,7 +1,7 @@
 import api from "@/config/axios.config"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
-import { TaskDto } from "@/common/dto/Task.dto"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
 
 export type Response = TaskDto[]
 

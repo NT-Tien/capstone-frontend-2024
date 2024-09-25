@@ -1,16 +1,16 @@
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { Key, useEffect, useState } from "react"
 import { App, Button, Flex, Table, Tag, Tooltip } from "antd"
 import { EditOutlined, PlusOutlined } from "@ant-design/icons"
 import CreateIssueDrawer from "@/app/head-staff/_components/CreateIssue.drawer"
-import { FixType, FixTypeTagMapper } from "@/common/enum/fix-type.enum"
+import { FixType, FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
 import extended_dayjs from "@/config/dayjs.config"
 import dayjs from "dayjs"
 import { ProTable } from "@ant-design/pro-components"
 import { useMutation } from "@tanstack/react-query"
-import HeadStaff_Issue_Delete from "@/app/head-staff/_api/issue/delete.api"
-import HeadStaff_Issue_Update from "@/app/head-staff/_api/issue/update.api"
-import { DeviceDto } from "@/common/dto/Device.dto"
+import HeadStaff_Issue_Delete from "@/features/head-maintenance/api/issue/delete.api"
+import HeadStaff_Issue_Update from "@/features/head-maintenance/api/issue/update.api"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import IssueDetailsDrawer from "@/app/head-staff/_components/IssueDetailsDrawer"
 import { useRouter } from "next/navigation"
 
@@ -18,7 +18,7 @@ type Props = {
    refetch: () => void
    isLoading: boolean
    id: string
-   issues: FixRequestIssueDto[] | undefined
+   issues: IssueDto[] | undefined
    device: DeviceDto | undefined
    selectedRowKeys: Key[]
    setSelectedRowKeys: (keys: Key[]) => void
@@ -84,7 +84,7 @@ export default function IssuesTab(props: Props) {
    return (
       <IssueDetailsDrawer refetch={props.refetch}>
          {(handleOpen) => (
-            <ProTable<FixRequestIssueDto>
+            <ProTable<IssueDto>
                cardBordered
                rowKey={(row) => row.id}
                rowSelection={{
@@ -96,9 +96,7 @@ export default function IssuesTab(props: Props) {
                headerTitle={
                   <div className="flex items-center gap-2">
                      <span>Báo cáo yêu cầu</span>
-                     <span className="text-xs font-normal text-gray-500">
-                        {props.issues?.length} vấn đề
-                     </span>
+                     <span className="text-xs font-normal text-gray-500">{props.issues?.length} vấn đề</span>
                   </div>
                }
                dataSource={props.issues}
@@ -272,7 +270,8 @@ export default function IssuesTab(props: Props) {
                      title: "Ngày cập nhật",
                      width: 200,
                      dataIndex: "updatedAt",
-                     sorter: (a, b) => dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
+                     sorter: (a, b) =>
+                        dayjs(a.updatedAt).add(7, "hours").unix() - dayjs(b.updatedAt).add(7, "hours").unix(),
                      render: (_, e) => (
                         <Tooltip title={extended_dayjs(e.updatedAt).add(7, "hours").fromNow()}>
                            {dayjs(e.updatedAt).add(7, "hours").format("DD-MM-YYYY HH:mm")}

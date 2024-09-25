@@ -2,7 +2,7 @@
 
 import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"
 import Stockkeeper_SparePart_AllAddMore, { Response } from "@/app/stockkeeper/_api/spare-part/all-addmore"
-import RootHeader from "@/common/components/RootHeader"
+import RootHeader from "@/components/layout/RootHeader"
 import { FilterOutlined, LeftOutlined, MoreOutlined } from "@ant-design/icons"
 import { ExclamationMark, TrayArrowDown, Warehouse, WashingMachine } from "@phosphor-icons/react"
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
@@ -12,7 +12,7 @@ import { Fragment, useMemo, useRef, useState } from "react"
 import SortDrawer, { Sort, SortDrawerRefType } from "./Sort.drawer"
 import SparePartDetailsDrawer, { SparePartDetailsDrawerRefType } from "../SparePartDetails.drawer"
 import dayjs from "dayjs"
-import { cn } from "@/common/util/cn.util"
+import { cn } from "@/lib/utils/cn.util"
 
 function Page() {
    const router = useRouter()
@@ -83,7 +83,7 @@ function Page() {
                </div>
             )}
             {renderList?.length === 0 && (
-               <div className="rounded-lg bg-white py-32 grid place-items-center">
+               <div className="grid place-items-center rounded-lg bg-white py-32">
                   <Empty description="Không có linh kiện nào hết hàng" />
                </div>
             )}

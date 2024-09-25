@@ -1,9 +1,9 @@
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
-import { NotFoundError } from "@/common/error/not-found.error"
-import { SparePartDto } from "@/common/dto/SparePart.dto"
-import { TaskDto } from "@/common/dto/Task.dto"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
+import { NotFoundError } from "@/lib/error/not-found.error"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
 
 export type Request = {
    id: string

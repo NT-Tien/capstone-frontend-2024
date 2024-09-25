@@ -1,15 +1,15 @@
 import api from "@/config/axios.config"
-import { parseApiResponse } from "@/common/util/parseApiResponse.util"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
-import { TaskDto } from "@/common/dto/Task.dto"
-import { IssueStatusEnum } from "@/common/enum/issue-status.enum"
-import { FixRequestIssueDto } from "@/common/dto/FixRequestIssue.dto"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 
 export type Request = {
    id: string
    status: IssueStatusEnum
 }
-export type Response = FixRequestIssueDto
+export type Response = IssueDto
 
 Staff_Task_UpdateIssueStatus.URL = (req: Request) => `/staff/task/issue/${req.id}/${req.status}`
 export default async function Staff_Task_UpdateIssueStatus(req: Request): Promise<Response> {

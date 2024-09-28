@@ -114,7 +114,7 @@ const IssuesList = function Component(props: IssuesListProps) {
                                              item.id,
                                              props.device.data.id,
                                              /**
-                                              * Only show actions if
+                                              * Only show mutations if
                                               * - User has scanned
                                               * - and either [Status is PENDING, CHECKED]
                                               * - or [Status is IN_PROGRESS with either no task or task status is AWAITING_FIXER]

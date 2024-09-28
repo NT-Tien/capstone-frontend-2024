@@ -3,7 +3,7 @@ import { DrawerForm, ProForm, ProFormDigit, ProFormText, ProFormTextArea } from 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { App } from "antd"
 import qk from "@/old/querykeys"
-import Areas_Create from "@/app/admin/_api/areas/create.api"
+import Areas_Create from "@/features/admin/api/area/create.api"
 
 type FieldType = {
    name: string

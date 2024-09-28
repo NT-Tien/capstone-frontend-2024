@@ -1,8 +1,8 @@
 "use client"
 
-import Admin_Devices_All from "@/app/admin/_api/devices/all.api"
-import Admin_Devices_DeleteSoft from "@/app/admin/_api/devices/delete-soft.api"
-import Admin_Devices_Restore from "@/app/admin/_api/devices/restore.api"
+import Admin_Devices_All from "@/features/admin/api/device/all.api"
+import Admin_Devices_DeleteSoft from "@/features/admin/api/device/delete-soft.api"
+import Admin_Devices_Restore from "@/features/admin/api/device/restore.api"
 import CreateDeviceDrawer from "@/app/admin/devices/_components/create-device.drawer"
 import QrCodeModal from "@/app/admin/devices/_components/QrCode.modal"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"

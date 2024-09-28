@@ -3,7 +3,7 @@ import { DrawerForm, ProForm, ProFormDatePicker, ProFormText, ProFormTextArea } 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { App } from "antd"
 import qk from "@/old/querykeys"
-import Admin_MachineModels_Create, { Request } from "@/app/admin/_api/machine-model/create.api"
+import Admin_MachineModels_Create, { Request } from "@/features/admin/api/machine-model/create.api"
 import dayjs from "dayjs"
 
 type FieldType = Request

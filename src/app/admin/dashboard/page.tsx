@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { Button, Card, Select, Table, Typography } from "antd"
-import Admin_Devices_OneByAreaId from "../_api/devices/one-byAreaId.api"
+import Admin_Devices_OneByAreaId from "../../../features/admin/api/device/one-byAreaId.api"
 import { CheckSquareOffset, Note } from "@phosphor-icons/react"
 import CountUp from "react-countup"
 import { useState } from "react"

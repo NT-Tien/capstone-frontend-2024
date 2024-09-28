@@ -10,11 +10,11 @@ import { App, Button } from "antd"
 import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
 import { AreaDto } from "@/lib/domain/Area/Area.dto"
 import CreateAreaDrawer from "@/app/admin/area/_components/create-area.drawer"
-import Admin_Areas_DeleteSoft from "@/app/admin/_api/areas/delete-soft.api"
+import Admin_Areas_DeleteSoft from "@/features/admin/api/area/delete-soft.api"
 import { DeleteOutlined, RollbackOutlined } from "@ant-design/icons"
-import Admin_Areas_Restore from "@/app/admin/_api/areas/restore.api"
+import Admin_Areas_Restore from "@/features/admin/api/area/restore.api"
 import Link from "next/link"
-import Admin_Areas_All from "@/app/admin/_api/areas/all.api"
+import Admin_Areas_All from "@/features/admin/api/area/all.api"
 
 type types = {
    dto: AreaDto

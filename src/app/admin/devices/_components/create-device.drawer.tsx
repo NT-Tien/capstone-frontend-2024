@@ -3,9 +3,9 @@ import { DrawerForm, ProForm, ProFormDigit, ProFormSelect, ProFormTextArea } fro
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { App } from "antd"
 import qk from "@/old/querykeys"
-import Admin_Devices_Create, { Request } from "@/app/admin/_api/devices/create.api"
-import Admin_Areas_All from "@/app/admin/_api/areas/all.api"
-import Admin_MachineModel_All from "@/app/admin/_api/machine-model/all.api"
+import Admin_Devices_Create, { Request } from "@/features/admin/api/device/create.api"
+import Admin_Areas_All from "@/features/admin/api/area/all.api"
+import Admin_MachineModel_All from "@/features/admin/api/machine-model/all.api"
 
 type FieldType = Request & {
    area: string

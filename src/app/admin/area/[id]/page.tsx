@@ -2,7 +2,7 @@
 
 import { PageContainer } from "@ant-design/pro-layout"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import Admin_Areas_OneById from "@/app/admin/_api/areas/one-byId.api"
+import Admin_Areas_OneById from "@/features/admin/api/area/one-byId.api"
 import qk from "@/old/querykeys"
 import { App, Button, Tag } from "antd"
 import { LeftOutlined } from "@ant-design/icons"
@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { useRef } from "react"
 import { AreaDto } from "@/lib/domain/Area/Area.dto"
-import Admin_Areas_Update from "@/app/admin/_api/areas/update.api"
+import Admin_Areas_Update from "@/features/admin/api/area/update.api"
 import dayjs from "dayjs"
 
 type types = {

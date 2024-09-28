@@ -10,11 +10,11 @@ import { App, Button } from "antd"
 import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
 import { DeleteOutlined, RollbackOutlined } from "@ant-design/icons"
 import Link from "next/link"
-import Admin_SpareParts_DeleteSoft from "@/app/admin/_api/spare-parts/delete-soft.api"
-import Admin_SpareParts_Restore from "@/app/admin/_api/spare-parts/restore.api"
+import Admin_SpareParts_DeleteSoft from "@/features/admin/api/spare-part/delete-soft.api"
+import Admin_SpareParts_Restore from "@/features/admin/api/spare-part/restore.api"
 import CreateSparePartDrawer from "@/app/admin/spare-parts/_components/create-spare-part.drawer"
 import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
-import Admin_SpareParts_All from "@/app/admin/_api/spare-parts/all.api"
+import Admin_SpareParts_All from "@/features/admin/api/spare-part/all.api"
 
 type types = {
    dto: SparePartDto

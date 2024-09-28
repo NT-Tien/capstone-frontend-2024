@@ -10,8 +10,8 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { App } from "antd"
 import qk from "@/old/querykeys"
-import Admin_SpareParts_Create, { Request } from "@/app/admin/_api/spare-parts/create.api"
-import Admin_MachineModel_All from "@/app/admin/_api/machine-model/all.api"
+import Admin_SpareParts_Create, { Request } from "@/features/admin/api/spare-part/create.api"
+import Admin_MachineModel_All from "@/features/admin/api/machine-model/all.api"
 
 type FieldType = Request
 

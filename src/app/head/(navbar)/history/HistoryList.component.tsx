@@ -11,10 +11,10 @@ import { FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 
 type Props = {
    requests: RequestDto[] | undefined
-   status: FixRequestStatuses | undefined
+   // status: FixRequestStatuses | undefined
 }
 
-function HistoryList({ requests, status }: Props) {
+function HistoryList({ requests }: Props) {
    const router = useRouter()
    const api_requests = useRequest_AllQuery()
 
@@ -58,6 +58,7 @@ function HistoryList({ requests, status }: Props) {
                <RequestCard
                   className={cn(
                      "w-full px-layout",
+                     index % 2 === 0 ? "bg-white" : "bg-gray-100",
                      item.is_seen === false &&
                         "border-[1px] border-green-100 bg-green-100 p-2 transition-all hover:bg-green-200",
                   )}

@@ -8,13 +8,32 @@ import { Card, Select } from "antd"
 import dayjs from "dayjs"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { ReactNode, useMemo, useState } from "react"
 import CountUp from "react-countup"
 import useRequest_AllQuery from "@/features/head-department/queries/Request_All.query"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
 
 type FilterOptions = "today" | "this week" | "this month" | "this year"
 
-function Page() {
+type Props = {
+   id: string
+   machineModelName: string
+   createdDate: string
+   status?: FixRequestStatus
+   positionX: number
+   positionY: number
+   note?: string
+   area: string
+   onClick?: (id: string) => void
+   index: number
+   className?: string
+   new?: boolean
+   requester?: string
+   dto?: RequestDto
+   hasCheck?: boolean
+}
+
+function Page({ items = [] }: { items?: Props[] }) {
    const router = useRouter()
 
    const [filter, setFilter] = useState<FilterOptions>("today")
@@ -66,6 +85,9 @@ function Page() {
       return counts
    }, [api_requests.data, filter])
 
+   const sortedItems = Array.isArray(items)
+      ? items.sort((a, b) => (dayjs(b.createdDate).isAfter(dayjs(a.createdDate)) ? 1 : -1))
+      : []
    return (
       <div className="pb-2">
          <div>
@@ -88,7 +110,7 @@ function Page() {
          <div className="std-layout">
             <section className="mt-5">
                <div className="flex items-center justify-between">
-                  <div className="text-2xl font-bold">Dashboard</div>
+                  <div className="text-2xl font-bold">Thống kê</div>
                   <Select
                      placeholder="Lọc dữ liệu"
                      value={filter}
@@ -102,6 +124,20 @@ function Page() {
                      ]}
                   />
                </div>
+            </section>
+            <section className="mt-3 space-y-2">
+               {sortedItems.map((item) => (
+                  <Card key={item.id} onClick={() => item.onClick?.(item.id)} className={item.className}>
+                     <div>
+                        <h3>{item.machineModelName}</h3>
+                        <p>
+                           Position: X {item.positionX}, Y {item.positionY}
+                        </p>
+                        <p>Area: {item.area}</p>
+                        {/* <p>Created Date: {dayjs(item.createdDate).format("YYYY-MM-DD HH:mm")}</p> */}
+                     </div>
+                  </Card>
+               ))}
             </section>
             <section className="mt-3 space-y-2">
                <Card

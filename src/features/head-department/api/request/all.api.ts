@@ -4,12 +4,11 @@ import Cookies from "js-cookie"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 
 export type Response = RequestDto[]
-
 Head_Request_All.URL = "/head/request"
 export default async function Head_Request_All(): Promise<Response> {
    return api
       .get<Response>(Head_Request_All.URL, {
-         transformResponse: (data) => parseApiResponse(data),
+         transformResponse: (data) => parseApiResponse<any>(data),
          headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,
          },

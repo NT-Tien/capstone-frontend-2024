@@ -11,7 +11,6 @@ import { FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 
 type Props = {
    requests: RequestDto[] | undefined
-   // status: FixRequestStatuses | undefined
 }
 
 function HistoryList({ requests }: Props) {

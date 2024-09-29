@@ -165,7 +165,7 @@ function Page({ items = [] }: { items?: Props[] }) {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#FBEFDA] p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-50 p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.PENDING.toLowerCase()}`)}
                   classNames={{
@@ -219,7 +219,7 @@ function Page({ items = [] }: { items?: Props[] }) {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#FBEFDA] p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-50 p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.IN_PROGRESS.toLowerCase()}`)}
                   classNames={{
@@ -273,7 +273,7 @@ function Page({ items = [] }: { items?: Props[] }) {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#FBEFDA] p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-50 p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.REJECTED.toLowerCase()}`)}
                   classNames={{

@@ -4,13 +4,15 @@ import PageHeader from "@/components/layout/PageHeader"
 import { FixRequest_StatusData, FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { AddressBook } from "@phosphor-icons/react"
-import { Card, Spin, Tabs } from "antd"
+import { Card, Input, Spin, Tabs } from "antd"
 import Image from "next/image"
 import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils/cn.util"
 import HistoryList from "./HistoryList.component"
 import useRequest_AllQuery from "@/features/head-department/queries/Request_All.query"
+import { SearchOutlined, FilterOutlined } from "@ant-design/icons"
+import Segmented from "antd/es/segmented"
 
 function Page() {
    return (
@@ -23,14 +25,14 @@ function Page() {
 function Component() {
    const searchParams = useSearchParams()
    const router = useRouter()
-   const [tab, setTab] = useState<FixRequestStatus | undefined>(undefined)
+   const [tab, setTab] = useState<FixRequestStatuses | undefined>(undefined)
 
    const { data: requests, isLoading } = useRequest_AllQuery()
 
    const filteredRequests = tab ? requests?.filter((req) => req.status === tab.toUpperCase()) : requests
 
-   function handleChangeTab(tabKey: FixRequestStatus) {
-      setTab(tabKey as FixRequestStatus)
+   function handleChangeTab(tabKey: FixRequestStatuses) {
+      setTab(tabKey as FixRequestStatuses)
 
       const tabURL = new URLSearchParams()
       tabURL.set("status", tabKey)
@@ -43,12 +45,12 @@ function Component() {
       if (status) {
          const allStatuses = Object.values(FixRequestStatus)
          if (allStatuses.includes(status as FixRequestStatus)) {
-            setTab(status as FixRequestStatus)
+            setTab(status as FixRequestStatuses)
          }
          return
       }
 
-      setTab(tab)
+      setTab("pending")
    }, [searchParams])
 
    const statusCounts = Object.values(FixRequestStatus).reduce(
@@ -74,18 +76,27 @@ function Component() {
                objectFit: "fill",
             }}
          />
-         <Tabs
-            className="std-layout-outer relative z-30"
-            activeKey={tab}
-            onChange={(e) => handleChangeTab(e as FixRequestStatus)}
-            items={(
+         <Input
+            type="text"
+            className="relative z-30 w-full rounded-full border border-neutral-200 bg-neutral-100 px-4 py-3 mb-2"
+            placeholder="Tìm kiếm"
+            prefix={<SearchOutlined className="mr-2" />}
+            suffix={<FilterOutlined />}
+         />
+
+         <Segmented
+            className="hide-scrollbar mt-layout w-full overflow-auto"
+            value={tab}
+            onChange={(value) => handleChangeTab(value as FixRequestStatuses)}
+            options={(
                ["pending", "approved", "in_progress", "head_confirm", "closed", "rejected"] as FixRequestStatuses[]
             ).map((status, index, array) => ({
-               key: FixRequest_StatusData(status).statusEnum,
+               className: "p-1",
+               value: status,
                label: (
                   <div
                      className={cn(
-                        "flex w-min items-center justify-center gap-3 break-words font-base",
+                        "flex w-min items-center justify-center gap-3 break-words font-medium",
                         index === 0 && "ml-layout",
                         index === array.length - 1 && "mr-layout",
                      )}

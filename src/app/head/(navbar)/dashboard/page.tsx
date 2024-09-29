@@ -112,6 +112,7 @@ function Page({ items = [] }: { items?: Props[] }) {
                <div className="flex items-center justify-between">
                   <div className="text-2xl font-bold">Thống kê</div>
                   <Select
+                  className="w-44 text-center"
                      placeholder="Lọc dữ liệu"
                      value={filter}
                      onChange={(value) => setFilter(value)}

@@ -17,13 +17,15 @@ import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import ModalConfirm from "@/old/ModalConfirm"
 import useRequest_OneByIdQuery from "@/features/head-department/queries/Request_OneById.query"
 import useCancelRequestMutation from "@/features/head-department/mutations/CancelRequest.mutation"
+import PageHeader from "@/components/layout/PageHeader"
+import Image from "next/image"
 
 export default function HistoryDetails({
    params,
    searchParams,
 }: {
    params: { id: string }
-   searchParams: { return?: "scan" }
+   searchParams: { return?: "scan"; viewingHistory?: string }
 }) {
    const router = useRouter()
 
@@ -52,21 +54,31 @@ export default function HistoryDetails({
       )
    }, [api_requests.data?.issues, api_requests.isSuccess])
 
+   function handleBack() {
+      if (searchParams.viewingHistory === "true") {
+         router.back()
+      } else {
+         router.push(`/head/history?status=${api_requests.data?.status}`)
+      }
+   }
+
    return (
-      <div className="std-layout">
-         <RootHeader
-            title="Thông tin báo cáo"
-            className="std-layout-outer p-4"
-            icon={<LeftOutlined />}
-            onIconClick={() => {
-               if (searchParams.return === "scan") {
-                  if (api_requests.isSuccess) router.replace(`/head/scan/${api_requests.data?.device.id}`)
-               } else {
-                  router.replace("/head/history")
-               }
-            }}
-            buttonProps={{
-               type: "text",
+      <div className="std-layout relative h-max min-h-full bg-white pb-24">
+         <PageHeader
+            title={searchParams.viewingHistory === "true" ? "Quay Lại | Yêu cầu" : "Yêu cầu"}
+            handleClickIcon={handleBack}
+            icon={PageHeader.BackIcon}
+            className="std-layout-outer relative z-30"
+         />
+         <Image
+            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
+            src="/images/requests.jpg"
+            alt="image"
+            width={784}
+            height={100}
+            style={{
+               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
             }}
          />
          {api_requests.isError ? (
@@ -117,49 +129,88 @@ export default function HistoryDetails({
             )
          ) : (
             <>
-               <section className="mt-layout">
-                  <ProDescriptions
-                     labelStyle={{
-                        fontSize: "1rem",
-                     }}
-                     contentStyle={{
-                        fontSize: "1rem",
-                     }}
-                     title={<span className="text-lg">{"Cụ thể"}</span>}
-                     extra={
-                        <Tag color={FixRequest_StatusMapper(api_requests.data).color}>
-                           {FixRequest_StatusMapper(api_requests.data).text}
-                        </Tag>
-                     }
+               <section className="relative z-50 rounded-lg border-2 border-neutral-200 bg-white shadow-lg">
+                  <h2 className="mt-2 mb-2 px-layout text-lg font-semibold">
+                     <Skeleton paragraph={false} active={api_requests.isPending} loading={api_requests.isPending}>
+                        Thông tin yêu cầu
+                     </Skeleton>
+                  </h2>
+                  <DataListView
+                     bordered
                      dataSource={api_requests.data}
-                     loading={api_requests.isPending}
-                     size="small"
-                     columns={[
+                     itemClassName="py-2"
+                     labelClassName="font-normal text-neutral-400 text-[14px]"
+                     valueClassName="text-[14px] font-medium"
+                     items={[
                         {
-                           title: "Ngày tạo",
-                           dataIndex: "createdAt",
-                           render: (_, e) => dayjs(e.createdAt).add(7, "hours").format("YYYY-MM-DD HH:mm:ss"),
+                           label: "Ngày tạo",
+                           value: (e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                         },
                         {
-                           title: "Cập nhật lần cuối",
-                           dataIndex: "updatedAt",
-                           render: (_, e) =>
-                              e.createdAt === e.updatedAt
-                                 ? "-"
-                                 : dayjs(e.updatedAt).add(7, "hours").format("YYYY-MM-DD HH:mm:ss"),
+                           label: "Người yêu cầu",
+                           value: (e) => e.requester?.username ?? "-",
                         },
                         {
-                           title: "Báo cáo bởi",
-                           dataIndex: ["requester", "username"],
+                           label: "Trạng thái",
+                           value: (e) => (
+                              <Tag className="m-0" color={FixRequest_StatusMapper(e).colorInverse}>
+                                 {FixRequest_StatusMapper(e).text}
+                              </Tag>
+                           ),
                         },
                         {
-                           title: "Ghi chú",
-                           dataIndex: "requester_note",
+                           label: "Ghi chú",
+                           value: (e) => e.requester_note,
+                        },
+                        {
+                           isDivider: true,
+                           label: "",
+                           value: () => null,
+                        },
+                     ]}
+                  />
+                  <h2 className="mb-2 px-layout text-lg font-semibold">
+                     <Skeleton paragraph={false} active={api_requests.isPending} loading={api_requests.isPending}>
+                        Chi tiết thiết bị
+                     </Skeleton>
+                  </h2>
+                  <DataListView
+                     dataSource={api_requests.data?.device}
+                     bordered
+                     itemClassName="py-2"
+                     labelClassName="font-normal text-neutral-500 text-base"
+                     valueClassName="text-base"
+                     items={[
+                        {
+                           label: "Mẫu máy",
+                           value: (s) => s.machineModel?.name,
+                        },
+                        {
+                           label: "Khu vực",
+                           value: (s) => s.area?.name,
+                        },
+                        {
+                           label: "Vị trí (x, y)",
+                           value: (s) => (
+                              <a className="flex items-center gap-1">
+                                 {s.positionX} x {s.positionY}
+                                 <MapPin size={16} weight="fill" />
+                              </a>
+                           ),
+                        },
+                        {
+                           label: "Mô tả",
+                           value: (s) => s.description,
                         },
                      ]}
                   />
                </section>
-               <section className="mt-3">
+               <section className="relative z-50 mt-3 rounded-lg border-2 border-neutral-200 bg-white shadow-lg">
+               <h2 className="mt-2 mb-2 px-layout text-lg font-semibold">
+                     <Skeleton paragraph={false} active={api_requests.isPending} loading={api_requests.isPending}>
+                        Tiến độ công việc
+                     </Skeleton>
+                  </h2>
                   <Card size="small" loading={api_requests.isPending}>
                      <Steps
                         size="small"
@@ -294,43 +345,6 @@ export default function HistoryDetails({
                      </Card>
                   </section>
                )}
-               <section className="std-layout-outer mt-6 bg-white py-layout">
-                  <h2 className="mb-2 px-layout text-lg font-semibold">
-                     <Skeleton paragraph={false} active={api_requests.isPending} loading={api_requests.isPending}>
-                        Chi tiết thiết bị
-                     </Skeleton>
-                  </h2>
-                  <DataListView
-                     dataSource={api_requests.data?.device}
-                     bordered
-                     itemClassName="py-2"
-                     labelClassName="font-normal text-neutral-500 text-base"
-                     valueClassName="text-base"
-                     items={[
-                        {
-                           label: "Mẫu máy",
-                           value: (s) => s.machineModel?.name,
-                        },
-                        {
-                           label: "Khu vực",
-                           value: (s) => s.area?.name,
-                        },
-                        {
-                           label: "Vị trí (x, y)",
-                           value: (s) => (
-                              <a className="flex items-center gap-1">
-                                 {s.positionX} x {s.positionY}
-                                 <MapPin size={16} weight="fill" />
-                              </a>
-                           ),
-                        },
-                        {
-                           label: "Mô tả",
-                           value: (s) => s.description,
-                        },
-                     ]}
-                  />
-               </section>
             </>
          )}
       </div>

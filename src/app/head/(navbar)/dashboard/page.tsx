@@ -8,13 +8,32 @@ import { Card, Select } from "antd"
 import dayjs from "dayjs"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { ReactNode, useMemo, useState } from "react"
 import CountUp from "react-countup"
 import useRequest_AllQuery from "@/features/head-department/queries/Request_All.query"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
 
 type FilterOptions = "today" | "this week" | "this month" | "this year"
 
-function Page() {
+type Props = {
+   id: string
+   machineModelName: string
+   createdDate: string
+   status?: FixRequestStatus
+   positionX: number
+   positionY: number
+   note?: string
+   area: string
+   onClick?: (id: string) => void
+   index: number
+   className?: string
+   new?: boolean
+   requester?: string
+   dto?: RequestDto
+   hasCheck?: boolean
+}
+
+function Page({ items = [] }: { items?: Props[] }) {
    const router = useRouter()
 
    const [filter, setFilter] = useState<FilterOptions>("today")
@@ -66,6 +85,9 @@ function Page() {
       return counts
    }, [api_requests.data, filter])
 
+   const sortedItems = Array.isArray(items)
+      ? items.sort((a, b) => (dayjs(b.createdDate).isAfter(dayjs(a.createdDate)) ? 1 : -1))
+      : []
    return (
       <div className="pb-2">
          <div>
@@ -88,8 +110,9 @@ function Page() {
          <div className="std-layout">
             <section className="mt-5">
                <div className="flex items-center justify-between">
-                  <div className="text-2xl font-bold">Dashboard</div>
+                  <div className="text-2xl font-bold">Thống kê</div>
                   <Select
+                  className="w-44 text-center"
                      placeholder="Lọc dữ liệu"
                      value={filter}
                      onChange={(value) => setFilter(value)}
@@ -104,8 +127,22 @@ function Page() {
                </div>
             </section>
             <section className="mt-3 space-y-2">
+               {sortedItems.map((item) => (
+                  <Card key={item.id} onClick={() => item.onClick?.(item.id)} className={item.className}>
+                     <div>
+                        <h3>{item.machineModelName}</h3>
+                        <p>
+                           Position: X {item.positionX}, Y {item.positionY}
+                        </p>
+                        <p>Area: {item.area}</p>
+                        {/* <p>Created Date: {dayjs(item.createdDate).format("YYYY-MM-DD HH:mm")}</p> */}
+                     </div>
+                  </Card>
+               ))}
+            </section>
+            <section className="mt-3 space-y-2">
                <Card
-                  className="flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-orange-200 p-0 text-center shadow-md"
+                  className="flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#daecf5] p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history`)}
                   classNames={{
@@ -128,7 +165,7 @@ function Page() {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-50 p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.PENDING.toLowerCase()}`)}
                   classNames={{
@@ -155,7 +192,7 @@ function Page() {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-green-200 p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#daecf5] p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.APPROVED.toLowerCase()}`)}
                   classNames={{
@@ -182,7 +219,7 @@ function Page() {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-blue-200 p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-50 p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.IN_PROGRESS.toLowerCase()}`)}
                   classNames={{
@@ -209,7 +246,7 @@ function Page() {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-purple-200 p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#daecf5] p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.HEAD_CONFIRM.toLowerCase()}`)}
                   classNames={{
@@ -236,7 +273,7 @@ function Page() {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-red-200 p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-50 p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.REJECTED.toLowerCase()}`)}
                   classNames={{
@@ -263,7 +300,7 @@ function Page() {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#daecf5] p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.CLOSED.toLowerCase()}`)}
                   classNames={{

@@ -1,5 +1,4 @@
-import { Avatar, Button } from "antd"
-import { MoreOutlined } from "@ant-design/icons"
+import { Avatar } from "antd"
 import { ReactNode, useMemo } from "react"
 import { cn } from "@/lib/utils/cn.util"
 

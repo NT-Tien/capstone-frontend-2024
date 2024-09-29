@@ -142,7 +142,7 @@ function Page({ items = [] }: { items?: Props[] }) {
             </section>
             <section className="mt-3 space-y-2">
                <Card
-                  className="flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-orange-200 p-0 text-center shadow-md"
+                  className="flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#daecf5] p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history`)}
                   classNames={{
@@ -165,7 +165,7 @@ function Page({ items = [] }: { items?: Props[] }) {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#FBEFDA] p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.PENDING.toLowerCase()}`)}
                   classNames={{
@@ -192,7 +192,7 @@ function Page({ items = [] }: { items?: Props[] }) {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-green-200 p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#daecf5] p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.APPROVED.toLowerCase()}`)}
                   classNames={{
@@ -219,7 +219,7 @@ function Page({ items = [] }: { items?: Props[] }) {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-blue-200 p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#FBEFDA] p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.IN_PROGRESS.toLowerCase()}`)}
                   classNames={{
@@ -246,7 +246,7 @@ function Page({ items = [] }: { items?: Props[] }) {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-purple-200 p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#daecf5] p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.HEAD_CONFIRM.toLowerCase()}`)}
                   classNames={{
@@ -273,7 +273,7 @@ function Page({ items = [] }: { items?: Props[] }) {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-red-200 p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#FBEFDA] p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.REJECTED.toLowerCase()}`)}
                   classNames={{
@@ -300,7 +300,7 @@ function Page({ items = [] }: { items?: Props[] }) {
                   </div>
                </Card>
                <Card
-                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-md"
+                  className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-[#daecf5] p-0 text-center shadow-md"
                   loading={api_requests.isPending}
                   onClick={() => router.push(`history?status=${FixRequestStatus.CLOSED.toLowerCase()}`)}
                   classNames={{

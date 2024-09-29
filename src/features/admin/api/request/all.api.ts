@@ -4,7 +4,7 @@ import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
 
-export type Request = {
+type Request = {
    page: number
    limit: number
    status: FixRequestStatus
@@ -12,9 +12,7 @@ export type Request = {
 }
 type Response = RequestDto[]
 
-Admin_Requests_All.URL = ({ page, limit, status, time = 1 }: Request) =>
-   `/admin/request/${page}/${limit}/${status}?time=${time}&all=true`
-export default async function Admin_Requests_All(request: Request): Promise<Response> {
+async function Admin_Requests_All(request: Request): Promise<Response> {
    return api
       .get<Response>(Admin_Requests_All.URL(request), {
          transformResponse: (data) => parseApiResponse<any>(data, (res) => res.data),
@@ -28,3 +26,9 @@ export default async function Admin_Requests_All(request: Request): Promise<Resp
       })
       .then((res) => res.data)
 }
+
+Admin_Requests_All.URL = ({ page, limit, status, time = 1 }: Request) =>
+   `/admin/request/${page}/${limit}/${status}?time=${time}&all=true`
+
+export default Admin_Requests_All
+export type { Request, Response }

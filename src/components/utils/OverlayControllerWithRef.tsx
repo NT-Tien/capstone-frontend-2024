@@ -32,7 +32,9 @@ const OverlayControllerWithRef = forwardRef<RefType<any>, Props<any>>(function C
       onOpen: (props?: T) => {
          setComponentProps(props)
       },
-      onClose: () => {},
+      onClose: () => {
+         setComponentProps(undefined)
+      },
    })
 
    useImperativeHandle(ref, () => ({
@@ -44,6 +46,7 @@ const OverlayControllerWithRef = forwardRef<RefType<any>, Props<any>>(function C
       const isOpen = open,
          onClose = handleClose,
          onCancel = handleClose
+
       function onOpenChange(open: boolean) {
          if (!open) {
             handleClose()
@@ -51,6 +54,7 @@ const OverlayControllerWithRef = forwardRef<RefType<any>, Props<any>>(function C
             handleOpen()
          }
       }
+
       return Children.map(props.children, (child) => {
          if (isValidElement(child)) {
             return cloneElement<any>(child, {

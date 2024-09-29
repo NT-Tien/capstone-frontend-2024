@@ -233,4 +233,13 @@ body {
 /* .ant-pro-checkcard-content {
     padding: 0 !important;
   } */
-  
+
+.custom-pagecontainer-admin {
+    .ant-tabs-nav {
+        margin-bottom: 0 !important;
+    }
+
+    .ant-page-header {
+        padding-bottom: 0 !important;
+    }
+}

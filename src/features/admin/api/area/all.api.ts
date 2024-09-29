@@ -3,6 +3,7 @@ import api from "@/config/axios.config"
 import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
 
+export type Request = {}
 export type Response = AreaDto[]
 
 Admin_Areas_All.URL = "/admin/area"

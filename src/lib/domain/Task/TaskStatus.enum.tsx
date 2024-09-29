@@ -20,6 +20,8 @@ export const TaskStatusTagMapper: {
       colorInverse?: LiteralUnion<PresetColorType | PresetStatusColorType>
       icon: ReactNode
       className: string
+      description: string
+      index: number
    }
 } = {
    [TaskStatus.AWAITING_FIXER]: {
@@ -27,6 +29,8 @@ export const TaskStatusTagMapper: {
       color: "default",
       icon: <UserMinus size={16} />,
       className: "text-lime-600",
+      description: "Tác vụ chưa được phân công cho nhân viên sửa chữa",
+      index: 0,
    },
    [TaskStatus.AWAITING_SPARE_SPART]: {
       text: "Chờ linh kiện",
@@ -34,6 +38,8 @@ export const TaskStatusTagMapper: {
       color: "orange",
       icon: <Package size={16} />,
       className: "text-orange-500",
+      description: "Tác vụ đang chờ linh kiện để tiếp tục sửa chữa",
+      index: 1,
    },
    [TaskStatus.ASSIGNED]: {
       text: "Đã phân công",
@@ -41,6 +47,8 @@ export const TaskStatusTagMapper: {
       color: "blue",
       icon: <Tray size={16} />,
       className: "text-neutral-500",
+      description: "Tác vụ đang chờ nhân viên thực hiện",
+      index: 2,
    },
    [TaskStatus.IN_PROGRESS]: {
       text: "Đang làm",
@@ -48,6 +56,8 @@ export const TaskStatusTagMapper: {
       color: "processing",
       icon: <Wrench size={16} />,
       className: "text-blue-500",
+      description: "Tác vụ đang được thực hiện",
+      index: 3,
    },
    [TaskStatus.HEAD_STAFF_CONFIRM]: {
       text: "Chờ kiểm tra",
@@ -55,6 +65,8 @@ export const TaskStatusTagMapper: {
       color: "processing",
       icon: <Note size={16} />,
       className: "text-gold-500",
+      description: "Tác vụ đang chờ phê duyệt từ trưởng bảo trì",
+      index: 4,
    },
    [TaskStatus.COMPLETED]: {
       text: "Hoàn thành",
@@ -62,6 +74,8 @@ export const TaskStatusTagMapper: {
       color: "green",
       icon: <SealCheck size={16} />,
       className: "text-green-500",
+      description: "Tác vụ đã hoàn thành",
+      index: 5,
    },
    [TaskStatus.CANCELLED]: {
       text: "Đã hủy",
@@ -69,6 +83,8 @@ export const TaskStatusTagMapper: {
       color: "red",
       icon: <XCircle size={16} />,
       className: "text-red-500",
+      description: "Tác vụ đã bị hủy",
+      index: 6,
    },
    undefined: {
       text: "-",
@@ -76,5 +92,7 @@ export const TaskStatusTagMapper: {
       color: "default",
       icon: <Tray size={16} />,
       className: "text-neutral-500",
+      description: "Không xác định",
+      index: -1,
    },
 }

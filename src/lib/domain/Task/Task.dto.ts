@@ -1,4 +1,3 @@
-import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"

@@ -1,14 +1,15 @@
-import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import api from "@/config/axios.config"
 import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
 
-type Response = MachineModelDto[]
+export type Request = { id: string }
+export type Response = RequestDto
 
-Admin_MachineModel_All.URL = "/admin/machine-model"
-export default async function Admin_MachineModel_All(): Promise<Response> {
+Admin_Request_OneById.URL = (req: Request) => `/admin/request/one/${req.id}`
+export default async function Admin_Request_OneById(req: Request): Promise<Response> {
    return api
-      .get<Response>(Admin_MachineModel_All.URL, {
+      .get<Response>(Admin_Request_OneById.URL(req), {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,

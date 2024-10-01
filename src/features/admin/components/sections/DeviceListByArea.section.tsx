@@ -31,6 +31,7 @@ function DeviceListByAreaSection(props: Props) {
          order: "ASC",
          orderBy: "position",
       },
+      search: {},
    })
 
    const api_devices = admin_queries.device.all_filterAndSort({
@@ -38,12 +39,12 @@ function DeviceListByAreaSection(props: Props) {
       limit: query.limit,
       filters: {
          areaId: props.areaId,
-         positionX: query.search?.positionX,
-         positionY: query.search?.positionY,
+         positionX: Number(query.search?.positionX),
+         positionY: Number(query.search?.positionY),
       },
       sort: {
          order: query.sort?.order,
-         orderBy: query.sort?.orderBy,
+         orderBy: query.sort?.orderBy as any,
       },
    })
 
@@ -52,7 +53,7 @@ function DeviceListByAreaSection(props: Props) {
          dataSource={api_devices.data?.list}
          loading={api_devices.isPending}
          scroll={{ x: "max-content" }}
-         onSubmit={(props: QueryType["search"]) => {
+         onSubmit={(props: QueryState["search"]) => {
             setQuery((prev) => ({
                ...prev,
                search: {
@@ -64,10 +65,11 @@ function DeviceListByAreaSection(props: Props) {
             setQuery((prev) => ({
                page: 1,
                limit: 10,
+               search: {},
+               sort: {},
             }))
          }}
          onChange={(page, filters, sorter, extra) => {
-            console.log(sorter.field)
             let order, orderBy
             if (Array.isArray(sorter)) {
                order = sorter[0].order === "descend" ? "DESC" : "ASC"

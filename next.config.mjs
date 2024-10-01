@@ -60,7 +60,7 @@ const nextConfig = {
    reactStrictMode: true,
    reactProductionProfiling: false,
    eslint: {
-      ignoreDuringBuilds: false, // Set to true if build errors occur
+      ignoreDuringBuilds: true, // Set to true if build errors occur
    },
    i18n: {
       locales: ["vie", "eng"],

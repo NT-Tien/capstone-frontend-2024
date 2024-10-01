@@ -65,37 +65,37 @@ function Page({ params }: { params: { id: string } }) {
       }
    }, [api_request.isSuccess, api_request.data])
 
-   const spareParts = useMemo(() => {
-      if (!api_request.isSuccess || !api_request.data.issues || api_request.data.issues.length === 0) return {}
-
-      const returnValue: {
-         [sparePartId: string]: {
-            sparePart: SparePartDto
-            issueSpareParts: IssueSparePartDto[]
-            totalNeeded: number
-         }
-      } = {}
-
-      const issueSparePartsList = api_request.data.issues.map((issue) => issue.issueSpareParts).flat()
-
-      issueSparePartsList.forEach((issueSparePart) => {
-         if (!issueSparePart.sparePart) return {}
-         const currentSparePartId = issueSparePart.sparePart?.id
-         if (!returnValue[currentSparePartId]) {
-            returnValue[currentSparePartId] = {
-               sparePart: issueSparePart.sparePart,
-               issueSpareParts: [],
-               totalNeeded: 0,
-            }
-         }
-
-         const { sparePart, ...issueSparePart_ } = issueSparePart
-         returnValue[currentSparePartId].issueSpareParts.push(issueSparePart_ as any)
-         returnValue[currentSparePartId].totalNeeded += issueSparePart.quantity
-      })
-
-      return Object.values(returnValue)
-   }, [api_request.isSuccess, api_request.data?.issues])
+   // const spareParts = useMemo(() => {
+   //    if (!api_request.isSuccess || !api_request.data.issues || api_request.data.issues.length === 0) return {}
+   //
+   //    const returnValue: {
+   //       [sparePartId: string]: {
+   //          sparePart: SparePartDto
+   //          issueSpareParts: IssueSparePartDto[]
+   //          totalNeeded: number
+   //       }
+   //    } = {}
+   //
+   //    const issueSparePartsList = api_request.data.issues.map((issue) => issue.issueSpareParts).flat()
+   //
+   //    issueSparePartsList.forEach((issueSparePart) => {
+   //       if (!issueSparePart.sparePart) return {}
+   //       const currentSparePartId = issueSparePart.sparePart?.id
+   //       if (!returnValue[currentSparePartId]) {
+   //          returnValue[currentSparePartId] = {
+   //             sparePart: issueSparePart.sparePart,
+   //             issueSpareParts: [],
+   //             totalNeeded: 0,
+   //          }
+   //       }
+   //
+   //       const { sparePart, ...issueSparePart_ } = issueSparePart
+   //       returnValue[currentSparePartId].issueSpareParts.push(issueSparePart_ as any)
+   //       returnValue[currentSparePartId].totalNeeded += issueSparePart.quantity
+   //    })
+   //
+   //    return Object.values(returnValue)
+   // }, [api_request.isSuccess, api_request.data?.issues])
 
    return (
       <>
@@ -159,16 +159,16 @@ function Page({ params }: { params: { id: string } }) {
                      <Steps
                         current={
                            api_request.isSuccess
-                              ? FixRequest_StatusData(api_request.data.status.toLowerCase()).index
+                              ? FixRequest_StatusData(api_request.data.status.toLowerCase() as any).index
                               : 0
                         }
                         items={(
                            ["pending", "approved", "in_progress", "head_confirm", "closed"] as FixRequestStatuses[]
                         ).map((status) => ({
-                           title: FixRequest_StatusData(status.toLowerCase()).text,
+                           title: FixRequest_StatusData(status).text,
                            description: (
                               <div className="text-xs text-neutral-500">
-                                 {FixRequest_StatusData(status.toLowerCase()).description}
+                                 {FixRequest_StatusData(status).description}
                               </div>
                            ),
                         }))}
@@ -326,39 +326,39 @@ function Page({ params }: { params: { id: string } }) {
                      </Card>
                   ),
                },
-               {
-                  tab: `Linh kiện sử dụng (${spareParts?.length ?? "0"})`,
-                  children: (
-                     <>
-                        <Card>
-                           <h3 className="mb-2 text-lg font-bold">Linh kiện sử dụng ({spareParts.length})</h3>
-                           <List
-                              size="small"
-                              dataSource={spareParts}
-                              renderItem={(item) => (
-                                 <List.Item
-                                    className={cn("px-0", item.totalNeeded > item.sparePart.quantity && "bg-yellow-50")}
-                                 >
-                                    <List.Item.Meta
-                                       title={
-                                          <div className="flex items-center justify-between">
-                                             <h4 className="">{item.sparePart.name}</h4>
-                                             <div className="flex gap-2">
-                                                {item.totalNeeded > item.sparePart.quantity && (
-                                                   <Tag color="yellow-inverse">Không đủ trong kho</Tag>
-                                                )}
-                                                <span className="text-neutral-500">(x{item.totalNeeded})</span>
-                                             </div>
-                                          </div>
-                                       }
-                                    />
-                                 </List.Item>
-                              )}
-                           />
-                        </Card>
-                     </>
-                  ),
-               },
+               // {
+               //    tab: `Linh kiện sử dụng (${spareParts.sparePart?.length ?? "0"})`,
+               //    children: (
+               //       <>
+               //          <Card>
+               //             <h3 className="mb-2 text-lg font-bold">Linh kiện sử dụng ({spareParts.length})</h3>
+               //             <List
+               //                size="small"
+               //                dataSource={spareParts}
+               //                renderItem={(item) => (
+               //                   <List.Item
+               //                      className={cn("px-0", item.totalNeeded > item.sparePart.quantity && "bg-yellow-50")}
+               //                   >
+               //                      <List.Item.Meta
+               //                         title={
+               //                            <div className="flex items-center justify-between">
+               //                               <h4 className="">{item.sparePart.name}</h4>
+               //                               <div className="flex gap-2">
+               //                                  {item.totalNeeded > item.sparePart.quantity && (
+               //                                     <Tag color="yellow-inverse">Không đủ trong kho</Tag>
+               //                                  )}
+               //                                  <span className="text-neutral-500">(x{item.totalNeeded})</span>
+               //                               </div>
+               //                            </div>
+               //                         }
+               //                      />
+               //                   </List.Item>
+               //                )}
+               //             />
+               //          </Card>
+               //       </>
+               //    ),
+               // },
             ]}
          ></PageContainer>
          <OverlayControllerWithRef ref={control_qrCode}>

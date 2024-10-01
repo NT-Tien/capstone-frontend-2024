@@ -1,3 +1,5 @@
+"use client"
+
 import { PageContainer } from "@ant-design/pro-layout"
 
 function Page() {

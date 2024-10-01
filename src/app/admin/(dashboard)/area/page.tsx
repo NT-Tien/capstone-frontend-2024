@@ -22,12 +22,17 @@ function Page() {
    const [query, setQuery] = useState<QueryProps>({
       page: 1,
       limit: 10,
+      search: {},
    })
 
    const api_areas = admin_queries.area.all({})
 
    const filtered_api_areas = useMemo(() => {
-      if (!api_areas.data) return []
+      if (!api_areas.data)
+         return {
+            list: [],
+            total: 0,
+         }
 
       const filtered = api_areas.data.filter((item) => {
          const matchName = query.search?.name
@@ -65,7 +70,7 @@ function Page() {
                   return newValues
                },
             }}
-            onSubmit={(props: QueryType["search"]) => {
+            onSubmit={(props: QueryProps["search"]) => {
                setQuery((prev) => ({
                   ...prev,
                   search: {
@@ -77,6 +82,7 @@ function Page() {
                setQuery((prev) => ({
                   page: 1,
                   limit: 10,
+                  search: {},
                }))
             }}
             onChange={(page, filters, sorter, extra) => {

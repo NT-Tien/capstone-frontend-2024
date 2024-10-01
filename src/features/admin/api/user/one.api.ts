@@ -1,10 +1,10 @@
 import api from "@/config/axios.config"
 import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
-import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { UserDto } from "@/lib/domain/User/User.dto"
 
 export type Request = { id: string }
-export type Response = TaskDto
+export type Response = UserDto
 
 Admin_User_OneById.URL = (req: Request) => `/admin/user/one/${req.id}`
 export default async function Admin_User_OneById(req: Request): Promise<Response> {

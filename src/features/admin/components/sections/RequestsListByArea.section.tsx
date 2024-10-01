@@ -8,7 +8,7 @@ import { CaretDown, CaretUp } from "@phosphor-icons/react"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { Progress, Tag, Tooltip } from "antd"
 import Link from "next/link"
-import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
+import { FixRequest_StatusData, FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
 import dayjs from "dayjs"
 import { ProTable } from "@ant-design/pro-components"
 
@@ -24,7 +24,7 @@ type QueryType = {
       createdAt?: string
       updatedAt?: string
       requester_note?: string
-      status?: FixRequestStatus
+      status?: any
       is_warranty?: string
    }
    sort?: {
@@ -226,10 +226,11 @@ function RequestsListByAreaSection(props: Props) {
                   <Tag color={FixRequest_StatusMapper(entity).color}>{FixRequest_StatusMapper(entity).text}</Tag>
                ),
                valueType: "select",
-               valueEnum: Object.keys(FixRequestStatus).reduce((acc, key) => {
-                  acc[key] = { text: FixRequest_StatusMapper({ status: key as FixRequestStatus }).text }
+               valueEnum: Object.keys(FixRequestStatus).reduce((acc: any, key: any) => {
+                  //@ts-ignore
+                  acc[key] = { text: FixRequest_StatusData(key.toLowerCase() as any).text }
                   return acc
-               }, {}),
+               }, {} as any),
             },
             {
                title: "Mẫu thiết bị",

@@ -98,7 +98,7 @@ export default function CreateSparePartDrawer({ children }: { children: (handleO
                request={async () => {
                   const data = await queryClient.ensureQueryData({
                      queryKey: qk.machineModels.all(),
-                     queryFn: () => Admin_MachineModel_All(),
+                     queryFn: () => Admin_MachineModel_All({}),
                   })
 
                   return data.map((model) => ({

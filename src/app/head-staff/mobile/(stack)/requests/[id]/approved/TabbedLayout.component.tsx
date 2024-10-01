@@ -194,7 +194,7 @@ function TabbedLayout(props: Props) {
                <div className="text-center text-sm">Thiết bị</div>
             </div>
          </nav>
-         <div className="flex h-full flex-1 flex-col rounded-t-2xl border-neutral-200 bg-neutral-100">
+         <div className="flex h-full flex-1 flex-col rounded-t-2xl border-neutral-200 bg-white shadow-fb">
             {tab === "tasks" && (
                <>
                   <TasksListTab api_request={props.api_request} className="flex-1" highlightTaskId={highlightedId} />

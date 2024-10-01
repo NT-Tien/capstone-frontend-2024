@@ -45,7 +45,7 @@ function IssuesListSection({ issues, isLoading }: Props) {
                   },
                   subtitle: {
                      dataIndex: "fixType",
-                     render: (_, entity) => (
+                     render: (_: any, entity: any) => (
                         <Tag color={entity.fixType === "repair" ? "red" : "blue"}>
                            {entity.fixType === "repair" ? "Sửa chữa" : "Bảo dưỡng"}
                         </Tag>

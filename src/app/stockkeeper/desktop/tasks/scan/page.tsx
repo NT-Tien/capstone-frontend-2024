@@ -73,7 +73,19 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
 
    const hasNoSpareParts = useMemo(() => {
       return api.spareParts.data?.length === 0
-   }, [api.spareParts.data])
+   }, [api.spareParts.data?.length])
+
+   const isRenewAndCollected = useMemo(() => {
+      return api.task.data?.device_renew && api.task.data?.confirmReceipt
+   }, [api.task.data?.confirmReceipt, api.task.data?.device_renew])
+
+   const isRenewAndNotCollected = useMemo(() => {
+      return api.task.data?.device_renew && !api.task.data?.confirmReceipt
+   }, [api.task])
+
+   const isNotRenew = useMemo(() => {
+      return !api.task.data?.device_renew
+   }, [api.task.data?.device_renew])
 
    return (
       <DesktopScannerDrawer
@@ -86,172 +98,227 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
          }}
       >
          {(handleOpen) => (
-            <PageContainer
-               title={`Quét QR`}
-               extra={[
-                  <Button key="back" onClick={() => handleOpen()} className={cn(!scannedResult && "hidden")}>
-                     Quét lại
-                  </Button>,
-                  <Button
-                     key="complete"
-                     className={cn(
-                        (!scannedResult ||
-                           hasSparePartsAndCollected ||
-                           hasNoSpareParts ||
-                           api.task.data?.status !== TaskStatus.ASSIGNED) &&
-                           "hidden",
-                     )}
-                     type="primary"
-                     onClick={() => createSignatureDrawerRef.current?.handleOpen()}
-                  >
-                     Hoàn tất lấy linh kiện
-                  </Button>,
-               ]}
-               content={
-                  <>
-                     {!scannedResult && (
-                        <div>
-                           <Button type="primary" className="w-full" size="large" onClick={() => handleOpen()}>
-                              Mở màn hình quét
-                           </Button>
-                           {/* <section className="mt-layout">
+            <DesktopScannerDrawer
+               drawerProps={{
+                  placement: "right",
+                  width: "max-content",
+               }}
+               alertText="Vui lòng xác nhận mã QR của thiết bị mới"
+               key="complete-renew"
+               onScan={(res) => {
+                  if (res !== api.task.data?.device_renew.id) {
+                     message.error("Thiết bị không khớp")
+                     return
+                  }
+                  setTimeout(() => {
+                     createSignatureDrawerRef.current?.handleOpen()
+                  }, 500)
+               }}
+            >
+               {(handleOpen1) => (
+                  <PageContainer
+                     title={`Quét QR`}
+                     extra={[
+                        <Button key="back" onClick={() => handleOpen()} className={cn(!scannedResult && "hidden")}>
+                           Quét lại
+                        </Button>,
+                        <Button
+                           key="complete"
+                           className={cn(
+                              (!scannedResult ||
+                                 hasSparePartsAndCollected ||
+                                 hasNoSpareParts ||
+                                 api.task.data?.status !== TaskStatus.ASSIGNED) &&
+                                 "hidden",
+                           )}
+                           type="primary"
+                           onClick={() => createSignatureDrawerRef.current?.handleOpen()}
+                        >
+                           Hoàn tất lấy linh kiện
+                        </Button>,
+
+                        <Button
+                           key="complete-1"
+                           className={cn(
+                              (!scannedResult ||
+                                 isRenewAndCollected ||
+                                 isNotRenew ||
+                                 api.task.data?.status !== TaskStatus.ASSIGNED) &&
+                                 "hidden",
+                           )}
+                           type="primary"
+                           onClick={() => handleOpen1()}
+                        >
+                           Quét QR Thiết bị mới
+                        </Button>,
+                     ]}
+                     content={
+                        <>
+                           {!scannedResult && (
+                              <div>
+                                 <Button type="primary" className="w-full" size="large" onClick={() => handleOpen()}>
+                                    Mở màn hình quét
+                                 </Button>
+                                 {/* <section className="mt-layout">
                               <h5 className="text-base font-medium">Lịch sử quét</h5>
                            </section> */}
-                        </div>
-                     )}
-
-                     {scannedResult && api.task.isSuccess && (
-                        <div>
-                           {!hasSparePartsButNotCollected && (
-                              <AlertCard text="Nhân viên chưa lấy linh kiện cho tác vụ này" className="mb-layout" />
+                              </div>
                            )}
-                           <Descriptions
-                              items={[
-                                 {
-                                    label: "Tên tác vụ",
-                                    children: api.task.data?.name,
-                                    span: 3,
+
+                           {scannedResult && api.task.isSuccess && (
+                              <div>
+                                 {hasSparePartsButNotCollected && (
+                                    <AlertCard
+                                       text="Nhân viên chưa lấy linh kiện cho tác vụ này"
+                                       className="mb-layout"
+                                    />
+                                 )}
+                                 {isRenewAndNotCollected && (
+                                    <AlertCard
+                                       text="Nhân viên chưa lấy thiết bị mới cho tác vụ này"
+                                       className="mb-layout"
+                                    />
+                                 )}
+                                 <Descriptions
+                                    items={[
+                                       {
+                                          label: "Tên tác vụ",
+                                          children: api.task.data?.name,
+                                          span: 3,
+                                       },
+                                       {
+                                          label: "Trạng thái",
+                                          children: TaskStatusTagMapper[api.task.data?.status ?? ""]?.text,
+                                       },
+                                       {
+                                          label: "Người sửa",
+                                          children: api.task.data?.fixer?.username ?? "-",
+                                       },
+                                       {
+                                          label: "Ngày sửa",
+                                          children: api.task.data?.fixerDate
+                                             ? dayjs(api.task.data?.fixerDate).format("DD/MM/YYYY")
+                                             : "-",
+                                       },
+                                       {
+                                          label: "Mức độ ưu tiên",
+                                          children: api.task.data?.priority ? "Ưu tiên" : "Bình thường",
+                                       },
+                                       {
+                                          label: "Linh kiện",
+                                          children: api.task.data.confirmReceipt ? "Đã lấy" : "Chưa lấy",
+                                       },
+                                    ]}
+                                 />
+                              </div>
+                           )}
+                        </>
+                     }
+                     tabProps={{
+                        className: !scannedResult ? "hidden" : "",
+                     }}
+                     tabList={[
+                        ...(api.spareParts.isSuccess && api.spareParts.data.length > 0
+                           ? [
+                                {
+                                   tab: "Linh kiện",
+                                   key: "spare-parts",
+                                   children: (function SpareParts() {
+                                      return (
+                                         <Table
+                                            dataSource={api.spareParts.data}
+                                            loading={api.spareParts.isPending}
+                                            pagination={false}
+                                            columns={[
+                                               {
+                                                  key: "index",
+                                                  title: "STT",
+                                                  render: (_, __, index) => index + 1,
+                                                  width: 50,
+                                               },
+                                               {
+                                                  key: "name",
+                                                  title: "Tên linh kiện",
+                                                  dataIndex: ["sparePart", "name"],
+                                               },
+                                               {
+                                                  key: "quantity",
+                                                  title: "Số lượng",
+                                                  dataIndex: "quantity",
+                                               },
+                                            ]}
+                                         />
+                                      )
+                                   })(),
+                                },
+                             ]
+                           : []),
+                        ...(api.task.isSuccess && api.task.data.device_renew
+                           ? [
+                                {
+                                   tab: "Thiết bị mới",
+                                   key: "device-renew",
+                                   children: (
+                                      <Descriptions
+                                         items={[
+                                            {
+                                               label: "Tên thiết bị",
+                                               children: (
+                                                  <div
+                                                     onClick={() => {
+                                                        api.task.data &&
+                                                           window.navigator.clipboard.writeText(
+                                                              api.task.data.device_renew.id,
+                                                           )
+                                                     }}
+                                                  >
+                                                     {api.task.data.device_renew.machineModel.name}
+                                                  </div>
+                                               ),
+                                            },
+                                            {
+                                               label: "Nhà sản xuất",
+                                               children: api.task.data.device_renew.machineModel.manufacturer,
+                                            },
+                                         ]}
+                                      />
+                                   ),
+                                },
+                             ]
+                           : []),
+                     ]}
+                  >
+                     <CreateSignatureDrawer
+                        drawerProps={{
+                           placement: "right",
+                           width: "30vw",
+                        }}
+                        text="Tôi xác nhận nhân viên đã lấy linh kiện thành công"
+                        ref={createSignatureDrawerRef}
+                        onSubmit={(signature) => {
+                           if (!scannedResult || !api.task.isSuccess) return
+                           mutate_confirmReceipt.mutate(
+                              {
+                                 id: api.task.data.id,
+                                 payload: {
+                                    signature,
                                  },
-                                 {
-                                    label: "Trạng thái",
-                                    children: TaskStatusTagMapper[api.task.data?.status ?? ""]?.text,
+                              },
+                              {
+                                 onSuccess: async () => {
+                                    await api.task.refetch()
+                                    createSignatureDrawerRef.current?.handleClose()
+                                    setTimeout(() => {
+                                       handleOpen()
+                                    }, 300)
                                  },
-                                 {
-                                    label: "Người sửa",
-                                    children: api.task.data?.fixer?.username ?? "-",
-                                 },
-                                 {
-                                    label: "Ngày sửa",
-                                    children: api.task.data?.fixerDate
-                                       ? dayjs(api.task.data?.fixerDate).format("DD/MM/YYYY")
-                                       : "-",
-                                 },
-                                 {
-                                    label: "Mức độ ưu tiên",
-                                    children: api.task.data?.priority ? "Ưu tiên" : "Bình thường",
-                                 },
-                                 {
-                                    label: "Linh kiện",
-                                    children: api.task.data.confirmReceipt ? "Đã lấy" : "Chưa lấy",
-                                 },
-                              ]}
-                           />
-                        </div>
-                     )}
-                  </>
-               }
-               tabProps={{
-                  className: !scannedResult ? "hidden" : "",
-               }}
-               tabList={[
-                  {
-                     tab: "Linh kiện",
-                     key: "spare-parts",
-                     children: (function SpareParts() {
-                        return (
-                           <Table
-                              dataSource={api.spareParts.data}
-                              loading={api.spareParts.isPending}
-                              pagination={false}
-                              columns={[
-                                 {
-                                    key: "index",
-                                    title: "STT",
-                                    render: (_, __, index) => index + 1,
-                                    width: 50,
-                                 },
-                                 {
-                                    key: "name",
-                                    title: "Tên linh kiện",
-                                    dataIndex: ["sparePart", "name"],
-                                 },
-                                 {
-                                    key: "quantity",
-                                    title: "Số lượng",
-                                    dataIndex: "quantity",
-                                 },
-                              ]}
-                           />
-                        )
-                     })(),
-                  },
-                  //   {
-                  //      tab: "Thiết bị",
-                  //      key: "device",
-                  //      children: (function Device() {
-                  //         return (
-                  //            <Descriptions
-                  //               bordered
-                  //               items={[
-                  //                  {
-                  //                     label: "Tên thiết bị",
-                  //                     children: api.task.data?.device?.machineModel.name,
-                  //                     span: 3,
-                  //                  },
-                  //                  {
-                  //                     label: "Nhà sản xuất",
-                  //                     children: api.task.data?.device?.machineModel.manufacturer,
-                  //                  },
-                  //                  {
-                  //                     label: "Khu vực",
-                  //                     children: api.task.data?.device?.area?.name,
-                  //                  },
-                  //               ]}
-                  //            />
-                  //         )
-                  //      })(),
-                  //   },
-               ]}
-            >
-               <CreateSignatureDrawer
-                  drawerProps={{
-                     placement: "right",
-                     width: "30vw",
-                  }}
-                  text="Tôi xác nhận nhân viên đã lấy linh kiện thành công"
-                  ref={createSignatureDrawerRef}
-                  onSubmit={(signature) => {
-                     if (!scannedResult || !api.task.isSuccess) return
-                     mutate_confirmReceipt.mutate(
-                        {
-                           id: api.task.data.id,
-                           payload: {
-                              signature,
-                           },
-                        },
-                        {
-                           onSuccess: async () => {
-                              await api.task.refetch()
-                              createSignatureDrawerRef.current?.handleClose()
-                              setTimeout(() => {
-                                 handleOpen()
-                              }, 300)
-                           },
-                        },
-                     )
-                  }}
-               />
-            </PageContainer>
+                              },
+                           )
+                        }}
+                     />
+                  </PageContainer>
+               )}
+            </DesktopScannerDrawer>
          )}
       </DesktopScannerDrawer>
    )

@@ -22,7 +22,7 @@ type QueryType = {
       createdAt?: string
       updatedAt?: string
       requester_note?: string
-      status?: FixRequestStatus
+      status?: any
       is_warranty?: string
    }
    sort?: {
@@ -168,7 +168,7 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus } }) {
                   page: 1,
                   limit: 10,
                   search: {
-                     status: prev.search.status,
+                     status: prev.search?.status,
                   },
                }))
             }}

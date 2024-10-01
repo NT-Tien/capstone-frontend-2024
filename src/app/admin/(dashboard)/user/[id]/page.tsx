@@ -81,7 +81,7 @@ function Page({ params }: { params: { id: string } }) {
                />
             </>
          }
-         tabList={getTabList(api_user.data?.role)}
+         tabList={getTabList(api_user.data?.role ?? undefined)}
       ></PageContainer>
    )
 }

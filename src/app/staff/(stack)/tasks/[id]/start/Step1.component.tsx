@@ -153,7 +153,8 @@ export default function Step1(props: Step2Props) {
                                     label: "Vị trí (x, y)",
                                     value: (s) => (
                                        <a className="flex items-center gap-1">
-                                          {s.positionX} x {s.positionY}
+                                          {s.positionX ?? props.data?.device_renew?.positionX} x{" "}
+                                          {s.positionY ?? props.data?.device_renew?.positionY}
                                           <MapPin size={16} weight="fill" />
                                        </a>
                                     ),

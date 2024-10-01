@@ -26,6 +26,7 @@ export type TaskDto = {
    issues: IssueDto[]
    confirmReceiptStaffSignature: string
    confirmReceiptStockkeeperSignature: string
+   device_renew: DeviceDto
 }
 
 export const PriorityTagMapper: {

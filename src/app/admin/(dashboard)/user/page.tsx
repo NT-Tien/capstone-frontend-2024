@@ -32,16 +32,20 @@ function Page() {
    const api_users = admin_queries.user.all({})
 
    const filtered_api_users = useMemo(() => {
-      if (!api_users.data) return []
+      if (!api_users.data)
+         return {
+            list: [],
+            total: 0,
+         }
 
       const filtered = api_users.data.filter((item) => {
          const matchUsername = query.search?.username
-            ? item.username.toLowerCase().includes(query.search.username.toLowerCase())
+            ? item.username?.toLowerCase().includes(query.search.username.toLowerCase())
             : true
          const matchPhone = query.search?.phone
-            ? item.phone.toLowerCase().includes(query.search.phone.toLowerCase())
+            ? item.phone?.toLowerCase().includes(query.search.phone.toLowerCase())
             : true
-         const matchRole = query.search?.role ? item.role.toLowerCase() === query.search.role.toLowerCase() : true
+         const matchRole = query.search?.role ? item.role?.toLowerCase() === query.search.role.toLowerCase() : true
          const matchCreatedAt = query.search?.createdAt
             ? dayjs(item.createdAt).isSame(query.search.createdAt, "day")
             : true
@@ -102,7 +106,7 @@ function Page() {
                searchText: "Tìm kiếm",
                resetText: "Xóa",
             }}
-            onSubmit={(props: QueryType["search"]) => {
+            onSubmit={(props: QueryState["search"]) => {
                setQuery((prev) => ({
                   ...prev,
                   page: 1,
@@ -178,10 +182,17 @@ function Page() {
                   width: 200,
                   ellipsis: true,
                   valueType: "select",
-                  valueEnum: Object.keys(Role).reduce((acc, key) => {
-                     acc[key] = { text: key }
-                     return acc
-                  }, {}),
+                  valueEnum: Object.keys(Role).reduce(
+                     (acc, key) => {
+                        acc[key] = { text: key }
+                        return acc
+                     },
+                     {} as {
+                        [key: string]: {
+                           text: string
+                        }
+                     },
+                  ),
                },
                {
                   title: "Ngày tạo",

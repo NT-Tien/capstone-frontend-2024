@@ -4,6 +4,7 @@ import { InfoCircleOutlined, RightOutlined } from "@ant-design/icons"
 import { Scanner } from "@yudiel/react-qr-scanner"
 import { Avatar, Button, Card, Drawer, DrawerProps } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle } from "react"
+import AlertCard from "@/components/AlertCard"
 
 export type ScannerV2DrawerRefType = {
    handleOpen: () => void
@@ -14,16 +15,17 @@ type Props = {
    children?: (handleOpen: () => void) => ReactNode
    onScan: (result: string) => void
    drawerProps?: DrawerProps
+   alertText?: string
 }
 
 const ScannerV2Drawer = forwardRef<ScannerV2DrawerRefType, Props>(function Component({ children, ...props }, ref) {
    const { open, handleOpen, handleClose } = useModalControls({
-      onClose: () => { },
+      onClose: () => {},
    })
 
    useImperativeHandle(ref, () => ({
       handleOpen,
-      handleClose
+      handleClose,
    }))
 
    async function handleFinish(res: string, handleCloseManual?: () => void) {
@@ -44,14 +46,15 @@ const ScannerV2Drawer = forwardRef<ScannerV2DrawerRefType, Props>(function Compo
             destroyOnClose
             {...props.drawerProps}
          >
-            <section className="grid place-items-center">
-               <div className="mb-6 flex items-center gap-3 rounded-full border-2 border-neutral-200 bg-white px-2 py-1">
-                  <InfoCircleOutlined />
-                  <span className="text-xs">
-                     Vui lòng đặt<strong className="mx-1 font-semibold">mã QR của thiết bị</strong>vào khung hình
-                  </span>
-               </div>
-            </section>
+            <AlertCard type="info" className="mb-3" text={props.alertText ?? "Vui lòng đặt mã QR vào ô bên dưới"} />
+            {/*<section className="grid place-items-center">*/}
+            {/*   <div className="mb-6 flex items-center gap-3 rounded-full border-2 border-neutral-200 bg-white px-2 py-1">*/}
+            {/*      <InfoCircleOutlined />*/}
+            {/*      <span className="text-xs">*/}
+            {/*         Vui lòng đặt<strong className="mx-1 font-semibold">mã QR của thiết bị</strong>vào khung hình*/}
+            {/*      </span>*/}
+            {/*   </div>*/}
+            {/*</section>*/}
             <Scanner
                paused={!open}
                onScan={async (e) => {

@@ -17,8 +17,6 @@ type QueryState = {
       priority?: boolean
       name?: string
       fixerDate?: string
-      createdAt?: string
-      updatedAt?: string
    }
    order: {
       order?: "ASC" | "DESC"
@@ -38,6 +36,7 @@ function TaskListByUserSection(props: Props) {
          order: "DESC",
          orderBy: "updatedAt",
       },
+      search: {},
    })
 
    const api_tasks = admin_queries.task.all_filterAndSort({
@@ -48,13 +47,11 @@ function TaskListByUserSection(props: Props) {
          priority: query.search?.priority,
          name: query.search?.name,
          fixerDate: query.search?.fixerDate,
-         createdAt: query.search?.createdAt,
-         updatedAt: query.search?.updatedAt,
          fixerName: props.username,
       },
       order: {
          order: query.order?.order,
-         orderBy: query.order?.orderBy,
+         orderBy: query.order?.orderBy as any,
       },
    })
 
@@ -74,7 +71,7 @@ function TaskListByUserSection(props: Props) {
                return newValues
             },
          }}
-         onSubmit={(props: QueryType["search"]) => {
+         onSubmit={(props: QueryState["search"]) => {
             setQuery((prev) => ({
                ...prev,
                search: {
@@ -86,6 +83,11 @@ function TaskListByUserSection(props: Props) {
             setQuery((prev) => ({
                page: 1,
                limit: 10,
+               search: {},
+               order: {
+                  order: "DESC",
+                  orderBy: "updatedAt",
+               },
             }))
          }}
          onChange={(page, filters, sorter, extra) => {
@@ -161,10 +163,13 @@ function TaskListByUserSection(props: Props) {
                   <Tag color={TaskStatusTagMapper[entity.status].color}>{TaskStatusTagMapper[entity.status].text}</Tag>
                ),
                valueType: "select",
-               valueEnum: Object.keys(TaskStatus).reduce((acc, key) => {
-                  acc[key] = TaskStatusTagMapper[key]?.text
-                  return acc
-               }, {}),
+               valueEnum: Object.keys(TaskStatus).reduce(
+                  (acc: { [key: string]: string | undefined }, key) => {
+                     acc[key] = TaskStatusTagMapper[key]?.text
+                     return acc
+                  },
+                  {} as { [key: string]: string | undefined },
+               ),
             },
             // {
             //    title: "% Hoàn thành",
@@ -251,9 +256,10 @@ function TaskListByUserSection(props: Props) {
                valueType: "digit",
                hideInSearch: true,
                render: (_, entity) => `${entity.totalTime} phút`,
-               hideInTable: new Set([TaskStatus.AWAITING_SPARE_SPART, TaskStatus.AWAITING_FIXER]).has(
-                  query.search?.status,
-               ),
+               hideInTable:
+                  query.search && query.search.status
+                     ? new Set([TaskStatus.AWAITING_SPARE_SPART, TaskStatus.AWAITING_FIXER]).has(query.search.status)
+                     : false,
                sorter: true,
             },
             {
@@ -261,9 +267,10 @@ function TaskListByUserSection(props: Props) {
                dataIndex: ["fixer", "username"],
                width: 150,
                hideInSearch: true,
-               hideInTable: new Set([TaskStatus.AWAITING_SPARE_SPART, TaskStatus.AWAITING_FIXER]).has(
-                  query.search?.status,
-               ),
+               hideInTable:
+                  query.search && query.search.status
+                     ? new Set([TaskStatus.AWAITING_SPARE_SPART, TaskStatus.AWAITING_FIXER]).has(query.search.status)
+                     : false,
                render: (_, entity) =>
                   entity.fixer ? <Link href={`/admin/user/${entity?.fixer?.id}`}>{entity?.fixer?.username}</Link> : "-",
             },
@@ -274,6 +281,7 @@ function TaskListByUserSection(props: Props) {
                render: (_, entity) => dayjs(entity.createdAt).format("DD/MM/YYYY HH:mm"),
                valueType: "date",
                sorter: true,
+               hideInSearch: true,
             },
             {
                title: "Lần trước cập nhật",
@@ -283,6 +291,7 @@ function TaskListByUserSection(props: Props) {
                sorter: true,
                valueType: "date",
                defaultSortOrder: "descend",
+               hideInSearch: true,
             },
          ]}
       />

@@ -22,6 +22,7 @@ import {
    Clock,
    ImageSquare,
    Users,
+   WashingMachine,
    XCircle,
 } from "@phosphor-icons/react"
 import { useMutation, useQuery } from "@tanstack/react-query"
@@ -388,6 +389,20 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                      <Users size={18} weight="fill" color="#737373" />
                      <div>{task.fixer?.username ?? "Chưa có"}</div>
                   </div>
+                  {api_task.data?.device_renew && (
+                     <div
+                        className="mt-layout flex items-center gap-3"
+                        onClick={() => {
+                           window.navigator.clipboard.writeText(api_task.data.device_renew.id)
+                        }}
+                     >
+                        <WashingMachine size={18} weight="fill" color="#737373" />
+                        <div>
+                           {api_task.data.device_renew.machineModel.name} |{" "}
+                           {api_task.data.device_renew.machineModel.manufacturer}
+                        </div>
+                     </div>
+                  )}
                   <div className="mt-layout flex w-full items-stretch justify-start gap-3">
                      <ArrowElbowDownRight size={18} weight="fill" color="#737373" />
                      <div className="w-full">
@@ -470,12 +485,24 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
          />
          <ScannerV2Drawer
             ref={scannerV2DrawerRef}
+            alertText={
+               api_task.data?.device_renew
+                  ? "Vui lòng đặt QR thiết bị MỚI vào khung hình"
+                  : "Vui lòng đặt QR thiết bị vào khung hình"
+            }
             onScan={(result) => {
                if (!api_task.isSuccess) return
-               if (result !== api_task.data.device.id) {
+
+               if (api_task.data.device_renew && api_task.data.device_renew.id !== result) {
                   message.error("Mã QR không đúng")
                   return
                }
+
+               if (!api_task.data.device_renew && result !== api_task.data.device.id) {
+                  message.error("Mã QR không đúng")
+                  return
+               }
+
                const cache = localStorage.getItem("head_staff_confirm_device_ids")
                if (cache) {
                   const cacheArr = JSON.parse(cache) as string[]

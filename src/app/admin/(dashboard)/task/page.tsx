@@ -14,7 +14,7 @@ type QueryState = {
    page: number
    limit: number
    search: {
-      status?: TaskStatus
+      status?: any
       priority?: boolean
       name?: string
       fixerDate?: string
@@ -48,12 +48,10 @@ function Page() {
          priority: query.search?.priority,
          name: query.search?.name,
          fixerDate: query.search?.fixerDate,
-         createdAt: query.search?.createdAt,
-         updatedAt: query.search?.updatedAt,
       },
       order: {
          order: query.order?.order,
-         orderBy: query.order?.orderBy,
+         orderBy: query.order?.orderBy as any,
       },
    })
 
@@ -149,7 +147,7 @@ function Page() {
                   return newValues
                },
             }}
-            onSubmit={(props: QueryType["search"]) => {
+            onSubmit={(props: QueryState["search"]) => {
                setQuery((prev) => ({
                   ...prev,
                   search: {
@@ -164,6 +162,10 @@ function Page() {
                   limit: 10,
                   search: {
                      status: prev.search.status,
+                  },
+                  order: {
+                     order: "DESC",
+                     orderBy: "updatedAt",
                   },
                }))
             }}
@@ -316,7 +318,7 @@ function Page() {
                      entity.confirmReceipt === true ? (
                         <Tag color="green-inverse">Đã nhận</Tag>
                      ) : entity.confirmReceipt === false &&
-                       entity.issues?.flatMap((i) => i.issueSpareParts).length > 0 ? (
+                       entity.issues?.flatMap((i: any) => i.issueSpareParts).length > 0 ? (
                         <Tag color="red-inverse">Chưa nhận</Tag>
                      ) : (
                         "-"
@@ -368,6 +370,7 @@ function Page() {
                   render: (_, entity) => dayjs(entity.createdAt).format("DD/MM/YYYY HH:mm"),
                   valueType: "date",
                   sorter: true,
+                  hideInSearch: true,
                },
                {
                   title: "Lần trước cập nhật",
@@ -377,6 +380,7 @@ function Page() {
                   sorter: true,
                   valueType: "date",
                   defaultSortOrder: "descend",
+                  hideInSearch: true,
                },
             ]}
          />

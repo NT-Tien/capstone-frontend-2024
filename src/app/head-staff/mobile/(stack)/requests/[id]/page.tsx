@@ -35,6 +35,10 @@ import DeviceRequestHistoryDrawer from "./DeviceRequestHistory.drawer"
 import RejectRequestDrawer, { RejectRequestDrawerRefType } from "./RejectRequest.drawer"
 import SendWarrantyDrawer, { SendWarrantyDrawerRefType } from "./SendWarranty.drawer"
 import isApproved from "./approved/is-approved.util"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import RenewDeviceDrawer, {
+   RenewDeviceDrawerProps,
+} from "@/features/head-maintenance/components/drawers/RenewDevice.drawer"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
@@ -46,6 +50,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    const rejectRequestRef = useRef<RejectRequestDrawerRefType | null>(null)
    const approveRequestRef = useRef<ApproveRequestDrawerRefType | null>(null)
    const sendWarrantyRef = useRef<SendWarrantyDrawerRefType | null>(null)
+   const control_renewDeviceDrawer = useRef<RefType<RenewDeviceDrawerProps> | null>(null)
 
    const api_request = useQuery({
       queryKey: headstaff_qk.request.byId(params.id),
@@ -573,7 +578,15 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                     : []),
                                  {
                                     key: "no-problem",
-                                    label: "Thiết bị không có vấn đề?",
+                                    label: "Thay máy mới",
+                                    onClick: () =>
+                                       api_device.isSuccess &&
+                                       api_request.isSuccess &&
+                                       control_renewDeviceDrawer.current?.handleOpen({
+                                          requestId: params.id,
+                                          currentDevice: api_device.data,
+                                          request: api_request.data,
+                                       }),
                                  },
                                  {
                                     type: "divider",
@@ -601,6 +614,9 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
          <RejectRequestDrawer ref={rejectRequestRef} refetchFn={api_request.refetch} />
          <ApproveRequestDrawer ref={approveRequestRef} refetchFn={api_request.refetch} />
          <SendWarrantyDrawer ref={sendWarrantyRef} params={{ id: params.id }} />
+         <OverlayControllerWithRef ref={control_renewDeviceDrawer}>
+            <RenewDeviceDrawer />
+         </OverlayControllerWithRef>
       </div>
    )
 }

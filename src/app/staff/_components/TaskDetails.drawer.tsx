@@ -12,9 +12,11 @@ import staff_qk from "../_api/qk"
 import Staff_Task_OneById from "../_api/task/one-byId.api"
 import QrCodeDisplayModal, { QrCodeDisplayModalRefType } from "./QrCodeDisplay.modal"
 import Staff_Task_UpdateStart from "../_api/task/update-start.api"
-import ScannerDrawer from "@/components/overlays/Scanner.drawer"
 import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
-import { ReceiveWarrantyTypeErrorId } from "@/lib/constants/Warranty"
+import { ReceiveWarrantyTypeErrorId, RenewRequestTypeErrorId } from "@/lib/constants/Warranty"
+import QrCodeDisplayForRenewModal, {
+   QrCodeDisplayForRenewModalRefType,
+} from "@/app/staff/_components/QrCodeDisplayForRenew.modal"
 
 type HandleOpenProps = {
    taskId: string
@@ -40,6 +42,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
    const router = useRouter()
    const { message } = App.useApp()
    const scannerV2DrawerRef = useRef<ScannerV2DrawerRefType | null>(null)
+   const control_qrCodeDisplayForRenewModal = useRef<QrCodeDisplayForRenewModalRefType | null>(null)
 
    const [taskId, setTaskId] = useState<string | null>(null)
 
@@ -81,8 +84,32 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
       return api_task.data?.issues.flatMap((issue) => issue.issueSpareParts)
    }, [api_task.data?.issues])
 
+   const isRenewTask = useMemo(() => {
+      return api_task.data?.device_renew
+   }, [api_task.data])
+
+   const isRenewTask_andHasFetchedMachine = useMemo(() => {
+      return !!isRenewTask && api_task.data?.confirmReceipt
+   }, [isRenewTask, api_task.data?.confirmReceipt])
+
    function Footer() {
       if (!api_task.isSuccess) return
+
+      if (isRenewTask_andHasFetchedMachine === false) {
+         return (
+            <Button
+               type="primary"
+               className="w-full"
+               size="large"
+               icon={<Package size={20} />}
+               onClick={() => {
+                  isRenewTask && control_qrCodeDisplayForRenewModal.current?.handleOpen(api_task.data.id, isRenewTask)
+               }}
+            >
+               Lấy máy mới
+            </Button>
+         )
+      }
 
       if (spareParts && spareParts.length > 0 && !api_task.data.confirmReceipt) {
          return (
@@ -195,6 +222,9 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                         className="mt-layout"
                      />
                   )}
+                  {!isRenewTask_andHasFetchedMachine && (
+                     <AlertCard text="Vui lòng lấy máy mới ở kho" className="mt-layout" />
+                  )}
                   <Divider className="mb-layout mt-0" />
                   <section className="grid grid-cols-2 gap-4">
                      <div>
@@ -223,7 +253,12 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                         Thông tin Thiết bị
                      </h4>
                      <div className="flex flex-col gap-2">
-                        <div className="flex items-start justify-between">
+                        <div
+                           className="flex items-start justify-between"
+                           onClick={() =>
+                              api_task.data && window.navigator.clipboard.writeText(api_task.data.device.id)
+                           }
+                        >
                            <h5 className="font-medium text-gray-500">Tên thiết bị</h5>
                            <p className="mt-1">{api_task.data.device.machineModel.name}</p>
                         </div>
@@ -238,33 +273,59 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                         <div className="flex items-start justify-between">
                            <h5 className="font-medium text-gray-500">Vị trí</h5>
                            <p className="mt-1">
-                              {api_task.data.device.positionX} x {api_task.data.device.positionY}
+                              {api_task.data.device?.positionX ?? api_task.data.device_renew.positionX} x{" "}
+                              {api_task.data.device.positionY ?? api_task.data.device_renew.positionY}
                            </p>
                         </div>
                      </div>
                   </section>
-                  <Divider className="my-layout" />
-                  <section className="mb-20">
-                     <h4 className="mb-layout text-lg font-medium">
-                        <Wrench size={24} weight="duotone" className="mr-1 inline" />
-                        Linh kiện
-                     </h4>
-                     <div className="h-max max-h-44 overflow-auto rounded-md border-2 border-neutral-100 bg-neutral-50 p-2 pb-4">
-                        {spareParts?.map((issueSparePart, index) => (
-                           <div key={issueSparePart.id} className="flex items-center justify-between">
-                              <span>
-                                 {index + 1}. {issueSparePart.sparePart.name}
-                              </span>
-                              <span>x{issueSparePart.quantity}</span>
+                  {spareParts && spareParts.length > 0 && (
+                     <>
+                        <Divider className="my-layout" />
+                        <section className="mb-20">
+                           <h4 className="mb-layout text-lg font-medium">
+                              <Wrench size={24} weight="duotone" className="mr-1 inline" />
+                              Linh kiện
+                           </h4>
+                           <div className="h-max max-h-44 overflow-auto rounded-md border-2 border-neutral-100 bg-neutral-50 p-2 pb-4">
+                              {spareParts?.map((issueSparePart, index) => (
+                                 <div key={issueSparePart.id} className="flex items-center justify-between">
+                                    <span>
+                                       {index + 1}. {issueSparePart.sparePart.name}
+                                    </span>
+                                    <span>x{issueSparePart.quantity}</span>
+                                 </div>
+                              ))}
+                              {spareParts?.length === 0 && (
+                                 <div className="grid h-full place-items-center">
+                                    <Empty description="Không có linh kiện" />
+                                 </div>
+                              )}
                            </div>
-                        ))}
-                        {spareParts?.length === 0 && (
-                           <div className="grid h-full place-items-center">
-                              <Empty description="Không có linh kiện" />
+                        </section>
+                     </>
+                  )}
+                  {isRenewTask && (
+                     <>
+                        <Divider className="my-layout" />
+                        <section className="mb-20">
+                           <h4 className="mb-layout text-lg font-medium">
+                              <Wrench size={24} weight="duotone" className="mr-1 inline" />
+                              Thiết bị mới
+                           </h4>
+                           <div className="flex flex-col gap-2">
+                              <div className="flex items-start justify-between">
+                                 <h5 className="font-medium text-gray-500">Tên thiết bị</h5>
+                                 <p className="mt-1">{isRenewTask.machineModel.name}</p>
+                              </div>
+                              <div className="flex items-start justify-between">
+                                 <h5 className="font-medium text-gray-500">Nhà sản xuất</h5>
+                                 <p className="mt-1">{isRenewTask.machineModel.manufacturer}</p>
+                              </div>
                            </div>
-                        )}
-                     </div>
-                  </section>
+                        </section>
+                     </>
+                  )}
                </>
             )}
          </Drawer>
@@ -278,6 +339,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
             onComplete={() => handleClose()}
          />
          <ScannerV2Drawer
+            alertText="Vui lòng quét mã QR trên thiết bị để bắt đầu tác vụ."
             onScan={(result) => {
                if (result !== api_task.data?.device.id) {
                   message.error({
@@ -297,6 +359,13 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                )
             }}
             ref={scannerV2DrawerRef}
+         />
+         <QrCodeDisplayForRenewModal
+            title="Lấy thiết bị mới"
+            description="Hãy xuống kho và đưa mã QR sau cho chủ kho."
+            refetch={api_task.refetch}
+            ref={control_qrCodeDisplayForRenewModal}
+            onComplete={() => handleClose()}
          />
       </>
    )

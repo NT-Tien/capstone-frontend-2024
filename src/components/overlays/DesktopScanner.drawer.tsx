@@ -4,11 +4,13 @@ import { RightOutlined } from "@ant-design/icons"
 import { Scanner } from "@yudiel/react-qr-scanner"
 import { Avatar, Button, Card, Drawer, DrawerProps } from "antd"
 import { ReactNode } from "react"
+import AlertCard from "@/components/AlertCard"
 
 type Props = {
    children: (handleOpen: () => void) => ReactNode
    onScan: (result: string) => void
    drawerProps?: DrawerProps
+   alertText?: string
 }
 
 export default function DesktopScannerDrawer({ children, ...props }: Props) {
@@ -64,6 +66,11 @@ export default function DesktopScannerDrawer({ children, ...props }: Props) {
             {...props.drawerProps}
          >
             <div className="w-96">
+               <AlertCard
+                  className="mb-layout"
+                  text={props.alertText ?? "Đặt mã QR vào khung quét để bắt đầu"}
+                  type="info"
+               />
                <Scanner
                   paused={!open}
                   onScan={async (e) => {

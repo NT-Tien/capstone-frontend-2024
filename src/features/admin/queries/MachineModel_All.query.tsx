@@ -1,7 +1,7 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query"
-import Admin_MachineModel_All, { Response } from "@/features/admin/api/machine-model/all.api"
+import Admin_MachineModel_All, { Response, Request } from "@/features/admin/api/machine-model/all.api"
 
-type Props = {}
+type Props = Request
 type QueryOptions = UseQueryOptions<Response, Error, Response, string[]>
 
 useMachineModel_AllQuery.qk = (props: Props) => ["admin", "machineModel", "all"]

@@ -1,5 +1,6 @@
 import { ReactNode } from "react"
 import dynamic from "next/dynamic"
+// import RightNavbar from "@/features/admin/components/layout/RightNavbar"
 
 const RightNavbar = dynamic(() => import("@/features/admin/components/layout/RightNavbar"), {
    ssr: false,

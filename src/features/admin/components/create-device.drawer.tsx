@@ -86,7 +86,7 @@ export default function CreateDeviceDrawer({ children }: { children: (handleOpen
                request={async () => {
                   const data = await queryClient.ensureQueryData({
                      queryKey: qk.machineModels.all(),
-                     queryFn: () => Admin_MachineModel_All(),
+                     queryFn: () => Admin_MachineModel_All({}),
                   })
 
                   return data.map((model) => ({

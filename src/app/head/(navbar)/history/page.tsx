@@ -63,7 +63,7 @@ function Component() {
 
    return (
       <div className="std-layout relative h-full min-h-screen bg-white">
-         <PageHeader title="Yêu cầu" icon={AddressBook} className="std-layout-outer relative z-30" />
+         <PageHeader title="Yêu cầu" icon={AddressBook} className="std-layout-outer relative" />
          <Image
             className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
             src="/images/requests.jpg"

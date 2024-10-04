@@ -25,18 +25,18 @@ function PageHeader({ icon, title, className, handleClickIcon, iconProps }: Prop
    }
 
    return (
-      <header className={cn("px-layout py-layout", className)}>
-         <div className="flex items-center gap-3">
-            <Button
+      <header className={cn("px-layout py-layout w-full", className)}>
+         <div className="flex justify-center items-center w-full">
+            {/* <Button
                className="bg-neutral-100/50 p-2"
                classNames={{
                   icon: "",
                }}
                icon={RenderIcon}
                onClick={handleClickIconWrapper}
-            ></Button>
-            <h1 className="block flex-grow text-xl font-bold text-neutral-600">{title}</h1>
-            <Button type="text" size="large" icon={<MoreOutlined />}></Button>
+            ></Button> */}
+            <h1 className="block text-center text-2xl font-bold text-neutral-600">{title}</h1>
+            {/* <Button type="text" size="large" icon={<MoreOutlined />}></Button> */}
          </div>
       </header>
    )

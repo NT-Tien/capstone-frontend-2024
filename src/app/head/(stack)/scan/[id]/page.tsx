@@ -1,6 +1,5 @@
 "use client"
 
-import Head_Request_Create from "@/features/head-department/api/request/create.api"
 import DataListView from "@/components/DataListView"
 import RootHeader from "@/components/layout/RootHeader"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
@@ -11,7 +10,7 @@ import useCurrentUser from "@/lib/domain/User/useCurrentUser"
 import useModalControls from "@/lib/hooks/useModalControls"
 import { LeftOutlined, PlusOutlined, QrcodeOutlined, ReloadOutlined } from "@ant-design/icons"
 import { ProFormSelect, ProFormTextArea } from "@ant-design/pro-components"
-import { useMutation, useQueries } from "@tanstack/react-query"
+import { useQueries } from "@tanstack/react-query"
 import { App, Button, Card, Divider, Drawer, Empty, Form, Result, Space, Tag, Tooltip } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
@@ -20,6 +19,7 @@ import Cookies from "js-cookie"
 import { decodeJwt } from "@/lib/domain/User/decodeJwt.util"
 import useDevice_OneByIdQuery from "@/features/head-department/queries/Device_OneById.query"
 import useDevice_OneById_WithRequestsQuery from "@/features/head-department/queries/Device_OneById_WithRequests.query"
+import head_department_mutations from "@/features/head-department/mutations"
 
 type FieldType = {
    description: string
@@ -74,8 +74,8 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
 
    const api = useQueries({
       queries: [
-         useDevice_OneByIdQuery.queryOptions({ deviceId: params.id }),
-         useDevice_OneById_WithRequestsQuery.queryOptions({ deviceId: params.id }),
+         useDevice_OneByIdQuery.queryOptions({ id: params.id }),
+         useDevice_OneById_WithRequestsQuery.queryOptions({ id: params.id }),
       ],
       combine: (result) => {
          return {
@@ -109,29 +109,11 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
       )
    }, [api.deviceWithRequests.data, user.id])
 
-   const mutate_submitIssue = useMutation({
-      mutationFn: Head_Request_Create,
-      onMutate: async () => {
-         message.open({
-            type: "loading",
-            content: "Vui long chờ...",
-            key: "submitIssue",
-         })
-      },
-      onError: async () => {
-         message.error("Tạo báo cáo thất bại")
-      },
-      onSuccess: async () => {
-         message.success("Tạo báo cáo thành công")
-      },
-      onSettled: () => {
-         message.destroy("submitIssue")
-      },
-   })
+   const mutate_createRequest = head_department_mutations.request.createRequest()
 
    function handleSubmit_createIssue(values: FieldType) {
       if (!api.device.isSuccess) return
-      mutate_submitIssue.mutate(
+      mutate_createRequest.mutate(
          {
             requester_note: values.selection === "create" ? values.description : values.selection,
             device: api.device.data.id,
@@ -353,7 +335,9 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
                         icon={<PlusOutlined />}
                         type="primary"
                         disabled={
-                           api.device.isLoading || mutate_submitIssue.isPending || filteredRequests?.mine !== undefined
+                           api.device.isLoading ||
+                           mutate_createRequest.isPending ||
+                           filteredRequests?.mine !== undefined
                         }
                         onClick={handleOpen}
                      >

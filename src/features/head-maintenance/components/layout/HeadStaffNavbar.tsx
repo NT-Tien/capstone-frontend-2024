@@ -1,7 +1,17 @@
 "use client"
 
 import { Divider, Drawer } from "antd"
-import { SettingOutlined, HistoryOutlined, QrcodeOutlined, MenuOutlined, HomeOutlined, ContainerFilled, CheckOutlined, HomeFilled, ContainerOutlined } from "@ant-design/icons"
+import {
+   SettingOutlined,
+   HistoryOutlined,
+   QrcodeOutlined,
+   MenuOutlined,
+   HomeOutlined,
+   ContainerFilled,
+   CheckOutlined,
+   HomeFilled,
+   ContainerOutlined,
+} from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -31,33 +41,33 @@ export default function SideNavbar() {
 
    const items = [
       {
-                  name: "Thống kê",
-                  key: "dashboard",
-                  icon: <HomeOutlined />,
-                  href: "/head-staff/mobile/dashboard",
-                  onClick: () => handleClick("dashboard"),
-               },
-               {
-                  name: "Yêu cầu",
-                  key: "requests",
-                  icon: <ContainerOutlined />,
-                  href: "/head-staff/mobile/requests",
-                  onClick: () => handleClick("requests"),
-               },
-               {
-                  name: "Tác vụ",
-                  key: "tasks",
-                  icon: <CheckOutlined />,
-                  href: "/head-staff/mobile/tasks",
-                  onClick: () => handleClick("tasks"),
-               },
-               {
-                  name: "Hồ sơ",
-                  key: "profile",
-                  icon: <SettingOutlined />,
-                  href: "/head-staff/mobile/profile",
-                  onClick: () => handleClick("profile"),
-               },
+         name: "Thống kê",
+         key: "dashboard",
+         icon: <HomeOutlined />,
+         href: "/head-staff/mobile/dashboard",
+         onClick: () => handleClick("dashboard"),
+      },
+      {
+         name: "Yêu cầu",
+         key: "requests",
+         icon: <ContainerOutlined />,
+         href: "/head-staff/mobile/request",
+         onClick: () => handleClick("requests"),
+      },
+      {
+         name: "Tác vụ",
+         key: "tasks",
+         icon: <CheckOutlined />,
+         href: "/head-staff/mobile/tasks",
+         onClick: () => handleClick("tasks"),
+      },
+      {
+         name: "Hồ sơ",
+         key: "profile",
+         icon: <SettingOutlined />,
+         href: "/head-staff/mobile/profile",
+         onClick: () => handleClick("profile"),
+      },
    ]
 
    return (

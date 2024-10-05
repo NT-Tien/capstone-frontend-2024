@@ -1,12 +1,11 @@
 import { ReactNode, useState } from "react"
 import useModalControls from "@/lib/hooks/useModalControls"
-import { App, Button, Card, Drawer } from "antd"
+import { Button, Card, Drawer } from "antd"
 import { InfoCircleFilled } from "@ant-design/icons"
 import { ProFormTextArea } from "@ant-design/pro-components"
-import { useMutation } from "@tanstack/react-query"
-import Head_Request_UpdateClose from "@/features/head-department/api/request/update-close.api"
 import { useRouter } from "next/navigation"
 import { FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
+import head_department_mutations from "@/features/head-department/mutations"
 
 type Props = {
    onSuccess?: () => void
@@ -18,7 +17,6 @@ export default function FeedbackDrawer({
 }: {
    children: (handleOpen: (requestId: string) => void) => ReactNode
 } & Props) {
-   const { message } = App.useApp()
    const { open, handleOpen, handleClose } = useModalControls({
       onOpen: (requestId: string) => {
          setRequestId(requestId)
@@ -29,25 +27,7 @@ export default function FeedbackDrawer({
    })
    const router = useRouter()
 
-   const mutate_UpdateCloseRequest = useMutation({
-      mutationFn: Head_Request_UpdateClose,
-      onMutate: async () => {
-         message.destroy("loading")
-         message.loading({
-            content: "Đang xử lý...",
-            key: "loading",
-         })
-      },
-      onSettled: () => {
-         message.destroy("loading")
-      },
-      onSuccess: async () => {
-         message.success("Đóng thành công")
-      },
-      onError: async () => {
-         message.error("Đóng thất bại")
-      },
-   })
+   const mutate_UpdateCloseRequest = head_department_mutations.request.addFeedback()
 
    const [requestId, setRequestId] = useState<string | undefined>()
    const [content, setContent] = useState("")

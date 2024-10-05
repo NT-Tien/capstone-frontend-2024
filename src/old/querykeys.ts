@@ -31,9 +31,9 @@ const qk = {
       one_byId: (id: string) => ["spare-part", id],
    },
    issueRequests: {
-      all: (page: number, limit: number, status: FixRequestStatus) => ["issue-requests", { page, limit, status }],
-      allRaw: () => ["issue-requests"],
-      byId: (id: string) => ["issue-requests", id],
+      all: (page: number, limit: number, status: FixRequestStatus) => ["issue-request", { page, limit, status }],
+      allRaw: () => ["issue-request"],
+      byId: (id: string) => ["issue-request", id],
    },
    task: {
       all: (page?: number, limit?: number, status?: TaskStatus) => ["task", { page, limit, status }],

@@ -11,7 +11,7 @@ import { Button, Card, Progress, Result, Skeleton, Steps, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { FixRequest_StatusData, FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
-import FeedbackDrawer from "@/features/head-department/components/Feedback.drawer"
+import FeedbackDrawer from "@/features/head-department/components/overlay/Feedback.drawer"
 import { useMemo } from "react"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import ModalConfirm from "@/old/ModalConfirm"
@@ -19,6 +19,7 @@ import useRequest_OneByIdQuery from "@/features/head-department/queries/Request_
 import useCancelRequestMutation from "@/features/head-department/mutations/CancelRequest.mutation"
 import PageHeader from "@/components/layout/PageHeader"
 import Image from "next/image"
+import head_department_mutations from "@/features/head-department/mutations"
 
 export default function HistoryDetails({
    params,
@@ -29,8 +30,8 @@ export default function HistoryDetails({
 }) {
    const router = useRouter()
 
-   const api_requests = useRequest_OneByIdQuery({ requestId: params.id })
-   const mutate_cancelRequest = useCancelRequestMutation()
+   const api_requests = useRequest_OneByIdQuery({ id: params.id })
+   const mutate_cancelRequest = head_department_mutations.request.cancelRequest()
 
    function handleCancelRequest() {
       mutate_cancelRequest.mutate(
@@ -130,7 +131,7 @@ export default function HistoryDetails({
          ) : (
             <>
                <section className="relative z-50 rounded-lg border-2 border-neutral-200 bg-white shadow-lg">
-                  <h2 className="mt-2 mb-2 px-layout text-lg font-semibold">
+                  <h2 className="mb-2 mt-2 px-layout text-lg font-semibold">
                      <Skeleton paragraph={false} active={api_requests.isPending} loading={api_requests.isPending}>
                         Thông tin yêu cầu
                      </Skeleton>
@@ -206,7 +207,7 @@ export default function HistoryDetails({
                   />
                </section>
                <section className="relative z-50 mt-3 rounded-lg border-2 border-neutral-200 bg-white shadow-lg">
-               <h2 className="mt-2 mb-2 px-layout text-lg font-semibold">
+                  <h2 className="mb-2 mt-2 px-layout text-lg font-semibold">
                      <Skeleton paragraph={false} active={api_requests.isPending} loading={api_requests.isPending}>
                         Tiến độ công việc
                      </Skeleton>

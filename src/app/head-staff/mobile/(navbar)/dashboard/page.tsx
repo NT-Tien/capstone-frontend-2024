@@ -94,7 +94,7 @@ function Page() {
          notification.destroy("headStaffConfirmTasks")
       }
    }, [api_counts.data, api_counts.isSuccess, notification, router])
-   
+
    return (
       <div>
          <div>
@@ -230,7 +230,7 @@ function Page() {
                            icon: FixRequest_StatusData("pending", {
                               phosphor: { size: 36, weight: "duotone", className: "text-neutral-500" },
                            }).icon,
-                           route: "requests?status=PENDING",
+                           route: "request?status=PENDING",
                            bgColor: "bg-neutral-200",
                         },
                         {
@@ -240,7 +240,7 @@ function Page() {
                            icon: FixRequest_StatusData("approved", {
                               phosphor: { size: 36, weight: "duotone", className: "text-green-500" },
                            }).icon,
-                           route: "requests?status=APPROVED",
+                           route: "request?status=APPROVED",
                            bgColor: "bg-green-200",
                         },
                         {
@@ -250,7 +250,7 @@ function Page() {
                            icon: FixRequest_StatusData("in_progress", {
                               phosphor: { size: 36, weight: "duotone", className: "text-blue-500" },
                            }).icon,
-                           route: "requests?status=IN_PROGRESS",
+                           route: "request?status=IN_PROGRESS",
                            bgColor: "bg-blue-200",
                         },
                         {
@@ -260,7 +260,7 @@ function Page() {
                            icon: FixRequest_StatusData("rejected", {
                               phosphor: { size: 36, weight: "duotone", className: "text-red-500" },
                            }).icon,
-                           route: "requests?status=REJECTED",
+                           route: "request?status=REJECTED",
                            bgColor: "bg-red-200",
                         },
                         {
@@ -270,7 +270,7 @@ function Page() {
                            icon: FixRequest_StatusData("head_confirm", {
                               phosphor: { size: 36, weight: "duotone", className: "text-purple-500" },
                            }).icon,
-                           route: "requests?status=HEAD_CONFIRM",
+                           route: "request?status=HEAD_CONFIRM",
                            bgColor: "bg-purple-200",
                         },
                         {
@@ -280,7 +280,7 @@ function Page() {
                            icon: FixRequest_StatusData("closed", {
                               phosphor: { size: 36, weight: "duotone", className: "text-green-500" },
                            }).icon,
-                           route: "requests?status=CLOSED",
+                           route: "request?status=CLOSED",
                            bgColor: "bg-green-200",
                         },
                      ].map(({ loading, count, label, icon, route, bgColor }, index) => (

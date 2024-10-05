@@ -188,11 +188,11 @@ function RenderList(props: RenderListProps) {
                      rootClassName={"list-no-padding"}
                      split
                      bordered={false}
-                     dataSource={api_requestHistory.data?.requests}
+                     dataSource={api_requestHistory.data?.request}
                      loading={api_requestHistory.isPending}
                      header={
                         <div className={"text-sm"}>
-                           Tìm thấy {api_requestHistory.data?.requests.length} yêu cầu sửa chữa
+                           Tìm thấy {api_requestHistory.data?.request.length} yêu cầu sửa chữa
                         </div>
                      }
                      renderItem={(item, index) => (
@@ -200,9 +200,9 @@ function RenderList(props: RenderListProps) {
                            className={cn(index === 0 && "mt-1")}
                            onClick={() => {
                               if (isApproved(item.status)) {
-                                 router.push(`/head-staff/mobile/requests/${item.id}/approved?viewingHistory=true`)
+                                 router.push(`/head-staff/mobile/request/${item.id}/approved?viewingHistory=true`)
                               } else {
-                                 router.push(`/head-staff/mobile/requests/${item.id}?viewingHistory=true`)
+                                 router.push(`/head-staff/mobile/request/${item.id}?viewingHistory=true`)
                               }
                            }}
                            extra={

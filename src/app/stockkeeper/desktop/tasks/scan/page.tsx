@@ -1,8 +1,8 @@
 "use client"
 
-import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"
-import Stockkeeper_Task_GetById from "@/app/stockkeeper/_api/task/getById.api"
-import Stockkeeper_Task_ReceiveSpareParts from "@/app/stockkeeper/_api/task/receive-spare-parts.api"
+import { stockkeeper_qk } from "@/features/stockkeeper/api/qk"
+import Stockkeeper_Task_GetById from "@/features/stockkeeper/api/task/getById.api"
+import Stockkeeper_Task_ReceiveSpareParts from "@/features/stockkeeper/api/task/receive-spare-parts.api"
 import CreateSignatureDrawer, { CreateSignatureDrawerRefType } from "@/components/overlays/CreateSignature.drawer"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
@@ -222,7 +222,7 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                            ? [
                                 {
                                    tab: "Linh kiện",
-                                   key: "spare-parts",
+                                   key: "spare-part",
                                    children: (function SpareParts() {
                                       return (
                                          <Table

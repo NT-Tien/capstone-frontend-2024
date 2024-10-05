@@ -9,6 +9,8 @@ import useUser_AllQuery from "@/features/admin/queries/User_All.query"
 import useUser_One from "@/features/admin/queries/User_One.query"
 import useArea_One from "@/features/admin/queries/Area_One.query"
 import useDevice_AllFilteredAndSortedQuery from "@/features/admin/queries/Device.AllFilterAndSort.query"
+import useMachineModel_OneQuery from "@/features/admin/queries/MachineModel_One.query"
+import useDevice_One from "@/features/admin/queries/Device_One.query"
 
 const admin_queries = {
    request: {
@@ -18,6 +20,7 @@ const admin_queries = {
    },
    machine_model: {
       all: useMachineModel_AllQuery,
+      one: useMachineModel_OneQuery,
    },
    area: {
       all: useArea_AllQuery,
@@ -33,6 +36,7 @@ const admin_queries = {
    },
    device: {
       all_filterAndSort: useDevice_AllFilteredAndSortedQuery,
+      one: useDevice_One,
    },
 }
 

@@ -1,5 +1,5 @@
 import { ReactNode } from "react"
-import StaffNavbar from "@/app/staff/_components/StaffNavbar"
+import StaffNavbar from "@/features/staff/components/StaffNavbar"
 
 export default function StaffNavbarLayout({ children }: { children: ReactNode }) {
    return (

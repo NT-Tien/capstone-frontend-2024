@@ -1,6 +1,8 @@
 import HeadStaff_Issue_Delete from "@/features/head-maintenance/api/issue/delete.api"
 import HeadStaff_SparePart_Delete from "@/features/head-maintenance/api/spare-part/delete.api"
-import IssueDetailsDrawer, { IssueDetailsDrawerRefType } from "@/app/head-staff/_components/IssueDetailsDrawer"
+import Issue_ViewDetailsDrawer, {
+   IssueDetailsDrawerRefType,
+} from "@/features/head-maintenance/components/overlays/Issue_ViewDetails.drawer"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
@@ -11,10 +13,10 @@ import { CheckCircle, Clock, Dot, Eye, MinusCircle, XCircle } from "@phosphor-ic
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
 import { App, Button, ConfigProvider, Divider, Dropdown, Empty, FloatButton, Tabs } from "antd"
 import { Fragment, useMemo, useRef, useState } from "react"
-import CreateIssueModal, { CreateIssueModalRefType } from "./CreateIssue.modal"
-import { CreateTaskDrawerRefType } from "./CreateTask.drawer"
+import Issue_SelectTypeErrorDrawer, {
+   CreateIssueModalRefType,
+} from "../../../../../../../features/head-maintenance/components/overlays/Issue_SelectTypeError.drawer"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 
 type Props = {
    api_request: UseQueryResult<RequestDto, Error>
@@ -32,7 +34,6 @@ function IssuesListTab(props: Props) {
 
    const IssueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)
    const createIssuesDrawerRef = useRef<CreateIssueModalRefType | null>(null)
-   const createTaskDrawerRef = useRef<CreateTaskDrawerRefType | null>(null)
 
    const [tab, setTab] = useState<string>("1")
 
@@ -203,11 +204,7 @@ function IssuesListTab(props: Props) {
                                                 label: "Thêm vào tác vụ",
                                                 icon: <PlusOutlined />,
                                                 onClick: () => {
-                                                   props.api_request.isSuccess &&
-                                                      createTaskDrawerRef.current?.handleOpen(
-                                                         props.api_request.data.id,
-                                                         [issue.id],
-                                                      )
+                                                   // TODO add
                                                 },
                                              },
                                              ...(canMutateIssues
@@ -359,8 +356,8 @@ function IssuesListTab(props: Props) {
                ]}
             />
          </ConfigProvider>
-         <IssueDetailsDrawer refetch={props.api_request.refetch} ref={IssueDetailsDrawerRef} />
-         <CreateIssueModal onFinish={props.api_request.refetch} ref={createIssuesDrawerRef} />
+         <Issue_ViewDetailsDrawer refetch={props.api_request.refetch} ref={IssueDetailsDrawerRef} />
+         <Issue_SelectTypeErrorDrawer onFinish={props.api_request.refetch} ref={createIssuesDrawerRef} />
       </div>
    )
 }

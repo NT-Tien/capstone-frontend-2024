@@ -15,26 +15,13 @@ import {
    NotePencil,
 } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
-import { App, Button, Card, Col, Collapse, Row, Spin, Typography } from "antd"
-import dynamic from "next/dynamic"
+import { App, Button, Card, Col, Row, Typography } from "antd"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { Suspense, useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import CountUp from "react-countup"
 
 function Page() {
-   return (
-      <Suspense fallback={<Spin fullscreen />}>
-         <DashboardPage />
-      </Suspense>
-   )
-}
-
-export default dynamic(() => Promise.resolve(Page), {
-   ssr: false,
-})
-
-function DashboardPage() {
    const router = useRouter()
    const { notification } = App.useApp()
 
@@ -107,9 +94,7 @@ function DashboardPage() {
          notification.destroy("headStaffConfirmTasks")
       }
    }, [api_counts.data, api_counts.isSuccess, notification, router])
-
-   const { Panel } = Collapse
-
+   
    return (
       <div>
          <div>
@@ -330,3 +315,5 @@ function DashboardPage() {
       </div>
    )
 }
+
+export default Page

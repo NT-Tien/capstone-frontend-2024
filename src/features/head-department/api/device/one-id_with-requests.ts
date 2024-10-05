@@ -4,10 +4,11 @@ import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import { NotFoundError } from "@/lib/error/not-found.error"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 
 export type Request = {
    id: string
-}
+} & AuthTokenWrapper
 export type Response = DeviceDto & {
    requests: RequestDto[]
 }
@@ -25,7 +26,7 @@ export default async function Head_Device_OneId_WithRequests(req: Request): Prom
                return res.data
             }),
          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
+            Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,
          },
       })
       .then((res) => res.data)

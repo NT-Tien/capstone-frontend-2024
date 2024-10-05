@@ -22,12 +22,13 @@ import Tag from "antd/es/tag"
 import dayjs from "dayjs"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
-import DeviceRequestHistoryDrawer from "../DeviceRequestHistory.drawer"
-import CreateTaskV2Drawer, { CreateTaskV2DrawerProps } from "./_drawers/CreateTaskV2.drawer"
-import { CreateTaskDrawerRefType } from "./CreateTask.drawer"
+import Device_ViewRequestHistoryDrawer from "@/features/head-maintenance/components/overlays/Device_ViewRequestHistory.drawer"
 import isApproved from "./is-approved.util"
 import IssuesListTab from "./IssuesList.tab"
 import TasksListTab from "./TasksList.tab"
+import Task_CreateDrawer, {
+   CreateTaskV2DrawerProps,
+} from "@/features/head-maintenance/components/overlays/Task_Create.drawer"
 
 type Props = {
    requestId: string
@@ -215,7 +216,9 @@ function TabbedLayout(props: Props) {
                               >
                                  Tạo tác vụ
                               </Button>
-                              {props.api_request.data?.tasks.every((task) => task.status === TaskStatus.COMPLETED) &&
+                              {props.api_request.data?.tasks.every(
+                                 (task) => task.status === TaskStatus.COMPLETED || task.status === TaskStatus.CANCELLED,
+                              ) &&
                                  props.api_request.data?.issues.every(
                                     (issue) => issue.status === IssueStatusEnum.RESOLVED,
                                  ) && (
@@ -341,7 +344,7 @@ function TabbedLayout(props: Props) {
                                  )}
                               />
                               {props.api_deviceHistory.data && props.api_deviceHistory.data?.length > 2 && (
-                                 <DeviceRequestHistoryDrawer>
+                                 <Device_ViewRequestHistoryDrawer>
                                     {(handleOpen) => (
                                        <Button
                                           type="dashed"
@@ -356,7 +359,7 @@ function TabbedLayout(props: Props) {
                                           Xem thêm
                                        </Button>
                                     )}
-                                 </DeviceRequestHistoryDrawer>
+                                 </Device_ViewRequestHistoryDrawer>
                               )}
                            </>
                         ) : (
@@ -388,7 +391,7 @@ function TabbedLayout(props: Props) {
             )}
          </div>
          <OverlayControllerWithRef ref={createTaskDrawerRef}>
-            <CreateTaskV2Drawer refetchFn={props.api_request.refetch} />
+            <Task_CreateDrawer refetchFn={props.api_request.refetch} />
          </OverlayControllerWithRef>
       </>
    )

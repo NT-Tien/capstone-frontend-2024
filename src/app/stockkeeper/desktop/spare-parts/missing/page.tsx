@@ -1,7 +1,7 @@
 "use client"
 
-import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"
-import Stockkeeper_SparePart_AllAddMore from "@/app/stockkeeper/_api/spare-part/all-addmore"
+import { stockkeeper_qk } from "@/features/stockkeeper/api/qk"
+import Stockkeeper_SparePart_AllAddMore from "@/features/stockkeeper/api/spare-part/all-addmore"
 import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
 import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
@@ -12,8 +12,10 @@ import { useQuery } from "@tanstack/react-query"
 import { App, Button } from "antd"
 import dayjs from "dayjs"
 import { useMemo, useRef, useState } from "react"
-import UpdateQuantityModal, { UpdateQuantityModalProps } from "./UpdateQuantity.modal"
-import Stockkeeper_MachineModel_All from "@/app/stockkeeper/_api/machine-model/getAll.api"
+import UpdateQuantityModal, {
+   UpdateQuantityModalProps,
+} from "../../../../../features/stockkeeper/components/overlay/UpdateQuantity.modal"
+import Stockkeeper_MachineModel_All from "@/features/stockkeeper/api/machine-model/getAll.api"
 import { CaretDown, CaretUp } from "@phosphor-icons/react"
 import Link from "next/link"
 

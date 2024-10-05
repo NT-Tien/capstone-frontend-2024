@@ -5,9 +5,8 @@ import { Button, Card, List, Result, Skeleton, Tag } from "antd"
 import { TruckFilled } from "@ant-design/icons"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import RequestCard from "@/app/head-staff/mobile/(navbar)/requests/RequestCard"
 import useRequest_AllQuery from "@/features/head-department/queries/Request_All.query"
-import { FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
+import RequestCard from "@/features/head-maintenance/components/RequestCard"
 
 type Props = {
    requests: RequestDto[] | undefined
@@ -54,7 +53,7 @@ function HistoryList({ requests }: Props) {
          dataSource={requests}
          renderItem={(item, index) => (
             <List.Item className={cn("w-full", index === 0 && "mt-0")}>
-               <RequestCard
+               <RequestCard.Large
                   className={cn(
                      "w-full px-layout",
                      index % 2 === 0 ? "bg-white" : "bg-gray-100",

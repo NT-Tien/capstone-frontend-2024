@@ -10,9 +10,9 @@ import { Button, Form, InputNumber, Space } from "antd"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useMemo, useRef, useState } from "react"
-import Stockkeeper_MachineModel_All from "../../_api/machine-model/getAll.api"
-import { stockkeeper_qk } from "../../_api/qk"
-import Stockkeeper_SparePart_All, { type Request } from "../../_api/spare-part/all.api"
+import Stockkeeper_MachineModel_All from "../../../../features/stockkeeper/api/machine-model/getAll.api"
+import { stockkeeper_qk } from "../../../../features/stockkeeper/api/qk"
+import Stockkeeper_SparePart_All, { type Request } from "../../../../features/stockkeeper/api/spare-part/all.api"
 
 const values = {
    nameSingle: "linh kiện",

@@ -1,4 +1,4 @@
-import IssueDetailsDrawer from "@/app/staff/_components/IssueDetails.drawer"
+import IssueDetailsDrawer from "@/features/staff/components/overlays/IssueDetails.drawer"
 import ScannerDrawer from "@/components/overlays/Scanner.drawer"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"

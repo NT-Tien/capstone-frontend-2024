@@ -25,10 +25,14 @@ import { useRouter } from "next/navigation"
 import { Suspense, useEffect, useMemo, useRef } from "react"
 import TabbedLayout from "./TabbedLayout.component"
 import isApproved from "./is-approved.util"
-import RejectRequestDrawer, { RejectRequestDrawerRefType } from "../RejectRequest.drawer"
+import Request_RejectDrawer, {
+   RejectRequestDrawerRefType,
+} from "../../../../../../../features/head-maintenance/components/overlays/Request_Reject.drawer"
 import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import { cn } from "@/lib/utils/cn.util"
-import TaskDetailsDrawer, { TaskDetailsDrawerRefType } from "./TaskDetails.drawer"
+import Task_ViewDetailsDrawer, {
+   TaskDetailsDrawerRefType,
+} from "../../../../../../../features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import HeadStaff_Task_Create from "@/features/head-maintenance/api/task/create.api"
 import HeadStaff_Task_Update from "@/features/head-maintenance/api/task/update.api"
@@ -385,13 +389,13 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                </Suspense>
             </>
          )}
-         <RejectRequestDrawer
+         <Request_RejectDrawer
             ref={rejectRequestRef}
             onSuccess={() => {
                router.push(`/head-staff/mobile/requests/${params.id}`)
             }}
          />
-         <TaskDetailsDrawer
+         <Task_ViewDetailsDrawer
             ref={taskDetailsRef}
             refetchFn={async () => {
                await api_request.refetch()

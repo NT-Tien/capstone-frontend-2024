@@ -1,9 +1,6 @@
 "use client"
 
-import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
-import HeadStaff_Device_OneByIdWithHistory from "@/features/head-maintenance/api/device/one-byIdWithHistory.api"
 import headstaff_qk from "@/features/head-maintenance/qk"
-import HeadStaff_Request_OneById from "@/features/head-maintenance/api/request/oneById.api"
 import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
 import DataListView from "@/components/DataListView"
 import PageHeader from "@/components/layout/PageHeader"
@@ -16,7 +13,7 @@ import { cn } from "@/lib/utils/cn.util"
 import { isUUID } from "@/lib/utils/isUUID.util"
 import { CheckCircleFilled, MoreOutlined, QrcodeOutlined, TruckFilled } from "@ant-design/icons"
 import { Info, MapPin } from "@phosphor-icons/react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Skeleton } from "antd"
 import App from "antd/es/app"
 import Button from "antd/es/button"
@@ -30,19 +27,26 @@ import dayjs from "dayjs"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
-import ApproveRequestDrawer, { ApproveRequestDrawerRefType } from "./ApproveRequest.drawer"
-import DeviceRequestHistoryDrawer from "./DeviceRequestHistory.drawer"
-import RejectRequestDrawer, { RejectRequestDrawerRefType } from "./RejectRequest.drawer"
-import SendWarrantyDrawer, { SendWarrantyDrawerRefType } from "./SendWarranty.drawer"
+import Request_ApproveDrawer, {
+   ApproveRequestDrawerRefType,
+} from "@/features/head-maintenance/components/overlays/Request_Approve.drawer"
+import Device_ViewRequestHistoryDrawer from "@/features/head-maintenance/components/overlays/Device_ViewRequestHistory.drawer"
+import Request_RejectDrawer, {
+   RejectRequestDrawerRefType,
+} from "@/features/head-maintenance/components/overlays/Request_Reject.drawer"
+import Request_SendWarrantyDrawer, {
+   SendWarrantyDrawerRefType,
+} from "@/features/head-maintenance/components/overlays/Request_SendWarranty.drawer"
 import isApproved from "./approved/is-approved.util"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import RenewDeviceDrawer, {
+import Request_RenewDeviceDrawer, {
    RenewDeviceDrawerProps,
-} from "@/features/head-maintenance/components/drawers/RenewDevice.drawer"
+} from "@/features/head-maintenance/components/overlays/Request_RenewDevice.drawer"
+import head_maintenance_queries from "@/features/head-maintenance/queries"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
-   const { message, notification } = App.useApp()
+   const { message } = App.useApp()
    const queryClient = useQueryClient()
 
    const [hasScanned, setHasScanned] = useState<boolean>(false)
@@ -52,30 +56,25 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    const sendWarrantyRef = useRef<SendWarrantyDrawerRefType | null>(null)
    const control_renewDeviceDrawer = useRef<RefType<RenewDeviceDrawerProps> | null>(null)
 
-   const api_request = useQuery({
-      queryKey: headstaff_qk.request.byId(params.id),
-      queryFn: () =>
-         HeadStaff_Request_OneById({ id: params.id }).then((res) => {
-            console.log(res, res === null)
-            if (res === null) {
-               throw new NotFoundError("Request")
-            }
-            return res
+   const api_request = head_maintenance_queries.request.one({ id: params.id })
+
+   const api_device = head_maintenance_queries.device.one(
+      { id: api_request.data?.device.id ?? "" },
+      { enabled: api_request.isSuccess },
+   )
+
+   const api_deviceHistory = head_maintenance_queries.device.all_requestHistory(
+      {
+         id: api_request.data?.device.id ?? "",
+      },
+      {
+         select: (data) => ({
+            ...data,
+            requests: data.requests.filter((req) => req.id !== params.id),
          }),
-   })
-
-   const api_device = useQuery({
-      queryKey: headstaff_qk.device.byId(api_request.data?.device.id ?? ""),
-      queryFn: () => HeadStaff_Device_OneById({ id: api_request.data?.device.id ?? "" }),
-      enabled: api_request.isSuccess,
-   })
-
-   const api_deviceHistory = useQuery({
-      queryKey: headstaff_qk.device.byIdWithHistory(api_request.data?.device.id ?? ""),
-      queryFn: () => HeadStaff_Device_OneByIdWithHistory({ id: api_request.data?.device.id ?? "" }),
-      select: (data) => data.requests.filter((req) => req.id !== params.id),
-      enabled: api_request.isSuccess,
-   })
+         enabled: api_request.isSuccess,
+      },
+   )
 
    const mutate_updateSeen = useMutation({
       mutationFn: HeadStaff_Request_UpdateStatus,
@@ -415,11 +414,11 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                            {api_deviceHistory.isSuccess ? (
                               <>
                                  <List
-                                    dataSource={api_deviceHistory.data?.slice(0, 2)}
+                                    dataSource={api_deviceHistory.data.requests.slice(0, 2)}
                                     split
                                     header={
                                        <h5 className="text-lg font-medium text-neutral-500">
-                                          Lịch sử sửa chữa ({api_deviceHistory.data?.length ?? "-"})
+                                          Lịch sử sửa chữa ({api_deviceHistory.data.requests.length ?? "-"})
                                        </h5>
                                     }
                                     renderItem={(item, index) => (
@@ -460,8 +459,8 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                        </List.Item>
                                     )}
                                  />
-                                 {api_deviceHistory.data && api_deviceHistory.data?.length > 2 && (
-                                    <DeviceRequestHistoryDrawer>
+                                 {api_deviceHistory.data && api_deviceHistory.data.requests.length > 2 && (
+                                    <Device_ViewRequestHistoryDrawer>
                                        {(handleOpen) => (
                                           <Button
                                              type="dashed"
@@ -476,7 +475,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                              Xem thêm
                                           </Button>
                                        )}
-                                    </DeviceRequestHistoryDrawer>
+                                    </Device_ViewRequestHistoryDrawer>
                                  )}
                               </>
                            ) : (
@@ -526,15 +525,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                   </ScannerDrawer>
                   {pageStatus?.showingApproveRejectButtons && (
                      <section className="std-layout-outer fixed bottom-0 left-0 flex w-full justify-center gap-3 bg-inherit p-layout">
-                        {/* <Button
-                              size={"large"}
-                              className="w-full"
-                              type="primary"
-                              icon={<CheckCircleFilled />}
-                              onClick={() => approveRequestRef.current?.handleOpen(params.id)}
-                           >
-                              Xác nhận yêu cầu
-                           </Button> */}
                         {hasExpired ? (
                            <Button
                               size={"large"}
@@ -611,11 +601,11 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                </section>
             </>
          )}
-         <RejectRequestDrawer ref={rejectRequestRef} refetchFn={api_request.refetch} />
-         <ApproveRequestDrawer ref={approveRequestRef} refetchFn={api_request.refetch} />
-         <SendWarrantyDrawer ref={sendWarrantyRef} params={{ id: params.id }} />
+         <Request_RejectDrawer ref={rejectRequestRef} refetchFn={api_request.refetch} />
+         <Request_ApproveDrawer ref={approveRequestRef} refetchFn={api_request.refetch} />
+         <Request_SendWarrantyDrawer ref={sendWarrantyRef} params={{ id: params.id }} />
          <OverlayControllerWithRef ref={control_renewDeviceDrawer}>
-            <RenewDeviceDrawer />
+            <Request_RenewDeviceDrawer />
          </OverlayControllerWithRef>
       </div>
    )

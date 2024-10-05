@@ -10,10 +10,10 @@ import { useQuery } from "@tanstack/react-query"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useMemo, useRef, useState } from "react"
-import Stockkeeper_MachineModel_All from "../../_api/machine-model/getAll.api"
-import { stockkeeper_qk } from "../../_api/qk"
+import Stockkeeper_MachineModel_All from "../../../../features/stockkeeper/api/machine-model/getAll.api"
+import { stockkeeper_qk } from "../../../../features/stockkeeper/api/qk"
 import { Tag } from "antd"
-import Stockkeeper_Task_AllSearch, { type Request } from "../../_api/task/all-search.api"
+import Stockkeeper_Task_AllSearch, { type Request } from "../../../../features/stockkeeper/api/task/all-search.api"
 import { TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 
 const values = {

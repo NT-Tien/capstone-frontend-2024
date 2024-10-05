@@ -3,13 +3,11 @@
 import Step0 from "@/app/staff/(stack)/tasks/[id]/start/Step0.component"
 import Step1 from "@/app/staff/(stack)/tasks/[id]/start/Step1.component"
 import Step2 from "@/app/staff/(stack)/tasks/[id]/start/Step2.component"
-import staff_qk from "@/app/staff/_api/qk"
-import Staff_Task_OneById from "@/app/staff/_api/task/one-byId.api"
+import staff_qk from "@/features/staff/api/qk"
+import Staff_Task_OneById from "@/features/staff/api/task/one-byId.api"
 import RootHeader from "@/components/layout/RootHeader"
 import { useQuery } from "@tanstack/react-query"
-import {
-   Spin
-} from "antd"
+import { Spin } from "antd"
 import { useRouter } from "next/navigation"
 import { CSSProperties, useState } from "react"
 

@@ -25,10 +25,10 @@ const qk = {
       one_byId: (id: string) => ["devices", id],
    },
    spareParts: {
-      allRaw: () => ["spare-parts"],
-      all: (page: number, limit: number, searchName?: string) => ["spare-parts", { page, limit, searchName }],
-      all_withDeleted: () => ["spare-parts", "all_withDeleted"],
-      one_byId: (id: string) => ["spare-parts", id],
+      allRaw: () => ["spare-part"],
+      all: (page: number, limit: number, searchName?: string) => ["spare-part", { page, limit, searchName }],
+      all_withDeleted: () => ["spare-part", "all_withDeleted"],
+      one_byId: (id: string) => ["spare-part", id],
    },
    issueRequests: {
       all: (page: number, limit: number, status: FixRequestStatus) => ["issue-requests", { page, limit, status }],

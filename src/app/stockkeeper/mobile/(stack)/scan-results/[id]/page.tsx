@@ -1,6 +1,6 @@
 "use client"
 
-import Stockkeeper_Task_ReceiveSpareParts from "@/app/stockkeeper/_api/task/receive-spare-parts.api"
+import Stockkeeper_Task_ReceiveSpareParts from "@/features/stockkeeper/api/task/receive-spare-parts.api"
 import DataListView from "@/components/DataListView"
 import RootHeader from "@/components/layout/RootHeader"
 import { TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
@@ -13,7 +13,7 @@ import { App, Button, List, Tag, Typography } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useMemo, useRef } from "react"
-import Stockkeeper_Task_GetById from "../../../../_api/task/getById.api"
+import Stockkeeper_Task_GetById from "../../../../../../features/stockkeeper/api/task/getById.api"
 import CreateSignatureDrawer, { CreateSignatureDrawerRefType } from "@/components/overlays/CreateSignature.drawer"
 
 export default function TaskDetails({ params }: { params: { id: string } }) {

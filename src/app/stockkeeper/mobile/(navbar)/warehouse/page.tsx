@@ -8,7 +8,7 @@ import { ProDescriptions } from "@ant-design/pro-components"
 import { useQuery } from "@tanstack/react-query"
 import { Button, Card, List } from "antd"
 import { useRouter } from "next/navigation"
-import Stockkeeper_MachineModel_All from "../../../_api/machine-model/getAll.api"
+import Stockkeeper_MachineModel_All from "../../../../../features/stockkeeper/api/machine-model/getAll.api"
 
 export default function MachineModelPage() {
    const result = useQuery({

@@ -8,7 +8,11 @@ export function middleware(request: NextRequest) {
       return NextResponse.next()
    }
 
-   if (request.nextUrl.pathname === "/login" || request.nextUrl.pathname.startsWith("/test")) {
+   if (
+      request.nextUrl.pathname === "/login" ||
+      request.nextUrl.pathname.startsWith("/test") ||
+      request.nextUrl.pathname.startsWith("/dev")
+   ) {
       // check if user is already logged in
       return NextResponse.next()
    }

@@ -7,7 +7,7 @@ import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import useModalControls from "@/lib/hooks/useModalControls"
 import { CheckCard } from "@ant-design/pro-components"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Button, Card, Checkbox, DatePicker, Drawer, Empty, Form, Radio, Tag } from "antd"
+import { App, Button, Card, DatePicker, Drawer, Empty, Form, Radio, Tag } from "antd"
 import dayjs, { Dayjs } from "dayjs"
 import { forwardRef, useImperativeHandle, useMemo, useState } from "react"
 
@@ -75,7 +75,7 @@ const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function C
 
    const api_user = useQuery({
       queryKey: headstaff_qk.user.all(),
-      queryFn: () => HeadStaff_Users_AllStaff(),
+      queryFn: () => HeadStaff_Users_AllStaff({}),
       enabled: !!fixerDate,
    })
 

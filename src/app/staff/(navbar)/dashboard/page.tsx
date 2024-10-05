@@ -1,8 +1,8 @@
 "use client"
 
-import staff_qk from "@/app/staff/_api/qk"
-import Staff_Task_All from "@/app/staff/_api/task/all.api"
-import TaskCard from "@/app/staff/_components/TaskCard"
+import staff_qk from "@/features/staff/api/qk"
+import Staff_Task_All from "@/features/staff/api/task/all.api"
+import TaskCard from "@/features/staff/components/TaskCard"
 import HomeHeader from "@/components/layout/HomeHeader"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
@@ -15,7 +15,9 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useMemo, useRef, useState } from "react"
 import CountUp from "react-countup"
 import Image from "next/image"
-import TaskDetailsDrawer, { TaskDetailsDrawerRefType } from "../../_components/TaskDetails.drawer"
+import TaskDetailsDrawer, {
+   TaskDetailsDrawerRefType,
+} from "../../../../features/staff/components/overlays/TaskDetails.drawer"
 
 export default dynamic(() => Promise.resolve(StaffDashboard), {
    ssr: false,

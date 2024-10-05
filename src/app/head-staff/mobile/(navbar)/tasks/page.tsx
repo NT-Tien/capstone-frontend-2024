@@ -12,18 +12,9 @@ import { Button, Card, Divider, Empty, List, Result, Skeleton, Spin } from "antd
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
 
-export default function Page() {
-   return (
-      <Suspense fallback={<Spin fullscreen />}>
-         <TasksPage />
-      </Suspense>
-   )
-}
-
-function TasksPage() {
-   const searchParams = useSearchParams()
-   const [status, setStatus] = useState<TaskStatus>(TaskStatus.AWAITING_FIXER)
-   const page = Number(searchParams.get("page")) ?? 1
+function Page({ searchParams }: { searchParams: { page?: string; status?: TaskStatus } }) {
+   const [status, setStatus] = useState<TaskStatus>(searchParams?.status ?? TaskStatus.AWAITING_FIXER)
+   const page = Number(searchParams?.page ?? 1)
    const limit = 5
 
    const result = useInfiniteQuery({
@@ -34,12 +25,6 @@ function TasksPage() {
          return lastPageParam + 1
       },
    })
-
-   useEffect(() => {
-      if (searchParams.get("status")) {
-         setStatus(searchParams.get("status") as any)
-      }
-   }, [searchParams])
 
    return (
       <div className="std-layout">
@@ -53,7 +38,6 @@ function TasksPage() {
             classNames={{
                content: "mt-layout",
             }}
-            defaultActiveTab={searchParams.get("status") ?? undefined}
             items={[
                {
                   key: TaskStatus.AWAITING_SPARE_SPART,
@@ -153,3 +137,5 @@ function ListView(props: ListViewType) {
       />
    )
 }
+
+export default Page

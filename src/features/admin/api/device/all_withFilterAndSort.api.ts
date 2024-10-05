@@ -3,6 +3,7 @@ import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 
 type Request = {
    page: number
@@ -21,7 +22,7 @@ type Request = {
    }
 }
 type Response = {
-   list: RequestDto[]
+   list: DeviceDto[]
    total: number
 }
 

@@ -1,5 +1,6 @@
 import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
 import { TypeErrorDto } from "@/lib/domain/TypeError/TypeError.dto"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 
 export type MachineModelDto = {
    name: string
@@ -14,4 +15,5 @@ export type MachineModelDto = {
    deletedAt: null | string
    spareParts: SparePartDto[]
    typeErrors: TypeErrorDto[]
+   devices: DeviceDto[]
 }

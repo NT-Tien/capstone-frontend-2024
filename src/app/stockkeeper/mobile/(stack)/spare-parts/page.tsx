@@ -1,7 +1,7 @@
 "use client"
 
-import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"
-import Stockkeeper_SparePart_All from "@/app/stockkeeper/_api/spare-part/all.api"
+import { stockkeeper_qk } from "@/features/stockkeeper/api/qk"
+import Stockkeeper_SparePart_All from "@/features/stockkeeper/api/spare-part/all.api"
 import RootHeader from "@/components/layout/RootHeader"
 import { cn } from "@/lib/utils/cn.util"
 import { FilterOutlined, LeftOutlined, MoreOutlined } from "@ant-design/icons"
@@ -10,8 +10,13 @@ import { useInfiniteQuery } from "@tanstack/react-query"
 import { Button, Divider, Dropdown, FloatButton, Input, Spin } from "antd"
 import { useRouter } from "next/navigation"
 import { Fragment, useMemo, useRef, useState } from "react"
-import SortDrawer, { Sort, SortDrawerRefType } from "./Sort.drawer"
-import SparePartDetailsDrawer, { SparePartDetailsDrawerRefType } from "./SparePartDetails.drawer"
+import Sort_SparePartsDrawer, {
+   Sort,
+   SortDrawerRefType,
+} from "../../../../../features/stockkeeper/components/overlay/Sort_SpareParts.drawer"
+import SparePartDetailsDesktopDrawer, {
+   SparePartDetailsDrawerRefType,
+} from "../../../../../features/stockkeeper/components/overlay/SparePartDetailsDesktop.drawer"
 import { useInView } from "react-intersection-observer"
 
 function Page() {
@@ -142,8 +147,8 @@ function Page() {
                   </Fragment>
                ))}
          </section>
-         <SortDrawer setSort={setSort} ref={sortDrawerRef} />
-         <SparePartDetailsDrawer ref={sparePartDetailsDrawerRef} refetchFn={api_spareParts.refetch} />
+         <Sort_SparePartsDrawer setSort={setSort} ref={sortDrawerRef} />
+         <SparePartDetailsDesktopDrawer ref={sparePartDetailsDrawerRef} refetchFn={api_spareParts.refetch} />
       </div>
    )
 }

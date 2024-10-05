@@ -1,6 +1,6 @@
 import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
 import headstaff_qk from "@/features/head-maintenance/qk"
-import IssueDetailsDrawer from "@/app/head-staff/_components/IssueDetailsDrawer"
+import Issue_ViewDetailsDrawer from "@/features/head-maintenance/components/overlays/Issue_ViewDetails.drawer"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { FixRequestStatusTagMapper } from "@/lib/domain/Request/RequestStatus.enum"
@@ -60,7 +60,7 @@ export default function IssuesTab(props: Props) {
                <Empty description="Báo cáo chưa có lỗi" />
             </Card>
          ) : (
-            <IssueDetailsDrawer
+            <Issue_ViewDetailsDrawer
                drawerProps={{
                   placement: "bottom",
                   height: "100%",
@@ -107,7 +107,7 @@ export default function IssuesTab(props: Props) {
                      ))}
                   </div>
                )}
-            </IssueDetailsDrawer>
+            </Issue_ViewDetailsDrawer>
          )}
       </section>
    )

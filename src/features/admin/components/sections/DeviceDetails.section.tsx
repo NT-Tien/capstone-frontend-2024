@@ -77,7 +77,10 @@ function DeviceDetailsSection({ device, isLoading }: Props) {
                   },
                   {
                      title: "Vị trí",
-                     render: (_, entity) => `${entity.positionX} - ${entity.positionY}`,
+                     render: (_, entity) =>
+                        !entity.positionX || !entity.positionY
+                           ? "Chưa xác đinh"
+                           : `${entity.positionX} - ${entity.positionY}`,
                   },
                ]}
             />

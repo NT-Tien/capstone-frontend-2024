@@ -3,13 +3,14 @@ import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 
 export type Request = {
    id: string
    payload: {
       content: string
    }
-}
+} & AuthTokenWrapper
 export type Response = {
    request: RequestDto
    feedback: any
@@ -21,7 +22,7 @@ export default async function Head_Request_UpdateClose(req: Request): Promise<Re
       .put<Response>(Head_Request_UpdateClose.URL(req), req.payload, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
+            Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,
          },
       })
       .then((res) => res.data)

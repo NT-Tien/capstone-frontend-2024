@@ -1,7 +1,7 @@
 "use client"
 
-import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"
-import Stockkeeper_Task_GetById from "@/app/stockkeeper/_api/task/getById.api"
+import { stockkeeper_qk } from "@/features/stockkeeper/api/qk"
+import Stockkeeper_Task_GetById from "@/features/stockkeeper/api/task/getById.api"
 import PageHeader from "@/components/layout/PageHeader"
 import { TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
@@ -12,7 +12,9 @@ import dayjs from "dayjs"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Fragment, useMemo, useRef } from "react"
-import SparePartDetailsDrawer, { SparePartDetailsDrawerRefType } from "./SparePartDetails.drawer"
+import SparePartDetailsMobileDrawer, {
+   SparePartDetailsDrawerRefType,
+} from "../../../../../../features/stockkeeper/components/overlay/SparePartDetailsMobile.drawer"
 import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
 
 function Page({ params }: { params: { id: string } }) {
@@ -162,7 +164,7 @@ function Page({ params }: { params: { id: string } }) {
                </section>
             </>
          )}
-         <SparePartDetailsDrawer
+         <SparePartDetailsMobileDrawer
             ref={sparePartDetailsDrawerRef}
             refetchFn={async () => {
                const task = await api_task.refetch()

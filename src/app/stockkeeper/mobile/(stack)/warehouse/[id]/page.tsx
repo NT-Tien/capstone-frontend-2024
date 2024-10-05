@@ -1,10 +1,10 @@
 "use client"
 
-import Stockkeeper_MachineModel_GetById from "@/app/stockkeeper/_api/machine-model/getById.api"
+import Stockkeeper_MachineModel_GetById from "@/features/stockkeeper/api/machine-model/getById.api"
 import Stockkeeper_SparePart_Update, {
    Request as UpdateRequest,
    Response as UpdateResponse,
-} from "@/app/stockkeeper/_api/spare-part/update-spare-part-by-id.api"
+} from "@/features/stockkeeper/api/spare-part/update-spare-part-by-id.api"
 import RootHeader from "@/components/layout/RootHeader"
 import qk from "@/old/querykeys"
 import { LeftOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons"

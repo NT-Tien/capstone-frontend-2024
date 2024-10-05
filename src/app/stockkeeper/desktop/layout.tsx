@@ -101,26 +101,26 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                   ],
                },
                {
-                  key: "spare-parts",
+                  key: "spare-part",
                   name: "Linh kiện",
                   children: [
                      {
                         key: "spareparts-list",
                         name: "Danh sách",
                         icon: <OrderedListOutlined />,
-                        path: "/stockkeeper/desktop/spare-parts",
+                        path: "/stockkeeper/desktop/spare-part",
                      },
                      {
                         key: "need-more",
                         name: "Linh kiện thiếu",
                         icon: <ApiOutlined />,
-                        path: "/stockkeeper/desktop/spare-parts/missing",
+                        path: "/stockkeeper/desktop/spare-part/missing",
                      },
                      {
                         key: "import",
                         name: "Nhập linh kiện",
                         icon: <ImportOutlined />,
-                        path: "/stockkeeper/desktop/spare-parts/import",
+                        path: "/stockkeeper/desktop/spare-part/import",
                      },
                   ],
                },

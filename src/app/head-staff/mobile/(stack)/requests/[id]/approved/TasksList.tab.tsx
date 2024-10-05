@@ -23,7 +23,9 @@ import { useMutation, UseQueryResult } from "@tanstack/react-query"
 import { App, ConfigProvider, Divider, Empty, Tabs } from "antd"
 import dayjs from "dayjs"
 import { Fragment, useMemo, useRef, useState } from "react"
-import TaskDetailsDrawer, { TaskDetailsDrawerRefType } from "./TaskDetails.drawer"
+import Task_ViewDetailsDrawer, {
+   TaskDetailsDrawerRefType,
+} from "../../../../../../../features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
 
 type Props = {
    api_request: UseQueryResult<RequestDto, Error>
@@ -469,7 +471,7 @@ export default function TasksListTab(props: Props) {
                ]}
             />
          </ConfigProvider>
-         <TaskDetailsDrawer
+         <Task_ViewDetailsDrawer
             ref={taskDetailsRef}
             refetchFn={async () => {
                await props.api_request.refetch()

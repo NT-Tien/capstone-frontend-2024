@@ -1,22 +1,22 @@
-import { UndefinedInitialDataOptions, useQuery, UseQueryOptions } from "@tanstack/react-query"
-import Head_Request_OneById from "@/features/head-department/api/request/one-id.api"
-import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { useQuery, UseQueryOptions } from "@tanstack/react-query"
+import Head_Request_OneById, { type Response, type Request } from "@/features/head-department/api/request/one-id.api"
 import generateQueryNotFoundOptions from "@/lib/utils/generateQueryNotFoundOptions.util"
 
-type Props = {
-   requestId: string | null
-}
+type Props = Request
+type QueryOptions = UseQueryOptions<Response, Error, Response, (string | Props)[]>
 
-useRequest_OneByIdQuery.qk = (props: Props) => ["head-department", "request", "one-by-id", props.requestId]
-useRequest_OneByIdQuery.queryOptions = (
-   props: Props,
-): UseQueryOptions<RequestDto, Error, RequestDto, (string | null)[]> => ({
+useRequest_OneByIdQuery.qk = (props: Props) => ["head-department", "request", "one-by-id", props]
+useRequest_OneByIdQuery.queryOptions = (props: Props): QueryOptions => ({
    queryKey: useRequest_OneByIdQuery.qk(props),
-   queryFn: () => Head_Request_OneById({ id: props.requestId ?? "" }),
-   enabled: !!props.requestId,
+   queryFn: () => Head_Request_OneById(props),
    ...generateQueryNotFoundOptions(),
 })
 
-export default function useRequest_OneByIdQuery(props: Props) {
-   return useQuery(useRequest_OneByIdQuery.queryOptions(props))
+function useRequest_OneByIdQuery(props: Props, queryOptions?: Omit<QueryOptions, "queryFn" | "queryKey">) {
+   return useQuery({
+      ...useRequest_OneByIdQuery.queryOptions(props),
+      ...queryOptions,
+   })
 }
+
+export default useRequest_OneByIdQuery

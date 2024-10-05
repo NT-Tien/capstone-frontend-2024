@@ -3,12 +3,13 @@ import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 
 export type Request = {
    page: number
    limit: number
    status: TaskStatus
-}
+} & AuthTokenWrapper
 export type Response = {
    list: TaskDto[]
    total: number
@@ -24,7 +25,7 @@ export default async function HeadStaff_Task_All(req: Request): Promise<Response
                total: res.data[1],
             })),
          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
+            Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,
          },
       })
       .then((res) => res.data)

@@ -1,9 +1,9 @@
 "use client"
 
-import staff_qk from "@/app/staff/_api/qk"
-import Staff_Task_All from "@/app/staff/_api/task/all.api"
-import TaskCard from "@/app/staff/_components/TaskCard"
-import TaskDetailsDrawer from "@/app/staff/_components/TaskDetails.drawer"
+import staff_qk from "@/features/staff/api/qk"
+import Staff_Task_All from "@/features/staff/api/task/all.api"
+import TaskCard from "@/features/staff/components/TaskCard"
+import TaskDetailsDrawer from "@/features/staff/components/overlays/TaskDetails.drawer"
 import RootHeader from "@/components/layout/RootHeader"
 import ScrollableTabs from "@/components/ScrollableTabs"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"

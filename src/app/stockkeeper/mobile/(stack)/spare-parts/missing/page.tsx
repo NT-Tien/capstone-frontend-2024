@@ -1,7 +1,7 @@
 "use client"
 
-import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"
-import Stockkeeper_SparePart_AllAddMore, { Response } from "@/app/stockkeeper/_api/spare-part/all-addmore"
+import { stockkeeper_qk } from "@/features/stockkeeper/api/qk"
+import Stockkeeper_SparePart_AllAddMore, { Response } from "@/features/stockkeeper/api/spare-part/all-addmore"
 import RootHeader from "@/components/layout/RootHeader"
 import { FilterOutlined, LeftOutlined, MoreOutlined } from "@ant-design/icons"
 import { ExclamationMark, TrayArrowDown, Warehouse, WashingMachine } from "@phosphor-icons/react"
@@ -9,8 +9,13 @@ import { useQuery, UseQueryResult } from "@tanstack/react-query"
 import { Button, Divider, Dropdown, Empty, FloatButton, Input, Spin, Tag } from "antd"
 import { useRouter } from "next/navigation"
 import { Fragment, useMemo, useRef, useState } from "react"
-import SortDrawer, { Sort, SortDrawerRefType } from "./Sort.drawer"
-import SparePartDetailsDrawer, { SparePartDetailsDrawerRefType } from "../SparePartDetails.drawer"
+import Sort_MissingSparePartsDrawer, {
+   Sort,
+   SortDrawerRefType,
+} from "../../../../../../features/stockkeeper/components/overlay/Sort_MissingSpareParts.drawer"
+import SparePartDetailsDesktopDrawer, {
+   SparePartDetailsDrawerRefType,
+} from "../../../../../../features/stockkeeper/components/overlay/SparePartDetailsDesktop.drawer"
 import dayjs from "dayjs"
 import { cn } from "@/lib/utils/cn.util"
 
@@ -146,8 +151,8 @@ function Page() {
                )
             })}
          </section>
-         <SortDrawer setSort={setSort} ref={sortDrawerRef} />
-         <SparePartDetailsDrawer ref={sparePartDetailsDrawerRef} refetchFn={api_spareParts.refetch} />
+         <Sort_MissingSparePartsDrawer setSort={setSort} ref={sortDrawerRef} />
+         <SparePartDetailsDesktopDrawer ref={sparePartDetailsDrawerRef} refetchFn={api_spareParts.refetch} />
       </div>
    )
 }

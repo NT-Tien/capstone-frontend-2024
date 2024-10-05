@@ -1,8 +1,10 @@
 import { parseApiResponse } from "../../../../lib/utils/parseApiResponse.util"
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
+import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 
-export type Response = {
+type Request = AuthTokenWrapper
+type Response = {
    pendingRequests: number
    checkedRequests: number
    approvedRequests: number
@@ -17,13 +19,13 @@ export type Response = {
    headStaffConfirmTasks: number
 }
 
-HeadStaff_Dashboard_Count.URL = () => `/head-staff/dashboard`
-export default async function HeadStaff_Dashboard_Count(): Promise<Response> {
+HeadStaff_Dashboard_Count.URL = (req: Request) => `/head-staff/dashboard`
+export default async function HeadStaff_Dashboard_Count(req: Request): Promise<Response> {
    return api
-      .get<Response>(HeadStaff_Dashboard_Count.URL(), {
+      .get<Response>(HeadStaff_Dashboard_Count.URL(req), {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
+            Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,
          },
       })
       .then((res) => res.data)

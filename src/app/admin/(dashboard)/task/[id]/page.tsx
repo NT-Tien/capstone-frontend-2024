@@ -12,7 +12,7 @@ import DeviceDetailsSection from "@/features/admin/components/sections/DeviceDet
 import IssuesListSection from "@/features/admin/components/sections/IssuesList.section"
 import Button from "antd/es/button"
 import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
-import SparePartsListSection from "@/features/admin/components/sections/SparePartsList.section"
+import SparePartsListByIssuesSection from "@/features/admin/components/sections/SparePartsListByIssues.section"
 import { clientEnv } from "@/env"
 
 function Page({ params }: { params: { id: string } }) {
@@ -169,7 +169,7 @@ function Page({ params }: { params: { id: string } }) {
             },
             {
                tab: "Linh kiện",
-               children: <SparePartsListSection issues={api_task.data?.issues} isLoading={api_task.isPending} />,
+               children: <SparePartsListByIssuesSection issues={api_task.data?.issues} isLoading={api_task.isPending} />,
             },
             ...(api_task.isSuccess &&
             new Set([TaskStatus.HEAD_STAFF_CONFIRM, TaskStatus.COMPLETED]).has(api_task.data.status)

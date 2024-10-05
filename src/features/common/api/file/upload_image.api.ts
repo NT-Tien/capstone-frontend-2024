@@ -1,10 +1,11 @@
 import api from "@/config/axios.config"
 import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
+import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 
 export type Request = {
    file: File
-}
+} & AuthTokenWrapper
 
 export type Response = {
    id: string
@@ -25,7 +26,7 @@ export async function File_Image_Upload(req: Request) {
    return api.post<Response>(File_Image_Upload.URL, formData, {
       transformResponse: (data) => parseApiResponse(data),
       headers: {
-         Authorization: `Bearer ${Cookies.get("token")}`,
+         Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,
          "Content-Type": "multipart/form-data",
       },
    })

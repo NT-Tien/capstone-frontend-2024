@@ -1,11 +1,11 @@
 import { ReactNode } from "react"
 import { Metadata } from "next"
-import ClientOnlyWrapper from "../../../../../providers/ClientOnlyWrapper"
+import { generateTitle } from "@/lib/utils/generateTitle.util"
 
 export const metadata: Metadata = {
-   title: "Dashboard | Head Staff",
+   title: generateTitle("Thống kê"),
 }
 
 export default function Layout({ children }: { children: ReactNode }) {
-   return <ClientOnlyWrapper>{children}</ClientOnlyWrapper>
+   return children
 }

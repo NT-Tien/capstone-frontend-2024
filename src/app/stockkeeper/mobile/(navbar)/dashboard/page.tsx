@@ -4,12 +4,12 @@ import { Card, Skeleton } from "antd"
 import HomeHeader from "@/components/layout/HomeHeader"
 import Image from "next/image"
 import { useQuery } from "@tanstack/react-query"
-import { stockkeeper_qk } from "@/app/stockkeeper/_api/qk"
-import Stockkeeper_SparePart_All from "@/app/stockkeeper/_api/spare-part/all.api"
+import { stockkeeper_qk } from "@/features/stockkeeper/api/qk"
+import Stockkeeper_SparePart_All from "@/features/stockkeeper/api/spare-part/all.api"
 import { useRouter } from "next/navigation"
 import { Gear } from "@phosphor-icons/react"
 import CountUp from "react-countup"
-import Stockkeeper_SparePart_AllAddMore from "@/app/stockkeeper/_api/spare-part/all-addmore"
+import Stockkeeper_SparePart_AllAddMore from "@/features/stockkeeper/api/spare-part/all-addmore"
 
 export default function DashboardPage() {
    const router = useRouter()
@@ -24,7 +24,7 @@ export default function DashboardPage() {
       queryFn: Stockkeeper_SparePart_AllAddMore,
       select: (data) => {
          return Object.values(data)
-      }
+      },
    })
 
    return (
@@ -85,7 +85,10 @@ export default function DashboardPage() {
                      <div className="text-lg">Số lượng hết hàng</div>
                      <div className="flex items-center">
                         <div className="text-3xl font-bold">
-                           <CountUp end={api_sparePartsMissing.isSuccess ? api_sparePartsMissing.data.length : 0} separator={","} />
+                           <CountUp
+                              end={api_sparePartsMissing.isSuccess ? api_sparePartsMissing.data.length : 0}
+                              separator={","}
+                           />
                            <span className="ml-1 text-base font-normal text-neutral-500">linh kiện</span>
                         </div>
                      </div>

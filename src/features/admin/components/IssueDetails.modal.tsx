@@ -107,7 +107,7 @@ function IssueDetailsModal(props: Props) {
                   ),
                },
                {
-                  key: "spare-parts",
+                  key: "spare-part",
                   label: `Linh kiện (${props.issue?.issueSpareParts.length})`,
                   children: (
                      <div>

@@ -2,12 +2,12 @@ import api from "@/config/axios.config"
 import Cookies from "js-cookie"
 import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import { NotFoundError } from "@/lib/error/not-found.error"
-import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 
 export type Request = {
    id: string
-}
+} & AuthTokenWrapper
 export type Response = RequestDto
 
 Head_Request_OneById.URL = (req: Request) => `/head/request`
@@ -25,7 +25,7 @@ export default async function Head_Request_OneById(req: Request): Promise<Respon
                return item
             }),
          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
+            Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,
          },
       })
       .then((res) => res.data)

@@ -20,6 +20,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import CountUp from "react-countup"
+import Cookies from "js-cookie"
 
 function Page() {
    const router = useRouter()
@@ -28,7 +29,7 @@ function Page() {
    const [tab, setTab] = useState("tasks")
    const api_counts = useQuery({
       queryKey: headstaff_qk.dashboard.count(),
-      queryFn: HeadStaff_Dashboard_Count,
+      queryFn: () => HeadStaff_Dashboard_Count({ token: Cookies.get("token") }),
    })
 
    const total = useMemo(() => {
@@ -124,7 +125,7 @@ function Page() {
                >
                   <div className="bottom-4 left-4 flex flex-col gap-2">
                      <Col>
-                        <CheckSquareOffset className="mb-1" size={36} />
+                        {/* <CheckSquareOffset className="mb-1" size={36} /> */}
                         <Row className="text-xl font-normal">Tổng cộng</Row>
                         <Row className="mt-2">
                            <CountUp className="flex align-bottom text-3xl font-bold" end={total.task} separator={","} />
@@ -141,7 +142,7 @@ function Page() {
                >
                   <div className="bottom-4 left-4 flex flex-col gap-2">
                      <Col>
-                        <Note className="mb-1" size={36} weight="duotone" />
+                        {/* <Note className="mb-1" size={36} weight="duotone" /> */}
                         <Row className="text-xl font-normal">Tổng cộng</Row>
                         <Row className="mt-2">
                            <CountUp className="text-3xl font-bold" end={total.request} separator={","} />
@@ -159,43 +160,48 @@ function Page() {
                            loading: api_counts.isPending,
                            count: api_counts.data?.awaitingSparePartTasks,
                            label: TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].text,
-                           icon: <CalendarSlash size={36} weight="duotone" className="text-red-500" />,
+                           // icon: <CalendarSlash size={36} weight="duotone" className="text-red-500" />,
                            route: "tasks",
                            bgColor: "bg-sky-100",
+                           color: "text-yellow-500",
                         },
                         {
                            loading: api_counts.isPending,
                            count: api_counts.data?.awaitingFixerTasks,
                            label: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text,
-                           icon: <CalendarSlash size={36} weight="duotone" className="text-red-500" />,
+                           // icon: <CalendarSlash size={36} weight="duotone" className="text-red-500" />,
                            route: "tasks",
                            bgColor: "bg-neutral-50",
+                           color: "text-red-500",
                         },
                         {
                            loading: api_counts.isPending,
                            count: api_counts.data?.assignedTasks,
                            label: TaskStatusTagMapper[TaskStatus.ASSIGNED].text,
-                           icon: <CalendarCheck size={36} weight="duotone" className="text-blue-500" />,
+                           // icon: <CalendarCheck size={36} weight="duotone" className="text-blue-500" />,
                            route: "tasks",
                            bgColor: "bg-sky-100",
+                           color: "text-blue-500",
                         },
                         {
                            loading: api_counts.isPending,
                            count: api_counts.data?.inProgressTasks,
                            label: TaskStatusTagMapper[TaskStatus.IN_PROGRESS].text,
-                           icon: <HourglassSimpleMedium size={36} className="text-orange-500" weight="duotone" />,
+                           // icon: <HourglassSimpleMedium size={36} className="text-orange-500" weight="duotone" />,
                            route: "tasks",
                            bgColor: "bg-neutral-50",
+                           color: "text-orange-500",
                         },
                         {
                            loading: api_counts.isPending,
                            count: api_counts.data?.headStaffConfirmTasks,
                            label: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text,
-                           icon: <NotePencil size={36} weight="duotone" className="text-purple-500" />,
+                           // icon: <NotePencil size={36} weight="duotone" className="text-purple-500" />,
                            route: "tasks",
                            bgColor: "bg-sky-100",
+                           color: "text-purple-500",
                         },
-                     ].map(({ loading, count, label, icon, route, bgColor }, index) => (
+                     ].map(({ loading, count, label, route, bgColor }, index) => (
                         <Card
                            key={index}
                            className={`flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-sm ${bgColor}`}
@@ -206,14 +212,13 @@ function Page() {
                            <div className="flex w-full items-start justify-between">
                               <div className="flex flex-col items-start">
                                  <div className="mb-2 text-lg">{label}</div>
-                                 <div className="flex items-center">
-                                    <div className="text-2xl font-bold">
-                                       <CountUp end={count ?? 0} separator="," />
-                                       <span className="ml-2 text-xs font-normal text-neutral-500">Tác vụ</span>
-                                    </div>
-                                 </div>
+                                 <div className="flex items-center"></div>
                               </div>
-                              <div className="flex items-center">{icon}</div>
+                              <div className={`text-2xl font-bold `}>
+                                 <CountUp end={count ?? 0} separator="," />
+                                 {/* <span className="ml-2 text-xs font-normal text-neutral-500">Tác vụ</span> */}
+                              </div>
+                              {/* <div className="flex items-center">{icon}</div> */}
                            </div>
                         </Card>
                      ))}

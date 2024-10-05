@@ -20,7 +20,7 @@ function Page() {
 
    const [filter, setFilter] = useState<FilterOptions>("today")
 
-   const api_requests = useRequest_AllQuery()
+   const api_requests = useRequest_AllQuery({})
 
    const counts = useMemo(() => {
       const counts = {
@@ -117,16 +117,16 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">Tổng cộng</div>
-                        <div className="mt-1.5 flex items-center">
-                           <div className="text-2xl font-bold">
-                              <CountUp end={Object.values(counts).reduce((acc, cur) => acc + cur, 0)} separator={","} />
-                              <span className="ml-1 text-xs font-light">Yêu cầu</span>
-                           </div>
-                        </div>
+                        {/* <div className="mt-1.5 flex items-center"> */}
+                        {/* </div> */}
                      </div>
-                     <div className="flex items-center">
+                     <div className="text-2xl font-bold">
+                        <CountUp end={Object.values(counts).reduce((acc, cur) => acc + cur, 0)} separator={","} />
+                        {/* <span className="ml-1 text-xs font-light">Yêu cầu</span> */}
+                     </div>
+                     {/* <div className="flex items-center">
                         <Gear size={36} weight="duotone" className="text-orange-500" />
-                     </div>
+                     </div> */}
                   </div>
                </Card>
                <Card
@@ -140,20 +140,19 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">{FixRequest_StatusData("pending").text}</div>
-                        <div className="mt-1.5 flex items-center">
-                           <div className="text-2xl font-bold">
-                              <CountUp end={counts[FixRequestStatus.PENDING]} separator={","} />
-                              <span className="ml-1 text-xs font-light">Yêu cầu</span>
-                           </div>
-                        </div>
+                        <div className="mt-1.5 flex items-center"></div>
                      </div>
-                     <div className="flex items-center">
+                     <div className="text-2xl font-bold">
+                        <CountUp end={counts[FixRequestStatus.PENDING]} separator={","} />
+                        {/* <span className="ml-1 text-xs font-light">Yêu cầu</span> */}
+                     </div>
+                     {/* <div className="flex items-center">
                         {
                            FixRequest_StatusData("pending", {
                               phosphor: { size: 36, weight: "duotone", className: "text-neutral-500" },
                            }).icon
                         }
-                     </div>
+                     </div> */}
                   </div>
                </Card>
                <Card
@@ -167,20 +166,19 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">{FixRequest_StatusData("approved").text}</div>
-                        <div className="mt-1.5 flex items-center">
-                           <div className="text-2xl font-bold">
-                              <CountUp end={counts[FixRequestStatus.APPROVED]} separator={","} />
-                              <span className="ml-1 text-xs font-light">Yêu cầu</span>
-                           </div>
-                        </div>
+                        <div className="mt-1.5 flex items-center"></div>
                      </div>
-                     <div className="flex items-center">
+                     <div className="text-2xl font-bold">
+                        <CountUp end={counts[FixRequestStatus.APPROVED]} separator={","} />
+                        {/* <span className="ml-1 text-xs font-light">Yêu cầu</span> */}
+                     </div>
+                     {/* <div className="flex items-center">
                         {
                            FixRequest_StatusData("approved", {
                               phosphor: { size: 36, weight: "duotone", className: "text-green-500" },
                            }).icon
                         }
-                     </div>
+                     </div> */}
                   </div>
                </Card>
                <Card
@@ -194,20 +192,19 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">{FixRequest_StatusData("in_progress").text}</div>
-                        <div className="mt-1.5 flex items-center">
-                           <div className="text-2xl font-bold">
-                              <CountUp end={counts[FixRequestStatus.IN_PROGRESS]} separator={","} />
-                              <span className="ml-1 text-xs font-light">Yêu cầu</span>
-                           </div>
-                        </div>
+                        <div className="mt-1.5 flex items-center"></div>
                      </div>
-                     <div className="flex items-center">
+                     <div className="text-2xl font-bold">
+                        <CountUp end={counts[FixRequestStatus.IN_PROGRESS]} separator={","} />
+                        {/* <span className="ml-1 text-xs font-light">Yêu cầu</span> */}
+                     </div>
+                     {/* <div className="flex items-center">
                         {
                            FixRequest_StatusData("in_progress", {
                               phosphor: { size: 36, weight: "duotone", className: "text-blue-500" },
                            }).icon
                         }
-                     </div>
+                     </div> */}
                   </div>
                </Card>
                <Card
@@ -221,20 +218,19 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">{FixRequest_StatusData("head_confirm").text}</div>
-                        <div className="mt-1.5 flex items-center">
-                           <div className="text-2xl font-bold">
-                              <CountUp end={counts[FixRequestStatus.HEAD_CONFIRM]} separator={","} />
-                              <span className="ml-1 text-xs font-light">Yêu cầu</span>
-                           </div>
-                        </div>
+                        <div className="mt-1.5 flex items-center"></div>
                      </div>
-                     <div className="flex items-center">
+                     <div className="text-2xl font-bold">
+                        <CountUp end={counts[FixRequestStatus.HEAD_CONFIRM]} separator={","} />
+                        {/* <span className="ml-1 text-xs font-light">Yêu cầu</span> */}
+                     </div>
+                     {/* <div className="flex items-center">
                         {
                            FixRequest_StatusData("head_confirm", {
                               phosphor: { size: 36, weight: "duotone", className: "text-purple-500" },
                            }).icon
                         }
-                     </div>
+                     </div> */}
                   </div>
                </Card>
                <Card
@@ -248,20 +244,19 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">{FixRequest_StatusData("rejected").text}</div>
-                        <div className="mt-1.5 flex items-center">
-                           <div className="text-2xl font-bold">
-                              <CountUp end={counts[FixRequestStatus.REJECTED]} separator={","} />
-                              <span className="ml-1 text-xs font-light">Yêu cầu</span>
-                           </div>
-                        </div>
+                        <div className="mt-1.5 flex items-center"></div>
                      </div>
-                     <div className="flex items-center">
+                     <div className="text-2xl font-bold">
+                        <CountUp end={counts[FixRequestStatus.REJECTED]} separator={","} />
+                        {/* <span className="ml-1 text-xs font-light">Yêu cầu</span> */}
+                     </div>
+                     {/* <div className="flex items-center">
                         {
                            FixRequest_StatusData("rejected", {
                               phosphor: { size: 36, weight: "duotone", className: "text-red-500" },
                            }).icon
                         }
-                     </div>
+                     </div> */}
                   </div>
                </Card>
                <Card
@@ -275,20 +270,19 @@ function Page() {
                   <div className="flex w-full items-start justify-between">
                      <div className="flex flex-col items-start">
                         <div className="font-base text-lg">{FixRequest_StatusData("closed").text}</div>
-                        <div className="mt-1.5 flex items-center">
-                           <div className="text-2xl font-bold">
-                              <CountUp end={counts[FixRequestStatus.CLOSED]} separator={","} />
-                              <span className="ml-1 text-xs font-light">Yêu cầu</span>
-                           </div>
-                        </div>
+                        <div className="mt-1.5 flex items-center"></div>
                      </div>
-                     <div className="flex items-center">
+                     <div className="text-2xl font-bold">
+                        <CountUp end={counts[FixRequestStatus.CLOSED]} separator={","} />
+                        {/* <span className="ml-1 text-xs font-light">Yêu cầu</span> */}
+                     </div>
+                     {/* <div className="flex items-center">
                         {
                            FixRequest_StatusData("closed", {
                               phosphor: { size: 36, weight: "duotone", className: "text-neutral-500" },
                            }).icon
                         }
-                     </div>
+                     </div> */}
                   </div>
                </Card>
             </section>

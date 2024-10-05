@@ -27,7 +27,7 @@ function Component() {
    const router = useRouter()
    const [tab, setTab] = useState<FixRequestStatuses | undefined>(undefined)
 
-   const { data: requests, isLoading } = useRequest_AllQuery()
+   const { data: requests, isLoading } = useRequest_AllQuery({})
 
    const filteredRequests = tab ? requests?.filter((req) => req.status === tab.toUpperCase()) : requests
 

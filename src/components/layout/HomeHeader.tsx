@@ -30,11 +30,6 @@ export default function HomeHeader(props: HeadStaffDashboardHeaderProps) {
       <div>
          <Col className={cn(props.className)} style={props.style}>
             <Row gutter={[16, 0]} align="middle">
-               <Col>
-                  <Flex justify="flex-start" className="w-full">
-                     <MenuOutlined className="text-neutral-600" style={{ fontSize: "1.25rem" }} />
-                  </Flex>
-               </Col>
                <Col flex="auto">
                   <Row justify="end">
                      <Typography.Text className="mb-0 text-sm text-neutral-600">Chào buổi sáng</Typography.Text>

@@ -161,7 +161,7 @@ function Page() {
                            label: TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].text,
                            icon: <CalendarSlash size={36} weight="duotone" className="text-red-500" />,
                            route: "tasks",
-                           bgColor: "bg-red-200",
+                           bgColor: "bg-sky-100",
                         },
                         {
                            loading: api_counts.isPending,
@@ -169,7 +169,7 @@ function Page() {
                            label: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text,
                            icon: <CalendarSlash size={36} weight="duotone" className="text-red-500" />,
                            route: "tasks",
-                           bgColor: "bg-red-200",
+                           bgColor: "bg-neutral-50",
                         },
                         {
                            loading: api_counts.isPending,
@@ -177,7 +177,7 @@ function Page() {
                            label: TaskStatusTagMapper[TaskStatus.ASSIGNED].text,
                            icon: <CalendarCheck size={36} weight="duotone" className="text-blue-500" />,
                            route: "tasks",
-                           bgColor: "bg-blue-200",
+                           bgColor: "bg-sky-100",
                         },
                         {
                            loading: api_counts.isPending,
@@ -185,7 +185,7 @@ function Page() {
                            label: TaskStatusTagMapper[TaskStatus.IN_PROGRESS].text,
                            icon: <HourglassSimpleMedium size={36} className="text-orange-500" weight="duotone" />,
                            route: "tasks",
-                           bgColor: "bg-orange-200",
+                           bgColor: "bg-neutral-50",
                         },
                         {
                            loading: api_counts.isPending,
@@ -193,7 +193,7 @@ function Page() {
                            label: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text,
                            icon: <NotePencil size={36} weight="duotone" className="text-purple-500" />,
                            route: "tasks",
-                           bgColor: "bg-purple-200",
+                           bgColor: "bg-sky-100",
                         },
                      ].map(({ loading, count, label, icon, route, bgColor }, index) => (
                         <Card

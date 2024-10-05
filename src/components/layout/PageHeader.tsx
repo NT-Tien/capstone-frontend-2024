@@ -13,20 +13,22 @@ type Props = {
 }
 
 function PageHeader({ icon, title, className, handleClickIcon, iconProps }: Props) {
-   const RenderIcon = React.createElement(icon || AddressBook, {
-      size: 24,
-      weight: icon === PageHeader.BackIcon ? "bold" : "fill",
-      className: "text-neutral-500",
-      ...iconProps,
-   })
+   const RenderIcon = icon
+      ? React.createElement(icon, {
+           size: 24,
+           weight: icon === PageHeader.BackIcon ? "bold" : "fill",
+           className: "text-neutral-500",
+           ...iconProps,
+        })
+      : null
 
    function handleClickIconWrapper() {
       handleClickIcon?.()
    }
 
    return (
-      <header className={cn("px-layout py-layout", className)}>
-         <div className="flex items-center gap-3">
+      <header className={cn("w-full px-layout py-layout", className)}>
+         <div className="flex w-full items-center justify-between">
             <Button
                className="bg-neutral-100/50 p-2"
                classNames={{
@@ -35,8 +37,7 @@ function PageHeader({ icon, title, className, handleClickIcon, iconProps }: Prop
                icon={RenderIcon}
                onClick={handleClickIconWrapper}
             ></Button>
-            <h1 className="block flex-grow text-xl font-bold text-neutral-600">{title}</h1>
-            <Button type="text" size="large" icon={<MoreOutlined />}></Button>
+            <h1 className="flex w-full justify-center text-center text-2xl font-bold text-neutral-600">{title}</h1>
          </div>
       </header>
    )

@@ -50,7 +50,7 @@ export default function RootHeader({
          className={cn("flex h-min w-full items-center justify-between bg-white shadow-soft", className)}
          style={style}
       >
-         <span className="flex flex-grow justify-center items-center gap-1 text-xl font-semibold">
+         <span className="flex flex-grow items-center justify-between gap-1 text-xl font-semibold">
             {confirmOnIconClick ? (
                <ModalConfirm onConfirm={onIconClick} {...confirmModalProps}>
                   <Button icon={icon} type="text" className="p-0" {...buttonProps} />
@@ -58,7 +58,7 @@ export default function RootHeader({
             ) : (
                <Button icon={icon} type="text" className="p-0" onClick={onIconClick} {...buttonProps} />
             )}
-            {title}
+            <div className="flex justify-center w-full">{title}</div>
          </span>
       </div>
    )

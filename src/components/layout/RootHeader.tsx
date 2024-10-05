@@ -24,7 +24,7 @@ export default function RootHeader({
    buttonProps,
    confirmOnIconClick = false,
    confirmModalProps,
-   icon = <ContainerFilled className="text-lg" />,
+   icon,
    className,
 }: Props) {
    useEffect(() => {

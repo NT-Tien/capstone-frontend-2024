@@ -24,8 +24,9 @@ export default function ScannerDrawer(
    },
 ) {
    const { open, handleOpen, handleClose } = useModalControls({
-      onClose: () => {},
-   })
+      onClose: () => {
+         form.resetFields()
+      },   })
 
    async function handleFinish(res: string, handleCloseManual?: () => void) {
       props.onScan(res)

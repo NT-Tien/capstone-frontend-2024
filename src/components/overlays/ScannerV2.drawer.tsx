@@ -2,9 +2,10 @@ import ScannerInputManualDrawer from "@/components/overlays/ScannerInputManual.d
 import useModalControls from "@/lib/hooks/useModalControls"
 import { InfoCircleOutlined, RightOutlined } from "@ant-design/icons"
 import { Scanner } from "@yudiel/react-qr-scanner"
-import { Avatar, Button, Card, Drawer, DrawerProps } from "antd"
+import { App, Avatar, Button, Card, Drawer, DrawerProps, Form, Input } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle } from "react"
 import AlertCard from "@/components/AlertCard"
+import { isUUID } from "@/lib/utils/isUUID.util"
 
 export type ScannerV2DrawerRefType = {
    handleOpen: () => void
@@ -20,9 +21,12 @@ type Props = {
 
 const ScannerV2Drawer = forwardRef<ScannerV2DrawerRefType, Props>(function Component({ children, ...props }, ref) {
    const { open, handleOpen, handleClose } = useModalControls({
-      onClose: () => {},
+      onClose: () => {
+         form.resetFields()
+      },
    })
-
+   const [form] = Form.useForm()
+   const { message } = App.useApp()
    useImperativeHandle(ref, () => ({
       handleOpen,
       handleClose,
@@ -32,6 +36,22 @@ const ScannerV2Drawer = forwardRef<ScannerV2DrawerRefType, Props>(function Compo
       props.onScan(res)
       handleCloseManual?.()
       handleClose()
+   }
+
+   async function handleFormSubmit() {
+      try {
+         await form.validateFields()
+         const values = form.getFieldsValue()
+         await handleFinish(values.deviceId)
+      } catch (e) {
+         message.destroy("error-msg")
+         message
+            .error({
+               content: "Không thể gửi dữ liệu. Vui lòng kiểm tra lại.",
+               key: "error-msg",
+            })
+            .then()
+      }
    }
 
    return (
@@ -82,24 +102,34 @@ const ScannerV2Drawer = forwardRef<ScannerV2DrawerRefType, Props>(function Compo
                   },
                }}
             />
-            <ScannerInputManualDrawer onFinish={handleFinish}>
-               {(handleOpen) => (
-                  <Card size="small" hoverable onClick={handleOpen} className="mt-layout">
-                     <div className="flex items-center gap-3">
-                        <Avatar style={{ fontSize: "18px", textAlign: "center", backgroundColor: "#6750A4" }}>
-                           AI
-                        </Avatar>
-                        <div className="flex-grow">
-                           <p className="text-base font-bold">Nhập thủ công</p>
-                           <p className="text-xs">Nhấp vào đây nếu bạn không thể quét mã QR</p>
-                        </div>
-                        <div>
-                           <Button type="text" icon={<RightOutlined />} />
-                        </div>
-                     </div>
-                  </Card>
-               )}
-            </ScannerInputManualDrawer>
+            <section className="p-4">
+               <Card size="small" hoverable className="mb-4">
+                  <div className="flex items-start gap-2">
+                     <InfoCircleOutlined className="mt-1" />
+                     <div className="text-base">Vui lòng nhập ID của thiết bị nếu bạn không thể quét mã QR</div>
+                  </div>
+               </Card>
+
+               <Form form={form} layout="horizontal">
+                  <Form.Item
+                     name="deviceId"
+                     label="ID của thiết bị"
+                     rules={[
+                        { required: true, message: "ID của thiết bị là bắt buộc" },
+                        {
+                           validator: (_, value) =>
+                              isUUID(value) ? Promise.resolve() : Promise.reject("ID của thiết bị không hợp lệ"),
+                        },
+                     ]}
+                  >
+                     <Input placeholder="e.g., e31d662e-05db-4bc4-8bfd-773f56618725" size="large" allowClear />
+                  </Form.Item>
+               </Form>
+
+               <Button type="primary" onClick={handleFormSubmit} className="w-full" size="large">
+                  Gửi
+               </Button>
+            </section>
          </Drawer>
       </>
    )

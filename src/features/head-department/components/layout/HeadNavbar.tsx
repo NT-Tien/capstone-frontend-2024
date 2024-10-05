@@ -92,7 +92,7 @@ export default function SideNavbar() {
                         onMouseDown={(e) => (e.currentTarget.style.backgroundColor = "#e0e0e0")}
                         onMouseUp={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
                      >
-                        <span style={{ fontSize: "1.8rem", marginRight: "10px" }}>{item.icon}</span>
+                        <span style={{ fontSize: "0.5rem", marginRight: "10px" }}>{item.icon}</span>
                         {item.name}
                      </li>
                      {index < items.length - 1 && <Divider style={{ margin: "0" }} />}

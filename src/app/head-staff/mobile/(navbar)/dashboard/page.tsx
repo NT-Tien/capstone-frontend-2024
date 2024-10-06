@@ -28,7 +28,7 @@ function Page() {
    const [tab, setTab] = useState("tasks")
    const api_counts = useQuery({
       queryKey: headstaff_qk.dashboard.count(),
-      queryFn: HeadStaff_Dashboard_Count,
+      queryFn: () => HeadStaff_Dashboard_Count({}),
    })
 
    const total = useMemo(() => {

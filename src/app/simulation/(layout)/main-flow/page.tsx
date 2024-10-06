@@ -1,13 +1,13 @@
 "use client"
 
-import Button from "antd/es/button"
 import { Tabs } from "antd"
 import { useState } from "react"
+import CreateRequestTab from "@/app/simulation/(layout)/main-flow/create-request.tab"
 
 function Page() {
    const [tab, setTab] = useState<string>("create-request")
    return (
-      <div className="p-3 pt-0">
+      <div className="h-full p-3 pt-0">
          <Tabs
             activeKey={tab}
             onChange={(key) => setTab(key)}
@@ -18,7 +18,7 @@ function Page() {
                },
             ]}
          />
-         {tab === "create-request" && <div>Test</div>}
+         {tab === "create-request" && <CreateRequestTab />}
       </div>
    )
 }

@@ -11,7 +11,7 @@ import useModalControls from "@/lib/hooks/useModalControls"
 import { LeftOutlined, PlusOutlined, QrcodeOutlined, ReloadOutlined } from "@ant-design/icons"
 import { ProFormSelect, ProFormTextArea } from "@ant-design/pro-components"
 import { useQueries } from "@tanstack/react-query"
-import { App, Button, Card, Divider, Drawer, Empty, Form, Result, Space, Tag, Tooltip } from "antd"
+import { Button, Card, Divider, Drawer, Empty, Form, Result, Space, Tag, Tooltip } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
@@ -20,49 +20,16 @@ import { decodeJwt } from "@/lib/domain/User/decodeJwt.util"
 import useDevice_OneByIdQuery from "@/features/head-department/queries/Device_OneById.query"
 import useDevice_OneById_WithRequestsQuery from "@/features/head-department/queries/Device_OneById_WithRequests.query"
 import head_department_mutations from "@/features/head-department/mutations"
+import RequestErrors from "@/lib/domain/Request/RequestErrors"
 
 type FieldType = {
    description: string
    selection: string
 }
 
-const loiMay = [
-   {
-      label: "+ Tạo vấn đề mới",
-      value: "create",
-   },
-   {
-      label: "Vấn đề nguồn điện",
-      options: [
-         { label: "Máy không khởi động được", value: "Máy không khởi động được" },
-         { label: "Dây điện bị sờn", value: "Dây điện bị sờn" },
-         { label: "Điện áp không ổn định gây ra sự cố", value: "Điện áp không ổn định gây ra sự cố" },
-      ],
-   },
-   {
-      label: "Vấn đề cơ khí",
-      options: [
-         { label: "Mô tơ bị kẹt", value: "Mô tơ bị kẹt" },
-         { label: "Dây curoa bị trượt hoặc đứt", value: "Dây curoa bị trượt hoặc đứt" },
-         { label: "Bánh răng bị mòn", value: "Bánh răng bị mòn" },
-         { label: "Máy cần tra dầu", value: "Máy cần tra dầu" },
-      ],
-   },
-   {
-      label: "Vấn đề chỉ",
-      options: [
-         { label: "Chỉ liên tục bị đứt", value: "Chỉ liên tục bị đứt" },
-         { label: "Chỉ bị rối dưới vải", value: "Chỉ bị rối dưới vải" },
-         { label: "Chỉ suốt không bắt được", value: "Chỉ suốt không bắt được" },
-         { label: "Sức căng của chỉ trên có vấn đề", value: "Sức căng của chỉ trên có vấn đề" },
-      ],
-   },
-]
-
-export default function ScanDetails({ params }: { params: { id: string } }) {
+function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
    const [form] = Form.useForm<FieldType>()
-   const { message } = App.useApp()
    const user = useCurrentUser()
 
    const { open, handleOpen, handleClose } = useModalControls({
@@ -350,7 +317,7 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
          <Drawer placement="bottom" height="max-content" open={open} onClose={handleClose} title={"Tạo báo cáo"}>
             <Form<FieldType> form={form} layout="vertical">
                <ProFormSelect
-                  options={loiMay}
+                  options={RequestErrors}
                   label="Vấn đề"
                   fieldProps={{
                      size: "large",
@@ -384,3 +351,5 @@ export default function ScanDetails({ params }: { params: { id: string } }) {
       </>
    )
 }
+
+export default Page

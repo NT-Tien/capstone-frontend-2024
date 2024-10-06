@@ -11,9 +11,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { App, ConfigProvider, ConfigProviderProps, GetProp } from "antd"
 import vi_VN from "antd/lib/locale/vi_VN"
 import "dayjs/locale/vi"
-import "moment/locale/vi"
 import { ReactNode } from "react"
-import SuperUserDrawerProvider from "@/providers/SuperUserDrawer.provider"
 
 type WaveConfig = GetProp<ConfigProviderProps, "wave">
 

@@ -4,6 +4,7 @@ import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
+import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 
 type Request = {
    page: number
@@ -20,7 +21,7 @@ type Request = {
       order?: "ASC" | "DESC"
       orderBy?: "createdAt" | "updatedAt" | "position"
    }
-}
+} & AuthTokenWrapper
 type Response = {
    list: DeviceDto[]
    total: number
@@ -35,7 +36,7 @@ async function Admin_Device_AllWithFilterAndSort(request: Request): Promise<Resp
                total: res.data[1],
             })),
          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
+            Authorization: `Bearer ${request.token ?? Cookies.get("token")}`,
          },
       })
       .then((res) => res.data)

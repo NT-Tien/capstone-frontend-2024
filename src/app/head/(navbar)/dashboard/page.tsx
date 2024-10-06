@@ -20,7 +20,7 @@ function Page() {
 
    const [filter, setFilter] = useState<FilterOptions>("today")
 
-   const api_requests = useRequest_AllQuery()
+   const api_requests = useRequest_AllQuery({})
 
    const counts = useMemo(() => {
       const counts = {

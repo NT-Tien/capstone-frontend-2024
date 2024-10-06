@@ -27,7 +27,7 @@ function Component() {
    const router = useRouter()
    const [tab, setTab] = useState<FixRequestStatuses | undefined>(undefined)
 
-   const { data: requests, isLoading } = useRequest_AllQuery()
+   const { data: requests, isLoading } = useRequest_AllQuery({})
 
    const filteredRequests = tab ? requests?.filter((req) => req.status === tab.toUpperCase()) : requests
 
@@ -78,7 +78,7 @@ function Component() {
          />
          <Input
             type="text"
-            className="relative z-30 w-full rounded-full border border-neutral-200 bg-neutral-100 px-4 py-3 mb-2"
+            className="relative z-30 mb-2 w-full rounded-full border border-neutral-200 bg-neutral-100 px-4 py-3"
             placeholder="Tìm kiếm"
             prefix={<SearchOutlined className="mr-2" />}
             suffix={<FilterOutlined />}

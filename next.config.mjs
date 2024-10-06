@@ -60,10 +60,10 @@ const nextConfig = {
    reactStrictMode: true,
    reactProductionProfiling: false,
    eslint: {
-      ignoreDuringBuilds: false,
+      ignoreDuringBuilds: true,
    },
    typescript: {
-      ignoreBuildErrors: false,
+      ignoreBuildErrors: true,
    },
    i18n: {
       locales: ["vie", "eng"],

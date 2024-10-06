@@ -243,6 +243,7 @@ export default function StaffTasksPage() {
                                     className={cn(
                                        "border-default-500 bg-default-50 cursor-pointer border-r-4 transition-all hover:border-primary-300 hover:bg-primary-50",
                                        index === 0 ? "rounded-tl-none" : "mt-1",
+                                       index % 2 === 0 ? 'bg-sky-100' : 'bg-white',
                                        isDisabled && "opacity-50",
                                     )}
                                     classNames={{
@@ -475,6 +476,7 @@ export default function StaffTasksPage() {
                                        size="small"
                                        className={cn(
                                           "border-default-500 bg-default-50 cursor-pointer border-r-4 transition-all hover:border-primary-300 hover:bg-primary-50",
+                                          index % 2 === 0 ? 'bg-sky-100' : 'bg-white',
                                           index === 0 ? "rounded-tl-none" : "mt-1",
                                        )}
                                        classNames={{

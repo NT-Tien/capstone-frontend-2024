@@ -160,7 +160,7 @@ function TabDetails(props: TabDetailsProps) {
                      </div>
                   }
                   footerRight={<span className="text-xs text-neutral-500">{getCreatedAt(item)}</span>}
-                  subtitle={`${item.requester.username} | ${item.device.area.name}`}
+                  subtitle={`${item.requester.username} | ${item?.device?.area?.name}`}
                   title={item.device.machineModel.name}
                   onClick={() => {
                      const statuses = new Set([FixRequestStatus.PENDING, FixRequestStatus.REJECTED])

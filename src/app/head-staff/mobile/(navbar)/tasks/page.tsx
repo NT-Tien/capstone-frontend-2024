@@ -8,9 +8,12 @@ import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import qk from "@/old/querykeys"
 import { useInfiniteQuery } from "@tanstack/react-query"
-import { Button, Card, Divider, Empty, List, Result, Skeleton, Spin } from "antd"
+import { Button, Card, Divider, Empty, Input, List, Result, Segmented, Skeleton, Spin } from "antd"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
+import PageHeader from "@/components/layout/PageHeader"
+import Image from "next/image"
+import { FilterOutlined, SearchOutlined } from "@ant-design/icons"
 
 function Page({ searchParams }: { searchParams: { page?: string; status?: TaskStatus } }) {
    const [status, setStatus] = useState<TaskStatus>(searchParams?.status ?? TaskStatus.AWAITING_FIXER)
@@ -26,55 +29,100 @@ function Page({ searchParams }: { searchParams: { page?: string; status?: TaskSt
       },
    })
 
+   const taskStatusOptions = [
+      {
+         value: TaskStatus.AWAITING_SPARE_SPART,
+         label: (
+            <>
+               {/* {TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].icon} */}
+               {TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].text}
+            </>
+         ),
+      },
+      {
+         value: TaskStatus.AWAITING_FIXER,
+         label: (
+            <>
+               {/* {TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].icon} */}
+               {TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text}
+            </>
+         ),
+      },
+      {
+         value: TaskStatus.ASSIGNED,
+         label: (
+            <>
+               {/* {TaskStatusTagMapper[TaskStatus.ASSIGNED].icon} */}
+               {TaskStatusTagMapper[TaskStatus.ASSIGNED].text}
+            </>
+         ),
+      },
+      {
+         value: TaskStatus.IN_PROGRESS,
+         label: (
+            <>
+               {/* {TaskStatusTagMapper[TaskStatus.IN_PROGRESS].icon} */}
+               {TaskStatusTagMapper[TaskStatus.IN_PROGRESS].text}
+            </>
+         ),
+      },
+      {
+         value: TaskStatus.HEAD_STAFF_CONFIRM,
+         label: (
+            <>
+               {/* {TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].icon} */}
+               {TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text}
+            </>
+         ),
+      },
+      {
+         value: TaskStatus.COMPLETED,
+         label: (
+            <>
+               {/* {TaskStatusTagMapper[TaskStatus.COMPLETED].icon} */}
+               {TaskStatusTagMapper[TaskStatus.COMPLETED].text}
+            </>
+         ),
+      },
+      {
+         value: TaskStatus.CANCELLED,
+         label: (
+            <>
+               {/* {TaskStatusTagMapper[TaskStatus.CANCELLED].icon} */}
+               {TaskStatusTagMapper[TaskStatus.CANCELLED].text}
+            </>
+         ),
+      },
+   ];
+
    return (
-      <div className="std-layout">
-         <RootHeader title="Tác vụ" className="std-layout-outer p-4" />
-         <ScrollableTabs
-            className="main-tabs std-layout-outer"
-            tab={status}
-            onTabChange={(e) => {
-               setStatus(e as any)
+      <div className="std-layout relative h-full min-h-screen bg-white">
+         <PageHeader title="Tác vụ" className="std-layout-outer relative z-30" />
+         <Image
+            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
+            src="/images/requests.jpg"
+            alt="image"
+            width={784}
+            height={100}
+            style={{
+               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
+               objectFit: "fill",
             }}
-            classNames={{
-               content: "mt-layout",
-            }}
-            items={[
-               {
-                  key: TaskStatus.AWAITING_SPARE_SPART,
-                  title: TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].text,
-                  icon: TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].icon,
-               },
-               {
-                  key: TaskStatus.AWAITING_FIXER,
-                  title: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text,
-                  icon: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].icon,
-               },
-               {
-                  key: TaskStatus.ASSIGNED,
-                  title: TaskStatusTagMapper[TaskStatus.ASSIGNED].text,
-                  icon: TaskStatusTagMapper[TaskStatus.ASSIGNED].icon,
-               },
-               {
-                  key: TaskStatus.IN_PROGRESS,
-                  title: TaskStatusTagMapper[TaskStatus.IN_PROGRESS].text,
-                  icon: TaskStatusTagMapper[TaskStatus.IN_PROGRESS].icon,
-               },
-               {
-                  key: TaskStatus.HEAD_STAFF_CONFIRM,
-                  title: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text, // TODO temporary replacement
-                  icon: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].icon,
-               },
-               {
-                  key: TaskStatus.COMPLETED,
-                  title: TaskStatusTagMapper[TaskStatus.COMPLETED].text,
-                  icon: TaskStatusTagMapper[TaskStatus.COMPLETED].icon,
-               },
-               {
-                  key: TaskStatus.CANCELLED,
-                  title: TaskStatusTagMapper[TaskStatus.CANCELLED].text,
-                  icon: TaskStatusTagMapper[TaskStatus.CANCELLED].icon,
-               },
-            ]}
+         />
+         <Input
+            type="text"
+            className="relative z-30 mb-2 w-full rounded-full border border-neutral-200 bg-neutral-100 px-4 py-3"
+            placeholder="Tìm kiếm"
+            prefix={<SearchOutlined className="mr-2" />}
+            suffix={<FilterOutlined />}
+         />
+
+         <Segmented
+            className="hide-scrollbar mt-layout w-full overflow-auto mb-3"
+            value={status}
+            onChange={(val) => setStatus(val as TaskStatus)}
+            options={taskStatusOptions}
          />
 
          {result.isError ? (
@@ -131,9 +179,19 @@ function ListView(props: ListViewType) {
          dataSource={props.items}
          itemLayout={"horizontal"}
          size={"small"}
-         renderItem={(item) => (
-            <TaskCard task={item} className="mb-2" onClick={() => router.push(`/head-staff/mobile/tasks/${item.id}`)} />
-         )}
+         renderItem={(item, index) => {
+            // Alternating classes for background color
+            const isEven = index % 2 === 0
+            const backgroundClass = isEven ? 'bg-sky-100' : 'bg-white'
+
+            return (
+               <TaskCard
+                  task={item}
+                  className={`mb-2 ${backgroundClass}`} // Add background color via className
+                  onClick={() => router.push(`/head-staff/mobile/tasks/${item.id}`)}
+               />
+            )
+         }}
       />
    )
 }

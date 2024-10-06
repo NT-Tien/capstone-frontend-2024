@@ -5,7 +5,7 @@ import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { clientEnv } from "@/env"
-import { LinkOutlined, UserOutlined } from "@ant-design/icons"
+import { LinkOutlined, PhoneOutlined, UserOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
 import { App, Avatar, Button, Card, Image, Progress, Steps, Tag } from "antd"
@@ -122,7 +122,12 @@ export default function DetailsTab({ api, setTab }: Props) {
                   key: "fix date",
                   label: "Ngày sửa",
                   dataIndex: "fixerDate",
-                  render: (_, e) => (e.fixerDate ? dayjs(e.fixerDate).add(7, "hours").format("DD/MM/YYYY") : "-"),
+                  render: (_, e) =>
+                     e.fixerDate ? (
+                        <div style={{ fontWeight: "bold" }}>{dayjs(e.fixerDate).add(7, "hours").format("DD/MM/YYYY")}</div>
+                     ) : (
+                        "-"
+                     ),
                },
                {
                   key: "request",
@@ -164,15 +169,22 @@ export default function DetailsTab({ api, setTab }: Props) {
          {api.isSuccess && api.data.fixer && (
             <Card
                size="small"
-               className="mt-3"
+               className="mt-3 rounded-lg border border-gray-200 shadow-md transition-shadow duration-300 hover:shadow-lg"
                classNames={{
-                  body: "flex",
+                  body: "flex items-center p-3 bg-gradient-to-r from-blue-50 to-white",
                }}
             >
-               <Avatar icon={<UserOutlined />} />
-               <div className="ml-3">
-                  <div className="text-base font-semibold">{api.data.fixer?.username}</div>
-                  <div className="text-xs">{api.data.fixer?.phone}</div>
+               <Avatar
+                  size={48}
+                  icon={<UserOutlined />}
+                  className="border-2 border-blue-500"
+                  style={{ backgroundColor: "#e6f7ff", color: "#000080" }}
+               />
+               <div className="ml-3 flex-1">
+                  <div className="text-lg font-bold leading-tight text-gray-800">
+                     {api.data.fixer?.username || "Fixer Name"}
+                  </div>
+                  <div className="text-sm text-gray-500">{api.data.fixer?.phone || "Phone number not available"}</div>
                </div>
             </Card>
          )}

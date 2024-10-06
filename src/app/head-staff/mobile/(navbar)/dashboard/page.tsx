@@ -201,7 +201,7 @@ function Page() {
                            bgColor: "bg-sky-100",
                            color: "text-purple-500",
                         },
-                     ].map(({ loading, count, label, route, bgColor }, index) => (
+                     ].map(({ loading, count, label, route, bgColor, color }, index) => (
                         <Card
                            key={index}
                            className={`flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-sm ${bgColor}`}
@@ -214,7 +214,7 @@ function Page() {
                                  <div className="mb-2 text-lg">{label}</div>
                                  <div className="flex items-center"></div>
                               </div>
-                              <div className={`text-2xl font-bold `}>
+                              <div className={`text-2xl font-bold ${color} `}>
                                  <CountUp end={count ?? 0} separator="," />
                                  {/* <span className="ml-2 text-xs font-normal text-neutral-500">Tác vụ</span> */}
                               </div>

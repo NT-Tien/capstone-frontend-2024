@@ -11,15 +11,18 @@ import {
    CheckOutlined,
    HomeFilled,
    ContainerOutlined,
+   LogoutOutlined,
 } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import useLogout from "@/lib/domain/User/useLogout"
 
 export default function SideNavbar() {
    const current = usePathname()
    const [currentActive, setCurrentActive] = useState<string | undefined>()
    const [isDrawerVisible, setIsDrawerVisible] = useState(false)
    const router = useRouter()
+   const [handleLogout] = useLogout()
 
    function handleClick(path: string) {
       setCurrentActive(path)
@@ -84,31 +87,55 @@ export default function SideNavbar() {
             styles={{ header: { display: "none" } }}
             width="66vw"
          >
-            <ul style={{ fontSize: "1.5rem", padding: 0 }}>
-               {items.map((item, index) => (
-                  <div key={item.key}>
-                     <li
-                        onClick={item.onClick}
-                        style={{
-                           padding: "20px 0",
-                           cursor: "pointer",
-                           display: "flex",
-                           alignItems: "center",
-                           backgroundColor: "transparent",
-                           transition: "background-color 0.2s",
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                        onMouseDown={(e) => (e.currentTarget.style.backgroundColor = "#e0e0e0")}
-                        onMouseUp={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
-                     >
-                        <span style={{ fontSize: "1.3rem", marginRight: "10px" }}>{item.icon}</span>
-                        <span style={{ fontSize: "1.3rem" }}>{item.name}</span>
-                     </li>
-                     {index < items.length - 1 && <Divider style={{ margin: "0" }} />}
-                  </div>
-               ))}
-            </ul>
+            <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+               <ul style={{ fontSize: "1.5rem", padding: 0, flexGrow: 1 }}>
+                  {items.map((item, index) => (
+                     <div key={item.key}>
+                        <li
+                           onClick={item.onClick}
+                           style={{
+                              padding: "20px 0",
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              backgroundColor: "transparent",
+                              transition: "background-color 0.2s",
+                           }}
+                           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
+                           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                           onMouseDown={(e) => (e.currentTarget.style.backgroundColor = "#e0e0e0")}
+                           onMouseUp={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
+                        >
+                           <span style={{ fontSize: "1.3rem", marginRight: "10px" }}>{item.icon}</span>
+                           <span style={{ fontSize: "1.3rem" }}>{item.name}</span>
+                        </li>
+                        {index < items.length - 1 && <Divider style={{ margin: "0" }} />}
+                     </div>
+                  ))}
+               </ul>
+               <Divider style={{ margin: "20px 0" }} />
+               <li
+                  onClick={handleLogout}
+                  style={{
+                     padding: "20px 0",
+                     cursor: "pointer",
+                     display: "flex",
+                     alignItems: "center",
+                     backgroundColor: "transparent",
+                     transition: "background-color 0.2s",
+                     color: "red",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  onMouseDown={(e) => (e.currentTarget.style.backgroundColor = "#e0e0e0")}
+                  onMouseUp={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
+               >
+                  <span style={{ fontSize: "1.3rem", marginRight: "10px" }}>
+                     <LogoutOutlined />
+                  </span>
+                  <span style={{ fontSize: "1.3rem" }}>Logout</span>
+               </li>
+            </div>
          </Drawer>
       </>
    )

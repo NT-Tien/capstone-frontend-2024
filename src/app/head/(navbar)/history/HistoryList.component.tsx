@@ -14,7 +14,7 @@ type Props = {
 
 function HistoryList({ requests }: Props) {
    const router = useRouter()
-   const api_requests = useRequest_AllQuery()
+   const api_requests = useRequest_AllQuery({})
 
    if (!api_requests.isSuccess) {
       if (api_requests.isPending) {
@@ -75,7 +75,7 @@ function HistoryList({ requests }: Props) {
                      </div>
                   }
                   footerRight={<span className="text-xs text-neutral-500">{getCreatedAt(item)}</span>}
-                  subtitle={`${item.requester.username} | ${item.device.area.name}`}
+                  subtitle={`${item.requester.username} | ${item?.device?.area?.name}`}
                   title={item.device.machineModel.name}
                   onClick={() => {
                      const statuses = new Set([FixRequestStatus.PENDING, FixRequestStatus.REJECTED])

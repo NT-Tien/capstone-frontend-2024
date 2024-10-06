@@ -1,33 +1,3 @@
-// import { FixRequestStatus } from "@/common/enum/fix-request-status.enum"
-// import { TaskStatus } from "@/common/enum/task-status.enum"
-// import { parseApiResponse } from "@/common/util/parseApiResponse.util"
-// import api from "@/config/axios.config"
-// import Cookies from "js-cookie"
-
-// export type Request = { id: string };
-// export type Response = {
-//   data: {
-//     total_requests: number;
-//     total_tasks: number;
-//     total_devices: number;
-//     request: FixRequestStatus;
-//     task: TaskStatus;
-//   };
-//   message: string;
-//   statusCode: number;
-// };
-
-// Admin_Devices_OneByAreaId.URL = (req: Request) => `/admin/device/get-all-by-area-id/${req.id}`
-// export default async function Admin_Devices_OneByAreaId(req: Request) {
-//    return api
-//       .get<Response>(Admin_Devices_OneByAreaId.URL(req), {
-//          transformResponse: (data) => parseApiResponse(data),
-//          headers: {
-//             Authorization: `Bearer ${Cookies.get("token")}`,
-//          },
-//       })
-//       .then((res) => res.data)
-// }
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"

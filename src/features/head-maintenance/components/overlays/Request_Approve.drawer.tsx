@@ -70,7 +70,7 @@ const Request_ApproveDrawer = forwardRef<ApproveRequestDrawerRefType, Props>(fun
    })
    const api_commonIssues = useQuery({
       queryKey: headstaff_qk.typeError.common(),
-      queryFn: () => HeadStaff_TypeError_Common(),
+      queryFn: () => HeadStaff_TypeError_Common({}),
    })
 
    const mutate_createIssues = useMutation({

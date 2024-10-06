@@ -137,12 +137,13 @@ export default function AdminHomePage() {
             }}
          >
             <Table
+               bordered
                columns={[
                   {
                      title: <div style={{ textAlign: "center" }}>Khu vực</div>,
                      dataIndex: "areaNames",
                      key: "areaNames",
-                     align: "match-parent",
+                     align: "center",
                   },
                   {
                      title: <div style={{ textAlign: "center" }}>Yêu cầu</div>,
@@ -261,6 +262,9 @@ export default function AdminHomePage() {
                            style={{
                               borderTopLeftRadius: "12px",
                               borderTopRightRadius: "12px",
+                              borderWidth: "3px",
+                              borderStyle: "solid",
+                              borderColor: "#000",
                            }}
                         />
                      ),
@@ -272,6 +276,9 @@ export default function AdminHomePage() {
                            style={{
                               borderBottomLeftRadius: "12px",
                               borderBottomRightRadius: "12px",
+                              borderWidth: "3px",
+                              borderStyle: "solid",
+                              borderColor: "#000",
                            }}
                         />
                      ),

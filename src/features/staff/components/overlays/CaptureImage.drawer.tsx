@@ -29,10 +29,6 @@ function CaptureImageDrawer({
 
    useEffect(() => {
       setRender(true)
-
-      return () => {
-         webcamRef.current
-      }
    }, [])
 
    if (!render) return null
@@ -62,7 +58,7 @@ function CaptureImageDrawer({
             }}
             videoConstraints={{ facingMode: "environment" }}
          />
-         <div className="flex w-full justify-center items-center p-3 absolute bottom-0">
+         <div className="absolute bottom-0 flex w-full items-center justify-center p-3">
             <Button
                type="default"
                onClick={capture}

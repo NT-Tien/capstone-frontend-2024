@@ -161,6 +161,7 @@ export default function FinishIssueDrawer({
                   <div className="mb-3 grid grid-cols-5 gap-2">
                      {uploadImages.map((image) => (
                         <Image
+                           alt="image"
                            key={image + "_image"}
                            src={clientEnv.BACKEND_URL + "/file-image/" + image}
                            className="aspect-square w-full rounded-lg"

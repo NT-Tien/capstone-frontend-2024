@@ -18,6 +18,7 @@ type HandleOpenType<T> = (props: T) => void
 
 type RefType<T> = {
    handleOpen: HandleOpenType<T>
+   handleClose: () => void
    setComponentProps: Dispatch<SetStateAction<T>>
 } | null
 
@@ -39,6 +40,7 @@ const OverlayControllerWithRef = forwardRef<RefType<any>, Props<any>>(function C
 
    useImperativeHandle(ref, () => ({
       handleOpen,
+      handleClose,
       setComponentProps,
    }))
 

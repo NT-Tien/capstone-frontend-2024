@@ -60,14 +60,10 @@ const nextConfig = {
    reactStrictMode: true,
    reactProductionProfiling: false,
    eslint: {
-      ignoreDuringBuilds: true, // Set to true if build errors occur
+      ignoreDuringBuilds: false,
    },
    typescript: {
-      // !! WARN !!
-      // Dangerously allow production builds to successfully complete even if
-      // your project has type errors.
-      // !! WARN !!
-      ignoreBuildErrors: true,
+      ignoreBuildErrors: false,
    },
    i18n: {
       locales: ["vie", "eng"],

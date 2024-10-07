@@ -91,7 +91,7 @@ function Page({ params }: { params: { id: string } }) {
                />
                <Card className="mb-4 mt-2">
                   <Steps
-                     current={0}
+                     current={api_task.isSuccess ? TaskStatusTagMapper[api_task.data.status].index : 0}
                      items={[
                         TaskStatus.AWAITING_SPARE_SPART,
                         TaskStatus.AWAITING_FIXER,
@@ -169,7 +169,9 @@ function Page({ params }: { params: { id: string } }) {
             },
             {
                tab: "Linh kiện",
-               children: <SparePartsListByIssuesSection issues={api_task.data?.issues} isLoading={api_task.isPending} />,
+               children: (
+                  <SparePartsListByIssuesSection issues={api_task.data?.issues} isLoading={api_task.isPending} />
+               ),
             },
             ...(api_task.isSuccess &&
             new Set([TaskStatus.HEAD_STAFF_CONFIRM, TaskStatus.COMPLETED]).has(api_task.data.status)

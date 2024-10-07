@@ -8,8 +8,9 @@ import useCurrentUser from "@/lib/domain/User/useCurrentUser"
 import { CheckOutlined, ContainerFilled, HomeOutlined, LaptopOutlined, UserOutlined } from "@ant-design/icons"
 import { Typography } from "antd"
 import { useRouter } from "next/navigation"
+import dynamic from "next/dynamic"
 
-export default function ProfilePage() {
+function Page() {
    const user = useCurrentUser()
    const router = useRouter()
 
@@ -53,3 +54,7 @@ export default function ProfilePage() {
       </div>
    )
 }
+
+export default dynamic(() => Promise.resolve(Page), {
+   ssr: false,
+})

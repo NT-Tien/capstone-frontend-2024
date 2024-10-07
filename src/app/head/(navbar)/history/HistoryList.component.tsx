@@ -54,13 +54,7 @@ function HistoryList({ requests }: Props) {
          renderItem={(item, index) => (
             <List.Item className={cn("w-full", index === 0 && "mt-0")}>
                <RequestCard.Large
-                  className={cn(
-                     "w-full px-layout",
-                     index % 2 === 0 ? "bg-white" : "bg-gray-100",
-                     item.is_seen === false &&
-                        "border-[1px] border-green-100 bg-green-100 p-2 transition-all hover:bg-green-200",
-                  )}
-                  headerClassName={cn(item.is_seen === false && "rounded-lg p-1")}
+                  className={cn("w-full px-layout", index % 2 === 0 ? "bg-white" : "bg-gray-100")}
                   description={item.requester_note}
                   footerLeft={
                      <div>
@@ -85,13 +79,6 @@ function HistoryList({ requests }: Props) {
                         router.push(`/head/history/${item.id}/approved`)
                      }
                   }}
-                  tag={
-                     item.is_seen === false && (
-                        <Tag color="green" className="m-0">
-                           Mới
-                        </Tag>
-                     )
-                  }
                   footerClassName="mt-1"
                />
             </List.Item>

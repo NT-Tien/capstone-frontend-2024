@@ -60,7 +60,7 @@ const nextConfig = {
    reactStrictMode: true,
    reactProductionProfiling: false,
    eslint: {
-      ignoreDuringBuilds: true,
+      ignoreDuringBuilds: false,
    },
    typescript: {
       ignoreBuildErrors: false,

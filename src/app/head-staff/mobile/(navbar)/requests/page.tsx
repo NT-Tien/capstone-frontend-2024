@@ -4,11 +4,11 @@ import PageHeader from "@/components/layout/PageHeader"
 import { FixRequest_StatusData, FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { AddressBook } from "@phosphor-icons/react"
-import { Button, Card, List, Result, Skeleton, Spin, Tabs, Tag } from "antd"
+import { Button, Card, Input, List, Result, Segmented, Skeleton, Spin, Tabs, Tag } from "antd"
 import Image from "next/image"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { TruckFilled } from "@ant-design/icons"
+import { FilterOutlined, SearchOutlined, TruckFilled } from "@ant-design/icons"
 import { useQueries, useQuery } from "@tanstack/react-query"
 import headstaff_qk from "@/features/head-maintenance/qk"
 import HeadStaff_Request_All30Days from "@/features/head-maintenance/api/request/all30Days.api"
@@ -60,14 +60,18 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
                objectFit: "fill",
             }}
          />
-         <Tabs
-            className="std-layout-outer relative z-30"
-            activeKey={tab}
-            onChange={(e) => handleChangeTab(e as FixRequestStatus)}
-            items={(
+         <Input
+            type="text"
+            className="relative z-30 mb-2 w-full rounded-full border border-neutral-200 bg-neutral-100 px-4 py-3"
+            placeholder="Tìm kiếm"
+            prefix={<SearchOutlined className="mr-2" />}
+            suffix={<FilterOutlined />}
+         />
+         <Segmented
+            className="hide-scrollbar mt-layout w-full overflow-auto"
+            options={(
                ["pending", "approved", "in_progress", "head_confirm", "closed", "rejected"] as FixRequestStatuses[]
             ).map((status, index, array) => ({
-               key: FixRequest_StatusData(status).statusEnum,
                label: (
                   <div
                      className={cn(
@@ -76,11 +80,13 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
                         index === array.length - 1 && "mr-layout",
                      )}
                   >
-                     {/* <div className="text-lg">{FixRequest_StatusData(status).icon}</div> */}
                      {FixRequest_StatusData(status).text} ({counts[status.toUpperCase() as FixRequestStatus]})
                   </div>
                ),
+               value: FixRequest_StatusData(status).statusEnum,
             }))}
+            value={tab}
+            onChange={(value) => handleChangeTab(value as FixRequestStatus)}
          />
          <TabDetails status={tab} />
       </div>
@@ -154,7 +160,7 @@ function TabDetails(props: TabDetailsProps) {
                      </div>
                   }
                   footerRight={<span className="text-xs text-neutral-500">{getCreatedAt(item)}</span>}
-                  subtitle={`${item.requester.username} | ${item.device.area.name}`}
+                  subtitle={`${item.requester.username} | ${item?.device?.area?.name}`}
                   title={item.device.machineModel.name}
                   onClick={() => {
                      const statuses = new Set([FixRequestStatus.PENDING, FixRequestStatus.REJECTED])

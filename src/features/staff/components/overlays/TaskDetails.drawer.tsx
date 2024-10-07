@@ -2,9 +2,9 @@ import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.en
 import useModalControls from "@/lib/hooks/useModalControls"
 import AlertCard from "@/components/AlertCard"
 import { CloseOutlined } from "@ant-design/icons"
-import { Gear, Package, Wrench } from "@phosphor-icons/react"
+import { Gear, MapPin, Package, Wrench } from "@phosphor-icons/react"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Button, Divider, Drawer, Empty, Result, Spin, Tag } from "antd"
+import { App, Button, Card, Divider, Drawer, Empty, Result, Spin, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
@@ -226,59 +226,63 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                      <AlertCard text="Vui lòng lấy máy mới ở kho" className="mt-layout" />
                   )}
                   <Divider className="mb-layout mt-0" />
-                  <section className="grid grid-cols-2 gap-4">
-                     <div>
-                        <h5 className="font-medium text-gray-500">Ngày sửa</h5>
-                        <p className="mt-1">{dayjs(api_task.data.fixerDate).add(7, "hours").format("DD-MM-YYYY")}</p>
-                     </div>
-                     <div>
-                        <h5 className="font-medium text-gray-500">Thời gian thực hiện</h5>
-                        <p className="mt-1">{api_task.data.totalTime} phút</p>
-                     </div>
-                     <div>
-                        <h5 className="font-medium text-gray-500">Người sửa</h5>
-                        <p className="mt-1">{api_task.data.fixer.username}</p>
-                     </div>
-                     {spareParts && spareParts.length > 0 && (
+                  <div className="rounded-lg border border-gray-300 bg-white p-4 shadow-lg">
+                     <section className="grid grid-cols-2 gap-4">
                         <div>
-                           <h5 className="font-medium text-gray-500">Linh kiện</h5>
-                           <p className="mt-1">{api_task.data.confirmReceipt ? "Đã lấy" : "Chưa lấy"}</p>
+                           <h5 className="font-medium text-gray-500">Ngày sửa</h5>
+                           <p className="mt-1 font-bold">{dayjs(api_task.data.fixerDate).add(7, "hours").format("DD-MM-YYYY")}</p>
                         </div>
-                     )}
-                  </section>
+                        <div>
+                           <h5 className="font-medium text-gray-500">Thời gian thực hiện</h5>
+                           <p className="mt-1">{api_task.data.totalTime} phút</p>
+                        </div>
+                        <div>
+                           <h5 className="font-medium text-gray-500">Người sửa</h5>
+                           <p className="mt-1">{api_task.data.fixer.username}</p>
+                        </div>
+                        {spareParts && spareParts.length > 0 && (
+                           <div>
+                              <h5 className="font-medium text-gray-500">Linh kiện</h5>
+                              <p className="mt-1">{api_task.data.confirmReceipt ? "Đã lấy" : "Chưa lấy"}</p>
+                           </div>
+                        )}
+                     </section>
+                  </div>
                   <Divider className="my-layout" />
-                  <section>
-                     <h4 className="mb-layout text-lg font-medium">
-                        <Gear size={24} weight="duotone" className="mr-1 inline" />
-                        Thông tin Thiết bị
-                     </h4>
-                     <div className="flex flex-col gap-2">
-                        <div
-                           className="flex items-start justify-between"
-                           onClick={() =>
-                              api_task.data && window.navigator.clipboard.writeText(api_task.data.device.id)
-                           }
-                        >
-                           <h5 className="font-medium text-gray-500">Tên thiết bị</h5>
-                           <p className="mt-1">{api_task.data.device.machineModel.name}</p>
+                  <div className="rounded-lg border border-gray-300 bg-white p-4 shadow-lg">
+                     <section>
+                        <h4 className="mb-layout text-lg font-medium">
+                           <Gear size={24} weight="duotone" className="mr-1 inline" />
+                           Thông tin Thiết bị
+                        </h4>
+                        <div className="flex flex-col gap-2">
+                           <div
+                              className="flex items-start justify-between"
+                              onClick={() =>
+                                 api_task.data && window.navigator.clipboard.writeText(api_task.data.device.id)
+                              }
+                           >
+                              <h5 className="font-medium text-gray-500">Tên thiết bị</h5>
+                              <p className="mt-1">{api_task.data.device.machineModel.name}</p>
+                           </div>
+                           <div className="flex items-start justify-between">
+                              <h5 className="font-medium text-gray-500">Nhà sản xuất</h5>
+                              <p className="mt-1">{api_task.data.device.machineModel.manufacturer}</p>
+                           </div>
+                           <div className="flex items-start justify-between">
+                              <h5 className="font-medium text-gray-500">Khu vực</h5>
+                              <p className="mt-1 font-bold">{api_task.data.device.area.name}</p>
+                           </div>
+                           <div className="flex items-start justify-between">
+                              <h5 className="font-medium text-gray-500">Vị trí</h5>
+                              <p className="mt-1 font-bold">
+                                 {api_task.data.device?.positionX ?? api_task.data.device_renew.positionX} x{" "}
+                                 {api_task.data.device.positionY ?? api_task.data.device_renew.positionY}
+                              </p>
+                           </div>
                         </div>
-                        <div className="flex items-start justify-between">
-                           <h5 className="font-medium text-gray-500">Nhà sản xuất</h5>
-                           <p className="mt-1">{api_task.data.device.machineModel.manufacturer}</p>
-                        </div>
-                        <div className="flex items-start justify-between">
-                           <h5 className="font-medium text-gray-500">Khu vực</h5>
-                           <p className="mt-1">{api_task.data.device.area.name}</p>
-                        </div>
-                        <div className="flex items-start justify-between">
-                           <h5 className="font-medium text-gray-500">Vị trí</h5>
-                           <p className="mt-1">
-                              {api_task.data.device?.positionX ?? api_task.data.device_renew.positionX} x{" "}
-                              {api_task.data.device.positionY ?? api_task.data.device_renew.positionY}
-                           </p>
-                        </div>
-                     </div>
-                  </section>
+                     </section>
+                  </div>
                   {spareParts && spareParts.length > 0 && (
                      <>
                         <Divider className="my-layout" />

@@ -9,6 +9,7 @@ import {
    UserOutlined,
 } from "@ant-design/icons"
 import dayjs from "dayjs"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 
 type Props = {
    task: TaskDto
@@ -19,7 +20,7 @@ type Props = {
 
 export default function TaskCard(props: Props) {
    const fixerDate = props.task.fixerDate
-
+   const isAwaitingFixer = props.task.status === TaskStatus.AWAITING_FIXER
    return (
       <Card
          className={cn(
@@ -53,7 +54,7 @@ export default function TaskCard(props: Props) {
             </span>
          </section>
          <section className="mt-2 flex gap-1">
-            <Tag className="m-0 flex items-center gap-1">
+            <Tag className="m-0 flex items-center gap-1" style={{ backgroundColor: "#ffd154", color: "#002795" }}>
                <CalendarOutlined />
                {fixerDate
                   ? dayjs(fixerDate).isSame(dayjs(), "day")
@@ -61,11 +62,17 @@ export default function TaskCard(props: Props) {
                      : dayjs(fixerDate).add(7, "hours").format("DD/MM/YY")
                   : "-"}
             </Tag>
-            <Tag className="m-0 flex items-center gap-1">
+            <Tag className="m-0 flex items-center gap-1" style={{ backgroundColor: "#ff9240", color: "#ffffa9" }}>
                <ClockCircleOutlined />
                {props.task.totalTime} phút
             </Tag>
-            <Tag className="m-0 flex items-center gap-1">
+            <Tag
+               className="m-0 flex items-center gap-1"
+               style={{
+                  backgroundColor: isAwaitingFixer ? "#c20000" : "#0063ec",
+                  color: isAwaitingFixer ? "#d9d9d9" : "#fff",
+               }}
+            >               {" "}
                <UserOutlined /> {props.task.fixer?.username ?? "-"}
             </Tag>
          </section>

@@ -9,9 +9,11 @@ import Admin_Devices_All from "@/features/admin/api/device/all.api"
 import admin_queries from "@/features/admin/queries"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import RequestErrors from "@/lib/domain/Request/RequestErrors"
+import dayjs from "dayjs"
 
 type Request = {
    count: number
+   warrantyOnly?: boolean
 }
 
 type Response = {
@@ -37,17 +39,23 @@ export default function useRequest_CreateMany(props?: Props) {
                token: AuthTokens.Admin,
             }),
          )
-
+         
          const listErrors = RequestErrors.slice(1)
             .map((err) => err.options)
             .flat()
             .map((err) => err?.value ?? "")
 
          const rawRequests = Array.from({ length: req.count }).map(() => {
-            return generateRandomRequest(allDevices.list, listErrors)
+            return generateRandomRequest(
+               req.warrantyOnly
+                  ? allDevices.list.filter((device) => {
+                       if (!device.machineModel.warrantyTerm) return false
+                       return dayjs(device.machineModel.warrantyTerm).isAfter(dayjs())
+                    })
+                  : allDevices.list,
+               listErrors,
+            )
          })
-
-         console.log(rawRequests)
 
          const response = await Promise.allSettled(
             rawRequests.map((request) => {

@@ -3,10 +3,11 @@
 import React, { PropsWithChildren, useState } from "react"
 import { Menu, Layout as AntLayout } from "antd"
 import Sider from "antd/es/layout/Sider"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 function Layout(props: PropsWithChildren) {
    const router = useRouter()
+   const pathname = usePathname()
 
    const [collapsed, setCollapsed] = useState(false)
 
@@ -16,7 +17,7 @@ function Layout(props: PropsWithChildren) {
             <div className="demo-logo-vertical" />
             <Menu
                theme="dark"
-               defaultSelectedKeys={["1"]}
+               defaultSelectedKeys={pathname === "/simulation/main-flow" ? ["/simulation/main-flow"] : []}
                mode="inline"
                items={[
                   {

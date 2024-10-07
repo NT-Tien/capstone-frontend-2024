@@ -12,12 +12,12 @@ import { useQuery } from "@tanstack/react-query"
 import { App, Button } from "antd"
 import dayjs from "dayjs"
 import { useMemo, useRef, useState } from "react"
-import UpdateQuantityModal, {
-   UpdateQuantityModalProps,
-} from "../../../../../features/stockkeeper/components/overlay/UpdateQuantity.modal"
 import Stockkeeper_MachineModel_All from "@/features/stockkeeper/api/machine-model/getAll.api"
 import { CaretDown, CaretUp } from "@phosphor-icons/react"
 import Link from "next/link"
+import UpdateQuantityModal, {
+   UpdateQuantityModalProps,
+} from "@/features/stockkeeper/components/overlay/UpdateQuantity.modal"
 
 type types = {
    dto: SparePartDto
@@ -60,7 +60,7 @@ export default function DevicesListPage() {
    }, [api_machineModels.data?.list])
 
    const actionRef = useRef()
-   const updateQuantityModalRef = useRef<RefType<UpdateQuantityModalProps>>(null)
+   const updateQuantityModalRef = useRef<RefType<UpdateQuantityModalProps> | null>(null)
 
    const responseData = useMemo(() => {
       return (

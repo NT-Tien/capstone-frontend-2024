@@ -24,6 +24,10 @@ function Layout(props: PropsWithChildren) {
                      label: "Giả lập luồng chính",
                      key: "/simulation/main-flow",
                   },
+                  {
+                     label: "Dev: OLD",
+                     key: "/simulation/old-flow",
+                  },
                ]}
                onClick={(e) => {
                   router.push(e.key)

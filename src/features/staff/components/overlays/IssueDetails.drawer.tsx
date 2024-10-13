@@ -7,8 +7,10 @@ import useModalControls from "@/lib/hooks/useModalControls"
 import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import { clientEnv } from "@/env"
 import { ProDescriptions } from "@ant-design/pro-components"
-import { Button, Card, Drawer, Image, List, Tag, Typography } from "antd"
+import { Button, Card, Drawer, Dropdown, Image, Input, List, Select, Tag, Typography } from "antd"
 import { ReactNode, useMemo, useState } from "react"
+import { MoreOutlined } from "@ant-design/icons"
+import TextArea from "antd/es/input/TextArea"
 
 export default function IssueDetailsDrawer({
    children,
@@ -34,6 +36,33 @@ export default function IssueDetailsDrawer({
 
    const [task, setTask] = useState<TaskDto | undefined>(undefined)
    const [currentIssue, setCurrentIssue] = useState<IssueDto | undefined>(undefined)
+   const [isErrorDrawerOpen, setIsErrorDrawerOpen] = useState(false)
+   const [selectedErrorReason, setSelectedErrorReason] = useState<string | undefined>()
+   const [isAddingNewError, setIsAddingNewError] = useState(false)
+   const [newErrorText, setNewErrorText] = useState<string>("")
+
+   const openErrorDrawer = () => {
+      setIsErrorDrawerOpen(true)
+   }
+
+   const closeErrorDrawer = () => {
+      setIsErrorDrawerOpen(false)
+      setIsAddingNewError(false)
+      setNewErrorText("")
+   }
+
+   const handleSelectChange = (value: string) => {
+      if (value === "add_new_error") {
+         setIsAddingNewError(true)
+      } else {
+         setIsAddingNewError(false)
+         setSelectedErrorReason(value)
+      }
+   }
+
+   const handleNewErrorChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setNewErrorText(e.target.value)
+   }
 
    const isWarrantyReturnTask = useMemo(() => {
       return currentIssue?.typeError.id === ReceiveWarrantyTypeErrorId
@@ -164,22 +193,79 @@ export default function IssueDetailsDrawer({
                      }}
                   >
                      {(handleOpen) => (
-                        <Button
-                           className="w-full"
-                           size="large"
-                           type="primary"
-                           onClick={() => {
-                              console.log(currentIssue)
-                              if (currentIssue) handleOpen(currentIssue)
-                           }}
-                           disabled={!scanCompleted}
-                        >
-                           Xác nhận hoàn thành
-                        </Button>
+                        <section className="std-layout-outer fixed bottom-0 left-0 flex w-full justify-center gap-3 bg-inherit p-layout">
+                           <Button
+                              className="w-full"
+                              size="large"
+                              type="primary"
+                              onClick={() => {
+                                 console.log(currentIssue)
+                                 if (currentIssue) handleOpen(currentIssue)
+                              }}
+                              disabled={!scanCompleted}
+                           >
+                              Xác nhận hoàn thành
+                           </Button>
+                           <Dropdown
+                              menu={{
+                                 items: [
+                                    {
+                                       key: "failed",
+                                       label: <div onClick={openErrorDrawer}>Lỗi này không thể hoàn thành</div>,
+                                    },
+                                    {
+                                       type: "divider",
+                                    },
+                                 ],
+                              }}
+                           >
+                              <Button size="large" icon={<MoreOutlined />} />
+                           </Dropdown>
+                        </section>
                      )}
                   </FinishIssueDrawer>
                </section>
             )}
+         </Drawer>
+         <Drawer
+            title="Chọn lý do lỗi không thể hoàn thành"
+            open={isErrorDrawerOpen}
+            onClose={closeErrorDrawer}
+            height={350}
+            placement="bottom"
+         >
+            <Select
+               placeholder="Chọn lý do"
+               onChange={handleSelectChange}
+               style={{ width: "100%", marginBottom: "16px" }}
+               options={[
+                  { label: "Thiếu linh kiện", value: "missing_parts" },
+                  { label: "Chẩn đoán lỗi sai", value: "wrong_issue" },
+                  { label: "Máy cần kiểm tra lại", value: "recheck" },
+                  { label: "+ Thêm lỗi mới", value: "add_new_error" },
+               ]}
+            />
+
+            {isAddingNewError && (
+               <TextArea
+                  placeholder="Nhập lỗi mới"
+                  value={newErrorText}
+                  onChange={handleNewErrorChange}
+                  style={{ marginBottom: "16px", resize: "none", height: 120 }}
+               />
+            )}
+
+            <Button
+               type="primary"
+               block
+               disabled={!selectedErrorReason && !newErrorText}
+               onClick={() => {
+                  console.log("Selected Reason:", selectedErrorReason || newErrorText)
+                  closeErrorDrawer()
+               }}
+            >
+               Gửi lý do
+            </Button>
          </Drawer>
       </>
    )

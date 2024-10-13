@@ -136,11 +136,19 @@ export default function ScrollableTabs<T>(props: Props<T>) {
                   <button
                      key={tab.key}
                      id={tab.key}
-                     className="group relative box-border h-full w-max whitespace-nowrap px-4 py-4 transition-all duration-300"
+                     className={cn(
+                        "group relative box-border h-full w-max whitespace-nowrap px-4 py-4 transition-all duration-300",
+                        "border-2 border-transparent",
+                        (props.tabType === "horizontal" || props.tabType === undefined) && "flex-row",
+                        props.classNames?.tab,
+                     )}
                      onClick={(e) => {
                         handleTabClick(tab.key, index, e)
                      }}
                      ref={(el) => (tabsRef.current[index] = el!) as any}
+                     style={{
+                        border: currentTab === tab.key ? "2px solid blue" : "2px solid transparent",
+                     }}
                   >
                      {props.renderTab ? (
                         <>{props.renderTab(tab.title, tab.icon, tab.badge)}</>

@@ -1,12 +1,13 @@
 "use client"
 
-import { Table, DatePicker } from "antd"
+import { Table, DatePicker, Button } from "antd"
 import { useQueries } from "@tanstack/react-query"
 import Admin_Tasks_Dashboard from "@/features/admin/api/task/dashboard.api"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { PageContainer } from "@ant-design/pro-components"
 import { useState } from "react"
 import dayjs, { Dayjs } from "dayjs"
+import { ArrowLeftOutlined } from "@ant-design/icons"
 
 const { RangePicker } = DatePicker
 
@@ -87,6 +88,7 @@ function TaskDetails() {
    const areaId = searchParams.get("areaId") ?? ""
    const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([null, null])
    const [startDate, endDate] = dateRange || [null, null]
+   const router = useRouter()
    const areaName = areaNameMapping[areaId] || "Unknown Area"
    const api = useQueries({
       queries: [
@@ -226,6 +228,15 @@ function TaskDetails() {
 
    return (
       <div className="mt-5">
+         <Button
+            className="ml-10"
+            type="default"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => router.push("/admin")}
+            style={{ marginBottom: "1rem" }}
+         >
+            Quay lại
+         </Button>
          <PageContainer title={`Thông tin chi tiết tác vụ của khu vực ${areaName}`}>
             <div>
                <RangePicker

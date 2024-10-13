@@ -190,6 +190,15 @@ function RequestDetails() {
 
    return (
       <div className="mt-5">
+         <Button
+          className="ml-10"
+            type="default"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => router.push("/admin")}
+            style={{ marginBottom: "1rem" }}
+         >
+            Quay lại
+         </Button>
          <PageContainer title={`Thông tin chi tiết yêu cầu của khu vực ${areaName}`}>
             <div>
                <RangePicker

@@ -251,11 +251,11 @@
 import { useQuery } from "@tanstack/react-query"
 import { Button, Card, Select, Table, Typography } from "antd"
 import Admin_Devices_OneByAreaId from "../../../../features/admin/api/device/one-byAreaId.api"
-import { CheckSquareOffset, Note } from "@phosphor-icons/react"
-import CountUp from "react-countup"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { SelectOutlined } from "@ant-design/icons"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import CountUp from "react-countup"
+import { CheckSquareOffset, Note } from "@phosphor-icons/react"
 
 const areaIds = [
    "13734c3c-5f3b-472e-805f-557c1f08eeb2",
@@ -282,10 +282,29 @@ export default function AdminHomePage() {
       totalRequests: areaData?.total_requests || 0,
       totalTasks: areaData?.total_tasks || 0,
       totalDevices: areaData?.total_devices || 0,
+      requestPending: areaData?.request?.pending_requests || 0,
+      requestOthers:
+         areaData.request.approved_requests +
+            areaData.request.checked_requests +
+            areaData.request.head_confirm_requests +
+            areaData.request.in_progress_requests || 0,
+      requestCancel: areaData.request.closed_requests + areaData.request.rejected_requests || 0,
+      taskPending: areaData.task.awaiting_fixer + areaData.task.awaiting_spare_spart || 0,
+      taskOthers:
+         areaData.task.assigned +
+            areaData.task.completed +
+            areaData.task.in_progress +
+            areaData.task.head_staff_confirm || 0,
+      taskCancel:
+         areaData.task.cancelled +
+            areaData.task.close_task_request_cancelled +
+            areaData.task.head_staff_confirm_staff_request_cancelled +
+            areaData.task.staff_request_cancelled || 0,
    }))
 
    const totalTasks = tableData?.reduce((acc, area) => acc + (area.totalTasks || 0), 0)
    const totalRequests = tableData?.reduce((acc, area) => acc + (area.totalRequests || 0), 0)
+
    return (
       <div className="mt-5">
          <div className="mb-4 flex justify-end">
@@ -356,61 +375,115 @@ export default function AdminHomePage() {
                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
                marginTop: "2rem",
             }}
+         ></div>
+         <div
+            style={{
+               borderRadius: "12px",
+               overflow: "hidden",
+               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+               marginTop: "2rem",
+            }}
          >
             <Table
+               bordered
                columns={[
                   {
-                     title: "Khu vực",
+                     title: <div style={{ textAlign: "center" }}>Khu vực</div>,
                      dataIndex: "areaNames",
                      key: "areaNames",
+                     align: "center",
                   },
                   {
-                     title: "Yêu cầu",
-                     dataIndex: "totalRequests",
-                     key: "totalRequests",
-                     render: (value, record) => {
-                        return (
-                           <Button
-                              type="link"
-                              size="small"
-                              onClick={() => router.push(`/admin/requests?area=${record.areaNames}`)}
-                           >
-                              {value}
-                           </Button>
-                        )
-                     },
+                     title: <div style={{ textAlign: "center" }}>Yêu cầu</div>,
+                     children: [
+                        {
+                           title: <div style={{ textAlign: "center" }}>Chờ</div>,
+                           dataIndex: "requestPending",
+                           key: "requestPending",
+                           render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
+                        },
+                        {
+                           title: <div style={{ textAlign: "center" }}>Đang xử lý</div>,
+                           dataIndex: "requestOthers",
+                           key: "requestOthers",
+                           render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
+                        },
+                        {
+                           title: <div style={{ textAlign: "center" }}>Hủy</div>,
+                           dataIndex: "requestCancel",
+                           key: "requestCancel",
+                           render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
+                        },
+                        {
+                           title: "",
+                           dataIndex: "totalRequests",
+                           key: "totalRequests",
+                           render: (value, record, index) => (
+                              <Button
+                                 type="link"
+                                 size="small"
+                                 onClick={() => router.push(`/admin/dashboard/requests?areaId=${areaIds[index]}`)}
+                                 style={{ textAlign: "center", display: "block" }}
+                              >
+                                 {value}
+                              </Button>
+                           ),
+                        },
+                     ],
                   },
                   {
-                     title: "Tác vụ",
-                     dataIndex: "totalTasks",
-                     key: "totalTasks",
-                     render: (value, record) => {
-                        return (
-                           <Button
-                              type="link"
-                              size="small"
-                              onClick={() => router.push(`/admin/tasks?area=${record.areaNames}`)}
-                           >
-                              {value}
-                           </Button>
-                        )
-                     },
+                     title: <div style={{ textAlign: "center" }}>Tác vụ</div>,
+                     children: [
+                        {
+                           title: <div style={{ textAlign: "center" }}>Chờ</div>,
+                           dataIndex: "taskPending",
+                           key: "taskPending",
+                           render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
+                        },
+                        {
+                           title: <div style={{ textAlign: "center" }}>Đang xử lý</div>,
+                           dataIndex: "taskOthers",
+                           key: "taskOthers",
+                           render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
+                        },
+                        {
+                           title: <div style={{ textAlign: "center" }}>Hủy</div>,
+                           dataIndex: "taskCancel",
+                           key: "taskCancel",
+                           render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
+                        },
+                        {
+                           title: "",
+                           dataIndex: "totalTasks",
+                           key: "totalTasks",
+                           render: (value, record) => (
+                              <Button
+                                 type="link"
+                                 size="small"
+                                 onClick={() => router.push(`/admin/dashboard/tasks`)}
+                                 style={{ textAlign: "center", display: "block" }}
+                              >
+                                 <span style={{ textAlign: "center", display: "block" }}>{value}</span>
+                              </Button>
+                           ),
+                        },
+                     ],
                   },
                   {
-                     title: "Thiết bị",
+                     title: <div style={{ textAlign: "center" }}>Thiết bị</div>,
                      dataIndex: "totalDevices",
                      key: "totalDevices",
-                     render: (value, record) => {
-                        return (
-                           <Button
-                              type="link"
-                              size="small"
-                              onClick={() => router.push(`/admin/devices?area=${record.areaNames}`)}
-                           >
-                              {value}
-                           </Button>
-                        )
-                     },
+                     align: "center",
+                     colSpan: 2,
+                     render: (value, record) => (
+                        <Button
+                           type="link"
+                           size="small"
+                           onClick={() => router.push(`/admin/devices?area`)}
+                        >
+                           {value}
+                        </Button>
+                     ),
                   },
                ]}
                dataSource={tableData}
@@ -437,6 +510,9 @@ export default function AdminHomePage() {
                            style={{
                               borderTopLeftRadius: "12px",
                               borderTopRightRadius: "12px",
+                              borderWidth: "3px",
+                              borderStyle: "solid",
+                              borderColor: "#000",
                            }}
                         />
                      ),
@@ -448,6 +524,9 @@ export default function AdminHomePage() {
                            style={{
                               borderBottomLeftRadius: "12px",
                               borderBottomRightRadius: "12px",
+                              borderWidth: "3px",
+                              borderStyle: "solid",
+                              borderColor: "#000",
                            }}
                         />
                      ),

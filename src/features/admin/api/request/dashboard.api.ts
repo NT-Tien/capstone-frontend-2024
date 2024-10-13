@@ -6,7 +6,7 @@ import Cookies from "js-cookie"
 
 type Request = {
    type: "fix" | "warranty" | "renew" | "all"
-   areaId: string
+   areaId?: string
    startDate: string
    endDate: string
 }
@@ -28,7 +28,9 @@ async function Admin_Requests_Dashboard(request: Request): Promise<Response> {
 Admin_Requests_Dashboard.URL = (req: Request) => {
    const urlparam = new URLSearchParams()
    urlparam.append("type", req.type)
-   urlparam.append("areaId", req.areaId)
+   if (req.areaId) {
+      urlparam.append("areaId", req.areaId)
+   }
    urlparam.append("startDate", req.startDate)
    urlparam.append("endDate", req.endDate)
 

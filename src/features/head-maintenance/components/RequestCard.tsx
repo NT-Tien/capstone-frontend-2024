@@ -37,7 +37,10 @@ RequestCard.Large = function RequestCardLarge(props: RequestCard_Large) {
                {avatarData.content}
             </Avatar>
             <div className="flex flex-grow flex-col">
-               <div className="text-lg font-medium">{props.title}</div>
+               <div className="flex items-center justify-between">
+                  <div className="text-lg font-medium">{props.title}</div>
+                  <span className="text-xs text-neutral-500">{props.footerRight}</span> {/* Moved getCreatedAt here */}
+               </div>{" "}
                <div className="text-neutral-500">{props.subtitle}</div>
             </div>
             <div className="flex items-center gap-1">
@@ -48,7 +51,6 @@ RequestCard.Large = function RequestCardLarge(props: RequestCard_Large) {
          <div className="mt-2 line-clamp-1 text-neutral-400">{props.description}</div>
          <div className={cn("flex", props.footerClassName)}>
             <div className="flex-grow text-sm">{props.footerLeft}</div>
-            <div className="text-sm">{props.footerRight}</div>
          </div>
       </div>
    )

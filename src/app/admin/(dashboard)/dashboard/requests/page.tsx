@@ -173,7 +173,7 @@ function RequestDetails() {
 
    return (
       <div className="mt-5">
-         <PageContainer title={`Thông tin chi tiết khu vực ${areaName}`} >
+         <PageContainer title={`Thông tin chi tiết yêu cầu của khu vực ${areaName}`} >
             <div>
             <RangePicker 
                onChange={(dates) => setDateRange(dates as [Dayjs | null, Dayjs | null])}

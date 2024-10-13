@@ -38,11 +38,6 @@ const columns = [
             dataIndex: "awaitingFixer",
             key: "awaitingFixer",
          },
-         {
-            title: "Tác vụ thất bại",
-            dataIndex: "cancelled",
-            key: "cancelled",
-         },
       ],
    },
    {
@@ -64,24 +59,24 @@ const columns = [
             key: "inProgress",
          },
          {
-            title: "Đã hoàn tất",
-            dataIndex: "completed",
-            key: "completed",
+            title: "Chờ phê duyệt",
+            dataIndex: "headDepartmentConfirm",
+            key: "headDepartmentConfirmcted",
          },
       ],
    },
    {
-      title: "Đã xác nhận bởi",
+      title: "Đã đóng",
       children: [
          {
-            title: "Tổ trưởng sản xuất",
-            dataIndex: "headDepartmentConfirm",
-            key: "headDepartmentConfirm",
+            title: "Hoàn tất",
+            dataIndex: "completed",
+            key: "completed",
          },
          {
-            title: "Tổ trưởng bảo trì",
-            dataIndex: "rejected",
-            key: "rejected",
+            title: "Thất bại",
+            dataIndex: "cancelled",
+            key: "cancelled",
          },
       ],
    },
@@ -231,7 +226,7 @@ function TaskDetails() {
 
    return (
       <div className="mt-5">
-         <PageContainer title={`Thông tin chi tiết khu vực ${areaName}`}>
+         <PageContainer title={`Thông tin chi tiết tác vụ của khu vực ${areaName}`}>
             <div>
                <RangePicker
                   onChange={(dates) => setDateRange(dates as [Dayjs | null, Dayjs | null])}

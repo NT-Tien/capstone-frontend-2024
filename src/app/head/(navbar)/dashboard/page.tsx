@@ -23,7 +23,7 @@ function Page() {
    const api_requests = useRequest_AllQuery({})
 
    const counts = useMemo(() => {
-      const counts = {
+      const counts:any = {
          [FixRequestStatus.PENDING]: 0,
          [FixRequestStatus.APPROVED]: 0,
          [FixRequestStatus.IN_PROGRESS]: 0,
@@ -121,7 +121,7 @@ function Page() {
                         {/* </div> */}
                      </div>
                      <div className="text-2xl font-bold">
-                        <CountUp end={Object.values(counts).reduce((acc, cur) => acc + cur, 0)} separator={","} />
+                        <CountUp end={Object.values(counts).reduce((acc:any, cur: any) => acc + cur, 0) as any} separator={","} />
                         {/* <span className="ml-1 text-xs font-light">Yêu cầu</span> */}
                      </div>
                      {/* <div className="flex items-center">

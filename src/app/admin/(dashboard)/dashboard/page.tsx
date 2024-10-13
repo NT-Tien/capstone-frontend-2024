@@ -274,6 +274,7 @@ export default function AdminHomePage() {
          const promises = areaIds.map((id) => Admin_Devices_OneByAreaId({ id, time: selectedTime }))
          return Promise.all(promises)
       },
+      enabled: selectedTime !== null,
    })
 
    const tableData = data?.map((areaData, index) => ({
@@ -308,7 +309,7 @@ export default function AdminHomePage() {
    return (
       <div className="mt-5">
          <div className="mb-4 flex justify-end">
-            <Select defaultValue={1} style={{ width: 120 }} onChange={(value) => setSelectedTime(value)}>
+            <Select defaultValue={selectedTime} style={{ width: 120 }} onChange={(value) => setSelectedTime(Number(value))}>
                <Select.Option value={1}>1 Tuần</Select.Option>
                <Select.Option value={2}>1 Tháng</Select.Option>
                <Select.Option value={3}>1 Năm</Select.Option>

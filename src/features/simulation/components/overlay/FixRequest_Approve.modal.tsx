@@ -36,6 +36,8 @@ function FixRequest_ApproveModal(props: Props) {
       mutate_requestReject.mutate({
          requestIds: requests.slice(no_approved, no_approved + no_rejected).map((request) => request.id),
       })
+
+      props.onSuccess?.()
    }
 
    return (

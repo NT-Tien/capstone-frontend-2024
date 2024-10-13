@@ -14,6 +14,8 @@ import useRequest_Feedback from "@/features/simulation/mutations/Request_Feedbac
 import useRequest_CreateSendWarrantyTasks from "@/features/simulation/mutations/Request_CreateSendWarrantyTasks.mutation"
 import useRequest_CreateReceiveWarrantyTasks from "@/features/simulation/mutations/Request_CreateReceiveWarrantyTasks.mutation"
 import useRequest_CreateManyAll from "@/features/simulation/mutations/Request_CreateManyAll.mutation"
+import useRequest_CreateTasks from "@/features/simulation/mutations/Request_CreateTasks.mutation"
+import useTask_ConfirmReceipt from "@/features/simulation/mutations/Task_ConfirmReceipt.mutation"
 
 const simulation_mutations = {
    request: {
@@ -28,6 +30,7 @@ const simulation_mutations = {
       feedback: useRequest_Feedback,
       createSendWarrantyTasks: useRequest_CreateSendWarrantyTasks,
       createReceiveWarrantyTasks: useRequest_CreateReceiveWarrantyTasks,
+      createTasks: useRequest_CreateTasks,
    },
    task: {
       assignFixer: useTask_AssignFixer,
@@ -35,6 +38,7 @@ const simulation_mutations = {
       verifyWarrantySendComplete: useTask_VerifyWarrantySendComplete,
       start: useTask_Start,
       headMaintenanceConfirm: useTask_HeadMaintenanceConfirm,
+      confirmReceipt: useTask_ConfirmReceipt,
    },
 }
 

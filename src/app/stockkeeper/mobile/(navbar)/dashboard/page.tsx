@@ -21,7 +21,7 @@ export default function DashboardPage() {
 
    const api_sparePartsMissing = useQuery({
       queryKey: stockkeeper_qk.sparePart.allNeedMore(),
-      queryFn: Stockkeeper_SparePart_AllAddMore,
+      queryFn: () => Stockkeeper_SparePart_AllAddMore(),
       select: (data) => {
          return Object.values(data)
       },

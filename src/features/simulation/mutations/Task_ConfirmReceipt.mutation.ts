@@ -2,46 +2,46 @@ import useCustomMutation from "@/lib/hooks/useCustomMutation"
 import { CustomMutationHookProps } from "@/lib/types/CustomMutationHookProps"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import AuthTokens from "@/lib/constants/AuthTokens"
-import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
+import Stockkeeper_Task_ReceiveSpareParts from "@/features/stockkeeper/api/task/receive-spare-parts.api"
 
 type Request = {
-   requestIds: string[]
+   taskIds: string[]
 }
 
 type Response = {
-   requests: RequestDto[]
+   tasks: RequestDto[]
 }
 
 type Props = CustomMutationHookProps<Response, unknown, Request, unknown>
-export default function useRequest_UpdateSeen(props?: Props) {
+export default function useTask_ConfirmReceipt(props?: Props) {
    return useCustomMutation({
       options: props ?? null,
       mutationFn: async (req: Request) => {
-         if (!req.requestIds) {
+         if (!req.taskIds) {
             throw new Error("Yêu cầu không được để trống")
          }
 
          const response = await Promise.allSettled(
-            req.requestIds.map((req) => {
-               return HeadStaff_Request_UpdateStatus({
+            req.taskIds.map((req) => {
+               return Stockkeeper_Task_ReceiveSpareParts({
                   id: req,
-                  token: AuthTokens.Head_Maintenance,
+                  token: AuthTokens.Stockkeeper,
                   payload: {
-                     is_seen: true,
+                     signature: "sim",
                   },
                })
             }),
          )
 
-         const requests = response.filter((res) => res.status === "fulfilled").map((res: any) => res.value)
+         const tasks = response.filter((res) => res.status === "fulfilled").map((res: any) => res.value)
          const errors = response.filter((res) => res.status === "rejected").map((res: any) => res.reason)
 
          if (errors.length > 0) {
             throw new Error("Có lỗi xảy ra")
          }
 
-         return { requests }
+         return { tasks }
       },
-      mutationKey: ["simulation", "request", "update-seen"],
+      mutationKey: ["simulation", "task", "confirm-receipt"],
    })
 }

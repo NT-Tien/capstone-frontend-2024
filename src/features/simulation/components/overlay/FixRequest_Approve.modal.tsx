@@ -19,21 +19,21 @@ function FixRequest_ApproveModal(props: Props) {
    const mutate_requestApprove = simulation_mutations.request.approve()
    const mutate_requestReject = simulation_mutations.request.reject()
 
-   function handleSubmit(
+   async function handleSubmit(
       requests: RequestDto[],
       no_approved: number,
       no_rejected: number,
       no_issues: number,
       no_spareParts: number,
    ) {
-      mutate_requestApprove.mutate({
+      await mutate_requestApprove.mutateAsync({
          requests: requests.slice(0, no_approved),
          numbers: {
             no_issues,
             no_spareParts,
          },
       })
-      mutate_requestReject.mutate({
+      await mutate_requestReject.mutateAsync({
          requestIds: requests.slice(no_approved, no_approved + no_rejected).map((request) => request.id),
       })
 
@@ -45,10 +45,7 @@ function FixRequest_ApproveModal(props: Props) {
          title="Xác nhận yêu cầu"
          centered
          okText="Giả lập yêu cầu"
-         onOk={() => {
-            handleSubmit(props.requests ?? [], no_approved, no_rejected, no_issues, no_spareParts)
-            props.onSuccess?.()
-         }}
+         onOk={() => handleSubmit(props.requests ?? [], no_approved, no_rejected, no_issues, no_spareParts)}
          {...props}
       >
          <section>

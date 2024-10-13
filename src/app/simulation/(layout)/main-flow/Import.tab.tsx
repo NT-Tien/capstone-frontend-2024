@@ -1,21 +1,18 @@
-"use client"
-
-import AlertCard from "@/components/AlertCard"
-import { DownloadOutlined, InboxOutlined } from "@ant-design/icons"
-import { PageContainer } from "@ant-design/pro-components"
-import { App, Button, Card, Modal, Upload, UploadFile } from "antd"
-import { UploadChangeParam } from "antd/es/upload"
-import { useMemo, useState } from "react"
-import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet"
-import * as xlsx from "xlsx"
-import { mau_nhap_linh_kien_1_validator } from "@/features/stockkeeper/validators/mau_nhap_linh_kien_1.validator"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { stockkeeper_qk } from "@/features/stockkeeper/api/qk"
-import { ChartLineUp, Keyboard } from "@phosphor-icons/react"
-import CountUp from "react-countup"
+import Stockkeeper_SparePart_AllAddMore from "@/features/stockkeeper/api/spare-part/all-addmore"
+import AuthTokens from "@/lib/constants/AuthTokens"
+import * as xlsx from "xlsx"
+import { UploadChangeParam } from "antd/es/upload"
+import { Button, Card, Modal, Upload, UploadFile } from "antd"
+import { mau_nhap_linh_kien_1_validator } from "@/features/stockkeeper/validators/mau_nhap_linh_kien_1.validator"
+import App from "antd/es/app"
+import { useMemo, useState } from "react"
 import Stockkeeper_SparePart_UpdateMany from "@/features/stockkeeper/api/spare-part/update-many.api"
-import { useRouter } from "next/navigation"
-import Stockkeeper_SparePart_All from "@/features/stockkeeper/api/spare-part/all.api"
+import { DownloadOutlined, InboxOutlined } from "@ant-design/icons"
+import CountUp from "react-countup"
+import { ChartLineUp, Keyboard } from "@phosphor-icons/react"
+import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet"
 
 type UploadFileResult = {
    "Mã linh kiện": string
@@ -24,30 +21,9 @@ type UploadFileResult = {
    "Số lượng nhập": number
 }
 
-function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
+function ImportTab() {
    const { notification, modal, message } = App.useApp()
-   const router = useRouter()
-
    const [uploadJson, setUploadJson] = useState<UploadFileResult[] | null>(null)
-   const [selectedDownload, setSelectedDownload] = useState<"empty" | "filled">(
-      // searchParams.from === "missing" ? "filled" : "empty",
-      "filled",
-   )
-
-   // const api_missingSpareParts = useQuery({
-   //    queryKey: stockkeeper_qk.sparePart.allNeedMore(),
-   //    queryFn: Stockkeeper_SparePart_AllAddMore,
-   //    select: (data) => {
-   //       return Object.values(data)
-   //    },
-   //    enabled: selectedDownload === "filled",
-   // })
-
-   const api_allSpareParts = useQuery({
-      queryKey: stockkeeper_qk.sparePart.all({ page: 1, limit: 5000 }),
-      queryFn: () => Stockkeeper_SparePart_All({ page: 1, limit: 5000 }),
-      enabled: selectedDownload === "filled",
-   })
 
    const mutate_updateMany = useMutation({
       mutationFn: Stockkeeper_SparePart_UpdateMany,
@@ -72,16 +48,27 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
       },
    })
 
+   const api_missingSpareParts = useQuery({
+      queryKey: stockkeeper_qk.sparePart.allNeedMore(),
+      queryFn: () =>
+         Stockkeeper_SparePart_AllAddMore({
+            token: AuthTokens.Stockkeeper,
+         }),
+      select: (data) => {
+         return Object.values(data)
+      },
+   })
+
    function handleCustomDownload() {
-      if (!api_allSpareParts.isSuccess) return
+      if (!api_missingSpareParts.isSuccess) return
 
       const wb = xlsx.utils.book_new()
       const ws = xlsx.utils.json_to_sheet(
-         api_allSpareParts.data.list.map((item) => ({
-            "Mã linh kiện": item.id,
-            "Tên linh kiện": item.name,
-            "Tên mẫu máy": item.machineModel.name,
-            "Số lượng nhập": 0,
+         api_missingSpareParts.data.map((item) => ({
+            "Mã linh kiện": item.sparePart.id,
+            "Tên linh kiện": item.sparePart.name,
+            "Tên mẫu máy": item.sparePart.machineModel.name,
+            "Số lượng nhập": item.quantityNeedToAdd,
          })),
       )
       xlsx.utils.book_append_sheet(wb, ws, "Sheet1")
@@ -158,11 +145,11 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
                quantity: item["Số lượng nhập"],
                machineModelName: item["Tên mẫu máy"],
             })),
+            token: AuthTokens.Stockkeeper,
          },
          {
             onSuccess: () => {
                setUploadJson(null)
-               router.push("/stockkeeper/desktop/spare-parts")
             },
          },
       )
@@ -182,59 +169,35 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
    }, [uploadJson])
 
    return (
-      <PageContainer
-         title="Nhập linh kiện vào kho"
-         content={
-            <AlertCard
-               text="Hãy sử dụng các biểu mẫu được cung cấp để cập nhật linh kiện nhanh chóng hơn."
-               type="info"
-            />
-         }
-      >
-         <div className="space-y-2">
-            <Card title="1. Tải về và điền thông tin vào mẫu">
-               {selectedDownload === "empty" && (
-                  <Button
-                     className="mt-layout"
-                     download="mau_nhap_linh_kien_1.xlsx"
-                     type="primary"
-                     icon={<DownloadOutlined />}
-                     href="/files/mau_nhap_linh_kien_1.xlsx"
-                  >
-                     Tải về mẫu
-                  </Button>
-               )}
-               {selectedDownload === "filled" && (
-                  <section>
-                     <div>
-                        <Button type="primary" icon={<DownloadOutlined />} onClick={handleCustomDownload}>
-                           Tải về mẫu
-                        </Button>
-                        {/* <div className="mt-3 text-sm text-red-400">
-                           * Các linh kiện trên sẽ được tự động điền vào mẫu khi tải về
-                        </div> */}
-                     </div>
-                  </section>
-               )}
-            </Card>
-            <Card title="2. Tải lên mẫu điền đã hoàn tất">
-               <Upload.Dragger
-                  maxCount={1}
-                  onChange={handleUpload}
-                  accept=".xlsx, .xls"
-                  beforeUpload={() => false}
-                  showUploadList={false}
-               >
-                  <p className="ant-upload-drag-icon">
-                     <InboxOutlined />
-                  </p>
-                  <p className="ant-upload-text">
-                     Vui lòng kéo thả hoặc nhấn vào đây để tải lên file Excel chứa thông tin linh kiện
-                  </p>
-                  <p className="ant-upload-hint">Chỉ chấp nhận file Excel (.xlsx, .xls) theo mẫu đã tải về</p>
-               </Upload.Dragger>
-            </Card>
-         </div>
+      <div className="flex flex-col gap-3">
+         <Card title="1. Tải về và điền thông tin vào mẫu">
+            <Button
+               className="mt-layout"
+               download="gia_lap_mau_nhap_linh_kien_1.xlsx"
+               type="primary"
+               icon={<DownloadOutlined />}
+               onClick={handleCustomDownload}
+            >
+               Tải về mẫu
+            </Button>
+         </Card>
+         <Card title="2. Tải lên mẫu điền đã hoàn tất">
+            <Upload.Dragger
+               maxCount={1}
+               onChange={handleUpload}
+               accept=".xlsx, .xls"
+               beforeUpload={() => false}
+               showUploadList={false}
+            >
+               <p className="ant-upload-drag-icon">
+                  <InboxOutlined />
+               </p>
+               <p className="ant-upload-text">
+                  Vui lòng kéo thả hoặc nhấn vào đây để tải lên file Excel chứa thông tin linh kiện
+               </p>
+               <p className="ant-upload-hint">Chỉ chấp nhận file Excel (.xlsx, .xls) theo mẫu đã tải về</p>
+            </Upload.Dragger>
+         </Card>
          <Modal
             open={!!uploadJson}
             onCancel={handleCancelModal}
@@ -306,8 +269,8 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
                </>
             )}
          </Modal>
-      </PageContainer>
+      </div>
    )
 }
 
-export default Page
+export default ImportTab

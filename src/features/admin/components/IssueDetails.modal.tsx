@@ -123,7 +123,8 @@ function IssueDetailsModal(props: Props) {
                               },
                               description: {
                                  dataIndex: "quantity",
-                                 render: (_, record) => `Số lượng: ${record.quantity}`,
+                                 render: (_, record) =>
+                                    `Số lượng: ${record.quantity} (trong kho: ${record.sparePart.quantity})`,
                               },
                            }}
                         />

@@ -55,7 +55,10 @@ export default function useRequest_CreateManyAll(props?: Props) {
          )
 
          const ignoreDevices = new Set(ignoreRequests.list.map((req) => req.device.id))
-         let availableDevices = allDevices.list.filter((device) => !ignoreDevices.has(device.id))
+         let availableDevices = allDevices.list.filter(
+            (device) =>
+               !ignoreDevices.has(device.id) && !!device.positionX && !!device.positionY && !!device.area?.name,
+         )
          //#endregion
 
          let fixDevices = availableDevices.filter(

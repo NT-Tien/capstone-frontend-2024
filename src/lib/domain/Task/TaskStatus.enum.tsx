@@ -30,7 +30,7 @@ export const TaskStatusTagMapper: {
       icon: <UserMinus size={16} />,
       className: "text-lime-600",
       description: "Tác vụ chưa được phân công cho nhân viên sửa chữa",
-      index: 0,
+      index: 1,
    },
    [TaskStatus.AWAITING_SPARE_SPART]: {
       text: "Chờ linh kiện",
@@ -39,7 +39,7 @@ export const TaskStatusTagMapper: {
       icon: <Package size={16} />,
       className: "text-orange-500",
       description: "Tác vụ đang chờ linh kiện để tiếp tục sửa chữa",
-      index: 1,
+      index: 0,
    },
    [TaskStatus.ASSIGNED]: {
       text: "Đã phân công",

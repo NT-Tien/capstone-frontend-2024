@@ -6,8 +6,10 @@ import { useMemo } from "react"
 import RequestListCard from "@/app/simulation/(layout)/main-flow/RequestList.card"
 import Button from "antd/es/button"
 import { LeftCircleOutlined, LeftOutlined } from "@ant-design/icons"
+import App from "antd/es/app"
 
 function Page() {
+   const { modal } = App.useApp()
    const simulation = useSimulationStore((store) => store)
 
    const hasIds = useMemo(() => {
@@ -22,7 +24,17 @@ function Page() {
                   <Button
                      icon={<LeftOutlined />}
                      onClick={() => {
-                        simulation.resetAll()
+                        modal.confirm({
+                           centered: true,
+                           okText: "Đồng ý",
+                           cancelText: "Hủy",
+                           content: "Bạn có chắc chắn muốn quay lại?",
+                           closable: true,
+                           maskClosable: true,
+                           onOk: () => {
+                              simulation.resetAll()
+                           },
+                        })
                      }}
                   ></Button>
                   <h1 className="text-2xl font-bold">Kết quả</h1>

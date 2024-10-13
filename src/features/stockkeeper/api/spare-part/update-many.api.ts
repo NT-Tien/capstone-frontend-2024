@@ -2,6 +2,7 @@ import api from "@/config/axios.config"
 import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
 import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 
 export type Request = {
    spareParts: {
@@ -9,10 +10,10 @@ export type Request = {
       quantity: number
       machineModelName: string
    }[]
-}
+} & AuthTokenWrapper
 export type Response = {
-    success: SparePartDto[],
-    failed: any[]
+   success: SparePartDto[]
+   failed: any[]
 }
 
 Stockkeeper_SparePart_UpdateMany.URL = () => `/stockkeeper/spare-part/import`
@@ -21,7 +22,7 @@ export default async function Stockkeeper_SparePart_UpdateMany(req: Request): Pr
       .post<Response>(Stockkeeper_SparePart_UpdateMany.URL(), req, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
+            Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,
          },
       })
       .then((res) => res.data)

@@ -64,7 +64,7 @@ export default function useRequest_Approve(props?: Props) {
                            device.machineModel.spareParts[
                               Math.floor(Math.random() * device.machineModel.spareParts.length)
                            ].id,
-                        quantity: Math.floor(Math.random() * 10),
+                        quantity: Math.floor(Math.random() * 10) + 1,
                      })),
                      typeError: typeErrors[index].id,
                   })),

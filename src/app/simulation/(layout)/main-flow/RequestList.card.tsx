@@ -17,6 +17,7 @@ import FixRequest_ApproveModal, {
 import WarrantyRequest_ApproveModal, {
    WarrantyRequest_ApprovalModalProps,
 } from "@/features/simulation/components/overlay/WarrantyRequest_Approve.modal"
+import WarrantyTaskListSection from "@/app/simulation/(layout)/main-flow/WarrantyTaskList.section"
 
 function RequestListCard() {
    const store = useSimulationStore((state) => state)
@@ -53,6 +54,8 @@ function RequestListCard() {
    }, [store.idLists_warrantyRequest])
 
    const mutate_updateSeenRequests = simulation_mutations.request.updateSeen()
+   const mutate_feedbackRequest = simulation_mutations.request.feedback()
+   const mutate_closeRequest = simulation_mutations.request.close()
 
    return (
       <div>
@@ -75,9 +78,9 @@ function RequestListCard() {
          />
          <Card
             title={
-               <div className="mb-3 flex items-center gap-2">
+               <div className="flex items-center gap-2">
                   {api_requests.isSuccess && api_requests.data.length > 0 && (
-                     <div>
+                     <div className="flex items-center">
                         <Checkbox
                            checked={Object.keys(selected_requests).length === api_requests.data.length}
                            onChange={(e) => {
@@ -149,6 +152,105 @@ function RequestListCard() {
                   )}
                </div>
             }
+            actions={[
+               <Button
+                  type="link"
+                  key="view"
+                  className="w-full"
+                  onClick={() => {
+                     setStep(2)
+                     mutate_updateSeenRequests.mutate(
+                        {
+                           requestIds: Object.keys(selected_requests),
+                        },
+                        {
+                           onSettled: async () => {
+                              setSelectedRequests({})
+                              await api_requests.refetch()
+                           },
+                        },
+                     )
+                  }}
+               >
+                  1) Cập nhật: Xem
+               </Button>,
+               <Button
+                  type="link"
+                  key="approve"
+                  className="w-full"
+                  disabled={step < 2}
+                  onClick={() => {
+                     setStep(3)
+                     if (tab === "fix") {
+                        control_fixRequest_approveModal.current?.handleOpen({
+                           requests: Object.values(selected_requests),
+                        })
+                     }
+                     if (tab === "warranty") {
+                        control_warrantyRequest_approveModal.current?.handleOpen({
+                           requests: Object.values(selected_requests),
+                        })
+                     }
+                  }}
+               >
+                  2) Xác nhận yêu cầu
+               </Button>,
+               ...(tab === "fix"
+                  ? [
+                       <>
+                          <Button key="create-task" type="link" disabled={step < 3}>
+                             3) Tạo tác vụ
+                          </Button>
+                       </>,
+                    ]
+                  : []),
+               ...(tab === "warranty"
+                  ? [
+                       <Button
+                          key="close-request"
+                          type="link"
+                          disabled={step < 3}
+                          onClick={() => {
+                             setStep(4)
+                             mutate_closeRequest.mutate(
+                                {
+                                   requests: Object.values(selected_requests),
+                                },
+                                {
+                                   onSettled: async () => {
+                                      setSelectedRequests({})
+                                      await api_requests.refetch()
+                                   },
+                                },
+                             )
+                          }}
+                       >
+                          3) Đóng tác vụ
+                       </Button>,
+                       <Button
+                          key="feedback-request"
+                          type="link"
+                          disabled={step < 4}
+                          onClick={() => {
+                             setStep(5)
+                             mutate_feedbackRequest.mutate(
+                                {
+                                   requests: Object.values(selected_requests),
+                                },
+                                {
+                                   onSettled: async () => {
+                                      setSelectedRequests({})
+                                      await api_requests.refetch()
+                                   },
+                                },
+                             )
+                          }}
+                       >
+                          4) Thêm đánh giá
+                       </Button>,
+                    ]
+                  : []),
+            ]}
          >
             <List
                dataSource={api_requests.data}
@@ -191,7 +293,7 @@ function RequestListCard() {
                            }
                            description={
                               <div>
-                                 {item.requester.username} • {item.requester_note}
+                                 {item.device?.area?.name ?? "-"} • {item.requester.username} • {item.requester_note}
                               </div>
                            }
                         ></List.Item.Meta>
@@ -200,70 +302,9 @@ function RequestListCard() {
                }}
             />
          </Card>
-         <Card
-            className="mt-3"
-            classNames={{
-               body: "flex flex-col gap-3",
-            }}
-         >
-            <Button
-               type="default"
-               key="view"
-               className="w-full"
-               onClick={() => {
-                  setStep(2)
-                  mutate_updateSeenRequests.mutate(
-                     {
-                        requestIds: Object.keys(selected_requests),
-                     },
-                     {
-                        onSettled: async () => {
-                           setSelectedRequests({})
-                           await api_requests.refetch()
-                        },
-                     },
-                  )
-               }}
-            >
-               1) Cập nhật: Xem
-            </Button>
-            <Button
-               type="default"
-               key="approve"
-               className="w-full"
-               disabled={step < 2}
-               onClick={() => {
-                  setStep(3)
-                  if (tab === "fix") {
-                     control_fixRequest_approveModal.current?.handleOpen({
-                        requests: Object.values(selected_requests),
-                     })
-                  }
-                  if (tab === "warranty") {
-                     control_warrantyRequest_approveModal.current?.handleOpen({})
-                  }
-               }}
-            >
-               2) Xác nhận yêu cầu
-            </Button>
-            {tab === "fix" && (
-               <>
-                  <Button key="create-task" type="default" disabled={step < 3}>
-                     3) Tạo tác vụ
-                  </Button>
-               </>
-            )}
-            {tab === "warranty" && (
-               <>
-                  <Button key="send-to-warranty" type="default" disabled={step < 3}>
-                     3) Tạo tác vụ: Gửi bảo hành
-                  </Button>
-                  <Button key="return-from-warranty" type="default" disabled={step < 3}>
-                     4) Tạo tác vụ: Lấy máy bảo hành
-                  </Button>
-               </>
-            )}
-         </Card>
+         <div className="mt-layout">
+            {tab === "warranty" && store.hasApproved_warranyRequest && <WarrantyTaskListSection />}
+         </div>
          <OverlayControllerWithRef ref={control_fixRequest_approveModal}>
             <FixRequest_ApproveModal
                onSuccess={async () => {
@@ -273,7 +314,14 @@ function RequestListCard() {
             />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_warrantyRequest_approveModal}>
-            <WarrantyRequest_ApproveModal handleFinish={() => {}} />
+            <WarrantyRequest_ApproveModal
+               onSuccess={async () => {
+                  setSelectedRequests({})
+                  store.set_hasApproved_warranyRequest(true)
+                  await api_requests.refetch()
+                  control_warrantyRequest_approveModal.current?.handleClose()
+               }}
+            />
          </OverlayControllerWithRef>
       </div>
    )

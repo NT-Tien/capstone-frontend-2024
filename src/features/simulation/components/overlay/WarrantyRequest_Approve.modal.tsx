@@ -7,6 +7,7 @@ import { RequestDto } from "@/lib/domain/Request/Request.dto"
 
 type WarrantyRequest_ApprovalModalProps = {
    requests?: RequestDto[]
+   onSuccess?: () => void
    handleFinish?: (no_approved: number, no_rejected: number) => void
 }
 
@@ -19,14 +20,16 @@ function WarrantyRequest_ApproveModal(props: Props) {
    const mutate_approveRequest = simulation_mutations.request.approveWarranty()
    const mutate_rejectRequest = simulation_mutations.request.reject()
 
-   function handleSubmit(requests: RequestDto[], no_approved: number, no_rejected: number) {
-      mutate_approveRequest.mutate({
+   async function handleSubmit(requests: RequestDto[], no_approved: number, no_rejected: number) {
+      await mutate_approveRequest.mutateAsync({
          requests: requests.slice(0, no_approved),
       })
 
-      mutate_rejectRequest.mutate({
+      await mutate_rejectRequest.mutateAsync({
          requestIds: requests.slice(no_approved, no_approved + no_rejected).map((req) => req.id),
       })
+
+      props.onSuccess?.()
    }
 
    return (
@@ -34,9 +37,7 @@ function WarrantyRequest_ApproveModal(props: Props) {
          title="Xác nhận yêu cầu bảo hành"
          centered
          okText="Giả lập xác nhận"
-         onOk={() => {
-            props.handleFinish?.(no_approved, no_rejected)
-         }}
+         onOk={() => handleSubmit(props.requests ?? [], no_approved, no_rejected)}
          okButtonProps={{
             disabled: no_approved === 0 && no_rejected === 0,
          }}

@@ -19,7 +19,7 @@ function Page() {
                <header className="mb-3 flex items-center">
                   <h1 className="text-2xl font-bold">Kết quả</h1>
                </header>
-               <div className="grid grid-cols-1">
+               <div className="grid grid-cols-1 gap-3">
                   <RequestListCard />
                </div>
             </div>

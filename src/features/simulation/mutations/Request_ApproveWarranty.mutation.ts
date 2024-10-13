@@ -28,7 +28,7 @@ export default function useRequest_ApproveWarranty(props?: Props) {
       mutationFn: async (req: Request) => {
          const response = await Promise.allSettled(
             req.requests.map(async (request) => {
-               return await HeadStaff_Request_UpdateStatus({
+               const response = await HeadStaff_Request_UpdateStatus({
                   id: request.id,
                   payload: {
                      status: FixRequestStatus.APPROVED,
@@ -36,6 +36,42 @@ export default function useRequest_ApproveWarranty(props?: Props) {
                   },
                   token: AuthTokens.Head_Maintenance,
                })
+
+               const issueSend = await HeadStaff_Issue_Create({
+                  description: "Gửi thiết bị bảo hành",
+                  typeError: SendWarrantyTypeErrorId,
+                  fixType: FixType.REPAIR,
+                  request: request.id,
+                  token: AuthTokens.Head_Maintenance,
+               })
+
+               const issueReceive = await HeadStaff_Issue_Create({
+                  description: "Nhận và lắp đặt thiết bị đã bảo hành",
+                  typeError: ReceiveWarrantyTypeErrorId,
+                  fixType: FixType.REPAIR,
+                  request: request.id,
+                  token: AuthTokens.Head_Maintenance,
+               })
+
+               const task = await HeadStaff_Task_Create({
+                  name: `${dayjs(request.createdAt).format("DDMMYY")}_${request.device?.area?.name}_${request.device.machineModel.name}_Bảo hành`,
+                  operator: 0,
+                  priority: false,
+                  issueIDs: [issueSend.id],
+                  request: request.id,
+                  totalTime: 60,
+                  token: AuthTokens.Head_Maintenance,
+               })
+
+               await HeadStaff_Task_Update({
+                  id: task.id,
+                  payload: {
+                     status: TaskStatus.AWAITING_FIXER,
+                  },
+                  token: AuthTokens.Head_Maintenance,
+               })
+
+               return response
             }),
          )
 

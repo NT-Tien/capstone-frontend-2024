@@ -18,6 +18,7 @@ import WarrantyRequest_ApproveModal, {
    WarrantyRequest_ApprovalModalProps,
 } from "@/features/simulation/components/overlay/WarrantyRequest_Approve.modal"
 import WarrantyTaskListSection from "@/app/simulation/(layout)/main-flow/WarrantyTaskList.section"
+import FixTaskListSection from "@/app/simulation/(layout)/main-flow/FixTaskList.section"
 
 function RequestListCard() {
    const store = useSimulationStore((state) => state)
@@ -56,6 +57,7 @@ function RequestListCard() {
    const mutate_updateSeenRequests = simulation_mutations.request.updateSeen()
    const mutate_feedbackRequest = simulation_mutations.request.feedback()
    const mutate_closeRequest = simulation_mutations.request.close()
+   const mutate_approveRequest = simulation_mutations.request.approve()
 
    return (
       <div>
@@ -120,6 +122,34 @@ function RequestListCard() {
                                        setSelectedRequests(
                                           api_requests.data.reduce((acc, item) => {
                                              if (item.status === FixRequestStatus.APPROVED) {
+                                                acc[item.id] = item
+                                             }
+                                             return acc
+                                          }, {} as any),
+                                       )
+                                    },
+                                 },
+                                 {
+                                    label: "Chọn tất cả Đang thực hiện",
+                                    key: "all-in-progress",
+                                    onClick: () => {
+                                       setSelectedRequests(
+                                          api_requests.data.reduce((acc, item) => {
+                                             if (item.status === FixRequestStatus.IN_PROGRESS) {
+                                                acc[item.id] = item
+                                             }
+                                             return acc
+                                          }, {} as any),
+                                       )
+                                    },
+                                 },
+                                 {
+                                    label: "Chọn tất cả Chờ đánh giá",
+                                    key: "all-in-progress",
+                                    onClick: () => {
+                                       setSelectedRequests(
+                                          api_requests.data.reduce((acc, item) => {
+                                             if (item.status === FixRequestStatus.HEAD_CONFIRM) {
                                                 acc[item.id] = item
                                              }
                                              return acc
@@ -198,7 +228,25 @@ function RequestListCard() {
                ...(tab === "fix"
                   ? [
                        <>
-                          <Button key="create-task" type="link" disabled={step < 3}>
+                          <Button
+                             key="create-task"
+                             type="link"
+                             disabled={step < 3}
+                             onClick={() => {
+                                setStep(4)
+                                mutate_approveRequest.mutate(
+                                   {
+                                      requests: Object.values(selected_requests),
+                                   },
+                                   {
+                                      onSettled: async () => {
+                                         setSelectedRequests({})
+                                         await api_requests.refetch()
+                                      },
+                                   },
+                                )
+                             }}
+                          >
                              3) Tạo tác vụ
                           </Button>
                        </>,
@@ -259,9 +307,11 @@ function RequestListCard() {
                   return (
                      <List.Item
                         extra={
-                           <Tag color={FixRequest_StatusMapper(item).colorInverse}>
-                              {FixRequest_StatusMapper(item).text}
-                           </Tag>
+                           <div>
+                              <Tag color={FixRequest_StatusMapper(item).colorInverse}>
+                                 {FixRequest_StatusMapper(item).text}
+                              </Tag>
+                           </div>
                         }
                      >
                         <List.Item.Meta
@@ -293,7 +343,10 @@ function RequestListCard() {
                            }
                            description={
                               <div>
-                                 {item.device?.area?.name ?? "-"} • {item.requester.username} • {item.requester_note}
+                                 {item.device?.area?.name ?? "-"} • {item.requester.username} • {item.requester_note}{" "}
+                                 {tab === "fix" &&
+                                    item.status !== FixRequestStatus.PENDING &&
+                                    `• ${item.issues.length} lỗi`}
                               </div>
                            }
                         ></List.Item.Meta>
@@ -304,12 +357,15 @@ function RequestListCard() {
          </Card>
          <div className="mt-layout">
             {tab === "warranty" && store.hasApproved_warranyRequest && <WarrantyTaskListSection />}
+            {tab === "fix" && store.hasApproved_fixRequest && <FixTaskListSection />}
          </div>
          <OverlayControllerWithRef ref={control_fixRequest_approveModal}>
             <FixRequest_ApproveModal
                onSuccess={async () => {
                   setSelectedRequests({})
+                  store.set_hasApproved_fixRequest(true)
                   await api_requests.refetch()
+                  control_fixRequest_approveModal.current?.handleClose()
                }}
             />
          </OverlayControllerWithRef>

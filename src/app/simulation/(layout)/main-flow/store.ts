@@ -6,6 +6,7 @@ type SimulationState = {
    idLists_fixRequest: string[]
    idLists_warrantyRequest: string[]
    hasApproved_warranyRequest: boolean
+   hasApproved_fixRequest: boolean
 }
 type SimulationActions = {
    update_counts_fixRequests: (counts_fixRequests: number | null | undefined) => void
@@ -13,8 +14,9 @@ type SimulationActions = {
    update_counts_reset: () => void
    update_idLists_fixRequest: (idLists_fixRequest: string[]) => void
    update_idLists_warrantyRequest: (idLists_warrantyRequest: string[]) => void
-
    set_hasApproved_warranyRequest: (hasApproved_warranyRequest: boolean) => void
+   set_hasApproved_fixRequest: (hasApproved_fixRequest: boolean) => void
+   resetAll: () => void
 }
 type SimulationStore = SimulationActions & SimulationState
 
@@ -24,6 +26,7 @@ const defaultInitState: SimulationState = {
    idLists_fixRequest: [],
    idLists_warrantyRequest: [],
    hasApproved_warranyRequest: false,
+   hasApproved_fixRequest: false,
 }
 
 function createSimulationStore(initState: SimulationState = defaultInitState) {
@@ -36,6 +39,8 @@ function createSimulationStore(initState: SimulationState = defaultInitState) {
       update_idLists_fixRequest: (idLists_fixRequest) => set({ idLists_fixRequest }),
       update_idLists_warrantyRequest: (idLists_warrantyRequest) => set({ idLists_warrantyRequest }),
       set_hasApproved_warranyRequest: (hasApproved_warranyRequest) => set({ hasApproved_warranyRequest }),
+      set_hasApproved_fixRequest: (hasApproved_fixRequest) => set({ hasApproved_fixRequest }),
+      resetAll: () => set(defaultInitState),
    }))
 }
 

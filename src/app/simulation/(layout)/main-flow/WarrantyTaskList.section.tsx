@@ -12,7 +12,7 @@ import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/const
 import simulation_mutations from "@/features/simulation/mutations"
 import dayjs from "dayjs"
 
-function WarrantyTaskListSection() {
+function TaskListSection() {
    const store = useSimulationStore((store) => store)
 
    const [selected_sendTasks, setSelected_sendTasks] = useState<{ [key: string]: TaskDto }>({})
@@ -479,4 +479,4 @@ function WarrantyTaskListSection() {
    )
 }
 
-export default WarrantyTaskListSection
+export default TaskListSection

@@ -4,9 +4,11 @@ import Cookies from "js-cookie"
 import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 
-export type Request = Pick<DeviceDto, "operationStatus" | "description" | "positionX" | "positionY"> & {
+export type Request = Pick<DeviceDto, "operationStatus" | "description"> & {
    machineModel: string
-   area: string
+   area?: string
+   positionX?: number
+   positionY?: number
 }
 export type Response = MachineModelDto
 

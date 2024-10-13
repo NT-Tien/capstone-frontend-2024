@@ -9,9 +9,10 @@ type Request = {
    areaId?: string
    startDate: string
    endDate: string
+   areaId?: string
 }
 type Response = {
-   [key in FixRequestStatus]: number
+   [key in FixRequestStatus | "not_seen" | "has_seen"]: number
 }
 
 async function Admin_Requests_Dashboard(request: Request): Promise<Response> {

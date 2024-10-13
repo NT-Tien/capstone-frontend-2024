@@ -11,12 +11,14 @@ import useArea_One from "@/features/admin/queries/Area_One.query"
 import useDevice_AllFilteredAndSortedQuery from "@/features/admin/queries/Device.AllFilterAndSort.query"
 import useMachineModel_OneQuery from "@/features/admin/queries/MachineModel_One.query"
 import useDevice_One from "@/features/admin/queries/Device_One.query"
+import useRequest_ManyByIdQuery from "@/features/admin/queries/Request_ManyById.query"
 
 const admin_queries = {
    request: {
       all: useRequest_AllQuery,
       all_filterAndSort: useRequest_AllFilteredAndSortedQuery,
       one: useRequest_One,
+      manyByIds: useRequest_ManyByIdQuery,
    },
    machine_model: {
       all: useMachineModel_AllQuery,

@@ -3,10 +3,11 @@ import type { Config } from "tailwindcss"
 const config: Config = {
    content: [
       "./src/app/**/*.{js,ts,jsx,tsx}",
-      "./src/common/components/**/*.{js,ts,jsx,tsx}",
+      "./src/components/**/*.{js,ts,jsx,tsx}",
       "./src/common/providers/**/*.{js,ts,jsx,tsx}",
       "./src/components/**/*.{js,ts,jsx,tsx}",
-      "./sec/common/enum/**/*.{js,ts,jsx,tsx}",
+      "./src/common/enum/**/*.{js,ts,jsx,tsx}",
+      "./src/features/**/*.{js,ts,jsx,tsx}",
    ],
    theme: {
       fontFamily: { sans: ["Poppins"] },

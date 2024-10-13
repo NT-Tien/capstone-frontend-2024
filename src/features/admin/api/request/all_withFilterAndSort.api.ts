@@ -3,6 +3,7 @@ import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 
 type Request = {
    page: number
@@ -12,6 +13,7 @@ type Request = {
       requester_note?: string
       status?: FixRequestStatus
       is_warranty?: string
+      is_seen?: string
       machineModelId?: string
       deviceId?: string
       areaId?: string
@@ -27,7 +29,7 @@ type Request = {
       order?: "ASC" | "DESC"
       orderBy?: "createdAt" | "updatedAt"
    }
-}
+} & AuthTokenWrapper
 type Response = {
    list: RequestDto[]
    total: number
@@ -42,7 +44,7 @@ async function Admin_Requests_AllWithFilterAndSort(request: Request): Promise<Re
                total: res.data[1],
             })),
          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
+            Authorization: `Bearer ${request.token ?? Cookies.get("token")}`,
          },
       })
       .then((res) => res.data)

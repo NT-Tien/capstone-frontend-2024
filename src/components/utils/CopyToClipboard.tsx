@@ -6,7 +6,7 @@ export function CopyToClipboard({ value, options }: { value: string; options?: {
 
    return {
       key: "copy",
-      name: options?.name || "Copy ID",
+      name: options?.name || "Sao chép ID",
       label: options?.name || "Sao chép ID",
       onClick: async () => {
          await navigator.clipboard.writeText(value)

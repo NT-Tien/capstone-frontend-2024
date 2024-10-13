@@ -1,3 +1,3 @@
 export default function ManagerHomePage() {
-   return "Manager Home Page"
+   return "Manager Home Oldpage"
 }

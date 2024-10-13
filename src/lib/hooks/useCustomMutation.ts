@@ -6,7 +6,7 @@ type Props<TData, TError, TVariables, TContext> = {
    options: CustomMutationHookProps<TData, TError, TVariables, TContext> | null
    messages?: {
       loading?: string
-      error?: string
+      error?: string | ((error: TError) => string)
       success?: string
    }
    mutationKey: string[]
@@ -40,9 +40,12 @@ export default function useCustomMutation<TData, TError, TVariables, TContext>(
          return props?.onSettled?.(res, error, variables, context)
       },
       onError: async (error, variables, context) => {
+         console.error(error)
          if (showMessages) {
+            const customError =
+               typeof props.messages?.error === "function" ? props.messages.error(error) : props.messages?.error
             message.error({
-               content: props.messages?.success ?? "Thất bại",
+               content: customError ?? "Thất bại",
             })
          }
          return props?.onError?.(error, variables, context)

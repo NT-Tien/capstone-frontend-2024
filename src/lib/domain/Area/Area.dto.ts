@@ -1,3 +1,5 @@
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
+
 export type AreaDto = {
    name: string
    instruction: string
@@ -7,4 +9,5 @@ export type AreaDto = {
    createdAt: string
    updatedAt: string
    deletedAt: string | null
+   devices: DeviceDto[]
 }

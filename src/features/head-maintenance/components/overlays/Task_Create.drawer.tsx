@@ -257,7 +257,7 @@ function Task_CreateDrawer(props: Props) {
                const isSelected = selectedIssueIds.includes(issue.id)
                const missingSpareParts = issue.issueSpareParts.find((isp) => isp.quantity > isp.sparePart.quantity)
                return (
-                  <div key={issue.id} className={cn("grid", issue.task !== null && "opacity-40")}>
+                  <div key={issue.id} className={cn("grid grid-cols-12", issue.task !== null && "opacity-40")}>
                      <Card
                         size="small"
                         className={cn(

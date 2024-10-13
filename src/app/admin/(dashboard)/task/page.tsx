@@ -20,6 +20,7 @@ type QueryState = {
       fixerDate?: string
       createdAt?: string
       updatedAt?: string
+      is_warranty?: string
    }
    order: {
       order?: "ASC" | "DESC"
@@ -27,12 +28,12 @@ type QueryState = {
    }
 }
 
-function Page() {
+function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
    const [query, setQuery] = useState<QueryState>({
       page: 1,
       limit: 10,
       search: {
-         status: TaskStatus.AWAITING_FIXER,
+         status: searchParams.tab ?? TaskStatus.AWAITING_FIXER,
       },
       order: {
          order: "DESC",
@@ -48,6 +49,7 @@ function Page() {
          priority: query.search?.priority,
          name: query.search?.name,
          fixerDate: query.search?.fixerDate,
+         is_warranty: query.search?.is_warranty,
       },
       order: {
          order: query.order?.order,
@@ -232,6 +234,18 @@ function Page() {
                   hideInSearch: true,
                   fixed: "left",
                   render: (value, record, index) => index + 1 + (query.page - 1) * query.limit,
+               },
+               {
+                  title: "Phân loại",
+                  dataIndex: ["is_warranty"],
+                  width: 100,
+                  valueType: "select",
+                  align: "center",
+                  valueEnum: {
+                     true: "Bảo hành",
+                     false: "Sửa chữa",
+                  },
+                  hideInTable: true,
                },
                {
                   title: "Trạng thái",

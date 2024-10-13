@@ -5,15 +5,13 @@ import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import App from "antd/es/app"
 import AuthTokens from "@/lib/constants/AuthTokens"
 import { useQueryClient } from "@tanstack/react-query"
-import Admin_Devices_All from "@/features/admin/api/device/all.api"
 import admin_queries from "@/features/admin/queries"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import RequestErrors from "@/lib/domain/Request/RequestErrors"
-import dayjs from "dayjs"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 
 type Request = {
    count: number
-   warrantyOnly?: boolean
 }
 
 type Response = {
@@ -32,6 +30,11 @@ export default function useRequest_CreateMany(props?: Props) {
             throw new Error("Số lượng yêu cầu không được để trống")
          }
 
+         const listErrors = RequestErrors.slice(1)
+            .map((err) => err.options)
+            .flat()
+            .map((err) => err?.value ?? "")
+
          const allDevices = await queryClient.ensureQueryData(
             admin_queries.device.all_filterAndSort.queryOptions({
                page: 1,
@@ -39,22 +42,24 @@ export default function useRequest_CreateMany(props?: Props) {
                token: AuthTokens.Admin,
             }),
          )
-         
-         const listErrors = RequestErrors.slice(1)
-            .map((err) => err.options)
-            .flat()
-            .map((err) => err?.value ?? "")
+
+         const ignoreRequests = await queryClient.ensureQueryData(
+            admin_queries.request.all_filterAndSort.queryOptions({
+               page: 1,
+               limit: 5000,
+               token: AuthTokens.Admin,
+               filters: {
+                  status: FixRequestStatus.PENDING,
+               },
+            }),
+         )
+         const ignoreDevices = new Set(ignoreRequests.list.map((req) => req.device.id))
+         let deviceList = allDevices.list.filter((device) => !ignoreDevices.has(device.id))
 
          const rawRequests = Array.from({ length: req.count }).map(() => {
-            return generateRandomRequest(
-               req.warrantyOnly
-                  ? allDevices.list.filter((device) => {
-                       if (!device.machineModel.warrantyTerm) return false
-                       return dayjs(device.machineModel.warrantyTerm).isAfter(dayjs())
-                    })
-                  : allDevices.list,
-               listErrors,
-            )
+            let result = generateRandomRequest(deviceList, listErrors)
+            deviceList = deviceList.filter((device) => device.id !== result.device)
+            return result
          })
 
          const response = await Promise.allSettled(

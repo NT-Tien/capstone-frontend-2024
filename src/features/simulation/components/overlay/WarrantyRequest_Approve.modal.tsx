@@ -2,8 +2,11 @@
 
 import { InputNumber, Modal, ModalProps } from "antd"
 import { useState } from "react"
+import simulation_mutations from "@/features/simulation/mutations"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
 
 type WarrantyRequest_ApprovalModalProps = {
+   requests?: RequestDto[]
    handleFinish?: (no_approved: number, no_rejected: number) => void
 }
 
@@ -12,6 +15,19 @@ type Props = Omit<ModalProps, "children"> & WarrantyRequest_ApprovalModalProps
 function WarrantyRequest_ApproveModal(props: Props) {
    const [no_approved, setNo_approved] = useState<number>(0)
    const [no_rejected, setNo_rejected] = useState<number>(0)
+
+   const mutate_approveRequest = simulation_mutations.request.approveWarranty()
+   const mutate_rejectRequest = simulation_mutations.request.reject()
+
+   function handleSubmit(requests: RequestDto[], no_approved: number, no_rejected: number) {
+      mutate_approveRequest.mutate({
+         requests: requests.slice(0, no_approved),
+      })
+
+      mutate_rejectRequest.mutate({
+         requestIds: requests.slice(no_approved, no_approved + no_rejected).map((req) => req.id),
+      })
+   }
 
    return (
       <Modal
@@ -26,7 +42,7 @@ function WarrantyRequest_ApproveModal(props: Props) {
          }}
          {...props}
       >
-         <article className="grid grid-cols-2 gap-3">
+         <article className="grid grid-cols-1 gap-3">
             <section className="flex flex-col gap-2 *:flex *:flex-col *:gap-1">
                <div>
                   <div>Số lượng xác nhận</div>

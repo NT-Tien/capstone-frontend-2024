@@ -54,7 +54,7 @@ export default function useTask_Finish(props?: Props) {
                   task.issues.map(async (issue) => {
                      return await Staff_Issue_UpdateFinish({
                         token: fixerToken,
-                        id: task.id,
+                        id: issue.id,
                         payload: {
                            imagesVerify: ["mock-image", "mock-image"],
                            videosVerify: "mock-video",

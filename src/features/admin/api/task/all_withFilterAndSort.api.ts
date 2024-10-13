@@ -19,6 +19,7 @@ type Request = {
       confirmReceipt?: boolean
       fixerDate?: string
       totalTime?: number
+      is_warranty?: string
    }
    order: {
       order?: "ASC" | "DESC"

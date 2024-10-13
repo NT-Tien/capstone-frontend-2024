@@ -44,44 +44,10 @@ export default function useTask_VerifyWarrantySendComplete(props?: Props) {
                })
 
                // update task status to completed
-               await HeadStaff_Task_UpdateComplete({
+               return await HeadStaff_Task_UpdateComplete({
                   id: task.id,
                   token: AuthTokens.Head_Maintenance,
                })
-
-               // create new task for return
-               let issue = task.issues.find((issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId)
-
-               if (!issue) {
-                  issue = await HeadStaff_Issue_Create({
-                     token: AuthTokens.Head_Maintenance,
-                     typeError: ReceiveWarrantyTypeErrorId,
-                     request: task.request.id,
-                     description: "Lắp máy bảo hành",
-                     fixType: FixType.REPLACE,
-                  })
-               }
-
-               const receiveTask = await HeadStaff_Task_Create({
-                  issueIDs: [issue.id],
-                  name: `${dayjs(task.request.createdAt).add(7, "hours").format("DDMMYY")}_${task.device.area.name}_${task.device.machineModel.name}_Lắp máy bảo hành`,
-                  operator: 0,
-                  priority: false,
-                  request: task.request.id,
-                  totalTime: 60,
-                  fixerDate: returnDate,
-                  token: AuthTokens.Head_Maintenance,
-               })
-
-               const taskUpdate = HeadStaff_Task_Update({
-                  id: receiveTask.id,
-                  payload: {
-                     status: TaskStatus.AWAITING_FIXER,
-                  },
-                  token: AuthTokens.Head_Maintenance,
-               })
-
-               return task
             }),
          )
 

@@ -25,33 +25,29 @@ export default function useRequest_Close(props?: Props) {
          }
 
          const response = await Promise.allSettled(
-            req.requests
-               .filter((r) => {
-                  return r.tasks.every((task) => task.status === TaskStatus.COMPLETED)
+            req.requests.map(async (request) => {
+               return await HeadStaff_Request_UpdateStatus({
+                  id: request.id,
+                  payload: {
+                     status: FixRequestStatus.HEAD_CONFIRM,
+                  },
+                  token: AuthTokens.Head_Maintenance,
                })
-               .map(async (request) => {
-                  await HeadStaff_Request_UpdateStatus({
-                     id: request.id,
-                     payload: {
-                        status: FixRequestStatus.HEAD_CONFIRM,
-                     },
-                     token: AuthTokens.Head_Maintenance,
-                  })
 
-                  const requester = request.requester.username
-                  const requesterToken =
-                     AuthTokens.Head_Department[requester as keyof typeof AuthTokens.Head_Department]
-
-                  console.log(requester, requesterToken)
-
-                  await Head_Request_UpdateClose({
-                     token: requesterToken,
-                     payload: {
-                        content: "Yêu cầu đã được xác nhận bởi trưởng phòng",
-                     },
-                     id: request.id,
-                  })
-               }),
+               // const requester = request.requester.username
+               // const requesterToken =
+               //    AuthTokens.Head_Department[requester as keyof typeof AuthTokens.Head_Department]
+               //
+               // console.log(requester, requesterToken)
+               //
+               // await Head_Request_UpdateClose({
+               //    token: requesterToken,
+               //    payload: {
+               //       content: "Yêu cầu đã được xác nhận bởi trưởng phòng",
+               //    },
+               //    id: request.id,
+               // })
+            }),
          )
 
          const requests = response.filter((res) => res.status === "fulfilled").map((res: any) => res.value)

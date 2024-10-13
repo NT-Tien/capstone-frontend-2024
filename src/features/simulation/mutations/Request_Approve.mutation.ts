@@ -10,8 +10,10 @@ import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one
 
 type Request = {
    requests: RequestDto[]
-   no_issues: number
-   no_spareParts: number
+   numbers?: {
+      no_issues?: number
+      no_spareParts?: number
+   }
 }
 
 type Response = {
@@ -39,6 +41,9 @@ export default function useRequest_Approve(props?: Props) {
 
          const response = await Promise.allSettled(
             req.requests.map(async (request) => {
+               const issuesCount = req.numbers?.no_issues ?? 3
+               const sparePartsCount = req.numbers?.no_spareParts ?? 1
+
                const device = await queryClient.ensureQueryData({
                   queryKey: ["head-maintenance", "device", "one", "id", request.device.id],
                   queryFn: () =>
@@ -48,20 +53,20 @@ export default function useRequest_Approve(props?: Props) {
                      }),
                })
 
-               return HeadStaff_Issue_CreateMany({
+               return await HeadStaff_Issue_CreateMany({
                   request: request.id,
                   token: AuthTokens.Head_Maintenance,
-                  issues: Array.from({ length: req.no_issues }).map((_, index) => ({
+                  issues: Array.from({ length: issuesCount }).map((_, index) => ({
                      description: `Mô tả lỗi #${index}`,
                      fixType: Object.values(FixType)[Math.floor(Math.random() * Object.values(FixType).length)],
-                     spareParts: Array.from({ length: req.no_spareParts }).map((_, index) => ({
+                     spareParts: Array.from({ length: sparePartsCount }).map((_, index) => ({
                         sparePart:
                            device.machineModel.spareParts[
                               Math.floor(Math.random() * device.machineModel.spareParts.length)
                            ].id,
                         quantity: Math.floor(Math.random() * 10),
                      })),
-                     typeError: typeErrors[Math.floor(Math.random() * typeErrors.length)].id,
+                     typeError: typeErrors[index].id,
                   })),
                })
             }),

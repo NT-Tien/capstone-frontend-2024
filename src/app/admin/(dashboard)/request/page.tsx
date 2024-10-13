@@ -24,6 +24,7 @@ type QueryType = {
       requester_note?: string
       status?: any
       is_warranty?: string
+      is_seen?: string
    }
    sort?: {
       order: "ASC" | "DESC"
@@ -31,14 +32,13 @@ type QueryType = {
    }
 }
 
-function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus } }) {
-   const router = useRouter()
-
+function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_warranty?: string } }) {
    const [query, setQuery] = useState<QueryType>({
       page: 1,
       limit: 10,
       search: {
          status: searchParams.tab ?? FixRequestStatus.PENDING,
+         is_warranty: searchParams.is_warranty,
       },
    })
 
@@ -52,6 +52,7 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus } }) {
          requester_note: query.search?.requester_note,
          id: query.search?.id,
          is_warranty: query.search?.is_warranty,
+         is_seen: query.search?.is_seen,
       },
       sort: {
          order: query.sort?.order,
@@ -293,6 +294,20 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus } }) {
                      true: { text: "Bảo hành" },
                      false: { text: "Sửa chữa" },
                   },
+               },
+               {
+                  title: "Đã xem",
+                  dataIndex: ["is_seen"],
+                  valueType: "select",
+                  valueEnum: {
+                     true: { text: "Đã xem" },
+                     false: { text: "Chưa xem" },
+                  },
+                  render: (_, e) => (
+                     <Tag color={e.is_seen ? "green" : "default"}>{e.is_seen ? "Đã xem" : "Chưa xem"}</Tag>
+                  ),
+                  hideInTable: query.search?.status !== FixRequestStatus.PENDING,
+                  hideInSearch: query.search?.status !== FixRequestStatus.PENDING,
                },
                {
                   title: "Thông tin yêu cầu",

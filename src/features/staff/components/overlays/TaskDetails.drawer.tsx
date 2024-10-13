@@ -230,7 +230,9 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                      <section className="grid grid-cols-2 gap-4">
                         <div>
                            <h5 className="font-medium text-gray-500">Ngày sửa</h5>
-                           <p className="mt-1 font-bold">{dayjs(api_task.data.fixerDate).add(7, "hours").format("DD-MM-YYYY")}</p>
+                           <p className="mt-1 font-bold">
+                              {dayjs(api_task.data.fixerDate).add(7, "hours").format("DD-MM-YYYY")}
+                           </p>
                         </div>
                         <div>
                            <h5 className="font-medium text-gray-500">Thời gian thực hiện</h5>
@@ -276,8 +278,8 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                            <div className="flex items-start justify-between">
                               <h5 className="font-medium text-gray-500">Vị trí</h5>
                               <p className="mt-1 font-bold">
-                                 {api_task.data.device?.positionX ?? api_task.data.device_renew.positionX} x{" "}
-                                 {api_task.data.device.positionY ?? api_task.data.device_renew.positionY}
+                                 {api_task.data.device?.positionX ?? api_task.data.device_renew?.positionX ?? "-"} x{" "}
+                                 {api_task.data.device?.positionY ?? api_task.data.device_renew?.positionY ?? "-"}
                               </p>
                            </div>
                         </div>

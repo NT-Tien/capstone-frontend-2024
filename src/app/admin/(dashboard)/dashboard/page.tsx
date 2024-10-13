@@ -456,11 +456,11 @@ export default function AdminHomePage() {
                            title: "",
                            dataIndex: "totalTasks",
                            key: "totalTasks",
-                           render: (value, record) => (
+                           render: (value, record, index) => (
                               <Button
                                  type="link"
                                  size="small"
-                                 onClick={() => router.push(`/admin/dashboard/tasks`)}
+                                 onClick={() => router.push(`/admin/dashboard/tasks?areaId=${areaIds[index]}`)}
                                  style={{ textAlign: "center", display: "block" }}
                               >
                                  <span style={{ textAlign: "center", display: "block" }}>{value}</span>

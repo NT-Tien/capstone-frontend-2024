@@ -147,8 +147,8 @@ function RequestDetails() {
       {
          key: "2",
          category: "Bảo trì",
-         notSeen: api.fix.data ? api.warranty.data?.not_seen : 0,
-         hasSeen: api.fix.data ? api.warranty.data?.has_seen : 0,
+         notSeen: api.warranty.data ? api.warranty.data?.not_seen : 0,
+         hasSeen: api.warranty.data ? api.warranty.data?.has_seen : 0,
          approved: api.warranty.data ? api.warranty.data.APPROVED : 0,
          inProgress: api.warranty.data ? api.warranty.data.IN_PROGRESS : 0,
          headConfirm: api.warranty.data ? api.warranty.data.HEAD_CONFIRM : 0,
@@ -159,8 +159,8 @@ function RequestDetails() {
       {
          key: "3",
          category: "Thay máy mới",
-         notSeen: api.fix.data ? api.renew.data?.not_seen : 0,
-         hasSeen: api.fix.data ? api.renew.data?.has_seen : 0,
+         notSeen: api.renew.data ? api.renew.data?.not_seen : 0,
+         hasSeen: api.renew.data ? api.renew.data?.has_seen : 0,
          approved: api.renew.data ? api.renew.data.APPROVED : 0,
          inProgress: api.renew.data ? api.renew.data.IN_PROGRESS : 0,
          headConfirm: api.renew.data ? api.renew.data.HEAD_CONFIRM : 0,

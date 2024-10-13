@@ -9,7 +9,6 @@ type Request = {
    areaId?: string
    startDate: string
    endDate: string
-   areaId?: string
 }
 type Response = {
    [key in FixRequestStatus | "not_seen" | "has_seen"]: number

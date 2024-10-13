@@ -6,7 +6,7 @@ import Admin_Tasks_Dashboard from "@/features/admin/api/task/dashboard.api"
 import { useSearchParams } from "next/navigation"
 import { PageContainer } from "@ant-design/pro-components"
 import { useState } from "react"
-import { Dayjs } from "dayjs"
+import dayjs, { Dayjs } from "dayjs"
 
 const { RangePicker } = DatePicker
 
@@ -102,7 +102,7 @@ function TaskDetails() {
             ],
             queryFn: () =>
                Admin_Tasks_Dashboard({
-                  endDate: endDate ? endDate.toISOString() : new Date().toISOString(),
+                  endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
                   startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
                   type: "fix-sp",
@@ -121,7 +121,7 @@ function TaskDetails() {
             ],
             queryFn: () =>
                Admin_Tasks_Dashboard({
-                  endDate: endDate ? endDate.toISOString() : new Date().toISOString(),
+                  endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
                   startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
                   type: "fix-rpl-sp",
@@ -140,7 +140,7 @@ function TaskDetails() {
             ],
             queryFn: () =>
                Admin_Tasks_Dashboard({
-                  endDate: endDate ? endDate.toISOString() : new Date().toISOString(),
+                  endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
                   startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
                   type: "renew",
@@ -159,7 +159,7 @@ function TaskDetails() {
             ],
             queryFn: () =>
                Admin_Tasks_Dashboard({
-                  endDate: endDate ? endDate.toISOString() : new Date().toISOString(),
+                  endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
                   startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
                   type: "warranty",
@@ -202,7 +202,7 @@ function TaskDetails() {
 
       {
          key: "3",
-         category: "Bảo trì",
+         category: "Bảo hành",
          awaitingSparePart: api.warranty.data ? api.warranty.data.AWAITING_SPARE_SPART : 0,
          awaitingFixer: api.warranty.data ? api.warranty.data.AWAITING_FIXER : 0,
          cancelled: api.warranty.data ? api.warranty.data.CANCELLED : 0,

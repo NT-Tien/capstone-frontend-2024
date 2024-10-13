@@ -429,7 +429,7 @@ function WarrantyRequestTab() {
                                        <h4>Mã yêu cầu: {item.id}</h4>
                                     </div>
                                  }
-                                 description={`${item.requester.username} | ${item.device.machineModel.name}`}
+                                 description={`${item.device.area.name} |${item.requester.username} | ${item.device.machineModel.name}`}
                               />
                               {item.is_seen ? undefined : <Tag color="green">Chưa xem</Tag>}
                               {(item.status === FixRequestStatus.APPROVED ||

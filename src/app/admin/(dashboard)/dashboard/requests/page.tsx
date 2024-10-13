@@ -6,7 +6,7 @@ import Admin_Requests_Dashboard from "@/features/admin/api/request/dashboard.api
 import { useSearchParams } from "next/navigation"
 import { PageContainer } from "@ant-design/pro-components"
 import { useState } from "react"
-import { Dayjs } from "dayjs"
+import dayjs, { Dayjs } from "dayjs"
 
 const { RangePicker } = DatePicker;
 
@@ -94,7 +94,7 @@ function RequestDetails() {
             queryKey: ["admin", "requests", "dashboard", "fix", areaId, startDate?.toISOString(), endDate?.toISOString()],
             queryFn: () =>
                Admin_Requests_Dashboard({
-                  endDate: endDate ? endDate.toISOString() : new Date().toISOString(),
+                  endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
                   startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
                   type: "fix",
@@ -105,7 +105,7 @@ function RequestDetails() {
             queryKey: ["admin", "requests", "dashboard", "renew", areaId, startDate?.toISOString(), endDate?.toISOString()],
             queryFn: () =>
                Admin_Requests_Dashboard({
-                  endDate: endDate ? endDate.toISOString() : new Date().toISOString(),
+                  endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
                   startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
                   type: "renew",
@@ -116,7 +116,7 @@ function RequestDetails() {
             queryKey: ["admin", "requests", "dashboard", "warranty", areaId, startDate?.toISOString(), endDate?.toISOString()],
             queryFn: () =>
                Admin_Requests_Dashboard({
-                  endDate: endDate ? endDate.toISOString() : new Date().toISOString(),
+                  endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
                   startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
                   type: "warranty",

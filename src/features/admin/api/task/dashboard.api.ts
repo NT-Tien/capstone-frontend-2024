@@ -4,9 +4,10 @@ import Cookies from "js-cookie"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 
 type Request = {
-   type: "fix" | "warranty" | "renew" | "all"
+   type: "fix-sp" | "warranty" | "renew" | "all" | "fix-rpl-sp"
    startDate: string
    endDate: string
+   areaId: string
 }
 type Response = {
    [key in TaskStatus]: number

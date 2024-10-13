@@ -1,14 +1,17 @@
 "use client"
 
-import { Table, DatePicker } from "antd"
+import { Table, DatePicker, Card, Button } from "antd"
 import { useQueries } from "@tanstack/react-query"
 import Admin_Requests_Dashboard from "@/features/admin/api/request/dashboard.api"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { PageContainer } from "@ant-design/pro-components"
 import { useState } from "react"
 import dayjs, { Dayjs } from "dayjs"
+import CountUp from "react-countup"
+import { ChartLineUp } from "@phosphor-icons/react"
+import { ArrowLeftOutlined } from "@ant-design/icons"
 
-const { RangePicker } = DatePicker;
+const { RangePicker } = DatePicker
 
 const areaNameMapping: Record<string, string> = {
    "13734c3c-5f3b-472e-805f-557c1f08eeb2": "Q1",
@@ -16,7 +19,7 @@ const areaNameMapping: Record<string, string> = {
    "6b2e4394-239d-437e-b5a5-62be14dea23e": "Q3",
    "7be024ff-39bb-4ae1-b9a0-996a71e2e966": "Q4",
    "3d78678d-1f25-4df7-8a84-6640a7692456": "Q5",
-};
+}
 
 const columns = [
    {
@@ -25,29 +28,19 @@ const columns = [
       key: "category",
       width: "150px",
    },
+   // {
+   //    title: "Chờ",
+   //    dataIndex: "pending",
+   //    key: "pending",
+   // },
    {
-      title: "Chờ",
+      title: "Đang xử lí",
       children: [
-         {
-            title: "Chưa xem",
-            dataIndex: "notSeen",
-            key: "notSeen",
-         },
-         {
-            title: "Đã Xem",
-            dataIndex: "hasSeen",
-            key: "hasSeen",
-         },
          {
             title: "Xác nhận",
             dataIndex: "approved",
             key: "approved",
          },
-      ],
-   },
-   {
-      title: "Đang xử lí",
-      children: [
          {
             title: "Đang thực hiện",
             dataIndex: "inProgress",
@@ -85,13 +78,22 @@ const columns = [
 function RequestDetails() {
    const searchParams = useSearchParams()
    const areaId = searchParams.get("areaId") ?? ""
-   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([null, null]);
-   const [startDate, endDate] = dateRange || [null, null];
-   const areaName = areaNameMapping[areaId] || "Unknown Area";
+   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([null, null])
+   const [startDate, endDate] = dateRange || [null, null]
+   const router = useRouter()
+   const areaName = areaNameMapping[areaId] || "Unknown Area"
    const api = useQueries({
       queries: [
          {
-            queryKey: ["admin", "requests", "dashboard", "fix", areaId, startDate?.toISOString(), endDate?.toISOString()],
+            queryKey: [
+               "admin",
+               "requests",
+               "dashboard",
+               "fix",
+               areaId,
+               startDate?.toISOString(),
+               endDate?.toISOString(),
+            ],
             queryFn: () =>
                Admin_Requests_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
@@ -102,7 +104,15 @@ function RequestDetails() {
             enabled: !!areaId,
          },
          {
-            queryKey: ["admin", "requests", "dashboard", "renew", areaId, startDate?.toISOString(), endDate?.toISOString()],
+            queryKey: [
+               "admin",
+               "requests",
+               "dashboard",
+               "renew",
+               areaId,
+               startDate?.toISOString(),
+               endDate?.toISOString(),
+            ],
             queryFn: () =>
                Admin_Requests_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
@@ -113,7 +123,15 @@ function RequestDetails() {
             enabled: !!areaId,
          },
          {
-            queryKey: ["admin", "requests", "dashboard", "warranty", areaId, startDate?.toISOString(), endDate?.toISOString()],
+            queryKey: [
+               "admin",
+               "requests",
+               "dashboard",
+               "warranty",
+               areaId,
+               startDate?.toISOString(),
+               endDate?.toISOString(),
+            ],
             queryFn: () =>
                Admin_Requests_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
@@ -170,16 +188,49 @@ function RequestDetails() {
       },
    ]
 
-
    return (
       <div className="mt-5">
-         <PageContainer title={`Thông tin chi tiết yêu cầu của khu vực ${areaName}`} >
+         <PageContainer title={`Thông tin chi tiết yêu cầu của khu vực ${areaName}`}>
             <div>
-            <RangePicker 
-               onChange={(dates) => setDateRange(dates as [Dayjs | null, Dayjs | null])}
-               value={dateRange} 
-               style={{ marginBottom: '1rem' }}
-            />
+               <RangePicker
+                  onChange={(dates) => setDateRange(dates as [Dayjs | null, Dayjs | null])}
+                  value={dateRange}
+                  style={{ marginBottom: "1rem" }}
+               />
+            </div>
+            <div className="flex gap-3">
+               <Card size="small" className="w-full">
+                  <div className="flex justify-between gap-10">
+                     <div>
+                        <h5 className="text-xs text-neutral-500">Yêu cầu chưa xem</h5>
+                        <CountUp
+                           className="text-lg font-bold"
+                           end={api.fix?.data?.not_seen ?? 0}
+                           duration={1}
+                           separator={","}
+                        />
+                     </div>
+                     <div className="aspect-square h-full rounded-full bg-red-500 p-2">
+                        <ChartLineUp size={28} className="text-white" weight="fill" />
+                     </div>
+                  </div>
+               </Card>
+               <Card size="small" className="w-full">
+                  <div className="flex justify-between gap-10">
+                     <div>
+                        <h5 className="text-xs text-neutral-500">Yêu cầu đã xem</h5>
+                        <CountUp
+                           className="text-lg font-bold"
+                           end={api.fix?.data?.has_seen ?? 0}
+                           duration={1}
+                           separator={","}
+                        />
+                     </div>
+                     <div className="aspect-square h-full rounded-full bg-red-500 p-2">
+                        <ChartLineUp size={28} className="text-white" weight="fill" />
+                     </div>
+                  </div>
+               </Card>
             </div>
             <div
                style={{

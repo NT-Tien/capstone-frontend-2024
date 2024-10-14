@@ -8,6 +8,7 @@ import {
    ImportOutlined,
    LogoutOutlined,
    QrcodeOutlined,
+   SendOutlined,
 } from "@ant-design/icons"
 import { ProLayout } from "@ant-design/pro-layout"
 import { Dropdown } from "antd"
@@ -136,9 +137,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                      },
                      {
                         key: "scan",
-                        name: "Quét QR",
-                        icon: <QrcodeOutlined />,
+                        name: "Giao linh kiện",
+                        icon: <SendOutlined />,
                         path: "/stockkeeper/desktop/tasks/scan",
+                     },
+                     {
+                        key: "return",
+                        name: "Trả linh kiện",
+                        icon: <ImportOutlined />,
+                        path: "/stockkeeper/desktop/tasks/return",
                      },
                   ],
                },

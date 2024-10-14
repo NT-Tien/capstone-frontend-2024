@@ -117,7 +117,7 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
             >
                {(handleOpen1) => (
                   <PageContainer
-                     title={`Quét QR`}
+                     title={`Giao linh kiện`}
                      extra={[
                         <Button key="back" onClick={() => handleOpen()} className={cn(!scannedResult && "hidden")}>
                            Quét lại

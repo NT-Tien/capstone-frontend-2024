@@ -11,6 +11,8 @@ import { Button, Card, Drawer, Dropdown, Image, Input, List, Select, Tag, Typogr
 import { ReactNode, useMemo, useState } from "react"
 import { MoreOutlined } from "@ant-design/icons"
 import TextArea from "antd/es/input/TextArea"
+import staff_mutations from "@/features/staff/mutations"
+import AlertCard from "@/components/AlertCard"
 
 export default function IssueDetailsDrawer({
    children,
@@ -38,7 +40,6 @@ export default function IssueDetailsDrawer({
    const [currentIssue, setCurrentIssue] = useState<IssueDto | undefined>(undefined)
    const [isErrorDrawerOpen, setIsErrorDrawerOpen] = useState(false)
    const [selectedErrorReason, setSelectedErrorReason] = useState<string | undefined>()
-   const [isAddingNewError, setIsAddingNewError] = useState(false)
    const [newErrorText, setNewErrorText] = useState<string>("")
 
    const openErrorDrawer = () => {
@@ -47,18 +48,14 @@ export default function IssueDetailsDrawer({
 
    const closeErrorDrawer = () => {
       setIsErrorDrawerOpen(false)
-      setIsAddingNewError(false)
       setNewErrorText("")
    }
 
    const handleSelectChange = (value: string) => {
-      if (value === "add_new_error") {
-         setIsAddingNewError(true)
-      } else {
-         setIsAddingNewError(false)
-         setSelectedErrorReason(value)
-      }
+      setSelectedErrorReason(value)
    }
+
+   const mutate_failIssue = staff_mutations.issues.failed()
 
    const handleNewErrorChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setNewErrorText(e.target.value)
@@ -228,44 +225,66 @@ export default function IssueDetailsDrawer({
             )}
          </Drawer>
          <Drawer
-            title="Chọn lý do lỗi không thể hoàn thành"
+            title="Hủy lỗi"
             open={isErrorDrawerOpen}
             onClose={closeErrorDrawer}
-            height={350}
+            height={"max-content"}
             placement="bottom"
+            classNames={{
+               footer: "p-layout",
+            }}
+            footer={
+               <Button
+                  size="large"
+                  type="primary"
+                  block
+                  disabled={!selectedErrorReason || !newErrorText}
+                  onClick={() => {
+                     mutate_failIssue.mutate(
+                        {
+                           id: currentIssue?.id ?? "",
+                           payload: {
+                              failReason: selectedErrorReason ?? newErrorText,
+                           },
+                        },
+                        {
+                           onSuccess: () => {
+                              afterSuccess?.()
+                              handleClose()
+                           },
+                        },
+                     )
+                     closeErrorDrawer()
+                  }}
+               >
+                  Gửi
+               </Button>
+            }
          >
+            <AlertCard text="Vui lòng chọn lý do hủy lỗi" type="info" className="mb-layout" />
             <Select
+               size="large"
                placeholder="Chọn lý do"
                onChange={handleSelectChange}
-               style={{ width: "100%", marginBottom: "16px" }}
+               style={{ width: "100%" }}
                options={[
                   { label: "Thiếu linh kiện", value: "missing_parts" },
                   { label: "Chẩn đoán lỗi sai", value: "wrong_issue" },
                   { label: "Máy cần kiểm tra lại", value: "recheck" },
-                  { label: "+ Thêm lỗi mới", value: "add_new_error" },
+                  { label: "Lý do khác", value: "add_new_error" },
                ]}
             />
 
-            {isAddingNewError && (
-               <TextArea
-                  placeholder="Nhập lỗi mới"
-                  value={newErrorText}
-                  onChange={handleNewErrorChange}
-                  style={{ marginBottom: "16px", resize: "none", height: 120 }}
-               />
-            )}
-
-            <Button
-               type="primary"
-               block
-               disabled={!selectedErrorReason && !newErrorText}
-               onClick={() => {
-                  console.log("Selected Reason:", selectedErrorReason || newErrorText)
-                  closeErrorDrawer()
-               }}
-            >
-               Gửi lý do
-            </Button>
+            <TextArea
+               placeholder="Ghi chú"
+               className="mt-layout-half"
+               size="large"
+               value={newErrorText}
+               onChange={handleNewErrorChange}
+               maxLength={500}
+               showCount
+               style={{ resize: "none", height: 120 }}
+            />
          </Drawer>
       </>
    )

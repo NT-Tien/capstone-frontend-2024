@@ -1,5 +1,4 @@
 import IssueDetailsDrawer from "@/features/staff/components/overlays/IssueDetails.drawer"
-import ScannerDrawer from "@/components/overlays/Scanner.drawer"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
 import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
@@ -8,12 +7,15 @@ import DataListView from "@/components/DataListView"
 import { HomeOutlined, RightOutlined } from "@ant-design/icons"
 import { ProDescriptions } from "@ant-design/pro-components"
 import { MapPin } from "@phosphor-icons/react"
-import { App, Badge, Button, Card, List, Spin, Tabs, Tag, Typography } from "antd"
+import { Badge, Button, Card, List, Spin, Tabs, Tag, Typography } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { GeneralProps } from "./page"
-import { ReceiveWarrantyTypeErrorId } from "@/lib/constants/Warranty"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import ReturnSparePartDrawer, {
+   ReturnSparePartDrawerProps,
+} from "@/features/staff/components/overlays/ReturnSparePart.drawer"
 
 type Step2Props = GeneralProps & {
    data?: TaskDto
@@ -23,53 +25,15 @@ type Step2Props = GeneralProps & {
 }
 
 export default function Step1(props: Step2Props) {
-   const [hasScanned, setHasScanned] = useState(true)
+   const router = useRouter()
    const [tab, setTab] = useState<"task" | "issues">("issues")
 
-   const { message } = App.useApp()
-   const router = useRouter()
+   const control_returnSparePartDrawer = useRef<RefType<ReturnSparePartDrawerProps>>(null)
 
-   function onScan(id: string) {
-      if (props.data?.device.id !== id) {
-         message.error("Mã QR không hợp lệ")
-         return
-      }
-
-      message.success("Quét mã QR thành công")
-      setHasScanned(true)
-      setTab("issues")
-      const scannedCache = localStorage.getItem("staff-task")
-      if (!scannedCache) {
-         localStorage.setItem("staff-task", JSON.stringify([id]))
-      } else {
-         const cache = JSON.parse(scannedCache) as { [taskId: string]: string }
-         cache[props.id] = id
-         localStorage.setItem("staff-task", JSON.stringify(cache))
-      }
-   }
-
-   useEffect(() => {
-      if (props.data?.issues.find((i) => i.typeError.id === ReceiveWarrantyTypeErrorId)) {
-         setHasScanned(true)
-         setTab("issues")
-         return
-      }
-
-      if (props.data?.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)) {
-         setHasScanned(true)
-         return
-      }
-
-      const scannedCache = localStorage.getItem("staff-task")
-      if (!scannedCache) {
-         return
-      }
-
-      const cache = JSON.parse(scannedCache) as { [taskId: string]: string }
-      if (cache[props.id]) {
-         setHasScanned(true)
-      }
-   }, [props.data, props.id])
+   const failedIssues = useMemo(() => {
+      const failedIssues = props.data?.issues.filter((issue) => issue.status === IssueStatusEnum.FAILED)
+      return failedIssues?.filter((failedIssue) => failedIssue.issueSpareParts.length > 0)
+   }, [props.data?.issues])
 
    if (!props.data) {
       return <Spin fullscreen />
@@ -183,14 +147,14 @@ export default function Step1(props: Step2Props) {
                },
                {
                   key: "issues",
-                  label: "Vấn đề",
+                  label: "Lỗi cần sửa",
                   children: (
                      <div className="pt-1">
                         <IssueDetailsDrawer
                            afterSuccess={() => {
                               props.refetch()
                            }}
-                           scanCompleted={hasScanned}
+                           scanCompleted={true}
                         >
                            {(handleOpen) => (
                               <List
@@ -201,7 +165,7 @@ export default function Step1(props: Step2Props) {
                                  renderItem={(item) => (
                                     <Badge.Ribbon
                                        text={IssueStatusEnumTagMapper[item.status].text}
-                                       color={IssueStatusEnumTagMapper[item.status].colorInverse}
+                                       color={IssueStatusEnumTagMapper[item.status].color}
                                     >
                                        <Card
                                           size="small"
@@ -243,35 +207,48 @@ export default function Step1(props: Step2Props) {
                },
             ]}
          />
-         <ScannerDrawer onScan={onScan}>
-            {(handleOpen) => (
-               <div className="fixed bottom-0 left-0 flex w-full gap-3 bg-white p-layout">
-                  <Button
-                     icon={<HomeOutlined />}
-                     size="large"
-                     className="aspect-square w-16"
-                     onClick={() => {
-                        router.push("/staff/dashboard")
-                     }}
-                  />
-                  {hasScanned ? (
-                     <Button
-                        size="large"
-                        type="primary"
-                        className="w-full"
-                        disabled={!props.data?.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
-                        onClick={props.handleNext}
-                     >
-                        Tiếp tục
-                     </Button>
-                  ) : (
-                     <Button size="large" type="primary" className="w-full" onClick={handleOpen}>
-                        Quét mã QR để tiếp tục
-                     </Button>
-                  )}
-               </div>
+         <div className="fixed bottom-0 left-0 flex w-full gap-3 bg-white p-layout">
+            <Button
+               icon={<HomeOutlined />}
+               size="large"
+               onClick={() => router.push("/staff/tasks")}
+               className="aspect-square"
+            ></Button>
+            {failedIssues ? (
+               <Button
+                  size="large"
+                  type="primary"
+                  className="w-full"
+                  onClick={() => {
+                     const issueSpareParts = failedIssues.flatMap((issue) => issue.issueSpareParts)
+                     control_returnSparePartDrawer.current?.handleOpen({
+                        task: props.data,
+                        returnSpareParts: issueSpareParts,
+                     })
+                  }}
+               >
+                  Tiếp tục: Trả linh kiện
+               </Button>
+            ) : (
+               <Button
+                  size="large"
+                  type="primary"
+                  className="w-full"
+                  disabled={!props.data?.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
+                  onClick={props.handleNext}
+               >
+                  Tiếp tục
+               </Button>
             )}
-         </ScannerDrawer>
+         </div>
+         <OverlayControllerWithRef ref={control_returnSparePartDrawer}>
+            <ReturnSparePartDrawer
+               onFinish={async () => {
+                  props.refetch()
+                  control_returnSparePartDrawer.current?.handleClose()
+               }}
+            />
+         </OverlayControllerWithRef>
       </>
    )
 }

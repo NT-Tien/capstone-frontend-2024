@@ -73,7 +73,8 @@ function DeviceDetailsSection({ device, isLoading }: Props) {
                   {
                      title: "Khu vực",
                      dataIndex: "area",
-                     render: (_, entity) => <Link href={`/admin/area/${entity.area.id}`}>{entity.area.name}</Link>,
+                     render: (_, entity) =>
+                        entity.area ? <Link href={`/admin/area/${entity.area?.id}`}>{entity.area?.name}</Link> : "-",
                   },
                   {
                      title: "Vị trí",

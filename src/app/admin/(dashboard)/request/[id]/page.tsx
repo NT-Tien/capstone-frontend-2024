@@ -1,14 +1,14 @@
 "use client"
 
 import { PageContainer, ProDescriptions } from "@ant-design/pro-components"
-import { List, Progress, Space, Steps, Tag, Tooltip } from "antd"
+import { Collapse, List, Progress, Space, Steps, Tag, Tooltip } from "antd"
 import admin_queries from "@/features/admin/queries"
 import {
    FixRequest_StatusData,
    FixRequest_StatusMapper,
    FixRequestStatuses,
 } from "@/lib/domain/Request/RequestStatus.mapper"
-import { LeftOutlined, QrcodeOutlined, RightOutlined, RobotOutlined } from "@ant-design/icons"
+import { DownOutlined, LeftOutlined, QrcodeOutlined, RightOutlined, RobotOutlined, UpOutlined } from "@ant-design/icons"
 import Link from "next/link"
 import Card from "antd/es/card"
 import Button from "antd/es/button"
@@ -27,6 +27,9 @@ import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dt
 import { cn } from "@/lib/utils/cn.util"
 import DeviceDetailsSection from "@/features/admin/components/sections/DeviceDetails.section"
 import IssuesListSection from "@/features/admin/components/sections/IssuesList.section"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+
+const { Panel } = Collapse;
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -232,32 +235,82 @@ function Page({ params }: { params: { id: string } }) {
                               dataSource={api_deviceRequestHistory.data?.list}
                               loading={api_deviceRequestHistory.isPending}
                               metas={{
-                                 title: {
-                                    dataIndex: "requester_note",
-                                    render: (_, entity) =>
-                                       entity.id === params.id ? (
-                                          <Tooltip title="Đang xem">
-                                             <div className="font-bold text-black hover:text-black">
-                                                {entity.requester_note}
+                                 // title: {
+                                 //    dataIndex: "requester_note",
+                                 //    render: (_, entity) => (
+                                 //       <Tooltip title="Đang xem">
+                                 //          <div className="font-bold text-black hover:text-black">
+                                 //             {entity.requester_note}
+                                 //          </div>
+                                 //       </Tooltip>
+                                 //    ),
+                                 // },
+                                 // description: {
+                                 //    dataIndex: "createdAt",
+                                 //    render: (_, entity) => dayjs(entity.createdAt).format("DD/MM/YYYY HH:mm"),
+                                 // },
+                                 // avatar: {
+                                 //    render: (_, entity) => <RobotOutlined />,
+                                 // },
+                                 // subTitle: {
+                                 //    dataIndex: ["status"],
+                                 //    render: (_, entity) => (
+                                 //       <Tag color={FixRequest_StatusMapper(entity).color}>
+                                 //          {FixRequest_StatusMapper(entity).text}
+                                 //       </Tag>
+                                 //    ),
+                                 // },
+                                 extra: {
+                                    render: (_: any, entity: RequestDto) => (
+                                       <Collapse
+                                          expandIcon={({ isActive }) => (isActive ? <UpOutlined /> : <DownOutlined />)}
+                                          ghost
+                                       >
+                                          <Panel
+                                             key={entity.id}
+                                             header={
+                                                entity.id === params.id ? (
+                                                   <Tooltip title="Đang xem">
+                                                      <div className="font-bold text-black">
+                                                         {entity.requester_note}
+                                                      </div>
+                                                   </Tooltip>
+                                                ) : (
+                                                   <Link href={`/admin/request/${entity.id}`}>
+                                                      {entity.requester_note}
+                                                   </Link>
+                                                )
+                                             }
+                                          >
+                                             <div>
+                                                <strong>ID:</strong> {entity.id}
                                              </div>
-                                          </Tooltip>
-                                       ) : (
-                                          <Link href={`/admin/request/${entity.id}`}>{entity.requester_note}</Link>
-                                       ),
-                                 },
-                                 description: {
-                                    dataIndex: "createdAt",
-                                    render: (_, entity) => dayjs(entity.createdAt).format("DD/MM/YYYY HH:mm"),
-                                 },
-                                 avatar: {
-                                    render: (_, entity) => <RobotOutlined />,
-                                 },
-                                 subTitle: {
-                                    dataIndex: ["status"],
-                                    render: (_, entity) => (
-                                       <Tag color={FixRequest_StatusMapper(entity).color}>
-                                          {FixRequest_StatusMapper(entity).text}
-                                       </Tag>
+                                             <div>
+                                                <strong>Updated At:</strong> {dayjs(entity.updatedAt).format('DD/MM/YYYY HH:mm')}
+                                             </div>
+                                             <div>
+                                                <strong>Requester Username:</strong> {entity.requester.username}
+                                             </div>
+                                             <div>
+                                                <strong>Manufacturer:</strong> {entity.device.machineModel.manufacturer}
+                                             </div>
+                                             <div>
+                                                <strong>Year of Production:</strong> {entity.device.machineModel.yearOfProduction}
+                                             </div>
+                                             <div>
+                                                <strong>Date of Receipt:</strong> {dayjs(entity.device.machineModel.dateOfReceipt).format('DD/MM/YYYY')}
+                                             </div>
+                                             <div>
+                                                <strong>Description:</strong> {entity.device.machineModel.description}
+                                             </div>
+                                             <div>
+                                                <strong>Warranty Term:</strong> {entity.device.machineModel.warrantyTerm}
+                                             </div>
+                                             {/* <div>
+                                                <strong>Area:</strong> {entity.device.area}
+                                             </div> */}
+                                          </Panel>
+                                       </Collapse>
                                     ),
                                  },
                               }}

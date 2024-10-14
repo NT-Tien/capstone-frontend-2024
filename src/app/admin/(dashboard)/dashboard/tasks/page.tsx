@@ -81,6 +81,25 @@ const columns = [
          },
       ],
    },
+   {
+      title: "Tổng cộng",
+      key: "rowTotal",
+      render: (
+         text: string,
+         record: {
+            awaitingSparePart: number
+            awaitingFixer: number
+            assigned: number
+            inProgress: number
+            headDepartmentConfirm: number
+            completed: number
+            cancelled: number
+         },
+      ) => {
+         const { awaitingSparePart, inProgress, headDepartmentConfirm, awaitingFixer, assigned, completed, cancelled } = record
+         return awaitingSparePart + awaitingFixer + inProgress + assigned + headDepartmentConfirm + completed + cancelled
+      },
+   },
 ]
 
 function TaskDetails() {
@@ -230,6 +249,19 @@ function TaskDetails() {
       },
    ]
 
+   const totalRow = {
+      key: "total",
+      category: "Tổng cộng",
+      awaitingSparePart: data.reduce((sum, row) => sum + row.awaitingSparePart, 0),
+      awaitingFixer: data.reduce((sum, row) => sum + row.awaitingFixer, 0),
+      assigned: data.reduce((sum, row) => sum + row.assigned, 0),
+      // "spare-part-fetched": data.reduce((sum, row) => sum + row["spare-part-fetched"], 0),
+      inProgress: data.reduce((sum, row) => sum + row.inProgress, 0),
+      headDepartmentConfirm: data.reduce((sum, row) => sum + row.headDepartmentConfirm, 0),
+      completed: data.reduce((sum, row) => sum + row.completed, 0),
+      cancelled: data.reduce((sum, row) => sum + row.cancelled, 0),
+   }
+
    return (
       <div className="mt-5">
          <Button
@@ -258,12 +290,42 @@ function TaskDetails() {
                }}
             >
                <Table
-                  rowKey="none"
-                  columns={columns}
                   dataSource={data}
-                  bordered
-                  pagination={false}
-                  scroll={{ x: "max-content" }}
+                  columns={columns}
+                  summary={(pageData) => {
+                     const totalSumRow = pageData.reduce(
+                        (sum, row) => ({
+                           awaitingSparePart: sum.awaitingSparePart + row.awaitingSparePart,
+                           awaitingFixer: sum.awaitingFixer + row.awaitingFixer,
+                           inProgress: sum.inProgress + row.inProgress,
+                           headDepartmentConfirm: sum.headDepartmentConfirm + row.headDepartmentConfirm,
+                           completed: sum.completed + row.completed,
+                           cancelled: sum.cancelled + row.cancelled,
+                           assigned: sum.assigned + row.assigned,
+                        }),
+                        {
+                           awaitingSparePart: 0,
+                           awaitingFixer: 0,
+                           inProgress: 0,
+                           headDepartmentConfirm: 0,
+                           completed: 0,
+                           cancelled: 0,
+                           assigned: 0,
+                        },
+                     )
+                     return (
+                        <Table.Summary.Row>
+                           <Table.Summary.Cell index={0}>Tổng cộng</Table.Summary.Cell>
+                           <Table.Summary.Cell index={1}>{totalSumRow.awaitingSparePart}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={2}>{totalSumRow.awaitingFixer}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={3}>{totalSumRow.assigned}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={4}>{totalSumRow.inProgress}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={5}>{totalSumRow.completed}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={6}>{totalSumRow.headDepartmentConfirm}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={6}>{totalSumRow.cancelled}</Table.Summary.Cell>
+                        </Table.Summary.Row>
+                     )
+                  }}
                />
             </div>
          </PageContainer>

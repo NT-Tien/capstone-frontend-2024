@@ -38,18 +38,18 @@ export default function AdminHomePage() {
       requestPending: areaData?.request?.pending_requests || 0,
       requestOthers:
          areaData.request.approved_requests +
-            areaData.request.checked_requests +
+            // areaData.request.checked_requests +
             areaData.request.head_confirm_requests +
             areaData.request.in_progress_requests || 0,
-      requestCancel: areaData.request.closed_requests + areaData.request.rejected_requests || 0,
+      requestCancel:
+         areaData.request.closed_requests +
+            areaData.request.rejected_requests +
+            areaData.request.head_cancel_requests || 0,
       taskPending: areaData.task.awaiting_fixer + areaData.task.awaiting_spare_spart || 0,
-      taskOthers:
-         areaData.task.assigned +
-            areaData.task.completed +
-            areaData.task.in_progress +
-            areaData.task.head_staff_confirm || 0,
+      taskOthers: areaData.task.assigned + areaData.task.in_progress + areaData.task.head_staff_confirm || 0,
       taskCancel:
          areaData.task.cancelled +
+            areaData.task.completed +
             areaData.task.close_task_request_cancelled +
             areaData.task.head_staff_confirm_staff_request_cancelled +
             areaData.task.staff_request_cancelled || 0,
@@ -61,7 +61,11 @@ export default function AdminHomePage() {
    return (
       <div className="mt-5">
          <div className="mb-4 flex justify-end">
-            <Select defaultValue={selectedTime} style={{ width: 120 }} onChange={(value) => setSelectedTime(Number(value))}>
+            <Select
+               defaultValue={selectedTime}
+               style={{ width: 120 }}
+               onChange={(value) => setSelectedTime(Number(value))}
+            >
                <Select.Option value={1}>1 Tuần</Select.Option>
                <Select.Option value={2}>1 Tháng</Select.Option>
                <Select.Option value={3}>1 Năm</Select.Option>
@@ -75,7 +79,7 @@ export default function AdminHomePage() {
                   body: "w-full",
                }}
                hoverable
-               onClick={() => router.push("/admin/requests")}
+               onClick={() => router.push("/admin/request")}
             >
                <div className="flex w-full items-center justify-between">
                   <div className="flex flex-col items-start">
@@ -101,7 +105,7 @@ export default function AdminHomePage() {
                   body: "w-full",
                }}
                hoverable
-               onClick={() => router.push("/admin/tasks")}
+               onClick={() => router.push("/admin/task")}
             >
                <div className="flex w-full items-center justify-between">
                   <div className="flex flex-col items-start">
@@ -162,7 +166,7 @@ export default function AdminHomePage() {
                            render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
                         },
                         {
-                           title: <div style={{ textAlign: "center" }}>Hủy</div>,
+                           title: <div style={{ textAlign: "center" }}>Đã đóng</div>,
                            dataIndex: "requestCancel",
                            key: "requestCancel",
                            render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
@@ -200,7 +204,7 @@ export default function AdminHomePage() {
                            render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
                         },
                         {
-                           title: <div style={{ textAlign: "center" }}>Hủy</div>,
+                           title: <div style={{ textAlign: "center" }}>Đã đóng</div>,
                            dataIndex: "taskCancel",
                            key: "taskCancel",
                            render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
@@ -229,11 +233,7 @@ export default function AdminHomePage() {
                      align: "center",
                      colSpan: 2,
                      render: (value, record) => (
-                        <Button
-                           type="link"
-                           size="small"
-                           onClick={() => router.push(`/admin/devices?area`)}
-                        >
+                        <Button type="link" size="small" onClick={() => router.push(`/admin/area`)}>
                            {value}
                         </Button>
                      ),

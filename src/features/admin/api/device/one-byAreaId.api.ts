@@ -17,6 +17,7 @@ export type Response = {
       closed_requests: number
       head_confirm_requests: number
       rejected_requests: number
+      head_cancel_requests: number
    }
    task: {
       awaiting_spare_spart: number

@@ -215,14 +215,14 @@ function Page({ params }: { params: { id: string } }) {
                      <>
                         <DeviceDetailsSection device={api_request.data?.device} isLoading={api_request.isPending} />
                         <Card className="mt-4">
-                           <ProList
+                           <ProList 
                               pagination={{
                                  pageSize: 4,
                                  current: deviceHistory_page,
                                  total: api_deviceRequestHistory.data?.total,
                                  onChange: (page) => setDeviceHistory_page(page),
                               }}
-                              className="list-no-padding"
+                              className="w-full"
                               headerTitle={
                                  <div className="mb-3 flex w-full items-center justify-between font-bold">
                                     <span>Lịch sử sửa chữa ({api_deviceRequestHistory.data?.total ?? 0})</span>
@@ -262,11 +262,11 @@ function Page({ params }: { params: { id: string } }) {
                                  // },
                                  extra: {
                                     render: (_: any, entity: RequestDto) => (
-                                       <Collapse
+                                       <Collapse className="w-full"
                                           expandIcon={({ isActive }) => (isActive ? <UpOutlined /> : <DownOutlined />)}
                                           ghost
                                        >
-                                          <Panel
+                                          <Panel className="w-full"
                                              key={entity.id}
                                              header={
                                                 entity.id === params.id ? (
@@ -286,25 +286,25 @@ function Page({ params }: { params: { id: string } }) {
                                                 <strong>ID:</strong> {entity.id}
                                              </div>
                                              <div>
-                                                <strong>Updated At:</strong> {dayjs(entity.updatedAt).format('DD/MM/YYYY HH:mm')}
+                                                <strong>Lần cập nhật cuối:</strong> {dayjs(entity.updatedAt).format('DD/MM/YYYY HH:mm')}
                                              </div>
                                              <div>
-                                                <strong>Requester Username:</strong> {entity.requester.username}
+                                                <strong>Người tạo:</strong> {entity.requester.username}
                                              </div>
                                              <div>
-                                                <strong>Manufacturer:</strong> {entity.device.machineModel.manufacturer}
+                                                <strong>Nhà sản xuất:</strong> {entity.device.machineModel.manufacturer}
                                              </div>
                                              <div>
-                                                <strong>Year of Production:</strong> {entity.device.machineModel.yearOfProduction}
+                                                <strong>Năm sản xuất:</strong> {entity.device.machineModel.yearOfProduction}
+                                             </div>
+                                             {/* <div>
+                                                <strong>Bảo hành:</strong> {dayjs(entity.device.machineModel.dateOfReceipt).format('DD/MM/YYYY')}
+                                             </div> */}
+                                             <div>
+                                                <strong>Mô tả:</strong> {entity.device.machineModel.description}
                                              </div>
                                              <div>
-                                                <strong>Date of Receipt:</strong> {dayjs(entity.device.machineModel.dateOfReceipt).format('DD/MM/YYYY')}
-                                             </div>
-                                             <div>
-                                                <strong>Description:</strong> {entity.device.machineModel.description}
-                                             </div>
-                                             <div>
-                                                <strong>Warranty Term:</strong> {entity.device.machineModel.warrantyTerm}
+                                                <strong>Bảo hành:</strong> {dayjs(entity.device.machineModel.warrantyTerm).format('DD/MM/YYYY HH:mm')}
                                              </div>
                                              {/* <div>
                                                 <strong>Area:</strong> {entity.device.area}

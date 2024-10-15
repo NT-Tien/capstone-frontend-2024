@@ -56,7 +56,7 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
          id: query.search?.id,
          is_warranty: query.search?.is_warranty,
          is_seen: query.search?.is_seen,
-         requesterName: query.search?.requesterName
+         requesterName: query.search?.requesterName,
       },
       sort: {
          order: query.sort?.order,
@@ -64,30 +64,30 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
       },
    })
 
-   const [requesterOptions, setRequesterOptions] = useState<{ label: string; value: string }[]>([]);
+   const [requesterOptions, setRequesterOptions] = useState<{ label: string; value: string }[]>([])
 
    useEffect(() => {
       if (api_requests.data?.list) {
-        const uniqueRequesters = Array.from(
-          new Set(api_requests.data.list.map((request) => request.requester.username))
-        ).map((username) => ({
-          label: username,
-          value: username,
-        }));
-  
-        setRequesterOptions(uniqueRequesters);
+         const uniqueRequesters = Array.from(
+            new Set(api_requests.data.list.map((request) => request.requester.username)),
+         ).map((username) => ({
+            label: username,
+            value: username,
+         }))
+
+         setRequesterOptions(uniqueRequesters)
       }
-    }, [api_requests.data]);
-  
-    const handleRequesterSelect = (value: string) => {
+   }, [api_requests.data])
+
+   const handleRequesterSelect = (value: string) => {
       setQuery((prev) => ({
-        ...prev,
-        search: {
-          ...prev.search,
-          requesterName: value, 
-        },
-      }));
-    };
+         ...prev,
+         search: {
+            ...prev.search,
+            requesterName: value,
+         },
+      }))
+   }
 
    function handleTabChange(activeKey: string) {
       setQuery((prev) => ({
@@ -397,7 +397,6 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
                   title: "Khu vực",
                   dataIndex: ["device", "area", "name"],
                   width: 100,
-                  hideInSearch: true,
                },
                {
                   title: "Người tạo",
@@ -405,15 +404,15 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
                   width: 125,
                   ellipsis: true,
                   renderFormItem: () => (
-                    <AutoComplete
-                      options={requesterOptions}
-                      onSelect={handleRequesterSelect}
-                      allowClear
-                      placeholder="Nhập dữ liệu"
-                      style={{ width: 270 }}
-                    />
+                     <AutoComplete
+                        options={requesterOptions}
+                        onSelect={handleRequesterSelect}
+                        allowClear
+                        placeholder="Nhập dữ liệu"
+                        style={{ width: 270 }}
+                     />
                   ),
-                },
+               },
                {
                   title: "Ngày tạo",
                   dataIndex: "createdAt",
@@ -423,7 +422,7 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
                   sorter: true,
                },
                {
-                  title: "Lần trước cập nhật",
+                  title: "Lần cập nhật cuối",
                   dataIndex: "updatedAt",
                   width: 200,
                   render: (_, entity) => dayjs(entity.updatedAt).format("DD/MM/YYYY HH:mm"),

@@ -383,7 +383,6 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
                   title: "Người sửa",
                   dataIndex: ["fixer", "username"],
                   width: 150,
-                  // hideInSearch: true,
                   hideInTable: new Set([TaskStatus.AWAITING_SPARE_SPART, TaskStatus.AWAITING_FIXER]).has(
                      query.search?.status,
                   ),

@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils/cn.util"
 import { CalendarOutlined, CheckCircleFilled, EnvironmentFilled, ExclamationCircleFilled } from "@ant-design/icons"
 import { SkipForward } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
-import { Badge, Card, Empty, Progress, Segmented, Skeleton } from "antd"
+import { Badge, Card, Empty, Progress, Segmented, Select, Skeleton } from "antd"
 import dayjs from "dayjs"
 import { useMemo, useState } from "react"
 import { taskPercentageCalculator } from "../../../../lib/domain/Task/taskPercentageCalculator.util"
@@ -115,7 +115,7 @@ export default function StaffTasksPage() {
                </div>
                <div className="ml-2 mr-2">
                   {!!tasks.ongoing === true && (
-                     <section className=" w-full bg-white pb-3 shadow-bottom">
+                     <section className="w-full bg-white pb-3 shadow-bottom">
                         <TaskCard
                            title="Tác vụ đang thực hiện"
                            description={tasks.ongoing.name}
@@ -125,7 +125,7 @@ export default function StaffTasksPage() {
                         />
                      </section>
                   )}
-                  <Segmented
+                  {/* <Segmented
                      className="hide-scrollbar mb-3 w-full overflow-auto"
                      options={[
                         {
@@ -143,7 +143,21 @@ export default function StaffTasksPage() {
                      ]}
                      value={tab}
                      onChange={(val) => setTab(val)}
-                  />
+                  /> */}
+                  <Select
+                     className="mb-3 mt-2 w-full text-center"
+                     size="large"
+                     value={tab}
+                     onChange={(val) => setTab(val)}
+                  >
+                     <Select.Option value="today">
+                        Hôm nay ({tasks.today_priority.length + tasks.today_normal.length})
+                     </Select.Option>
+                     <Select.Option value="others">
+                        Tương lai ({tasks.today_priority.length + tasks.today_normal.length})
+                     </Select.Option>
+                     <Select.Option value="checking">Đang kiểm tra ({tasks.checking.length})</Select.Option>
+                  </Select>
                   {tab === "today" && (
                      <div className="flex flex-col gap-6">
                         <section>

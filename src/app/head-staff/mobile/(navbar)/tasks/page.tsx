@@ -8,7 +8,7 @@ import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import qk from "@/old/querykeys"
 import { useInfiniteQuery } from "@tanstack/react-query"
-import { Button, Card, Divider, Empty, Input, List, Result, Segmented, Skeleton, Spin } from "antd"
+import { Button, Card, Divider, Empty, Input, List, Result, Segmented, Select, Skeleton, Spin } from "antd"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
 import PageHeader from "@/components/layout/PageHeader"
@@ -93,7 +93,7 @@ function Page({ searchParams }: { searchParams: { page?: string; status?: TaskSt
             </>
          ),
       },
-   ];
+   ]
 
    return (
       <div className="std-layout relative h-full min-h-screen bg-white">
@@ -118,13 +118,24 @@ function Page({ searchParams }: { searchParams: { page?: string; status?: TaskSt
             suffix={<FilterOutlined />}
          />
 
-         <Segmented
+         {/* <Segmented
             className="hide-scrollbar mt-layout w-full overflow-auto mb-3"
             value={status}
             onChange={(val) => setStatus(val as TaskStatus)}
             options={taskStatusOptions}
-         />
-
+         /> */}
+         <Select
+            className="mb-3 mt-2 w-full text-center"
+            value={status}
+            size="large"
+            onChange={(val) => setStatus(val as TaskStatus)}
+         >
+            {taskStatusOptions.map((option) => (
+               <Select.Option key={option.value} value={option.value}>
+                  {option.label}
+               </Select.Option>
+            ))}
+         </Select>
          {result.isError ? (
             <Result
                status="error"
@@ -182,7 +193,7 @@ function ListView(props: ListViewType) {
          renderItem={(item, index) => {
             // Alternating classes for background color
             const isEven = index % 2 === 0
-            const backgroundClass = isEven ? 'bg-sky-100' : 'bg-white'
+            const backgroundClass = isEven ? "bg-sky-100" : "bg-white"
 
             return (
                <TaskCard

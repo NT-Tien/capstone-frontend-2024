@@ -76,6 +76,7 @@ const columns = [
    {
       title: "Tổng cộng",
       key: "rowTotal",
+      className: "bg-neutral-200",
       render: (
          text: string,
          record: {
@@ -271,7 +272,7 @@ function RequestDetails() {
                      )
 
                      return (
-                        <Table.Summary.Row>
+                        <Table.Summary.Row className="bg-neutral-200">
                            <Table.Summary.Cell index={0}>Tổng cộng</Table.Summary.Cell>
                            <Table.Summary.Cell index={1}>{totalSumRow.approved}</Table.Summary.Cell>
                            <Table.Summary.Cell index={2}>{totalSumRow.inProgress}</Table.Summary.Cell>

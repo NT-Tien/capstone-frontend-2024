@@ -84,6 +84,7 @@ const columns = [
    {
       title: "Tổng cộng",
       key: "rowTotal",
+      className: "bg-neutral-200",
       render: (
          text: string,
          record: {
@@ -96,8 +97,11 @@ const columns = [
             cancelled: number
          },
       ) => {
-         const { awaitingSparePart, inProgress, headDepartmentConfirm, awaitingFixer, assigned, completed, cancelled } = record
-         return awaitingSparePart + awaitingFixer + inProgress + assigned + headDepartmentConfirm + completed + cancelled
+         const { awaitingSparePart, inProgress, headDepartmentConfirm, awaitingFixer, assigned, completed, cancelled } =
+            record
+         return (
+            awaitingSparePart + awaitingFixer + inProgress + assigned + headDepartmentConfirm + completed + cancelled
+         )
       },
    },
 ]
@@ -292,6 +296,9 @@ function TaskDetails() {
                <Table
                   dataSource={data}
                   columns={columns}
+                  bordered
+                  pagination={false}
+                  scroll={{ x: "max-content" }}
                   summary={(pageData) => {
                      const totalSumRow = pageData.reduce(
                         (sum, row) => ({
@@ -314,15 +321,16 @@ function TaskDetails() {
                         },
                      )
                      return (
-                        <Table.Summary.Row>
+                        <Table.Summary.Row className="bg-neutral-200">
                            <Table.Summary.Cell index={0}>Tổng cộng</Table.Summary.Cell>
                            <Table.Summary.Cell index={1}>{totalSumRow.awaitingSparePart}</Table.Summary.Cell>
                            <Table.Summary.Cell index={2}>{totalSumRow.awaitingFixer}</Table.Summary.Cell>
                            <Table.Summary.Cell index={3}>{totalSumRow.assigned}</Table.Summary.Cell>
-                           <Table.Summary.Cell index={4}>{totalSumRow.inProgress}</Table.Summary.Cell>
-                           <Table.Summary.Cell index={5}>{totalSumRow.completed}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={4}>{}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={5}>{totalSumRow.inProgress}</Table.Summary.Cell>
                            <Table.Summary.Cell index={6}>{totalSumRow.headDepartmentConfirm}</Table.Summary.Cell>
-                           <Table.Summary.Cell index={6}>{totalSumRow.cancelled}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={7}>{totalSumRow.completed}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={8}>{totalSumRow.cancelled}</Table.Summary.Cell>
                         </Table.Summary.Row>
                      )
                   }}

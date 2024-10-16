@@ -27,6 +27,7 @@ const columns = [
       dataIndex: "category",
       key: "category",
       width: "150px",
+      fixed: true,
    },
    // {
    //    title: "Chờ",
@@ -291,7 +292,7 @@ function RequestDetails() {
                            <Table.Summary.Cell index={4}>{totalSumRow.closed}</Table.Summary.Cell>
                            <Table.Summary.Cell index={5}>{totalSumRow.headCancel}</Table.Summary.Cell>
                            <Table.Summary.Cell index={6}>{totalSumRow.rejected}</Table.Summary.Cell>
-                           <Table.Summary.Cell index={7}>{grandTotal}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={7} className="text-red-500">{grandTotal}</Table.Summary.Cell>
                         </Table.Summary.Row>
                      )
                   }}

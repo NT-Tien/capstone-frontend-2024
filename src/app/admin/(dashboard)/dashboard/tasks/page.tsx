@@ -25,6 +25,7 @@ const columns = [
       dataIndex: "category",
       key: "category",
       width: "170px",
+      fixed: true,
    },
    {
       title: "Chờ",
@@ -154,15 +155,7 @@ function TaskDetails() {
             enabled: !!areaId,
          },
          {
-            queryKey: [
-               "admin",
-               "task",
-               "dashboard",
-               "renew",
-               areaId,
-               startDate?.toISOString(),
-               endDate?.toISOString(),
-            ],
+            queryKey: ["admin", "task", "dashboard", "renew", areaId, startDate?.toISOString(), endDate?.toISOString()],
             queryFn: () =>
                Admin_Tasks_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
@@ -200,8 +193,7 @@ function TaskDetails() {
       }),
    })
 
-   console.log("trả về",api.fixsp.data?.AWAITING_SPARE_SPART);
-   
+   console.log("trả về", api.fixsp.data?.AWAITING_SPARE_SPART)
 
    const data = [
       {
@@ -214,7 +206,7 @@ function TaskDetails() {
          inProgress: api.fixsp.data ? api.fixsp.data.IN_PROGRESS : 0,
          completed: api.fixsp.data ? api.fixsp.data.COMPLETED : 0,
          headDepartmentConfirm: api.fixsp.data ? api.fixsp.data.HEAD_DEPARTMENT_CONFIRM : 0,
-         "spare-part-fetched": "-",
+         "spare-part-fetched": api.fixsp.data ? api.fixsp.data["spare-part-fetched"] : "-",
          // headCancel: api.fixsp.data ? api.fixsp.data.HEAD_CANCEL : 0,
       },
       {
@@ -227,7 +219,7 @@ function TaskDetails() {
          inProgress: api.fixrplsp.data ? api.fixrplsp.data.IN_PROGRESS : 0,
          completed: api.fixrplsp.data ? api.fixrplsp.data.COMPLETED : 0,
          headDepartmentConfirm: api.fixrplsp.data ? api.fixrplsp.data.HEAD_DEPARTMENT_CONFIRM : 0,
-         "spare-part-fetched": "-",
+         "spare-part-fetched": api.fixrplsp.data ? api.fixrplsp.data["spare-part-fetched"] : "-",
       },
 
       {
@@ -240,7 +232,7 @@ function TaskDetails() {
          inProgress: api.warranty.data ? api.warranty.data.IN_PROGRESS : 0,
          completed: api.warranty.data ? api.warranty.data.COMPLETED : 0,
          headDepartmentConfirm: api.warranty.data ? api.warranty.data.HEAD_DEPARTMENT_CONFIRM : 0,
-         "spare-part-fetched": "-"
+         "spare-part-fetched": api.warranty.data ? api.warranty.data["spare-part-fetched"] : "-",
       },
       {
          key: "4",
@@ -252,7 +244,7 @@ function TaskDetails() {
          inProgress: api.renew.data ? api.renew.data.IN_PROGRESS : 0,
          completed: api.renew.data ? api.renew.data.COMPLETED : 0,
          headDepartmentConfirm: api.renew.data ? api.renew.data.HEAD_DEPARTMENT_CONFIRM : 0,
-         "spare-part-fetched": "-",
+         "spare-part-fetched": api.renew.data ? api.renew.data["spare-part-fetched"] : "-",
       },
    ]
 
@@ -323,6 +315,14 @@ function TaskDetails() {
                            assigned: 0,
                         },
                      )
+                     const grandTotal =
+                        totalSumRow.awaitingSparePart +
+                        totalSumRow.awaitingFixer +
+                        totalSumRow.assigned +
+                        totalSumRow.inProgress +
+                        totalSumRow.headDepartmentConfirm +
+                        totalSumRow.completed +
+                        totalSumRow.cancelled
                      return (
                         <Table.Summary.Row className="font-bold">
                            <Table.Summary.Cell index={0}>Tổng cộng</Table.Summary.Cell>
@@ -334,6 +334,7 @@ function TaskDetails() {
                            <Table.Summary.Cell index={6}>{totalSumRow.headDepartmentConfirm}</Table.Summary.Cell>
                            <Table.Summary.Cell index={7}>{totalSumRow.completed}</Table.Summary.Cell>
                            <Table.Summary.Cell index={8}>{totalSumRow.cancelled}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={9} className="text-red-500">{grandTotal}</Table.Summary.Cell>
                         </Table.Summary.Row>
                      )
                   }}

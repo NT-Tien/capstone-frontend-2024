@@ -27,9 +27,11 @@ async function Admin_Task_Dashboard(request: Request): Promise<Response> {
 Admin_Task_Dashboard.URL = (req: Request) => {
    const urlparam = new URLSearchParams()
    urlparam.append("type", req.type)
+   if (req.areaId) {
+      urlparam.append("areaId", req.areaId)
+   }
    urlparam.append("startDate", req.startDate)
    urlparam.append("endDate", req.endDate)
-
    return `/admin/task/dashboard-info?${urlparam.toString()}`
 }
 

@@ -8,7 +8,7 @@ export enum TaskStatus {
    AWAITING_SPARE_SPART = "AWAITING_SPARE_SPART", // -
    ASSIGNED = "ASSIGNED", // cannot update issues
    IN_PROGRESS = "IN_PROGRESS", // ---
-   HEAD_STAFF_CONFIRM = "HEAD_DEPARTMENT_CONFIRM", // ---
+   HEAD_DEPARTMENT_CONFIRM = "HEAD_DEPARTMENT_CONFIRM", // ---
    COMPLETED = "COMPLETED",
    CANCELLED = "CANCELLED",
 }
@@ -59,7 +59,7 @@ export const TaskStatusTagMapper: {
       description: "Tác vụ đang được thực hiện",
       index: 3,
    },
-   [TaskStatus.HEAD_STAFF_CONFIRM]: {
+   [TaskStatus.HEAD_DEPARTMENT_CONFIRM]: {
       text: "Chờ kiểm tra",
       colorInverse: "processing",
       color: "processing",

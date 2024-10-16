@@ -27,7 +27,6 @@ const columns = [
       dataIndex: "category",
       key: "category",
       width: "150px",
-      fixed: true,
    },
    // {
    //    title: "Chờ",
@@ -77,7 +76,6 @@ const columns = [
    {
       title: "Tổng cộng",
       key: "rowTotal",
-      className: "font-bold",
       render: (
          text: string,
          record: {
@@ -98,10 +96,7 @@ const columns = [
 function RequestDetails() {
    const searchParams = useSearchParams()
    const areaId = searchParams.get("areaId") ?? ""
-   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([
-      dayjs().subtract(3, "months"),
-      dayjs(),
-   ])
+   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([null, null])
    const [startDate, endDate] = dateRange || [null, null]
    const router = useRouter()
    const areaName = areaNameMapping[areaId] || "Unknown Area"
@@ -121,7 +116,7 @@ function RequestDetails() {
                Admin_Requests_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
-                  startDate: startDate ? startDate.toISOString() : dayjs().subtract(3, "months").toISOString(),
+                  startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
                   type: "fix",
                }),
             enabled: !!areaId,
@@ -140,7 +135,7 @@ function RequestDetails() {
                Admin_Requests_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
-                  startDate: startDate ? startDate.toISOString() : dayjs().subtract(3, "months").toISOString(),
+                  startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
                   type: "renew",
                }),
             enabled: !!areaId,
@@ -159,7 +154,7 @@ function RequestDetails() {
                Admin_Requests_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
-                  startDate: startDate ? startDate.toISOString() : dayjs().subtract(3, "months").toISOString(),
+                  startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
                   type: "warranty",
                }),
             enabled: !!areaId,
@@ -275,16 +270,8 @@ function RequestDetails() {
                         },
                      )
 
-                     const grandTotal = 
-                     totalSumRow.approved +
-                     totalSumRow.inProgress +
-                     totalSumRow.headConfirm +
-                     totalSumRow.closed +
-                     totalSumRow.headCancel +
-                     totalSumRow.rejected;
-
                      return (
-                        <Table.Summary.Row className="font-bold">
+                        <Table.Summary.Row>
                            <Table.Summary.Cell index={0}>Tổng cộng</Table.Summary.Cell>
                            <Table.Summary.Cell index={1}>{totalSumRow.approved}</Table.Summary.Cell>
                            <Table.Summary.Cell index={2}>{totalSumRow.inProgress}</Table.Summary.Cell>
@@ -292,7 +279,6 @@ function RequestDetails() {
                            <Table.Summary.Cell index={4}>{totalSumRow.closed}</Table.Summary.Cell>
                            <Table.Summary.Cell index={5}>{totalSumRow.headCancel}</Table.Summary.Cell>
                            <Table.Summary.Cell index={6}>{totalSumRow.rejected}</Table.Summary.Cell>
-                           <Table.Summary.Cell index={7} className="text-red-500">{grandTotal}</Table.Summary.Cell>
                         </Table.Summary.Row>
                      )
                   }}

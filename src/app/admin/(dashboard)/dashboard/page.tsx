@@ -21,12 +21,12 @@ export default function AdminHomePage() {
    const [selectedTime, setSelectedTime] = useState<number>(1)
    const router = useRouter()
    const { data, isLoading } = useQuery({
-      queryKey: ["areaData", selectedTime],
+      queryKey: ["areaData"],
       queryFn: async () => {
          const promises = areaIds.map((id) => Admin_Devices_OneByAreaId({ id, time: selectedTime }))
          return Promise.all(promises)
       },
-      enabled: !!selectedTime,
+      enabled: selectedTime !== null,
    })
 
    const tableData = data?.map((areaData, index) => ({

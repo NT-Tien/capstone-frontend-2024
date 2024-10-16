@@ -2,11 +2,11 @@
 
 import { PageContainer } from "@ant-design/pro-layout"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import admin_queries from "@/features/admin/queries"
 import { ProTable } from "@ant-design/pro-components"
 import { CaretDown, CaretUp } from "@phosphor-icons/react"
-import { Tag } from "antd"
+import { AutoComplete, Tag } from "antd"
 import Link from "next/link"
 import dayjs from "dayjs"
 
@@ -21,6 +21,7 @@ type QueryState = {
       createdAt?: string
       updatedAt?: string
       is_warranty?: string
+      fixerName?: string
    }
    order: {
       order?: "ASC" | "DESC"
@@ -34,6 +35,7 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
       limit: 10,
       search: {
          status: searchParams.tab ?? TaskStatus.AWAITING_FIXER,
+         fixerName: undefined
       },
       order: {
          order: "DESC",
@@ -50,12 +52,38 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
          name: query.search?.name,
          fixerDate: query.search?.fixerDate,
          is_warranty: query.search?.is_warranty,
+         fixerName: query.search.name
       },
       order: {
          order: query.order?.order,
          orderBy: query.order?.orderBy as any,
       },
    })
+
+   const [requesterOptions, setRequesterOptions] = useState<{ label: string; value: string }[]>([]);
+
+   useEffect(() => {
+      if (api_tasks.data?.list) {
+        const uniqueFixers = Array.from(
+          new Set(api_tasks.data.list.map((task) => task?.fixer?.username))
+        ).map((username) => ({
+          label: username,
+          value: username,
+        }));
+  
+        setRequesterOptions(uniqueFixers);
+      }
+    }, [api_tasks.data]);
+  
+    const handleRequesterSelect = (value: string) => {
+      setQuery((prev) => ({
+        ...prev,
+        search: {
+          ...prev.search,
+          fixerName: value, 
+        },
+      }));
+    };
 
    function handleTabChange(activeKey: string) {
       setQuery({
@@ -355,7 +383,6 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
                   title: "Người sửa",
                   dataIndex: ["fixer", "username"],
                   width: 150,
-                  hideInSearch: true,
                   hideInTable: new Set([TaskStatus.AWAITING_SPARE_SPART, TaskStatus.AWAITING_FIXER]).has(
                      query.search?.status,
                   ),
@@ -365,6 +392,15 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
                      ) : (
                         "-"
                      ),
+                     renderFormItem: () => (
+                        <AutoComplete
+                          options={requesterOptions}
+                          onSelect={handleRequesterSelect}
+                          allowClear
+                          placeholder="Nhập dữ liệu"
+                          style={{ width: 270 }}
+                        />
+                      ),
                },
                {
                   title: "Ngày sửa chữa",
@@ -387,7 +423,7 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
                   hideInSearch: true,
                },
                {
-                  title: "Lần trước cập nhật",
+                  title: "Lần cập nhật cuối",
                   dataIndex: "updatedAt",
                   width: 200,
                   render: (_, entity) => dayjs(entity.updatedAt).format("DD/MM/YYYY HH:mm"),

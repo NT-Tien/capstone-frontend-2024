@@ -4,15 +4,16 @@ import { PageContainer } from "@ant-design/pro-layout"
 import admin_queries from "@/features/admin/queries"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { FixRequest_StatusData, FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ProTable } from "@ant-design/pro-components"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import dayjs from "dayjs"
 import { CaretDown, CaretUp } from "@phosphor-icons/react"
 import Link from "next/link"
-import { Progress, Tag, Tooltip } from "antd"
+import { AutoComplete, Progress, Tag, Tooltip } from "antd"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import { useQuery } from "@tanstack/react-query"
 
 type QueryType = {
    page: number
@@ -25,6 +26,7 @@ type QueryType = {
       status?: any
       is_warranty?: string
       is_seen?: string
+      requesterName?: string
    }
    sort?: {
       order: "ASC" | "DESC"
@@ -39,6 +41,7 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
       search: {
          status: searchParams.tab ?? FixRequestStatus.PENDING,
          is_warranty: searchParams.is_warranty,
+         requesterName: undefined,
       },
    })
 
@@ -53,12 +56,38 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
          id: query.search?.id,
          is_warranty: query.search?.is_warranty,
          is_seen: query.search?.is_seen,
+         requesterName: query.search?.requesterName,
       },
       sort: {
          order: query.sort?.order,
          orderBy: query.sort?.orderBy as any,
       },
    })
+
+   const [requesterOptions, setRequesterOptions] = useState<{ label: string; value: string }[]>([])
+
+   useEffect(() => {
+      if (api_requests.data?.list) {
+         const uniqueRequesters = Array.from(
+            new Set(api_requests.data.list.map((request) => request.requester.username)),
+         ).map((username) => ({
+            label: username,
+            value: username,
+         }))
+
+         setRequesterOptions(uniqueRequesters)
+      }
+   }, [api_requests.data])
+
+   const handleRequesterSelect = (value: string) => {
+      setQuery((prev) => ({
+         ...prev,
+         search: {
+            ...prev.search,
+            requesterName: value,
+         },
+      }))
+   }
 
    function handleTabChange(activeKey: string) {
       setQuery((prev) => ({
@@ -307,7 +336,7 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
                      <Tag color={e.is_seen ? "green" : "default"}>{e.is_seen ? "Đã xem" : "Chưa xem"}</Tag>
                   ),
                   hideInTable: query.search?.status !== FixRequestStatus.PENDING,
-                  hideInSearch: query.search?.status !== FixRequestStatus.PENDING,
+                  hideInSearch: true,
                },
                {
                   title: "Thông tin yêu cầu",
@@ -368,14 +397,21 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
                   title: "Khu vực",
                   dataIndex: ["device", "area", "name"],
                   width: 100,
-                  hideInSearch: true,
                },
                {
                   title: "Người tạo",
                   dataIndex: ["requester", "username"],
                   width: 125,
                   ellipsis: true,
-                  hideInSearch: true,
+                  renderFormItem: () => (
+                     <AutoComplete
+                        options={requesterOptions}
+                        onSelect={handleRequesterSelect}
+                        allowClear
+                        placeholder="Nhập dữ liệu"
+                        style={{ width: 270 }}
+                     />
+                  ),
                },
                {
                   title: "Ngày tạo",
@@ -386,7 +422,7 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
                   sorter: true,
                },
                {
-                  title: "Lần trước cập nhật",
+                  title: "Lần cập nhật cuối",
                   dataIndex: "updatedAt",
                   width: 200,
                   render: (_, entity) => dayjs(entity.updatedAt).format("DD/MM/YYYY HH:mm"),

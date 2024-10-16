@@ -4,7 +4,7 @@ import PageHeader from "@/components/layout/PageHeader"
 import { FixRequest_StatusData, FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { AddressBook } from "@phosphor-icons/react"
-import { Button, Card, Input, List, Result, Segmented, Skeleton, Spin, Tabs, Tag } from "antd"
+import { Button, Card, Input, List, Result, Segmented, Select, Skeleton, Spin, Tabs, Tag } from "antd"
 import Image from "next/image"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -67,7 +67,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
             prefix={<SearchOutlined className="mr-2" />}
             suffix={<FilterOutlined />}
          />
-         <Segmented
+         {/* <Segmented
             className="hide-scrollbar mt-layout w-full overflow-auto"
             options={(
                ["pending", "approved", "in_progress", "head_confirm", "closed", "rejected"] as FixRequestStatuses[]
@@ -87,7 +87,32 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
             }))}
             value={tab}
             onChange={(value) => handleChangeTab(value as FixRequestStatus)}
-         />
+         /> */}
+         <Select
+            className="mb-3 mt-2 w-full text-center"
+            value={tab}
+            size="large"
+            onChange={(value) => handleChangeTab(value as FixRequestStatus)}
+         >
+            {(["pending", "approved", "in_progress", "head_confirm", "closed", "rejected"] as FixRequestStatuses[]).map(
+               (status, index, array) => (
+                  <Select.Option
+                     key={FixRequest_StatusData(status).statusEnum}
+                     value={FixRequest_StatusData(status).statusEnum}
+                  >
+                     <div
+                        className={cn(
+                           "items-center justify-center gap-3 break-words font-base",
+                           index === 0 && "text-center",
+                           index === array.length - 1 && "text-center",
+                        )}
+                     >
+                        {FixRequest_StatusData(status).text} ({counts[status.toUpperCase() as FixRequestStatus]})
+                     </div>
+                  </Select.Option>
+               ),
+            )}
+         </Select>
          <TabDetails status={tab} />
       </div>
    )
@@ -143,7 +168,7 @@ function TabDetails(props: TabDetailsProps) {
                   className={cn(
                      "w-full px-layout",
                      item.is_seen === false &&
-                        "border-[1px] border-green-100 bg-green-100 p-2 transition-all hover:bg-green-200",
+                        "border-[1px] border-green-100 bg-green-100 p-2 transition-all hover:bg-green-200 m-2",
                   )}
                   headerClassName={cn(item.is_seen === false && "rounded-lg p-1")}
                   description={item.requester_note}

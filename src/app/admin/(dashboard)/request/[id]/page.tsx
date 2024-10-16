@@ -1,14 +1,14 @@
 "use client"
 
 import { PageContainer, ProDescriptions } from "@ant-design/pro-components"
-import { List, Progress, Space, Steps, Tag, Tooltip } from "antd"
+import { Collapse, List, Progress, Space, Steps, Tag, Tooltip } from "antd"
 import admin_queries from "@/features/admin/queries"
 import {
    FixRequest_StatusData,
    FixRequest_StatusMapper,
    FixRequestStatuses,
 } from "@/lib/domain/Request/RequestStatus.mapper"
-import { LeftOutlined, QrcodeOutlined, RightOutlined, RobotOutlined } from "@ant-design/icons"
+import { DownOutlined, LeftOutlined, QrcodeOutlined, RightOutlined, RobotOutlined, UpOutlined } from "@ant-design/icons"
 import Link from "next/link"
 import Card from "antd/es/card"
 import Button from "antd/es/button"
@@ -27,6 +27,9 @@ import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dt
 import { cn } from "@/lib/utils/cn.util"
 import DeviceDetailsSection from "@/features/admin/components/sections/DeviceDetails.section"
 import IssuesListSection from "@/features/admin/components/sections/IssuesList.section"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+
+const { Panel } = Collapse
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -219,45 +222,68 @@ function Page({ params }: { params: { id: string } }) {
                                  total: api_deviceRequestHistory.data?.total,
                                  onChange: (page) => setDeviceHistory_page(page),
                               }}
-                              className="list-no-padding"
+                              className="w-full"
                               headerTitle={
                                  <div className="mb-3 flex w-full items-center justify-between font-bold">
                                     <span>Lịch sử sửa chữa ({api_deviceRequestHistory.data?.total ?? 0})</span>
-                                    {/*<Link href={`/admin/device/${api_request.data?.device.id}`}>*/}
-                                    {/*   <Button>Xem chi tiết</Button>*/}
-                                    {/*</Link>*/}
                                  </div>
                               }
                               showExtra="always"
                               dataSource={api_deviceRequestHistory.data?.list}
                               loading={api_deviceRequestHistory.isPending}
                               metas={{
-                                 title: {
-                                    dataIndex: "requester_note",
-                                    render: (_, entity) =>
-                                       entity.id === params.id ? (
-                                          <Tooltip title="Đang xem">
-                                             <div className="font-bold text-black hover:text-black">
-                                                {entity.requester_note}
-                                             </div>
-                                          </Tooltip>
-                                       ) : (
-                                          <Link href={`/admin/request/${entity.id}`}>{entity.requester_note}</Link>
-                                       ),
-                                 },
-                                 description: {
-                                    dataIndex: "createdAt",
-                                    render: (_, entity) => dayjs(entity.createdAt).format("DD/MM/YYYY HH:mm"),
-                                 },
-                                 avatar: {
-                                    render: (_, entity) => <RobotOutlined />,
-                                 },
-                                 subTitle: {
-                                    dataIndex: ["status"],
-                                    render: (_, entity) => (
-                                       <Tag color={FixRequest_StatusMapper(entity).color}>
-                                          {FixRequest_StatusMapper(entity).text}
-                                       </Tag>
+                                 extra: {
+                                    render: (_: any, entity: RequestDto) => (
+                                       <Collapse
+                                          className="w-full"
+                                          expandIcon={({ isActive }) => (isActive ? <UpOutlined /> : <DownOutlined />)}
+                                          ghost
+                                       >
+                                          <Panel
+                                             className="w-full"
+                                             key={entity.id}
+                                             header={
+                                                entity.id === params.id ? (
+                                                   <Tooltip title="Đang xem">
+                                                      <div className="font-bold text-black">
+                                                         {entity.requester_note}
+                                                      </div>
+                                                   </Tooltip>
+                                                ) : (
+                                                   <Link href={`/admin/request/${entity.id}`}>
+                                                      {entity.requester_note}
+                                                   </Link>
+                                                )
+                                             }
+                                          >
+                                             <ProDescriptions
+                                                column={3}
+                                                bordered
+                                             >
+                                                <ProDescriptions.Item label="ID">{entity.id}</ProDescriptions.Item>
+                                                <ProDescriptions.Item label="Lần cập nhật cuối">
+                                                   {dayjs(entity.updatedAt).format("DD/MM/YYYY HH:mm")}
+                                                </ProDescriptions.Item>
+                                                <ProDescriptions.Item label="Người tạo">
+                                                   {entity.requester.username}
+                                                </ProDescriptions.Item>
+                                                <ProDescriptions.Item label="Nhà sản xuất">
+                                                   {entity.device.machineModel.manufacturer}
+                                                </ProDescriptions.Item>
+                                                <ProDescriptions.Item label="Năm sản xuất">
+                                                   {entity.device.machineModel.yearOfProduction}
+                                                </ProDescriptions.Item>
+                                                <ProDescriptions.Item label="Mô tả">
+                                                   {entity.device.machineModel.description}
+                                                </ProDescriptions.Item>
+                                                <ProDescriptions.Item label="Bảo hành">
+                                                   {dayjs(entity.device.machineModel.warrantyTerm).format(
+                                                      "DD/MM/YYYY HH:mm",
+                                                   )}
+                                                </ProDescriptions.Item>
+                                             </ProDescriptions>
+                                          </Panel>
+                                       </Collapse>
                                     ),
                                  },
                               }}

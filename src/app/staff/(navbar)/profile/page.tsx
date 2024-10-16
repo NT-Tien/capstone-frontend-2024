@@ -20,28 +20,6 @@ function Page() {
          <UserCard jwt={user} />
          <section>
             <header className="mb-3 flex items-center gap-2">
-               <LaptopOutlined />
-               <Typography.Title level={5} className="mb-0">
-                  Thông tin
-               </Typography.Title>
-            </header>
-            <main className="grid grid-cols-3 gap-2">
-               <FunctionButton
-                  icon={<HomeOutlined />}
-                  title="Trang chủ"
-                  onClick={() => router.push("/staff/dashboard")}
-               />
-               <FunctionButton icon={<ContainerFilled />} title="Tác vụ" onClick={() => router.push("/staff/tasks")} />
-               <FunctionButton icon={<CheckOutlined />} title="Bản đồ" onClick={() => router.push("/staff/map")} />
-               <FunctionButton
-                  icon={<ContainerFilled />}
-                  title="Tác vụ hoàn tất"
-                  onClick={() => router.push("/staff/tasks/completed")}
-               />
-            </main>
-         </section>
-         <section>
-            <header className="mb-3 flex items-center gap-2">
                <UserOutlined />
                <Typography.Title level={5} className="mb-0">
                   Hồ sơ

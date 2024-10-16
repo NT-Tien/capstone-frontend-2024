@@ -4,7 +4,7 @@ import PageHeader from "@/components/layout/PageHeader"
 import { FixRequest_StatusData, FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { AddressBook } from "@phosphor-icons/react"
-import { Card, Input, Spin, Tabs } from "antd"
+import { Card, Input, Select, Spin, Tabs } from "antd"
 import Image from "next/image"
 import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -84,7 +84,7 @@ function Component() {
             suffix={<FilterOutlined />}
          />
 
-         <Segmented
+         {/* <Segmented
             className="hide-scrollbar mt-layout w-full overflow-auto"
             value={tab}
             onChange={(value) => handleChangeTab(value as FixRequestStatuses)}
@@ -106,7 +106,30 @@ function Component() {
                   </div>
                ),
             }))}
-         />
+         /> */}
+         <Select
+            className="mb-3 mt-2 w-full text-center"
+            size="large"
+            value={tab}
+            onChange={(value) => handleChangeTab(value as FixRequestStatuses)}
+         >
+            {(["pending", "approved", "in_progress", "head_confirm", "closed", "rejected"] as FixRequestStatuses[]).map(
+               (status, index, array) => (
+                  <Select.Option key={status} value={status}>
+                     <div
+                        className={cn(
+                           "items-center justify-center gap-3 break-words text-center font-medium",
+                           index === 0 && "text-center",
+                           index === array.length - 1 && "text-center",
+                        )}
+                     >
+                        {FixRequest_StatusData(status).text} (
+                        {statusCounts[status.toUpperCase() as FixRequestStatus] || 0})
+                     </div>
+                  </Select.Option>
+               ),
+            )}
+         </Select>
          {isLoading ? (
             <Card>
                <Spin fullscreen />

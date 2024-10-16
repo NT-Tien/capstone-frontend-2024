@@ -168,7 +168,7 @@ function TabDetails(props: TabDetailsProps) {
                   className={cn(
                      "w-full px-layout",
                      item.is_seen === false &&
-                        "border-[1px] border-green-100 bg-green-100 p-2 transition-all hover:bg-green-200",
+                        "border-[1px] border-green-100 bg-green-100 p-2 transition-all hover:bg-green-200 m-2",
                   )}
                   headerClassName={cn(item.is_seen === false && "rounded-lg p-1")}
                   description={item.requester_note}

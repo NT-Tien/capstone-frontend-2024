@@ -29,7 +29,7 @@ import DeviceDetailsSection from "@/features/admin/components/sections/DeviceDet
 import IssuesListSection from "@/features/admin/components/sections/IssuesList.section"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 
-const { Panel } = Collapse;
+const { Panel } = Collapse
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -215,7 +215,7 @@ function Page({ params }: { params: { id: string } }) {
                      <>
                         <DeviceDetailsSection device={api_request.data?.device} isLoading={api_request.isPending} />
                         <Card className="mt-4">
-                           <ProList 
+                           <ProList
                               pagination={{
                                  pageSize: 4,
                                  current: deviceHistory_page,
@@ -226,47 +226,21 @@ function Page({ params }: { params: { id: string } }) {
                               headerTitle={
                                  <div className="mb-3 flex w-full items-center justify-between font-bold">
                                     <span>Lịch sử sửa chữa ({api_deviceRequestHistory.data?.total ?? 0})</span>
-                                    {/*<Link href={`/admin/device/${api_request.data?.device.id}`}>*/}
-                                    {/*   <Button>Xem chi tiết</Button>*/}
-                                    {/*</Link>*/}
                                  </div>
                               }
                               showExtra="always"
                               dataSource={api_deviceRequestHistory.data?.list}
                               loading={api_deviceRequestHistory.isPending}
                               metas={{
-                                 // title: {
-                                 //    dataIndex: "requester_note",
-                                 //    render: (_, entity) => (
-                                 //       <Tooltip title="Đang xem">
-                                 //          <div className="font-bold text-black hover:text-black">
-                                 //             {entity.requester_note}
-                                 //          </div>
-                                 //       </Tooltip>
-                                 //    ),
-                                 // },
-                                 // description: {
-                                 //    dataIndex: "createdAt",
-                                 //    render: (_, entity) => dayjs(entity.createdAt).format("DD/MM/YYYY HH:mm"),
-                                 // },
-                                 // avatar: {
-                                 //    render: (_, entity) => <RobotOutlined />,
-                                 // },
-                                 // subTitle: {
-                                 //    dataIndex: ["status"],
-                                 //    render: (_, entity) => (
-                                 //       <Tag color={FixRequest_StatusMapper(entity).color}>
-                                 //          {FixRequest_StatusMapper(entity).text}
-                                 //       </Tag>
-                                 //    ),
-                                 // },
                                  extra: {
                                     render: (_: any, entity: RequestDto) => (
-                                       <Collapse className="w-full"
+                                       <Collapse
+                                          className="w-full"
                                           expandIcon={({ isActive }) => (isActive ? <UpOutlined /> : <DownOutlined />)}
                                           ghost
                                        >
-                                          <Panel className="w-full"
+                                          <Panel
+                                             className="w-full"
                                              key={entity.id}
                                              header={
                                                 entity.id === params.id ? (
@@ -282,33 +256,32 @@ function Page({ params }: { params: { id: string } }) {
                                                 )
                                              }
                                           >
-                                             <div>
-                                                <strong>ID:</strong> {entity.id}
-                                             </div>
-                                             <div>
-                                                <strong>Lần cập nhật cuối:</strong> {dayjs(entity.updatedAt).format('DD/MM/YYYY HH:mm')}
-                                             </div>
-                                             <div>
-                                                <strong>Người tạo:</strong> {entity.requester.username}
-                                             </div>
-                                             <div>
-                                                <strong>Nhà sản xuất:</strong> {entity.device.machineModel.manufacturer}
-                                             </div>
-                                             <div>
-                                                <strong>Năm sản xuất:</strong> {entity.device.machineModel.yearOfProduction}
-                                             </div>
-                                             {/* <div>
-                                                <strong>Bảo hành:</strong> {dayjs(entity.device.machineModel.dateOfReceipt).format('DD/MM/YYYY')}
-                                             </div> */}
-                                             <div>
-                                                <strong>Mô tả:</strong> {entity.device.machineModel.description}
-                                             </div>
-                                             <div>
-                                                <strong>Bảo hành:</strong> {dayjs(entity.device.machineModel.warrantyTerm).format('DD/MM/YYYY HH:mm')}
-                                             </div>
-                                             {/* <div>
-                                                <strong>Area:</strong> {entity.device.area}
-                                             </div> */}
+                                             <ProDescriptions
+                                                column={3}
+                                                bordered
+                                             >
+                                                <ProDescriptions.Item label="ID">{entity.id}</ProDescriptions.Item>
+                                                <ProDescriptions.Item label="Lần cập nhật cuối">
+                                                   {dayjs(entity.updatedAt).format("DD/MM/YYYY HH:mm")}
+                                                </ProDescriptions.Item>
+                                                <ProDescriptions.Item label="Người tạo">
+                                                   {entity.requester.username}
+                                                </ProDescriptions.Item>
+                                                <ProDescriptions.Item label="Nhà sản xuất">
+                                                   {entity.device.machineModel.manufacturer}
+                                                </ProDescriptions.Item>
+                                                <ProDescriptions.Item label="Năm sản xuất">
+                                                   {entity.device.machineModel.yearOfProduction}
+                                                </ProDescriptions.Item>
+                                                <ProDescriptions.Item label="Mô tả">
+                                                   {entity.device.machineModel.description}
+                                                </ProDescriptions.Item>
+                                                <ProDescriptions.Item label="Bảo hành">
+                                                   {dayjs(entity.device.machineModel.warrantyTerm).format(
+                                                      "DD/MM/YYYY HH:mm",
+                                                   )}
+                                                </ProDescriptions.Item>
+                                             </ProDescriptions>
                                           </Panel>
                                        </Collapse>
                                     ),

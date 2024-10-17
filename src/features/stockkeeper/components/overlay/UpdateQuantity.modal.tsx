@@ -11,8 +11,9 @@ import { useEffect, useState } from "react"
 type UpdateQuantityModalProps = {
    sparePart?: SparePartDto
    needMore?: number
-   handleClose?: () => void
-   refetchFn?: () => void
+   refetchFn?: (sparePartId: string) => void
+   min?: number
+   isNormalUpdate?: boolean
 }
 
 type Props = ModalProps & UpdateQuantityModalProps
@@ -51,8 +52,7 @@ function UpdateQuantityModal(props: Props) {
          },
          {
             onSuccess: () => {
-               props.handleClose?.()
-               props.refetchFn?.()
+               props.refetchFn?.(sparePartId)
             },
          },
       )
@@ -74,14 +74,28 @@ function UpdateQuantityModal(props: Props) {
                   <Button
                      type="primary"
                      icon={<MinusOutlined />}
-                     onClick={() => quantity > 0 && setQuantity(quantity - 1)}
-                     disabled={quantity <= 0}
+                     onClick={() => {
+                        if (quantity > 0) {
+                           if (props.min && quantity <= props.min) return
+                           setQuantity(quantity - 1)
+                        }
+                     }}
+                     disabled={quantity <= 0 || (props.min ? quantity <= props.min : false)}
                   ></Button>
-                  <InputNumber value={quantity} onChange={(e) => e && setQuantity(e)} />
+                  <InputNumber
+                     value={quantity}
+                     onChange={(e) => e && setQuantity(e)}
+                     min={props.min}
+                     max={props.needMore}
+                  />
                   <Button
                      type="primary"
                      icon={<PlusOutlined />}
-                     onClick={() => props.needMore && setQuantity(quantity < props.needMore ? quantity + 1 : quantity)}
+                     onClick={() => {
+                        props.needMore
+                           ? setQuantity(quantity < props.needMore ? quantity + 1 : quantity)
+                           : setQuantity(quantity + 1)
+                     }}
                      disabled={!!(props.needMore && quantity >= props.needMore)}
                   ></Button>
                </div>
@@ -91,7 +105,7 @@ function UpdateQuantityModal(props: Props) {
                   </Button>
                   <Button
                      type="primary"
-                     disabled={props.needMore !== quantity}
+                     disabled={props.isNormalUpdate ? false : props.needMore !== quantity}
                      onClick={() => props.sparePart && handleUpdateQuantity(props.sparePart.id, quantity)}
                   >
                      Cập nhật
@@ -112,6 +126,7 @@ function UpdateQuantityModal(props: Props) {
                      {
                         label: "Mẫu máy",
                         children: props.sparePart.machineModel?.name,
+                        className: props.isNormalUpdate ? "hidden" : "",
                      },
                      {
                         label: "Số lượng trong kho",
@@ -125,6 +140,7 @@ function UpdateQuantityModal(props: Props) {
                      {
                         label: "Số lượng cần thêm",
                         children: <span className="text-green-500">+{props.needMore}</span>,
+                        className: props.isNormalUpdate ? "hidden" : "",
                      },
                   ]}
                   className="mt-2"
@@ -134,7 +150,7 @@ function UpdateQuantityModal(props: Props) {
                      justifyContent: "end",
                   }}
                />
-               <Divider className="mt-0" />
+               <Divider className="" />
             </>
          )}
       </Modal>

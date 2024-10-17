@@ -47,7 +47,10 @@ export default function RootHeader({
 
    return (
       <div
-         className={cn("flex h-min w-full items-center justify-between bg-white shadow-soft", className)}
+         className={cn(
+            "flex h-min w-full items-center justify-between border-b-2 border-b-neutral-200 bg-white",
+            className,
+         )}
          style={style}
       >
          <span className="flex flex-grow items-center justify-between gap-1 text-xl font-semibold">
@@ -58,7 +61,7 @@ export default function RootHeader({
             ) : (
                <Button icon={icon} type="text" className="p-0" onClick={onIconClick} {...buttonProps} />
             )}
-            <div className="flex justify-center w-full">{title}</div>
+            <div className="flex w-full justify-center">{title}</div>
          </span>
       </div>
    )

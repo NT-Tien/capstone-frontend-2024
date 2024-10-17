@@ -1,5 +1,5 @@
 import HeadStaff_Issue_Delete from "@/features/head-maintenance/api/issue/delete.api"
-import HeadStaff_SparePart_Delete from "@/features/head-maintenance/api/spare-part/delete.api"
+import HeadStaff_IssueSparePart_Delete from "@/features/head-maintenance/api/spare-part/delete.api"
 import Issue_ViewDetailsDrawer, {
    IssueDetailsDrawerRefType,
 } from "@/features/head-maintenance/components/overlays/Issue_ViewDetails.drawer"
@@ -46,7 +46,7 @@ function IssuesListTab(props: Props) {
    })
 
    const mutate_deleteIssueSpareParts = useMutation({
-      mutationFn: HeadStaff_SparePart_Delete,
+      mutationFn: HeadStaff_IssueSparePart_Delete,
       onError: (error) => {
          console.error(error)
          message.error("Xóa linh kiện thất bại")

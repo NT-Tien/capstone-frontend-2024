@@ -27,6 +27,8 @@ export type TaskDto = {
    confirmReceiptStaffSignature: string
    confirmReceiptStockkeeperSignature: string
    device_renew: DeviceDto
+   last_issues_data: any
+   return_spare_part_data: any
 }
 
 export const PriorityTagMapper: {

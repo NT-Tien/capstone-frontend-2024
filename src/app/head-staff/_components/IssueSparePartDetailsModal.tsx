@@ -5,7 +5,7 @@ import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dt
 import dayjs from "dayjs"
 import { DeleteOutlined, EditOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import HeadStaff_SparePart_Delete from "@/features/head-maintenance/api/spare-part/delete.api"
+import HeadStaff_IssueSparePart_Delete from "@/features/head-maintenance/api/spare-part/delete.api"
 import ModalConfirm from "@/old/ModalConfirm"
 import HeadStaff_SparePart_Update from "@/features/head-maintenance/api/spare-part/update.api"
 import useModalControls from "@/lib/hooks/useModalControls"
@@ -56,7 +56,7 @@ export default function IssueSparePartDetailsModal({
    })
 
    const mutate_deleteSparePart = useMutation({
-      mutationFn: HeadStaff_SparePart_Delete,
+      mutationFn: HeadStaff_IssueSparePart_Delete,
       onMutate: async () => {
          message.destroy("remove-spare-part")
          message.open({

@@ -13,6 +13,10 @@ import { useMutation, useQueries } from "@tanstack/react-query"
 import { Button, Descriptions, message, App, Table } from "antd"
 import dayjs from "dayjs"
 import { useState, useRef, useMemo } from "react"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import DualSignatureDrawer, {
+   DualSignatureDrawerProps,
+} from "@/features/stockkeeper/components/overlay/DualSignature.drawer"
 
 function Page({ searchParams }: { searchParams: { taskid?: string } }) {
    const { message } = App.useApp()
@@ -20,6 +24,7 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
    const [scannedResult, setScannedResult] = useState<string | null>(searchParams.taskid ?? null)
 
    const createSignatureDrawerRef = useRef<CreateSignatureDrawerRefType | null>(null)
+   const control_dualSignatureDrawer = useRef<RefType<DualSignatureDrawerProps>>(null)
 
    const api = useQueries({
       queries: [
@@ -111,6 +116,7 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                      return
                   }
                   setTimeout(() => {
+                     // TODO fix
                      createSignatureDrawerRef.current?.handleOpen()
                   }, 500)
                }}
@@ -132,7 +138,7 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                                  "hidden",
                            )}
                            type="primary"
-                           onClick={() => createSignatureDrawerRef.current?.handleOpen()}
+                           onClick={() => control_dualSignatureDrawer.current?.handleOpen({})}
                         >
                            Hoàn tất lấy linh kiện
                         </Button>,
@@ -288,34 +294,31 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                            : []),
                      ]}
                   >
-                     <CreateSignatureDrawer
-                        drawerProps={{
-                           placement: "right",
-                           width: "30vw",
-                        }}
-                        text="Tôi xác nhận nhân viên đã lấy linh kiện thành công"
-                        ref={createSignatureDrawerRef}
-                        onSubmit={(signature) => {
-                           if (!scannedResult || !api.task.isSuccess) return
-                           mutate_confirmReceipt.mutate(
-                              {
-                                 id: api.task.data.id,
-                                 payload: {
-                                    signature,
+                     <OverlayControllerWithRef ref={control_dualSignatureDrawer}>
+                        <DualSignatureDrawer
+                           onSubmit={(staff, stockkeeper) => {
+                              if (!scannedResult || !api.task.isSuccess) return
+                              mutate_confirmReceipt.mutate(
+                                 {
+                                    id: api.task.data.id,
+                                    payload: {
+                                       stockkeeper_signature: stockkeeper,
+                                       staff_signature: staff,
+                                    },
                                  },
-                              },
-                              {
-                                 onSuccess: async () => {
-                                    await api.task.refetch()
-                                    createSignatureDrawerRef.current?.handleClose()
-                                    setTimeout(() => {
-                                       handleOpen()
-                                    }, 300)
+                                 {
+                                    onSuccess: async () => {
+                                       await api.task.refetch()
+                                       control_dualSignatureDrawer.current?.handleClose()
+                                       setTimeout(() => {
+                                          handleOpen()
+                                       }, 300)
+                                    },
                                  },
-                              },
-                           )
-                        }}
-                     />
+                              )
+                           }}
+                        />
+                     </OverlayControllerWithRef>
                   </PageContainer>
                )}
             </DesktopScannerDrawer>

@@ -1,11 +1,10 @@
-import CreateSignatureDrawer, { CreateSignatureDrawerRefType } from "@/components/overlays/CreateSignature.drawer"
 import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
 import useModalControls from "@/lib/hooks/useModalControls"
 import { InfoCircleOutlined } from "@ant-design/icons"
 import { Wrench } from "@phosphor-icons/react"
-import { Button, Card, Drawer, Empty, List, Modal, QRCode } from "antd"
-import { create } from "domain"
-import { forwardRef, ReactNode, useImperativeHandle, useRef, useState } from "react"
+import { Button, Card, Drawer, Empty, QRCode } from "antd"
+import { forwardRef, ReactNode, useImperativeHandle, useState } from "react"
+import AlertCard from "@/components/AlertCard"
 
 type Props = {
    children?: (handleOpen: (qrCode: string, issueSpareParts: IssueSparePartDto[]) => void) => ReactNode
@@ -38,10 +37,7 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
       },
    })
 
-   const createSignatureDrawerRef = useRef<CreateSignatureDrawerRefType | null>(null)
-
    function handleCompleteSpareParts() {
-      createSignatureDrawerRef.current?.handleClose()
       handleClose()
       props.onComplete?.()
       setTimeout(() => {
@@ -67,31 +63,20 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
                footer: "p-layout",
             }}
             footer={
-               <Button
-                  className="w-full"
-                  size="large"
-                  type="primary"
-                  onClick={() => createSignatureDrawerRef.current?.handleOpen()}
-               >
-                  Ký xác nhận
+               <Button className="w-full" size="large" type="primary" onClick={handleCompleteSpareParts}>
+                  Hoàn tất
                </Button>
             }
          >
-            {props.description && (
-               <Card
-                  size="small"
-                  className="mb-2"
-                  onClick={() => window.navigator.clipboard.writeText(qrCode?.toString() ?? "")}
-               >
-                  <div className="flex gap-3">
-                     <InfoCircleOutlined />
-                     <div className="flex-grow">{props.description}</div>
-                  </div>
-               </Card>
-            )}
+            {props.description && <AlertCard text={props.description} type="info" className="mb-3" />}
             <QRCode value={qrCode ?? ""} className="aspect-square h-full w-full" />
             <section className="my-layout">
-               <h4 className="mb-2 text-lg font-medium">
+               <h4
+                  className="mb-2 text-lg font-medium"
+                  onClick={() => {
+                     window.navigator.clipboard.writeText(qrCode ?? "")
+                  }}
+               >
                   <Wrench size={24} weight="duotone" className="mr-1 inline" />
                   Linh kiện
                </h4>
@@ -112,11 +97,6 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
                </div>
             </section>
          </Drawer>
-         <CreateSignatureDrawer
-            ref={createSignatureDrawerRef}
-            onSubmit={handleCompleteSpareParts}
-            text="Tôi xác nhận đã lấy linh kiện thành công"
-         />
       </>
    )
 })

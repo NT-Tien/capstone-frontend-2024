@@ -16,6 +16,7 @@ import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayCon
 import ReturnSparePartDrawer, {
    ReturnSparePartDrawerProps,
 } from "@/features/staff/components/overlays/ReturnSparePart.drawer"
+import FinishTaskDrawer, { FinishTaskDrawerProps } from "@/features/staff/components/overlays/FinishTask.drawer"
 
 type Step2Props = GeneralProps & {
    data?: TaskDto
@@ -29,10 +30,12 @@ export default function Step1(props: Step2Props) {
    const [tab, setTab] = useState<"task" | "issues">("issues")
 
    const control_returnSparePartDrawer = useRef<RefType<ReturnSparePartDrawerProps>>(null)
+   const control_finishTaskDrawer = useRef<RefType<FinishTaskDrawerProps>>(null)
 
-   const failedIssues = useMemo(() => {
+   const failedIssuesWithSpareParts = useMemo(() => {
       const failedIssues = props.data?.issues.filter((issue) => issue.status === IssueStatusEnum.FAILED)
-      return failedIssues?.filter((failedIssue) => failedIssue.issueSpareParts.length > 0)
+      return failedIssues?.filter((failedIssue) => failedIssue.issueSpareParts.length > 0) ?? []
+      // return failedIssues?.filter((failedIssue) => failedIssue.issueSpareParts.length > 0)
    }, [props.data?.issues])
 
    if (!props.data) {
@@ -214,13 +217,13 @@ export default function Step1(props: Step2Props) {
                onClick={() => router.push("/staff/tasks")}
                className="aspect-square"
             ></Button>
-            {failedIssues ? (
+            {failedIssuesWithSpareParts.length > 0 && !props.data.return_spare_part_data ? (
                <Button
                   size="large"
                   type="primary"
                   className="w-full"
                   onClick={() => {
-                     const issueSpareParts = failedIssues.flatMap((issue) => issue.issueSpareParts)
+                     const issueSpareParts = failedIssuesWithSpareParts.flatMap((issue) => issue.issueSpareParts)
                      control_returnSparePartDrawer.current?.handleOpen({
                         task: props.data,
                         returnSpareParts: issueSpareParts,
@@ -235,9 +238,14 @@ export default function Step1(props: Step2Props) {
                   type="primary"
                   className="w-full"
                   disabled={!props.data?.issues.every((issue) => issue.status !== IssueStatusEnum.PENDING)}
-                  onClick={props.handleNext}
+                  // onClick={props.handleNext}
+                  onClick={() =>
+                     control_finishTaskDrawer.current?.handleOpen({
+                        task: props.data,
+                     })
+                  }
                >
-                  Tiếp tục
+                  Hoàn thành
                </Button>
             )}
          </div>
@@ -248,6 +256,9 @@ export default function Step1(props: Step2Props) {
                   control_returnSparePartDrawer.current?.handleClose()
                }}
             />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_finishTaskDrawer}>
+            <FinishTaskDrawer />
          </OverlayControllerWithRef>
       </>
    )

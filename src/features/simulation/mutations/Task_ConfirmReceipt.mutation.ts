@@ -27,7 +27,8 @@ export default function useTask_ConfirmReceipt(props?: Props) {
                   id: req,
                   token: AuthTokens.Stockkeeper,
                   payload: {
-                     signature: "sim",
+                     stockkeeper_signature: "sim",
+                     staff_signature: "sim",
                   },
                })
             }),

@@ -32,7 +32,14 @@ function ReturnSparePartDrawer(props: Props) {
             <section>
                <QRCode value={props.task.id} className="size-full" />
                <section className="mt-layout">
-                  <h3 className="mb-1 text-lg font-semibold">Linh kiện cần trả</h3>
+                  <h3
+                     className="mb-1 text-lg font-semibold"
+                     onClick={() => {
+                        props.task && window.navigator.clipboard.writeText(props.task.id)
+                     }}
+                  >
+                     Linh kiện cần trả
+                  </h3>
                   <div className="h-32 overflow-y-auto rounded-lg bg-neutral-200 p-2">
                      {props.returnSpareParts?.map((item) => (
                         <div key={item.id} className="flex items-center justify-between">

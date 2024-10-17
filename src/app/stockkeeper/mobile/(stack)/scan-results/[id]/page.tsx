@@ -60,20 +60,20 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
    })
 
    function handleConfirmReceipt(signature: string) {
-      mutate_confirmReceipt.mutate(
-         {
-            id: params.id,
-            payload: {
-               signature: "",
-            },
-         },
-         {
-            onSuccess: async () => {
-               await api_task.refetch()
-               router.push("/stockkeeper/mobile/scan")
-            },
-         },
-      )
+      // mutate_confirmReceipt.mutate(
+      //    {
+      //       id: params.id,
+      //       payload: {
+      //          signature: "",
+      //       },
+      //    },
+      //    {
+      //       onSuccess: async () => {
+      //          await api_task.refetch()
+      //          router.push("/stockkeeper/mobile/scan")
+      //       },
+      //    },
+      // )
    }
 
    return (

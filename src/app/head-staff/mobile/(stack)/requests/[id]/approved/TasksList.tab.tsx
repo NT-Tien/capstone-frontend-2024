@@ -240,7 +240,7 @@ export default function TasksListTab(props: Props) {
                                                 size={24}
                                                 weight="fill"
                                                 className={
-                                                   TaskStatusTagMapper[task.status].className ?? "text-lime-600"
+                                                   TaskStatusTagMapper[task.status]?.className ?? "text-lime-600"
                                                 }
                                              />
                                           )}
@@ -248,21 +248,23 @@ export default function TasksListTab(props: Props) {
                                              <Package
                                                 size={24}
                                                 weight="fill"
-                                                className={TaskStatusTagMapper[task.status].className}
+                                                className={TaskStatusTagMapper[task.status]?.className}
                                              />
                                           )}
                                           {task.status === TaskStatus.ASSIGNED && (
                                              <UserCheck
                                                 size={24}
                                                 weight="fill"
-                                                className={TaskStatusTagMapper[task.status].className}
+                                                className={TaskStatusTagMapper[task.status]?.className}
                                              />
                                           )}
                                        </div>
                                        <div className="flex flex-col gap-0.5">
                                           <h3 className="text-sm text-neutral-800">{task.name}</h3>
                                           <div className="flex items-center">
-                                             <div className={cn("text-sm", TaskStatusTagMapper[task.status].className)}>
+                                             <div
+                                                className={cn("text-sm", TaskStatusTagMapper[task.status]?.className)}
+                                             >
                                                 {TaskStatusTagMapper[task.status].text}
                                              </div>
                                              {task.priority && (
@@ -339,28 +341,30 @@ export default function TasksListTab(props: Props) {
                                              <ShieldWarning
                                                 size={24}
                                                 weight="fill"
-                                                className={TaskStatusTagMapper[task.status].className}
+                                                className={TaskStatusTagMapper[task.status]?.className}
                                              />
                                           )}
                                           {task.status === TaskStatus.IN_PROGRESS && (
                                              <HourglassMedium
                                                 size={24}
                                                 weight="fill"
-                                                className={TaskStatusTagMapper[task.status].className}
+                                                className={TaskStatusTagMapper[task.status]?.className}
                                              />
                                           )}
                                           {task.status === TaskStatus.CANCELLED && (
                                              <Prohibit
                                                 size={24}
                                                 weight="fill"
-                                                className={TaskStatusTagMapper[task.status].className}
+                                                className={TaskStatusTagMapper[task.status]?.className}
                                              />
                                           )}
                                        </div>
                                        <div className="flex flex-col gap-0.5">
                                           <h3 className="text-sm text-neutral-800">{task.name}</h3>
                                           <div className="flex items-center">
-                                             <div className={cn("text-sm", TaskStatusTagMapper[task.status].className)}>
+                                             <div
+                                                className={cn("text-sm", TaskStatusTagMapper[task.status]?.className)}
+                                             >
                                                 {TaskStatusTagMapper[task.status].text}
                                              </div>
                                              {task.priority && (
@@ -430,14 +434,14 @@ export default function TasksListTab(props: Props) {
                                           <CheckCircle
                                              size={24}
                                              weight="fill"
-                                             className={TaskStatusTagMapper[task.status].className}
+                                             className={TaskStatusTagMapper[task.status]?.className}
                                           />
                                        )}
                                     </div>
                                     <div className="flex flex-col gap-0.5">
                                        <h3 className="text-sm text-neutral-800">{task.name}</h3>
                                        <div className="flex items-center">
-                                          <div className={cn("text-sm", TaskStatusTagMapper[task.status].className)}>
+                                          <div className={cn("text-sm", TaskStatusTagMapper[task.status]?.className)}>
                                              {TaskStatusTagMapper[task.status].text}
                                           </div>
                                           {task.priority && (

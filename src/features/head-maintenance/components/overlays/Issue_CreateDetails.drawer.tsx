@@ -67,7 +67,9 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
                   ]),
                ),
             )
+            setIssueId(props.defaultIssue.id)
             setIsUpdate(true)
+            setFailReason(props.defaultIssue.failReason)
          }
       },
       onClose: () => {
@@ -86,6 +88,8 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
    const [selectSparePartControl, setSelectSparePartControl] = useState<undefined | string>(undefined)
    const [selectedSpareParts, setSelectedSpareParts] = useState<Map<string, SparePartInputType>>(new Map())
    const [isUpdate, setIsUpdate] = useState(false)
+   const [issueId, setIssueId] = useState<string | undefined>(undefined)
+   const [failReason, setFailReason] = useState<string | undefined>()
 
    const basicSelectSparePartDrawerRef = useRef<BasicSelectSparePartDrawerRefType | null>(null)
 
@@ -102,6 +106,7 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
       if (!valid) return
 
       const issue = {
+         id: isUpdate ? issueId : undefined,
          typeError: selectedTypeError,
          description: values.description,
          issueSpareParts: Array.from(selectedSpareParts.values()).map((sp) => ({
@@ -177,12 +182,25 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
 
             <Divider className="std-layout-outer my-7" />
 
-            <AlertCard
-               text="Vui lòng điền các thông tin phía dưới để tạo một lỗi mới"
-               type="info"
-               icon={<Info size={20} weight="fill" />}
-               className="mb-5"
-            />
+            {isUpdate ? (
+               <>
+                  {failReason && (
+                     <AlertCard
+                        text={`Lý do không hoàn thành được: ${failReason}`}
+                        type="error"
+                        icon={<Warning size={20} weight="fill" />}
+                        className="mb-5"
+                     />
+                  )}
+               </>
+            ) : (
+               <AlertCard
+                  text="Vui lòng điền các thông tin phía dưới để tạo một lỗi mới"
+                  type="info"
+                  icon={<Info size={20} weight="fill" />}
+                  className="mb-5"
+               />
+            )}
 
             <Form<FieldType> form={form} className="flex-grow" layout="vertical" requiredMark={false}>
                <Form.Item<FieldType>

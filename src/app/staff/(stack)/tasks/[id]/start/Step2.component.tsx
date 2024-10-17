@@ -205,6 +205,7 @@ export default function Step2(props: Step3Props) {
          </div>
          <CreateSignatureDrawer
             ref={createSignatureRef}
+            alertTitle="Vui lòng đưa cho trưởng phòng ký tên xác nhận hoàn thành"
             onSubmit={(path) => {
                handleSubmit(form.getFieldsValue(), path)
             }}

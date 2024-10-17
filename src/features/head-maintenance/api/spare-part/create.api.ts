@@ -11,10 +11,10 @@ export type Request = {
 } & AuthTokenWrapper
 export type Response = SparePartDto
 
-HeadStaff_SparePart_Create.URL = "/head-staff/issue-spare-part"
-export default async function HeadStaff_SparePart_Create(req: Request): Promise<Response> {
+HeadStaff_IssueSparePart_Create.URL = "/head-staff/issue-spare-part"
+export default async function HeadStaff_IssueSparePart_Create(req: Request): Promise<Response> {
    return api
-      .post<Response>(HeadStaff_SparePart_Create.URL, req, {
+      .post<Response>(HeadStaff_IssueSparePart_Create.URL, req, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,

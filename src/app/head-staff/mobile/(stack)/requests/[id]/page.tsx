@@ -137,7 +137,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       return dayjs().isAfter(dayjs(api_device.data.machineModel?.warrantyTerm))
    }, [api_device.isSuccess, api_device.data?.machineModel?.warrantyTerm])
 
-   async function handleScanFinish(result: string) {
+   async function handleScanFinish(result: string, handleClose: () => void) {
       message.destroy("scan-msg")
 
       if (!api_request.isSuccess) {
@@ -166,6 +166,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       }
 
       setHasScanned(true)
+      handleClose()
       message.success("Quét ID thiết bị thành công").then()
       const scannedCache = localStorage.getItem(`scanned-cache-headstaff`)
 

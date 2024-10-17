@@ -7,6 +7,7 @@ import { FixType } from "@/lib/domain/Issue/FixType.enum"
 import { useQueryClient } from "@tanstack/react-query"
 import HeadStaff_TypeError_Common from "@/features/head-maintenance/api/type-error/common.api"
 import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
+import { ReceiveWarrantyTypeErrorId, RenewRequestTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 
 type Request = {
    requests: RequestDto[]
@@ -31,13 +32,19 @@ export default function useRequest_Approve(props?: Props) {
             throw new Error("Yêu cầu không được để trống")
          }
 
-         const typeErrors = await queryClient.ensureQueryData({
+         let typeErrors = await queryClient.ensureQueryData({
             queryKey: ["head-maintenance", "type-error", "common"],
             queryFn: () =>
                HeadStaff_TypeError_Common({
                   token: AuthTokens.Head_Maintenance,
                }),
          })
+         typeErrors = typeErrors.filter(
+            (typeError) =>
+               !new Set([SendWarrantyTypeErrorId, ReceiveWarrantyTypeErrorId, RenewRequestTypeErrorId]).has(
+                  typeError.id,
+               ),
+         )
 
          const response = await Promise.allSettled(
             req.requests.map(async (request) => {

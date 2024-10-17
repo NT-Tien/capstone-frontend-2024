@@ -1,11 +1,10 @@
 import { ReactNode } from "react"
-import HeadNavbar from "@/features/head-department/components/layout/HeadNavbar"
+import HeadNavigationDrawer from "@/features/head-department/components/layout/HeadNavigationDrawer"
 
 export default function HeadNavbarLayout({ children }: { children: ReactNode }) {
    return (
-      <>
+      <HeadNavigationDrawer>
          <div className="h-max min-h-screen-with-navbar">{children}</div>
-         <HeadNavbar />
-      </>
+      </HeadNavigationDrawer>
    )
 }

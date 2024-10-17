@@ -8,31 +8,26 @@ import { isUUID } from "@/lib/utils/isUUID.util"
 
 type Props = {
    children: (handleOpen: () => void) => ReactNode
-   onScan: (result: string) => void
+   onScan: (result: string, handleClose: () => void) => Promise<void>
    drawerProps?: DrawerProps
+   disabled?: boolean
 }
 type FieldType = {
    deviceId: string
 }
-export default function ScannerDrawer(
-   { children, ...props }: Props,
-   prop: {
-      children: (handleOpen: () => void) => ReactNode
-      onFinish: (deviceId: string, handleClose?: () => void) => Promise<void>
-      drawerProps?: DrawerProps
-      disabled?: boolean
-   },
-) {
+export default function ScannerDrawer({ children, ...props }: Props) {
    const { open, handleOpen, handleClose } = useModalControls({
       onClose: () => {
          form.resetFields()
-      },   })
+      },
+   })
 
    async function handleFinish(res: string, handleCloseManual?: () => void) {
-      props.onScan(res)
+      await props.onScan(res, () => {})
       handleCloseManual?.()
       handleClose()
    }
+
    const [form] = Form.useForm<FieldType>()
    const { message } = App.useApp()
 
@@ -42,9 +37,10 @@ export default function ScannerDrawer(
 
          const values = form.getFieldsValue()
 
-         await prop.onFinish(values.deviceId, handleClose)
+         await props.onScan(values.deviceId, handleClose)
       } catch (e) {
          message.destroy("error-msg")
+         console.error(e)
          message
             .error({
                content: "Không thể gửi dữ liệu. Vui lòng kiểm tra lại.",
@@ -102,7 +98,7 @@ export default function ScannerDrawer(
                }}
             />
             <section className="p-4">
-               <Form<FieldType> disabled={prop.disabled} form={form} layout="horizontal">
+               <Form<FieldType> disabled={props.disabled} form={form} layout="horizontal">
                   <Card size="small" hoverable className="mb-4">
                      <div className="flex items-start gap-2">
                         <InfoCircleFilled className="mt-1" />

@@ -3,14 +3,16 @@ import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 
 export type Request = {
    id: string
    payload: {
-      task?: string
+      task?: string | null
       typeError?: string
       description?: string
       fixType?: string
+      status?: IssueStatusEnum
    }
 } & AuthTokenWrapper
 export type Response = IssueDto

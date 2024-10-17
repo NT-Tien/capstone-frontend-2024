@@ -1,6 +1,5 @@
 "use client"
 
-import DayjsProvider from "@/providers/dayjs.provider"
 import EnvEditorProvider from "@/providers/EnvEditor.provider"
 import ModalStackProvider from "@/providers/ModalStack.provider"
 import { makeQueryClient } from "@/lib/utils/makeQueryClient.util"
@@ -12,6 +11,16 @@ import { App, ConfigProvider, ConfigProviderProps, GetProp } from "antd"
 import vi_VN from "antd/lib/locale/vi_VN"
 import "dayjs/locale/vi"
 import { ReactNode } from "react"
+import dayjs from "dayjs"
+import utc from "dayjs/plugin/utc"
+import timezone from "dayjs/plugin/timezone"
+import relativeTime from "dayjs/plugin/relativeTime"
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
+dayjs.locale("vi")
+dayjs.extend(relativeTime)
+dayjs.tz.setDefault("Asia/Ho_Chi_Minh")
 
 type WaveConfig = GetProp<ConfigProviderProps, "wave">
 
@@ -118,11 +127,9 @@ export default function IndexProvider({ children }: Readonly<{ children: ReactNo
                      }}
                      modal={{}}
                   >
-                     <DayjsProvider>
-                        <ModalStackProvider>
-                           <EnvEditorProvider>{children}</EnvEditorProvider>
-                        </ModalStackProvider>
-                     </DayjsProvider>
+                     <ModalStackProvider>
+                        <EnvEditorProvider>{children}</EnvEditorProvider>
+                     </ModalStackProvider>
                   </ConfigProvider>
                </ProConfigProvider>
             </App>

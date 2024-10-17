@@ -18,7 +18,7 @@ type HandleOpenType<T> = (props: T) => void
 
 type RefType<T> = {
    handleOpen: HandleOpenType<T>
-   handleClose: () => void
+   handleClose: (useBase?: boolean) => void
    setComponentProps: Dispatch<SetStateAction<T>>
 } | null
 
@@ -29,7 +29,7 @@ type Props<T> = {
 const OverlayControllerWithRef = forwardRef<RefType<any>, Props<any>>(function Component<T>(props: any, ref: any) {
    const [componentProps, setComponentProps] = useState<T | undefined>(undefined)
 
-   const { open, handleOpen, handleClose } = useModalControls({
+   const { open, handleOpen, handleClose, handleClose_base } = useModalControls({
       onOpen: (props?: T) => {
          setComponentProps(props)
       },
@@ -37,7 +37,7 @@ const OverlayControllerWithRef = forwardRef<RefType<any>, Props<any>>(function C
          setComponentProps(undefined)
       },
    })
-
+   
    useImperativeHandle(ref, () => ({
       handleOpen,
       handleClose,
@@ -66,6 +66,7 @@ const OverlayControllerWithRef = forwardRef<RefType<any>, Props<any>>(function C
                onCancel,
                onOpenChange,
                handleClose,
+               instantClose: handleClose_base,
                ...componentProps,
             })
          }

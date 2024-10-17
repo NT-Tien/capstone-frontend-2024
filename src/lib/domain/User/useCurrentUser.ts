@@ -1,3 +1,5 @@
+"use client"
+
 import Cookies from "js-cookie"
 import { decodeJwt } from "@/lib/domain/User/decodeJwt.util"
 import useLogout from "@/lib/domain/User/useLogout"

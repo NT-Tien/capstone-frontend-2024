@@ -17,7 +17,7 @@ import { Clock, Wrench } from "@phosphor-icons/react"
 import { useMutation, useQueries } from "@tanstack/react-query"
 import { App, Button, Card, Checkbox, Drawer, DrawerProps, Input, Modal, Radio, Switch, Tooltip } from "antd"
 import dayjs from "dayjs"
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 type FieldType = {}
 
@@ -38,6 +38,15 @@ function Task_CreateDrawer(props: Props) {
    const [taskNameGenerationType, setTaskNameGenerationType] = useState<"auto" | "manual">("auto")
    const [customTaskName, setCustomTaskName] = useState("")
    const [priority, setPriority] = useState(false)
+
+   useEffect(() => {
+      if (!props.open) {
+         setSelectedIssueIds([])
+         setTaskNameGenerationType("auto")
+         setCustomTaskName("")
+         setPriority(false)
+      }
+   }, [props.open])
 
    const api = useQueries({
       queries: [

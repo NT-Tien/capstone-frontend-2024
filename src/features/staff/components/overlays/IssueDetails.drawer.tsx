@@ -244,7 +244,7 @@ export default function IssueDetailsDrawer({
                         {
                            id: currentIssue?.id ?? "",
                            payload: {
-                              failReason: selectedErrorReason ?? newErrorText,
+                              failReason: selectedErrorReason + ": " + newErrorText,
                            },
                         },
                         {
@@ -268,10 +268,10 @@ export default function IssueDetailsDrawer({
                onChange={handleSelectChange}
                style={{ width: "100%" }}
                options={[
-                  { label: "Thiếu linh kiện", value: "missing_parts" },
-                  { label: "Chẩn đoán lỗi sai", value: "wrong_issue" },
-                  { label: "Máy cần kiểm tra lại", value: "recheck" },
-                  { label: "Lý do khác", value: "add_new_error" },
+                  { label: "Thiếu linh kiện", value: "Thiếu linh kiện" },
+                  { label: "Chẩn đoán lỗi sai", value: "Chẩn đoán lỗi sai" },
+                  { label: "Máy cần kiểm tra lại", value: "Máy cần kiểm tra lại" },
+                  { label: "Lý do khác", value: "Lý do khác" },
                ]}
             />
 

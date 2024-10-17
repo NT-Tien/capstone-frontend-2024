@@ -15,6 +15,8 @@ const config: Config = {
          backgroundImage: {
             "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
             "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+            head_maintenance:
+               "radial-gradient(circle at top left, theme('colors.indigo.400'), theme('colors.blue.500'))",
          },
          colors: {
             primary: {

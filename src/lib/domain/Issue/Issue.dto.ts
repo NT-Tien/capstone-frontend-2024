@@ -17,4 +17,5 @@ export type IssueDto = {
    task: TaskDto
    imagesVerify: string[]
    videosVerify: string
+   failReason?: string
 }

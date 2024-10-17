@@ -3,7 +3,7 @@ import HeadStaff_Issue_Delete from "@/features/head-maintenance/api/issue/delete
 import HeadStaff_Issue_OneById from "@/features/head-maintenance/api/issue/oneById.api"
 import HeadStaff_Issue_Update from "@/features/head-maintenance/api/issue/update.api"
 import headstaff_qk from "@/features/head-maintenance/qk"
-import HeadStaff_SparePart_Create from "@/features/head-maintenance/api/spare-part/create.api"
+import HeadStaff_IssueSparePart_Create from "@/features/head-maintenance/api/spare-part/create.api"
 import IssueSparePartDetailsModal from "@/app/head-staff/_components/IssueSparePartDetailsModal"
 import SelectSparePartDrawer from "@/app/head-staff/_components/SelectSparePart.drawer"
 import ModalConfirm from "@/old/ModalConfirm"
@@ -121,7 +121,7 @@ const Issue_ViewDetailsDrawer = forwardRef<IssueDetailsDrawerRefType, Props>(fun
       },
    })
    const mutate_addSparePart = useMutation({
-      mutationFn: HeadStaff_SparePart_Create,
+      mutationFn: HeadStaff_IssueSparePart_Create,
       onMutate: async () => {
          message.destroy("creating-spare-part")
          message.open({

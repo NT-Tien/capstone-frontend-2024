@@ -2,12 +2,12 @@
 
 import { Table, DatePicker, Button } from "antd"
 import { useQueries } from "@tanstack/react-query"
-import Admin_Tasks_Dashboard from "@/features/admin/api/task/dashboard.api"
 import { useSearchParams, useRouter } from "next/navigation"
 import { PageContainer } from "@ant-design/pro-components"
 import { useState } from "react"
 import dayjs, { Dayjs } from "dayjs"
 import { ArrowLeftOutlined } from "@ant-design/icons"
+import Admin_Task_Dashboard from "@/features/admin/api/task/dashboard.api"
 
 const { RangePicker } = DatePicker
 
@@ -25,6 +25,7 @@ const columns = [
       dataIndex: "category",
       key: "category",
       width: "170px",
+      fixed: true,
    },
    {
       title: "Chờ",
@@ -52,7 +53,7 @@ const columns = [
          {
             title: "Đã lấy linh kiện/máy",
             dataIndex: "spare-part-fetched",
-            key: "headConfirm",
+            key: "spare-part-fetched",
          },
          {
             title: "Đã bắt đầu tác vụ",
@@ -61,8 +62,8 @@ const columns = [
          },
          {
             title: "Chờ phê duyệt",
-            dataIndex: "headDepartmentConfirm",
-            key: "headDepartmentConfirmcted",
+            dataIndex: "headStaffConfirm",
+            key: "headStaffConfirm",
          },
       ],
    },
@@ -81,12 +82,44 @@ const columns = [
          },
       ],
    },
+   {
+      title: "Tổng cộng",
+      key: "rowTotal",
+      className: "font-bold",
+      render: (
+         text: string,
+         record: {
+            awaitingSparePart: number
+            awaitingFixer: number
+            assigned: number
+            inProgress: number
+            headStaffConfirm: number
+            completed: number
+            cancelled: number
+            "spare-part-fetched": number
+         },
+      ) => {
+         const { awaitingSparePart, inProgress, headStaffConfirm, awaitingFixer, assigned, completed, cancelled } =
+            record
+         const sparePartFetched = record["spare-part-fetched"] || 0
+         return (
+            awaitingSparePart +
+            awaitingFixer +
+            inProgress +
+            assigned +
+            headStaffConfirm +
+            completed +
+            cancelled +
+            sparePartFetched
+         )
+      },
+   },
 ]
 
 function TaskDetails() {
    const searchParams = useSearchParams()
    const areaId = searchParams.get("areaId") ?? ""
-   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([null, null])
+   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(1, "week"), dayjs()])
    const [startDate, endDate] = dateRange || [null, null]
    const router = useRouter()
    const areaName = areaNameMapping[areaId] || "Unknown Area"
@@ -95,7 +128,7 @@ function TaskDetails() {
          {
             queryKey: [
                "admin",
-               "requests",
+               "task",
                "dashboard",
                "fix-sp",
                areaId,
@@ -103,10 +136,10 @@ function TaskDetails() {
                endDate?.toISOString(),
             ],
             queryFn: () =>
-               Admin_Tasks_Dashboard({
+               Admin_Task_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
-                  startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
+                  startDate: startDate ? startDate.toISOString() : dayjs().subtract(1, "week").toISOString(),
                   type: "fix-sp",
                }),
             enabled: !!areaId,
@@ -114,7 +147,7 @@ function TaskDetails() {
          {
             queryKey: [
                "admin",
-               "requests",
+               "task",
                "dashboard",
                "fix-rpl-sp",
                areaId,
@@ -122,10 +155,10 @@ function TaskDetails() {
                endDate?.toISOString(),
             ],
             queryFn: () =>
-               Admin_Tasks_Dashboard({
+               Admin_Task_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
-                  startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
+                  startDate: startDate ? startDate.toISOString() : dayjs().subtract(1, "week").toISOString(),
                   type: "fix-rpl-sp",
                }),
             enabled: !!areaId,
@@ -133,7 +166,7 @@ function TaskDetails() {
          {
             queryKey: [
                "admin",
-               "requests",
+               "task",
                "dashboard",
                "renew",
                areaId,
@@ -141,10 +174,10 @@ function TaskDetails() {
                endDate?.toISOString(),
             ],
             queryFn: () =>
-               Admin_Tasks_Dashboard({
+               Admin_Task_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
-                  startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
+                  startDate: startDate ? startDate.toISOString() : dayjs().subtract(1, "week").toISOString(),
                   type: "renew",
                }),
             enabled: !!areaId,
@@ -152,7 +185,7 @@ function TaskDetails() {
          {
             queryKey: [
                "admin",
-               "requests",
+               "task",
                "dashboard",
                "warranty",
                areaId,
@@ -160,10 +193,10 @@ function TaskDetails() {
                endDate?.toISOString(),
             ],
             queryFn: () =>
-               Admin_Tasks_Dashboard({
+               Admin_Task_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
-                  startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
+                  startDate: startDate ? startDate.toISOString() : dayjs().subtract(1, "week").toISOString(),
                   type: "warranty",
                }),
             enabled: !!areaId,
@@ -187,7 +220,7 @@ function TaskDetails() {
          assigned: api.fixsp.data ? api.fixsp.data.ASSIGNED : 0,
          inProgress: api.fixsp.data ? api.fixsp.data.IN_PROGRESS : 0,
          completed: api.fixsp.data ? api.fixsp.data.COMPLETED : 0,
-         headDepartmentConfirm: api.fixsp.data ? api.fixsp.data.HEAD_STAFF_CONFIRM : 0,
+         headStaffConfirm: api.fixsp.data ? api.fixsp.data.HEAD_STAFF_CONFIRM : 0,
          "spare-part-fetched": api.fixsp.data ? api.fixsp.data["spare-part-fetched"] : 0,
          // headCancel: api.fixsp.data ? api.fixsp.data.HEAD_CANCEL : 0,
       },
@@ -200,7 +233,7 @@ function TaskDetails() {
          assigned: api.fixrplsp.data ? api.fixrplsp.data.ASSIGNED : 0,
          inProgress: api.fixrplsp.data ? api.fixrplsp.data.IN_PROGRESS : 0,
          completed: api.fixrplsp.data ? api.fixrplsp.data.COMPLETED : 0,
-         headDepartmentConfirm: api.fixrplsp.data ? api.fixrplsp.data.HEAD_STAFF_CONFIRM : 0,
+         headStaffConfirm: api.fixrplsp.data ? api.fixrplsp.data.HEAD_STAFF_CONFIRM : 0,
          "spare-part-fetched": api.fixrplsp.data ? api.fixrplsp.data["spare-part-fetched"] : 0,
       },
 
@@ -213,7 +246,7 @@ function TaskDetails() {
          assigned: api.warranty.data ? api.warranty.data.ASSIGNED : 0,
          inProgress: api.warranty.data ? api.warranty.data.IN_PROGRESS : 0,
          completed: api.warranty.data ? api.warranty.data.COMPLETED : 0,
-         headDepartmentConfirm: api.warranty.data ? api.warranty.data.HEAD_STAFF_CONFIRM : 0,
+         headStaffConfirm: api.warranty.data ? api.warranty.data.HEAD_STAFF_CONFIRM : 0,
          "spare-part-fetched": api.warranty.data ? api.warranty.data["spare-part-fetched"] : 0,
       },
       {
@@ -225,10 +258,23 @@ function TaskDetails() {
          assigned: api.renew.data ? api.renew.data.ASSIGNED : 0,
          inProgress: api.renew.data ? api.renew.data.IN_PROGRESS : 0,
          completed: api.renew.data ? api.renew.data.COMPLETED : 0,
-         headDepartmentConfirm: api.renew.data ? api.renew.data.HEAD_STAFF_CONFIRM : 0,
+         headStaffConfirm: api.renew.data ? api.renew.data.HEAD_STAFF_CONFIRM : 0,
          "spare-part-fetched": api.renew.data ? api.renew.data["spare-part-fetched"] : 0,
       },
    ]
+
+   const totalRow = {
+      key: "total",
+      category: "Tổng cộng",
+      awaitingSparePart: data.reduce((sum, row) => sum + row.awaitingSparePart, 0),
+      awaitingFixer: data.reduce((sum, row) => sum + row.awaitingFixer, 0),
+      assigned: data.reduce((sum, row) => sum + row.assigned, 0),
+      "spare-part-fetched": data.reduce((sum, row) => sum + row["spare-part-fetched"], 0),
+      inProgress: data.reduce((sum, row) => sum + row.inProgress, 0),
+      headStaffConfirm: data.reduce((sum, row) => sum + row.headStaffConfirm, 0),
+      completed: data.reduce((sum, row) => sum + row.completed, 0),
+      cancelled: data.reduce((sum, row) => sum + row.cancelled, 0),
+   }
 
    return (
       <div className="mt-5">
@@ -258,12 +304,60 @@ function TaskDetails() {
                }}
             >
                <Table
-                  rowKey="none"
-                  columns={columns}
                   dataSource={data}
+                  columns={columns}
                   bordered
                   pagination={false}
                   scroll={{ x: "max-content" }}
+                  summary={(pageData) => {
+                     const totalSumRow = pageData.reduce(
+                        (sum, row) => ({
+                           awaitingSparePart: sum.awaitingSparePart + row.awaitingSparePart,
+                           awaitingFixer: sum.awaitingFixer + row.awaitingFixer,
+                           inProgress: sum.inProgress + row.inProgress,
+                           headStaffConfirm: sum.headStaffConfirm + row.headStaffConfirm,
+                           completed: sum.completed + row.completed,
+                           cancelled: sum.cancelled + row.cancelled,
+                           assigned: sum.assigned + row.assigned,
+                           "spare-part-fetched": sum["spare-part-fetched"] + row["spare-part-fetched"],
+                        }),
+                        {
+                           awaitingSparePart: 0,
+                           awaitingFixer: 0,
+                           inProgress: 0,
+                           headStaffConfirm: 0,
+                           "spare-part-fetched": 0,
+                           completed: 0,
+                           cancelled: 0,
+                           assigned: 0,
+                        },
+                     )
+                     const grandTotal =
+                        totalSumRow.awaitingSparePart +
+                        totalSumRow.awaitingFixer +
+                        totalSumRow.assigned +
+                        totalSumRow.inProgress +
+                        totalSumRow.headStaffConfirm +
+                        totalSumRow.completed +
+                        totalSumRow.cancelled +
+                        totalSumRow["spare-part-fetched"]
+                     return (
+                        <Table.Summary.Row className="font-bold">
+                           <Table.Summary.Cell index={0}>Tổng cộng</Table.Summary.Cell>
+                           <Table.Summary.Cell index={1}>{totalSumRow.awaitingSparePart}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={2}>{totalSumRow.awaitingFixer}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={3}>{totalSumRow.assigned}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={4}>{totalSumRow["spare-part-fetched"]}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={5}>{totalSumRow.inProgress}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={6}>{totalSumRow.headStaffConfirm}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={7}>{totalSumRow.completed}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={8}>{totalSumRow.cancelled}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={9} className="text-red-500">
+                              {grandTotal}
+                           </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                     )
+                  }}
                />
             </div>
          </PageContainer>

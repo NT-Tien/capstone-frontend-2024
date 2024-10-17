@@ -8,7 +8,7 @@ import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import qk from "@/old/querykeys"
 import { useInfiniteQuery } from "@tanstack/react-query"
-import { Button, Card, Divider, Empty, Input, List, Result, Segmented, Skeleton, Spin } from "antd"
+import { Button, Card, Divider, Empty, Input, List, Result, Segmented, Select, Skeleton, Spin } from "antd"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
 import PageHeader from "@/components/layout/PageHeader"
@@ -125,13 +125,24 @@ function Page({ searchParams }: { searchParams: { page?: string; status?: TaskSt
             suffix={<FilterOutlined />}
          />
 
-         <Segmented
-            className="hide-scrollbar mb-3 mt-layout w-full overflow-auto"
+         {/* <Segmented
+            className="hide-scrollbar mt-layout w-full overflow-auto mb-3"
             value={status}
             onChange={(val) => setStatus(val as TaskStatus)}
             options={taskStatusOptions}
-         />
-
+         /> */}
+         <Select
+            className="mb-3 mt-2 w-full text-center"
+            value={status}
+            size="large"
+            onChange={(val) => setStatus(val as TaskStatus)}
+         >
+            {taskStatusOptions.map((option) => (
+               <Select.Option key={option.value} value={option.value}>
+                  {option.label}
+               </Select.Option>
+            ))}
+         </Select>
          {result.isError ? (
             <Result
                status="error"

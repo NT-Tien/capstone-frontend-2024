@@ -27,6 +27,7 @@ const columns = [
       dataIndex: "category",
       key: "category",
       width: "150px",
+      fixed: true,
    },
    // {
    //    title: "Chờ",
@@ -73,12 +74,31 @@ const columns = [
          },
       ],
    },
+   {
+      title: "Tổng cộng",
+      key: "rowTotal",
+      className: "font-bold",
+      render: (
+         text: string,
+         record: {
+            approved: number
+            inProgress: number
+            headConfirm: number
+            closed: number
+            headCancel: number
+            rejected: number
+         },
+      ) => {
+         const { approved, inProgress, headConfirm, closed, headCancel, rejected } = record
+         return approved + inProgress + headConfirm + closed + headCancel + rejected
+      },
+   },
 ]
 
 function RequestDetails() {
    const searchParams = useSearchParams()
    const areaId = searchParams.get("areaId") ?? ""
-   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([null, null])
+   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(1, "week"), dayjs()])
    const [startDate, endDate] = dateRange || [null, null]
    const router = useRouter()
    const areaName = areaNameMapping[areaId] || "Unknown Area"
@@ -98,7 +118,7 @@ function RequestDetails() {
                Admin_Requests_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
-                  startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
+                  startDate: startDate ? startDate.toISOString() : dayjs().subtract(1, "week").toISOString(),
                   type: "fix",
                }),
             enabled: !!areaId,
@@ -117,7 +137,7 @@ function RequestDetails() {
                Admin_Requests_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
-                  startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
+                  startDate: startDate ? startDate.toISOString() : dayjs().subtract(1, "week").toISOString(),
                   type: "renew",
                }),
             enabled: !!areaId,
@@ -136,7 +156,7 @@ function RequestDetails() {
                Admin_Requests_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
                   areaId,
-                  startDate: startDate ? startDate.toISOString() : "2024-09-07T02:24:40.298Z",
+                  startDate: startDate ? startDate.toISOString() : dayjs().subtract(1, "week").toISOString(),
                   type: "warranty",
                }),
             enabled: !!areaId,
@@ -188,10 +208,21 @@ function RequestDetails() {
       },
    ]
 
+   const totalSumRow = {
+      key: "total",
+      category: "Tổng cộng",
+      approved: data.reduce((sum, record) => sum + record.approved, 0),
+      inProgress: data.reduce((sum, record) => sum + record.inProgress, 0),
+      headConfirm: data.reduce((sum, record) => sum + record.headConfirm, 0),
+      closed: data.reduce((sum, record) => sum + record.closed, 0),
+      rejected: data.reduce((sum, record) => sum + record.rejected, 0),
+      headCancel: data.reduce((sum, record) => sum + record.headCancel, 0),
+   }
+
    return (
       <div className="mt-5">
          <Button
-          className="ml-10"
+            className="ml-10"
             type="default"
             icon={<ArrowLeftOutlined />}
             onClick={() => router.push("/admin")}
@@ -207,40 +238,6 @@ function RequestDetails() {
                   style={{ marginBottom: "1rem" }}
                />
             </div>
-            <div className="flex gap-3">
-               <Card size="small" className="w-full">
-                  <div className="flex justify-between gap-10">
-                     <div>
-                        <h5 className="text-xs text-neutral-500">Yêu cầu chưa xem</h5>
-                        <CountUp
-                           className="text-lg font-bold"
-                           end={api.fix?.data?.not_seen ?? 0}
-                           duration={1}
-                           separator={","}
-                        />
-                     </div>
-                     <div className="aspect-square h-full rounded-full bg-red-500 p-2">
-                        <ChartLineUp size={28} className="text-white" weight="fill" />
-                     </div>
-                  </div>
-               </Card>
-               <Card size="small" className="w-full">
-                  <div className="flex justify-between gap-10">
-                     <div>
-                        <h5 className="text-xs text-neutral-500">Yêu cầu đã xem</h5>
-                        <CountUp
-                           className="text-lg font-bold"
-                           end={api.fix?.data?.has_seen ?? 0}
-                           duration={1}
-                           separator={","}
-                        />
-                     </div>
-                     <div className="aspect-square h-full rounded-full bg-red-500 p-2">
-                        <ChartLineUp size={28} className="text-white" weight="fill" />
-                     </div>
-                  </div>
-               </Card>
-            </div>
             <div
                style={{
                   borderRadius: "12px",
@@ -249,7 +246,55 @@ function RequestDetails() {
                   marginTop: "2rem",
                }}
             >
-               <Table columns={columns} dataSource={data} bordered pagination={false} scroll={{ x: "max-content" }} />
+               <Table
+                  columns={columns}
+                  dataSource={data}
+                  bordered
+                  pagination={false}
+                  scroll={{ x: "max-content" }}
+                  summary={(pageData) => {
+                     const totalSumRow = pageData.reduce(
+                        (sum, row) => ({
+                           approved: sum.approved + row.approved,
+                           inProgress: sum.inProgress + row.inProgress,
+                           headConfirm: sum.headConfirm + row.headConfirm,
+                           closed: sum.closed + row.closed,
+                           headCancel: sum.headCancel + row.headCancel,
+                           rejected: sum.rejected + row.rejected,
+                        }),
+                        {
+                           approved: 0,
+                           inProgress: 0,
+                           headConfirm: 0,
+                           closed: 0,
+                           headCancel: 0,
+                           rejected: 0,
+                        },
+                     )
+
+                     const grandTotal =
+                        totalSumRow.approved +
+                        totalSumRow.closed +
+                        totalSumRow.headCancel +
+                        totalSumRow.headConfirm +
+                        totalSumRow.inProgress +
+                        totalSumRow.rejected
+                     return (
+                        <Table.Summary.Row className="font-bold">
+                           <Table.Summary.Cell index={0}>Tổng cộng</Table.Summary.Cell>
+                           <Table.Summary.Cell index={1}>{totalSumRow.approved}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={2}>{totalSumRow.inProgress}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={3}>{totalSumRow.headConfirm}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={4}>{totalSumRow.closed}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={5}>{totalSumRow.headCancel}</Table.Summary.Cell>
+                           <Table.Summary.Cell index={6}>{totalSumRow.rejected}</Table.Summary.Cell>
+                           <Table.Summary.Cell className="text-red-500" index={7}>
+                              {grandTotal}
+                           </Table.Summary.Cell>
+                        </Table.Summary.Row>
+                     )
+                  }}
+               />
             </div>
          </PageContainer>
       </div>

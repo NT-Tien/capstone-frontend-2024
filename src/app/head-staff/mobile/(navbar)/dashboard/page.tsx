@@ -234,63 +234,69 @@ function Page() {
                            loading: api_counts.isPending,
                            count: api_counts.data?.pendingRequests,
                            label: FixRequest_StatusData("pending").text,
-                           icon: FixRequest_StatusData("pending", {
-                              phosphor: { size: 36, weight: "duotone", className: "text-neutral-500" },
-                           }).icon,
-                           route: "request?status=PENDING",
-                           bgColor: "bg-neutral-200",
+                           // icon: FixRequest_StatusData("pending", {
+                           //    phosphor: { size: 36, weight: "duotone", className: "text-neutral-500" },
+                           // }).icon,
+                           route: "requests?status=PENDING",
+                           bgColor: "bg-sky-100",
+                           color: "text-neutral-500"
                         },
                         {
                            loading: api_counts.isPending,
                            count: api_counts.data?.approvedRequests,
                            label: FixRequest_StatusData("approved").text,
-                           icon: FixRequest_StatusData("approved", {
-                              phosphor: { size: 36, weight: "duotone", className: "text-green-500" },
-                           }).icon,
-                           route: "request?status=APPROVED",
-                           bgColor: "bg-green-200",
+                           // icon: FixRequest_StatusData("approved", {
+                           //    phosphor: { size: 36, weight: "duotone", className: "text-green-500" },
+                           // }).icon,
+                           route: "requests?status=APPROVED",
+                           bgColor: "bg-neutral-50",
+                           color: "text-green-500"
                         },
                         {
                            loading: api_counts.isPending,
                            count: api_counts.data?.inProgressRequests,
                            label: FixRequest_StatusData("in_progress").text,
-                           icon: FixRequest_StatusData("in_progress", {
-                              phosphor: { size: 36, weight: "duotone", className: "text-blue-500" },
-                           }).icon,
-                           route: "request?status=IN_PROGRESS",
-                           bgColor: "bg-blue-200",
+                           // icon: FixRequest_StatusData("in_progress", {
+                           //    phosphor: { size: 36, weight: "duotone", className: "text-blue-500" },
+                           // }).icon,
+                           route: "requests?status=IN_PROGRESS",
+                           bgColor: "bg-sky-100",
+                           color: "text-blue-500"
                         },
                         {
                            loading: api_counts.isPending,
                            count: api_counts.data?.rejectedRequests,
                            label: FixRequest_StatusData("rejected").text,
-                           icon: FixRequest_StatusData("rejected", {
-                              phosphor: { size: 36, weight: "duotone", className: "text-red-500" },
-                           }).icon,
-                           route: "request?status=REJECTED",
-                           bgColor: "bg-red-200",
+                           // icon: FixRequest_StatusData("rejected", {
+                           //    phosphor: { size: 36, weight: "duotone", className: "text-red-500" },
+                           // }).icon,
+                           route: "requests?status=REJECTED",
+                           bgColor: "bg-neutral-50",
+                           color: "text-red-500"
                         },
                         {
                            loading: api_counts.isPending,
                            count: api_counts.data?.headConfirmRequests,
                            label: FixRequest_StatusData("head_confirm").text,
-                           icon: FixRequest_StatusData("head_confirm", {
-                              phosphor: { size: 36, weight: "duotone", className: "text-purple-500" },
-                           }).icon,
-                           route: "request?status=HEAD_CONFIRM",
-                           bgColor: "bg-purple-200",
+                           // icon: FixRequest_StatusData("head_confirm", {
+                           //    phosphor: { size: 36, weight: "duotone", className: "text-purple-500" },
+                           // }).icon,
+                           route: "requests?status=HEAD_CONFIRM",
+                           bgColor: "bg-sky-100",
+                           color: "text-purple-500"
                         },
                         {
                            loading: api_counts.isPending,
                            count: api_counts.data?.closedRequests,
                            label: FixRequest_StatusData("closed").text,
-                           icon: FixRequest_StatusData("closed", {
-                              phosphor: { size: 36, weight: "duotone", className: "text-green-500" },
-                           }).icon,
-                           route: "request?status=CLOSED",
-                           bgColor: "bg-green-200",
+                           // icon: FixRequest_StatusData("closed", {
+                           //    phosphor: { size: 36, weight: "duotone", className: "text-green-500" },
+                           // }).icon,
+                           route: "requests?status=CLOSED",
+                           bgColor: "bg-neutral-50",
+                           color: "text-green-500"
                         },
-                     ].map(({ loading, count, label, icon, route, bgColor }, index) => (
+                     ].map(({ loading, count, label, route, bgColor, color }, index) => (
                         <Card
                            key={index}
                            className={cn(
@@ -304,15 +310,16 @@ function Page() {
                            <div className="flex w-full items-start justify-between">
                               <div className="flex flex-col items-start">
                                  <div className="mb-2 text-lg">{label}</div>
-                                 <div className="flex items-center">
-                                    <div className="text-2xl font-bold">
-                                       <CountUp end={count ?? 0} separator="," />
-                                       <span className="ml-2 text-xs font-normal text-neutral-500">Yêu cầu</span>
-                                    </div>
-                                 </div>
+                                 <div className="flex items-center"></div>
                               </div>
-                              <div className="flex items-center">{icon}</div>
+                              <div className={`text-2xl font-bold ${color} `}>
+                                 <CountUp end={count ?? 0} separator="," />
+                                 {/* <span className="ml-2 text-xs font-normal text-neutral-500">Yêu cầu</span> */}
+                              </div>
                            </div>
+                           {/* </div> */}
+                           {/* <div className="flex items-center">{icon}</div> */}
+                           {/* </div> */}
                         </Card>
                      ))}
                   </div>

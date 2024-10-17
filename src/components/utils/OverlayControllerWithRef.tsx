@@ -37,7 +37,7 @@ const OverlayControllerWithRef = forwardRef<RefType<any>, Props<any>>(function C
          setComponentProps(undefined)
       },
    })
-   
+
    useImperativeHandle(ref, () => ({
       handleOpen,
       handleClose,
@@ -73,7 +73,7 @@ const OverlayControllerWithRef = forwardRef<RefType<any>, Props<any>>(function C
 
          return child
       })
-   }, [open, handleClose, props.children, handleOpen, componentProps])
+   }, [open, handleClose, props.children, handleOpen, handleClose_base, componentProps])
 
    return (
       <>

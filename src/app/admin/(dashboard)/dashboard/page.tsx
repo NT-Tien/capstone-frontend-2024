@@ -21,7 +21,7 @@ export default function AdminHomePage() {
    const [selectedTime, setSelectedTime] = useState<number>(1)
    const router = useRouter()
    const { data, isLoading } = useQuery({
-      queryKey: ["areaData"],
+      queryKey: ["areaData", selectedTime],
       queryFn: async () => {
          const promises = areaIds.map((id) => Admin_Devices_OneByAreaId({ id, time: selectedTime }))
          return Promise.all(promises)
@@ -31,6 +31,7 @@ export default function AdminHomePage() {
 
    const tableData = data?.map((areaData, index) => ({
       key: areaIds[index],
+      areaId: areaIds[index],
       areaNames: `Q${index + 1}`,
       totalRequests: areaData?.total_requests || 0,
       totalTasks: areaData?.total_tasks || 0,
@@ -233,7 +234,7 @@ export default function AdminHomePage() {
                      align: "center",
                      colSpan: 2,
                      render: (value, record) => (
-                        <Button type="link" size="small" onClick={() => router.push(`/admin/area`)}>
+                        <Button type="link" size="small" onClick={() => router.push(`/admin/area/${record.areaId}`)}>
                            {value}
                         </Button>
                      ),

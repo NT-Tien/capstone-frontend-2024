@@ -76,7 +76,7 @@ const columns = [
             key: "completed",
          },
          {
-            title: "Thất bại",
+            title: "Đã hủy",
             dataIndex: "cancelled",
             key: "cancelled",
          },
@@ -119,7 +119,10 @@ const columns = [
 function TaskDetails() {
    const searchParams = useSearchParams()
    const areaId = searchParams.get("areaId") ?? ""
-   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(1, "week"), dayjs()])
+   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([
+      dayjs().subtract(1, "week"),
+      dayjs().add(1, "day"),
+   ])
    const [startDate, endDate] = dateRange || [null, null]
    const router = useRouter()
    const areaName = areaNameMapping[areaId] || "Unknown Area"
@@ -164,15 +167,7 @@ function TaskDetails() {
             enabled: !!areaId,
          },
          {
-            queryKey: [
-               "admin",
-               "task",
-               "dashboard",
-               "renew",
-               areaId,
-               startDate?.toISOString(),
-               endDate?.toISOString(),
-            ],
+            queryKey: ["admin", "task", "dashboard", "renew", areaId, startDate?.toISOString(), endDate?.toISOString()],
             queryFn: () =>
                Admin_Task_Dashboard({
                   endDate: endDate ? endDate.toISOString() : dayjs().add(1, "day").toISOString(),
@@ -224,18 +219,18 @@ function TaskDetails() {
          "spare-part-fetched": api.fixsp.data ? api.fixsp.data["spare-part-fetched"] : 0,
          // headCancel: api.fixsp.data ? api.fixsp.data.HEAD_CANCEL : 0,
       },
-      {
-         key: "2",
-         category: "Thay thế",
-         awaitingSparePart: api.fixrplsp.data ? api.fixrplsp.data.AWAITING_SPARE_SPART : 0,
-         awaitingFixer: api.fixrplsp.data ? api.fixrplsp.data.AWAITING_FIXER : 0,
-         cancelled: api.fixrplsp.data ? api.fixrplsp.data.CANCELLED : 0,
-         assigned: api.fixrplsp.data ? api.fixrplsp.data.ASSIGNED : 0,
-         inProgress: api.fixrplsp.data ? api.fixrplsp.data.IN_PROGRESS : 0,
-         completed: api.fixrplsp.data ? api.fixrplsp.data.COMPLETED : 0,
-         headStaffConfirm: api.fixrplsp.data ? api.fixrplsp.data.HEAD_STAFF_CONFIRM : 0,
-         "spare-part-fetched": api.fixrplsp.data ? api.fixrplsp.data["spare-part-fetched"] : 0,
-      },
+      // {
+      //    key: "2",
+      //    category: "Thay thế",
+      //    awaitingSparePart: api.fixrplsp.data ? api.fixrplsp.data.AWAITING_SPARE_SPART : 0,
+      //    awaitingFixer: api.fixrplsp.data ? api.fixrplsp.data.AWAITING_FIXER : 0,
+      //    cancelled: api.fixrplsp.data ? api.fixrplsp.data.CANCELLED : 0,
+      //    assigned: api.fixrplsp.data ? api.fixrplsp.data.ASSIGNED : 0,
+      //    inProgress: api.fixrplsp.data ? api.fixrplsp.data.IN_PROGRESS : 0,
+      //    completed: api.fixrplsp.data ? api.fixrplsp.data.COMPLETED : 0,
+      //    headStaffConfirm: api.fixrplsp.data ? api.fixrplsp.data.HEAD_STAFF_CONFIRM : 0,
+      //    "spare-part-fetched": api.fixrplsp.data ? api.fixrplsp.data["spare-part-fetched"] : 0,
+      // },
 
       {
          key: "3",

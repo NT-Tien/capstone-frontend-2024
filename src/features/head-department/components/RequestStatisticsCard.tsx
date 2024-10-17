@@ -37,7 +37,7 @@ function RequestStatisticsCard(props: Props) {
                <div>Chờ xử lý</div>
             </Button>
             <Button block className="grid h-max place-items-center gap-0 rounded-none py-4 text-base">
-               <div>{counts.APPROVED + counts.IN_PROGRESS}</div>
+               <div>{counts.IN_PROGRESS}</div>
                <div>Thực hiện</div>
             </Button>
             <Button block className="grid h-max place-items-center gap-0 rounded-none rounded-tr-lg py-4 text-base">
@@ -47,6 +47,10 @@ function RequestStatisticsCard(props: Props) {
          </Space.Compact>
          <Space.Compact direction="vertical" className="w-full">
             <Button block className="flex justify-between rounded-none border-t-0 py-5 text-sm">
+               <div>Đã xác nhận</div>
+               <div>{counts.APPROVED}</div>
+            </Button>
+            <Button block className="flex justify-between rounded-none py-5 text-sm">
                <div>Đã hủy</div>
                <div>{counts.REJECTED + counts.HEAD_CANCEL}</div>
             </Button>

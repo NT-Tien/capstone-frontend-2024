@@ -98,7 +98,10 @@ const columns = [
 function RequestDetails() {
    const searchParams = useSearchParams()
    const areaId = searchParams.get("areaId") ?? ""
-   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(1, "week"), dayjs()])
+   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([
+      dayjs().subtract(1, "week"),
+      dayjs().add(1, "day"),
+   ])
    const [startDate, endDate] = dateRange || [null, null]
    const router = useRouter()
    const areaName = areaNameMapping[areaId] || "Unknown Area"
@@ -300,4 +303,5 @@ function RequestDetails() {
       </div>
    )
 }
+
 export default RequestDetails

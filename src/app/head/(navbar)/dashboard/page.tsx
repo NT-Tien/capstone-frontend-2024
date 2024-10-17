@@ -32,7 +32,7 @@ function Page() {
                </div>
             </section>
          </section>
-         <main className="relative px-layout pt-20">
+         <main className="relative px-layout pt-[120px]">
             <RequestStatisticsCard className="absolute -top-20 left-0 px-layout" />
             <Link href="/head/scan">
                <Button className="mt-layout h-max w-full items-center justify-start rounded-lg bg-blue-500 p-3 text-white">

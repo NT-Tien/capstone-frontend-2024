@@ -260,7 +260,7 @@ export default function DevicesListPage() {
             ]}
          />
          <OverlayControllerWithRef ref={updateQuantityModalRef}>
-            <UpdateQuantityModal refetchFn={api_spareParts.refetch} />
+            <UpdateQuantityModal refetchFn={() => api_spareParts.refetch()} />
          </OverlayControllerWithRef>
       </PageContainer>
    )

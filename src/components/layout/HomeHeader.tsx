@@ -2,15 +2,17 @@
 
 import { cn } from "@/lib/utils/cn.util"
 import { decodeJwt } from "@/lib/domain/User/decodeJwt.util"
-import { Avatar, Col, Flex, Row, Skeleton, Typography } from "antd"
+import { Avatar, Button, Col, Flex, Row, Skeleton, Typography } from "antd"
 import Cookies from "js-cookie"
 import { CSSProperties, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { MenuOutlined, UserOutlined } from "@ant-design/icons"
+import HeadMaintenanceNavigaionDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
 
 type HeadStaffDashboardHeaderProps = {
    className?: string
    style?: CSSProperties
+   onIconClick?: () => void
 }
 
 export default function HomeHeader(props: HeadStaffDashboardHeaderProps) {
@@ -30,6 +32,9 @@ export default function HomeHeader(props: HeadStaffDashboardHeaderProps) {
       <div>
          <Col className={cn(props.className)} style={props.style}>
             <Row gutter={[16, 0]} align="middle">
+               <Col flex="auto">
+                  <Button icon={<MenuOutlined />} onClick={props.onIconClick} />
+               </Col>
                <Col flex="auto">
                   <Row justify="end">
                      <Typography.Text className="mb-0 text-sm text-neutral-600">Chào buổi sáng</Typography.Text>

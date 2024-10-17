@@ -33,11 +33,6 @@ Stockkeeper_Task_AllSearch.URL = (req: Request) => {
    if (req.search) {
       const searchParams = Object.entries(req.search)
       for (const [key, value] of searchParams) {
-         if (key == "status" && value == "HEAD_STAFF_CONFIRM") {
-            // TODO quick fix
-            query.append("status", "HEAD_DEPARTMENT_CONFIRM")
-            continue
-         }
          if (value) {
             query.append(key, value.toString())
          }

@@ -3,7 +3,7 @@
 import PageHeader from "@/components/layout/PageHeader"
 import { FixRequest_StatusData, FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { AddressBook } from "@phosphor-icons/react"
+import { AddressBook, List } from "@phosphor-icons/react"
 import { Card, Input, Spin, Tabs } from "antd"
 import Image from "next/image"
 import { Suspense, useEffect, useState } from "react"
@@ -11,8 +11,9 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils/cn.util"
 import HistoryList from "./HistoryList.component"
 import useRequest_AllQuery from "@/features/head-department/queries/Request_All.query"
-import { SearchOutlined, FilterOutlined } from "@ant-design/icons"
+import { SearchOutlined, FilterOutlined, MenuOutlined } from "@ant-design/icons"
 import Segmented from "antd/es/segmented"
+import HeadNavigationDrawer from "@/features/head-department/components/layout/HeadNavigationDrawer"
 
 function Page() {
    return (
@@ -26,6 +27,7 @@ function Component() {
    const searchParams = useSearchParams()
    const router = useRouter()
    const [tab, setTab] = useState<FixRequestStatuses | undefined>(undefined)
+   const navDrawer = HeadNavigationDrawer.useDrawer()
 
    const { data: requests, isLoading } = useRequest_AllQuery({})
 
@@ -63,7 +65,12 @@ function Component() {
 
    return (
       <div className="std-layout relative h-full min-h-screen bg-white">
-         <PageHeader title="Lịch sử yêu cầu" className="std-layout-outer relative" />
+         <PageHeader
+            title="Lịch sử yêu cầu"
+            className="std-layout-outer relative z-50"
+            icon={PageHeader.NavIcon}
+            handleClickIcon={() => navDrawer.handleOpen()}
+         />
          <Image
             className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
             src="/images/requests.jpg"

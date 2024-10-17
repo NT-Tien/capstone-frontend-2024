@@ -187,7 +187,7 @@ function TaskDetails() {
          assigned: api.fixsp.data ? api.fixsp.data.ASSIGNED : 0,
          inProgress: api.fixsp.data ? api.fixsp.data.IN_PROGRESS : 0,
          completed: api.fixsp.data ? api.fixsp.data.COMPLETED : 0,
-         headDepartmentConfirm: api.fixsp.data ? api.fixsp.data.HEAD_DEPARTMENT_CONFIRM : 0,
+         headDepartmentConfirm: api.fixsp.data ? api.fixsp.data.HEAD_STAFF_CONFIRM : 0,
          "spare-part-fetched": api.fixsp.data ? api.fixsp.data["spare-part-fetched"] : 0,
          // headCancel: api.fixsp.data ? api.fixsp.data.HEAD_CANCEL : 0,
       },
@@ -200,7 +200,7 @@ function TaskDetails() {
          assigned: api.fixrplsp.data ? api.fixrplsp.data.ASSIGNED : 0,
          inProgress: api.fixrplsp.data ? api.fixrplsp.data.IN_PROGRESS : 0,
          completed: api.fixrplsp.data ? api.fixrplsp.data.COMPLETED : 0,
-         headDepartmentConfirm: api.fixrplsp.data ? api.fixrplsp.data.HEAD_DEPARTMENT_CONFIRM : 0,
+         headDepartmentConfirm: api.fixrplsp.data ? api.fixrplsp.data.HEAD_STAFF_CONFIRM : 0,
          "spare-part-fetched": api.fixrplsp.data ? api.fixrplsp.data["spare-part-fetched"] : 0,
       },
 
@@ -213,7 +213,7 @@ function TaskDetails() {
          assigned: api.warranty.data ? api.warranty.data.ASSIGNED : 0,
          inProgress: api.warranty.data ? api.warranty.data.IN_PROGRESS : 0,
          completed: api.warranty.data ? api.warranty.data.COMPLETED : 0,
-         headDepartmentConfirm: api.warranty.data ? api.warranty.data.HEAD_DEPARTMENT_CONFIRM : 0,
+         headDepartmentConfirm: api.warranty.data ? api.warranty.data.HEAD_STAFF_CONFIRM : 0,
          "spare-part-fetched": api.warranty.data ? api.warranty.data["spare-part-fetched"] : 0,
       },
       {
@@ -225,7 +225,7 @@ function TaskDetails() {
          assigned: api.renew.data ? api.renew.data.ASSIGNED : 0,
          inProgress: api.renew.data ? api.renew.data.IN_PROGRESS : 0,
          completed: api.renew.data ? api.renew.data.COMPLETED : 0,
-         headDepartmentConfirm: api.renew.data ? api.renew.data.HEAD_DEPARTMENT_CONFIRM : 0,
+         headDepartmentConfirm: api.renew.data ? api.renew.data.HEAD_STAFF_CONFIRM : 0,
          "spare-part-fetched": api.renew.data ? api.renew.data["spare-part-fetched"] : 0,
       },
    ]

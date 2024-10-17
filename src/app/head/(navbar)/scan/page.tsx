@@ -3,14 +3,16 @@
 import RootHeader from "@/components/layout/RootHeader"
 import ScannerInputManualDrawer from "@/components/overlays/ScannerInputManual.drawer"
 import { isUUID } from "@/lib/utils/isUUID.util"
-import { InfoCircleOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons"
+import { InfoCircleOutlined, MenuOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons"
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
 import { App, Avatar, Button, Card, Form, Input, Spin } from "antd"
 import { useRouter } from "next/navigation"
 import { useRef, useTransition } from "react"
 import { InfoCircleFilled } from "@ant-design/icons"
+import HeadNavigationDrawer from "@/features/head-department/components/layout/HeadNavigationDrawer"
 
 export default function ScanPage() {
+   const navDrawer = HeadNavigationDrawer.useDrawer()
    const router = useRouter()
    const { message } = App.useApp()
    const timeoutRef = useRef<NodeJS.Timeout>()
@@ -73,7 +75,12 @@ export default function ScanPage() {
       <div className="h-full">
          {isLoading && <Spin fullscreen className="z-[5000]" />}
          <div>
-            <RootHeader title="Quét mã QR" className="px-layout py-layout align-middle" icon={<SearchOutlined />} />
+            <RootHeader
+               title="Quét mã QR"
+               className="px-layout py-layout align-middle"
+               icon={<MenuOutlined />}
+               onIconClick={() => navDrawer.handleOpen()}
+            />
             <section className="my-6 grid place-items-center">
                <div className="flex items-center rounded-full bg-white px-6 py-1">
                   <div>

@@ -21,10 +21,12 @@ import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import CountUp from "react-countup"
 import Cookies from "js-cookie"
+import HeadMaintenanceNavigaionDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
 
 function Page() {
    const router = useRouter()
    const { notification } = App.useApp()
+   const navDrawer = HeadMaintenanceNavigaionDrawer.useDrawer()
 
    const [tab, setTab] = useState("tasks")
    const api_counts = useQuery({
@@ -112,7 +114,7 @@ function Page() {
                }}
             />
             <div className="std-layout">
-               <HomeHeader className="std-layout-inner pb-8 pt-4" />
+               <HomeHeader className="std-layout-inner pb-8 pt-4" onIconClick={navDrawer.handleOpen} />
             </div>
          </div>
          <div className="std-layout">

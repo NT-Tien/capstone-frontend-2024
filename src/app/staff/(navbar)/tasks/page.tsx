@@ -19,6 +19,7 @@ import { taskPercentageCalculator } from "../../../../lib/domain/Task/taskPercen
 import { useRouter } from "next/navigation"
 import PageHeader from "@/components/layout/PageHeader"
 import Image from "next/image"
+import StaffNavigationDrawer from "@/features/staff/components/layout/StaffNavigationDrawer"
 
 type TasksType = {
    today_priority: TaskDto[]
@@ -32,6 +33,7 @@ type TasksType = {
 
 export default function StaffTasksPage() {
    const router = useRouter()
+   const navDrawer = StaffNavigationDrawer.useDrawer()
 
    const [tab, setTab] = useState("today")
 
@@ -99,7 +101,12 @@ export default function StaffTasksPage() {
          {(handleOpen) => (
             <div className="relative h-full min-h-screen bg-white">
                <div className="std-layout">
-                  <PageHeader title="Tác vụ" className="std-layout-outer relative" />
+                  <PageHeader
+                     title="Tác vụ"
+                     className="std-layout-outer relative z-50"
+                     icon={PageHeader.NavIcon}
+                     handleClickIcon={navDrawer.handleOpen}
+                  />
                   <Image
                      className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
                      src="/images/requests.jpg"
@@ -115,7 +122,7 @@ export default function StaffTasksPage() {
                </div>
                <div className="ml-2 mr-2">
                   {!!tasks.ongoing === true && (
-                     <section className=" w-full bg-white pb-3 shadow-bottom">
+                     <section className="w-full bg-white pb-3 shadow-bottom">
                         <TaskCard
                            title="Tác vụ đang thực hiện"
                            description={tasks.ongoing.name}

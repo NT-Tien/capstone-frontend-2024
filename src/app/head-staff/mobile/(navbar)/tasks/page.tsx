@@ -14,11 +14,13 @@ import { Suspense, useEffect, useState } from "react"
 import PageHeader from "@/components/layout/PageHeader"
 import Image from "next/image"
 import { FilterOutlined, SearchOutlined } from "@ant-design/icons"
+import HeadMaintenanceNavigaionDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
 
 function Page({ searchParams }: { searchParams: { page?: string; status?: TaskStatus } }) {
    const [status, setStatus] = useState<TaskStatus>(searchParams?.status ?? TaskStatus.AWAITING_FIXER)
    const page = Number(searchParams?.page ?? 1)
    const limit = 5
+   const navDrawer = HeadMaintenanceNavigaionDrawer.useDrawer()
 
    const result = useInfiniteQuery({
       queryKey: qk.task.all(page, limit, status),
@@ -93,11 +95,16 @@ function Page({ searchParams }: { searchParams: { page?: string; status?: TaskSt
             </>
          ),
       },
-   ];
+   ]
 
    return (
       <div className="std-layout relative h-full min-h-screen bg-white">
-         <PageHeader title="Tác vụ" className="std-layout-outer relative z-30" />
+         <PageHeader
+            title="Tác vụ"
+            className="std-layout-outer relative z-30"
+            icon={PageHeader.NavIcon}
+            handleClickIcon={() => navDrawer.handleOpen()}
+         />
          <Image
             className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
             src="/images/requests.jpg"
@@ -119,7 +126,7 @@ function Page({ searchParams }: { searchParams: { page?: string; status?: TaskSt
          />
 
          <Segmented
-            className="hide-scrollbar mt-layout w-full overflow-auto mb-3"
+            className="hide-scrollbar mb-3 mt-layout w-full overflow-auto"
             value={status}
             onChange={(val) => setStatus(val as TaskStatus)}
             options={taskStatusOptions}
@@ -182,7 +189,7 @@ function ListView(props: ListViewType) {
          renderItem={(item, index) => {
             // Alternating classes for background color
             const isEven = index % 2 === 0
-            const backgroundClass = isEven ? 'bg-sky-100' : 'bg-white'
+            const backgroundClass = isEven ? "bg-sky-100" : "bg-white"
 
             return (
                <TaskCard

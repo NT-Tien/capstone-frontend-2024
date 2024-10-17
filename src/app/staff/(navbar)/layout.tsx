@@ -1,11 +1,10 @@
 import { ReactNode } from "react"
-import StaffNavbar from "@/features/staff/components/StaffNavbar"
+import StaffNavigationDrawer from "@/features/staff/components/layout/StaffNavigationDrawer"
 
 export default function StaffNavbarLayout({ children }: { children: ReactNode }) {
    return (
-      <>
+      <StaffNavigationDrawer>
          <div className="h-max min-h-screen-with-navbar">{children}</div>
-         <StaffNavbar />
-      </>
+      </StaffNavigationDrawer>
    )
 }

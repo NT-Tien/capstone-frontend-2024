@@ -18,6 +18,7 @@ import Image from "next/image"
 import TaskDetailsDrawer, {
    TaskDetailsDrawerRefType,
 } from "../../../../features/staff/components/overlays/TaskDetails.drawer"
+import StaffNavigationDrawer from "@/features/staff/components/layout/StaffNavigationDrawer"
 
 export default dynamic(() => Promise.resolve(StaffDashboard), {
    ssr: false,
@@ -35,6 +36,7 @@ function StaffDashboard() {
       queryKey: staff_qk.task.all(),
       queryFn: Staff_Task_All,
    })
+   const navDrawer = StaffNavigationDrawer.useDrawer()
 
    const router = useRouter()
    const currentDefault = 1,
@@ -98,7 +100,7 @@ function StaffDashboard() {
                }}
             />
             <div className="std-layout">
-               <HomeHeader className="std-layout-inner pb-8 pt-4" />
+               <HomeHeader className="std-layout-inner pb-8 pt-4" onIconClick={navDrawer.handleOpen} />
             </div>
          </div>
          <div>

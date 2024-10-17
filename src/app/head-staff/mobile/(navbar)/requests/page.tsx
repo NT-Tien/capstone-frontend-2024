@@ -16,10 +16,12 @@ import { cn } from "@/lib/utils/cn.util"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import dayjs from "dayjs"
 import RequestCard from "@/features/head-maintenance/components/RequestCard"
+import HeadMaintenanceNavigaionDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
 
 function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } }) {
    const router = useRouter()
    const [tab, setTab] = useState<FixRequestStatus>(searchParams?.status ?? FixRequestStatus.PENDING)
+   const navDrawer = HeadMaintenanceNavigaionDrawer.useDrawer()
 
    const counts = useQueries({
       queries: Object.values(FixRequestStatus).map((status) => ({
@@ -47,7 +49,12 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
 
    return (
       <div className="std-layout relative h-full min-h-screen bg-white">
-         <PageHeader title="Yêu cầu" className="std-layout-outer relative z-30" />
+         <PageHeader
+            title="Yêu cầu"
+            className="std-layout-outer relative z-30"
+            icon={PageHeader.NavIcon}
+            handleClickIcon={() => navDrawer.handleOpen()}
+         />
          <Image
             className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
             src="/images/requests.jpg"

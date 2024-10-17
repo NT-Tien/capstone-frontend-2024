@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils/cn.util"
-import { MoreOutlined } from "@ant-design/icons"
-import { AddressBook, CaretLeft, Icon, IconProps } from "@phosphor-icons/react"
+import { CaretLeft, Icon, IconProps, List } from "@phosphor-icons/react"
 import Button from "antd/es/button"
 import React, { ReactNode } from "react"
+import { MoreOutlined } from "@ant-design/icons"
 
 type Props = {
    icon?: Icon
@@ -16,13 +16,14 @@ function PageHeader({ icon, title, className, handleClickIcon, iconProps }: Prop
    const RenderIcon = icon
       ? React.createElement(icon, {
            size: 24,
-           weight: icon === PageHeader.BackIcon ? "bold" : "fill",
+           weight: icon === PageHeader.BackIcon ? "bold" : icon === PageHeader.NavIcon ? "regular" : "fill",
            className: "text-neutral-500",
            ...iconProps,
         })
       : null
 
    function handleClickIconWrapper() {
+      console.log("Hello")
       handleClickIcon?.()
    }
 
@@ -36,13 +37,16 @@ function PageHeader({ icon, title, className, handleClickIcon, iconProps }: Prop
                }}
                icon={RenderIcon}
                onClick={handleClickIconWrapper}
+               disabled={false}
             ></Button>
-            <h1 className="flex w-full justify-center text-center text-2xl font-bold text-neutral-600">{title}</h1>
+            <h1 className="flex w-full justify-center text-center text-xl font-bold text-neutral-600">{title}</h1>
+            <Button className="bg-neutral-100/50 p-2" icon={<MoreOutlined />}></Button>
          </div>
       </header>
    )
 }
 
 PageHeader.BackIcon = CaretLeft
+PageHeader.NavIcon = List
 
 export default PageHeader

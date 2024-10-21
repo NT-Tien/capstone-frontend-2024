@@ -65,8 +65,8 @@ function Request_RejectDrawer(props: Props) {
             <Button
                type="primary"
                icon={<SendOutlined />}
-               htmlType="submit"
                className="w-full"
+               onClick={form.submit}
                size="large"
                danger
                disabled={!canRejectRequest}

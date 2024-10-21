@@ -23,6 +23,7 @@ import {
    Circle,
    Clock,
    ImageSquare,
+   Pen,
    Users,
    WashingMachine,
    XCircle,
@@ -50,25 +51,33 @@ import Task_VerifyComplete_IssueFailedDrawer, {
    Task_VerifyComplete_IssueFailedDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Task_VerifyComplete_IssueFailed.drawer"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import Task_CreateDrawer, {
+   CreateTaskV2DrawerProps,
+} from "@/features/head-maintenance/components/overlays/Task_Create.drawer"
+import IssueDetailsDrawer, {
+   IssueDetailsDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Issue_Details.drawer"
 
 export type TaskDetailsDrawerRefType = {
-   handleOpen: (task: TaskDto) => void
+   handleOpen: (task: TaskDto, requestId: string) => void
 }
 
 type Props = {
-   children?: (handleOpen: (task: TaskDto) => void) => ReactNode
+   children?: (handleOpen: (task: TaskDto, requestId: string) => void) => ReactNode
    refetchFn?: () => Promise<void>
    autoCreateTaskFn?: (warrantyDate?: string) => Promise<void>
 }
 
 const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function Component(props, ref) {
    const { open, handleOpen, handleClose } = useModalControls({
-      onOpen: (task: TaskDto) => {
+      onOpen: (task: TaskDto, requestId: string) => {
          setTask(task)
+         setRequestId(requestId)
       },
       onClose: () => {
          setTimeout(() => {
             setTask(null)
+            setRequestId("")
          }, 500)
       },
    })
@@ -76,6 +85,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
    const { message } = App.useApp()
 
    const [task, setTask] = useState<TaskDto | null>(null)
+   const [requestId, setRequestId] = useState<string>("")
 
    const scannerV2DrawerRef = useRef<ScannerV2DrawerRefType | null>(null)
    const issueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)
@@ -87,6 +97,8 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
    const control_taskVerifyComplete_warrantyDrawer = useRef<RefType<Task_VerifyComplete_WarrantyDrawerProps>>(null)
    const control_taskVerifyComplete_issueFailedDrawer =
       useRef<RefType<Task_VerifyComplete_IssueFailedDrawerProps>>(null)
+   const control_taskCreateDrawer = useRef<RefType<CreateTaskV2DrawerProps>>(null)
+   const control_issueDetailsDrawer = useRef<RefType<IssueDetailsDrawerProps>>(null)
 
    function handleOpenTaskVerifyComplete() {
       if (!api_task.isSuccess) return
@@ -139,12 +151,14 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
    async function handleUpdateConfirmCheck(warrantyDate?: string) {
       if (!task || !api_task.isSuccess) return
 
-      await mutate_updateRequest.mutateAsync({
-         id: api_task.data.request.id,
-         payload: {
-            return_date_warranty: warrantyDate,
-         },
-      })
+      if (warrantyDate) {
+         await mutate_updateRequest.mutateAsync({
+            id: api_task.data.request.id,
+            payload: {
+               return_date_warranty: warrantyDate,
+            },
+         })
+      }
 
       await mutate_updateStatus.mutateAsync(
          {
@@ -245,7 +259,34 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
          )
       }
 
-      const check = new Set([TaskStatus.ASSIGNED, TaskStatus.IN_PROGRESS, TaskStatus.CANCELLED, TaskStatus.COMPLETED])
+      if (task.status === TaskStatus.CANCELLED) {
+         return (
+            <Button
+               type="primary"
+               className="w-full"
+               size="large"
+               onClick={() => {
+                  const lastIssuesDataJson = task?.last_issues_data
+                  const parsedLastIssuesDataJson = lastIssuesDataJson ? JSON.parse(lastIssuesDataJson) : []
+                  const issues = parsedLastIssuesDataJson.map((issue: any) => issue.id)
+                  console.log("issues here", issues, task.issues)
+
+                  handleClose()
+                  setTimeout(() => {
+                     requestId &&
+                        control_taskCreateDrawer.current?.handleOpen({
+                           requestId: requestId,
+                           defaultIssueIds: issues,
+                        })
+                  }, 200)
+               }}
+            >
+               Tạo lại tác vụ
+            </Button>
+         )
+      }
+
+      const check = new Set([TaskStatus.ASSIGNED, TaskStatus.IN_PROGRESS, TaskStatus.COMPLETED])
       if (check.has(task.status)) {
          return (
             <Button
@@ -422,6 +463,12 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                      <Users size={18} weight="fill" color="#737373" />
                      <div>{task.fixer?.username ?? "Chưa có"}</div>
                   </div>
+                  {api_task.data?.status === TaskStatus.CANCELLED && (
+                     <div className="mt-layout flex items-center gap-3">
+                        <Pen size={18} weight="fill" color="#737373" />
+                        <div>Lý do hủy: {task.cancelReason ?? "Chưa có"}</div>
+                     </div>
+                  )}
                   {api_task.data?.device_renew && (
                      <div
                         className="mt-layout flex items-center gap-3"
@@ -442,16 +489,18 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                         <h3 className="mb-2 font-semibold">Lỗi cần sửa</h3>
                         <div className="flex w-full flex-col gap-3">
                            {api_task.isSuccess &&
-                              (api_task.data.status === TaskStatus.COMPLETED && api_task.data.issues.length === 0
-                                 ? JSON.parse(api_task.data.last_issues_data).map((issue: IssueDto) => (
+                              ((api_task.data.status === TaskStatus.COMPLETED ||
+                                 api_task.data.status === TaskStatus.CANCELLED) &&
+                              api_task.data.issues.length === 0 &&
+                              api_task.data.last_issues_data
+                                 ? JSON.parse(api_task.data?.last_issues_data ?? []).map((issue: IssueDto) => (
                                       <div
                                          key={issue.id}
                                          onClick={() =>
-                                            issueDetailsDrawerRef.current?.openDrawer(
-                                               issue.id,
-                                               api_task.data.device.id,
-                                               false,
-                                            )
+                                            control_issueDetailsDrawer.current?.handleOpen({
+                                               issueId: issue.id,
+                                               deviceId: api_task.data.device.id,
+                                            })
                                          }
                                       >
                                          <div className="flex items-stretch justify-start gap-2">
@@ -489,11 +538,10 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                                       <div
                                          key={issue.id}
                                          onClick={() =>
-                                            issueDetailsDrawerRef.current?.openDrawer(
-                                               issue.id,
-                                               api_task.data.device.id,
-                                               false,
-                                            )
+                                            control_issueDetailsDrawer.current?.handleOpen({
+                                               issueId: issue.id,
+                                               deviceId: api_task.data.device.id,
+                                            })
                                          }
                                       >
                                          <div className="flex items-stretch justify-start gap-2">
@@ -548,6 +596,9 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                height: "75%",
             }}
          />
+         <OverlayControllerWithRef ref={control_issueDetailsDrawer}>
+            <IssueDetailsDrawer />
+         </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_taskVerifyCompleteDrawer}>
             <Task_VerifyCompleteDrawer onSubmit={handleUpdateConfirmCheck} />
          </OverlayControllerWithRef>
@@ -555,7 +606,12 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
             <Task_VerifyComplete_WarrantyDrawer onSubmit={handleUpdateConfirmCheck} />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_taskVerifyComplete_issueFailedDrawer}>
-            <Task_VerifyComplete_IssueFailedDrawer onSubmit={handleUpdateConfirmCheck} />
+            <Task_VerifyComplete_IssueFailedDrawer
+               onSubmit={() => {
+                  handleUpdateConfirmCheck()
+                  requestId && router.push(`/head-staff/mobile/requests/${requestId}/approved?tab=issues`)
+               }}
+            />
          </OverlayControllerWithRef>
          <AssignFixerDrawer
             ref={assignFixerDrawerRef}
@@ -606,6 +662,13 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                }, 500)
             }}
          />
+         <OverlayControllerWithRef ref={control_taskCreateDrawer}>
+            <Task_CreateDrawer
+               refetchFn={() => {
+                  props.refetchFn?.()
+               }}
+            />
+         </OverlayControllerWithRef>
       </>
    )
 })

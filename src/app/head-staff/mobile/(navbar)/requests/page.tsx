@@ -3,13 +3,13 @@
 import PageHeader from "@/components/layout/PageHeader"
 import { FixRequest_StatusData, FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { AddressBook } from "@phosphor-icons/react"
-import { Button, Card, Input, List, Result, Segmented, Select, Skeleton, Spin, Tabs, Tag } from "antd"
+import { CheckSquare, SealWarning } from "@phosphor-icons/react"
+import { Button, Card, Divider, Input, List, Result, Select, Skeleton, Space, Tag } from "antd"
 import Image from "next/image"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { FilterOutlined, SearchOutlined, TruckFilled } from "@ant-design/icons"
-import { useQueries, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import headstaff_qk from "@/features/head-maintenance/qk"
 import HeadStaff_Request_All30Days from "@/features/head-maintenance/api/request/all30Days.api"
 import { cn } from "@/lib/utils/cn.util"
@@ -17,27 +17,13 @@ import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import dayjs from "dayjs"
 import RequestCard from "@/features/head-maintenance/components/RequestCard"
 import HeadMaintenanceNavigaionDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
+import head_maintenance_queries from "@/features/head-maintenance/queries"
 
 function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } }) {
    const router = useRouter()
    const [tab, setTab] = useState<FixRequestStatus>(searchParams?.status ?? FixRequestStatus.PENDING)
    const navDrawer = HeadMaintenanceNavigaionDrawer.useDrawer()
-
-   const counts = useQueries({
-      queries: Object.values(FixRequestStatus).map((status) => ({
-         queryKey: headstaff_qk.request.all({ page: 1, limit: 1000, status: status }),
-         queryFn: () => HeadStaff_Request_All30Days({ limit: 1000, page: 1, status: status }),
-      })),
-      combine: (results) => {
-         return results.reduce(
-            (acc, { data }, index) => {
-               acc[Object.values(FixRequestStatus)[index]] = data?.total ?? 0
-               return acc
-            },
-            {} as Record<FixRequestStatus, number>,
-         )
-      },
-   })
+   const api_requestStatistics = head_maintenance_queries.request.statistics({})
 
    function handleChangeTab(tab: FixRequestStatus) {
       setTab(tab)
@@ -74,31 +60,11 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
             prefix={<SearchOutlined className="mr-2" />}
             suffix={<FilterOutlined />}
          />
-         {/* <Segmented
-            className="hide-scrollbar mt-layout w-full overflow-auto"
-            options={(
-               ["pending", "approved", "in_progress", "head_confirm", "closed", "rejected"] as FixRequestStatuses[]
-            ).map((status, index, array) => ({
-               label: (
-                  <div
-                     className={cn(
-                        "flex w-min items-center justify-center gap-3 break-words font-base",
-                        index === 0 && "ml-layout",
-                        index === array.length - 1 && "mr-layout",
-                     )}
-                  >
-                     {FixRequest_StatusData(status).text} ({counts[status.toUpperCase() as FixRequestStatus]})
-                  </div>
-               ),
-               value: FixRequest_StatusData(status).statusEnum,
-            }))}
-            value={tab}
-            onChange={(value) => handleChangeTab(value as FixRequestStatus)}
-         /> */}
          <Select
             className="mb-3 mt-2 w-full text-center"
             value={tab}
             size="large"
+            loading={api_requestStatistics.isPending}
             onChange={(value) => handleChangeTab(value as FixRequestStatus)}
          >
             {(["pending", "approved", "in_progress", "head_confirm", "closed", "rejected"] as FixRequestStatuses[]).map(
@@ -107,14 +73,12 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
                      key={FixRequest_StatusData(status).statusEnum}
                      value={FixRequest_StatusData(status).statusEnum}
                   >
-                     <div
-                        className={cn(
-                           "items-center justify-center gap-3 break-words font-base",
-                           index === 0 && "text-center",
-                           index === array.length - 1 && "text-center",
-                        )}
-                     >
-                        {FixRequest_StatusData(status).text} ({counts[status.toUpperCase() as FixRequestStatus]})
+                     <div className={cn("flex items-center justify-center gap-3 break-words text-center font-base")}>
+                        {FixRequest_StatusData(status).text} (
+                        {api_requestStatistics.isSuccess
+                           ? api_requestStatistics.data[status.toUpperCase() as FixRequestStatus]
+                           : "-"}
+                        )
                      </div>
                   </Select.Option>
                ),
@@ -134,13 +98,13 @@ function TabDetails(props: TabDetailsProps) {
    const api_requests = useQuery({
       queryKey: headstaff_qk.request.all({
          page: 1,
-         limit: 50,
+         limit: 500,
          status: props.status,
       }),
       queryFn: () =>
          HeadStaff_Request_All30Days({
             page: 1,
-            limit: 50,
+            limit: 500,
             status: props.status,
          }),
    })
@@ -166,8 +130,8 @@ function TabDetails(props: TabDetailsProps) {
    return (
       <List
          rowKey="id"
-         split
-         className="std-layout-outer"
+         // split
+         className="std-layout-outer min-h-screen"
          dataSource={api_requests.data?.list}
          renderItem={(item, index) => (
             <List.Item className={cn("w-full", index === 0 && "mt-0")}>
@@ -175,7 +139,7 @@ function TabDetails(props: TabDetailsProps) {
                   className={cn(
                      "w-full px-layout",
                      item.is_seen === false &&
-                        "border-[1px] border-green-100 bg-green-100 p-2 transition-all hover:bg-green-200 m-2",
+                        "border-[1px] border-green-100 bg-green-100 transition-all hover:bg-green-200",
                   )}
                   headerClassName={cn(item.is_seen === false && "rounded-lg p-1")}
                   description={item.requester_note}
@@ -189,9 +153,24 @@ function TabDetails(props: TabDetailsProps) {
                         {item.status === FixRequestStatus.REJECTED ? (
                            <div className="w-32 truncate">Lý do: {item.checker_note}</div>
                         ) : undefined}
+                        {(item.status === FixRequestStatus.APPROVED ||
+                           item.status === FixRequestStatus.IN_PROGRESS) && (
+                           <Space split={<Divider type="vertical" className="mx-1" />}>
+                              <div className="flex items-center gap-1">
+                                 <SealWarning size={16} />
+                                 <span>{item?.issues?.length ?? "0"} lỗi</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                 <CheckSquare size={16} />
+                                 <span>{item?.tasks?.length ?? "0"} tác vụ</span>
+                              </div>
+                           </Space>
+                        )}
                      </div>
                   }
-                  footerRight={<span className="text-xs text-neutral-500">{getCreatedAt(item)}</span>}
+                  tag={
+                     <span className="flex items-start justify-end text-xs text-neutral-500">{getCreatedAt(item)}</span>
+                  }
                   subtitle={`${item.requester.username} | ${item?.device?.area?.name}`}
                   title={item.device.machineModel.name}
                   onClick={() => {
@@ -202,13 +181,14 @@ function TabDetails(props: TabDetailsProps) {
                         router.push(`/head-staff/mobile/requests/${item.id}/approved`)
                      }
                   }}
-                  tag={
-                     item.is_seen === false && (
-                        <Tag color="green" className="m-0">
-                           Mới
-                        </Tag>
-                     )
-                  }
+                  footerRight={<div></div>}
+                  // tag={
+                  //    item.is_seen === false && (
+                  //       <Tag color="green" className="m-0">
+                  //          Mới
+                  //       </Tag>
+                  //    )
+                  // }
                   footerClassName="mt-1"
                />
             </List.Item>

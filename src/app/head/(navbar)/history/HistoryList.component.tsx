@@ -68,16 +68,12 @@ function HistoryList({ requests }: Props) {
                         ) : undefined}
                      </div>
                   }
-                  footerRight={<span className="text-xs text-neutral-500">{getCreatedAt(item)}</span>}
+                  footerRight={<div></div>}
+                  tag={<span className="text-xs text-neutral-500">{getCreatedAt(item)}</span>}
                   subtitle={`${item.requester.username} | ${item?.device?.area?.name}`}
                   title={item.device.machineModel.name}
                   onClick={() => {
-                     const statuses = new Set([FixRequestStatus.PENDING, FixRequestStatus.REJECTED])
-                     if (statuses.has(item.status)) {
-                        router.push(`/head/history/${item.id}`)
-                     } else {
-                        router.push(`/head/history/${item.id}/approved`)
-                     }
+                     router.push(`/head/history/${item.id}`)
                   }}
                   footerClassName="mt-1"
                />

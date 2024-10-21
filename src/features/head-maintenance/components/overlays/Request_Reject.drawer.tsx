@@ -1,164 +1,105 @@
-import useModalControls from "@/lib/hooks/useModalControls"
+import { DrawerProps } from "antd"
 import Button from "antd/es/button"
 import Drawer from "antd/es/drawer"
 import Form from "antd/es/form"
 import Input from "antd/es/input"
 import { TextAreaRef } from "antd/es/input/TextArea"
 import { SendOutlined } from "@ant-design/icons"
-import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
-import { useMutation } from "@tanstack/react-query"
-import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
-import App from "antd/es/app"
-import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import { useMemo, useRef } from "react"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import AlertCard from "@/components/AlertCard"
-
-type HandleOpen = {
-   request: RequestDto
-}
-
-type RejectRequestDrawerRefType = {
-   handleOpen: (props: HandleOpen) => void
-}
+import head_maintenance_mutations from "@/features/head-maintenance/mutations"
+import useCurrentUser from "@/lib/domain/User/useCurrentUser"
+import dayjs from "dayjs"
 
 type FieldType = {
    message: string
 }
 
-type Props = {
-   children?: (handleOpen: (props: HandleOpen) => void) => ReactNode
-   refetchFn?: () => void
+type Request_RejectDrawerProps = {
+   request?: RequestDto
    onSuccess?: () => void
 }
+type Props = Omit<DrawerProps, "children"> & Request_RejectDrawerProps
 
-const Request_RejectDrawer = forwardRef<RejectRequestDrawerRefType, Props>(function Component(
-   { children, ...props },
-   ref,
-) {
-   const { open, handleOpen, handleClose } = useModalControls({
-      onOpen: (props: HandleOpen) => {
-         setRequest(props.request)
-         inputRef.current?.focus()
-      },
-      onClose: () => {
-         setTimeout(() => {
-            setRequest(undefined)
-            form.resetFields()
-         }, 500)
-      },
-   })
+function Request_RejectDrawer(props: Props) {
    const [form] = Form.useForm<FieldType>()
-   const inputRef = useRef<TextAreaRef | null>(null)
-   const { message } = App.useApp()
+   const currentUser = useCurrentUser()
+   const mutate_rejectRequest = head_maintenance_mutations.request.reject()
 
-   const [request, setRequest] = useState<RequestDto | undefined>(undefined)
+   const inputRef = useRef<TextAreaRef | null>(null)
 
    const canRejectRequest = useMemo(() => {
-      return request?.tasks.every(
+      return props.request?.tasks.every(
          (task) => task.status === TaskStatus.COMPLETED || task.status === TaskStatus.CANCELLED,
       )
-   }, [request?.tasks])
-
-   const mutate_rejectRequest = useMutation({
-      mutationFn: HeadStaff_Request_UpdateStatus,
-      onMutate: async () => {
-         message.destroy("rejecting-request")
-         message.open({
-            content: "Đang hủy yêu cầu...",
-            key: "rejecting-request",
-            type: "loading",
-         })
-      },
-      onError: async () => {
-         message.error("Hủy yêu cầu thất bại. Vui lòng thử lại.")
-      },
-      onSuccess: async () => {
-         message.success("Hủy yêu cầu thành công")
-      },
-      onSettled: () => {
-         message.destroy("rejecting-request")
-      },
-   })
+   }, [props.request?.tasks])
 
    function handleFinish(values: FieldType) {
-      if (!request) return
+      if (!props.request) return
       mutate_rejectRequest.mutate(
          {
-            id: request.id,
+            id: props.request.id,
             payload: {
                checker_note: values.message,
-               status: FixRequestStatus.REJECTED,
+               checker: currentUser.id,
+               checker_date: dayjs().toISOString(),
             },
          },
          {
-            onSuccess: async () => {
-               handleClose()
-               setTimeout(() => {
-                  props.refetchFn?.()
-                  props.onSuccess?.()
-               }, 500)
-            },
+            onSuccess: props.onSuccess,
          },
       )
    }
 
-   useImperativeHandle(ref, () => ({
-      handleOpen,
-   }))
-
    return (
-      <>
-         <Drawer
-            open={open}
-            onClose={handleClose}
-            title="Hủy yêu cầu"
-            placement="bottom"
-            height="max-content"
-            classNames={{
-               footer: "p-layout",
-            }}
-            footer={
-               <Button
-                  type="primary"
-                  icon={<SendOutlined />}
-                  htmlType="submit"
-                  className="w-full"
-                  size="large"
-                  danger
+      <Drawer
+         title="Từ chối yêu cầu"
+         placement="bottom"
+         height="max-content"
+         classNames={{
+            footer: "p-layout",
+         }}
+         footer={
+            <Button
+               type="primary"
+               icon={<SendOutlined />}
+               htmlType="submit"
+               className="w-full"
+               size="large"
+               danger
+               disabled={!canRejectRequest}
+               loading={mutate_rejectRequest.isPending}
+            >
+               Gửi
+            </Button>
+         }
+         {...props}
+      >
+         <Form<FieldType> form={form} onFinish={handleFinish}>
+            {!canRejectRequest && (
+               <AlertCard
+                  text="Bạn cần hoàn thành/hủy tất cả các tác vụ trước khi hủy yêu cầu"
+                  type="error"
+                  className="mb-layout"
+               />
+            )}
+            <Form.Item<FieldType> name="message" label="Lý do hủy yêu cầu" rules={[{ required: true }]}>
+               <Input.TextArea
+                  ref={inputRef}
+                  showCount
+                  maxLength={200}
+                  placeholder="Vui lòng nhập lý do hủy yêu cầu"
+                  allowClear
+                  autoFocus
                   disabled={!canRejectRequest}
-                  loading={mutate_rejectRequest.isPending}
-               >
-                  Gửi
-               </Button>
-            }
-         >
-            <Form<FieldType> form={form} onFinish={handleFinish}>
-               {!canRejectRequest && (
-                  <AlertCard
-                     text="Bạn cần hoàn thành/hủy tất cả các tác vụ trước khi hủy yêu cầu"
-                     type="error"
-                     className="mb-layout"
-                  />
-               )}
-               <Form.Item<FieldType> name="message" label="Lý do hủy yêu cầu" rules={[{ required: true }]}>
-                  <Input.TextArea
-                     ref={inputRef}
-                     showCount
-                     maxLength={200}
-                     placeholder="Vui lòng nhập lý do hủy yêu cầu"
-                     allowClear
-                     autoFocus
-                     disabled={!canRejectRequest}
-                  />
-               </Form.Item>
-               <Form.Item noStyle className="mt-layout"></Form.Item>
-            </Form>
-         </Drawer>
-         {children?.(handleOpen)}
-      </>
+               />
+            </Form.Item>
+         </Form>
+      </Drawer>
    )
-})
+}
 
 export default Request_RejectDrawer
-export type { RejectRequestDrawerRefType }
+export type { Request_RejectDrawerProps }

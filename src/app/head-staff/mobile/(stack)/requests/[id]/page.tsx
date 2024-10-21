@@ -1,7 +1,5 @@
 "use client"
 
-import headstaff_qk from "@/features/head-maintenance/qk"
-import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
 import DataListView from "@/components/DataListView"
 import PageHeader from "@/components/layout/PageHeader"
 import ScannerDrawer from "@/components/overlays/Scanner.drawer"
@@ -13,7 +11,6 @@ import { cn } from "@/lib/utils/cn.util"
 import { isUUID } from "@/lib/utils/isUUID.util"
 import { CheckCircleFilled, MoreOutlined, QrcodeOutlined, TruckFilled } from "@ant-design/icons"
 import { Info, MapPin } from "@phosphor-icons/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Skeleton } from "antd"
 import App from "antd/es/app"
 import Button from "antd/es/button"
@@ -27,12 +24,12 @@ import dayjs from "dayjs"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
-import Request_ApproveDrawer, {
-   ApproveRequestDrawerRefType,
-} from "@/features/head-maintenance/components/overlays/Request_Approve.drawer"
+import Request_ApproveToFixDrawer, {
+   type Request_ApproveToFixDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Request_ApproveToFix.drawer"
 import Device_ViewRequestHistoryDrawer from "@/features/head-maintenance/components/overlays/Device_ViewRequestHistory.drawer"
 import Request_RejectDrawer, {
-   RejectRequestDrawerRefType,
+   Request_RejectDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Request_Reject.drawer"
 import Request_SendWarrantyDrawer, {
    SendWarrantyDrawerRefType,
@@ -43,26 +40,26 @@ import Request_RenewDeviceDrawer, {
    RenewDeviceDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Request_RenewDevice.drawer"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
+import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
    const { message } = App.useApp()
-   const queryClient = useQueryClient()
 
    const [hasScanned, setHasScanned] = useState<boolean>(false)
 
-   const rejectRequestRef = useRef<RejectRequestDrawerRefType | null>(null)
-   const approveRequestRef = useRef<ApproveRequestDrawerRefType | null>(null)
+   const control_requestRejectDrawer = useRef<RefType<Request_RejectDrawerProps>>(null)
    const sendWarrantyRef = useRef<SendWarrantyDrawerRefType | null>(null)
+   const control_requestApproveToFixDrawer = useRef<RefType<Request_ApproveToFixDrawerProps>>(null)
    const control_renewDeviceDrawer = useRef<RefType<RenewDeviceDrawerProps> | null>(null)
 
-   const api_request = head_maintenance_queries.request.one({ id: params.id })
+   const mutate_updateSeen = head_maintenance_mutations.request.seen()
 
+   const api_request = head_maintenance_queries.request.one({ id: params.id })
    const api_device = head_maintenance_queries.device.one(
       { id: api_request.data?.device.id ?? "" },
       { enabled: api_request.isSuccess },
    )
-
    const api_deviceHistory = head_maintenance_queries.device.all_requestHistory(
       {
          id: api_request.data?.device.id ?? "",
@@ -75,10 +72,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
          enabled: api_request.isSuccess,
       },
    )
-
-   const mutate_updateSeen = useMutation({
-      mutationFn: HeadStaff_Request_UpdateStatus,
-   })
 
    const pageStatus = useMemo(() => {
       if (!api_request.isSuccess) return
@@ -190,18 +183,15 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    useEffect(() => {
       if (api_request.isSuccess && !api_request.data.is_seen && mutate_updateSeen.isIdle) {
          mutate_updateSeen.mutate(
-            { id: api_request.data.id, payload: { is_seen: true } },
+            { id: api_request.data.id },
             {
                onSuccess: async () => {
-                  await queryClient.invalidateQueries({
-                     queryKey: headstaff_qk.request.all(),
-                     exact: false,
-                  })
+                  await api_request.refetch()
                },
             },
          )
       }
-   }, [api_request.data, api_request.isSuccess, mutate_updateSeen, queryClient])
+   }, [api_request, api_request.data, api_request.isSuccess, mutate_updateSeen])
 
    // user only has to scan if request is pending
    useEffect(() => {
@@ -532,7 +522,11 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                               className="w-full"
                               type="primary"
                               icon={<CheckCircleFilled />}
-                              onClick={() => approveRequestRef.current?.handleOpen(params.id)}
+                              onClick={() =>
+                                 control_requestApproveToFixDrawer.current?.handleOpen({
+                                    requestId: params.id,
+                                 })
+                              }
                            >
                               Xác nhận yêu cầu
                            </Button>
@@ -563,7 +557,10 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                          {
                                             key: "continue",
                                             label: "Tiếp tục xử lý",
-                                            onClick: () => approveRequestRef.current?.handleOpen(params.id),
+                                            onClick: () =>
+                                               control_requestApproveToFixDrawer.current?.handleOpen({
+                                                  requestId: params.id,
+                                               }),
                                          },
                                       ]
                                     : []),
@@ -587,7 +584,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                     label: "Hủy yêu cầu",
                                     onClick: () =>
                                        api_request.isSuccess &&
-                                       rejectRequestRef.current?.handleOpen({
+                                       control_requestRejectDrawer.current?.handleOpen({
                                           request: api_request.data,
                                        }),
                                     danger: true,
@@ -602,8 +599,17 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                </section>
             </>
          )}
-         <Request_RejectDrawer ref={rejectRequestRef} refetchFn={api_request.refetch} />
-         <Request_ApproveDrawer ref={approveRequestRef} refetchFn={api_request.refetch} />
+         <OverlayControllerWithRef ref={control_requestRejectDrawer}>
+            <Request_RejectDrawer
+               onSuccess={async () => {
+                  control_requestRejectDrawer.current?.handleClose()
+                  await api_request.refetch()
+               }}
+            />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_requestApproveToFixDrawer}>
+            <Request_ApproveToFixDrawer refetchFn={() => api_request.refetch()} />
+         </OverlayControllerWithRef>
          <Request_SendWarrantyDrawer ref={sendWarrantyRef} params={{ id: params.id }} />
          <OverlayControllerWithRef ref={control_renewDeviceDrawer}>
             <Request_RenewDeviceDrawer />

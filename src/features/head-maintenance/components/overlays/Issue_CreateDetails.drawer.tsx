@@ -9,10 +9,11 @@ import { FixType, FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
 import useModalControls from "@/lib/hooks/useModalControls"
 import { cn } from "@/lib/utils/cn.util"
 import AlertCard from "@/components/AlertCard"
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons"
+import { PlusOutlined, EditOutlined, DeleteOutlined, MoreOutlined } from "@ant-design/icons"
 import { DotOutline, Info, Timer, Warning } from "@phosphor-icons/react"
-import { Button, Divider, Drawer, DrawerProps, Form, Input, Radio, Select, Tag } from "antd"
+import { Button, Divider, Drawer, DrawerProps, Dropdown, Form, Input, Radio, Select, Tag } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
+import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
 
 type HandleOpen = {
    typeError: TypeErrorDto
@@ -40,6 +41,7 @@ type Props = {
    drawerProps?: Omit<DrawerProps, "children">
    onFinish: (newIssue: IssueDto) => void
    children?: (handleOpen: (props: HandleOpen) => void) => ReactNode
+   showCancel?: boolean
 }
 
 const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Props>(function Component(
@@ -67,6 +69,7 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
                   ]),
                ),
             )
+            setStatus(props.defaultIssue?.status)
             setIssueId(props.defaultIssue.id)
             setIsUpdate(true)
             setFailReason(props.defaultIssue.failReason)
@@ -77,6 +80,10 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
          setDevice(undefined)
          setSelectedSpareParts(new Map())
          setSelectSparePartControl(undefined)
+         setIsUpdate(false)
+         setIssueId(undefined)
+         setFailReason(undefined)
+         setStatus(undefined)
          form.resetFields()
       },
    })
@@ -90,6 +97,8 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
    const [isUpdate, setIsUpdate] = useState(false)
    const [issueId, setIssueId] = useState<string | undefined>(undefined)
    const [failReason, setFailReason] = useState<string | undefined>()
+   const [status, setStatus] = useState<IssueStatusEnum | undefined>()
+   const [showCancel, setShowCancel] = useState(false)
 
    const basicSelectSparePartDrawerRef = useRef<BasicSelectSparePartDrawerRefType | null>(null)
 
@@ -101,9 +110,13 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
       return fullList.filter((sp) => !selectedSpareParts.has(sp.id))
    }, [device, selectedSpareParts])
 
-   async function handleFinish(values: FieldType) {
+   async function handleFinish(values: FieldType, cancel?: boolean) {
       const valid = await form.validateFields()
       if (!valid) return
+
+      const cancelValues = {
+         status: IssueStatusEnum.CANCELLED,
+      } as IssueDto
 
       const issue = {
          id: isUpdate ? issueId : undefined,
@@ -114,6 +127,7 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
             sparePart: sp.sparePart,
          })),
          fixType: values.fixType,
+         ...(cancel ? cancelValues : {}),
       } as IssueDto
 
       props.onFinish(issue)
@@ -133,7 +147,20 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
          <Drawer
             open={open}
             onClose={handleClose}
-            title={isUpdate ? "Cập nhật lỗi" : "Tạo lỗi mới"}
+            title={
+               isUpdate ? (
+                  <div className="flex gap-3">
+                     <h1>Cập nhật lỗi</h1>
+                     {status === IssueStatusEnum.CANCELLED && (
+                        <Tag color={IssueStatusEnumTagMapper[status].color}>
+                           {IssueStatusEnumTagMapper[status].text}
+                        </Tag>
+                     )}
+                  </div>
+               ) : (
+                  "Tạo lỗi mới"
+               )
+            }
             placement="right"
             width="100%"
             classNames={{
@@ -142,17 +169,37 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
                footer: "p-layout",
             }}
             footer={
-               <Button
-                  key="submit"
-                  className="w-full"
-                  type="primary"
-                  size="large"
-                  htmlType="submit"
-                  icon={<PlusOutlined />}
-                  onClick={() => handleFinish(form.getFieldsValue())}
-               >
-                  {isUpdate ? "Cập nhật" : "Tạo lỗi mới"}
-               </Button>
+               <div className="flex items-center gap-3">
+                  <Button
+                     key="submit"
+                     className="w-full"
+                     block
+                     type="primary"
+                     size="large"
+                     htmlType="submit"
+                     icon={<PlusOutlined />}
+                     onClick={() => handleFinish(form.getFieldsValue())}
+                  >
+                     {isUpdate ? "Cập nhật" : "Tạo lỗi mới"}
+                  </Button>
+                  {props.showCancel && (
+                     <Dropdown
+                        menu={{
+                           items: [
+                              {
+                                 label: "Hủy lỗi",
+                                 key: "cancel",
+                                 icon: <DeleteOutlined />,
+                                 danger: true,
+                                 onClick: () => handleFinish(form.getFieldsValue(), true),
+                              },
+                           ],
+                        }}
+                     >
+                        <Button icon={<MoreOutlined />} size={"large"} className={"aspect-square"} />
+                     </Dropdown>
+                  )}
+               </div>
             }
             {...props.drawerProps}
          >

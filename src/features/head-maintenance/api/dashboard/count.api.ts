@@ -1,4 +1,4 @@
-import { parseApiResponse } from "../../../../lib/utils/parseApiResponse.util"
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import api from "@/config/axios.config"
 import Cookies from "js-cookie"
 import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
@@ -20,7 +20,8 @@ type Response = {
 }
 
 HeadStaff_Dashboard_Count.URL = (req: Request) => `/head-staff/dashboard`
-export default async function HeadStaff_Dashboard_Count(req: Request): Promise<Response> {
+
+async function HeadStaff_Dashboard_Count(req: Request): Promise<Response> {
    return api
       .get<Response>(HeadStaff_Dashboard_Count.URL(req), {
          transformResponse: (data) => parseApiResponse(data),
@@ -30,3 +31,6 @@ export default async function HeadStaff_Dashboard_Count(req: Request): Promise<R
       })
       .then((res) => res.data)
 }
+
+export default HeadStaff_Dashboard_Count
+export type { Request, Response }

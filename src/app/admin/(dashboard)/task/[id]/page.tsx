@@ -116,53 +116,53 @@ function Page({ params }: { params: { id: string } }) {
             },
          }}
          tabList={[
-            {
-               tab: "Thông tin yêu câu",
-               children: (
-                  <>
-                     <Card className="mb-3">
-                        <ProDescriptions
-                           dataSource={api_task.data?.request}
-                           loading={api_task.isPending}
-                           title={"Thông tin yêu cầu"}
-                           extra={
-                              <Link href={`/admin/request/${api_task.data?.request.id}`}>
-                                 <Button type="primary">Xem Thêm</Button>
-                              </Link>
-                           }
-                           bordered
-                           columns={[
-                              {
-                                 title: "Mô tả",
-                                 dataIndex: ["requester_note"],
-                                 span: 3,
-                              },
-                              {
-                                 title: "Người yêu cầu",
-                                 dataIndex: ["requester", "username"],
-                              },
-                              {
-                                 title: "Ngày tạo",
-                                 dataIndex: "createdAt",
-                                 valueType: "date",
-                                 render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY HH:mm"),
-                              },
-                              {
-                                 title: "Trạng thái",
-                                 dataIndex: "status",
-                                 render: (_, e) => (
-                                    <Tag color={FixRequest_StatusMapper(e).colorInverse}>
-                                       {FixRequest_StatusMapper(e).text}
-                                    </Tag>
-                                 ),
-                              },
-                           ]}
-                        />
-                     </Card>
-                     <DeviceDetailsSection device={api_task.data?.device} isLoading={api_task.isPending} />
-                  </>
-               ),
-            },
+            // {
+            //    tab: "Thông tin yêu câu",
+            //    children: (
+            //       <>
+            //          <Card className="mb-3">
+            //             <ProDescriptions
+            //                dataSource={api_task.data?.request}
+            //                loading={api_task.isPending}
+            //                title={"Thông tin yêu cầu"}
+            //                extra={
+            //                   <Link href={`/admin/request/${api_task.data?.request.id}`}>
+            //                      <Button type="primary">Xem Thêm</Button>
+            //                   </Link>
+            //                }
+            //                bordered
+            //                columns={[
+            //                   {
+            //                      title: "Mô tả",
+            //                      dataIndex: ["requester_note"],
+            //                      span: 3,
+            //                   },
+            //                   {
+            //                      title: "Người yêu cầu",
+            //                      dataIndex: ["requester", "username"],
+            //                   },
+            //                   {
+            //                      title: "Ngày tạo",
+            //                      dataIndex: "createdAt",
+            //                      valueType: "date",
+            //                      render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY HH:mm"),
+            //                   },
+            //                   {
+            //                      title: "Trạng thái",
+            //                      dataIndex: "status",
+            //                      render: (_, e) => (
+            //                         <Tag color={FixRequest_StatusMapper(e).colorInverse}>
+            //                            {FixRequest_StatusMapper(e).text}
+            //                         </Tag>
+            //                      ),
+            //                   },
+            //                ]}
+            //             />
+            //          </Card>
+            //          <DeviceDetailsSection device={api_task.data?.device} isLoading={api_task.isPending} />
+            //       </>
+            //    ),
+            // },
             {
                tab: `Danh sách lỗi (${api_task.data?.issues?.length || 0})`,
                children: <IssuesListSection issues={api_task.data?.issues} isLoading={api_task.isPending} />,

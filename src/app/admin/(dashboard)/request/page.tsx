@@ -11,22 +11,25 @@ import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import dayjs from "dayjs"
 import { CaretDown, CaretUp } from "@phosphor-icons/react"
 import Link from "next/link"
-import { AutoComplete, Progress, Tag, Tooltip } from "antd"
+import { AutoComplete, Card, Divider, Progress, Space, Statistic, Tag, Tooltip } from "antd"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { useQuery } from "@tanstack/react-query"
+import { Role } from "@/lib/domain/User/role.enum"
+import { ArrowUpOutlined, InboxOutlined } from "@ant-design/icons"
 
 type QueryType = {
    page: number
    limit: number
    search?: {
       id?: string
-      createdAt?: string
-      updatedAt?: string
+      createdAt?: string[]
+      updatedAt?: string[]
       requester_note?: string
       status?: any
       is_warranty?: string
       is_seen?: string
       requesterName?: string
+      areaId?: string
    }
    sort?: {
       order: "ASC" | "DESC"
@@ -45,49 +48,41 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
       },
    })
 
+   const api_head_departments = admin_queries.user.all(
+      {},
+      {
+         select: (data) => {
+            return data.filter((user) => user.role === Role.head)
+         },
+      },
+   )
+   const api_areas = admin_queries.area.all({})
+
    const api_requests = admin_queries.request.all_filterAndSort({
       page: query.page,
       limit: query.limit,
       filters: {
          status: query.search?.status === "none" ? undefined : query.search?.status,
-         createdAt: query.search?.createdAt,
-         updatedAt: query.search?.updatedAt,
          requester_note: query.search?.requester_note,
          id: query.search?.id,
          is_warranty: query.search?.is_warranty,
          is_seen: query.search?.is_seen,
          requesterName: query.search?.requesterName,
+         createdAtRangeStart: query.search?.createdAt?.[0],
+         createdAtRangeEnd: query.search?.createdAt?.[1]
+            ? dayjs(query.search?.createdAt?.[1]).add(1, "day").toISOString()
+            : undefined,
+         updatedAtRangeStart: query.search?.updatedAt?.[0],
+         updatedAtRangeEnd: query.search?.updatedAt?.[1]
+            ? dayjs(query.search?.updatedAt?.[1]).add(1, "day").toISOString()
+            : undefined,
+         areaId: query.search?.areaId,
       },
       sort: {
          order: query.sort?.order,
          orderBy: query.sort?.orderBy as any,
       },
    })
-
-   const [requesterOptions, setRequesterOptions] = useState<{ label: string; value: string }[]>([])
-
-   useEffect(() => {
-      if (api_requests.data?.list) {
-         const uniqueRequesters = Array.from(
-            new Set(api_requests.data.list.map((request) => request.requester.username)),
-         ).map((username) => ({
-            label: username,
-            value: username,
-         }))
-
-         setRequesterOptions(uniqueRequesters)
-      }
-   }, [api_requests.data])
-
-   const handleRequesterSelect = (value: string) => {
-      setQuery((prev) => ({
-         ...prev,
-         search: {
-            ...prev.search,
-            requesterName: value,
-         },
-      }))
-   }
 
    function handleTabChange(activeKey: string) {
       setQuery((prev) => ({
@@ -102,24 +97,12 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
             orderBy: "updatedAt",
          },
       }))
-      // setTab(activeKey as FixRequestStatus)
-      // router.push(`/admin/request?tab=${activeKey}&current=1&pageSize=10`)
    }
 
    return (
       <PageContainer
          title="Danh sách Yêu cầu"
          className="custom-pagecontainer-admin"
-         // breadcrumb={{
-         //    routes: [
-         //       {
-         //          title: "Tài khoản",
-         //       },
-         //       {
-         //          title: "Yêu cầu",
-         //       },
-         //    ],
-         // }}
          tabProps={{
             type: "card",
             animated: {
@@ -184,11 +167,25 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
                   return newValues
                },
             }}
-            onSubmit={(props: QueryType["search"]) => {
+            onSubmit={(
+               props: QueryType["search"] & {
+                  requester?: {
+                     username: string
+                  }
+                  device?: {
+                     area?: {
+                        name: string
+                     }
+                  }
+               },
+            ) => {
+               console.log(props)
                setQuery((prev) => ({
                   ...prev,
                   search: {
                      status: prev.search?.status,
+                     requesterName: props?.requester?.username,
+                     areaId: props?.device?.area?.name,
                      ...props,
                   },
                }))
@@ -260,7 +257,7 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
                {
                   title: "STT",
                   valueType: "indexBorder",
-                  width: 40,
+                  width: 50,
                   align: "center",
                   hideInSearch: true,
                   fixed: "left",
@@ -328,6 +325,7 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
                   title: "Đã xem",
                   dataIndex: ["is_seen"],
                   valueType: "select",
+                  width: 100,
                   valueEnum: {
                      true: { text: "Đã xem" },
                      false: { text: "Chưa xem" },
@@ -397,28 +395,29 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
                   title: "Khu vực",
                   dataIndex: ["device", "area", "name"],
                   width: 100,
+                  valueType: "select",
+                  valueEnum: api_areas.data?.reduce((acc, area) => {
+                     acc[area.id] = { text: area.name }
+                     return acc
+                  }, {} as any),
                },
                {
                   title: "Người tạo",
                   dataIndex: ["requester", "username"],
                   width: 125,
                   ellipsis: true,
-                  renderFormItem: () => (
-                     <AutoComplete
-                        options={requesterOptions}
-                        onSelect={handleRequesterSelect}
-                        allowClear
-                        placeholder="Nhập dữ liệu"
-                        style={{ width: 270 }}
-                     />
-                  ),
+                  valueType: "select",
+                  valueEnum: api_head_departments.data?.reduce((acc, user) => {
+                     acc[user.username] = { text: user.username }
+                     return acc
+                  }, {} as any),
                },
                {
                   title: "Ngày tạo",
                   dataIndex: "createdAt",
                   width: 200,
                   render: (_, entity) => dayjs(entity.createdAt).format("DD/MM/YYYY HH:mm"),
-                  valueType: "date",
+                  valueType: "dateRange",
                   sorter: true,
                },
                {
@@ -427,7 +426,7 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
                   width: 200,
                   render: (_, entity) => dayjs(entity.updatedAt).format("DD/MM/YYYY HH:mm"),
                   sorter: true,
-                  valueType: "date",
+                  valueType: "dateRange",
                   defaultSortOrder: "descend",
                },
             ]}

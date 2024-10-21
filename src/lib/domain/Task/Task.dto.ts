@@ -29,6 +29,7 @@ export type TaskDto = {
    device_renew: DeviceDto
    last_issues_data: any
    return_spare_part_data: any
+   cancelReason?: string
 }
 
 export const PriorityTagMapper: {

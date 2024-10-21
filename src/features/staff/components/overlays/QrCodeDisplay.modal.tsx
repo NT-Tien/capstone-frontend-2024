@@ -1,8 +1,7 @@
 import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
 import useModalControls from "@/lib/hooks/useModalControls"
-import { InfoCircleOutlined } from "@ant-design/icons"
 import { Wrench } from "@phosphor-icons/react"
-import { Button, Card, Drawer, Empty, QRCode } from "antd"
+import { Button, Checkbox, Drawer, Empty, Form, QRCode, Space } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle, useState } from "react"
 import AlertCard from "@/components/AlertCard"
 
@@ -24,6 +23,7 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
 ) {
    const [qrCode, setQrCode] = useState<string | undefined>(undefined)
    const [spareParts, setSpareParts] = useState<IssueSparePartDto[]>([])
+   const [signed, setSigned] = useState<boolean>(false)
    const { open, handleOpen, handleClose } = useModalControls({
       onOpen: (qrCode: string, issueSpareParts: IssueSparePartDto[]) => {
          setQrCode(qrCode)
@@ -32,6 +32,7 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
       onClose: () => {
          setTimeout(() => {
             setQrCode(undefined)
+            setSigned(false)
             setSpareParts([])
          }, 500)
       },
@@ -58,18 +59,32 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
             open={open}
             onClose={handleClose}
             placement="bottom"
-            height="max-content"
+            height="100%"
             classNames={{
                footer: "p-layout",
             }}
             footer={
-               <Button className="w-full" size="large" type="primary" onClick={handleCompleteSpareParts}>
-                  Hoàn tất
-               </Button>
+               <div>
+                  <div className="mb-3 flex items-start gap-3">
+                     <Checkbox id="sign" checked={signed} onChange={(e) => setSigned(e.target.checked)} />
+                     <label htmlFor="sign" className={"font-bold"}>
+                        Tôi đã ký xác nhận trên thiết bị của chủ kho
+                     </label>
+                  </div>
+                  <Button
+                     disabled={!signed}
+                     className="w-full"
+                     size="large"
+                     type="primary"
+                     onClick={handleCompleteSpareParts}
+                  >
+                     Hoàn tất
+                  </Button>
+               </div>
             }
          >
             {props.description && <AlertCard text={props.description} type="info" className="mb-3" />}
-            <QRCode value={qrCode ?? ""} className="aspect-square h-full w-full" />
+            <QRCode value={qrCode ?? ""} className="aspect-square h-max w-full" />
             <section className="my-layout">
                <h4
                   className="mb-2 text-lg font-medium"

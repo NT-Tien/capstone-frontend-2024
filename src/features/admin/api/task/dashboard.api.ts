@@ -7,7 +7,7 @@ type Request = {
    type: "fix-sp" | "warranty" | "renew" | "all" | "fix-rpl-sp"
    startDate: string
    endDate: string
-   areaId: string
+   areaId?: string
 }
 type Response = {
    [key in TaskStatus | "spare-part-fetched"]: number

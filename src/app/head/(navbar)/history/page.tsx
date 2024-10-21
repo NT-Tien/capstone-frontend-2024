@@ -12,24 +12,19 @@ import HistoryList from "./HistoryList.component"
 import useRequest_AllQuery from "@/features/head-department/queries/Request_All.query"
 import { FilterOutlined, SearchOutlined } from "@ant-design/icons"
 import HeadNavigationDrawer from "@/features/head-department/components/layout/HeadNavigationDrawer"
+import head_department_queries from "@/features/head-department/queries"
 
-function Page() {
-   return (
-      <Suspense fallback={<Spin fullscreen />}>
-         <Component />
-      </Suspense>
-   )
-}
-
-function Component() {
-   const searchParams = useSearchParams()
-   const router = useRouter()
-   const [tab, setTab] = useState<FixRequestStatuses | undefined>(undefined)
+function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } }) {
    const navDrawer = HeadNavigationDrawer.useDrawer()
+   const router = useRouter()
 
-   const { data: requests, isLoading } = useRequest_AllQuery({})
+   const [tab, setTab] = useState<FixRequestStatuses | undefined>(searchParams.status ?? "pending")
 
-   const filteredRequests = tab ? requests?.filter((req) => req.status === tab.toUpperCase()) : requests
+   const api_requests = head_department_queries.request.all({})
+
+   const filteredRequests = tab
+      ? api_requests.data?.filter((req) => req.status === tab.toUpperCase())
+      : api_requests.data
 
    function handleChangeTab(tabKey: FixRequestStatuses) {
       setTab(tabKey as FixRequestStatuses)
@@ -39,23 +34,9 @@ function Component() {
       router.push("/head/history?" + tabURL.toString())
    }
 
-   useEffect(() => {
-      const status = searchParams.get("status")
-
-      if (status) {
-         const allStatuses = Object.values(FixRequestStatus)
-         if (allStatuses.includes(status as FixRequestStatus)) {
-            setTab(status as FixRequestStatuses)
-         }
-         return
-      }
-
-      setTab("pending")
-   }, [searchParams])
-
    const statusCounts = Object.values(FixRequestStatus).reduce(
       (acc, status) => {
-         acc[status] = requests?.filter((req) => req.status === status).length || 0
+         acc[status] = api_requests.data?.filter((req) => req.status === status).length || 0
          return acc
       },
       {} as Record<FixRequestStatus, number>,
@@ -135,7 +116,7 @@ function Component() {
                ),
             )}
          </Select>
-         {isLoading ? (
+         {api_requests.isPending ? (
             <Card>
                <Spin fullscreen />
             </Card>

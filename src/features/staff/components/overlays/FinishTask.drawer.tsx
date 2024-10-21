@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, Descriptions, Divider, Drawer, DrawerProps, Form, Image, Input } from "antd"
+import { Button, Checkbox, Descriptions, Divider, Drawer, DrawerProps, Form, Image, Input } from "antd"
 import AlertCard from "@/components/AlertCard"
 import dayjs from "dayjs"
 import CreateSignatureDrawer, { CreateSignatureDrawerRefType } from "@/components/overlays/CreateSignature.drawer"
@@ -27,6 +27,7 @@ function FinishTaskDrawer(props: Props) {
    const [imageVerification, setImageVerification] = useState<string | undefined>()
    const [signatureVerification, setSignatureVerification] = useState<string | undefined>()
    const [note, setNote] = useState<string>("")
+   const [signed, setSigned] = useState<boolean>(false)
 
    const mutate_uploadImage = useMutation({
       mutationFn: File_Image_Upload,
@@ -59,6 +60,7 @@ function FinishTaskDrawer(props: Props) {
          [IssueStatusEnum.RESOLVED]: 0,
          [IssueStatusEnum.FAILED]: 0,
          [IssueStatusEnum.PENDING]: 0,
+         [IssueStatusEnum.CANCELLED]: 0,
       }
       if (!props.task) return result
 
@@ -81,22 +83,35 @@ function FinishTaskDrawer(props: Props) {
          <Drawer
             title="Hoàn thành tác vụ"
             placement="bottom"
-            height="max-content"
+            height="100%"
             classNames={{
                footer: "p-layout",
             }}
             footer={
-               <Button
-                  block
-                  type="primary"
-                  size="large"
-                  onClick={() =>
-                     handleFinish(props.task?.id ?? "", imageVerification ?? "", signatureVerification ?? "", note)
-                  }
-                  disabled={!imageVerification || !signatureVerification || !props.task}
-               >
-                  Hoàn thành
-               </Button>
+               <div>
+                  <div className="mb-3 flex items-start gap-3">
+                     <Checkbox
+                        id="sign"
+                        checked={signed}
+                        onChange={(e) => setSigned(e.target.checked)}
+                        disabled={!imageVerification || !signatureVerification || !props.task}
+                     />
+                     <label htmlFor="sign" className={"font-bold"}>
+                        Tối muốn hoàn thành tác vụ này
+                     </label>
+                  </div>
+                  <Button
+                     block
+                     type="primary"
+                     size="large"
+                     onClick={() =>
+                        handleFinish(props.task?.id ?? "", imageVerification ?? "", signatureVerification ?? "", note)
+                     }
+                     disabled={!imageVerification || !signatureVerification || !props.task || !signed}
+                  >
+                     Hoàn thành
+                  </Button>
+               </div>
             }
             {...props}
          >

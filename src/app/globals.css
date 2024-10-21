@@ -229,11 +229,12 @@ body {
         padding: 0 !important;
     }
 }
-.ant-list .ant-list-item {
-    display: inline !important;
-}
+
+/*.ant-list .ant-list-item {*/
+/*    display: inline !important;*/
+/*}*/
 /* .ant-pro-checkcard-content {
-    padding: 0 !important;
+    padding: 0 !important;A
   } */
 
 .custom-pagecontainer-admin {

@@ -1,8 +1,11 @@
-import { Drawer, DrawerProps, QRCode } from "antd"
+"use client"
+
+import { Checkbox, Drawer, DrawerProps, QRCode } from "antd"
 import AlertCard from "@/components/AlertCard"
 import Button from "antd/es/button"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
+import { useState } from "react"
 
 type ReturnSparePartDrawerProps = {
    task?: TaskDto
@@ -12,6 +15,7 @@ type ReturnSparePartDrawerProps = {
 type Props = Omit<DrawerProps, "children"> & ReturnSparePartDrawerProps
 
 function ReturnSparePartDrawer(props: Props) {
+   const [signed, setSigned] = useState<boolean>(false)
    return (
       <Drawer
          title="Trả linh kiện"
@@ -19,18 +23,26 @@ function ReturnSparePartDrawer(props: Props) {
             footer: "p-layout",
          }}
          placement="bottom"
-         height="max-content"
+         height="100%"
          footer={
-            <Button block type="primary" size="large" onClick={props.onFinish}>
-               Hoàn tất
-            </Button>
+            <div>
+               <div className="mb-3 flex items-start gap-3">
+                  <Checkbox id="sign" checked={signed} onChange={(e) => setSigned(e.target.checked)} />
+                  <label htmlFor="sign" className={"font-bold"}>
+                     Tôi đã ký xác nhận trên thiết bị của chủ kho
+                  </label>
+               </div>
+               <Button block disabled={!signed} type="primary" size="large" onClick={props.onFinish}>
+                  Hoàn tất
+               </Button>
+            </div>
          }
          {...props}
       >
          <AlertCard text="Vui lòng xuống kho để trả các linh kiện không sử dụng" type="info" className="mb-layout" />
          {props.task && (
             <section>
-               <QRCode value={props.task.id} className="size-full" />
+               <QRCode value={props.task.id} className="aspect-square h-max w-full" />
                <section className="mt-layout">
                   <h3
                      className="mb-1 text-lg font-semibold"

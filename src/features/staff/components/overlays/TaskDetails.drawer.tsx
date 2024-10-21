@@ -250,8 +250,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                         )}
                      </section>
                   </div>
-                  <Divider className="my-layout" />
-                  <div className="rounded-lg border border-gray-300 bg-white p-4 shadow-lg">
+                  <div className="mt-layout rounded-lg border border-gray-300 bg-white p-4 shadow-lg">
                      <section>
                         <h4 className="mb-layout text-lg font-medium">
                            <Gear size={24} weight="duotone" className="mr-1 inline" />

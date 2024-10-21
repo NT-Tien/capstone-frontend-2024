@@ -1,6 +1,6 @@
 import ScannerInputManualDrawer from "@/components/overlays/ScannerInputManual.drawer"
 import useModalControls from "@/lib/hooks/useModalControls"
-import { InfoCircleOutlined, RightOutlined } from "@ant-design/icons"
+import { InfoCircleOutlined, RightOutlined, SendOutlined } from "@ant-design/icons"
 import { Scanner } from "@yudiel/react-qr-scanner"
 import { App, Avatar, Button, Card, Drawer, DrawerProps, Form, Input } from "antd"
 import { forwardRef, ReactNode, useImperativeHandle } from "react"
@@ -64,6 +64,33 @@ const ScannerV2Drawer = forwardRef<ScannerV2DrawerRefType, Props>(function Compo
             placement="bottom"
             height="max-content"
             destroyOnClose
+            classNames={{
+               footer: "p-layout",
+            }}
+            footer={
+               <section>
+                  <Form form={form} layout="horizontal" requiredMark={false}>
+                     <Form.Item
+                        name="deviceId"
+                        label="Nhập thủ công Mã thiết bị"
+                        rules={[
+                           { required: true, message: "ID của thiết bị là bắt buộc" },
+                           {
+                              validator: (_, value) =>
+                                 isUUID(value) ? Promise.resolve() : Promise.reject("ID của thiết bị không hợp lệ"),
+                           },
+                        ]}
+                     >
+                        <Input
+                           placeholder="e.g., e31d662e-05db-4bc4-8bfd-773f56618725"
+                           size="large"
+                           allowClear
+                           suffix={<Button type="primary" onClick={handleFormSubmit} icon={<SendOutlined />}></Button>}
+                        />
+                     </Form.Item>
+                  </Form>
+               </section>
+            }
             {...props.drawerProps}
          >
             <AlertCard type="info" className="mb-3" text={props.alertText ?? "Vui lòng đặt mã QR vào ô bên dưới"} />
@@ -93,43 +120,15 @@ const ScannerV2Drawer = forwardRef<ScannerV2DrawerRefType, Props>(function Compo
                constraints={{}}
                styles={{
                   container: {
-                     width: "100%",
-                     aspectRatio: "1/1",
-                     borderRadius: "1rem !important",
+                     // width: "100%",
+                     // aspectRatio: "1/1",
+                     // borderRadius: "1rem !important",
                   },
                   video: {
-                     borderRadius: "1rem !important",
+                     // borderRadius: "1rem !important",
                   },
                }}
             />
-            <section className="p-4">
-               <Card size="small" hoverable className="mb-4">
-                  <div className="flex items-start gap-2">
-                     <InfoCircleOutlined className="mt-1" />
-                     <div className="text-base">Vui lòng nhập ID của thiết bị nếu bạn không thể quét mã QR</div>
-                  </div>
-               </Card>
-
-               <Form form={form} layout="horizontal">
-                  <Form.Item
-                     name="deviceId"
-                     label="ID của thiết bị"
-                     rules={[
-                        { required: true, message: "ID của thiết bị là bắt buộc" },
-                        {
-                           validator: (_, value) =>
-                              isUUID(value) ? Promise.resolve() : Promise.reject("ID của thiết bị không hợp lệ"),
-                        },
-                     ]}
-                  >
-                     <Input placeholder="e.g., e31d662e-05db-4bc4-8bfd-773f56618725" size="large" allowClear />
-                  </Form.Item>
-               </Form>
-
-               <Button type="primary" onClick={handleFormSubmit} className="w-full" size="large">
-                  Gửi
-               </Button>
-            </section>
          </Drawer>
       </>
    )

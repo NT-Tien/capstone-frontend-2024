@@ -1,38 +1,24 @@
 "use client"
 
-import HeadStaff_Dashboard_Count from "@/features/head-maintenance/api/dashboard/count.api"
-import headstaff_qk from "@/features/head-maintenance/qk"
 import HomeHeader from "@/components/layout/HomeHeader"
 import { FixRequest_StatusData } from "@/lib/domain/Request/RequestStatus.mapper"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
-import {
-   CalendarCheck,
-   CalendarSlash,
-   CheckSquareOffset,
-   HourglassSimpleMedium,
-   Note,
-   NotePencil,
-} from "@phosphor-icons/react"
-import { useQuery } from "@tanstack/react-query"
 import { App, Button, Card, Col, Row, Typography } from "antd"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import CountUp from "react-countup"
-import Cookies from "js-cookie"
 import HeadMaintenanceNavigaionDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
+import head_maintenance_queries from "@/features/head-maintenance/queries"
 
 function Page() {
    const router = useRouter()
    const { notification } = App.useApp()
    const navDrawer = HeadMaintenanceNavigaionDrawer.useDrawer()
+   const api_counts = head_maintenance_queries.dashboard.count({})
 
    const [tab, setTab] = useState("tasks")
-   const api_counts = useQuery({
-      queryKey: headstaff_qk.dashboard.count(),
-      queryFn: () => HeadStaff_Dashboard_Count({}),
-   })
 
    const total = useMemo(() => {
       const data = api_counts.data
@@ -239,7 +225,7 @@ function Page() {
                            // }).icon,
                            route: "requests?status=PENDING",
                            bgColor: "bg-sky-100",
-                           color: "text-neutral-500"
+                           color: "text-neutral-500",
                         },
                         {
                            loading: api_counts.isPending,
@@ -250,7 +236,7 @@ function Page() {
                            // }).icon,
                            route: "requests?status=APPROVED",
                            bgColor: "bg-neutral-50",
-                           color: "text-green-500"
+                           color: "text-green-500",
                         },
                         {
                            loading: api_counts.isPending,
@@ -261,7 +247,7 @@ function Page() {
                            // }).icon,
                            route: "requests?status=IN_PROGRESS",
                            bgColor: "bg-sky-100",
-                           color: "text-blue-500"
+                           color: "text-blue-500",
                         },
                         {
                            loading: api_counts.isPending,
@@ -272,7 +258,7 @@ function Page() {
                            // }).icon,
                            route: "requests?status=REJECTED",
                            bgColor: "bg-neutral-50",
-                           color: "text-red-500"
+                           color: "text-red-500",
                         },
                         {
                            loading: api_counts.isPending,
@@ -283,7 +269,7 @@ function Page() {
                            // }).icon,
                            route: "requests?status=HEAD_CONFIRM",
                            bgColor: "bg-sky-100",
-                           color: "text-purple-500"
+                           color: "text-purple-500",
                         },
                         {
                            loading: api_counts.isPending,
@@ -294,7 +280,7 @@ function Page() {
                            // }).icon,
                            route: "requests?status=CLOSED",
                            bgColor: "bg-neutral-50",
-                           color: "text-green-500"
+                           color: "text-green-500",
                         },
                      ].map(({ loading, count, label, route, bgColor, color }, index) => (
                         <Card

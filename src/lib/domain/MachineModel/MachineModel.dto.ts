@@ -8,7 +8,7 @@ export type MachineModelDto = {
    manufacturer: string
    yearOfProduction: number
    dateOfReceipt: string
-   warrantyTerm: string
+   warrantyTerm?: string
    id: string
    createdAt: string
    updatedAt: string

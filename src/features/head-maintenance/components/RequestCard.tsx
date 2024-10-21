@@ -32,18 +32,19 @@ RequestCard.Large = function RequestCardLarge(props: RequestCard_Large) {
          )}
          onClick={props.onClick}
       >
-         <div className={cn("flex gap-3", props.headerClassName)}>
+         <div className={cn("grid grid-cols-[50px_1fr_85px] gap-3", props.headerClassName)}>
             <Avatar size={48} className={cn(avatarData.color)}>
                {avatarData.content}
             </Avatar>
-            <div className="flex flex-grow flex-col">
+            <div className="flex flex-col">
                <div className="flex items-center justify-between">
                   <div className="text-lg font-medium">{props.title}</div>
-                  <span className="text-xs text-neutral-500">{props.footerRight}</span> {/* Moved getCreatedAt here */}
+                  <span className="text-left text-xs text-neutral-500">{props.footerRight}</span>{" "}
+                  {/* Moved getCreatedAt here */}
                </div>{" "}
                <div className="text-neutral-500">{props.subtitle}</div>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="">
                {props.tag && <div>{props.tag}</div>}
                {/* <Button type="text" size="small" icon={<MoreOutlined />} className="m-0 p-0" /> */}
             </div>

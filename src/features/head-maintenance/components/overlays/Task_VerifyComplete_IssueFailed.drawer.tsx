@@ -1,15 +1,14 @@
 "use client"
 
-import { App, Button, Divider, Drawer, DrawerProps, Dropdown, Image } from "antd"
+import { App, Button, Divider, Drawer, DrawerProps, Image, Tag } from "antd"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { clientEnv } from "@/env"
 import AlertCard from "@/components/AlertCard"
 import { Fragment, useEffect, useMemo, useRef, useState } from "react"
 import { cn } from "@/lib/utils/cn.util"
 import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
-import { CheckCircle, Clock, Dot, Eye, MinusCircle, XCircle } from "@phosphor-icons/react"
+import { CheckCircle, CircleDashed, Clock, Dot, MinusCircle, XCircle } from "@phosphor-icons/react"
 import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
-import { MoreOutlined } from "@ant-design/icons"
 import Issue_CreateDetailsDrawer, {
    CreateSingleIssueDrawerRefType,
 } from "@/features/head-maintenance/components/overlays/Issue_CreateDetails.drawer"
@@ -32,7 +31,6 @@ function Task_VerifyComplete_IssueFailedDrawer(props: Props) {
    const mutate_replaceMany = head_maintenance_mutations.issueSparePart.replaceMany()
 
    const [currentTask, setCurrentTask] = useState<TaskDto | undefined>(props.task)
-   const [updatedIssues, setUpdatedIssues] = useState<string[]>([])
    const [hasUpdatedIssues, setHasUpdatedIssues] = useState<boolean>(false)
 
    async function handleSubmit() {
@@ -41,10 +39,14 @@ function Task_VerifyComplete_IssueFailedDrawer(props: Props) {
          issues: issues.map((issue) => ({
             id: issue.id,
             payload: {
-               task: null,
                description: issue.description,
                fixType: issue.fixType,
-               status: IssueStatusEnum.PENDING,
+               status: issue.status === IssueStatusEnum.CANCELLED ? IssueStatusEnum.CANCELLED : IssueStatusEnum.PENDING,
+               ...(issue.status === IssueStatusEnum.FAILED
+                  ? {
+                       task: null,
+                    }
+                  : {}),
             },
          })),
       })
@@ -58,7 +60,9 @@ function Task_VerifyComplete_IssueFailedDrawer(props: Props) {
    }
 
    const issues = useMemo(() => {
-      return currentTask?.issues.filter((issue) => issue.status === IssueStatusEnum.FAILED)
+      return currentTask?.issues.filter(
+         (issue) => issue.status === IssueStatusEnum.FAILED || issue.status === IssueStatusEnum.CANCELLED,
+      )
    }, [currentTask?.issues])
 
    useEffect(() => {
@@ -134,7 +138,7 @@ function Task_VerifyComplete_IssueFailedDrawer(props: Props) {
                               />
                            </div>
                         )}
-                        <div className="grid cursor-pointer grid-cols-[24px_1fr_24px] gap-4">
+                        <div className="grid cursor-pointer grid-cols-[24px_1fr] gap-4">
                            <div
                               onClick={() =>
                                  props.task &&
@@ -166,6 +170,13 @@ function Task_VerifyComplete_IssueFailedDrawer(props: Props) {
                                     className={IssueStatusEnumTagMapper[issue.status].className}
                                  />
                               )}
+                              {issue.status === IssueStatusEnum.CANCELLED && (
+                                 <CircleDashed
+                                    size={24}
+                                    weight="fill"
+                                    className={IssueStatusEnumTagMapper[issue.status].className}
+                                 />
+                              )}
                            </div>
                            <div
                               className="flex flex-col gap-1"
@@ -178,7 +189,14 @@ function Task_VerifyComplete_IssueFailedDrawer(props: Props) {
                                  })
                               }
                            >
-                              <h4>{issue.typeError.name}</h4>
+                              <header className="flex items-center justify-between gap-3">
+                                 <h4>{issue.typeError.name}</h4>
+                                 {issue.status === IssueStatusEnum.CANCELLED && (
+                                    <Tag color={IssueStatusEnumTagMapper[issue.status].color}>
+                                       {IssueStatusEnumTagMapper[issue.status].text}
+                                    </Tag>
+                                 )}
+                              </header>
                               <div className="flex text-neutral-500">
                                  <div className={cn("flex gap-1", FixTypeTagMapper[issue.fixType].className)}>
                                     {FixTypeTagMapper[issue.fixType].icon}
@@ -191,19 +209,6 @@ function Task_VerifyComplete_IssueFailedDrawer(props: Props) {
                                  </div>
                               </div>
                            </div>
-                           <Dropdown
-                              menu={{
-                                 items: [
-                                    {
-                                       key: "view-task",
-                                       label: "Xem tác vụ",
-                                       icon: <Eye />,
-                                    },
-                                 ],
-                              }}
-                           >
-                              <Button icon={<MoreOutlined />} size="small" type="text" />
-                           </Dropdown>
                         </div>
                      </Fragment>
                   ))}
@@ -225,6 +230,7 @@ function Task_VerifyComplete_IssueFailedDrawer(props: Props) {
             </section>
          </Drawer>
          <Issue_CreateDetailsDrawer
+            showCancel
             onFinish={(result) => {
                setHasUpdatedIssues(true)
                setCurrentTask((prev) => {
@@ -238,6 +244,7 @@ function Task_VerifyComplete_IssueFailedDrawer(props: Props) {
                                  issueSpareParts: result.issueSpareParts,
                                  fixType: result.fixType,
                                  description: result.description,
+                                 ...(result.status ? { status: result.status } : {}),
                               }
                            }
                            return issue
@@ -246,21 +253,6 @@ function Task_VerifyComplete_IssueFailedDrawer(props: Props) {
                   }
                   return prev
                })
-               // mutate_updateIssues.mutate(
-               //    {
-               //       id: result.id,
-               //       payload: {
-               //          task: null,
-               //          fixType: result.fixType,
-               //          description: result.description,
-               //       },
-               //    },
-               //    {
-               //       onSuccess: () => {
-               //
-               //       },
-               //    },
-               // )
             }}
             ref={control_issueCreateDetailsDrawer}
          />

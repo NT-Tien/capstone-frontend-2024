@@ -216,7 +216,7 @@ export default function IssueDetailsDrawer({
                                  ],
                               }}
                            >
-                              <Button size="large" icon={<MoreOutlined />} />
+                              <Button size="large" className="aspect-square" icon={<MoreOutlined />} />
                            </Dropdown>
                         </section>
                      )}

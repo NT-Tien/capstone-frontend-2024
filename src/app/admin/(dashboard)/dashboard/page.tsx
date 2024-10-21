@@ -1,293 +1,293 @@
 "use client"
 
+import { PageContainer } from "@ant-design/pro-components"
+import { Button, Card, Divider, Space, Statistic } from "antd"
+import { FilterOutlined, ReloadOutlined } from "@ant-design/icons"
+import admin_queries from "@/features/admin/queries"
 import { useQuery } from "@tanstack/react-query"
-import { Button, Card, Select, Table, Typography } from "antd"
-import Admin_Devices_OneByAreaId from "../../../../features/admin/api/device/one-byAreaId.api"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import Admin_Requests_Dashboard from "@/features/admin/api/request/dashboard.api"
+import dayjs from "dayjs"
+import Admin_Task_Dashboard from "@/features/admin/api/task/dashboard.api"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import CountUp from "react-countup"
-import { CheckSquareOffset, Note } from "@phosphor-icons/react"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import { useRef, useState } from "react"
+import FilterModal, { FilterModalProps, Query } from "@/app/admin/(dashboard)/dashboard/Filter.modal"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 
-const areaIds = [
-   "13734c3c-5f3b-472e-805f-557c1f08eeb2",
-   "4727b5ec-87a9-4aec-9aef-c56f06258426",
-   "6b2e4394-239d-437e-b5a5-62be14dea23e",
-   "7be024ff-39bb-4ae1-b9a0-996a71e2e966",
-   "3d78678d-1f25-4df7-8a84-6640a7692456",
-]
+function Page() {
+   const control_filterModal = useRef<RefType<FilterModalProps>>(null)
 
-export default function AdminHomePage() {
-   const [selectedTime, setSelectedTime] = useState<number>(1)
-   const router = useRouter()
-   const { data, isLoading } = useQuery({
-      queryKey: ["areaData", selectedTime],
-      queryFn: async () => {
-         const promises = areaIds.map((id) => Admin_Devices_OneByAreaId({ id, time: selectedTime }))
-         return Promise.all(promises)
-      },
-      enabled: selectedTime !== null,
+   const [query, setQuery] = useState<Query>({
+      startDate: dayjs().subtract(30, "days").toISOString(),
+      endDate: dayjs().add(1, "day").toISOString(),
+   })
+   const [tab, setTab] = useState<string | undefined>(undefined)
+
+   const api_requests = useQuery({
+      queryKey: ["admin", "request", "dashboard", tab],
+      queryFn: () =>
+         Admin_Requests_Dashboard({
+            type: "all",
+            startDate: query.startDate,
+            endDate: query.endDate,
+            areaId: tab === "all" ? undefined : tab,
+         }),
    })
 
-   const tableData = data?.map((areaData, index) => ({
-      key: areaIds[index],
-      areaId: areaIds[index],
-      areaNames: `Q${index + 1}`,
-      totalRequests: areaData?.total_requests || 0,
-      totalTasks: areaData?.total_tasks || 0,
-      totalDevices: areaData?.total_devices || 0,
-      requestPending: areaData?.request?.pending_requests || 0,
-      requestOthers:
-         areaData.request.approved_requests +
-            // areaData.request.checked_requests +
-            areaData.request.head_confirm_requests +
-            areaData.request.in_progress_requests || 0,
-      requestCancel:
-         areaData.request.closed_requests +
-            areaData.request.rejected_requests +
-            areaData.request.head_cancel_requests || 0,
-      taskPending: areaData.task.awaiting_fixer + areaData.task.awaiting_spare_spart || 0,
-      taskOthers: areaData.task.assigned + areaData.task.in_progress + areaData.task.head_staff_confirm || 0,
-      taskCancel:
-         areaData.task.cancelled +
-            areaData.task.completed +
-            areaData.task.close_task_request_cancelled +
-            areaData.task.head_staff_confirm_staff_request_cancelled +
-            areaData.task.staff_request_cancelled || 0,
-   }))
+   const api_tasks = useQuery({
+      queryKey: ["admin", "task", "dashboard", tab],
+      queryFn: () =>
+         Admin_Task_Dashboard({
+            type: "all",
+            startDate: query.startDate,
+            endDate: query.endDate,
+            areaId: tab === "all" ? undefined : tab,
+         }),
+   })
 
-   const totalTasks = tableData?.reduce((acc, area) => acc + (area.totalTasks || 0), 0)
-   const totalRequests = tableData?.reduce((acc, area) => acc + (area.totalRequests || 0), 0)
+   const api_areas = admin_queries.area.all(
+      {},
+      {
+         select: (data) => {
+            return data.sort((a, b) => a.name.localeCompare(b.name))
+         },
+      },
+   )
 
    return (
-      <div className="mt-5">
-         <div className="mb-4 flex justify-end">
-            <Select
-               defaultValue={selectedTime}
-               style={{ width: 120 }}
-               onChange={(value) => setSelectedTime(Number(value))}
-            >
-               <Select.Option value={1}>1 Tuần</Select.Option>
-               <Select.Option value={2}>1 Tháng</Select.Option>
-               <Select.Option value={3}>1 Năm</Select.Option>
-            </Select>
-         </div>
-         <div className="grid grid-cols-2 gap-12">
-            <Card
-               loading={isLoading}
-               className={`bourder-neutral-300 mt-5 flex h-24 items-center justify-between rounded-lg border-2 p-0 text-center shadow-md`}
-               classNames={{
-                  body: "w-full",
-               }}
-               hoverable
-               onClick={() => router.push("/admin/request")}
-            >
-               <div className="flex w-full items-center justify-between">
-                  <div className="flex flex-col items-start">
-                     <div className="text-xl">Tổng cộng</div>
-                     <div className="flex items-center">
-                        <CountUp
-                           className="flex align-bottom text-3xl font-bold"
-                           end={totalRequests as number}
-                           separator={","}
-                        ></CountUp>
-                        <Typography.Text className="ml-2 flex items-end text-base">yêu cầu</Typography.Text>
-                     </div>
-                  </div>
-                  <div className="flex items-center">
-                     <Note size={45} weight="duotone" color="text-primary-500" />
-                  </div>
-               </div>
+      <PageContainer
+         title="Thống kê"
+         subTitle={`Đang hiện thông tin từ ${dayjs(query.startDate).format("DD/MM/YYYY")} đến ${dayjs(query.endDate).format("DD/MM/YYYY")}`}
+         extra={
+            <Space size="small">
+               <Button
+                  icon={<FilterOutlined />}
+                  onClick={() =>
+                     control_filterModal.current?.handleOpen({
+                        query,
+                        setQuery,
+                     })
+                  }
+               >
+                  Bộ lọc
+               </Button>
+               <Button
+                  icon={<ReloadOutlined />}
+                  onClick={() => {
+                     api_requests.refetch()
+                     api_tasks.refetch()
+                     api_areas.refetch()
+                  }}
+               >
+                  Tải lại
+               </Button>
+            </Space>
+         }
+         tabBarExtraContent={{
+            left: <div className="mr-layout font-bold">Chọn khu vực</div>,
+         }}
+         tabProps={{}}
+         tabActiveKey={tab}
+         onTabChange={(key) => setTab(key)}
+         tabList={[
+            {
+               key: "all",
+               tab: "Tất cả",
+            },
+            ...(api_areas.isSuccess
+               ? api_areas.data.map((area) => ({
+                    key: area.id,
+                    tab: area.name,
+                 }))
+               : []),
+         ]}
+      >
+         <section>
+            <Card>
+               <h2 className="text-lg font-semibold">Thống kê yêu cầu</h2>
             </Card>
-            <Card
-               loading={isLoading}
-               className={`bourder-neutral-300 mt-5 flex h-24 items-center justify-between rounded-lg border-2 p-0 text-center shadow-md`}
-               classNames={{
-                  body: "w-full",
-               }}
-               hoverable
-               onClick={() => router.push("/admin/task")}
-            >
-               <div className="flex w-full items-center justify-between">
-                  <div className="flex flex-col items-start">
-                     <div className="text-xl">Tổng cộng</div>
-                     <div className="flex items-center">
-                        <CountUp
-                           className="flex align-bottom text-3xl font-bold"
-                           end={totalTasks as number}
-                           separator={","}
-                        ></CountUp>
-                        <Typography.Text className="ml-2 flex items-end text-base">tác vụ</Typography.Text>
-                     </div>
-                  </div>
-                  <div className="flex items-center">
-                     <CheckSquareOffset size={45} weight="duotone" />
-                  </div>
-               </div>
+            <div className="mt-3 grid grid-cols-4 gap-3">
+               <Card size="small" className="w-full">
+                  <Statistic
+                     title="Tổng cộng"
+                     value={[
+                        FixRequestStatus.PENDING,
+                        FixRequestStatus.CLOSED,
+                        FixRequestStatus.REJECTED,
+                        FixRequestStatus.APPROVED,
+                        FixRequestStatus.IN_PROGRESS,
+                        FixRequestStatus.HEAD_CONFIRM,
+                        FixRequestStatus.HEAD_CANCEL,
+                     ].reduce((acc, status) => {
+                        return acc + (api_requests.data?.[status] ?? 0)
+                     }, 0)}
+                     suffix={<span className="text-sm">yêu cầu</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full">
+                  <Statistic
+                     title="Chưa xử lý"
+                     value={api_requests.data?.PENDING}
+                     suffix={<span className="text-sm">yêu cầu</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full bg-green-200">
+                  <Statistic
+                     title="Đã xác nhận lỗi"
+                     valueStyle={{
+                        color: "green",
+                     }}
+                     value={api_requests.data?.APPROVED}
+                     suffix={<span className="text-sm">yêu cầu</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full bg-blue-200">
+                  <Statistic
+                     title="Đang sửa chữa"
+                     valueStyle={{
+                        color: "blue",
+                     }}
+                     value={api_requests.data?.IN_PROGRESS}
+                     suffix={<span className="text-sm">yêu cầu</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full bg-yellow-200">
+                  <Statistic
+                     title="Chờ đánh giá"
+                     value={api_requests.data?.HEAD_CONFIRM}
+                     suffix={<span className="text-sm">yêu cầu</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full bg-purple-200">
+                  <Statistic
+                     valueStyle={{
+                        color: "purple",
+                     }}
+                     title="Đã đóng"
+                     value={api_requests.data?.CLOSED}
+                     suffix={<span className="text-sm">yêu cầu</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full bg-red-200">
+                  <Statistic
+                     valueStyle={{
+                        color: "red",
+                     }}
+                     title="Không xử lý"
+                     value={api_requests.data?.REJECTED}
+                     suffix={<span className="text-sm">yêu cầu</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full bg-red-200">
+                  <Statistic
+                     valueStyle={{
+                        color: "red",
+                     }}
+                     title="Trưởng phòng hủy"
+                     value={api_requests.data?.HEAD_CANCEL}
+                     suffix={<span className="text-sm">yêu cầu</span>}
+                  />
+               </Card>
+            </div>
+         </section>
+         <section className="mt-12">
+            <Card>
+               <h2 className="text-lg font-semibold">Thống kê tác vụ</h2>
             </Card>
-         </div>
-         <div
-            style={{
-               borderRadius: "12px",
-               overflow: "hidden",
-               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-               marginTop: "2rem",
-            }}
-         ></div>
-         <div
-            style={{
-               borderRadius: "12px",
-               overflow: "hidden",
-               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-               marginTop: "2rem",
-            }}
-         >
-            <Table
-               bordered
-               columns={[
-                  {
-                     title: <div style={{ textAlign: "center" }}>Khu vực</div>,
-                     dataIndex: "areaNames",
-                     key: "areaNames",
-                     align: "center",
-                  },
-                  {
-                     title: <div style={{ textAlign: "center" }}>Yêu cầu</div>,
-                     children: [
+            <div className="mt-3 grid grid-cols-4 gap-3">
+               <Card size="small" className="w-full">
+                  <Statistic
+                     title="Tổng cộng"
+                     value={[
+                        TaskStatus.AWAITING_SPARE_SPART,
+                        TaskStatus.AWAITING_FIXER,
+                        TaskStatus.ASSIGNED,
+                        TaskStatus.IN_PROGRESS,
+                        TaskStatus.COMPLETED,
+                        TaskStatus.CANCELLED,
+                        TaskStatus.HEAD_STAFF_CONFIRM,
+                     ].reduce((acc, status) => {
+                        return acc + (api_tasks.data?.[status] ?? 0)
+                     }, 0)}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full bg-orange-200">
+                  <Statistic
+                     valueStyle={{
+                        color: "orange",
+                     }}
+                     title="Chờ linh kiện"
+                     value={api_tasks.data?.AWAITING_SPARE_SPART}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full">
+                  <Statistic
+                     title="Chưa phân công"
+                     value={api_tasks.data?.AWAITING_FIXER}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full bg-blue-200">
+                  <Statistic
+                     title="Chưa bắt đầu"
+                     valueStyle={{
+                        color: "blue",
+                     }}
+                     value={api_tasks.data?.ASSIGNED}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full bg-purple-200">
+                  <Statistic
+                     valueStyle={{
+                        color: "purple",
+                     }}
+                     title="Đang thực hiện"
+                     value={api_tasks.data?.IN_PROGRESS}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full bg-amber-200">
+                  <Statistic
+                     valueStyle={
                         {
-                           title: <div style={{ textAlign: "center" }}>Chờ</div>,
-                           dataIndex: "requestPending",
-                           key: "requestPending",
-                           render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
-                        },
-                        {
-                           title: <div style={{ textAlign: "center" }}>Đang xử lý</div>,
-                           dataIndex: "requestOthers",
-                           key: "requestOthers",
-                           render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
-                        },
-                        {
-                           title: <div style={{ textAlign: "center" }}>Đã đóng</div>,
-                           dataIndex: "requestCancel",
-                           key: "requestCancel",
-                           render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
-                        },
-                        {
-                           title: "",
-                           dataIndex: "totalRequests",
-                           key: "totalRequests",
-                           render: (value, record, index) => (
-                              <Button
-                                 type="link"
-                                 size="small"
-                                 onClick={() => router.push(`/admin/dashboard/requests?areaId=${areaIds[index]}`)}
-                                 style={{ textAlign: "center", display: "block" }}
-                              >
-                                 {value}
-                              </Button>
-                           ),
-                        },
-                     ],
-                  },
-                  {
-                     title: <div style={{ textAlign: "center" }}>Tác vụ</div>,
-                     children: [
-                        {
-                           title: <div style={{ textAlign: "center" }}>Chờ</div>,
-                           dataIndex: "taskPending",
-                           key: "taskPending",
-                           render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
-                        },
-                        {
-                           title: <div style={{ textAlign: "center" }}>Đang xử lý</div>,
-                           dataIndex: "taskOthers",
-                           key: "taskOthers",
-                           render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
-                        },
-                        {
-                           title: <div style={{ textAlign: "center" }}>Đã đóng</div>,
-                           dataIndex: "taskCancel",
-                           key: "taskCancel",
-                           render: (value) => <span style={{ textAlign: "center", display: "block" }}>{value}</span>,
-                        },
-                        {
-                           title: "",
-                           dataIndex: "totalTasks",
-                           key: "totalTasks",
-                           render: (value, record, index) => (
-                              <Button
-                                 type="link"
-                                 size="small"
-                                 onClick={() => router.push(`/admin/dashboard/tasks?areaId=${areaIds[index]}`)}
-                                 style={{ textAlign: "center", display: "block" }}
-                              >
-                                 <span style={{ textAlign: "center", display: "block" }}>{value}</span>
-                              </Button>
-                           ),
-                        },
-                     ],
-                  },
-                  {
-                     title: <div style={{ textAlign: "center" }}>Thiết bị</div>,
-                     dataIndex: "totalDevices",
-                     key: "totalDevices",
-                     align: "center",
-                     colSpan: 2,
-                     render: (value, record) => (
-                        <Button type="link" size="small" onClick={() => router.push(`/admin/area/${record.areaId}`)}>
-                           {value}
-                        </Button>
-                     ),
-                  },
-               ]}
-               dataSource={tableData}
-               loading={isLoading}
-               pagination={false}
-               style={{
-                  borderRadius: "12px",
-               }}
-               components={{
-                  table: (props: any) => (
-                     <table
-                        {...props}
-                        style={{
-                           borderRadius: "12px",
-                           overflow: "hidden",
-                           width: "100%",
-                        }}
-                     />
-                  ),
-                  header: {
-                     wrapper: (props: any) => (
-                        <thead
-                           {...props}
-                           style={{
-                              borderTopLeftRadius: "12px",
-                              borderTopRightRadius: "12px",
-                              borderWidth: "3px",
-                              borderStyle: "solid",
-                              borderColor: "#000",
-                           }}
-                        />
-                     ),
-                  },
-                  body: {
-                     wrapper: (props: any) => (
-                        <tbody
-                           {...props}
-                           style={{
-                              borderBottomLeftRadius: "12px",
-                              borderBottomRightRadius: "12px",
-                              borderWidth: "3px",
-                              borderStyle: "solid",
-                              borderColor: "#000",
-                           }}
-                        />
-                     ),
-                  },
-               }}
-            />
-         </div>
-      </div>
+                           // color: "",
+                        }
+                     }
+                     title="Chờ kiểm tra"
+                     value={api_tasks.data?.HEAD_STAFF_CONFIRM}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full bg-red-200">
+                  <Statistic
+                     valueStyle={{
+                        color: "red",
+                     }}
+                     title="Đã hủy"
+                     value={api_tasks.data?.CANCELLED}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+               <Card size="small" className="w-full bg-green-200">
+                  <Statistic
+                     valueStyle={{
+                        color: "green",
+                     }}
+                     title="Đã hoàn thành"
+                     value={api_tasks.data?.COMPLETED}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+            </div>
+         </section>
+         <OverlayControllerWithRef ref={control_filterModal}>
+            <FilterModal />
+         </OverlayControllerWithRef>
+      </PageContainer>
    )
 }
+
+export default Page

@@ -9,7 +9,7 @@ import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
 import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
 import { DeleteOutlined, EditOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons"
-import { CheckCircle, Clock, Dot, Eye, MinusCircle, XCircle } from "@phosphor-icons/react"
+import { CheckCircle, CircleDashed, Clock, Dot, Eye, MinusCircle, Wrench, XCircle } from "@phosphor-icons/react"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
 import { App, Button, ConfigProvider, Divider, Dropdown, Empty, FloatButton, Tabs } from "antd"
 import { Fragment, useMemo, useRef, useState } from "react"
@@ -17,6 +17,10 @@ import Issue_SelectTypeErrorDrawer, {
    CreateIssueModalRefType,
 } from "../../../../../../../features/head-maintenance/components/overlays/Issue_SelectTypeError.drawer"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import IssueDetailsDrawer, {
+   IssueDetailsDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Issue_Details.drawer"
 
 type Props = {
    api_request: UseQueryResult<RequestDto, Error>
@@ -34,6 +38,7 @@ function IssuesListTab(props: Props) {
 
    const IssueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)
    const createIssuesDrawerRef = useRef<CreateIssueModalRefType | null>(null)
+   const control_issueDetailsDrawer = useRef<RefType<IssueDetailsDrawerProps>>(null)
 
    const [tab, setTab] = useState<string>("1")
 
@@ -59,23 +64,30 @@ function IssuesListTab(props: Props) {
       const result: {
          hasTask: IssueDto[]
          noTask: IssueDto[]
+         cancelled: IssueDto[]
       } = {
          hasTask: [],
          noTask: [],
+         cancelled: [],
       }
 
       issues.forEach((issue) => {
-         if (issue.task === null) {
+         if (issue.status === IssueStatusEnum.CANCELLED) {
+            result.cancelled.push(issue)
+         } else if (issue.task === null) {
             result.noTask.push(issue)
          } else {
             result.hasTask.push(issue)
          }
       })
 
-      const statusOrder = {
+      const statusOrder: {
+         [key in IssueStatusEnum]: number
+      } = {
          [IssueStatusEnum.PENDING]: 1,
          [IssueStatusEnum.FAILED]: 2,
          [IssueStatusEnum.RESOLVED]: 3,
+         [IssueStatusEnum.CANCELLED]: 4,
       }
 
       result.hasTask.sort((a, b) => {
@@ -147,9 +159,9 @@ function IssuesListTab(props: Props) {
                items={[
                   {
                      key: "1",
-                     label: <div className="py-1">Chưa có tác vụ {getCount(issuesGrouped?.noTask.length || 0)}</div>,
+                     label: <div className="py-1">Chưa tác vụ {getCount(issuesGrouped?.noTask.length || 0)}</div>,
                      children: (
-                        <div className="px-layout">
+                        <div className="px-layout text-sm">
                            {canMutateIssues && (
                               <FloatButton
                                  type="primary"
@@ -174,13 +186,18 @@ function IssuesListTab(props: Props) {
                                  <div className="flex">
                                     <div
                                        className="flex flex-grow cursor-pointer flex-col gap-1"
-                                       onClick={() =>
-                                          props.api_request.isSuccess &&
-                                          IssueDetailsDrawerRef.current?.openDrawer(
-                                             issue.id,
-                                             props.api_request.data.device.id,
-                                             true,
-                                          )
+                                       onClick={
+                                          () =>
+                                             props.api_request.isSuccess &&
+                                             control_issueDetailsDrawer.current?.handleOpen({
+                                                issueId: issue.id,
+                                                deviceId: props.api_request.data.device.id,
+                                             })
+                                          // IssueDetailsDrawerRef.current?.openDrawer(
+                                          //    issue.id,
+                                          //    props.api_request.data.device.id,
+                                          //    true,
+                                          // )
                                        }
                                     >
                                        <h4>{issue.typeError.name}</h4>
@@ -253,9 +270,9 @@ function IssuesListTab(props: Props) {
                   },
                   {
                      key: "2",
-                     label: <div className="py-1">Đã có tác vụ {getCount(issuesGrouped?.hasTask.length || 0)}</div>,
+                     label: <div className="py-1">Có tác vụ {getCount(issuesGrouped?.hasTask.length || 0)}</div>,
                      children: (
-                        <div className="grid grid-cols-1 px-layout">
+                        <div className="grid grid-cols-1 px-layout text-sm">
                            {issuesGrouped?.hasTask.length === 0 && (
                               <div className="grid place-items-center py-12">
                                  <Empty description="Không tìm thấy lỗi nào" />
@@ -281,11 +298,10 @@ function IssuesListTab(props: Props) {
                                     <div
                                        onClick={() =>
                                           props.api_request.isSuccess &&
-                                          IssueDetailsDrawerRef.current?.openDrawer(
-                                             issue.id,
-                                             props.api_request.data.device.id,
-                                             false,
-                                          )
+                                          control_issueDetailsDrawer.current?.handleOpen({
+                                             issueId: issue.id,
+                                             deviceId: props.api_request.data.device.id,
+                                          })
                                        }
                                     >
                                        {issue.status === IssueStatusEnum.PENDING && (
@@ -314,11 +330,10 @@ function IssuesListTab(props: Props) {
                                        className="flex flex-col gap-1"
                                        onClick={() =>
                                           props.api_request.isSuccess &&
-                                          IssueDetailsDrawerRef.current?.openDrawer(
-                                             issue.id,
-                                             props.api_request.data.device.id,
-                                             false,
-                                          )
+                                          control_issueDetailsDrawer.current?.handleOpen({
+                                             issueId: issue.id,
+                                             deviceId: props.api_request.data.device.id,
+                                          })
                                        }
                                     >
                                        <h4>{issue.typeError.name}</h4>
@@ -331,6 +346,11 @@ function IssuesListTab(props: Props) {
                                           <div className="flex items-center gap-1">
                                              <Clock size={16} />
                                              {issue.typeError.duration} phút
+                                          </div>
+                                          <Dot size={24} />
+                                          <div className="flex items-center gap-1">
+                                             <Wrench size={16} />
+                                             {issue.issueSpareParts?.length ?? 0} linh kiện
                                           </div>
                                        </div>
                                     </div>
@@ -353,9 +373,111 @@ function IssuesListTab(props: Props) {
                         </div>
                      ),
                   },
+                  {
+                     key: "3",
+                     label: <div className="py-1">Đã hủy {getCount(issuesGrouped?.cancelled.length || 0)}</div>,
+                     children: (
+                        <div className="grid grid-cols-1 px-layout text-sm">
+                           {issuesGrouped?.cancelled.length === 0 && (
+                              <div className="grid place-items-center py-12">
+                                 <Empty description="Không tìm thấy lỗi nào" />
+                              </div>
+                           )}
+                           {issuesGrouped?.cancelled.map((issue, index, array) => (
+                              <Fragment key={issue.id}>
+                                 {index !== 0 && (
+                                    <div className="grid grid-cols-[24px_1fr] gap-4">
+                                       {(array[index - 1] === undefined ||
+                                          array[index - 1]?.status === issue.status) && <div></div>}
+                                       <Divider
+                                          className={cn(
+                                             "my-3",
+                                             array[index - 1] !== undefined &&
+                                                array[index - 1]?.status !== issue.status &&
+                                                "col-span-2",
+                                          )}
+                                       />
+                                    </div>
+                                 )}
+                                 <div className="grid cursor-pointer grid-cols-[24px_1fr_24px] gap-4">
+                                    <div
+                                       onClick={() =>
+                                          props.api_request.isSuccess &&
+                                          control_issueDetailsDrawer.current?.handleOpen({
+                                             issueId: issue.id,
+                                             deviceId: props.api_request.data.device.id,
+                                          })
+                                       }
+                                    >
+                                       {issue.status === IssueStatusEnum.PENDING && (
+                                          <MinusCircle
+                                             size={24}
+                                             weight="fill"
+                                             className={IssueStatusEnumTagMapper[issue.status].className}
+                                          />
+                                       )}
+                                       {issue.status === IssueStatusEnum.RESOLVED && (
+                                          <CheckCircle
+                                             size={24}
+                                             weight="fill"
+                                             className={IssueStatusEnumTagMapper[issue.status].className}
+                                          />
+                                       )}
+                                       {issue.status === IssueStatusEnum.FAILED && (
+                                          <XCircle
+                                             size={24}
+                                             weight="fill"
+                                             className={IssueStatusEnumTagMapper[issue.status].className}
+                                          />
+                                       )}
+                                       {issue.status === IssueStatusEnum.CANCELLED && (
+                                          <CircleDashed
+                                             size={24}
+                                             weight="fill"
+                                             className={IssueStatusEnumTagMapper[issue.status].className}
+                                          />
+                                       )}
+                                    </div>
+                                    <div
+                                       className="flex flex-col gap-1"
+                                       onClick={() =>
+                                          props.api_request.isSuccess &&
+                                          control_issueDetailsDrawer.current?.handleOpen({
+                                             issueId: issue.id,
+                                             deviceId: props.api_request.data.device.id,
+                                          })
+                                       }
+                                    >
+                                       <h4>{issue.typeError.name}</h4>
+                                       <div className="flex text-neutral-500">
+                                          <div className={cn("flex gap-1", FixTypeTagMapper[issue.fixType].className)}>
+                                             {FixTypeTagMapper[issue.fixType].icon}
+                                             {FixTypeTagMapper[issue.fixType].text}
+                                          </div>
+                                          <Dot size={24} />
+                                          <div className="flex items-center gap-1">
+                                             <Clock size={16} />
+                                             {issue.typeError.duration} phút
+                                          </div>
+                                          <Dot size={24} />
+                                          <div className="flex items-center gap-1">
+                                             <Wrench size={16} />
+                                             {issue.issueSpareParts?.length ?? 0} linh kiện
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </Fragment>
+                           ))}
+                        </div>
+                     ),
+                  },
                ]}
             />
          </ConfigProvider>
+         <OverlayControllerWithRef ref={control_issueDetailsDrawer}>
+            <IssueDetailsDrawer refetchFn={() => props.api_request.refetch()} />
+         </OverlayControllerWithRef>
          <Issue_ViewDetailsDrawer refetch={props.api_request.refetch} ref={IssueDetailsDrawerRef} />
          <Issue_SelectTypeErrorDrawer onFinish={props.api_request.refetch} ref={createIssuesDrawerRef} />
       </div>

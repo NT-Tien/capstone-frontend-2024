@@ -5,6 +5,7 @@ export enum IssueStatusEnum {
    PENDING = "PENDING",
    FAILED = "FAILED",
    RESOLVED = "RESOLVED",
+   CANCELLED = "CANCELLED",
 }
 
 export const IssueStatusEnumTagMapper: {
@@ -32,5 +33,11 @@ export const IssueStatusEnumTagMapper: {
       color: "green",
       colorInverse: "green-inverse",
       className: "text-green-400",
+   },
+   [IssueStatusEnum.CANCELLED]: {
+      text: "Đã hủy",
+      color: "purple",
+      colorInverse: "purple-inverse",
+      className: "text-purple-400",
    },
 }

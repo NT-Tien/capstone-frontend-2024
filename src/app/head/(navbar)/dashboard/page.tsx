@@ -14,7 +14,7 @@ function Page() {
 
    return (
       <div className="relative">
-         <section className="bg-head_maintenance p-layout pb-20 text-white">
+         <section className="bg-head_department p-layout pb-20 text-white">
             <header className="flex items-center justify-between">
                <Button
                   icon={<MenuOutlined className="text-white" />}
@@ -36,13 +36,14 @@ function Page() {
             <RequestStatisticsCard className="absolute -top-20 left-0 px-layout" />
             <Link href="/head/scan">
                <Button className="mt-layout h-max w-full items-center justify-start rounded-lg bg-blue-500 p-3 text-white">
-                  <QrcodeOutlined className="text-5xl" />
+                  <QrcodeOutlined className="text-4xl" />
                   <div className="flex flex-col items-start">
                      <h2 className="font-semibold">Tạo yêu cầu mới</h2>
-                     <div className="text-sm">Quét QR thiết bị để tạo yêu cầu sửa chữa</div>
+                     <div className="text-sm">Quét QR thiết bị để tạo yêu cầu sửa</div>
                   </div>
                </Button>
             </Link>
+            <section></section>
          </main>
       </div>
    )

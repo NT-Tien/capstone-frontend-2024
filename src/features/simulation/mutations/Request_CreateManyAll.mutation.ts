@@ -53,8 +53,21 @@ export default function useRequest_CreateManyAll(props?: Props) {
                },
             }),
          )
+         const ignoreRequests2 = await queryClient.ensureQueryData(
+            admin_queries.request.all_filterAndSort.queryOptions({
+               page: 1,
+               limit: 5000,
+               token: AuthTokens.Admin,
+               filters: {
+                  status: FixRequestStatus.IN_PROGRESS,
+               },
+            }),
+         )
 
-         const ignoreDevices = new Set(ignoreRequests.list.map((req) => req.device.id))
+         const ignoreDevices = new Set([
+            ...ignoreRequests.list.map((req) => req.device.id),
+            ...ignoreRequests2.list.map((req) => req.device.id),
+         ])
          let availableDevices = allDevices.list.filter(
             (device) =>
                !ignoreDevices.has(device.id) && !!device.positionX && !!device.positionY && !!device.area?.name,

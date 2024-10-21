@@ -5,6 +5,8 @@ import { Html5QrcodeScanner, Html5QrcodeScanType, Html5QrcodeSupportedFormats } 
 
 function Page() {
    useEffect(() => {
+      const height = window.innerHeight
+      const width = window.innerWidth
       const scanner = new Html5QrcodeScanner(
          "scanner",
          {
@@ -15,8 +17,8 @@ function Page() {
             supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
             formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
             videoConstraints: {
-               width: { ideal: 1280 },
-               height: { ideal: 720 },
+               width: { ideal: width },
+               height: { ideal: height },
             },
             fps: 10,
          },

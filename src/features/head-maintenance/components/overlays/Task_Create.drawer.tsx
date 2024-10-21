@@ -18,8 +18,11 @@ import { useMutation, useQueries } from "@tanstack/react-query"
 import { App, Button, Card, Checkbox, Drawer, DrawerProps, Input, Modal, Radio, Switch, Tooltip } from "antd"
 import dayjs from "dayjs"
 import { useEffect, useMemo, useRef, useState } from "react"
-
-type FieldType = {}
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import Issue_DetailsDrawer, {
+   IssueDetailsDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Issue_Details.drawer"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 
 type CreateTaskV2DrawerProps = {
    requestId?: string
@@ -31,7 +34,7 @@ type Props = Omit<DrawerProps, "children"> & CreateTaskV2DrawerProps
 
 function Task_CreateDrawer(props: Props) {
    const { message, modal } = App.useApp()
-   const issueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)
+   const control_issueDetailsDrawer = useRef<RefType<IssueDetailsDrawerProps>>(null)
    const editTaskNameModal = useModalControls()
 
    const [selectedIssueIds, setSelectedIssueIds] = useState<string[]>(props.defaultIssueIds ?? [])
@@ -45,8 +48,12 @@ function Task_CreateDrawer(props: Props) {
          setTaskNameGenerationType("auto")
          setCustomTaskName("")
          setPriority(false)
+      } else {
+         setSelectedIssueIds(props.defaultIssueIds ?? [])
       }
    }, [props.open])
+
+   console.log(selectedIssueIds, props.defaultIssueIds)
 
    const api = useQueries({
       queries: [
@@ -75,11 +82,16 @@ function Task_CreateDrawer(props: Props) {
    }, [api.request.data, api.request.isSuccess, selectedIssueIds])
 
    const sortedIssues = useMemo(() => {
-      return api.request.data?.issues.sort((a, b) => {
-         if (a.task !== null && b.task === null) return 1
-         if (a.task === null && b.task !== null) return -1
-         return 0
-      })
+      return api.request.data?.issues
+         .filter((i) => {
+            const set = new Set([IssueStatusEnum.PENDING])
+            return set.has(i.status)
+         })
+         .sort((a, b) => {
+            if (a.task !== null && b.task === null) return 1
+            if (a.task === null && b.task !== null) return -1
+            return 0
+         })
    }, [api.request.data?.issues])
 
    const totalTime = useMemo(() => {
@@ -115,7 +127,10 @@ function Task_CreateDrawer(props: Props) {
    }
 
    async function handleFormSubmit() {
-      if (!api.request.isSuccess || !totalTime) return
+      if (!api.request.isSuccess || !totalTime || !sortedIssues) return
+
+      const allIssues = new Set(sortedIssues.map((i) => i.id))
+      const filteredIssueIds = selectedIssueIds.filter((i) => allIssues.has(i))
 
       try {
          message.destroy("loading")
@@ -127,7 +142,7 @@ function Task_CreateDrawer(props: Props) {
          const task = await mutations.createTask.mutateAsync({
             name: taskNameGenerationType === "auto" ? generatedTaskName : customTaskName,
             priority: false,
-            issueIDs: selectedIssueIds,
+            issueIDs: filteredIssueIds,
             totalTime: totalTime,
             request: api.request.data.id,
             operator: 0,
@@ -187,6 +202,7 @@ function Task_CreateDrawer(props: Props) {
                         <h5 className="block flex-grow font-medium text-gray-500">Ưu tiên</h5>
                         <Switch
                            className="h-full"
+                           size="small"
                            checked={priority}
                            onChange={setPriority}
                            checkedChildren={<CheckOutlined />}
@@ -316,7 +332,10 @@ function Task_CreateDrawer(props: Props) {
                         )}
                         onClick={() =>
                            api.request.isSuccess &&
-                           issueDetailsDrawerRef.current?.openDrawer(issue.id, api.request.data.device.id, false)
+                           control_issueDetailsDrawer.current?.handleOpen({
+                              issueId: issue.id,
+                              deviceId: api.request.data.device.id,
+                           })
                         }
                      >
                         {/* <RightOutlined /> */}
@@ -332,7 +351,10 @@ function Task_CreateDrawer(props: Props) {
                )
             })}
          </article>
-         <Issue_ViewDetailsDrawer refetch={() => {}} ref={issueDetailsDrawerRef} />
+
+         <OverlayControllerWithRef ref={control_issueDetailsDrawer}>
+            <Issue_DetailsDrawer />
+         </OverlayControllerWithRef>
 
          <Modal
             open={editTaskNameModal.open}
@@ -350,10 +372,7 @@ function Task_CreateDrawer(props: Props) {
                <Card
                   size="small"
                   onClick={() => setTaskNameGenerationType("auto")}
-                  className={cn(
-                     "cursor-pointer",
-                     taskNameGenerationType === "auto" && "border-primary-500 bg-primary-50",
-                  )}
+                  className={cn("cursor-pointer", taskNameGenerationType === "auto" && "r-primary-500 bg-primary-50")}
                >
                   <div className="flex items-start justify-start gap-0">
                      <Radio value="auto"></Radio>

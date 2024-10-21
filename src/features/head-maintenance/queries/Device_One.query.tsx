@@ -3,6 +3,7 @@ import HeadStaff_Device_OneById, {
    type Request,
    type Response,
 } from "@/features/head-maintenance/api/device/one-byId.api"
+import generateQueryNotFoundOptions from "@/lib/utils/generateQueryNotFoundOptions.util"
 
 type Props = Request
 type QueryOptions = UseQueryOptions<Response, Error, Response, (string | Props)[]>
@@ -11,6 +12,7 @@ useDevice_OneQuery.qk = (props: Props) => ["head_maintenance", "device", "one", 
 useDevice_OneQuery.queryOptions = (props: Props): QueryOptions => ({
    queryKey: useDevice_OneQuery.qk(props),
    queryFn: () => HeadStaff_Device_OneById(props),
+   ...generateQueryNotFoundOptions(),
 })
 
 function useDevice_OneQuery(props: Props, queryOptions?: Omit<QueryOptions, "queryFn" | "queryKey">) {

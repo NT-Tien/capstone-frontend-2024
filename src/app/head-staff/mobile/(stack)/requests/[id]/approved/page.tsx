@@ -10,10 +10,8 @@ import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapp
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
-import { Info } from "@phosphor-icons/react"
-import { MoreOutlined } from "@ant-design/icons"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Dropdown, Progress } from "antd"
+import { App } from "antd"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
 import Result from "antd/es/result"
@@ -26,7 +24,7 @@ import { Suspense, useEffect, useMemo, useRef } from "react"
 import TabbedLayout from "./TabbedLayout.component"
 import isApproved from "./is-approved.util"
 import Request_RejectDrawer, {
-   RejectRequestDrawerRefType,
+   Request_RejectDrawerProps,
 } from "../../../../../../../features/head-maintenance/components/overlays/Request_Reject.drawer"
 import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import { cn } from "@/lib/utils/cn.util"
@@ -36,12 +34,13 @@ import Task_ViewDetailsDrawer, {
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import HeadStaff_Task_Create from "@/features/head-maintenance/api/task/create.api"
 import HeadStaff_Task_Update from "@/features/head-maintenance/api/task/update.api"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
    const { modal, notification, message } = App.useApp()
 
-   const rejectRequestRef = useRef<RejectRequestDrawerRefType | null>(null)
+   const control_rejectRequestDrawer = useRef<RefType<Request_RejectDrawerProps> | null>(null)
    const taskDetailsRef = useRef<TaskDetailsDrawerRefType | null>(null)
 
    const api_request = useQuery({
@@ -170,7 +169,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                   size="large"
                   onClick={() => {
                      notification.destroy("head-staff-confirm")
-                     taskDetailsRef.current?.handleOpen(task)
+                     taskDetailsRef.current?.handleOpen(task, params.id)
                   }}
                >
                   Xem tác vụ
@@ -182,7 +181,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       return () => {
          notification.destroy("head-staff-confirm")
       }
-   }, [api_request.data?.tasks, api_request.isSuccess, notification])
+   }, [api_request.data?.tasks, api_request.isSuccess, notification, params.id])
 
    useEffect(() => {
       if (!api_request.isSuccess) return
@@ -200,12 +199,12 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
             content: "Thiết bị đã bảo hành xong. Vui lòng tạo tác vụ để nhận và lắp đặt thiết bị",
             okText: "Xem tác vụ",
             onOk: () => {
-               taskDetailsRef.current?.handleOpen(returnWarrantyTask)
+               taskDetailsRef.current?.handleOpen(returnWarrantyTask, params.id)
             },
             cancelText: "Đóng",
          })
       }
-   }, [api_request.data, api_request.isSuccess, modal])
+   }, [api_request.data, api_request.isSuccess, modal, params.id])
 
    return (
       <div className="relative flex min-h-screen flex-col">
@@ -389,12 +388,13 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                </Suspense>
             </>
          )}
-         <Request_RejectDrawer
-            ref={rejectRequestRef}
-            onSuccess={() => {
-               router.push(`/head-staff/mobile/requests/${params.id}`)
-            }}
-         />
+         <OverlayControllerWithRef ref={control_rejectRequestDrawer}>
+            <Request_RejectDrawer
+               onSuccess={() => {
+                  router.push(`/head-staff/mobile/requests/${params.id}`)
+               }}
+            />
+         </OverlayControllerWithRef>
          <Task_ViewDetailsDrawer
             ref={taskDetailsRef}
             refetchFn={async () => {

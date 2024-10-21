@@ -10,13 +10,17 @@ import AlertCard from "@/components/AlertCard"
 import DesktopScannerDrawer from "@/components/overlays/DesktopScanner.drawer"
 import { PageContainer } from "@ant-design/pro-components"
 import { useMutation, useQueries } from "@tanstack/react-query"
-import { Button, Descriptions, message, App, Table } from "antd"
+import { Button, Descriptions, message, App, Table, Dropdown } from "antd"
 import dayjs from "dayjs"
 import { useState, useRef, useMemo } from "react"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import DualSignatureDrawer, {
    DualSignatureDrawerProps,
 } from "@/features/stockkeeper/components/overlay/DualSignature.drawer"
+import { MoreOutlined } from "@ant-design/icons"
+import SparePart_CannotExportModal, {
+   SparePart_CannotExportModalProps,
+} from "@/features/stockkeeper/components/overlay/SparePart_CannotExport.modal"
 
 function Page({ searchParams }: { searchParams: { taskid?: string } }) {
    const { message } = App.useApp()
@@ -25,6 +29,7 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
 
    const createSignatureDrawerRef = useRef<CreateSignatureDrawerRefType | null>(null)
    const control_dualSignatureDrawer = useRef<RefType<DualSignatureDrawerProps>>(null)
+   const control_sparePartCannotExportModal = useRef<RefType<SparePart_CannotExportModalProps>>(null)
 
    const api = useQueries({
       queries: [
@@ -143,20 +148,37 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                            Hoàn tất lấy linh kiện
                         </Button>,
 
-                        <Button
-                           key="complete-1"
-                           className={cn(
-                              (!scannedResult ||
-                                 isRenewAndCollected ||
-                                 isNotRenew ||
-                                 api.task.data?.status !== TaskStatus.ASSIGNED) &&
-                                 "hidden",
-                           )}
-                           type="primary"
-                           onClick={() => handleOpen1()}
+                        // <Button
+                        //    key="complete-1"
+                        //    className={cn(
+                        //       (!scannedResult ||
+                        //          isRenewAndCollected ||
+                        //          isNotRenew ||
+                        //          api.task.data?.status !== TaskStatus.ASSIGNED) &&
+                        //          "hidden",
+                        //    )}
+                        //    type="primary"
+                        //    onClick={() => handleOpen1()}
+                        // >
+                        //    Quét QR Thiết bị mới
+                        // </Button>,
+                        <Dropdown
+                           key="other"
+                           menu={{
+                              items: [
+                                 {
+                                    label: "Không thể giao linh kiện",
+                                    key: "cannot-export",
+                                    onClick: () =>
+                                       control_sparePartCannotExportModal.current?.handleOpen({
+                                          taskId: scannedResult ?? undefined,
+                                       }),
+                                 },
+                              ],
+                           }}
                         >
-                           Quét QR Thiết bị mới
-                        </Button>,
+                           <Button icon={<MoreOutlined />} />
+                        </Dropdown>,
                      ]}
                      content={
                         <>
@@ -316,6 +338,17 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                                     },
                                  },
                               )
+                           }}
+                        />
+                     </OverlayControllerWithRef>
+                     <OverlayControllerWithRef ref={control_sparePartCannotExportModal}>
+                        <SparePart_CannotExportModal
+                           onSuccess={() => {
+                              control_sparePartCannotExportModal.current?.handleClose()
+                              setTimeout(() => {
+                                 api.task.refetch()
+                                 handleOpen()
+                              }, 250)
                            }}
                         />
                      </OverlayControllerWithRef>

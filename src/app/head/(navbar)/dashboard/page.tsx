@@ -22,7 +22,7 @@ function Page() {
                   onClick={navigationDrawer.handleOpen}
                />
                <h1 className="text-lg font-bold">Trang chủ</h1>
-               <Button icon={<FilterOutlined className="text-white" />} type="text" />
+               {/* <Button icon={<FilterOutlined className="text-white" />} type="text" /> */}
             </header>
             <section className="my-5 flex flex-col items-center justify-center">
                <h2 className="text-base">Tổng số yêu cầu đã tạo</h2>

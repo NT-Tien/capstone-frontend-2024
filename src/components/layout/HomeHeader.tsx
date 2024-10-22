@@ -37,11 +37,11 @@ export default function HomeHeader(props: HeadStaffDashboardHeaderProps) {
                </Col>
                <Col flex="auto">
                   <Row justify="end">
-                     <Typography.Text className="mb-0 text-sm text-neutral-600">Chào buổi sáng</Typography.Text>
+                     <Typography.Text className="mb-0 text-sm" style={{ color: '#FFFFFF' }}>Chào buổi sáng</Typography.Text>
                   </Row>
                   <Row justify="end">
                      {token ? (
-                        <h1 className="mb-0 mt-0 text-lg font-bold text-neutral-600" key="name">
+                        <h1 className="mb-0 mt-0 text-lg font-bold " key="name" style={{ color: '#FFFFFF' }}>
                            {decodeJwt(token).username}
                         </h1>
                      ) : (

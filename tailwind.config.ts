@@ -12,6 +12,9 @@ const config: Config = {
    theme: {
       fontFamily: { sans: ["Poppins"] },
       extend: {
+         width: {
+            "layout-inner": "calc(100vw - var(--std-layout-padding) - var(--std-layout-padding))",
+         },
          backgroundImage: {
             "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
             "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
@@ -36,6 +39,9 @@ const config: Config = {
                900: "var(--primary-900)",
             },
             customLightBlue: "#",
+            head_maintenance: "theme('colors.green.500')",
+            head_department: "theme('colors.blue.500')",
+            staff: "theme('colors.amber.500')",
          },
          padding: {
             base: "1rem",

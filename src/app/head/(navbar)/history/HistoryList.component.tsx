@@ -18,25 +18,7 @@ type Props = {
 
 function HistoryList({ requests }: Props) {
    const router = useRouter()
-   const api_requests = useRequest_AllQuery({})
-
-   if (!api_requests.isSuccess) {
-      if (api_requests.isPending) {
-         return <Skeleton className="mt-layout" active />
-      }
-
-      if (api_requests.isError) {
-         return (
-            <Card className="mt-layout">
-               <Result
-                  title="Có lỗi xảy ra"
-                  subTitle="Vui lòng thử lại sau"
-                  extra={<Button onClick={() => api_requests.refetch()}>Thử lại</Button>}
-               />
-            </Card>
-         )
-      }
-   }
+   
    if (!requests) {
       return <Skeleton className="mt-layout" active />
    }
@@ -87,7 +69,7 @@ function HistoryList({ requests }: Props) {
                            {
                               value: dayjs(item.createdAt).format("DD/MM/YYYY"),
                               icon: <CalendarBlank size={16} weight="duotone" />,
-                              className: "text-blue-500",
+                              className: "text-head_department",
                            },
                            {
                               icon: <User size={16} weight="duotone" />,
@@ -110,18 +92,6 @@ function HistoryList({ requests }: Props) {
          }}
       />
    )
-}
-
-function getCreatedAt(request: RequestDto) {
-   const dateRaw = request.createdAt
-   const date = dayjs(dateRaw).locale("vi")
-   const now = dayjs()
-
-   if (now.isSame(date, "day")) {
-      return date.fromNow()
-   } else {
-      return date.format("DD/MM/YYYY")
-   }
 }
 
 export default HistoryList

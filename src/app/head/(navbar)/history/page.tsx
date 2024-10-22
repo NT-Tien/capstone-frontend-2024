@@ -1,129 +1,207 @@
 "use client"
 
-import PageHeader from "@/components/layout/PageHeader"
 import { FixRequest_StatusData, FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { Card, Input, Select, Spin } from "antd"
-import Image from "next/image"
-import { Suspense, useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { cn } from "@/lib/utils/cn.util"
+import { Button, Card, Input, Spin } from "antd"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 import HistoryList from "./HistoryList.component"
-import useRequest_AllQuery from "@/features/head-department/queries/Request_All.query"
-import { FilterOutlined, SearchOutlined } from "@ant-design/icons"
+import { CloseCircleFilled, FilterOutlined, MenuOutlined, SearchOutlined } from "@ant-design/icons"
 import HeadNavigationDrawer from "@/features/head-department/components/layout/HeadNavigationDrawer"
 import head_department_queries from "@/features/head-department/queries"
 import hd_uris from "@/features/head-department/uri"
+import ClickableArea from "@/components/ClickableArea"
+import { cn } from "@/lib/utils/cn.util"
+import dayjs from "dayjs"
 
 function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } }) {
    const navDrawer = HeadNavigationDrawer.useDrawer()
    const router = useRouter()
 
-   const [tab, setTab] = useState<FixRequestStatuses | undefined>(searchParams.status ?? "pending")
+   const [tab, setTab] = useState<FixRequestStatuses | "all">(searchParams.status ?? "pending")
+   const [search, setSearch] = useState<string>("")
+   const [search_value, setSearch_value] = useState<string>("")
+
+   const containerRef = useRef<HTMLDivElement | null>(null)
+   const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
 
    const api_requests = head_department_queries.request.all({})
 
-   const filteredRequests = tab
-      ? api_requests.data?.filter((req) => req.status === tab.toUpperCase())
-      : api_requests.data
+   const renderList = useMemo(() => {
+      if (!api_requests.isSuccess) return []
+
+      let list = [...api_requests.data]
+
+      list = list.filter((i) => {
+         return (
+            i.requester_note.toLowerCase().includes(search.toLowerCase()) ||
+            i.device.machineModel.name.toLowerCase().includes(search.toLowerCase()) ||
+            i.device.area.name.toLowerCase().includes(search.toLowerCase())
+         )
+      })
+
+      switch (tab) {
+         case "pending": {
+            list = list.filter((i) => i.status === FixRequestStatus.PENDING)
+            break
+         }
+         case "approved":
+         case "in_progress": {
+            list = list.filter(
+               (i) => i.status === FixRequestStatus.IN_PROGRESS || i.status === FixRequestStatus.APPROVED,
+            )
+            break
+         }
+         case "head_confirm": {
+            list = list.filter((i) => i.status === FixRequestStatus.HEAD_CONFIRM)
+            break
+         }
+         case "closed": {
+            list = list.filter((i) => i.status === FixRequestStatus.CLOSED)
+            break
+         }
+         case "head_cancel":
+         case "rejected": {
+            list = list.filter(
+               (i) => i.status === FixRequestStatus.HEAD_CANCEL || i.status === FixRequestStatus.REJECTED,
+            )
+            break
+         }
+      }
+
+      list = list.sort((a, b) => dayjs(a.updatedAt).diff(dayjs(b.updatedAt)))
+
+      return list
+   }, [api_requests.data, api_requests.isSuccess, tab, search])
 
    function handleChangeTab(tabKey: FixRequestStatuses) {
-      setTab(tabKey as FixRequestStatuses)
-
-      const tabURL = new URLSearchParams()
-      tabURL.set("status", tabKey)
-      router.push(hd_uris.navbar.history + "?" + tabURL.toString())
+      const newTab = tabKey === tab ? "all" : tabKey
+      setTab(newTab)
+      router.push(hd_uris.navbar.history + `?status=${newTab}`)
    }
 
-   const statusCounts = Object.values(FixRequestStatus).reduce(
-      (acc, status) => {
-         acc[status] = api_requests.data?.filter((req) => req.status === status).length || 0
-         return acc
-      },
-      {} as Record<FixRequestStatus, number>,
-   )
+   useEffect(() => {
+      function scrollToItem(index: number) {
+         const currentItemRef = itemRefs.current[index]
+         if (containerRef.current && currentItemRef) {
+            const containerWidth = containerRef.current.offsetWidth
+            const itemOffsetLeft = currentItemRef.offsetLeft
+            const itemWidth = currentItemRef.offsetWidth
+
+            const scrollPosition = itemOffsetLeft - containerWidth / 2 + itemWidth / 2
+            containerRef.current.scrollTo({
+               left: scrollPosition,
+               behavior: "smooth",
+            })
+         }
+      }
+
+      switch (tab) {
+         case "pending":
+         case "all":
+            scrollToItem(0)
+            break
+         case "approved":
+         case "in_progress":
+            scrollToItem(1)
+            break
+         case "head_confirm":
+            scrollToItem(2)
+            break
+         case "closed":
+            scrollToItem(3)
+            break
+         case "rejected":
+         case "head_cancel":
+            scrollToItem(4)
+            break
+      }
+   }, [tab])
 
    return (
       <div className="std-layout relative h-full min-h-screen bg-white">
-         <PageHeader
-            title="Lịch sử yêu cầu"
-            className="std-layout-outer relative z-50"
-            icon={PageHeader.NavIcon}
-            handleClickIcon={() => navDrawer.handleOpen()}
-         />
-         <Image
-            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
-            src="/images/requests.jpg"
-            alt="image"
-            width={784}
-            height={100}
-            style={{
-               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-               objectFit: "fill",
-            }}
-         />
+         <div className="std-layout-outer absolute left-0 top-0 h-24 w-full bg-head_department" />
+         <header className="std-layout-outer relative z-50 flex items-center justify-between p-layout">
+            <Button icon={<MenuOutlined className="text-white" />} type="text" onClick={navDrawer.handleOpen} />
+            <h1 className="text-lg font-bold text-white">Lịch sử Yêu cầu</h1>
+            <Button icon={<FilterOutlined className="text-white" />} type="text" />
+         </header>
          <Input
-            type="text"
-            className="relative z-30 mb-2 w-full rounded-full border border-neutral-200 bg-neutral-100 px-4 py-3"
-            placeholder="Tìm kiếm"
-            prefix={<SearchOutlined className="mr-2" />}
-            suffix={<FilterOutlined />}
-         />
-
-         {/* <Segmented
-            className="hide-scrollbar mt-layout w-full overflow-auto"
-            value={tab}
-            onChange={(value) => handleChangeTab(value as FixRequestStatuses)}
-            options={(
-               ["pending", "approved", "in_progress", "head_confirm", "closed", "rejected"] as FixRequestStatuses[]
-            ).map((status, index, array) => ({
-               className: "p-1",
-               value: status,
-               label: (
-                  <div
-                     className={cn(
-                        "flex w-min items-center justify-center gap-3 break-words font-medium",
-                        index === 0 && "ml-layout",
-                        index === array.length - 1 && "mr-layout",
-                     )}
-                  >
-                     {FixRequest_StatusData(status).text} ({statusCounts[status.toUpperCase() as FixRequestStatus] || 0}
-                     )
-                  </div>
-               ),
-            }))}
-         /> */}
-         <Select
-            className="mb-3 mt-2 w-full text-center"
             size="large"
-            value={tab}
-            onChange={(value) => handleChangeTab(value as FixRequestStatuses)}
-         >
-            {(["pending", "approved", "in_progress", "head_confirm", "closed", "rejected"] as FixRequestStatuses[]).map(
-               (status, index, array) => (
-                  <Select.Option key={status} value={status}>
-                     <div
-                        className={cn(
-                           "items-center justify-center gap-3 break-words text-center font-medium",
-                           index === 0 && "text-center",
-                           index === array.length - 1 && "text-center",
-                        )}
-                     >
-                        {FixRequest_StatusData(status).text} (
-                        {statusCounts[status.toUpperCase() as FixRequestStatus] || 0})
-                     </div>
-                  </Select.Option>
-               ),
-            )}
-         </Select>
-         {api_requests.isPending ? (
-            <Card>
-               <Spin fullscreen />
-            </Card>
-         ) : (
-            <HistoryList requests={filteredRequests} />
-         )}
+            placeholder="Tìm kiếm"
+            prefix={<SearchOutlined className="mr-1 text-neutral-500" />}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+         />
+         <div className="std-layout-outer mb-4 mt-2 flex gap-2 overflow-x-auto px-layout" ref={containerRef}>
+            <ClickableArea
+               className={cn(
+                  "border-2 border-neutral-500 px-3 py-1 text-sm text-neutral-500",
+                  tab === "pending" && "bg-neutral-500 text-white",
+               )}
+               onClick={() => handleChangeTab("pending")}
+               ref={(el) => {
+                  itemRefs.current[0] = el
+               }}
+            >
+               Chưa xử lý
+               {tab === "pending" && <CloseCircleFilled />}
+            </ClickableArea>
+            <ClickableArea
+               className={cn(
+                  "border-2 border-blue-500 px-3 py-1 text-sm text-blue-500",
+                  (tab === "in_progress" || tab === "approved") && "bg-blue-500 text-white",
+               )}
+               onClick={() => handleChangeTab("in_progress")}
+               ref={(el) => {
+                  itemRefs.current[1] = el
+               }}
+            >
+               Đang thực hiện
+               {(tab === "in_progress" || tab === "approved") && <CloseCircleFilled />}
+            </ClickableArea>
+            <ClickableArea
+               className={cn(
+                  "border-2 border-yellow-500 px-3 py-1 text-sm text-yellow-800",
+                  tab === "head_confirm" && "bg-yellow-500 text-white",
+               )}
+               onClick={() => handleChangeTab("head_confirm")}
+               ref={(el) => {
+                  itemRefs.current[2] = el
+               }}
+            >
+               Chờ xác nhận
+               {tab === "head_confirm" && <CloseCircleFilled />}
+            </ClickableArea>
+            <ClickableArea
+               className={cn(
+                  "border-2 border-purple-500 px-3 py-1 text-sm text-purple-500",
+                  tab === "closed" && "bg-purple-500 text-white",
+               )}
+               onClick={() => handleChangeTab("closed")}
+               ref={(el) => {
+                  itemRefs.current[3] = el
+               }}
+            >
+               Đã đóng
+               {tab === "closed" && <CloseCircleFilled />}
+            </ClickableArea>
+            <ClickableArea
+               className={cn(
+                  "border-2 border-red-500 px-3 py-1 text-sm text-red-500",
+                  (tab === "rejected" || tab === "head_cancel") && "bg-red-500 text-white",
+               )}
+               onClick={() => handleChangeTab("rejected")}
+               ref={(el) => {
+                  itemRefs.current[4] = el
+               }}
+            >
+               Đã hủy
+               {(tab === "rejected" || tab === "head_cancel") && <CloseCircleFilled />}
+            </ClickableArea>
+         </div>
+
+         <HistoryList key={tab} requests={renderList} />
       </div>
    )
 }

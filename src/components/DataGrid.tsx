@@ -37,7 +37,7 @@ function DataGrid(props: Props) {
    }, [no_rows, props.cols, props.items])
 
    return (
-      <div className={cn("bg-head_maintenance flex flex-col gap-2", props.className)}>
+      <div className={cn("flex flex-col gap-2", props.className)}>
          {new Array(no_rows).fill(null).map((_, row) => (
             <Space
                key={`row_${row}`}

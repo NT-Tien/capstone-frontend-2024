@@ -32,7 +32,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
 
       const tabURL = new URLSearchParams()
       tabURL.set("status", tabKey)
-      router.push(hd_uris.navbar.history + tabURL.toString())
+      router.push(hd_uris.navbar.history + "?" + tabURL.toString())
    }
 
    const statusCounts = Object.values(FixRequestStatus).reduce(

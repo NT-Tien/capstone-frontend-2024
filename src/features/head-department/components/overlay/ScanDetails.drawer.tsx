@@ -1,20 +1,23 @@
 "use client"
 
-import { Button, Card, Descriptions, Drawer, DrawerProps, Empty, Tabs, Tag } from "antd"
+import { Badge, Button, Card, Descriptions, Divider, Drawer, DrawerProps, Empty, Input, List, Space, Tabs } from "antd"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
-import { CloseOutlined } from "@ant-design/icons"
+import { CalendarOutlined, CloseOutlined, MoreOutlined } from "@ant-design/icons"
 import head_department_queries from "@/features/head-department/queries"
 import CreateRequestDrawer, {
    CreateRequestDrawerProps,
 } from "@/features/head-department/components/overlay/CreateRequest.drawer"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import { useMemo, useRef, useState } from "react"
-import Cookies from "js-cookie"
-import { decodeJwt } from "@/lib/domain/User/decodeJwt.util"
-import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { FixRequest_StatusData } from "@/lib/domain/Request/RequestStatus.mapper"
 import dayjs from "dayjs"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import AlertCard from "@/components/AlertCard"
+import UserOutlined from "@ant-design/icons/UserOutlined"
+import { cn } from "@/lib/utils/cn.util"
+import { Article, ClockCounterClockwise, Devices, Info, MapPinArea, VectorTwo } from "@phosphor-icons/react"
+import { UseQueryResult } from "@tanstack/react-query"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
 
 type ScanDetailsDrawerProps = {
    device?: DeviceDto
@@ -28,6 +31,12 @@ function ScanDetailsDrawer(props: Props) {
       },
       {
          enabled: !!props.device,
+         select: (data) => {
+            return {
+               ...data,
+               requests: data.requests.sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt))),
+            }
+         },
       },
    )
    const [tab, setTab] = useState<string>("device-details")
@@ -42,15 +51,20 @@ function ScanDetailsDrawer(props: Props) {
 
    const control_createRequestDrawer = useRef<RefType<CreateRequestDrawerProps>>(null)
 
+   useEffect(() => {
+      setTab("device-details")
+   }, [])
+
    return (
       <>
          <Drawer
             closeIcon={false}
             title={
                <div className="flex flex-col">
-                  <header className="flex items-center gap-1">
+                  <header className="flex items-center justify-between gap-1">
                      <Button type="text" icon={<CloseOutlined />} onClick={props.onClose}></Button>
                      <h1>Kết quả quét QR</h1>
+                     <Button type="text" icon={<MoreOutlined />}></Button>
                   </header>
                   <Tabs
                      className="test-tabs tabs-no-spacing mt-2 font-normal"
@@ -59,11 +73,22 @@ function ScanDetailsDrawer(props: Props) {
                      onChange={(key) => setTab(key)}
                      items={[
                         {
-                           label: "Thông tin thiết bị",
+                           label: (
+                              <div className="flex items-center justify-center gap-2 text-sm">
+                                 <Info size={18} />
+                                 Chi tiết
+                              </div>
+                           ),
                            key: "device-details",
                         },
                         {
-                           label: `Lịch sử sửa chữa (${api_deviceHistory.data?.requests.length ?? "-"})`,
+                           label: (
+                              <div className="flex items-center justify-center gap-2 text-sm">
+                                 <ClockCounterClockwise size={18} />
+                                 Lịch sử
+                                 <Badge count={api_deviceHistory.data?.requests.length} size="small" />
+                              </div>
+                           ),
                            key: "repair-history",
                         },
                      ]}
@@ -106,61 +131,94 @@ function ScanDetailsDrawer(props: Props) {
                         justifyContent: "end",
                      }}
                      colon={false}
+                     size="small"
                      items={[
                         {
-                           label: "Mẫu máy",
+                           label: (
+                              <div className="flex items-center gap-2">
+                                 <Devices size={18} weight="duotone" />
+                                 Mẫu máy
+                              </div>
+                           ),
                            children: props.device?.machineModel.name,
                         },
                         {
-                           label: "Khu vực",
+                           label: (
+                              <div className="flex items-center gap-2">
+                                 <MapPinArea size={18} weight="duotone" />
+                                 Khu vực
+                              </div>
+                           ),
                            children: props.device?.area.name,
                         },
                         {
-                           label: "Vị trí (x, y)",
-                           children: `${props.device?.positionX}, ${props.device?.positionY}`,
+                           label: (
+                              <div className="flex items-center gap-2">
+                                 <VectorTwo size={18} weight="duotone" />
+                                 Vị trí
+                              </div>
+                           ),
+                           children: `${props.device?.positionX} x ${props.device?.positionY}`,
                         },
                         {
-                           label: "Mô tả",
+                           label: (
+                              <div className="flex items-center gap-2">
+                                 <Article size={18} weight="duotone" />
+                                 Mô tả
+                              </div>
+                           ),
                            children: props.device?.description,
                         },
                      ]}
                   />
-                  <section className="mt-6">
-                     <header className="flex items-center justify-between">
-                        <h2 className="text-lg font-semibold">Yêu cầu gần đây</h2>
+                  <Divider className="my-4" />
+                  <section className="">
+                     <header className="flex items-center justify-center">
+                        <h2 className="text-center text-base font-semibold">Yêu cầu gần đây</h2>
                      </header>
-                     <section className="mt-2">
+                     <section>
                         {api_deviceHistory.data?.requests.length === 0 ? (
                            <Card>
                               <Empty description="Không có yêu cầu nào" />
                            </Card>
                         ) : (
                            <div className="flex flex-col gap-1">
-                              {api_deviceHistory.data?.requests
-                                 .sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))
-                                 .slice(0, 3)
-                                 .map((req) => (
-                                    <>
-                                       <Card size="small">
-                                          <div className="flex flex-col gap-2">
-                                             <div className="flex items-center justify-between">
-                                                <span className="w-64 truncate text-base font-semibold">
-                                                   {req.requester.username}
-                                                </span>
-                                                <Tag color={FixRequest_StatusMapper(req).colorInverse} className="m-0">
-                                                   {FixRequest_StatusMapper(req).text}
-                                                </Tag>
-                                             </div>
-                                             <div className="flex justify-between font-normal text-neutral-400">
-                                                {req.requester_note}
-                                             </div>
-                                             <span className="text-xs text-neutral-600">
-                                                {dayjs(req.createdAt).add(7, "hours").format("DD-MM-YYYY HH:mm")}
-                                             </span>
-                                          </div>
-                                       </Card>
-                                    </>
-                                 ))}
+                              <List
+                                 dataSource={api_deviceHistory.data?.requests.slice(0, 3)}
+                                 renderItem={(item) => (
+                                    <List.Item className="items-start gap-2">
+                                       <List.Item.Meta
+                                          title={<div className="truncate">{item.requester_note}</div>}
+                                          description={
+                                             <Space
+                                                className="text-xs"
+                                                size="small"
+                                                wrap
+                                                split={<Divider type="vertical" className="mx-0" />}
+                                             >
+                                                <div
+                                                   className={cn(
+                                                      "flex items-center gap-1",
+                                                      FixRequest_StatusData(item.status.toLowerCase() as any).className,
+                                                   )}
+                                                >
+                                                   {FixRequest_StatusData(item.status.toLowerCase() as any).icon}
+                                                   {FixRequest_StatusData(item.status.toLowerCase() as any).text}
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                   <UserOutlined />
+                                                   {item.requester.username}
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                   <CalendarOutlined />
+                                                   {dayjs(item.createdAt).format("DD/MM/YYYY")}
+                                                </div>
+                                             </Space>
+                                          }
+                                       />
+                                    </List.Item>
+                                 )}
+                              />
                               {api_deviceHistory.isSuccess && api_deviceHistory.data?.requests.length > 3 && (
                                  <Button block type="dashed" onClick={() => setTab("repair-history")}>
                                     Xem tất cả
@@ -172,34 +230,85 @@ function ScanDetailsDrawer(props: Props) {
                   </section>
                </div>
             )}
-            {tab === "repair-history" && (
-               <div>
-                  {api_deviceHistory.data?.requests.map((req) => (
-                     <>
-                        <Card size="small">
-                           <div className="flex flex-col gap-2">
-                              <div className="flex items-center justify-between">
-                                 <span className="w-64 truncate text-base font-semibold">{req.requester.username}</span>
-                                 <Tag color={FixRequest_StatusMapper(req).colorInverse} className="m-0">
-                                    {FixRequest_StatusMapper(req).text}
-                                 </Tag>
-                              </div>
-                              <div className="flex justify-between font-normal text-neutral-400">
-                                 {req.requester_note}
-                              </div>
-                              <span className="text-xs text-neutral-600">
-                                 {dayjs(req.createdAt).add(7, "hours").format("DD-MM-YYYY HH:mm")}
-                              </span>
-                           </div>
-                        </Card>
-                     </>
-                  ))}
-               </div>
-            )}
+            {tab === "repair-history" && <RepairHistoryTab api_deviceHistory={api_deviceHistory} />}
          </Drawer>
          <OverlayControllerWithRef ref={control_createRequestDrawer}>
             <CreateRequestDrawer />
          </OverlayControllerWithRef>
+      </>
+   )
+}
+
+type RepairHistoryTabProps = {
+   api_deviceHistory: UseQueryResult<DeviceDto, Error>
+}
+
+function RepairHistoryTab(props: RepairHistoryTabProps) {
+   const [search, setSearch] = useState<string>("")
+
+   const renderList = useMemo(() => {
+      if (!props.api_deviceHistory.isSuccess) return []
+      if (!search) return props.api_deviceHistory.data?.requests
+      return props.api_deviceHistory.data?.requests.filter((req) => {
+         if (req.requester.username.includes(search)) return true
+         if (req.requester_note.includes(search)) return true
+         if (dayjs(req.createdAt).format("DD/MM/YYYY").includes(search)) return true
+         return false
+      })
+   }, [search, props.api_deviceHistory.data?.requests, props.api_deviceHistory.isSuccess])
+
+   useEffect(() => {
+      setSearch("")
+   }, [])
+
+   return (
+      <>
+         <Input.Search
+            placeholder="Tìm kiếm yêu cầu"
+            className="mb-4"
+            // value={search}
+            // onChange={(e) => setSearch(e.target.value)}
+            onSearch={(value) => {
+               setSearch(value)
+            }}
+         />
+         <List
+            dataSource={renderList}
+            loading={props.api_deviceHistory.isPending}
+            renderItem={(item, index) => (
+               <List.Item className={cn("items-start gap-2", index === 0 && "pt-0")}>
+                  <List.Item.Meta
+                     title={<div className="truncate">{item.requester_note}</div>}
+                     description={
+                        <Space
+                           className="text-xs"
+                           size="small"
+                           wrap
+                           split={<Divider type="vertical" className="mx-0" />}
+                        >
+                           <div
+                              className={cn(
+                                 "flex items-center gap-1",
+                                 FixRequest_StatusData(item.status.toLowerCase() as any).className,
+                              )}
+                           >
+                              {FixRequest_StatusData(item.status.toLowerCase() as any).icon}
+                              {FixRequest_StatusData(item.status.toLowerCase() as any).text}
+                           </div>
+                           <div className="flex items-center gap-1">
+                              <UserOutlined />
+                              {item.requester.username}
+                           </div>
+                           <div className="flex items-center gap-1">
+                              <CalendarOutlined />
+                              {dayjs(item.createdAt).format("DD/MM/YYYY")}
+                           </div>
+                        </Space>
+                     }
+                  />
+               </List.Item>
+            )}
+         />
       </>
    )
 }

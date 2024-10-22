@@ -12,4 +12,5 @@ export type DtoStatus<T, S, O> = {
    conditionFn: (dto: O) => boolean
    icon: ReactNode
    statusEnum: S
+   className?: string
 }

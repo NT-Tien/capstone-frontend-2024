@@ -17,6 +17,9 @@ const config: Config = {
             "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
             head_department:
                "radial-gradient(circle at top left, theme('colors.indigo.400'), theme('colors.blue.500'))",
+            head_maintenance:
+               "radial-gradient(circle at top left, theme('colors.green.400'), theme('colors.green.500'))",
+            staff: "radial-gradient(circle at top left, theme('colors.yellow.400'), theme('colors.amber.500'))",
          },
          colors: {
             primary: {

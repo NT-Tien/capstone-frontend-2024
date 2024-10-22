@@ -1,13 +1,16 @@
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
-import { Button, Card, List, Result, Skeleton, Tag } from "antd"
-import { TruckFilled } from "@ant-design/icons"
+import { Avatar, Button, Card, Divider, List, Result, Skeleton, Space, Tag } from "antd"
+import { RightOutlined, TruckFilled } from "@ant-design/icons"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import useRequest_AllQuery from "@/features/head-department/queries/Request_All.query"
 import RequestCard from "@/features/head-maintenance/components/RequestCard"
 import hd_uris from "@/features/head-department/uri"
+import generateAvatarData from "@/lib/utils/generateAvatarData.util"
+import { Calendar, CalendarBlank, CheckCircle, MapPinArea, Truck, User } from "@phosphor-icons/react"
+import DataGrid from "@/components/DataGrid"
 
 type Props = {
    requests: RequestDto[] | undefined
@@ -52,34 +55,59 @@ function HistoryList({ requests }: Props) {
          split
          className="std-layout-outer"
          dataSource={requests}
-         renderItem={(item, index) => (
-            <List.Item className={cn("w-full", index === 0 && "mt-0")}>
-               <RequestCard.Large
-                  className={cn("w-full px-layout", index % 2 === 0 ? "bg-white" : "bg-gray-100")}
-                  description={item.requester_note}
-                  footerLeft={
-                     <div>
-                        {item.is_warranty && (
-                           <Tag color="orange-inverse">
-                              <TruckFilled /> Bảo hành
-                           </Tag>
-                        )}
-                        {item.status === FixRequestStatus.REJECTED ? (
-                           <div className="w-32 truncate">Lý do: {item.checker_note}</div>
-                        ) : undefined}
-                     </div>
-                  }
-                  footerRight={<div></div>}
-                  tag={<span className="text-xs text-neutral-500">{getCreatedAt(item)}</span>}
-                  subtitle={`${item.requester.username} | ${item?.device?.area?.name}`}
-                  title={item.device.machineModel.name}
-                  onClick={() => {
-                     router.push(hd_uris.stack.history_id(item.id))
-                  }}
-                  footerClassName="mt-1"
-               />
-            </List.Item>
-         )}
+         itemLayout="vertical"
+         renderItem={(item, index) => {
+            const avatarData = generateAvatarData(item.device.machineModel.name)
+            return (
+               <List.Item
+                  className={cn("w-full px-layout", index === 0 && "mt-0", index % 2 === 0 && "bg-neutral-100")}
+                  onClick={() => router.push(hd_uris.stack.history_id(item.id))}
+               >
+                  <List.Item.Meta
+                     className="head_department_history_list mb-4"
+                     avatar={<Avatar className={cn(avatarData.color)}>{avatarData.content}</Avatar>}
+                     title={<div className="truncate text-base">{item.device.machineModel.name}</div>}
+                     description={<div className="truncate text-sm">{item.requester_note}</div>}
+                  ></List.Item.Meta>
+                  <div className="flex items-end">
+                     <DataGrid
+                        className="flex-grow text-xs text-neutral-500"
+                        items={[
+                           {
+                              value: (
+                                 <>
+                                    {item.device.area.name}{" "}
+                                    {item.device.positionX && item.device.positionY
+                                       ? `(${item.device.positionX}, ${item.device.positionY})`
+                                       : ""}
+                                 </>
+                              ),
+                              icon: <MapPinArea size={16} weight="duotone" />,
+                           },
+                           {
+                              value: dayjs(item.createdAt).format("DD/MM/YYYY"),
+                              icon: <CalendarBlank size={16} weight="duotone" />,
+                              className: "text-blue-500",
+                           },
+                           {
+                              icon: <User size={16} weight="duotone" />,
+                              value: item.checker?.username,
+                              hidden: item.status === FixRequestStatus.PENDING,
+                           },
+                           {
+                              icon: <Truck size={16} weight="duotone" />,
+                              value: "Bảo hành",
+                              hidden: !item.is_warranty,
+                              className: "text-orange-500",
+                           },
+                        ]}
+                        cols={2}
+                     />
+                     <RightOutlined className="text-xs text-neutral-500" />
+                  </div>
+               </List.Item>
+            )
+         }}
       />
    )
 }

@@ -53,7 +53,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    const control_requestApproveToFixDrawer = useRef<RefType<Request_ApproveToFixDrawerProps>>(null)
    const control_renewDeviceDrawer = useRef<RefType<RenewDeviceDrawerProps> | null>(null)
 
-   const mutate_updateSeen = head_maintenance_mutations.request.seen()
+   const mutate_updateSeen = head_maintenance_mutations.request.seen({ showMessages: false })
 
    const api_request = head_maintenance_queries.request.one({ id: params.id })
    const api_device = head_maintenance_queries.device.one(

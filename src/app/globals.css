@@ -253,3 +253,9 @@ body {
   margin: 0 !important;
   width: 100% !important; 
 } */
+
+.head_department_history_list {
+    .ant-list-item-meta-title {
+        margin-bottom: 0 !important;
+    }
+}

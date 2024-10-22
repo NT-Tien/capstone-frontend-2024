@@ -34,6 +34,7 @@ export function FixRequest_StatusData(
             conditionFn: (dto) => dto.status === FixRequestStatus.PENDING,
             icon: <Hourglass {...iconProps?.phosphor} />,
             statusEnum: FixRequestStatus.PENDING,
+            className: "text-neutral-500",
          }
       }
       case "head_cancel": {
@@ -47,21 +48,9 @@ export function FixRequest_StatusData(
             conditionFn: (dto) => dto.status === FixRequestStatus.HEAD_CANCEL,
             icon: <XCircle {...iconProps?.phosphor} />,
             statusEnum: FixRequestStatus.HEAD_CANCEL,
+            className: "text-red-500",
          }
       }
-      // case "checked": {
-      //    return {
-      //       index: 1,
-      //       name: "checked",
-      //       description: "Yêu cầu đã được nhân viên kiểm tra",
-      //       text: "Đã kiểm tra",
-      //       colorInverse: "default",
-      //       color: "default",
-      //       conditionFn: (dto) => dto.status === FixRequestStatus.CHECKED,
-      //       icon: <CheckCircleOutlined {...iconProps?.antD} />,
-      //       statusEnum: FixRequestStatus.CHECKED,
-      //    }
-      // }
       case "approved": {
          return {
             index: 1,
@@ -73,6 +62,7 @@ export function FixRequest_StatusData(
             conditionFn: (dto) => dto.status === FixRequestStatus.APPROVED,
             icon: <ThumbsUp {...iconProps?.phosphor} />,
             statusEnum: FixRequestStatus.APPROVED,
+            className: "text-green-500",
          }
       }
       case "rejected": {
@@ -86,6 +76,7 @@ export function FixRequest_StatusData(
             conditionFn: (dto) => dto.status === FixRequestStatus.REJECTED,
             icon: <XCircle {...iconProps?.phosphor} />,
             statusEnum: FixRequestStatus.REJECTED,
+            className: "text-red-500",
          }
       }
       case "in_progress": {
@@ -99,6 +90,7 @@ export function FixRequest_StatusData(
             conditionFn: (dto) => dto.status === FixRequestStatus.IN_PROGRESS,
             icon: <Wrench {...iconProps?.phosphor} />,
             statusEnum: FixRequestStatus.IN_PROGRESS,
+            className: "text-blue-500",
          }
       }
       case "head_confirm": {
@@ -112,6 +104,7 @@ export function FixRequest_StatusData(
             conditionFn: (dto) => dto.status === FixRequestStatus.HEAD_CONFIRM,
             icon: <ThumbsUp {...iconProps?.phosphor} />,
             statusEnum: FixRequestStatus.HEAD_CONFIRM,
+            className: "text-yellow-800",
          }
       }
       case "closed": {
@@ -125,6 +118,7 @@ export function FixRequest_StatusData(
             conditionFn: (dto) => dto.status === FixRequestStatus.CLOSED,
             icon: <CheckSquareOffset {...iconProps?.phosphor} />,
             statusEnum: FixRequestStatus.CLOSED,
+            className: "text-purple-500",
          }
       }
    }

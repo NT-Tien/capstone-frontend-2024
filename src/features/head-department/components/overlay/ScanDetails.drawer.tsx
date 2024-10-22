@@ -141,17 +141,7 @@ function ScanDetailsDrawer(props: Props) {
                                  .slice(0, 3)
                                  .map((req) => (
                                     <>
-                                       <Card
-                                          size="small"
-                                          onClick={() => {
-                                             const jwt = Cookies.get("token")
-                                             if (!jwt) return
-                                             const decoded = decodeJwt(jwt)
-                                             if (decoded.id === req.requester.id) {
-                                                // router.push(`/head/history/${req.id}?return=scan`)
-                                             }
-                                          }}
-                                       >
+                                       <Card size="small">
                                           <div className="flex flex-col gap-2">
                                              <div className="flex items-center justify-between">
                                                 <span className="w-64 truncate text-base font-semibold">
@@ -186,17 +176,7 @@ function ScanDetailsDrawer(props: Props) {
                <div>
                   {api_deviceHistory.data?.requests.map((req) => (
                      <>
-                        <Card
-                           size="small"
-                           onClick={() => {
-                              const jwt = Cookies.get("token")
-                              if (!jwt) return
-                              const decoded = decodeJwt(jwt)
-                              if (decoded.id === req.requester.id) {
-                                 // router.push(`/head/history/${req.id}?return=scan`)
-                              }
-                           }}
-                        >
+                        <Card size="small">
                            <div className="flex flex-col gap-2">
                               <div className="flex items-center justify-between">
                                  <span className="w-64 truncate text-base font-semibold">{req.requester.username}</span>

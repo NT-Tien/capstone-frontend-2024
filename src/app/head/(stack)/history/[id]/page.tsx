@@ -1,27 +1,30 @@
 "use client"
 
 import DataListView from "@/components/DataListView"
-import RootHeader from "@/components/layout/RootHeader"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
-import { DeleteOutlined, LeftOutlined } from "@ant-design/icons"
-import { ProDescriptions } from "@ant-design/pro-components"
+import { DeleteOutlined } from "@ant-design/icons"
 import { MapPin, XCircle } from "@phosphor-icons/react"
 import { Button, Card, Progress, Result, Skeleton, Steps, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import { FixRequest_StatusData, FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
-import FeedbackDrawer from "@/features/head-department/components/overlay/Feedback.drawer"
-import { useMemo } from "react"
+import {
+   FixRequest_StatusData,
+   FixRequest_StatusMapper,
+   FixRequestStatuses,
+} from "@/lib/domain/Request/RequestStatus.mapper"
+import FeedbackDrawer, { FeedbackDrawerProps } from "@/features/head-department/components/overlay/Feedback.drawer"
+import { useMemo, useRef } from "react"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import ModalConfirm from "@/old/ModalConfirm"
 import useRequest_OneByIdQuery from "@/features/head-department/queries/Request_OneById.query"
-import useCancelRequestMutation from "@/features/head-department/mutations/CancelRequest.mutation"
 import PageHeader from "@/components/layout/PageHeader"
 import Image from "next/image"
 import head_department_mutations from "@/features/head-department/mutations"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import hd_uris from "@/features/head-department/uri"
 
-export default function HistoryDetails({
+function Page({
    params,
    searchParams,
 }: {
@@ -29,6 +32,8 @@ export default function HistoryDetails({
    searchParams: { return?: "scan"; viewingHistory?: string }
 }) {
    const router = useRouter()
+
+   const control_feedbackDrawer = useRef<RefType<FeedbackDrawerProps>>(null)
 
    const api_requests = useRequest_OneByIdQuery({ id: params.id })
    const mutate_cancelRequest = head_department_mutations.request.cancelRequest()
@@ -59,7 +64,7 @@ export default function HistoryDetails({
       if (searchParams.viewingHistory === "true") {
          router.back()
       } else {
-         router.push(`/head/history?status=${api_requests.data?.status}`)
+         router.push(`${hd_uris.navbar.history}?status=${api_requests.data?.status}`)
       }
    }
 
@@ -277,19 +282,17 @@ export default function HistoryDetails({
                                                <div>
                                                   {FixRequest_StatusData("head_confirm").description}
                                                   {api_requests.data?.status === FixRequestStatus.HEAD_CONFIRM && (
-                                                     <div>
-                                                        <FeedbackDrawer onSuccess={() => api_requests.refetch()}>
-                                                           {(handleOpen) => (
-                                                              <Button
-                                                                 type="primary"
-                                                                 className="mt-1"
-                                                                 onClick={() => handleOpen(params.id)}
-                                                              >
-                                                                 Đánh giá
-                                                              </Button>
-                                                           )}
-                                                        </FeedbackDrawer>
-                                                     </div>
+                                                     <Button
+                                                        type="primary"
+                                                        className="mt-1"
+                                                        onClick={() =>
+                                                           control_feedbackDrawer.current?.handleOpen({
+                                                              requestId: params.id,
+                                                           })
+                                                        }
+                                                     >
+                                                        Đánh giá
+                                                     </Button>
                                                   )}
                                                </div>
                                             ) : null,
@@ -348,6 +351,13 @@ export default function HistoryDetails({
                )}
             </>
          )}
+         <OverlayControllerWithRef ref={control_feedbackDrawer}>
+            <FeedbackDrawer
+               onSuccess={() => router.push(`${hd_uris.navbar.history}?status=${"closed" as FixRequestStatuses}`)}
+            />
+         </OverlayControllerWithRef>
       </div>
    )
 }
+
+export default Page

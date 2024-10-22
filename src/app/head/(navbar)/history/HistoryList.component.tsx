@@ -7,6 +7,7 @@ import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import useRequest_AllQuery from "@/features/head-department/queries/Request_All.query"
 import RequestCard from "@/features/head-maintenance/components/RequestCard"
+import hd_uris from "@/features/head-department/uri"
 
 type Props = {
    requests: RequestDto[] | undefined
@@ -73,7 +74,7 @@ function HistoryList({ requests }: Props) {
                   subtitle={`${item.requester.username} | ${item?.device?.area?.name}`}
                   title={item.device.machineModel.name}
                   onClick={() => {
-                     router.push(`/head/history/${item.id}`)
+                     router.push(hd_uris.stack.history_id(item.id))
                   }}
                   footerClassName="mt-1"
                />

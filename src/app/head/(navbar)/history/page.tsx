@@ -13,6 +13,7 @@ import useRequest_AllQuery from "@/features/head-department/queries/Request_All.
 import { FilterOutlined, SearchOutlined } from "@ant-design/icons"
 import HeadNavigationDrawer from "@/features/head-department/components/layout/HeadNavigationDrawer"
 import head_department_queries from "@/features/head-department/queries"
+import hd_uris from "@/features/head-department/uri"
 
 function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } }) {
    const navDrawer = HeadNavigationDrawer.useDrawer()
@@ -31,7 +32,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
 
       const tabURL = new URLSearchParams()
       tabURL.set("status", tabKey)
-      router.push("/head/history?" + tabURL.toString())
+      router.push(hd_uris.navbar.history + tabURL.toString())
    }
 
    const statusCounts = Object.values(FixRequestStatus).reduce(

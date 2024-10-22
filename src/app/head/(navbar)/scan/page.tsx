@@ -4,7 +4,6 @@ import { isUUID } from "@/lib/utils/isUUID.util"
 import { InfoCircleOutlined } from "@ant-design/icons"
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
 import { App, Button, Card, Form, Input, Spin } from "antd"
-import { useRouter } from "next/navigation"
 import { useRef } from "react"
 import HeadNavigationDrawer from "@/features/head-department/components/layout/HeadNavigationDrawer"
 import PageHeader from "@/components/layout/PageHeader"
@@ -15,11 +14,9 @@ import ScanDetailsDrawer, {
 } from "@/features/head-department/components/overlay/ScanDetails.drawer"
 import head_department_queries from "@/features/head-department/queries"
 import { useIsFetching, useQueryClient } from "@tanstack/react-query"
-import { BarcodeFormat } from "html5-qrcode/third_party/zxing-js.umd"
 
 export default function ScanPage() {
    const navDrawer = HeadNavigationDrawer.useDrawer()
-   const router = useRouter()
    const { message } = App.useApp()
    const timeoutRef = useRef<NodeJS.Timeout>()
    const [form] = Form.useForm()

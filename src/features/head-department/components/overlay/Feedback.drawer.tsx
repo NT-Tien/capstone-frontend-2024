@@ -1,117 +1,74 @@
-import { ReactNode, useState } from "react"
-import useModalControls from "@/lib/hooks/useModalControls"
-import { Button, Card, Drawer } from "antd"
-import { InfoCircleFilled } from "@ant-design/icons"
-import { ProFormTextArea } from "@ant-design/pro-components"
-import { useRouter } from "next/navigation"
-import { FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
-import head_department_mutations from "@/features/head-department/mutations"
+"use client"
 
-type Props = {
-   onSuccess?: () => void
+import { Button, Drawer, DrawerProps, Input, Select } from "antd"
+import head_department_mutations from "@/features/head-department/mutations"
+import AlertCard from "@/components/AlertCard"
+import Form from "antd/es/form"
+import FeedbackValues from "@/lib/constants/FeedbackValues"
+
+type FieldType = {
+   feedbackSelect: string
+   note?: string
 }
 
-export default function FeedbackDrawer({
-   children,
-   ...props
-}: {
-   children: (handleOpen: (requestId: string) => void) => ReactNode
-} & Props) {
-   const { open, handleOpen, handleClose } = useModalControls({
-      onOpen: (requestId: string) => {
-         setRequestId(requestId)
-      },
-      onClose: () => {
-         setRequestId(undefined)
-      },
-   })
-   const router = useRouter()
+type FeedbackDrawerProps = {
+   onSuccess?: () => void
+   requestId?: string
+}
+type Props = Omit<DrawerProps, "children"> & FeedbackDrawerProps
+
+function FeedbackDrawer(props: Props) {
+   const [form] = Form.useForm<FieldType>()
 
    const mutate_UpdateCloseRequest = head_department_mutations.request.addFeedback()
 
-   const [requestId, setRequestId] = useState<string | undefined>()
-   const [content, setContent] = useState("")
-
-   function handleClick() {
-      if (!requestId) return
-
+   function handleSubmit(values: FieldType, requestId: string) {
       mutate_UpdateCloseRequest.mutate(
          {
             id: requestId,
             payload: {
-               content,
+               content: values.feedbackSelect + (values.note ? `: ${values.note}` : ""),
             },
          },
          {
-            onSuccess: () => {
-               router.push(`/head/history?status=${"closed" satisfies FixRequestStatuses}`)
-            },
+            onSuccess: props.onSuccess,
          },
       )
    }
 
    return (
       <>
-         {children(handleOpen)}
-         <Drawer open={open} onClose={handleClose} title="Xác nhận và Đánh giá" placement="bottom" height="max-content">
-            <Card size="small" className="mb-layout">
-               <InfoCircleFilled className="mr-1" />
-               Vui lòng đánh giá quá trình sửa chữa
-            </Card>
-            {/* <section className="mb-3 flex justify-center"> */}
-            {/* <Col>
-                  <Row className="flex text-3xl font-medium">
-                     <UserOutlined />
-                     <Row className="m-1 font-medium">Đánh giá nhân viên</Row>
-                  </Row>
-                  <Row gutter={[16, 16]} justify="center">
-                     <Col>
-                        <CheckCard
-                           style={{
-                              width: "10rem",
-                              height: "2.5rem",
-                              overflow: "hidden",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              textAlign: "center",
-                           }}
-                        >
-                           Thân thiện, lịch sự
-                        </CheckCard>
-                     </Col>
-                     <Col>
-                        <CheckCard
-                           style={{
-                              width: "10rem",
-                              height: "2.5rem",
-                              overflow: "hidden",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              textAlign: "center",
-                           }}
-                        >
-                           Hỗ trợ nhiệt tình
-                        </CheckCard>
-                     </Col>
-                  </Row>
-               </Col> */}
-            {/* </section> */}
-            <ProFormTextArea
-               label="Đánh giá"
-               fieldProps={{
-                  placeholder: "Nhập đánh giá của bạn",
-                  maxLength: 300,
-                  showCount: true,
-                  onChange: (e) => setContent(e.target.value),
-                  value: content,
-               }}
-            />
-            <Button className="mt-2 w-full" size="large" type="primary" onClick={handleClick}>
-               Gửi
-            </Button>
+         <Drawer
+            title="Xác nhận và Đánh giá"
+            placement="bottom"
+            height="50%"
+            footer={
+               <Button block type="primary" size={"large"} onClick={form.submit}>
+                  Gửi
+               </Button>
+            }
+            classNames={{
+               footer: "p-layout",
+            }}
+            {...props}
+         >
+            <AlertCard text="Vui lòng đánh giá quá trình sửa chữa và thêm ghi chú" type="info" className="mb-3" />
+            <Form<FieldType>
+               form={form}
+               layout="vertical"
+               onFinish={(values) => props.requestId && handleSubmit(values, props.requestId)}
+            >
+               <Form.Item<FieldType> name="feedbackSelect" label="Đánh giá" rules={[{ required: true }]}>
+                  <Select options={FeedbackValues} placeholder="Chọn đánh giá" showSearch />
+               </Form.Item>
+               <Form.Item<FieldType> name={"note"} label="Mô tả thêm">
+                  <Input.TextArea maxLength={300} showCount placeholder="Ghi thêm mô tả" />
+               </Form.Item>
+            </Form>
          </Drawer>
       </>
    )
 }
+
+export default FeedbackDrawer
+export type { FeedbackDrawerProps }

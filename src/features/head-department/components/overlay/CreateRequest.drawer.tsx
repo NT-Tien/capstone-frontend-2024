@@ -7,6 +7,7 @@ import RequestErrors from "@/lib/domain/Request/RequestErrors"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import head_department_mutations from "@/features/head-department/mutations"
 import { useRouter } from "next/navigation"
+import hd_uris from "@/features/head-department/uri"
 
 type FieldType = {
    name: string
@@ -32,7 +33,7 @@ function CreateRequestDrawer(props: Props) {
          },
          {
             onSuccess: (result) => {
-               router.push(`/head/history/${result.id}`)
+               router.push(hd_uris.stack.history_id(result.id))
             },
          },
       )

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import NavigationDrawer, { NavigationDrawerProps } from "@/components/layout/NavigationDrawer"
 import { createContext, PropsWithChildren, useContext, useRef } from "react"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import hd_uris from "@/features/head-department/uri"
 
 type ContextType = {
    handleOpen: () => void
@@ -35,19 +36,19 @@ function HeadNavigationDrawer(props: PropsWithChildren) {
                      label: "Trang chủ",
                      icon: <HomeOutlined />,
                      type: "item",
-                     key: "/head/dashboard",
+                     key: hd_uris.navbar.dashboard,
                   },
                   {
                      label: "Tạo yêu cầu",
                      icon: <PlusOutlined />,
                      type: "item",
-                     key: "/head/scan",
+                     key: hd_uris.navbar.scan,
                   },
                   {
                      label: "Lịch sử yêu cầu",
                      icon: <HistoryOutlined />,
                      type: "item",
-                     key: "/head/history",
+                     key: hd_uris.navbar.history,
                   },
                ]}
             />

@@ -86,23 +86,9 @@ function Page() {
 
    return (
       <div>
-         <div>
-            <Image
-               className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
-               src="/images/background5.jpg"
-               alt="image"
-               width={784}
-               height={100}
-               style={{
-                  WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-                  maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-                  objectFit: "fill",
-               }}
-            />
-            <div className="std-layout">
+            <div className="std-layout bg-head_maintenance">
                <HomeHeader className="std-layout-inner pb-8 pt-4" onIconClick={navDrawer.handleOpen} />
             </div>
-         </div>
          <div className="std-layout">
             <section className="mt-5 grid grid-cols-2 gap-4">
                <Card
@@ -113,7 +99,6 @@ function Page() {
                >
                   <div className="bottom-4 left-4 flex flex-col gap-2">
                      <Col>
-                        {/* <CheckSquareOffset className="mb-1" size={36} /> */}
                         <Row className="text-xl font-normal">Tổng cộng</Row>
                         <Row className="mt-2">
                            <CountUp className="flex align-bottom text-3xl font-bold" end={total.task} separator={","} />
@@ -130,7 +115,6 @@ function Page() {
                >
                   <div className="bottom-4 left-4 flex flex-col gap-2">
                      <Col>
-                        {/* <Note className="mb-1" size={36} weight="duotone" /> */}
                         <Row className="text-xl font-normal">Tổng cộng</Row>
                         <Row className="mt-2">
                            <CountUp className="text-3xl font-bold" end={total.request} separator={","} />
@@ -148,7 +132,6 @@ function Page() {
                            loading: api_counts.isPending,
                            count: api_counts.data?.awaitingSparePartTasks,
                            label: TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].text,
-                           // icon: <CalendarSlash size={36} weight="duotone" className="text-red-500" />,
                            route: "tasks",
                            bgColor: "bg-sky-100",
                            color: "text-yellow-500",
@@ -157,7 +140,6 @@ function Page() {
                            loading: api_counts.isPending,
                            count: api_counts.data?.awaitingFixerTasks,
                            label: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text,
-                           // icon: <CalendarSlash size={36} weight="duotone" className="text-red-500" />,
                            route: "tasks",
                            bgColor: "bg-neutral-50",
                            color: "text-red-500",
@@ -166,7 +148,6 @@ function Page() {
                            loading: api_counts.isPending,
                            count: api_counts.data?.assignedTasks,
                            label: TaskStatusTagMapper[TaskStatus.ASSIGNED].text,
-                           // icon: <CalendarCheck size={36} weight="duotone" className="text-blue-500" />,
                            route: "tasks",
                            bgColor: "bg-sky-100",
                            color: "text-blue-500",
@@ -175,7 +156,6 @@ function Page() {
                            loading: api_counts.isPending,
                            count: api_counts.data?.inProgressTasks,
                            label: TaskStatusTagMapper[TaskStatus.IN_PROGRESS].text,
-                           // icon: <HourglassSimpleMedium size={36} className="text-orange-500" weight="duotone" />,
                            route: "tasks",
                            bgColor: "bg-neutral-50",
                            color: "text-orange-500",
@@ -184,7 +164,6 @@ function Page() {
                            loading: api_counts.isPending,
                            count: api_counts.data?.headStaffConfirmTasks,
                            label: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text,
-                           // icon: <NotePencil size={36} weight="duotone" className="text-purple-500" />,
                            route: "tasks",
                            bgColor: "bg-sky-100",
                            color: "text-purple-500",
@@ -204,9 +183,7 @@ function Page() {
                               </div>
                               <div className={`text-2xl font-bold ${color} `}>
                                  <CountUp end={count ?? 0} separator="," />
-                                 {/* <span className="ml-2 text-xs font-normal text-neutral-500">Tác vụ</span> */}
                               </div>
-                              {/* <div className="flex items-center">{icon}</div> */}
                            </div>
                         </Card>
                      ))}
@@ -220,9 +197,6 @@ function Page() {
                            loading: api_counts.isPending,
                            count: api_counts.data?.pendingRequests,
                            label: FixRequest_StatusData("pending").text,
-                           // icon: FixRequest_StatusData("pending", {
-                           //    phosphor: { size: 36, weight: "duotone", className: "text-neutral-500" },
-                           // }).icon,
                            route: "requests?status=PENDING",
                            bgColor: "bg-sky-100",
                            color: "text-neutral-500",
@@ -231,9 +205,6 @@ function Page() {
                            loading: api_counts.isPending,
                            count: api_counts.data?.approvedRequests,
                            label: FixRequest_StatusData("approved").text,
-                           // icon: FixRequest_StatusData("approved", {
-                           //    phosphor: { size: 36, weight: "duotone", className: "text-green-500" },
-                           // }).icon,
                            route: "requests?status=APPROVED",
                            bgColor: "bg-neutral-50",
                            color: "text-green-500",
@@ -242,9 +213,6 @@ function Page() {
                            loading: api_counts.isPending,
                            count: api_counts.data?.inProgressRequests,
                            label: FixRequest_StatusData("in_progress").text,
-                           // icon: FixRequest_StatusData("in_progress", {
-                           //    phosphor: { size: 36, weight: "duotone", className: "text-blue-500" },
-                           // }).icon,
                            route: "requests?status=IN_PROGRESS",
                            bgColor: "bg-sky-100",
                            color: "text-blue-500",
@@ -253,9 +221,6 @@ function Page() {
                            loading: api_counts.isPending,
                            count: api_counts.data?.rejectedRequests,
                            label: FixRequest_StatusData("rejected").text,
-                           // icon: FixRequest_StatusData("rejected", {
-                           //    phosphor: { size: 36, weight: "duotone", className: "text-red-500" },
-                           // }).icon,
                            route: "requests?status=REJECTED",
                            bgColor: "bg-neutral-50",
                            color: "text-red-500",
@@ -264,9 +229,6 @@ function Page() {
                            loading: api_counts.isPending,
                            count: api_counts.data?.headConfirmRequests,
                            label: FixRequest_StatusData("head_confirm").text,
-                           // icon: FixRequest_StatusData("head_confirm", {
-                           //    phosphor: { size: 36, weight: "duotone", className: "text-purple-500" },
-                           // }).icon,
                            route: "requests?status=HEAD_CONFIRM",
                            bgColor: "bg-sky-100",
                            color: "text-purple-500",
@@ -275,9 +237,6 @@ function Page() {
                            loading: api_counts.isPending,
                            count: api_counts.data?.closedRequests,
                            label: FixRequest_StatusData("closed").text,
-                           // icon: FixRequest_StatusData("closed", {
-                           //    phosphor: { size: 36, weight: "duotone", className: "text-green-500" },
-                           // }).icon,
                            route: "requests?status=CLOSED",
                            bgColor: "bg-neutral-50",
                            color: "text-green-500",
@@ -300,12 +259,8 @@ function Page() {
                               </div>
                               <div className={`text-2xl font-bold ${color} `}>
                                  <CountUp end={count ?? 0} separator="," />
-                                 {/* <span className="ml-2 text-xs font-normal text-neutral-500">Yêu cầu</span> */}
                               </div>
                            </div>
-                           {/* </div> */}
-                           {/* <div className="flex items-center">{icon}</div> */}
-                           {/* </div> */}
                         </Card>
                      ))}
                   </div>

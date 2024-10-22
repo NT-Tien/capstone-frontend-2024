@@ -87,19 +87,7 @@ function StaffDashboard() {
    return (
       <div className="std-layout">
          <div className="std-layout-outer">
-            <Image
-               className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
-               src="/images/background5.jpg"
-               alt="image"
-               width={784}
-               height={100}
-               style={{
-                  WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-                  maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-                  objectFit: "fill",
-               }}
-            />
-            <div className="std-layout">
+            <div className="std-layout bg-staff">
                <HomeHeader className="std-layout-inner pb-8 pt-4" onIconClick={navDrawer.handleOpen} />
             </div>
          </div>

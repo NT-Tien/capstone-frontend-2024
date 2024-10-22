@@ -35,31 +35,23 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
 
    return (
       <div className="std-layout relative h-full min-h-screen bg-white">
-         <PageHeader
-            title="Yêu cầu"
-            className="std-layout-outer relative z-30"
-            icon={PageHeader.NavIcon}
-            handleClickIcon={() => navDrawer.handleOpen()}
-         />
-         <Image
-            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
-            src="/images/requests.jpg"
-            alt="image"
-            width={784}
-            height={100}
-            style={{
-               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-               objectFit: "fill",
-            }}
-         />
-         <Input
-            type="text"
-            className="relative z-30 mb-2 w-full rounded-full border border-neutral-200 bg-neutral-100 px-4 py-3"
-            placeholder="Tìm kiếm"
-            prefix={<SearchOutlined className="mr-2" />}
-            suffix={<FilterOutlined />}
-         />
+         <div className="std-layout-outer bg-head_maintenance">
+            <PageHeader
+               title="Yêu cầu"
+               className="std-layout-outer relative z-30"
+               icon={PageHeader.NavIcon}
+               handleClickIcon={() => navDrawer.handleOpen()}
+            />
+            <div className="mx-5">
+               <Input
+                  type="text"
+                  className="relative z-30 mb-2 w-full rounded-full border border-neutral-200 bg-neutral-100 px-4 py-3"
+                  placeholder="Tìm kiếm"
+                  prefix={<SearchOutlined className="mr-2" />}
+                  suffix={<FilterOutlined />}
+               />
+            </div>
+         </div>
          <Select
             className="mb-3 mt-2 w-full text-center"
             value={tab}

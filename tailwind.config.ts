@@ -18,8 +18,8 @@ const config: Config = {
             head_department:
                "radial-gradient(circle at top left, theme('colors.indigo.400'), theme('colors.blue.500'))",
             head_maintenance:
-               "radial-gradient(circle at top left, theme('colors.green.400'), theme('colors.green.500'))",
-            staff: "radial-gradient(circle at top left, theme('colors.yellow.400'), theme('colors.amber.500'))",
+               "radial-gradient(circle at top left, theme('colors.green.500'), theme('colors.green.900'))",
+            staff: "radial-gradient(circle at top left, theme('colors.yellow.300'), theme('colors.amber.700'))",
          },
          colors: {
             primary: {

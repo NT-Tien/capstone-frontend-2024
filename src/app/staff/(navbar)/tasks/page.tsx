@@ -100,24 +100,12 @@ export default function StaffTasksPage() {
       <TaskDetailsDrawer>
          {(handleOpen) => (
             <div className="relative h-full min-h-screen bg-white">
-               <div className="std-layout">
+               <div className="std-layout bg-staff mb-2">
                   <PageHeader
                      title="Tác vụ"
                      className="std-layout-outer relative z-50"
                      icon={PageHeader.NavIcon}
                      handleClickIcon={navDrawer.handleOpen}
-                  />
-                  <Image
-                     className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
-                     src="/images/requests.jpg"
-                     alt="image"
-                     width={784}
-                     height={100}
-                     style={{
-                        WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-                        maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-                        objectFit: "fill",
-                     }}
                   />
                </div>
                <div className="ml-2 mr-2">
@@ -132,25 +120,6 @@ export default function StaffTasksPage() {
                         />
                      </section>
                   )}
-                  {/* <Segmented
-                     className="hide-scrollbar mb-3 w-full overflow-auto"
-                     options={[
-                        {
-                           label: <span>Hôm nay ({tasks.today_priority.length + tasks.today_normal.length})</span>,
-                           value: "today",
-                        },
-                        {
-                           label: <span>Tương lai ({tasks.today_priority.length + tasks.today_normal.length})</span>,
-                           value: "others",
-                        },
-                        {
-                           label: <span>Đang kiểm tra ({tasks.checking.length})</span>,
-                           value: "checking",
-                        },
-                     ]}
-                     value={tab}
-                     onChange={(val) => setTab(val)}
-                  /> */}
                   <Select
                      className="mb-3 mt-2 w-full text-center"
                      size="large"

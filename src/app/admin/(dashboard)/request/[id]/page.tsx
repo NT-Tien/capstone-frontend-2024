@@ -1,26 +1,34 @@
 "use client"
 
 import { PageContainer, ProDescriptions } from "@ant-design/pro-components"
-import { Collapse, List, Progress, Space, Steps, Tag, Tooltip } from "antd"
+import { Collapse, List, Progress, Space, Steps, Tag, Tooltip, Typography } from "antd"
 import admin_queries from "@/features/admin/queries"
 import {
    FixRequest_StatusData,
    FixRequest_StatusMapper,
    FixRequestStatuses,
 } from "@/lib/domain/Request/RequestStatus.mapper"
-import { DownOutlined, LeftOutlined, QrcodeOutlined, RightOutlined, RobotOutlined, UpOutlined } from "@ant-design/icons"
+import {
+   DownOutlined,
+   LeftOutlined,
+   QrcodeOutlined,
+   RightOutlined,
+   RobotOutlined,
+   TruckFilled,
+   UpOutlined,
+} from "@ant-design/icons"
 import Link from "next/link"
 import Card from "antd/es/card"
 import Button from "antd/es/button"
 import QrCodeV2Modal, { QrCodeV2ModalProps } from "@/features/admin/components/QrCodeV2.modal"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import { useRef, useState, useMemo } from "react"
+import { useRef, useState, useMemo, useEffect } from "react"
 import dayjs from "dayjs"
 import ProList from "@ant-design/pro-list/lib"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import IssueDetailsModal, { IssueDetailsModalProps } from "@/features/admin/components/IssueDetails.modal"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
-import { TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { useRouter } from "next/navigation"
 import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
 import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
@@ -28,10 +36,37 @@ import { cn } from "@/lib/utils/cn.util"
 import DeviceDetailsSection from "@/features/admin/components/sections/DeviceDetails.section"
 import IssuesListSection from "@/features/admin/components/sections/IssuesList.section"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { Drawer, DrawerProps } from "antd"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { useQuery } from "@tanstack/react-query"
+import Admin_Request_OneById from "@/features/admin/api/request/one.api"
+import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
 
 const { Panel } = Collapse
-
-function Page({ params }: { params: { id: string } }) {
+type QueryState = {
+   page: number
+   limit: number
+   search: {
+      status?: any
+      priority?: boolean
+      name?: string
+      fixerDate?: string
+      createdAt?: string
+      updatedAt?: string
+      is_warranty?: string
+      fixerName?: string
+   }
+   order: {
+      order?: "ASC" | "DESC"
+      orderBy?: string
+   }
+}
+type Props = {
+   issues?: IssueDto[]
+   isLoading?: boolean
+}
+function Page({ params }: { params: { id: string } }, { issues, isLoading }: Props) {
    const router = useRouter()
 
    const [deviceHistory_page, setDeviceHistory_page] = useState(1)
@@ -46,6 +81,81 @@ function Page({ params }: { params: { id: string } }) {
          enabled: api_request.isSuccess && api_request.data?.device.id !== undefined,
       },
    )
+   const [query, setQuery] = useState<QueryState>({
+      page: 1,
+      limit: 10,
+      search: {
+         fixerName: undefined,
+      },
+      order: {
+         order: "DESC",
+         orderBy: "updatedAt",
+      },
+   })
+   const api_tasks = admin_queries.task.all_filterAndSort
+   // const api_tasks = admin_queries.task.all_filterAndSort({
+   //    page: query.page,
+   //    limit: query.limit,
+   //    search: {
+   //       status: query.search?.status === "none" ? undefined : query.search?.status,
+   //       priority: query.search?.priority,
+   //       name: query.search?.name,
+   //       fixerDate: query.search?.fixerDate,
+   //       is_warranty: query.search?.is_warranty,
+   //       fixerName: query.search.name,
+   //    },
+   //    order: {
+   //       order: query.order?.order,
+   //       orderBy: query.order?.orderBy as any,
+   //    },
+   // })
+
+   // const [requesterOptions, setRequesterOptions] = useState<{ label: string; value: string }[]>([])
+
+   // useEffect(() => {
+   //    if (api_tasks.data?.list) {
+   //       const uniqueFixers = Array.from(new Set(api_tasks.data.list.map((task) => task?.fixer?.username))).map(
+   //          (username) => ({
+   //             label: username,
+   //             value: username,
+   //          }),
+   //       )
+
+   //       setRequesterOptions(uniqueFixers)
+   //    }
+   // }, [api_tasks.data])
+
+   const spareParts = useMemo(() => {
+      if (!issues || issues.length === 0) return []
+
+      const returnValue: {
+         [sparePartId: string]: {
+            sparePart: SparePartDto
+            issueSpareParts: IssueSparePartDto[]
+            totalNeeded: number
+         }
+      } = {}
+
+      const issueSparePartsList = issues.map((issue) => issue.issueSpareParts).flat()
+
+      issueSparePartsList.forEach((issueSparePart) => {
+         if (!issueSparePart.sparePart) return {}
+         const currentSparePartId = issueSparePart.sparePart?.id
+         if (!returnValue[currentSparePartId]) {
+            returnValue[currentSparePartId] = {
+               sparePart: issueSparePart.sparePart,
+               issueSpareParts: [],
+               totalNeeded: 0,
+            }
+         }
+
+         const { sparePart, ...issueSparePart_ } = issueSparePart
+         returnValue[currentSparePartId].issueSpareParts.push(issueSparePart_ as any)
+         returnValue[currentSparePartId].totalNeeded += issueSparePart.quantity
+      })
+
+      return Object.values(returnValue)
+   }, [issues])
 
    const control_qrCode = useRef<RefType<QrCodeV2ModalProps> | null>(null)
    const control_issueDetails = useRef<RefType<IssueDetailsModalProps> | null>(null)
@@ -100,6 +210,19 @@ function Page({ params }: { params: { id: string } }) {
    //    return Object.values(returnValue)
    // }, [api_request.isSuccess, api_request.data?.issues])
 
+   const [drawerVisible, setDrawerVisible] = useState(false)
+   const [selectedEntity, setSelectedEntity] = useState<RequestDto | null>(null)
+
+   const openDrawer = (entity: RequestDto) => {
+      setSelectedEntity(entity)
+      setDrawerVisible(true)
+   }
+
+   const closeDrawer = () => {
+      setDrawerVisible(false)
+      setSelectedEntity(null)
+   }
+
    return (
       <>
          <PageContainer
@@ -125,39 +248,45 @@ function Page({ params }: { params: { id: string } }) {
             }}
             content={
                <>
-                  <ProDescriptions
-                     dataSource={api_request.data}
-                     loading={api_request.isPending}
-                     columns={[
-                        {
-                           title: "ID",
-                           dataIndex: "id",
-                        },
-                        {
-                           title: "Ngày tạo",
-                           dataIndex: "createdAt",
-                           valueType: "date",
-                           render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY HH:mm"),
-                        },
-                        {
-                           title: "Ngày cập nhật",
-                           dataIndex: "updatedAt",
-                           valueType: "date",
-                           render: (_, e) => dayjs(e.updatedAt).format("DD/MM/YYYY HH:mm"),
-                        },
-                        {
-                           title: "Ghi chú",
-                           dataIndex: "requester_note",
-                        },
-                        {
-                           title: "Người tạo",
-                           dataIndex: ["requester", "username"],
-                           render: (_, entity) => (
-                              <Link href={`/admin/user/${entity.requester.id}`}>{entity.requester.username}</Link>
-                           ),
-                        },
-                     ]}
-                  />
+                  <Card className="mb-4 mt-2">
+                     <ProDescriptions
+                        dataSource={api_request.data}
+                        loading={api_request.isPending}
+                        columns={[
+                           {
+                              title: "ID",
+                              dataIndex: "id",
+                           },
+                           {
+                              title: "Ngày cập nhật",
+                              dataIndex: "updatedAt",
+                              valueType: "date",
+                              render: (_, e) => dayjs(e.updatedAt).format("DD/MM/YYYY HH:mm"),
+                           },
+                           {},
+                           {
+                              title: "Ghi chú",
+                              dataIndex: "requester_note",
+                              render: (text) => <strong>{text}</strong>,
+                           },
+                           {
+                              title: "Người tạo",
+                              dataIndex: ["requester", "username"],
+                              render: (_, entity) => (
+                                 <strong>
+                                    <Link href={`/admin/user/${entity.requester.id}`}>{entity.requester.username}</Link>
+                                 </strong>
+                              ),
+                           },
+                           {
+                              title: "Ngày tạo",
+                              dataIndex: "createdAt",
+                              valueType: "date",
+                              render: (_, e) => <strong>{dayjs(e.createdAt).format("DD/MM/YYYY HH:mm")}</strong>,
+                           },
+                        ]}
+                     />
+                  </Card>
                   <Card className="mb-4 mt-2">
                      <Steps
                         current={
@@ -214,7 +343,7 @@ function Page({ params }: { params: { id: string } }) {
                   children: (
                      <>
                         <DeviceDetailsSection device={api_request.data?.device} isLoading={api_request.isPending} />
-                        <Card className="mt-4">
+                        {/* <Card className="mt-4">
                            <ProList
                               pagination={{
                                  pageSize: 4,
@@ -222,7 +351,7 @@ function Page({ params }: { params: { id: string } }) {
                                  total: api_deviceRequestHistory.data?.total,
                                  onChange: (page) => setDeviceHistory_page(page),
                               }}
-                              className="w-full"
+                              className="admin-list-style w-full"
                               headerTitle={
                                  <div className="mb-3 flex w-full items-center justify-between font-bold">
                                     <span>Lịch sử sửa chữa ({api_deviceRequestHistory.data?.total ?? 0})</span>
@@ -245,8 +374,19 @@ function Page({ params }: { params: { id: string } }) {
                                              header={
                                                 entity.id === params.id ? (
                                                    <Tooltip title="Đang xem">
-                                                      <div className="font-bold text-black">
-                                                         {entity.requester_note}
+                                                      <div className="flex justify-between">
+                                                         <div className="font-bold text-black">
+                                                            {entity.requester_note}
+                                                         </div>
+                                                         <div>
+                                                            {entity.is_warranty ? (
+                                                               <Tag color="blue">Bảo hành</Tag>
+                                                            ) : entity.is_renew ? (
+                                                               <Tag color="orange">Thay thế</Tag>
+                                                            ) : (
+                                                               <Tag color="green">Sửa chữa</Tag>
+                                                            )}
+                                                         </div>
                                                       </div>
                                                    </Tooltip>
                                                 ) : (
@@ -256,39 +396,192 @@ function Page({ params }: { params: { id: string } }) {
                                                 )
                                              }
                                           >
-                                             <ProDescriptions
-                                                column={3}
-                                                bordered
-                                             >
-                                                <ProDescriptions.Item label="ID">{entity.id}</ProDescriptions.Item>
+                                             <ProDescriptions column={3} bordered>
                                                 <ProDescriptions.Item label="Lần cập nhật cuối">
                                                    {dayjs(entity.updatedAt).format("DD/MM/YYYY HH:mm")}
                                                 </ProDescriptions.Item>
                                                 <ProDescriptions.Item label="Người tạo">
                                                    {entity.requester.username}
                                                 </ProDescriptions.Item>
-                                                <ProDescriptions.Item label="Nhà sản xuất">
-                                                   {entity.device.machineModel.manufacturer}
-                                                </ProDescriptions.Item>
-                                                <ProDescriptions.Item label="Năm sản xuất">
-                                                   {entity.device.machineModel.yearOfProduction}
-                                                </ProDescriptions.Item>
-                                                <ProDescriptions.Item label="Mô tả">
-                                                   {entity.device.machineModel.description}
-                                                </ProDescriptions.Item>
-                                                <ProDescriptions.Item label="Bảo hành">
-                                                   {dayjs(entity.device.machineModel.warrantyTerm).format(
-                                                      "DD/MM/YYYY HH:mm",
-                                                   )}
+                                                <ProDescriptions.Item label="Lý do">
+                                                   {entity.checker_note}
                                                 </ProDescriptions.Item>
                                              </ProDescriptions>
+                                             <Collapse
+                                                className="mt-4"
+                                                expandIcon={({ isActive }) =>
+                                                   isActive ? <UpOutlined /> : <DownOutlined />
+                                                }
+                                                ghost
+                                             >
+                                                {api_tasks.data?.list?.map((task) => (
+                                                   <Panel key={task.id} header={task.name}>
+                                                      <Card className="mb-4 mt-2">
+                                                         <ProDescriptions column={2}>
+                                                            <ProDescriptions.Item label="Người sửa">
+                                                               {task.fixer?.username}
+                                                            </ProDescriptions.Item>
+                                                            <ProDescriptions.Item label="Ngày sửa">
+                                                               {dayjs(task.fixerDate).format("DD/MM/YYYY HH:mm")}
+                                                            </ProDescriptions.Item>
+                                                         </ProDescriptions>
+
+                                                      </Card>
+                                                   </Panel>
+                                                ))}
+                                             </Collapse>
                                           </Panel>
                                        </Collapse>
                                     ),
                                  },
                               }}
                            ></ProList>
+                        </Card> */}
+                        <Card className="mt-4">
+                           <ProList
+                              pagination={{
+                                 pageSize: 4,
+                                 current: deviceHistory_page,
+                                 total: api_deviceRequestHistory.data?.total,
+                                 onChange: (page) => setDeviceHistory_page(page),
+                              }}
+                              className="admin-list-style w-full"
+                              headerTitle={
+                                 <div className="mb-3 flex w-full items-center justify-between font-bold">
+                                    <span>Lịch sử sửa chữa ({api_deviceRequestHistory.data?.total ?? 0})</span>
+                                 </div>
+                              }
+                              showExtra="always"
+                              dataSource={api_deviceRequestHistory.data?.list}
+                              loading={api_deviceRequestHistory.isPending}
+                              metas={{
+                                 extra: {
+                                    render: (_: any, entity: RequestDto) => (
+                                       <div onClick={() => openDrawer(entity)} className="cursor-pointer">
+                                          <Tooltip title="Click để xem chi tiết">
+                                             <div className="mb-4 flex justify-between">
+                                                <div className="text-black">{entity.requester_note}</div>
+                                                <div>
+                                                   {entity.is_warranty ? (
+                                                      <Tag color="blue">Bảo hành</Tag>
+                                                   ) : entity.is_renew ? (
+                                                      <Tag color="orange">Thay thế</Tag>
+                                                   ) : (
+                                                      <Tag color="green">Sửa chữa</Tag>
+                                                   )}
+                                                </div>
+                                             </div>
+                                          </Tooltip>
+                                       </div>
+                                    ),
+                                 },
+                              }}
+                           />
                         </Card>
+                        <Drawer
+                           title={`Chi tiết yêu cầu`}
+                           placement="right"
+                           width={640}
+                           onClose={closeDrawer}
+                           visible={drawerVisible}
+                        >
+                           {selectedEntity && (
+                              <>
+                                 <ProDescriptions column={2} bordered>
+                                    <ProDescriptions.Item label="Lần cập nhật cuối">
+                                       {dayjs(selectedEntity.updatedAt).format("DD/MM/YYYY HH:mm")}
+                                    </ProDescriptions.Item>
+                                    <ProDescriptions.Item label="Người tạo">
+                                       {selectedEntity.requester.username}
+                                    </ProDescriptions.Item>
+                                    <ProDescriptions.Item label="Lý do">
+                                       {selectedEntity.checker_note}
+                                    </ProDescriptions.Item>
+                                 </ProDescriptions>
+                                 <Collapse
+                                    className="mt-4"
+                                    expandIcon={({ isActive }) => (isActive ? <UpOutlined /> : <DownOutlined />)}
+                                    ghost
+                                 >
+                                    {api_request.data?.issues.map((issue: IssueDto) => (
+                                       <Panel key={issue.id} header={issue.typeError.name}>
+                                          <Card className="mb-4 mt-2">
+                                             <ProDescriptions column={2}>
+                                                <ProDescriptions.Item label="Loại sửa">
+                                                   {issue.fixType}
+                                                </ProDescriptions.Item>
+                                                <ProDescriptions.Item label="Trạng thái">
+                                                   {dayjs(issue.status).format("DD/MM/YYYY HH:mm")}
+                                                </ProDescriptions.Item>
+                                                <div className="flex">
+                                                   <ProDescriptions
+                                                      dataSource={issue.task}
+                                                      column={1}
+                                                      bordered
+                                                      size="small"
+                                                      columns={[
+                                                         {
+                                                            title: "Tên tác vụ",
+                                                            dataIndex: "name",
+                                                            span: 2,
+                                                            render: (_, entity) => (
+                                                               <Link href={`/admin/task/${entity.id}`}>
+                                                                  {entity.name}
+                                                               </Link>
+                                                            ),
+                                                         },
+                                                         {
+                                                            title: "Trạng thái",
+                                                            dataIndex: "status",
+                                                            render: (_, record) => (
+                                                               <Tag
+                                                                  color={
+                                                                     TaskStatusTagMapper[record.status].colorInverse
+                                                                  }
+                                                               >
+                                                                  {TaskStatusTagMapper[record.status].text}
+                                                               </Tag>
+                                                            ),
+                                                         },
+                                                         {
+                                                            title: "Thời gian bắt đầu",
+                                                            dataIndex: "fixerDate",
+                                                            render: (_, entity) =>
+                                                               entity.fixerDate
+                                                                  ? dayjs(entity.fixerDate).format("DD/MM/YYYY")
+                                                                  : "-",
+                                                         },
+                                                         {
+                                                            title: "Người sửa",
+                                                            dataIndex: ["fixer", "username"],
+                                                         },
+                                                      ]}
+                                                   />
+                                                   <ProList
+                                                      dataSource={issue.issueSpareParts}
+                                                      rowKey="id"
+                                                      className="list-no-padding"
+                                                      metas={{
+                                                         title: {
+                                                            dataIndex: ["sparePart", "name"],
+                                                            render: (_, record) => <a>{record.sparePart.name}</a>,
+                                                         },
+                                                         description: {
+                                                            dataIndex: "quantity",
+                                                            render: (_, record) =>
+                                                               `Số lượng: ${record.quantity} (trong kho: ${record.sparePart.quantity})`,
+                                                         },
+                                                      }}
+                                                   />
+                                                </div>
+                                             </ProDescriptions>
+                                          </Card>
+                                       </Panel>
+                                    ))}
+                                 </Collapse>
+                              </>
+                           )}
+                        </Drawer>
                      </>
                   ),
                },

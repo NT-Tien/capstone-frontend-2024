@@ -230,9 +230,15 @@ body {
     }
 }
 
-/*.ant-list .ant-list-item {*/
-/*    display: inline !important;*/
-/*}*/
+.admin-list-style {
+    .ant-list .ant-list-item {
+        display: inline !important;
+    }
+}
+
+/* .ant-list .ant-list-item {
+   display: inline !important;
+} */
 /* .ant-pro-checkcard-content {
     padding: 0 !important;A
   } */

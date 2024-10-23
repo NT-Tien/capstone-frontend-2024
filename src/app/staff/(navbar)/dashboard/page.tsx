@@ -2,34 +2,23 @@
 
 import staff_qk from "@/features/staff/api/qk"
 import Staff_Task_All from "@/features/staff/api/task/all.api"
-import TaskCard from "@/features/staff/components/TaskCard"
-import HomeHeader from "@/components/layout/HomeHeader"
-import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
-import { CalendarCheck, CalendarSlash, Gear, HourglassSimpleMedium, NotePencil, SealCheck } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
-import { Card } from "antd"
-import dayjs from "dayjs"
+import { Button, Space } from "antd"
 import dynamic from "next/dynamic"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useMemo, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useMemo, useRef } from "react"
 import CountUp from "react-countup"
-import Image from "next/image"
 import TaskDetailsDrawer, {
    TaskDetailsDrawerRefType,
 } from "../../../../features/staff/components/overlays/TaskDetails.drawer"
 import StaffNavigationDrawer from "@/features/staff/components/layout/StaffNavigationDrawer"
+import { FilterOutlined, MenuOutlined, CompassFilled } from "@ant-design/icons"
 
 export default dynamic(() => Promise.resolve(StaffDashboard), {
    ssr: false,
 })
 
-function useTask(current: number, pageSize: number, currentStatus: TaskStatus) {
-   return useQuery({
-      queryKey: staff_qk.task.all(),
-      queryFn: () => Staff_Task_All(),
-   })
-}
 
 function StaffDashboard() {
    const response = useQuery({
@@ -37,17 +26,27 @@ function StaffDashboard() {
       queryFn: Staff_Task_All,
    })
    const navDrawer = StaffNavigationDrawer.useDrawer()
-
    const router = useRouter()
-   const currentDefault = 1,
-      pageSizeDefault = 10
-
-   const searchParams = useSearchParams()
-   const [current, setCurrent] = useState(Number(searchParams.get("current")) || currentDefault)
-   const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || pageSizeDefault)
 
    const taskDetailsDrawerRef = useRef<TaskDetailsDrawerRefType | null>(null)
 
+   const counts = useMemo(() => {
+      const counts: {
+         [key in TaskStatus] : number
+      } = {
+         [TaskStatus.ASSIGNED] : 0,
+         [TaskStatus.CANCELLED] : 0,
+         [TaskStatus.COMPLETED] : 0,
+         [TaskStatus.HEAD_STAFF_CONFIRM] : 0,
+         [TaskStatus.AWAITING_FIXER] : 0,
+         [TaskStatus.AWAITING_SPARE_SPART] : 0,
+         [TaskStatus.IN_PROGRESS] : 0
+      }
+      response.data?.forEach((task) => {
+         counts[task.status] += 1
+      })
+      return counts
+   }, [response.data])
    const ongoingtask = useMemo(() => {
       if (!response.isSuccess) return
       const result = response.data?.filter((task) => task.status === TaskStatus.IN_PROGRESS)
@@ -55,201 +54,88 @@ function StaffDashboard() {
       return null
    }, [response.data, response.isSuccess])
 
-   const awaitingFixerResult = useTask(current, pageSize, TaskStatus.AWAITING_FIXER)
-   // const pendingStockResult = result(TaskStatus.PENDING_STOCK)
-   const assignedResult = useTask(current, pageSize, TaskStatus.ASSIGNED)
-   const inProgressResult = useTask(current, pageSize, TaskStatus.IN_PROGRESS)
-   const headstaffConfirmResult = useTask(current, pageSize, TaskStatus.HEAD_STAFF_CONFIRM)
-   const completedResult = useTask(current, pageSize, TaskStatus.COMPLETED)
-   const cancelledResult = useTask(current, pageSize, TaskStatus.CANCELLED)
-
-   const totalTasks = [
-      awaitingFixerResult.data?.length ?? 0,
-      // pendingStockResult.data?.length ?? 0,
-      assignedResult.data?.length ?? 0,
-      inProgressResult.data?.length ?? 0,
-      completedResult.data?.length ?? 0,
-      headstaffConfirmResult.data?.length ?? 0,
-      cancelledResult.data?.length ?? 0,
-   ].reduce((acc, curr) => acc + curr, 0)
-
-   const progressingTasks = inProgressResult.data?.length ?? 0
-   const completedTasks = completedResult.data?.length ?? 0
-   const headstaffConfirmTasks = headstaffConfirmResult.data?.length ?? 0
-   const assignedTasks = assignedResult.data?.length ?? 0
-   const cancelledTasks = cancelledResult.data?.length ?? 0
-
-   const tasksToday = useMemo(() => {
-      if (!response.isSuccess) return []
-      return response.data?.filter((task: TaskDto) => dayjs(task.fixerDate).isSame(dayjs(), "day"))
-   }, [response.data, response.isSuccess])
-
+   const totalRelevantTasks = useMemo(() => {
+      return (
+        counts[TaskStatus.ASSIGNED] +
+        counts[TaskStatus.CANCELLED] +
+        counts[TaskStatus.COMPLETED] +
+        counts[TaskStatus.HEAD_STAFF_CONFIRM]
+      );
+    }, [counts]);
    return (
-      <div className="std-layout">
-         <div className="std-layout-outer">
-            <div className="std-layout bg-staff">
-               <HomeHeader className="std-layout-inner pb-8 pt-4" onIconClick={navDrawer.handleOpen} />
+      <div className="relative">
+         <section className="bg-staff p-layout pb-20 text-white">
+            <header className="flex items-center justify-between">
+               <Button
+                  icon={<MenuOutlined className="text-white"></MenuOutlined>}
+                  type="text"
+                  onClick={navDrawer.handleOpen}
+               />
+               <h1 className="text-lg font-bold">Trang chủ</h1>
+               <Button icon={<FilterOutlined className="text-white" />} type="text" />
+            </header>
+            <section className="my-5 flex flex-col items-center justify-center">
+               <h2 className="text-base">Tổng số tác vụ</h2>
+               <div className="mt-1 flex items-center gap-2 text-2xl">
+                  <CompassFilled />
+                  <CountUp end={totalRelevantTasks} />
+               </div>
+            </section>
+         </section>
+         <main className="relative px-layout pt-[120px]">
+            <div className="absolute -top-20 left-0 px-layout">
+               <article className="w-full text-black">
+                  <Space.Compact className="w-full">
+                     <Button
+                        block
+                        className="grid h-max place-items-center gap-0 rounded-none rounded-tl-lg py-4 text-base"
+                     >
+                        <div>{counts.ASSIGNED}</div>
+                        <div>Chưa thực hiện</div>
+                     </Button>
+                     <Button
+                        block
+                        className="grid h-max place-items-center gap-0 rounded-none rounded-tr-lg py-4 text-base"
+                     >
+                        <div>{counts.COMPLETED}</div>
+                        <div>Hoàn thành</div>
+                     </Button>
+                  </Space.Compact>
+                  <Space.Compact direction="vertical" className="w-full">
+                     <Button block className="flex justify-between rounded-none py-5 text-sm">
+                        <div>Chờ đánh giá</div>
+                        <div>{counts.HEAD_STAFF_CONFIRM}</div>
+                     </Button>
+                     <Button block className="flex justify-between rounded-none rounded-b-lg py-5 text-sm">
+                        <div>Đã hủy</div>
+                        <div>{counts.CANCELLED}</div>
+                     </Button>
+                  </Space.Compact>
+               </article>
             </div>
-         </div>
-         <div>
-            {ongoingtask && (
-               <section className="mb-8 mt-5 flex space-x-4">
-                  <TaskCard
-                     className="h-full w-full flex-1 shadow-fb"
-                     title="Tác vụ đang thực hiện"
-                     description={ongoingtask?.name ?? ""}
-                     priority={ongoingtask?.priority ?? false}
-                     onClick={() => router.push(`/staff/tasks/${ongoingtask.id}/start`)}
-                  />
-               </section>
-            )}
             <div>
-               <section>
-                  <h2 className="text-2xl font-semibold">Dashboard</h2>
-               </section>
-               {/* <section className="flex-none space-y-2">
-                  <Card
-                     className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-neutral-200 p-0 text-center shadow-md"
-                     loading={
-                        awaitingFixerResult.isLoading ||
-                        assignedResult.isLoading ||
-                        inProgressResult.isLoading ||
-                        completedResult.isLoading ||
-                        cancelledResult.isLoading
-                     }
-                     onClick={() => router.push("tasks")}
-                     classNames={{
-                        body: "w-full",
-                     }}
-                  >
-                     <div className="flex w-full items-center justify-between">
-                        <div className="flex flex-col items-start">
-                           <div className="flex items-center">
-                              <div className="text-3xl font-bold">
-                                 <CountUp end={totalTasks} separator={","} />
-                              </div>
+               {ongoingtask && (
+                  <section className="mb-8 mt-1 flex space-x-4">
+                     <div
+                        className="relative h-full w-full flex-1 transform cursor-pointer rounded-xl p-5 shadow-lg transition duration-300 hover:scale-105 hover:shadow-2xl"
+                        style={{
+                           background: "radial-gradient(circle at top left, #FCD34D, #D97706)", // Matches yellow-300 and amber-700
+                        }}
+                        onClick={() => router.push(`/staff/tasks/${ongoingtask.id}/start`)}
+                     >
+                        <h2 className="text-xl font-bold text-white">Tác vụ đang thực hiện</h2>
+                        <p className="text-base text-white">{ongoingtask?.name ?? ""}</p>
+                        {ongoingtask?.priority && (
+                           <div className="absolute right-2 top-2 rounded-full bg-red-500 px-3 py-1 text-xs font-semibold text-white">
+                              Ưu tiên
                            </div>
-                           <div className="text-xl">Tổng cộng</div>
-                        </div>
-                        <div className="flex items-center">
-                           <Gear size={45} weight="duotone" />
-                        </div>
+                        )}
                      </div>
-                  </Card>
-                  <Card
-                     className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-blue-200 p-0 text-center shadow-md"
-                     loading={assignedResult.isLoading}
-                     onClick={() => router.push("tasks")}
-                     classNames={{
-                        body: "w-full",
-                     }}
-                  >
-                     <div className="flex w-full items-center justify-between">
-                        <div className="flex flex-col items-start">
-                           <div className="flex items-center">
-                              <div className="text-3xl font-bold">
-                                 <CountUp end={assignedTasks} separator={","} />
-                              </div>
-                           </div>
-                           <div className="text-xl">Đã phân công</div>
-                        </div>
-                        <div className="flex items-center">
-                           <NotePencil size={45} weight="duotone" />
-                        </div>
-                     </div>
-                  </Card>
-                  <Card
-                     className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-orange-200 p-0 text-center shadow-md"
-                     loading={inProgressResult.isLoading}
-                     onClick={() => router.push("tasks")}
-                     classNames={{
-                        body: "w-full",
-                     }}
-                  >
-                     <div className="flex w-full items-center justify-between">
-                        <div className="flex flex-col items-start">
-                           <div className="flex items-center">
-                              <div className="text-3xl font-bold">
-                                 <CountUp end={progressingTasks} separator={","} />
-                              </div>
-                           </div>
-                           <div className="text-xl">Đang làm</div>
-                        </div>
-                        <div className="flex items-center">
-                           <CalendarCheck size={45} />
-                        </div>
-                     </div>
-                  </Card>
-                  <Card
-                     className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-green-200 p-0 text-center shadow-md"
-                     loading={completedResult.isLoading}
-                     onClick={() => router.push("tasks")}
-                     classNames={{
-                        body: "w-full",
-                     }}
-                  >
-                     <div className="flex w-full items-center justify-between">
-                        <div className="flex flex-col items-start">
-                           <div className="flex items-center">
-                              <div className="text-3xl font-bold">
-                                 <CountUp end={completedTasks} separator={","} />
-                              </div>
-                           </div>
-                           <div className="text-xl">Hoàn thành</div>
-                        </div>
-                        <div className="flex items-center">
-                           <HourglassSimpleMedium size={45} weight="duotone" />
-                        </div>
-                     </div>
-                  </Card>
-                  <Card
-                     className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-purple-200 p-0 text-center shadow-md"
-                     loading={headstaffConfirmResult.isLoading}
-                     onClick={() => router.push("tasks")}
-                     classNames={{
-                        body: "w-full",
-                     }}
-                  >
-                     <div className="flex w-full items-center justify-between">
-                        <div className="flex flex-col items-start">
-                           <div className="flex items-center">
-                              <div className="text-3xl font-bold">
-                                 <CountUp end={headstaffConfirmTasks} separator={","} />
-                              </div>
-                           </div>
-                           <div className="text-xl">Chờ kiểm tra</div>
-                        </div>
-                        <div className="flex items-center">
-                           <SealCheck size={45} />
-                        </div>
-                     </div>
-                  </Card>
-                  <Card
-                     className="mt-5 flex h-24 w-full items-center justify-between rounded-lg border-2 border-neutral-300 bg-red-200 p-0 text-center shadow-md"
-                     loading={cancelledResult.isLoading}
-                     onClick={() => router.push("tasks")}
-                     classNames={{
-                        body: "w-full",
-                     }}
-                  >
-                     <div className="flex w-full items-center justify-between">
-                        <div className="flex flex-col items-start">
-                           <div className="flex items-center">
-                              <div className="text-3xl font-bold">
-                                 <CountUp end={cancelledTasks} separator={","} />
-                              </div>
-                           </div>
-                           <div className="text-xl">Đã hủy</div>
-                        </div>
-                        <div className="flex items-center">
-                           <CalendarSlash size={45} weight="duotone" />
-                        </div>
-                     </div>
-                  </Card>
-               </section> */}
+                  </section>
+               )}
             </div>
-         </div>
-         <TaskDetailsDrawer ref={taskDetailsDrawerRef} />
+            <TaskDetailsDrawer ref={taskDetailsDrawerRef} />
+         </main>
       </div>
    )
 }

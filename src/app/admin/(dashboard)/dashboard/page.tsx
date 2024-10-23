@@ -109,31 +109,41 @@ function Page() {
                <h2 className="text-lg font-semibold">Thống kê yêu cầu</h2>
             </Card>
             <div className="mt-3 grid grid-cols-4 gap-3">
-               <Card size="small" className="w-full" onClick={() => (router.push("/admin/request"))}>
+               <Card size="small" className="w-full" onClick={() => router.push("/admin/request")}>
                   <Statistic
-                     title="Tổng cộng"
+                     title="Tổng cộng sửa chữa"
                      value={[
                         FixRequestStatus.PENDING,
                         FixRequestStatus.CLOSED,
-                        FixRequestStatus.REJECTED,
                         FixRequestStatus.APPROVED,
                         FixRequestStatus.IN_PROGRESS,
                         FixRequestStatus.HEAD_CONFIRM,
-                        FixRequestStatus.HEAD_CANCEL,
                      ].reduce((acc, status) => {
                         return acc + (api_requests.data?.[status] ?? 0)
                      }, 0)}
                      suffix={<span className="text-sm">yêu cầu</span>}
                   />
                </Card>
-               <Card size="small" className="w-full" onClick={() => {router.push("/admin/request")}}>
+               <Card
+                  size="small"
+                  className="w-full"
+                  onClick={() => {
+                     router.push("/admin/request")
+                  }}
+               >
                   <Statistic
                      title="Chưa xử lý"
                      value={api_requests.data?.PENDING}
                      suffix={<span className="text-sm">yêu cầu</span>}
                   />
                </Card>
-               <Card size="small" className="w-full bg-green-200" onClick={() => {router.push("/admin/request?tab=APPROVED")}}>
+               <Card
+                  size="small"
+                  className="w-full bg-green-200"
+                  onClick={() => {
+                     router.push("/admin/request?tab=APPROVED")
+                  }}
+               >
                   <Statistic
                      title="Đã xác nhận lỗi"
                      valueStyle={{
@@ -143,7 +153,13 @@ function Page() {
                      suffix={<span className="text-sm">yêu cầu</span>}
                   />
                </Card>
-               <Card size="small" className="w-full bg-blue-200" onClick={() => {router.push("/admin/request?tab=IN_PROGRESS")}}>
+               <Card
+                  size="small"
+                  className="w-full bg-blue-200"
+                  onClick={() => {
+                     router.push("/admin/request?tab=IN_PROGRESS")
+                  }}
+               >
                   <Statistic
                      title="Đang sửa chữa"
                      valueStyle={{
@@ -153,14 +169,26 @@ function Page() {
                      suffix={<span className="text-sm">yêu cầu</span>}
                   />
                </Card>
-               <Card size="small" className="w-full bg-yellow-200" onClick={() => {router.push("/admin/request?tab=HEAD_CONFIRM")}}>
+               <Card
+                  size="small"
+                  className="w-full bg-yellow-200"
+                  onClick={() => {
+                     router.push("/admin/request?tab=HEAD_CONFIRM")
+                  }}
+               >
                   <Statistic
                      title="Chờ đánh giá"
                      value={api_requests.data?.HEAD_CONFIRM}
                      suffix={<span className="text-sm">yêu cầu</span>}
                   />
                </Card>
-               <Card size="small" className="w-full bg-purple-200" onClick={() => {router.push("/admin/request?tab=CLOSED")}}>
+               <Card
+                  size="small"
+                  className="w-full bg-purple-200"
+                  onClick={() => {
+                     router.push("/admin/request?tab=CLOSED")
+                  }}
+               >
                   <Statistic
                      valueStyle={{
                         color: "purple",
@@ -170,7 +198,13 @@ function Page() {
                      suffix={<span className="text-sm">yêu cầu</span>}
                   />
                </Card>
-               <Card size="small" className="w-full bg-red-200" onClick={() => {router.push("/admin/request?tab=REJECTED")}}>
+               <Card
+                  size="small"
+                  className="w-full bg-red-200"
+                  onClick={() => {
+                     router.push("/admin/request?tab=REJECTED")
+                  }}
+               >
                   <Statistic
                      valueStyle={{
                         color: "red",
@@ -180,7 +214,13 @@ function Page() {
                      suffix={<span className="text-sm">yêu cầu</span>}
                   />
                </Card>
-               <Card size="small" className="w-full bg-red-200" onClick={() => {router.push("/admin/request?tab=HEAD_CANCEL")}}>
+               <Card
+                  size="small"
+                  className="w-full bg-red-200"
+                  onClick={() => {
+                     router.push("/admin/request?tab=HEAD_CANCEL")
+                  }}
+               >
                   <Statistic
                      valueStyle={{
                         color: "red",
@@ -197,16 +237,22 @@ function Page() {
                <h2 className="text-lg font-semibold">Thống kê tác vụ</h2>
             </Card>
             <div className="mt-3 grid grid-cols-4 gap-3">
-               <Card size="small" className="w-full" onClick={() => {router.push("/admin/task")}}>
+               <Card
+                  size="small"
+                  className="w-full"
+                  onClick={() => {
+                     router.push("/admin/task")
+                  }}
+               >
                   <Statistic
-                     title="Tổng cộng"
+                     title="Tổng cộng sửa chữa"
                      value={[
                         TaskStatus.AWAITING_SPARE_SPART,
                         TaskStatus.AWAITING_FIXER,
                         TaskStatus.ASSIGNED,
                         TaskStatus.IN_PROGRESS,
                         TaskStatus.COMPLETED,
-                        TaskStatus.CANCELLED,
+                        // TaskStatus.CANCELLED,
                         TaskStatus.HEAD_STAFF_CONFIRM,
                      ].reduce((acc, status) => {
                         return acc + (api_tasks.data?.[status] ?? 0)
@@ -214,7 +260,13 @@ function Page() {
                      suffix={<span className="text-sm">Tác vụ</span>}
                   />
                </Card>
-               <Card size="small" className="w-full bg-orange-200" onClick={() => {router.push("/admin/task?tab=AWAITING_SPARE_SPART")}}>
+               <Card
+                  size="small"
+                  className="w-full bg-orange-200"
+                  onClick={() => {
+                     router.push("/admin/task?tab=AWAITING_SPARE_SPART")
+                  }}
+               >
                   <Statistic
                      valueStyle={{
                         color: "orange",
@@ -224,14 +276,26 @@ function Page() {
                      suffix={<span className="text-sm">Tác vụ</span>}
                   />
                </Card>
-               <Card size="small" className="w-full" onClick={() => {router.push("/admin/task?tab=AWAITING_FIXER")}}>
+               <Card
+                  size="small"
+                  className="w-full"
+                  onClick={() => {
+                     router.push("/admin/task?tab=AWAITING_FIXER")
+                  }}
+               >
                   <Statistic
                      title="Chưa phân công"
                      value={api_tasks.data?.AWAITING_FIXER}
                      suffix={<span className="text-sm">Tác vụ</span>}
                   />
                </Card>
-               <Card size="small" className="w-full bg-blue-200" onClick={() => {router.push("/admin/task?tab=ASSIGNED")}}>
+               <Card
+                  size="small"
+                  className="w-full bg-blue-200"
+                  onClick={() => {
+                     router.push("/admin/task?tab=ASSIGNED")
+                  }}
+               >
                   <Statistic
                      title="Chưa bắt đầu"
                      valueStyle={{
@@ -241,7 +305,13 @@ function Page() {
                      suffix={<span className="text-sm">Tác vụ</span>}
                   />
                </Card>
-               <Card size="small" className="w-full bg-purple-200" onClick={() => {router.push("/admin/task?tab=IN_PROGRESS")}}>
+               <Card
+                  size="small"
+                  className="w-full bg-purple-200"
+                  onClick={() => {
+                     router.push("/admin/task?tab=IN_PROGRESS")
+                  }}
+               >
                   <Statistic
                      valueStyle={{
                         color: "purple",
@@ -251,7 +321,13 @@ function Page() {
                      suffix={<span className="text-sm">Tác vụ</span>}
                   />
                </Card>
-               <Card size="small" className="w-full bg-amber-200" onClick={() => {router.push("/admin/task?tab=HEAD_STAFF_CONFIRM")}}>
+               <Card
+                  size="small"
+                  className="w-full bg-amber-200"
+                  onClick={() => {
+                     router.push("/admin/task?tab=HEAD_STAFF_CONFIRM")
+                  }}
+               >
                   <Statistic
                      valueStyle={
                         {
@@ -263,7 +339,13 @@ function Page() {
                      suffix={<span className="text-sm">Tác vụ</span>}
                   />
                </Card>
-               <Card size="small" className="w-full bg-red-200" onClick={() => {router.push("/admin/task?tab=CANCELLED")}}>
+               <Card
+                  size="small"
+                  className="w-full bg-red-200"
+                  onClick={() => {
+                     router.push("/admin/task?tab=CANCELLED")
+                  }}
+               >
                   <Statistic
                      valueStyle={{
                         color: "red",
@@ -273,7 +355,13 @@ function Page() {
                      suffix={<span className="text-sm">Tác vụ</span>}
                   />
                </Card>
-               <Card size="small" className="w-full bg-green-200" onClick={() => {router.push("/admin/task?tab=COMPLETED")}}>
+               <Card
+                  size="small"
+                  className="w-full bg-green-200"
+                  onClick={() => {
+                     router.push("/admin/task?tab=COMPLETED")
+                  }}
+               >
                   <Statistic
                      valueStyle={{
                         color: "green",

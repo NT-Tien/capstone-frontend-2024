@@ -1,18 +1,23 @@
 "use client"
 
-import { FixRequest_StatusData, FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
+import { FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { Button, Card, Input, Spin } from "antd"
+import { Alert, Badge, Button, Input } from "antd"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import HistoryList from "./HistoryList.component"
-import { CloseCircleFilled, FilterOutlined, MenuOutlined, SearchOutlined } from "@ant-design/icons"
+import { CloseCircleFilled, FilterOutlined, InfoCircleFilled, MenuOutlined, SearchOutlined } from "@ant-design/icons"
 import HeadNavigationDrawer from "@/features/head-department/components/layout/HeadNavigationDrawer"
 import head_department_queries from "@/features/head-department/queries"
 import hd_uris from "@/features/head-department/uri"
 import ClickableArea from "@/components/ClickableArea"
 import { cn } from "@/lib/utils/cn.util"
 import dayjs from "dayjs"
+import FilterDrawer, { FilterDrawerProps, FilterQuery } from "@/app/head/(navbar)/history/Filter.drawer"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import { AreaDto } from "@/lib/domain/Area/Area.dto"
+import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
+import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 
 function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } }) {
    const navDrawer = HeadNavigationDrawer.useDrawer()
@@ -20,12 +25,42 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
 
    const [tab, setTab] = useState<FixRequestStatuses | "all">(searchParams.status ?? "pending")
    const [search, setSearch] = useState<string>("")
-   const [search_value, setSearch_value] = useState<string>("")
+   const [query, setQuery] = useState<FilterQuery>({})
 
    const containerRef = useRef<HTMLDivElement | null>(null)
    const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
+   const control_filterDrawer = useRef<RefType<FilterDrawerProps>>(null)
 
    const api_requests = head_department_queries.request.all({})
+
+   const no_toFeedback = useMemo(() => {
+      if (!api_requests.isSuccess) return 0
+
+      return api_requests.data.filter((i) => i.status === FixRequestStatus.HEAD_CONFIRM).length
+   }, [api_requests.data, api_requests.isSuccess])
+
+   const areas = useMemo(() => {
+      if (!api_requests.isSuccess) return []
+
+      let returnValue: { [key: string]: AreaDto } = {}
+      api_requests.data.forEach((i) => {
+         returnValue[i.device.area.id] = i.device.area
+      })
+
+      return Object.values(returnValue)
+   }, [api_requests.data, api_requests.isSuccess])
+
+   const machineModels = useMemo(() => {
+      if (!api_requests.isSuccess) return []
+
+      let returnValue: { [key: string]: MachineModelDto } = {}
+
+      api_requests.data.forEach((i) => {
+         returnValue[i.device.machineModel.id] = i.device.machineModel
+      })
+
+      return Object.values(returnValue)
+   }, [api_requests.data, api_requests.isSuccess])
 
    const renderList = useMemo(() => {
       if (!api_requests.isSuccess) return []
@@ -69,10 +104,19 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
          }
       }
 
+      list = list.filter((i) => {
+         if (query.areaId && i.device.area.id !== query.areaId) return false
+         if (query.requester_note && !i.requester_note.includes(query.requester_note)) return false
+         if (query.machineModelId && i.device.machineModel.id !== query.machineModelId) return false
+         if (query.createdAt_start && dayjs(i.createdAt).isBefore(dayjs(query.createdAt_start))) return false
+         if (query.createdAt_end && dayjs(i.createdAt).isAfter(dayjs(query.createdAt_end))) return false
+         return true
+      })
+
       list = list.sort((a, b) => dayjs(a.updatedAt).diff(dayjs(b.updatedAt)))
 
       return list
-   }, [api_requests.data, api_requests.isSuccess, tab, search])
+   }, [api_requests.data, api_requests.isSuccess, tab, search, query])
 
    function handleChangeTab(tabKey: FixRequestStatuses) {
       const newTab = tabKey === tab ? "all" : tabKey
@@ -119,90 +163,135 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
    }, [tab])
 
    return (
-      <div className="std-layout relative h-full min-h-screen bg-white">
-         <div className="std-layout-outer absolute left-0 top-0 h-24 w-full bg-head_department" />
-         <header className="std-layout-outer relative z-50 flex items-center justify-between p-layout">
-            <Button icon={<MenuOutlined className="text-white" />} type="text" onClick={navDrawer.handleOpen} />
-            <h1 className="text-lg font-bold text-white">Lịch sử Yêu cầu</h1>
-            <Button icon={<FilterOutlined className="text-white" />} type="text" />
-         </header>
-         <Input
-            size="large"
-            placeholder="Tìm kiếm"
-            prefix={<SearchOutlined className="mr-1 text-neutral-500" />}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-         />
-         <div className="std-layout-outer mb-4 mt-2 flex gap-2 overflow-x-auto px-layout" ref={containerRef}>
-            <ClickableArea
-               className={cn(
-                  "border-2 border-neutral-500 px-3 py-1 text-sm text-neutral-500",
-                  tab === "pending" && "bg-neutral-500 text-white",
-               )}
-               onClick={() => handleChangeTab("pending")}
-               ref={(el) => {
-                  itemRefs.current[0] = el
-               }}
+      <>
+         {no_toFeedback > 0 && (
+            <Alert
+               type="warning"
+               banner
+               message={<div className="text-sm">Có {no_toFeedback} yêu cầu đang Chờ đánh giá</div>}
+               action={
+                  <Button size="small" type="text" className="text-sm" onClick={() => setTab("head_confirm")}>
+                     Xem
+                  </Button>
+               }
+               icon={<InfoCircleFilled />}
+               showIcon
+            />
+         )}
+         <div className="std-layout relative h-full min-h-screen bg-white">
+            <div className="std-layout-outer absolute left-0 top-0 h-24 w-full bg-head_department" />
+            <PageHeaderV2
+               prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}
+               title={"Lịch sử Yêu cầu"}
+               nextButton={
+                  <Badge dot={Object.values(query).length > 0}>
+                     <Button
+                        icon={<FilterOutlined className="text-white" />}
+                        type="text"
+                        onClick={() =>
+                           control_filterDrawer.current?.handleOpen({
+                              query,
+                              status: tab,
+                              areas,
+                              machineModels,
+                           })
+                        }
+                     />
+                  </Badge>
+               }
+            />
+            {/*<section className="relative z-50 h-10 w-full rounded-lg border-2 border-blue-700 bg-blue-50"></section>*/}
+            <Input
+               size="large"
+               placeholder="Tìm kiếm"
+               prefix={<SearchOutlined className="mr-1 text-neutral-500" />}
+               value={search}
+               onChange={(e) => setSearch(e.target.value)}
+            />
+            <div
+               className="std-layout-outer hide-scrollbar mb-4 mt-3 flex gap-2 overflow-x-auto px-layout"
+               ref={containerRef}
             >
-               Chưa xử lý
-               {tab === "pending" && <CloseCircleFilled />}
-            </ClickableArea>
-            <ClickableArea
-               className={cn(
-                  "border-2 border-blue-500 px-3 py-1 text-sm text-blue-500",
-                  (tab === "in_progress" || tab === "approved") && "bg-blue-500 text-white",
-               )}
-               onClick={() => handleChangeTab("in_progress")}
-               ref={(el) => {
-                  itemRefs.current[1] = el
-               }}
-            >
-               Đang thực hiện
-               {(tab === "in_progress" || tab === "approved") && <CloseCircleFilled />}
-            </ClickableArea>
-            <ClickableArea
-               className={cn(
-                  "border-2 border-yellow-500 px-3 py-1 text-sm text-yellow-800",
-                  tab === "head_confirm" && "bg-yellow-500 text-white",
-               )}
-               onClick={() => handleChangeTab("head_confirm")}
-               ref={(el) => {
-                  itemRefs.current[2] = el
-               }}
-            >
-               Chờ xác nhận
-               {tab === "head_confirm" && <CloseCircleFilled />}
-            </ClickableArea>
-            <ClickableArea
-               className={cn(
-                  "border-2 border-purple-500 px-3 py-1 text-sm text-purple-500",
-                  tab === "closed" && "bg-purple-500 text-white",
-               )}
-               onClick={() => handleChangeTab("closed")}
-               ref={(el) => {
-                  itemRefs.current[3] = el
-               }}
-            >
-               Đã đóng
-               {tab === "closed" && <CloseCircleFilled />}
-            </ClickableArea>
-            <ClickableArea
-               className={cn(
-                  "border-2 border-red-500 px-3 py-1 text-sm text-red-500",
-                  (tab === "rejected" || tab === "head_cancel") && "bg-red-500 text-white",
-               )}
-               onClick={() => handleChangeTab("rejected")}
-               ref={(el) => {
-                  itemRefs.current[4] = el
-               }}
-            >
-               Đã hủy
-               {(tab === "rejected" || tab === "head_cancel") && <CloseCircleFilled />}
-            </ClickableArea>
-         </div>
+               <ClickableArea
+                  className={cn(
+                     "border-2 border-neutral-300 px-3 py-1 text-sm text-neutral-500",
+                     tab === "pending" && "bg-neutral-500 text-white",
+                  )}
+                  onClick={() => handleChangeTab("pending")}
+                  ref={(el) => {
+                     itemRefs.current[0] = el
+                  }}
+               >
+                  Chưa xử lý
+                  {tab === "pending" && <CloseCircleFilled />}
+               </ClickableArea>
+               <ClickableArea
+                  className={cn(
+                     "border-2 border-blue-500 px-3 py-1 text-sm text-blue-500",
+                     (tab === "in_progress" || tab === "approved") && "bg-blue-500 text-white",
+                  )}
+                  onClick={() => handleChangeTab("in_progress")}
+                  ref={(el) => {
+                     itemRefs.current[1] = el
+                  }}
+               >
+                  Đang sửa chữa
+                  {(tab === "in_progress" || tab === "approved") && <CloseCircleFilled />}
+               </ClickableArea>
+               <ClickableArea
+                  className={cn(
+                     "border-2 border-yellow-500 px-3 py-1 text-sm text-yellow-800",
+                     tab === "head_confirm" && "bg-yellow-500 text-white",
+                  )}
+                  onClick={() => handleChangeTab("head_confirm")}
+                  ref={(el) => {
+                     itemRefs.current[2] = el
+                  }}
+               >
+                  Chờ đánh giá
+                  {tab === "head_confirm" && <CloseCircleFilled />}
+               </ClickableArea>
+               <ClickableArea
+                  className={cn(
+                     "border-2 border-purple-500 px-3 py-1 text-sm text-purple-500",
+                     tab === "closed" && "bg-purple-500 text-white",
+                  )}
+                  onClick={() => handleChangeTab("closed")}
+                  ref={(el) => {
+                     itemRefs.current[3] = el
+                  }}
+               >
+                  Đã đóng
+                  {tab === "closed" && <CloseCircleFilled />}
+               </ClickableArea>
+               <ClickableArea
+                  className={cn(
+                     "border-2 border-red-500 px-3 py-1 text-sm text-red-500",
+                     (tab === "rejected" || tab === "head_cancel") && "bg-red-500 text-white",
+                  )}
+                  onClick={() => handleChangeTab("rejected")}
+                  ref={(el) => {
+                     itemRefs.current[4] = el
+                  }}
+               >
+                  Đã hủy
+                  {(tab === "rejected" || tab === "head_cancel") && <CloseCircleFilled />}
+               </ClickableArea>
+            </div>
 
-         <HistoryList key={tab} requests={renderList} />
-      </div>
+            <HistoryList key={tab} requests={renderList} />
+
+            <OverlayControllerWithRef ref={control_filterDrawer}>
+               <FilterDrawer
+                  onSubmit={(query, tab) => {
+                     setQuery(query)
+                     setTab(tab)
+                  }}
+                  onReset={() => setQuery({})}
+               />
+            </OverlayControllerWithRef>
+         </div>
+      </>
    )
 }
 

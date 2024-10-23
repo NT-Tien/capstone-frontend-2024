@@ -1,15 +1,13 @@
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
-import { Avatar, Button, Card, Divider, List, Result, Skeleton, Space, Tag } from "antd"
-import { RightOutlined, TruckFilled } from "@ant-design/icons"
+import { Avatar, Card, List, Result, Skeleton } from "antd"
+import { RightOutlined } from "@ant-design/icons"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import useRequest_AllQuery from "@/features/head-department/queries/Request_All.query"
-import RequestCard from "@/features/head-maintenance/components/RequestCard"
 import hd_uris from "@/features/head-department/uri"
 import generateAvatarData from "@/lib/utils/generateAvatarData.util"
-import { Calendar, CalendarBlank, CheckCircle, MapPinArea, Truck, User } from "@phosphor-icons/react"
+import { CalendarBlank, MapPinArea, Truck, User } from "@phosphor-icons/react"
 import DataGrid from "@/components/DataGrid"
 
 type Props = {
@@ -18,7 +16,7 @@ type Props = {
 
 function HistoryList({ requests }: Props) {
    const router = useRouter()
-   
+
    if (!requests) {
       return <Skeleton className="mt-layout" active />
    }

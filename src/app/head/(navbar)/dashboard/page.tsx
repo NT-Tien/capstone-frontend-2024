@@ -7,6 +7,7 @@ import RequestStatisticsCard from "@/features/head-department/components/Request
 import HeadNavigationDrawer from "@/features/head-department/components/layout/HeadNavigationDrawer"
 import head_department_queries from "@/features/head-department/queries"
 import Link from "next/link"
+import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 
 function Page() {
    const navigationDrawer = HeadNavigationDrawer.useDrawer()
@@ -14,28 +15,23 @@ function Page() {
 
    return (
       <div className="relative">
-         <section className="bg-head_department p-layout pb-20 text-white">
-            <header className="flex items-center justify-between">
-               <Button
-                  icon={<MenuOutlined className="text-white" />}
-                  type="text"
-                  onClick={navigationDrawer.handleOpen}
-               />
-               <h1 className="text-lg font-bold">Trang chủ</h1>
-               <Button icon={<FilterOutlined className="text-white" />} type="text" />
-            </header>
-            <section className="my-5 flex flex-col items-center justify-center">
-               <h2 className="text-base">Tổng số yêu cầu đã tạo</h2>
-               <div className="mt-1 flex items-center gap-2 text-2xl">
-                  <CompassFilled />
-                  <CountUp end={api_requests.data?.length ?? 0} />
-               </div>
-            </section>
+         <section className="absolute left-0 top-0 h-56 w-full bg-head_department text-white" />
+         <PageHeaderV2
+            prevButton={<PageHeaderV2.MenuButton onClick={navigationDrawer.handleOpen} />}
+            title="Trang chủ"
+            nextButton={<Button icon={<FilterOutlined className="text-white" />} type="text" />}
+         />
+         <section className="relative z-50 mb-3 flex -translate-y-2 flex-col items-center justify-center text-white">
+            <h2 className="text-base">Tổng số yêu cầu đã tạo</h2>
+            <div className="mt-1 flex items-center gap-2 text-2xl">
+               <CompassFilled />
+               <CountUp end={api_requests.data?.length ?? 0} />
+            </div>
          </section>
-         <main className="relative px-layout pt-[120px]">
-            <RequestStatisticsCard className="absolute -top-20 left-0 px-layout" />
+         <main className="relative px-layout">
+            <RequestStatisticsCard className="" />
             <Link href="/head/scan">
-               <Button className="mt-layout h-max w-full items-center justify-start rounded-lg bg-blue-500 p-3 text-white">
+               <Button className="mt-layout-half h-max w-full items-center justify-start rounded-lg bg-blue-500 p-3 text-white">
                   <QrcodeOutlined className="text-4xl" />
                   <div className="flex flex-col items-start">
                      <h2 className="font-semibold">Tạo yêu cầu mới</h2>

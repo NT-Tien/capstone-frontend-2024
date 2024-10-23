@@ -4,43 +4,36 @@ import DataListView from "@/components/DataListView"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
 import { DeleteOutlined } from "@ant-design/icons"
-import { MapPin, XCircle } from "@phosphor-icons/react"
-import { Button, Card, Progress, Result, Skeleton, Steps, Tag } from "antd"
+import { ChatDots, MapPin, XCircle } from "@phosphor-icons/react"
+import { App, Button, Card, Descriptions, Divider, Dropdown, Progress, Result, Skeleton, Steps } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import {
-   FixRequest_StatusData,
-   FixRequest_StatusMapper,
-   FixRequestStatuses,
-} from "@/lib/domain/Request/RequestStatus.mapper"
+import { FixRequest_StatusData, FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import FeedbackDrawer, { FeedbackDrawerProps } from "@/features/head-department/components/overlay/Feedback.drawer"
 import { useMemo, useRef } from "react"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import ModalConfirm from "@/old/ModalConfirm"
 import useRequest_OneByIdQuery from "@/features/head-department/queries/Request_OneById.query"
-import PageHeader from "@/components/layout/PageHeader"
-import Image from "next/image"
 import head_department_mutations from "@/features/head-department/mutations"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import hd_uris from "@/features/head-department/uri"
+import PageHeaderV2 from "@/components/layout/PageHeaderV2"
+import RequestStatusTag from "@/features/head-department/components/RequestStatusTag"
+import ClickableArea from "@/components/ClickableArea"
 
-function Page({
-   params,
-   searchParams,
-}: {
-   params: { id: string }
-   searchParams: { return?: "scan"; viewingHistory?: string }
-}) {
+function Page({ params }: { params: { id: string } }) {
+   const { modal } = App.useApp()
    const router = useRouter()
 
    const control_feedbackDrawer = useRef<RefType<FeedbackDrawerProps>>(null)
 
    const api_requests = useRequest_OneByIdQuery({ id: params.id })
+
    const mutate_cancelRequest = head_department_mutations.request.cancelRequest()
 
-   function handleCancelRequest() {
+   function handleCancelRequest(requestId: string) {
       mutate_cancelRequest.mutate(
-         { id: params.id },
+         { id: requestId },
          {
             onSuccess: async () => {
                await api_requests.refetch()
@@ -49,43 +42,46 @@ function Page({
       )
    }
 
-   const percentFinished = useMemo(() => {
-      if (!api_requests.isSuccess) return 0
-      return Math.floor(
-         (api_requests.data.issues.reduce((acc, prev) => {
-            return acc + (prev.status === IssueStatusEnum.RESOLVED ? 1 : 0)
-         }, 0) *
-            100) /
-            api_requests.data.issues?.length,
-      )
-   }, [api_requests.data?.issues, api_requests.isSuccess])
-
-   function handleBack() {
-      if (searchParams.viewingHistory === "true") {
-         router.back()
-      } else {
-         router.push(`${hd_uris.navbar.history}?status=${api_requests.data?.status}`)
-      }
-   }
-
    return (
-      <div className="std-layout relative h-max min-h-full bg-white pb-24">
-         <PageHeader
-            title={searchParams.viewingHistory === "true" ? "Quay Lại | Yêu cầu" : "Yêu cầu"}
-            handleClickIcon={handleBack}
-            icon={PageHeader.BackIcon}
-            className="std-layout-outer relative z-30"
-         />
-         <Image
-            className="std-layout-outer absolute h-32 w-full object-cover opacity-40"
-            src="/images/requests.jpg"
-            alt="image"
-            width={784}
-            height={100}
-            style={{
-               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-            }}
+      <div className="std-layout relative h-max min-h-full bg-white pb-layout">
+         <div className={"std-layout-outer fixed left-0 top-0 h-screen w-full bg-head_department"} />
+         <PageHeaderV2
+            prevButton={<PageHeaderV2.BackButton onClick={router.back} />}
+            title={"Chi tiết Yêu cầu"}
+            nextButton={
+               <Dropdown
+                  menu={{
+                     items: [
+                        {
+                           label: "Hủy yêu cầu",
+                           key: "head-cancel",
+                           className: api_requests.data?.status === FixRequestStatus.PENDING ? "block" : "hidden",
+                           danger: true,
+                           onClick: () => {
+                              modal.confirm({
+                                 title: "Lưu ý",
+                                 content: "Bạn có chắc muốn hủy yêu cầu này?",
+                                 type: "warning",
+                                 okText: "Hủy yêu cầu",
+                                 okButtonProps: {
+                                    danger: true,
+                                 },
+                                 cancelText: "Đóng",
+                                 centered: true,
+                                 maskClosable: true,
+                                 closable: true,
+                                 onOk: () => {
+                                    handleCancelRequest(params.id)
+                                 },
+                              })
+                           },
+                        },
+                     ],
+                  }}
+               >
+                  <PageHeaderV2.InfoButton />
+               </Dropdown>
+            }
          />
          {api_requests.isError ? (
             api_requests.error instanceof NotFoundError ? (
@@ -134,222 +130,165 @@ function Page({
                </Card>
             )
          ) : (
-            <>
-               <section className="relative z-50 rounded-lg border-2 border-neutral-200 bg-white shadow-lg">
-                  <h2 className="mb-2 mt-2 px-layout text-lg font-semibold">
-                     <Skeleton paragraph={false} active={api_requests.isPending} loading={api_requests.isPending}>
-                        Thông tin yêu cầu
-                     </Skeleton>
-                  </h2>
-                  <DataListView
-                     bordered
-                     dataSource={api_requests.data}
-                     itemClassName="py-2"
-                     labelClassName="font-normal text-neutral-400 text-[14px]"
-                     valueClassName="text-[14px] font-medium"
-                     items={[
-                        {
-                           label: "Ngày tạo",
-                           value: (e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
-                        },
-                        {
-                           label: "Người yêu cầu",
-                           value: (e) => e.requester?.username ?? "-",
-                        },
-                        {
-                           label: "Trạng thái",
-                           value: (e) => (
-                              <Tag className="m-0" color={FixRequest_StatusMapper(e).colorInverse}>
-                                 {FixRequest_StatusMapper(e).text}
-                              </Tag>
-                           ),
-                        },
-                        {
-                           label: "Ghi chú",
-                           value: (e) => e.requester_note,
-                        },
-                        {
-                           isDivider: true,
-                           label: "",
-                           value: () => null,
-                        },
-                     ]}
-                  />
-                  <h2 className="mb-2 px-layout text-lg font-semibold">
-                     <Skeleton paragraph={false} active={api_requests.isPending} loading={api_requests.isPending}>
-                        Chi tiết thiết bị
-                     </Skeleton>
-                  </h2>
-                  <DataListView
-                     dataSource={api_requests.data?.device}
-                     bordered
-                     itemClassName="py-2"
-                     labelClassName="font-normal text-neutral-500 text-base"
-                     valueClassName="text-base"
-                     items={[
-                        {
-                           label: "Mẫu máy",
-                           value: (s) => s.machineModel?.name,
-                        },
-                        {
-                           label: "Khu vực",
-                           value: (s) => s.area?.name,
-                        },
-                        {
-                           label: "Vị trí (x, y)",
-                           value: (s) => (
-                              <a className="flex items-center gap-1">
-                                 {s.positionX} x {s.positionY}
-                                 <MapPin size={16} weight="fill" />
-                              </a>
-                           ),
-                        },
-                        {
-                           label: "Mô tả",
-                           value: (s) => s.description,
-                        },
-                     ]}
-                  />
+            <article className={"relative z-50"}>
+               <section className={"mb-2"}>
+                  {api_requests.data?.status === FixRequestStatus.REJECTED && (
+                     <section className="flex items-center gap-2 rounded-lg border-2 border-red-200 bg-red-500 px-layout-half py-2 text-white shadow-lg">
+                        <div>
+                           <XCircle size={36} />
+                        </div>
+                        <div>
+                           <h2 className="text-lg font-semibold">Yêu cầu này đã bị từ chối</h2>
+                           Lý do: {api_requests.data?.checker_note ?? "Không có"}
+                        </div>
+                     </section>
+                  )}
+                  {api_requests.data?.status === FixRequestStatus.HEAD_CONFIRM && (
+                     <ClickableArea
+                        className="w-full justify-start gap-0 bg-orange-500"
+                        onClick={() =>
+                           control_feedbackDrawer.current?.handleOpen({
+                              requestId: params.id,
+                           })
+                        }
+                     >
+                        <div className={"rounded-md p-3 pr-4 text-white shadow-sm"}>
+                           <ChatDots size={36} />
+                        </div>
+                        <div className={"flex flex-col items-start p-2 pl-0 text-white"}>
+                           <h2 className={"text-base font-semibold"}>Yêu cầu đã hoàn thành</h2>
+                           <span className={"text-sm"}>Vui lòng đánh giá quá trình sửa chữa</span>
+                        </div>
+                     </ClickableArea>
+                  )}
                </section>
-               <section className="relative z-50 mt-3 rounded-lg border-2 border-neutral-200 bg-white shadow-lg">
-                  <h2 className="mb-2 mt-2 px-layout text-lg font-semibold">
-                     <Skeleton paragraph={false} active={api_requests.isPending} loading={api_requests.isPending}>
-                        Tiến độ công việc
-                     </Skeleton>
-                  </h2>
-                  <Card size="small" loading={api_requests.isPending}>
+               <section className="rounded-lg border-2 border-neutral-200 bg-white py-2 shadow-lg">
+                  {api_requests.isPending && <Card loading />}
+                  {api_requests.isSuccess && (
+                     <>
+                        <Descriptions
+                           className="p-layout-half"
+                           contentStyle={{
+                              display: "flex",
+                              justifyContent: "end",
+                           }}
+                           colon={false}
+                           items={[
+                              {
+                                 label: "Ngày tạo",
+                                 children: dayjs(api_requests.data?.createdAt).format("DD/MM/YYYY - HH:mm"),
+                              },
+                              {
+                                 label: "Trạng thái",
+                                 children: <RequestStatusTag status={api_requests.data?.status} />,
+                              },
+                              {
+                                 label: "Ghi chú",
+                                 children: api_requests.data?.requester_note,
+                                 span: 2,
+                              },
+                           ]}
+                        />
+                        <Divider className="my-2"></Divider>
+                        <Descriptions
+                           className="p-layout-half"
+                           contentStyle={{
+                              display: "flex",
+                              justifyContent: "end",
+                           }}
+                           colon={false}
+                           items={[
+                              {
+                                 label: "Mẫu máy",
+                                 children: api_requests.data?.device?.machineModel?.name,
+                              },
+                              {
+                                 label: "Vị trí",
+                                 children: `Khu vực ${api_requests.data?.device?.area?.name} (${api_requests.data?.device?.positionX ?? "x"}, ${api_requests.data?.device?.positionY ?? "y"})`,
+                              },
+                           ]}
+                        />
+                     </>
+                  )}
+               </section>
+               <section className="mt-3 rounded-lg border-2 border-neutral-200 bg-white shadow-lg">
+                  <Card size="small" loading={api_requests.isPending} title={"Tiến độ công việc"}>
                      <Steps
                         size="small"
                         direction="vertical"
-                        current={FixRequest_StatusMapper(api_requests.data).index}
+                        current={(function () {
+                           switch (api_requests.data?.status) {
+                              case FixRequestStatus.PENDING:
+                                 return 0
+                              case FixRequestStatus.APPROVED:
+                              case FixRequestStatus.IN_PROGRESS:
+                                 return 3
+                              case FixRequestStatus.HEAD_CONFIRM:
+                                 return 4
+                              case FixRequestStatus.CLOSED:
+                                 return 5
+                              case FixRequestStatus.HEAD_CANCEL:
+                                 return 2
+                              case FixRequestStatus.REJECTED:
+                                 return 1
+                           }
+                        })()}
                         status={api_requests.data?.status === FixRequestStatus.REJECTED ? "error" : "process"}
                         className="std-steps"
                         items={[
                            {
-                              title: FixRequest_StatusData("pending").text,
-                              description:
-                                 api_requests.data?.status === FixRequest_StatusData("pending").statusEnum ? (
-                                    <div className="space-y-2">
-                                       <div>{FixRequest_StatusData("pending").description}</div>
-                                       <ModalConfirm
-                                          type="warning"
-                                          description="Bạn có chắc chắn muốn hủy báo cáo này?"
-                                          confirmProps={{
-                                             type: "primary",
-                                             className: "bg-yellow-500",
-                                          }}
-                                          confirmText="Đồng ý"
-                                          cancelText="Quay lại"
-                                          onConfirm={handleCancelRequest}
-                                       >
-                                          <Button danger icon={<DeleteOutlined />}>
-                                             Hủy báo cáo
-                                          </Button>
-                                       </ModalConfirm>
-                                    </div>
-                                 ) : null,
-                              className: "text-base",
+                              title: "Chưa xử lý",
+                              description: <span className={"text-sm"}>Yêu cầu chưa được xử lý</span>,
                            },
-                           ...(api_requests.isSuccess
-                              ? !FixRequest_StatusData("rejected").conditionFn(api_requests.data) &&
-                                !FixRequest_StatusData("head_cancel").conditionFn(api_requests.data)
-                                 ? [
-                                      {
-                                         title: FixRequest_StatusData("approved").text,
-                                         description:
-                                            api_requests.data?.status === FixRequest_StatusData("approved").statusEnum
-                                               ? FixRequest_StatusData("approved").description
-                                               : null,
-                                         className: "text-base",
-                                      },
-                                      {
-                                         title: FixRequest_StatusData("in_progress").text,
-                                         description:
-                                            api_requests.data?.status ===
-                                            FixRequest_StatusData("in_progress").statusEnum ? (
-                                               <div>
-                                                  {FixRequest_StatusData("in_progress").description}
-                                                  <Progress percent={percentFinished} />
-                                               </div>
-                                            ) : null,
-                                         className: "text-base",
-                                      },
-                                      {
-                                         title: FixRequest_StatusData("head_confirm").text,
-                                         description:
-                                            api_requests.data?.status ===
-                                            FixRequest_StatusData("head_confirm").statusEnum ? (
-                                               <div>
-                                                  {FixRequest_StatusData("head_confirm").description}
-                                                  {api_requests.data?.status === FixRequestStatus.HEAD_CONFIRM && (
-                                                     <Button
-                                                        type="primary"
-                                                        className="mt-1"
-                                                        onClick={() =>
-                                                           control_feedbackDrawer.current?.handleOpen({
-                                                              requestId: params.id,
-                                                           })
-                                                        }
-                                                     >
-                                                        Đánh giá
-                                                     </Button>
-                                                  )}
-                                               </div>
-                                            ) : null,
-                                         className: "text-base",
-                                      },
-                                      {
-                                         title: FixRequest_StatusData("closed").text,
-                                         description:
-                                            api_requests.data?.status === FixRequest_StatusData("closed").statusEnum
-                                               ? FixRequest_StatusData("closed").description
-                                               : null,
-                                         className: "text-base",
-                                      },
-                                   ]
-                                 : FixRequest_StatusData("head_cancel").conditionFn(api_requests.data)
-                                   ? [
-                                        {
-                                           title: FixRequest_StatusData("head_cancel").text,
-                                           description:
-                                              api_requests.data?.status ===
-                                              FixRequest_StatusData("head_cancel").statusEnum
-                                                 ? FixRequest_StatusData("head_cancel").description
-                                                 : null,
-                                           className: "text-base",
-                                        },
-                                     ]
-                                   : [
-                                        {
-                                           title: FixRequest_StatusData("rejected").text,
-                                           description:
-                                              api_requests.data?.status === FixRequest_StatusData("rejected").statusEnum
-                                                 ? FixRequest_StatusData("rejected").description
-                                                 : null,
-                                           className: "text-base",
-                                        },
-                                     ]
-                              : []),
+                           {
+                              title: "Đã Từ chối",
+                              description: <span className={"text-sm"}>Yêu cầu đã bị từ chối</span>,
+                              className: api_requests.data?.status === FixRequestStatus.REJECTED ? "" : "hidden",
+                           },
+                           {
+                              title: "Đã hủy",
+                              description: <span className={"text-sm"}>Yêu cầu đã bị bạn hủy</span>,
+                              className: api_requests.data?.status === FixRequestStatus.HEAD_CANCEL ? "" : "hidden",
+                           },
+                           {
+                              title: "Đang sửa chữa",
+                              description: <span className={"text-sm"}>Đang sửa chữa thiết bị</span>,
+                              className:
+                                 api_requests.isSuccess &&
+                                 new Set([FixRequestStatus.REJECTED, FixRequestStatus.HEAD_CANCEL]).has(
+                                    api_requests.data.status,
+                                 )
+                                    ? "hidden"
+                                    : "",
+                           },
+
+                           {
+                              title: "Chờ đánh giá",
+                              description: <span className={"text-sm"}>Yêu cầu đã hoàn thành và chờ đánh giá</span>,
+                              className:
+                                 api_requests.isSuccess &&
+                                 new Set([FixRequestStatus.REJECTED, FixRequestStatus.HEAD_CANCEL]).has(
+                                    api_requests.data.status,
+                                 )
+                                    ? "hidden"
+                                    : "",
+                           },
+                           {
+                              title: "Đóng",
+                              description: <span className={"text-sm"}>Yêu cầu đã được đóng</span>,
+                              className:
+                                 api_requests.isSuccess &&
+                                 new Set([FixRequestStatus.REJECTED, FixRequestStatus.HEAD_CANCEL]).has(
+                                    api_requests.data.status,
+                                 )
+                                    ? "hidden"
+                                    : "",
+                           },
                         ]}
                      />
                   </Card>
                </section>
-               {api_requests.data?.status === FixRequestStatus.REJECTED && (
-                  <section className="mt-3 w-full">
-                     <Card
-                        title={
-                           <div className="flex items-center gap-1">
-                              <XCircle size={18} />
-                              Lý do
-                           </div>
-                        }
-                        size="small"
-                     >
-                        {api_requests.data?.checker_note}
-                     </Card>
-                  </section>
-               )}
-            </>
+            </article>
          )}
          <OverlayControllerWithRef ref={control_feedbackDrawer}>
             <FeedbackDrawer

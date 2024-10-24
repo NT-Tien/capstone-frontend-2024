@@ -2,6 +2,7 @@ import { Input, Modal, ModalProps, Select } from "antd"
 import Form from "antd/es/form"
 import { useEffect } from "react"
 import stockkeeper_mutations from "@/features/stockkeeper/mutations"
+import AlertCard from "@/components/AlertCard"
 
 type FieldType = {
    reason: string
@@ -9,8 +10,10 @@ type FieldType = {
 }
 
 type SparePart_CannotExportModalProps = {
-   taskId?: string
-   onSuccess?: () => void
+   defaultReason?: string
+   defaultDescription?: string
+   issueId?: string
+   handleSubmit?: (values: FieldType, issueId: string) => void
 }
 type Props = Omit<ModalProps, "children"> &
    SparePart_CannotExportModalProps & {
@@ -21,24 +24,12 @@ function SparePart_CannotExportModal(props: Props) {
    const [form] = Form.useForm<FieldType>()
    const reason = Form.useWatch("reason", form)
 
-   const mutate_cancelTask = stockkeeper_mutations.task.cancel()
-
-   function handleSubmit(values: FieldType, taskId: string) {
-      mutate_cancelTask.mutate(
-         {
-            id: taskId,
-            payload: {
-               reason: values.reason + (values.description ? `: ${values.description}` : ""),
-            },
-         },
-         {
-            onSuccess: () => {
-               props.handleClose?.()
-               props.onSuccess?.()
-            },
-         },
-      )
-   }
+   useEffect(() => {
+      form.setFieldsValue({
+         reason: props.defaultReason,
+         description: props.defaultDescription,
+      })
+   }, [props.defaultDescription, props.defaultReason])
 
    useEffect(() => {
       if (!props.open) {
@@ -48,7 +39,7 @@ function SparePart_CannotExportModal(props: Props) {
 
    return (
       <Modal
-         title="Hủy tác vụ"
+         title="Hủy lỗi"
          centered
          classNames={{
             footer: "mt-3",
@@ -56,16 +47,17 @@ function SparePart_CannotExportModal(props: Props) {
          onOk={() => form.submit()}
          {...props}
       >
+         <AlertCard text="Vui lòng chọn lý do hủy lỗi" type="info" className="mb-4" />
          <Form<FieldType>
             form={form}
             layout="vertical"
             onFinish={(values) => {
-               props.taskId && handleSubmit(values, props.taskId)
+               props.issueId && props.handleSubmit?.(values, props.issueId)
             }}
          >
-            <Form.Item<FieldType> name="reason" label="Lý do hủy tác vụ" rules={[{ required: true }]}>
+            <Form.Item<FieldType> name="reason" label="Lý do" rules={[{ required: true }]}>
                <Select
-                  placeholder="Chọn lý do hủy tác vụ"
+                  placeholder="Chọn lý do"
                   options={[
                      {
                         label: "Linh kiện không tồn tại",

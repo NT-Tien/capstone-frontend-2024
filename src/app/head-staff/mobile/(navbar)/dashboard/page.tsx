@@ -86,9 +86,9 @@ function Page() {
 
    return (
       <div>
-            <div className="std-layout bg-head_maintenance">
-               <HomeHeader className="std-layout-inner pb-8 pt-4" onIconClick={navDrawer.handleOpen} />
-            </div>
+         <div className="std-layout bg-head_maintenance">
+            <HomeHeader className="std-layout-inner pb-8 pt-4" onIconClick={navDrawer.handleOpen} />
+         </div>
          <div className="std-layout">
             <section className="mt-5 grid grid-cols-2 gap-4">
                <Card

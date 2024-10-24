@@ -10,26 +10,38 @@ import AlertCard from "@/components/AlertCard"
 import DesktopScannerDrawer from "@/components/overlays/DesktopScanner.drawer"
 import { PageContainer } from "@ant-design/pro-components"
 import { useMutation, useQueries } from "@tanstack/react-query"
-import { Button, Descriptions, message, App, Table, Dropdown } from "antd"
+import { Button, Descriptions, message, App, Table, Dropdown, List, Tag } from "antd"
 import dayjs from "dayjs"
 import { useState, useRef, useMemo } from "react"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import DualSignatureDrawer, {
    DualSignatureDrawerProps,
 } from "@/features/stockkeeper/components/overlay/DualSignature.drawer"
-import { MoreOutlined } from "@ant-design/icons"
+import { EditOutlined, MoreOutlined, UndoOutlined } from "@ant-design/icons"
 import SparePart_CannotExportModal, {
    SparePart_CannotExportModalProps,
 } from "@/features/stockkeeper/components/overlay/SparePart_CannotExport.modal"
+import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
+import stockkeeper_mutations from "@/features/stockkeeper/mutations"
 
 function Page({ searchParams }: { searchParams: { taskid?: string } }) {
    const { message } = App.useApp()
 
    const [scannedResult, setScannedResult] = useState<string | null>(searchParams.taskid ?? null)
+   const [failedIssues, setFailedIssues] = useState<{
+      [issueId: string]: {
+         reason: string
+      }
+   }>({})
 
    const createSignatureDrawerRef = useRef<CreateSignatureDrawerRefType | null>(null)
    const control_dualSignatureDrawer = useRef<RefType<DualSignatureDrawerProps>>(null)
    const control_sparePartCannotExportModal = useRef<RefType<SparePart_CannotExportModalProps>>(null)
+
+   const mutate_failIssues = stockkeeper_mutations.issue.failMany()
 
    const api = useQueries({
       queries: [
@@ -43,10 +55,38 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
          task: result[0],
          spareParts: {
             ...result[0],
-            data: result[0].data?.issues.flatMap((i) => i.issueSpareParts) ?? [],
+            data: result[0].data?.issues.flatMap((issue: IssueDto) => issue.issueSpareParts),
          },
       }),
    })
+
+   const lazy_spareParts = useMemo(() => {
+      const returnValue: {
+         [sparePartId: string]: {
+            sparePart: SparePartDto
+            quantity: number
+            issues: IssueDto[]
+            key: string
+         }
+      } = {}
+
+      for (const issue of api.task.data?.issues ?? []) {
+         for (const issueSparePart of issue.issueSpareParts) {
+            if (!returnValue[issueSparePart.sparePart.id]) {
+               returnValue[issueSparePart.sparePart.id] = {
+                  key: issueSparePart.sparePart.id,
+                  sparePart: issueSparePart.sparePart,
+                  quantity: 0,
+                  issues: [],
+               }
+            }
+            returnValue[issueSparePart.sparePart.id].quantity += issueSparePart.quantity
+            returnValue[issueSparePart.sparePart.id].issues.push(issue)
+         }
+      }
+
+      return returnValue
+   }, [api.task.data?.issues])
 
    const mutate_confirmReceipt = useMutation({
       mutationFn: Stockkeeper_Task_ReceiveSpareParts,
@@ -74,11 +114,11 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
    })
 
    const hasSparePartsAndCollected = useMemo(() => {
-      return api.spareParts.data?.length > 0 && api.task.data?.confirmReceipt
+      return api.spareParts.data && api.spareParts.data?.length > 0 && api.task.data?.confirmReceipt
    }, [api.spareParts.data, api.task.data?.confirmReceipt])
 
    const hasSparePartsButNotCollected = useMemo(() => {
-      return api.spareParts.data?.length > 0 && !api.task.data?.confirmReceipt
+      return api.spareParts.data && api.spareParts.data?.length > 0 && !api.task.data?.confirmReceipt
    }, [api.spareParts.data, api.task.data?.confirmReceipt])
 
    const hasNoSpareParts = useMemo(() => {
@@ -162,23 +202,6 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                         // >
                         //    Quét QR Thiết bị mới
                         // </Button>,
-                        <Dropdown
-                           key="other"
-                           menu={{
-                              items: [
-                                 {
-                                    label: "Không thể giao linh kiện",
-                                    key: "cannot-export",
-                                    onClick: () =>
-                                       control_sparePartCannotExportModal.current?.handleOpen({
-                                          taskId: scannedResult ?? undefined,
-                                       }),
-                                 },
-                              ],
-                           }}
-                        >
-                           <Button icon={<MoreOutlined />} />
-                        </Dropdown>,
                      ]}
                      content={
                         <>
@@ -236,6 +259,10 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                                           label: "Linh kiện",
                                           children: api.task.data.confirmReceipt ? "Đã lấy" : "Chưa lấy",
                                        },
+                                       {
+                                          label: "Mẫu máy",
+                                          children: api.task.data?.device.machineModel?.name ?? "-",
+                                       },
                                     ]}
                                  />
                               </div>
@@ -246,33 +273,165 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                         className: !scannedResult ? "hidden" : "",
                      }}
                      tabList={[
-                        ...(api.spareParts.isSuccess && api.spareParts.data.length > 0
+                        ...(api.spareParts.data && api.spareParts.data.length > 0
                            ? [
                                 {
-                                   tab: "Linh kiện",
+                                   tab: "Tất cả Linh kiện",
                                    key: "spare-part",
                                    children: (function SpareParts() {
                                       return (
                                          <Table
-                                            dataSource={api.spareParts.data}
+                                            expandable={{
+                                               expandRowByClick: true,
+                                               expandedRowRender: (record, index) => (
+                                                  <Table
+                                                     dataSource={record.issues}
+                                                     pagination={false}
+                                                     columns={[
+                                                        {
+                                                           title: "Tên lỗi",
+                                                           render: (_, current) => current.typeError.name,
+                                                        },
+                                                        {
+                                                           title: "Trạng thái",
+                                                           render: (_, current) => {
+                                                              if (failedIssues[current.id]) {
+                                                                 return <Tag color="red">Thất bại</Tag>
+                                                              } else {
+                                                                 return (
+                                                                    <Tag
+                                                                       color={
+                                                                          IssueStatusEnumTagMapper[current.status].color
+                                                                       }
+                                                                    >
+                                                                       {IssueStatusEnumTagMapper[current.status].text}
+                                                                    </Tag>
+                                                                 )
+                                                              }
+                                                           },
+                                                        },
+                                                        {
+                                                           title: "Số linh kiện cần",
+                                                           render: (_, current) => {
+                                                              return (
+                                                                 current.issueSpareParts.find(
+                                                                    (x: IssueSparePartDto) =>
+                                                                       x.sparePart.id === record.sparePart.id,
+                                                                 )?.quantity ?? 0
+                                                              )
+                                                           },
+                                                        },
+                                                        {
+                                                           title: "Ghi chú",
+                                                           width: 500,
+                                                           render: (_, current) => {
+                                                              if (failedIssues[current.id]) {
+                                                                 return failedIssues[current.id].reason
+                                                              } else return "-"
+                                                           },
+                                                        },
+                                                        {
+                                                           title: "",
+                                                           fixed: "right",
+                                                           width: 50,
+                                                           render: (_, record) => (
+                                                              <Dropdown
+                                                                 key={"actions"}
+                                                                 menu={{
+                                                                    items: [
+                                                                       ...(failedIssues[record.id]
+                                                                          ? [
+                                                                               {
+                                                                                  key: "undo",
+                                                                                  label: "Quay lại",
+                                                                                  icon: <UndoOutlined />,
+                                                                                  onClick: () =>
+                                                                                     setFailedIssues((prev) => {
+                                                                                        const {
+                                                                                           [record.id]: _,
+                                                                                           ...rest
+                                                                                        } = prev
+                                                                                        return rest
+                                                                                     }),
+                                                                               },
+                                                                               {
+                                                                                  key: "update",
+                                                                                  label: "Cập nhật lý do",
+                                                                                  icon: <EditOutlined />,
+                                                                                  onClick: () => {
+                                                                                     const reason =
+                                                                                        failedIssues[record.id].reason
+                                                                                     const defaultReason =
+                                                                                        reason.split(":")[0]
+                                                                                     const defaultDescription = reason
+                                                                                        .split(":")[1]
+                                                                                        ?.trim()
+                                                                                     control_sparePartCannotExportModal.current?.handleOpen(
+                                                                                        {
+                                                                                           issueId: record.id,
+                                                                                           defaultReason,
+                                                                                           defaultDescription,
+                                                                                        },
+                                                                                     )
+                                                                                  },
+                                                                               },
+                                                                            ]
+                                                                          : [
+                                                                               {
+                                                                                  key: "cannot-fetch-spare-part",
+                                                                                  label: "Không thể lấy linh kiện",
+                                                                                  danger: true,
+                                                                                  onClick: () =>
+                                                                                     control_sparePartCannotExportModal.current?.handleOpen(
+                                                                                        {
+                                                                                           issueId: record.id,
+                                                                                        },
+                                                                                     ),
+                                                                               },
+                                                                            ]),
+                                                                    ],
+                                                                 }}
+                                                              >
+                                                                 <Button
+                                                                    type={"primary"}
+                                                                    icon={<MoreOutlined />}
+                                                                 ></Button>
+                                                              </Dropdown>
+                                                           ),
+                                                        },
+                                                     ]}
+                                                  />
+                                               ),
+                                               fixed: "left",
+                                            }}
+                                            dataSource={Object.values(lazy_spareParts)}
                                             loading={api.spareParts.isPending}
                                             pagination={false}
                                             columns={[
+                                               Table.EXPAND_COLUMN,
                                                {
                                                   key: "index",
                                                   title: "STT",
                                                   render: (_, __, index) => index + 1,
-                                                  width: 50,
+                                                  width: 70,
                                                },
                                                {
                                                   key: "name",
                                                   title: "Tên linh kiện",
                                                   dataIndex: ["sparePart", "name"],
+                                                  render: (_, record) => record?.sparePart?.name,
                                                },
                                                {
                                                   key: "quantity",
                                                   title: "Số lượng",
                                                   dataIndex: "quantity",
+                                                  render: (quantity) => quantity,
+                                               },
+                                               {
+                                                  key: "no_issues",
+                                                  title: "Số lỗi",
+                                                  render: (_, record) => record.issues.length,
+                                                  width: 80,
                                                },
                                             ]}
                                          />
@@ -318,9 +477,21 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                   >
                      <OverlayControllerWithRef ref={control_dualSignatureDrawer}>
                         <DualSignatureDrawer
-                           onSubmit={(staff, stockkeeper) => {
+                           onSubmit={async (staff, stockkeeper) => {
                               if (!scannedResult || !api.task.isSuccess) return
-                              mutate_confirmReceipt.mutate(
+                              const failed = Object.entries(failedIssues)
+                              if (failed.length > 0) {
+                                 await mutate_failIssues.mutateAsync({
+                                    issues: failed.map((issue) => ({
+                                       id: issue[0],
+                                       reason: issue[1].reason,
+                                    })),
+                                    staffSignature: staff,
+                                    stockkeeperSignature: stockkeeper,
+                                 })
+                              }
+
+                              await mutate_confirmReceipt.mutateAsync(
                                  {
                                     id: api.task.data.id,
                                     payload: {
@@ -331,6 +502,7 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                                  {
                                     onSuccess: async () => {
                                        await api.task.refetch()
+                                       setScannedResult(null)
                                        control_dualSignatureDrawer.current?.handleClose()
                                        setTimeout(() => {
                                           handleOpen()
@@ -343,12 +515,14 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                      </OverlayControllerWithRef>
                      <OverlayControllerWithRef ref={control_sparePartCannotExportModal}>
                         <SparePart_CannotExportModal
-                           onSuccess={() => {
+                           handleSubmit={(values, issueId) => {
+                              setFailedIssues((prev) => ({
+                                 ...prev,
+                                 [issueId]: {
+                                    reason: values.reason + (values.description ? `: ${values.description}` : ""),
+                                 },
+                              }))
                               control_sparePartCannotExportModal.current?.handleClose()
-                              setTimeout(() => {
-                                 api.task.refetch()
-                                 handleOpen()
-                              }, 250)
                            }}
                         />
                      </OverlayControllerWithRef>

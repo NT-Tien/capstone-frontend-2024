@@ -34,7 +34,14 @@ export default function Step1(props: Step2Props) {
 
    const failedIssuesWithSpareParts = useMemo(() => {
       const failedIssues = props.data?.issues.filter((issue) => issue.status === IssueStatusEnum.FAILED)
-      return failedIssues?.filter((failedIssue) => failedIssue.issueSpareParts.length > 0) ?? []
+      return (
+         failedIssues?.filter(
+            (failedIssue) =>
+               failedIssue.issueSpareParts.length > 0 &&
+               !failedIssue.returnSparePartsStaffSignature &&
+               !failedIssue.returnSparePartsStaffSignature,
+         ) ?? []
+      )
       // return failedIssues?.filter((failedIssue) => failedIssue.issueSpareParts.length > 0)
    }, [props.data?.issues])
 

@@ -97,10 +97,10 @@ export default function StaffTasksPage() {
    }, [api_tasks.data, api_tasks.isSuccess])
 
    return (
-      <TaskDetailsDrawer>
+      <TaskDetailsDrawer refetchFn={() => api_tasks.refetch()}>
          {(handleOpen) => (
             <div className="relative h-full min-h-screen bg-white">
-               <div className="std-layout bg-staff mb-2">
+               <div className="std-layout mb-2 bg-staff">
                   <PageHeader
                      title="Tác vụ"
                      className="std-layout-outer relative z-50"

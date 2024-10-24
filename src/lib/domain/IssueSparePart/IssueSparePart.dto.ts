@@ -1,4 +1,5 @@
 import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 
 export type IssueSparePartDto = {
    id: string
@@ -8,4 +9,5 @@ export type IssueSparePartDto = {
    quantity: number
    note: string | null
    sparePart: SparePartDto
+   issue?: IssueDto
 }

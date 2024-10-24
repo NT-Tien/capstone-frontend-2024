@@ -8,10 +8,9 @@ import DataListView from "@/components/DataListView"
 import PageHeader from "@/components/layout/PageHeader"
 import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App } from "antd"
+import { App, Dropdown } from "antd"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
 import Result from "antd/es/result"
@@ -21,20 +20,21 @@ import dayjs from "dayjs"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Suspense, useEffect, useMemo, useRef } from "react"
-import TabbedLayout from "../../../../../../HM/(stack)/requests/[id]/fix/TabbedLayout.component"
-import isApproved from "./is-approved.util"
-import Request_RejectDrawer, {
-   Request_RejectDrawerProps,
-} from "../../../../../../../features/head-maintenance/components/overlays/Request_Reject.drawer"
 import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import { cn } from "@/lib/utils/cn.util"
-import Task_ViewDetailsDrawer, {
-   TaskDetailsDrawerRefType,
-} from "../../../../../../../features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import HeadStaff_Task_Create from "@/features/head-maintenance/api/task/create.api"
 import HeadStaff_Task_Update from "@/features/head-maintenance/api/task/update.api"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import Request_RejectDrawer, {
+   Request_RejectDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Request_Reject.drawer"
+import Task_ViewDetailsDrawer, {
+   TaskDetailsDrawerRefType,
+} from "@/features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
+import TabbedLayout from "@/app/HM/(stack)/requests/[id]/fix/TabbedLayout.component"
+import PageHeaderV2 from "@/components/layout/PageHeaderV2"
+import hm_uris from "@/features/head-maintenance/uri"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
@@ -75,15 +75,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    const mutate_updateTaskStatus = useMutation({
       mutationFn: HeadStaff_Task_Update,
    })
-
-   const percentFinished = useMemo(() => {
-      if (!api_request.isSuccess) return
-      return (
-         (api_request.data.issues.filter((task) => task.status !== IssueStatusEnum.PENDING).length /
-            api_request.data.issues.length) *
-         100
-      )
-   }, [api_request.data, api_request.isSuccess])
 
    const isWarranty = useMemo(() => {
       return api_request.data?.issues.find(
@@ -146,12 +137,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    }
 
    useEffect(() => {
-      if (api_request.isSuccess && !isApproved(api_request.data.status)) {
-         router.push(`/head-staff/mobile/requests/${params.id}`)
-      }
-   }, [api_request.data, api_request.isSuccess, params.id, router])
-
-   useEffect(() => {
       if (!api_request.isSuccess) return
 
       const task = api_request.data.tasks.find((task) => task.status === TaskStatus.HEAD_STAFF_CONFIRM)
@@ -208,23 +193,33 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
 
    return (
       <div className="relative flex min-h-screen flex-col">
-         <PageHeader
-            title={searchParams.viewingHistory === "true" ? "Quay Lại | Yêu cầu" : "Yêu cầu"}
-            handleClickIcon={handleBack}
-            icon={PageHeader.BackIcon}
-            className="relative z-30"
+         <div className={"std-layout-outer absolute left-0 top-0 h-36 w-full bg-head_maintenance"} />
+         <PageHeaderV2
+            prevButton={<PageHeaderV2.BackButton onClick={router.back} />}
+            title={"Yêu cầu: Sửa chữa"}
+            nextButton={
+               <Dropdown
+                  menu={{
+                     items: [],
+                  }}
+               >
+                  <PageHeaderV2.InfoButton />
+               </Dropdown>
+            }
+            className={"relative z-50"}
+            type={"light"}
          />
-         <Image
-            className="absolute top-0 h-32 w-full object-cover opacity-40"
-            src="/images/requests.jpg"
-            alt="image"
-            width={784}
-            height={100}
-            style={{
-               WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-               maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",
-            }}
-         />
+         {/*<Image*/}
+         {/*   className="absolute top-0 h-32 w-full object-cover opacity-40"*/}
+         {/*   src="/images/requests.jpg"*/}
+         {/*   alt="image"*/}
+         {/*   width={784}*/}
+         {/*   height={100}*/}
+         {/*   style={{*/}
+         {/*      WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",*/}
+         {/*      maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",*/}
+         {/*   }}*/}
+         {/*/>*/}
          {api_request.isError ? (
             <>
                {api_request.error instanceof NotFoundError ? (
@@ -391,7 +386,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
          <OverlayControllerWithRef ref={control_rejectRequestDrawer}>
             <Request_RejectDrawer
                onSuccess={() => {
-                  router.push(`/head-staff/mobile/requests/${params.id}`)
+                  router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.REJECTED}`)
                }}
             />
          </OverlayControllerWithRef>

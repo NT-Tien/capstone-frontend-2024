@@ -17,6 +17,7 @@ type Response = {
    awaitingSparePartTasks: number
    inProgressTasks: number
    headStaffConfirmTasks: number
+   completedTasks?: number
 }
 
 HeadStaff_Dashboard_Count.URL = (req: Request) => `/head-staff/dashboard`

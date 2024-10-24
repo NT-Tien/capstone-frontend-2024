@@ -1,5 +1,5 @@
 import { ReactNode, useMemo } from "react"
-import { Divider, Space } from "antd"
+import { Divider, Space, SpaceProps } from "antd"
 import { cn } from "@/lib/utils/cn.util"
 
 type Item = {
@@ -15,6 +15,7 @@ type Props = {
    classNames?: {
       item: string
    }
+   spaceProps?: SpaceProps
 }
 
 function DataGrid(props: Props) {
@@ -46,6 +47,7 @@ function DataGrid(props: Props) {
                classNames={{
                   item: "w-full",
                }}
+               {...props.spaceProps}
             >
                {item_rows[row].map((item, col) => (
                   <div

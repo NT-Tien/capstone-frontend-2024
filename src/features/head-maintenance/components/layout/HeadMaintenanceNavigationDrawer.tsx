@@ -12,6 +12,7 @@ import { usePathname, useRouter } from "next/navigation"
 import NavigationDrawer, { NavigationDrawerProps } from "@/components/layout/NavigationDrawer"
 import { createContext, PropsWithChildren, useContext, useRef } from "react"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import hm_uris from "@/features/head-maintenance/uri"
 
 type ContextType = {
    handleOpen: () => void
@@ -42,19 +43,13 @@ function HeadMaintenanceNavigaionDrawer(props: PropsWithChildren) {
                      label: "Trang chủ",
                      icon: <HomeOutlined />,
                      type: "item",
-                     key: "/head-staff/mobile/dashboard",
+                     key: hm_uris.navbar.dashboard,
                   },
                   {
                      label: "Danh sách yêu cầu",
                      icon: <InboxOutlined />,
                      type: "item",
-                     key: "/head-staff/mobile/requests",
-                  },
-                  {
-                     label: "Danh sách tác vụ",
-                     icon: <CheckSquareOutlined />,
-                     type: "item",
-                     key: "/head-staff/mobile/tasks",
+                     key: hm_uris.navbar.requests,
                   },
                ]}
             />

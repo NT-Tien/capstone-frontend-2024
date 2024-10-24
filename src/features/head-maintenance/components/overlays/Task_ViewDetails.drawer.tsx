@@ -57,6 +57,7 @@ import Task_CreateDrawer, {
 import IssueDetailsDrawer, {
    IssueDetailsDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Issue_Details.drawer"
+import hm_uris from "@/features/head-maintenance/uri"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto, requestId: string) => void
@@ -294,7 +295,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                className="w-full"
                size="large"
                onClick={() => {
-                  router.push(`/head-staff/mobile/tasks/${task.id}?goto=request`)
+                  message.info("Not implemented")
                }}
             >
                Xem chi tiết
@@ -389,7 +390,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                            {
                               label: "Chi tiết",
                               key: "detail",
-                              onClick: () => task && router.push(`/head-staff/mobile/tasks/${task.id}?goto=request`),
+                              onClick: () => message.info("Not implemented"),
                            },
                            ...(task &&
                            new Set([
@@ -609,7 +610,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
             <Task_VerifyComplete_IssueFailedDrawer
                onSubmit={() => {
                   handleUpdateConfirmCheck()
-                  requestId && router.push(`/head-staff/mobile/requests/${requestId}/approved?tab=issues`)
+                  requestId && router.push(hm_uris.stack.requests_id_fix(requestId) + `?tab=issues`)
                }}
             />
          </OverlayControllerWithRef>

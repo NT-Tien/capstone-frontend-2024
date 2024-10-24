@@ -6,6 +6,7 @@ import useDashboard_Count from "@/features/head-maintenance/queries/Dashboard_Co
 import useRequest_Statistics from "@/features/head-maintenance/queries/Request_Statistics.query"
 import useTypeError_Common from "@/features/head-maintenance/queries/TypeError_Common.query"
 import useIssue_One from "@/features/head-maintenance/queries/Issue_One.query"
+import useRequest_All from "@/features/head-maintenance/queries/Request_All.query"
 
 const head_maintenance_queries = {
    device: {
@@ -14,6 +15,7 @@ const head_maintenance_queries = {
       all_requestHistory: useDevice_AllRequestHistoryQuery,
    },
    request: {
+      all: useRequest_All,
       one: useRequest_OneQuery,
       statistics: useRequest_Statistics,
    },

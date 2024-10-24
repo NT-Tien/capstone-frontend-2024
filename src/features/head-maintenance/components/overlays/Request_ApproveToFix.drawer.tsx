@@ -26,6 +26,7 @@ import { App } from "antd"
 type Request_ApproveToFixDrawerProps = {
    requestId?: string
    refetchFn?: () => void
+   onSuccess?: () => void
 }
 type Props = Omit<DrawerProps, "children"> & Request_ApproveToFixDrawerProps
 
@@ -110,9 +111,7 @@ function Request_ApproveToFixDrawer(props: Props) {
                   },
                },
                {
-                  onSuccess: async () => {
-                     router.push(`/head-staff/mobile/requests?status=${FixRequestStatus.APPROVED}`)
-                  },
+                  onSuccess: props.onSuccess,
                },
             )
          },

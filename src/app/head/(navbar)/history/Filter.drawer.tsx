@@ -137,6 +137,7 @@ function FilterDrawer(props: Props) {
                   }))}
                   showSearch
                   allowClear
+                  filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase()) ?? false}
                />
             </Form.Item>
             <Form.Item<FilterQuery> name={"requester_note"} label={"Ghi chú"}>
@@ -151,6 +152,7 @@ function FilterDrawer(props: Props) {
                   }))}
                   showSearch
                   allowClear
+                  filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase()) ?? false}
                />
             </Form.Item>
             <Form.Item label={"Ngày tạo"}>

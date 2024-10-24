@@ -29,10 +29,6 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
    const router = useRouter()
 
    const [uploadJson, setUploadJson] = useState<UploadFileResult[] | null>(null)
-   const [selectedDownload, setSelectedDownload] = useState<"empty" | "filled">(
-      // searchParams.from === "missing" ? "filled" : "empty",
-      "filled",
-   )
 
    // const api_missingSpareParts = useQuery({
    //    queryKey: stockkeeper_qk.sparePart.allNeedMore(),
@@ -46,7 +42,6 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
    const api_allSpareParts = useQuery({
       queryKey: stockkeeper_qk.sparePart.all({ page: 1, limit: 5000 }),
       queryFn: () => Stockkeeper_SparePart_All({ page: 1, limit: 5000 }),
-      enabled: selectedDownload === "filled",
    })
 
    const mutate_updateMany = useMutation({
@@ -193,29 +188,16 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
       >
          <div className="space-y-2">
             <Card title="1. Tải về và điền thông tin vào mẫu">
-               {selectedDownload === "empty" && (
-                  <Button
-                     className="mt-layout"
-                     download="mau_nhap_linh_kien_1.xlsx"
-                     type="primary"
-                     icon={<DownloadOutlined />}
-                     href="/files/mau_nhap_linh_kien_1.xlsx"
-                  >
-                     Tải về mẫu
-                  </Button>
-               )}
-               {selectedDownload === "filled" && (
-                  <section>
-                     <div>
-                        <Button type="primary" icon={<DownloadOutlined />} onClick={handleCustomDownload}>
-                           Tải về mẫu
-                        </Button>
-                        {/* <div className="mt-3 text-sm text-red-400">
+               <section>
+                  <div>
+                     <Button type="primary" icon={<DownloadOutlined />} onClick={handleCustomDownload}>
+                        Tải về mẫu
+                     </Button>
+                     {/* <div className="mt-3 text-sm text-red-400">
                            * Các linh kiện trên sẽ được tự động điền vào mẫu khi tải về
                         </div> */}
-                     </div>
-                  </section>
-               )}
+                  </div>
+               </section>
             </Card>
             <Card title="2. Tải lên mẫu điền đã hoàn tất">
                <Upload.Dragger

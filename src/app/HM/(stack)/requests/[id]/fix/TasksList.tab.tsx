@@ -25,7 +25,7 @@ import dayjs from "dayjs"
 import { Fragment, useMemo, useRef, useState } from "react"
 import Task_ViewDetailsDrawer, {
    TaskDetailsDrawerRefType,
-} from "../../../../../../../features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
+} from "../../../../../../features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
 
 type Props = {
    api_request: UseQueryResult<RequestDto, Error>

@@ -18,4 +18,6 @@ export type IssueDto = {
    imagesVerify: string[]
    videosVerify: string
    failReason?: string
+   returnSparePartsStaffSignature?: string
+   returnSparePartsStockkeeperSignature?: string
 }

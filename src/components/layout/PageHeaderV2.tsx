@@ -1,6 +1,6 @@
-import { Badge, Button } from "antd"
+import { Badge, Button, ButtonProps } from "antd"
 import { FilterOutlined, LeftOutlined, MenuOutlined, MoreOutlined } from "@ant-design/icons"
-import { ReactNode } from "react"
+import { createContext, ReactNode, useContext } from "react"
 import { cn } from "@/lib/utils/cn.util"
 
 type Props = {
@@ -11,30 +11,67 @@ type Props = {
    classNames?: {
       title?: string
    }
+   type?: "dark" | "light"
 }
+
+const PageHeaderV2Context = createContext<Props | null>(null)
 
 function PageHeaderV2(props: Props) {
    return (
-      <header
-         className={cn("std-layout-outer relative z-50 flex items-center justify-between p-layout", props.className)}
-      >
-         {props.prevButton ?? <div></div>}
-         <h1 className={cn("text-lg font-bold text-white", props.classNames?.title)}>{props.title}</h1>
-         {props.nextButton ?? <div></div>}
-      </header>
+      <PageHeaderV2Context.Provider value={props}>
+         <header
+            className={cn(
+               "std-layout-outer relative z-50 flex items-center justify-between p-layout",
+               props.type === "dark" ? "text-black" : "text-white",
+               props.className,
+            )}
+         >
+            {props.prevButton ?? <div></div>}
+            <h1 className={cn("text-lg font-bold", props.classNames?.title)}>{props.title}</h1>
+            {props.nextButton ?? <div></div>}
+         </header>
+      </PageHeaderV2Context.Provider>
    )
 }
 
 type HeaderButtonProps = {
    onClick?: () => void
+   buttonProps?: ButtonProps
 }
 PageHeaderV2.MenuButton = function PageHeaderV2MenuButton(props: HeaderButtonProps) {
-   return <Button icon={<MenuOutlined className="text-white" />} type="text" onClick={props.onClick} />
+   const context = useContext(PageHeaderV2Context)
+
+   return (
+      <Button
+         icon={<MenuOutlined className={cn(context?.type === "dark" ? "text-black" : "text-white")} />}
+         type="text"
+         onClick={props.onClick}
+         {...props.buttonProps}
+      />
+   )
 }
 PageHeaderV2.BackButton = function PageHeaderV2BackButton(props: HeaderButtonProps) {
-   return <Button icon={<LeftOutlined className="text-white" />} type="text" onClick={props.onClick} />
+   const context = useContext(PageHeaderV2Context)
+
+   return (
+      <Button
+         icon={<LeftOutlined className={cn(context?.type === "dark" ? "text-black" : "text-white")} />}
+         type="text"
+         onClick={props.onClick}
+         {...props.buttonProps}
+      />
+   )
 }
 PageHeaderV2.InfoButton = function PageHeaderV2InfoButton(props: HeaderButtonProps) {
-   return <Button icon={<MoreOutlined className="text-white" />} type="text" onClick={props.onClick} />
+   const context = useContext(PageHeaderV2Context)
+
+   return (
+      <Button
+         icon={<MoreOutlined className={cn(context?.type === "dark" ? "text-black" : "text-white")} />}
+         type="text"
+         onClick={props.onClick}
+         {...props.buttonProps}
+      />
+   )
 }
 export default PageHeaderV2

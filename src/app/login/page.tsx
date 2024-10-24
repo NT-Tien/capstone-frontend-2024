@@ -52,7 +52,7 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                   break
                }
                case Role.headstaff: {
-                  router.push("/head-staff")
+                  router.push("/HM/dashboard")
                   break
                }
                case Role.head: {

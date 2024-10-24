@@ -4,7 +4,7 @@ import AlertCard from "@/components/AlertCard"
 import { CloseOutlined } from "@ant-design/icons"
 import { Gear, MapPin, Package, Wrench } from "@phosphor-icons/react"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Button, Card, Divider, Drawer, Empty, Result, Spin, Tag } from "antd"
+import { App, Button, Card, Descriptions, Divider, Drawer, Empty, Result, Spin, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
@@ -17,6 +17,7 @@ import { ReceiveWarrantyTypeErrorId, RenewRequestTypeErrorId } from "@/lib/const
 import QrCodeDisplayForRenewModal, {
    QrCodeDisplayForRenewModalRefType,
 } from "@/features/staff/components/overlays/QrCodeDisplayForRenew.modal"
+import staff_mutations from "@/features/staff/mutations"
 
 type HandleOpenProps = {
    taskId: string
@@ -28,6 +29,7 @@ export type TaskDetailsDrawerRefType = {
 
 type Props = {
    children?: (handleOpen: (props: HandleOpenProps) => void) => ReactNode
+   refetchFn?: () => void
 }
 
 const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function Component(props, ref) {
@@ -53,6 +55,8 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
       queryFn: () => Staff_Task_OneById({ id: taskId ?? "" }),
       enabled: !!taskId,
    })
+
+   const mutate_finishTask = staff_mutations.task.finish()
 
    const mutate_startTask = useMutation({
       mutationFn: Staff_Task_UpdateStart,
@@ -108,6 +112,44 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
             >
                Lấy máy mới
             </Button>
+         )
+      }
+
+      if (
+         api_task.data.issues.every(
+            (i) => !!i.returnSparePartsStaffSignature && !!i.returnSparePartsStockkeeperSignature,
+         )
+      ) {
+         return (
+            <div>
+               <AlertCard text="Tác vụ không tiếp tục được. Vui lòng đóng tác vụ" className="mb-2" type="info" />
+               <Button
+                  type="primary"
+                  className="w-full"
+                  size="large"
+                  icon={<CloseOutlined size={20} />}
+                  onClick={() => {
+                     mutate_finishTask.mutate(
+                        {
+                           id: api_task.data.id,
+                           payload: {
+                              fixerNote: "",
+                              imagesVerify: [],
+                              videosVerify: "",
+                           },
+                        },
+                        {
+                           onSuccess: () => {
+                              handleClose()
+                              props.refetchFn?.()
+                           },
+                        },
+                     )
+                  }}
+               >
+                  Đóng tác vụ
+               </Button>
+            </div>
          )
       }
 
@@ -252,36 +294,68 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                   </div>
                   <div className="mt-layout rounded-lg border border-gray-300 bg-white p-4 shadow-lg">
                      <section>
-                        <h4 className="mb-layout text-lg font-medium">
+                        <h4
+                           className="mb-layout text-lg font-medium"
+                           onClick={() =>
+                              api_task.data && window.navigator.clipboard.writeText(api_task.data.device.id)
+                           }
+                        >
                            <Gear size={24} weight="duotone" className="mr-1 inline" />
                            Thông tin Thiết bị
                         </h4>
-                        <div className="flex flex-col gap-2">
-                           <div
-                              className="flex items-start justify-between"
-                              onClick={() =>
-                                 api_task.data && window.navigator.clipboard.writeText(api_task.data.device.id)
-                              }
-                           >
-                              <h5 className="font-medium text-gray-500">Tên thiết bị</h5>
-                              <p className="mt-1">{api_task.data.device.machineModel.name}</p>
-                           </div>
-                           <div className="flex items-start justify-between">
-                              <h5 className="font-medium text-gray-500">Nhà sản xuất</h5>
-                              <p className="mt-1">{api_task.data.device.machineModel.manufacturer}</p>
-                           </div>
-                           <div className="flex items-start justify-between">
-                              <h5 className="font-medium text-gray-500">Khu vực</h5>
-                              <p className="mt-1 font-bold">{api_task.data.device.area.name}</p>
-                           </div>
-                           <div className="flex items-start justify-between">
-                              <h5 className="font-medium text-gray-500">Vị trí</h5>
-                              <p className="mt-1 font-bold">
-                                 {api_task.data.device?.positionX ?? api_task.data.device_renew?.positionX ?? "-"} x{" "}
-                                 {api_task.data.device?.positionY ?? api_task.data.device_renew?.positionY ?? "-"}
-                              </p>
-                           </div>
-                        </div>
+                        <Descriptions
+                           contentStyle={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                           }}
+                           items={[
+                              {
+                                 label: "Mẫu máy",
+                                 children: api_task.data.device.machineModel.name,
+                              },
+                              {
+                                 label: "Nhà sản xuất",
+                                 children: api_task.data.device.machineModel.manufacturer,
+                              },
+                              {
+                                 label: "Khu vực",
+                                 children: api_task.data.device.area.name,
+                              },
+                              {
+                                 label: "Vị trí",
+                                 children: (
+                                    <span>
+                                       {api_task.data.device?.positionX ?? api_task.data.device_renew?.positionX ?? "-"}{" "}
+                                       x{" "}
+                                       {api_task.data.device?.positionY ?? api_task.data.device_renew?.positionY ?? "-"}
+                                    </span>
+                                 ),
+                              },
+                           ]}
+                        />
+                        {/*<div className="flex flex-col gap-2">*/}
+                        {/*   <div*/}
+                        {/*      className="flex items-start justify-between"*/}
+                        {/*   >*/}
+                        {/*      <h5 className="font-medium text-gray-500">Tên thiết bị</h5>*/}
+                        {/*      <p className="mt-1">{api_task.data.device.machineModel.name}</p>*/}
+                        {/*   </div>*/}
+                        {/*   <div className="flex items-start justify-between">*/}
+                        {/*      <h5 className="font-medium text-gray-500">Nhà sản xuất</h5>*/}
+                        {/*      <p className="mt-1">{api_task.data.device.machineModel.manufacturer}</p>*/}
+                        {/*   </div>*/}
+                        {/*   <div className="flex items-start justify-between">*/}
+                        {/*      <h5 className="font-medium text-gray-500">Khu vực</h5>*/}
+                        {/*      <p className="mt-1 font-bold">{api_task.data.device.area.name}</p>*/}
+                        {/*   </div>*/}
+                        {/*   <div className="flex items-start justify-between">*/}
+                        {/*      <h5 className="font-medium text-gray-500">Vị trí</h5>*/}
+                        {/*      <p className="mt-1 font-bold">*/}
+                        {/*         {api_task.data.device?.positionX ?? api_task.data.device_renew?.positionX ?? "-"} x{" "}*/}
+                        {/*         {api_task.data.device?.positionY ?? api_task.data.device_renew?.positionY ?? "-"}*/}
+                        {/*      </p>*/}
+                        {/*   </div>*/}
+                        {/*</div>*/}
                      </section>
                   </div>
                   {spareParts && spareParts.length > 0 && (

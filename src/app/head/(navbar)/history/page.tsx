@@ -118,7 +118,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
       return list
    }, [api_requests.data, api_requests.isSuccess, tab, search, query])
 
-   function handleChangeTab(tabKey: FixRequestStatuses) {
+   function handleChangeTab(tabKey: FixRequestStatuses | "all") {
       const newTab = tabKey === tab ? "all" : tabKey
       setTab(newTab)
       router.push(hd_uris.navbar.history + `?status=${newTab}`)
@@ -285,7 +285,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
                <FilterDrawer
                   onSubmit={(query, tab) => {
                      setQuery(query)
-                     setTab(tab)
+                     setTimeout(() => handleChangeTab(tab), 200)
                   }}
                   onReset={() => setQuery({})}
                />

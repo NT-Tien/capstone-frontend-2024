@@ -23,12 +23,13 @@ import dayjs from "dayjs"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import Device_ViewRequestHistoryDrawer from "@/features/head-maintenance/components/overlays/Device_ViewRequestHistory.drawer"
-import isApproved from "./is-approved.util"
+import isApproved from "../../../../../head-staff/mobile/(stack)/requests/[id]/approved/is-approved.util"
 import IssuesListTab from "./IssuesList.tab"
 import TasksListTab from "./TasksList.tab"
 import Task_CreateDrawer, {
    CreateTaskV2DrawerProps,
 } from "@/features/head-maintenance/components/overlays/Task_Create.drawer"
+import hm_uris from "@/features/head-maintenance/uri"
 
 type Props = {
    requestId: string
@@ -153,7 +154,7 @@ function TabbedLayout(props: Props) {
 
       const urlSearchParams = new URLSearchParams(searchParams.toString())
       urlSearchParams.set("tab", value)
-      router.push(`/head-staff/mobile/requests/${props.requestId}/approved?${urlSearchParams.toString()}`)
+      router.push(hm_uris.stack.requests_id_fix(props.requestId) + `?${urlSearchParams.toString()}`)
    }
 
    useEffect(() => {
@@ -310,15 +311,6 @@ function TabbedLayout(props: Props) {
                                  renderItem={(item, index) => (
                                     <List.Item
                                        className={cn(index === 0 && "mt-1")}
-                                       onClick={() => {
-                                          if (isApproved(item.status)) {
-                                             router.push(
-                                                `/head-staff/mobile/requests/${item.id}/approved?viewingHistory=true`,
-                                             )
-                                          } else {
-                                             router.push(`/head-staff/mobile/requests/${item.id}?viewingHistory=true`)
-                                          }
-                                       }}
                                        extra={
                                           <div className="flex flex-col justify-between gap-1">
                                              <div className="text-right">

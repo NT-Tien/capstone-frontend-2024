@@ -4,6 +4,7 @@ import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { RequestTypeEnum } from "@/lib/domain/Request/RequestType.enum"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { FeedbackDto } from "@/lib/domain/Feedback/Feedback.dto"
 
 export type RequestDto = {
    id: string
@@ -24,4 +25,5 @@ export type RequestDto = {
    is_warranty: boolean
    is_renew: boolean
    return_date_warranty: string | null
+   feedback?: FeedbackDto
 }

@@ -9,7 +9,7 @@ import Stockkeeper_Task_GetById from "@/features/stockkeeper/api/task/getById.ap
 import { useMemo, useRef, useState } from "react"
 import { TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import dayjs from "dayjs"
-import { Descriptions, Table } from "antd"
+import { App, Descriptions, Table } from "antd"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
@@ -23,10 +23,16 @@ import DualSignatureDrawer, {
    DualSignatureDrawerProps,
 } from "@/features/stockkeeper/components/overlay/DualSignature.drawer"
 import stockkeeper_mutations from "@/features/stockkeeper/mutations"
+import Link from "next/link"
+import { CopyOutlined, DownloadOutlined } from "@ant-design/icons"
+import useDownloadImportSpareParts from "@/features/stockkeeper/useDownloadImportSpareParts"
 
 function Page() {
+   const { message } = App.useApp()
    const [scannedResult, setScannedResult] = useState<string | null>(null)
    const [updated, setUpdated] = useState<string[]>([])
+
+   const { handleDownload } = useDownloadImportSpareParts()
 
    const control_updateSparePartQuantityModal = useRef<RefType<UpdateQuantityModalProps>>(null)
    const control_dualSignatureDrawer = useRef<RefType<DualSignatureDrawerProps>>(null)
@@ -134,6 +140,10 @@ function Page() {
                                     children: api.task.data.confirmReceipt ? "Đã lấy" : "Chưa lấy",
                                  },
                                  {
+                                    label: "Mẫu máy",
+                                    children: api.task.data?.device.machineModel.name,
+                                 },
+                                 {
                                     label: "Trả linh kiện",
                                     children: api.task.data.return_spare_part_data ? "Đã trả" : "Chưa trả",
                                  },
@@ -146,6 +156,11 @@ function Page() {
                tabProps={{
                   className: !scannedResult ? "hidden" : "",
                }}
+               tabBarExtraContent={
+                  <Button icon={<DownloadOutlined />} onClick={handleDownload}>
+                     Tải mẫu nhập linh kiện
+                  </Button>
+               }
                tabList={[
                   {
                      tab: "Linh kiện được trả",
@@ -166,41 +181,27 @@ function Page() {
                                     key: "name",
                                     title: "Tên linh kiện",
                                     dataIndex: ["sparePart", "name"],
+                                    render: (_, e) => (
+                                       <a
+                                          onClick={() => {
+                                             message.destroy("copy")
+                                             navigator.clipboard.writeText(e.sparePart.id)
+                                             message.success({
+                                                content: "Đã sao chép mã linh kiện",
+                                                key: "copy",
+                                             })
+                                          }}
+                                          className={"flex items-center gap-2"}
+                                       >
+                                          {e.sparePart.name}
+                                          <CopyOutlined />
+                                       </a>
+                                    ),
                                  },
                                  {
                                     key: "quantity",
-                                    title: "Số lượng",
+                                    title: "Số lượng trả",
                                     dataIndex: "quantity",
-                                 },
-                                 {
-                                    key: "updated",
-                                    title: "Đã cập nhật",
-                                    render: (_, e) =>
-                                       updated.includes(e.sparePart.id) ? "Đã cập nhật" : "Chưa cập nhật",
-                                 },
-                                 {
-                                    key: "actions",
-                                    title: "",
-                                    width: 200,
-                                    fixed: "right",
-                                    className: api.task.data?.return_spare_part_data ? "hidden" : "",
-                                    render: (_, e) =>
-                                       updated.includes(e.sparePart.id) ? (
-                                          ""
-                                       ) : (
-                                          <Button
-                                             onClick={() =>
-                                                control_updateSparePartQuantityModal.current?.handleOpen({
-                                                   sparePart: e.sparePart,
-                                                   min: e.sparePart.quantity,
-                                                   needMore: e.quantity + e.sparePart.quantity,
-                                                   isNormalUpdate: true,
-                                                })
-                                             }
-                                          >
-                                             Cập nhật số lượng trong kho
-                                          </Button>
-                                       ),
                                  },
                               ]}
                            />

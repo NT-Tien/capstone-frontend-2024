@@ -15,7 +15,7 @@ import { App, Button, ConfigProvider, Divider, Dropdown, Empty, FloatButton, Tab
 import { Fragment, useMemo, useRef, useState } from "react"
 import Issue_SelectTypeErrorDrawer, {
    CreateIssueModalRefType,
-} from "../../../../../../../features/head-maintenance/components/overlays/Issue_SelectTypeError.drawer"
+} from "../../../../../../features/head-maintenance/components/overlays/Issue_SelectTypeError.drawer"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import IssueDetailsDrawer, {

@@ -2,7 +2,7 @@ import { App, Button, Card, Descriptions, Drawer, DrawerProps, Dropdown, Empty, 
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 import { useMemo, useRef } from "react"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
-import { DeleteOutlined, EditOutlined, MoreOutlined, ReloadOutlined } from "@ant-design/icons"
+import { CloseOutlined, DeleteOutlined, EditOutlined, MoreOutlined, ReloadOutlined } from "@ant-design/icons"
 import Issue_CreateDetailsDrawer, {
    CreateSingleIssueDrawerRefType,
 } from "@/features/head-maintenance/components/overlays/Issue_CreateDetails.drawer"
@@ -94,7 +94,10 @@ function IssueDetailsDrawer(props: Props) {
       await mutate_updateFull.mutateAsync(
          {
             issueId: oldIssue.id,
-            newIssue,
+            newIssue: {
+               ...newIssue,
+               status: oldIssue.status,
+            },
             oldIssueSparePartIds: oldIssue.issueSpareParts.map((isp) => isp.id),
          },
          {
@@ -108,7 +111,14 @@ function IssueDetailsDrawer(props: Props) {
 
    return (
       <Drawer
-         title="Thông tin lỗi"
+         title={
+            <div className={"flex items-center justify-between"}>
+               <Button icon={<CloseOutlined />} type={"text"} onClick={props.onClose} />
+               <h1>Thông tin lỗi</h1>
+               <Button icon={<MoreOutlined />} type={"text"} />
+            </div>
+         }
+         closeIcon={false}
          placement="right"
          width="100%"
          classNames={{
@@ -169,9 +179,9 @@ function IssueDetailsDrawer(props: Props) {
                {
                   label: "Trạng thái",
                   children: api_issue.isSuccess ? (
-                     <Tag className="m-0" color={IssueStatusEnumTagMapper[api_issue.data.status].colorInverse}>
+                     <div className={IssueStatusEnumTagMapper[api_issue.data.status].className}>
                         {IssueStatusEnumTagMapper[api_issue.data.status].text}
-                     </Tag>
+                     </div>
                   ) : (
                      "-"
                   ),
@@ -190,11 +200,11 @@ function IssueDetailsDrawer(props: Props) {
                   label: "Thời gian sửa chữa",
                   children: (api_issue.data?.typeError.duration ?? "-") + " phút",
                },
-               {
-                  label: "Tác vụ",
-                  children: api_issue.data?.task?.name,
-                  className: cn(hasTask ? "block" : "hidden"),
-               },
+               // {
+               //    label: "Tác vụ",
+               //    children: api_issue.data?.task?.name,
+               //    className: cn(hasTask ? "block" : "hidden"),
+               // },
                {
                   label: "Mô tả",
                   children: api_issue.data?.description,

@@ -198,7 +198,6 @@ export default function TasksListTab(props: Props) {
                               taskGrouped.awaitFixer.length,
                               taskGrouped.awaitSparePart.length,
                               taskGrouped.assigned.length,
-                              taskGrouped.cancelled.length,
                            )}
                         </div>
                      ),
@@ -206,104 +205,97 @@ export default function TasksListTab(props: Props) {
                         <div className="grid grid-cols-1">
                            {taskGrouped.awaitFixer.length === 0 &&
                               taskGrouped.assigned.length === 0 &&
-                              taskGrouped.awaitSparePart.length === 0 &&
-                              taskGrouped.cancelled.length === 0 && (
+                              taskGrouped.awaitSparePart.length === 0 && (
                                  <div className="grid place-items-center py-12">
                                     <Empty description="Không có tác vụ" />
                                  </div>
                               )}
-                           {[
-                              ...taskGrouped.awaitFixer,
-                              ...taskGrouped.assigned,
-                              ...taskGrouped.awaitSparePart,
-                              ...taskGrouped.cancelled,
-                           ].map((task, index, array) => (
-                              <Fragment key={task.id}>
-                                 {index !== 0 && (
-                                    <div className="grid grid-cols-[24px_1fr] gap-4 px-layout">
-                                       {(array[index - 1] === undefined ||
-                                          array[index - 1]?.status === task.status) && <div></div>}
-                                       <Divider
-                                          className={cn(
-                                             "my-2",
-                                             array[index - 1] !== undefined &&
-                                                array[index - 1]?.status !== task.status &&
-                                                "col-span-2",
-                                          )}
-                                       />
-                                    </div>
-                                 )}
-                                 <div
-                                    className={cn(
-                                       "grid cursor-pointer grid-cols-[24px_1fr] gap-4 px-layout py-1",
-                                       task.priority && "bg-red-100",
+                           {[...taskGrouped.awaitFixer, ...taskGrouped.assigned, ...taskGrouped.awaitSparePart].map(
+                              (task, index, array) => (
+                                 <Fragment key={task.id}>
+                                    {index !== 0 && (
+                                       <div className="grid grid-cols-[24px_1fr] gap-4 px-layout">
+                                          {(array[index - 1] === undefined ||
+                                             array[index - 1]?.status === task.status) && <div></div>}
+                                          <Divider
+                                             className={cn(
+                                                "my-2",
+                                                array[index - 1] !== undefined &&
+                                                   array[index - 1]?.status !== task.status &&
+                                                   "col-span-2",
+                                             )}
+                                          />
+                                       </div>
                                     )}
-                                    onClick={() =>
-                                       props.api_request.isSuccess &&
-                                       taskDetailsRef.current?.handleOpen(task, props.api_request.data?.id)
-                                    }
-                                 >
-                                    <div className="grid place-items-center">
-                                       {task.status === TaskStatus.AWAITING_FIXER && (
-                                          <UserCircleDashed
-                                             size={24}
-                                             weight="fill"
-                                             className={TaskStatusTagMapper[task.status]?.className ?? "text-lime-600"}
-                                          />
+                                    <div
+                                       className={cn(
+                                          "grid cursor-pointer grid-cols-[24px_1fr] gap-4 px-layout py-1",
+                                          task.priority && "bg-red-100",
                                        )}
-                                       {task.status === TaskStatus.AWAITING_SPARE_SPART && (
-                                          <Package
-                                             size={24}
-                                             weight="fill"
-                                             className={TaskStatusTagMapper[task.status]?.className}
-                                          />
-                                       )}
-                                       {task.status === TaskStatus.ASSIGNED && (
-                                          <UserCheck
-                                             size={24}
-                                             weight="fill"
-                                             className={TaskStatusTagMapper[task.status]?.className}
-                                          />
-                                       )}
-                                       {task.status === TaskStatus.CANCELLED && (
-                                          <Prohibit
-                                             size={24}
-                                             weight="fill"
-                                             className={TaskStatusTagMapper[task.status]?.className}
-                                          />
-                                       )}
-                                    </div>
-                                    <div className="flex flex-col gap-0.5">
-                                       <h3 className="text-sm text-neutral-800">{task.name}</h3>
-                                       <div className="flex items-center">
-                                          <div className={cn("text-sm", TaskStatusTagMapper[task.status]?.className)}>
-                                             {TaskStatusTagMapper[task.status].text}
-                                          </div>
-                                          {task.priority && (
-                                             <>
-                                                <Dot size={24} className="text-neutral-500" />
-                                                <div className="flex items-center">
-                                                   <ExclamationMark size={16} className="mr-1 inline text-red-500" />
-                                                   <span className="text-sm text-red-500">Ưu tiên</span>
-                                                </div>
-                                             </>
+                                       onClick={() =>
+                                          props.api_request.isSuccess &&
+                                          taskDetailsRef.current?.handleOpen(task, props.api_request.data?.id)
+                                       }
+                                    >
+                                       <div className="grid place-items-center">
+                                          {task.status === TaskStatus.AWAITING_FIXER && (
+                                             <UserCircleDashed
+                                                size={24}
+                                                weight="fill"
+                                                className={
+                                                   TaskStatusTagMapper[task.status]?.className ?? "text-lime-600"
+                                                }
+                                             />
                                           )}
-                                          {task.fixerDate && (
-                                             <>
-                                                <Dot size={24} className="text-neutral-500" />
-                                                <div className="flex items-center">
-                                                   <CalendarBlank size={16} className="mr-1 inline" />
-                                                   <span className="text-sm">
-                                                      {dayjs(task.fixerDate).format("DD/MM")}
-                                                   </span>
-                                                </div>
-                                             </>
+                                          {task.status === TaskStatus.AWAITING_SPARE_SPART && (
+                                             <Package
+                                                size={24}
+                                                weight="fill"
+                                                className={TaskStatusTagMapper[task.status]?.className}
+                                             />
+                                          )}
+                                          {task.status === TaskStatus.ASSIGNED && (
+                                             <UserCheck
+                                                size={24}
+                                                weight="fill"
+                                                className={TaskStatusTagMapper[task.status]?.className}
+                                             />
                                           )}
                                        </div>
+                                       <div className="flex flex-col gap-0.5">
+                                          <h3 className="text-sm text-neutral-800">{task.name}</h3>
+                                          <div className="flex items-center">
+                                             <div
+                                                className={cn("text-sm", TaskStatusTagMapper[task.status]?.className)}
+                                             >
+                                                {TaskStatusTagMapper[task.status].text}
+                                             </div>
+                                             {task.priority && (
+                                                <>
+                                                   <Dot size={24} className="text-neutral-500" />
+                                                   <div className="flex items-center">
+                                                      <ExclamationMark size={16} className="mr-1 inline text-red-500" />
+                                                      <span className="text-sm text-red-500">Ưu tiên</span>
+                                                   </div>
+                                                </>
+                                             )}
+                                             {task.fixerDate && (
+                                                <>
+                                                   <Dot size={24} className="text-neutral-500" />
+                                                   <div className="flex items-center">
+                                                      <CalendarBlank size={16} className="mr-1 inline" />
+                                                      <span className="text-sm">
+                                                         {dayjs(task.fixerDate).format("DD/MM")}
+                                                      </span>
+                                                   </div>
+                                                </>
+                                             )}
+                                          </div>
+                                       </div>
                                     </div>
-                                 </div>
-                              </Fragment>
-                           ))}
+                                 </Fragment>
+                              ),
+                           )}
                         </div>
                      ),
                   },
@@ -399,15 +391,19 @@ export default function TasksListTab(props: Props) {
                   },
                   {
                      key: "3",
-                     label: <div className="py-1">Hoàn thành {getCount(taskGrouped.completed.length)}</div>,
+                     label: (
+                        <div className="py-1">
+                           Hoàn thành {getCount(taskGrouped.completed.length, taskGrouped.cancelled.length)}
+                        </div>
+                     ),
                      children: (
                         <div className="grid grid-cols-1">
-                           {taskGrouped.completed.length === 0 && (
+                           {taskGrouped.completed.length === 0 && taskGrouped.cancelled.length === 0 && (
                               <div className="grid place-items-center py-12">
                                  <Empty description="Không có tác vụ" />
                               </div>
                            )}
-                           {[...taskGrouped.completed].map((task, index, array) => (
+                           {[...taskGrouped.completed, ...taskGrouped.cancelled].map((task, index, array) => (
                               <Fragment key={task.id}>
                                  {index !== 0 && (
                                     <div className="grid grid-cols-[24px_1fr] gap-4">
@@ -441,7 +437,15 @@ export default function TasksListTab(props: Props) {
                                              className={TaskStatusTagMapper[task.status]?.className}
                                           />
                                        )}
+                                       {task.status === TaskStatus.CANCELLED && (
+                                          <Prohibit
+                                             size={24}
+                                             weight="fill"
+                                             className={TaskStatusTagMapper[task.status]?.className}
+                                          />
+                                       )}
                                     </div>
+
                                     <div className="flex flex-col gap-0.5">
                                        <h3 className="text-sm text-neutral-800">{task.name}</h3>
                                        <div className="flex items-center">

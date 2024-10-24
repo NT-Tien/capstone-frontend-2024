@@ -81,6 +81,7 @@ function TabbedLayout(props: Props) {
                { id: props.requestId, payload: { status: FixRequestStatus.HEAD_CONFIRM } },
                {
                   onSettled: () => props.api_request.refetch(),
+                  onSuccess: () => router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.IN_PROGRESS}`),
                },
             )
          },
@@ -137,7 +138,11 @@ function TabbedLayout(props: Props) {
       }
 
       // if there are no more unassigned issues, disable
-      if (props.api_request.data.issues.find((issue) => issue.task === null) === undefined) {
+      if (
+         props.api_request.data.issues.find(
+            (issue) => issue.task === null && issue.status === IssueStatusEnum.PENDING,
+         ) === undefined
+      ) {
          return true
       }
 
@@ -221,7 +226,9 @@ function TabbedLayout(props: Props) {
                                  (task) => task.status === TaskStatus.COMPLETED || task.status === TaskStatus.CANCELLED,
                               ) &&
                                  props.api_request.data?.issues.every(
-                                    (issue) => issue.status === IssueStatusEnum.RESOLVED,
+                                    (issue) =>
+                                       issue.status === IssueStatusEnum.RESOLVED ||
+                                       issue.status === IssueStatusEnum.CANCELLED,
                                  ) && (
                                     <Button className="" size="large" type="primary" onClick={handleFinishRequest}>
                                        Đóng yêu cầu

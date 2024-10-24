@@ -8,6 +8,7 @@ import useRequest_Seen from "@/features/head-maintenance/mutations/Request_Seen.
 import useIssue_Cancel from "@/features/head-maintenance/mutations/Issue_Cancel.mutation"
 import useIssueSparePart_Create from "@/features/head-maintenance/mutations/IssueSparePart_Create.mutation"
 import useIssue_UpdateFull from "@/features/head-maintenance/mutations/Issue_UpdateFull.mutation"
+import useTaskCancel from "@/features/head-maintenance/mutations/Task_Cancel.mutation"
 
 const head_maintenance_mutations = {
    request: {
@@ -25,6 +26,9 @@ const head_maintenance_mutations = {
    issueSparePart: {
       replaceMany: useIssueSparePart_ReplaceMany,
       create: useIssueSparePart_Create,
+   },
+   task: {
+      cancel: useTaskCancel,
    },
 }
 

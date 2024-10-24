@@ -30,12 +30,12 @@ function RequestList(props: Props) {
          case FixRequestStatus.IN_PROGRESS:
          case FixRequestStatus.HEAD_CONFIRM:
             if (request.is_warranty === true) {
-               router.push(hm_uris.stack.requests_id_warranty(request.id))
+               router.push(hm_uris.stack.requests_id_fix(request.id))
                break
             }
 
             if (request.is_renew === true) {
-               router.push(hm_uris.stack.requests_id_renew(request.id))
+               router.push(hm_uris.stack.requests_id_fix(request.id))
                break
             }
 

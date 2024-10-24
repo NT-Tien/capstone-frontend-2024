@@ -7,6 +7,7 @@ import { FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 import { useRouter } from "next/navigation"
 import hm_uris from "@/features/head-maintenance/uri"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 
 type Props = {
    className?: string
@@ -22,7 +23,7 @@ function RequestStatisticsCard(props: Props) {
             <Button
                block
                className="flex justify-between rounded-none rounded-t-lg py-5 text-sm"
-               onClick={() => router.push(hm_uris.navbar.requests + `?status=${"rejected" as FixRequestStatuses}`)}
+               onClick={() => router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.PENDING}`)}
             >
                <div>Chưa xử lý</div>
                <div>{api_counts.data?.pendingRequests ?? 0}</div>
@@ -30,7 +31,7 @@ function RequestStatisticsCard(props: Props) {
             <Button
                block
                className="flex justify-between rounded-none py-5 text-sm"
-               onClick={() => router.push(hm_uris.navbar.requests + `?status=${"rejected" as FixRequestStatuses}`)}
+               onClick={() => router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.APPROVED}`)}
             >
                <div>Đã xác nhận lỗi</div>
                <div>{api_counts.data?.approvedRequests ?? 0}</div>
@@ -38,7 +39,7 @@ function RequestStatisticsCard(props: Props) {
             <Button
                block
                className="flex justify-between rounded-none py-5 text-sm"
-               onClick={() => router.push(hm_uris.navbar.requests + `?status=${"rejected" as FixRequestStatuses}`)}
+               onClick={() => router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.IN_PROGRESS}`)}
             >
                <div>Đang sửa chữa</div>
                <div>{api_counts.data?.inProgressRequests}</div>
@@ -46,7 +47,7 @@ function RequestStatisticsCard(props: Props) {
             <Button
                block
                className="flex justify-between rounded-none py-5 text-sm"
-               onClick={() => router.push(hm_uris.navbar.requests + `?status=${"rejected" as FixRequestStatuses}`)}
+               onClick={() => router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.CLOSED}`)}
             >
                <div>Hoàn thành</div>
                <div>{(api_counts.data?.headConfirmRequests ?? 0) + (api_counts.data?.closedRequests ?? 0)}</div>
@@ -54,7 +55,7 @@ function RequestStatisticsCard(props: Props) {
             <Button
                block
                className="flex justify-between rounded-none rounded-b-lg py-5 text-sm"
-               onClick={() => router.push(hm_uris.navbar.requests + `?status=${"closed" as FixRequestStatuses}`)}
+               onClick={() => router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.REJECTED}`)}
             >
                <div>Từ chối sửa</div>
                <div>{api_counts.data?.rejectedRequests ?? 0}</div>

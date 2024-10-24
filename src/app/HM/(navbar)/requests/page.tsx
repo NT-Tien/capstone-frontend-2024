@@ -36,6 +36,17 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
       status: tab,
    })
 
+   const api_head_confirm_requests = head_maintenance_queries.request.all(
+      {
+         page: 1,
+         limit: 5000,
+         status: FixRequestStatus.HEAD_CONFIRM,
+      },
+      {
+         enabled: tab === FixRequestStatus.CLOSED,
+      },
+   )
+
    const uniqueValues = useMemo(() => {
       if (!api_requests.isSuccess) return
 
@@ -60,6 +71,10 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
       if (!api_requests.isSuccess) return []
 
       let list = api_requests.data.list
+
+      if (tab === FixRequestStatus.CLOSED) {
+         list = list.concat(api_head_confirm_requests.data?.list ?? [])
+      }
 
       list = list.filter((i) => {
          return (
@@ -98,7 +113,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
       }
 
       return list
-   }, [api_requests.isSuccess, api_requests.data?.list, tab, search, query])
+   }, [api_head_confirm_requests.data, api_requests.isSuccess, api_requests.data?.list, tab, search, query])
 
    function handleChangeTab(tab: FixRequestStatus) {
       setTab(tab)
@@ -134,6 +149,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
          case FixRequestStatus.IN_PROGRESS:
             scrollToItem(2)
             break
+         case FixRequestStatus.HEAD_CONFIRM:
          case FixRequestStatus.CLOSED:
             scrollToItem(3)
             break
@@ -221,7 +237,8 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
                <ClickableArea
                   className={cn(
                      "border-2 border-purple-300 px-3 py-1 text-sm text-purple-500",
-                     tab === FixRequestStatus.CLOSED && "bg-purple-500 text-white",
+                     (tab === FixRequestStatus.CLOSED || tab === FixRequestStatus.HEAD_CONFIRM) &&
+                        "bg-purple-500 text-white",
                   )}
                   onClick={() => handleChangeTab(FixRequestStatus.CLOSED)}
                   ref={(el) => {
@@ -229,7 +246,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
                   }}
                >
                   Đã hoàn thành
-                  {tab === FixRequestStatus.CLOSED && <CheckCircleFilled />}
+                  {(tab === FixRequestStatus.CLOSED || tab === FixRequestStatus.HEAD_CONFIRM) && <CheckCircleFilled />}
                </ClickableArea>
                <ClickableArea
                   className={cn(

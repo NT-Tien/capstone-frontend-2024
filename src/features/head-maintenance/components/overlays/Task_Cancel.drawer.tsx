@@ -7,6 +7,7 @@ import AlertCard from "@/components/AlertCard"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import { useMutation } from "@tanstack/react-query"
 import HeadStaff_Task_Update from "@/features/head-maintenance/api/task/update.api"
+import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 
 type HandleOpen = {
    task: TaskDto
@@ -37,34 +38,13 @@ const Task_CancelDrawer = forwardRef<CancelTaskDrawerRefType, Props>(function Co
    const [task, setTask] = useState<TaskDto | null>(null)
    const [checked, setChecked] = useState(false)
 
-   const mutate_cancelTask = useMutation({
-      mutationFn: HeadStaff_Task_Update,
-      onSuccess: () => {
-         message.success("Hủy tác vụ thành công")
-      },
-      onError: (e) => {
-         console.error(e)
-         message.error("Hủy tác vụ thất bại")
-      },
-      onMutate: async () => {
-         message.loading({
-            content: "Đang hủy tác vụ...",
-            key: "cancel-task",
-         })
-      },
-      onSettled: () => {
-         message.destroy("cancel-task")
-      },
-   })
+   const mutate_cancelTask = head_maintenance_mutations.task.cancel()
 
    function handleSubmit() {
       if (!task) return
       mutate_cancelTask.mutate(
          {
             id: task.id,
-            payload: {
-               status: TaskStatus.CANCELLED,
-            },
          },
          {
             onSuccess: () => {

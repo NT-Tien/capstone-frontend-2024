@@ -1,18 +1,31 @@
 "use client"
 
 import { Button } from "antd"
-import { FilterOutlined, MenuOutlined, CompassFilled, QrcodeOutlined } from "@ant-design/icons"
+import { FilterOutlined, CompassFilled, QrcodeOutlined } from "@ant-design/icons"
 import CountUp from "react-countup"
 import RequestStatisticsCard from "@/features/head-department/components/RequestStatisticsCard"
 import HeadNavigationDrawer from "@/features/head-department/components/layout/HeadNavigationDrawer"
 import head_department_queries from "@/features/head-department/queries"
 import Link from "next/link"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
+import HeadConfirmList from "@/features/head-department/components/HeadConfirmList"
+import { useMemo } from "react"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 
 function Page() {
    const navigationDrawer = HeadNavigationDrawer.useDrawer()
    const api_requests = head_department_queries.request.all({})
 
+   const renderList = useMemo(() => {
+      if (!api_requests.isSuccess) return []
+
+      let list = [...api_requests.data]
+      return list
+   }, [api_requests.data])
+
+   const headConfirmRequests = useMemo(() => {
+      return renderList.filter((request) => request.status === FixRequestStatus.HEAD_CONFIRM)
+   }, [renderList])
    return (
       <div className="relative">
          <section className="absolute left-0 top-0 h-56 w-full bg-head_department text-white" />
@@ -39,7 +52,9 @@ function Page() {
                   </div>
                </Button>
             </Link>
-            <section></section>
+            <section className="mt-3">
+               {headConfirmRequests.length > 0 && <HeadConfirmList requests={headConfirmRequests} />}{" "}
+            </section>
          </main>
       </div>
    )

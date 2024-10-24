@@ -227,7 +227,15 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
             }}
          />
          <PageHeaderV2
-            prevButton={<PageHeaderV2.BackButton onClick={() => router.back()} />}
+            prevButton={
+               <PageHeaderV2.BackButton
+                  onClick={() =>
+                     api_request.isSuccess
+                        ? router.push(hm_uris.navbar.requests + `?status=${api_request.data.status}`)
+                        : router.back()
+                  }
+               />
+            }
             title={"Thông tin yêu cầu"}
             nextButton={<PageHeaderV2.InfoButton />}
             className="std-layout-outer"
@@ -314,7 +322,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                   </section>
                )}
 
-               <section className="relative z-50 mt-layout">
+               <section className="relative z-20 mt-layout">
                   {api_device.isPending ? (
                      <Skeleton.Button active className="w-1/2 leading-8" />
                   ) : (
@@ -503,7 +511,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                      {(handleOpen) =>
                         !hasScanned &&
                         api_request.isSuccess && (
-                           <section className="std-layout-outer fixed bottom-0 left-0 w-full justify-center bg-inherit p-layout">
+                           <section className="std-layout-outer fixed bottom-0 left-0 z-[5000] w-full justify-center bg-inherit p-layout">
                               <Button
                                  size={"large"}
                                  className="w-full"

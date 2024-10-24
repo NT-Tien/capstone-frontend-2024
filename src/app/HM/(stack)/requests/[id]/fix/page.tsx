@@ -195,7 +195,15 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       <div className="relative flex min-h-screen flex-col">
          <div className={"std-layout-outer absolute left-0 top-0 h-36 w-full bg-head_maintenance"} />
          <PageHeaderV2
-            prevButton={<PageHeaderV2.BackButton onClick={router.back} />}
+            prevButton={
+               <PageHeaderV2.BackButton
+                  onClick={() =>
+                     api_request.isSuccess
+                        ? router.push(hm_uris.navbar.requests + `?status=${api_request.data.status}`)
+                        : router.back()
+                  }
+               />
+            }
             title={"Yêu cầu: Sửa chữa"}
             nextButton={
                <Dropdown

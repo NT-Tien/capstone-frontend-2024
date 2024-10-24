@@ -264,7 +264,20 @@ function Page({ params }: { params: { id: string } }) {
 
                            {
                               title: "Chờ đánh giá",
-                              description: <span className={"text-sm"}>Yêu cầu đã hoàn thành và chờ đánh giá</span>,
+                              description: (
+                                 <div className={"flex flex-col gap-1"}>
+                                    <span className={"text-sm"}>Yêu cầu đã hoàn thành và chờ đánh giá</span>
+                                    <Button
+                                       onClick={() =>
+                                          control_feedbackDrawer.current?.handleOpen({
+                                             requestId: params.id,
+                                          })
+                                       }
+                                    >
+                                       Đánh giá
+                                    </Button>
+                                 </div>
+                              ),
                               className:
                                  api_requests.isSuccess &&
                                  new Set([FixRequestStatus.REJECTED, FixRequestStatus.HEAD_CANCEL]).has(

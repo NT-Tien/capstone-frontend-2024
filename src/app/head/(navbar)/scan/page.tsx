@@ -14,6 +14,7 @@ import ScanDetailsDrawer, {
 } from "@/features/head-department/components/overlay/ScanDetails.drawer"
 import head_department_queries from "@/features/head-department/queries"
 import { useIsFetching, useQueryClient } from "@tanstack/react-query"
+import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 
 export default function ScanPage() {
    const navDrawer = HeadNavigationDrawer.useDrawer()
@@ -98,7 +99,11 @@ export default function ScanPage() {
 
    return (
       <div className="h-full">
-         <PageHeader title="Tạo yêu cầu" icon={PageHeader.NavIcon} handleClickIcon={navDrawer.handleOpen} />
+         <PageHeaderV2
+            title="Tạo yêu cầu"
+            nextButton={<PageHeaderV2.InfoButton />}
+            prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}
+         />
          <div className="px-layout py-3">
             <AlertCard text="Vui lòng quét mã QR hoặc nhập ID của thiết bị" icon={<InfoCircleOutlined />} type="info" />
          </div>

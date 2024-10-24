@@ -35,7 +35,7 @@ function CreateRequestDrawer(props: Props) {
             onSuccess: (result) => {
                setTimeout(() => {
                   router.push(hd_uris.stack.history_id(result.id))
-               }, 150)
+               }, 300)
             },
          },
       )

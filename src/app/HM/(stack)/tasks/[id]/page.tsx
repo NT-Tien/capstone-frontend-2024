@@ -1,9 +1,9 @@
 "use client"
 
 import HeadStaff_Task_OneById from "@/features/head-maintenance/api/task/one-byId.api"
-import DetailsTab from "@/app/head-staff/mobile/(stack)/tasks/[id]/DetailsTab.componen"
-import DeviceTab from "@/app/head-staff/mobile/(stack)/tasks/[id]/DeviceTab.component"
-import IssuesTab from "@/app/head-staff/mobile/(stack)/tasks/[id]/IssuesTab.component"
+import DetailsTab from "@/app/HM/(stack)/tasks/[id]/DetailsTab.componen"
+import DeviceTab from "@/app/HM/(stack)/tasks/[id]/DeviceTab.component"
+import IssuesTab from "@/app/HM/(stack)/tasks/[id]/IssuesTab.component"
 import RootHeader from "@/components/layout/RootHeader"
 import qk from "@/old/querykeys"
 import { LeftOutlined } from "@ant-design/icons"
@@ -36,13 +36,7 @@ function Component({ params }: { params: { id: string } }) {
          <RootHeader
             title="Thông tin chi tiết"
             icon={<LeftOutlined />}
-            onIconClick={() =>
-               api.isSuccess
-                  ? searchParams.get("goto") === "request"
-                     ? router.push(`/head-staff/mobile/requests/${api.data.request.id}/approved?tab=tasks`)
-                     : router.push("/head-staff/mobile/tasks")
-                  : undefined
-            }
+            onIconClick={() => router.back()}
             className="std-layout-outer p-4"
          />
          <Tabs

@@ -86,7 +86,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       if (searchParams.viewingHistory === "true") {
          router.back()
       } else {
-         router.push(`/head-staff/mobile/requests?status=${api_request.data?.status}`)
+         router.push(`/HM/requests?status=${api_request.data?.status}`)
       }
    }
 

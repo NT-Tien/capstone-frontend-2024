@@ -51,6 +51,12 @@ function HeadMaintenanceNavigaionDrawer(props: PropsWithChildren) {
                      type: "item",
                      key: hm_uris.navbar.requests,
                   },
+                  {
+                     label: "Danh sách tác vụ",
+                     icon: <CheckSquareOutlined />,
+                     type: "item",
+                     key: hm_uris.navbar.tasks,
+                  },
                ]}
             />
          </OverlayControllerWithRef>

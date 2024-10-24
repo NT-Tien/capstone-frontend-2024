@@ -1,20 +1,18 @@
 "use client"
 
 import HeadStaff_Task_All from "@/features/head-maintenance/api/task/all.api"
-import RootHeader from "@/components/layout/RootHeader"
-import ScrollableTabs from "@/components/ScrollableTabs"
 import TaskCard from "@/old/TaskCard"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import qk from "@/old/querykeys"
 import { useInfiniteQuery } from "@tanstack/react-query"
-import { Button, Card, Divider, Empty, Input, List, Result, Segmented, Select, Skeleton, Spin } from "antd"
-import { useRouter, useSearchParams } from "next/navigation"
-import { Suspense, useEffect, useState } from "react"
+import { Button, Card, Divider, Empty, Input, List, Result, Select, Skeleton } from "antd"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import PageHeader from "@/components/layout/PageHeader"
-import Image from "next/image"
 import { FilterOutlined, SearchOutlined } from "@ant-design/icons"
 import HeadMaintenanceNavigaionDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
+import hm_uris from "@/features/head-maintenance/uri"
 
 function Page({ searchParams }: { searchParams: { page?: string; status?: TaskStatus } }) {
    const [status, setStatus] = useState<TaskStatus>(searchParams?.status ?? TaskStatus.AWAITING_FIXER)
@@ -191,7 +189,7 @@ function ListView(props: ListViewType) {
                <TaskCard
                   task={item}
                   className={`mb-2 ${backgroundClass}`} // Add background color via className
-                  onClick={() => router.push(`/head-staff/mobile/tasks/${item.id}`)}
+                  onClick={() => router.push(hm_uris.stack.tasks_id(item.id))}
                />
             )
          }}

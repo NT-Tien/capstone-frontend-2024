@@ -124,7 +124,9 @@ export default function DetailsTab({ api, setTab }: Props) {
                   dataIndex: "fixerDate",
                   render: (_, e) =>
                      e.fixerDate ? (
-                        <div style={{ fontWeight: "bold" }}>{dayjs(e.fixerDate).add(7, "hours").format("DD/MM/YYYY")}</div>
+                        <div style={{ fontWeight: "bold" }}>
+                           {dayjs(e.fixerDate).add(7, "hours").format("DD/MM/YYYY")}
+                        </div>
                      ) : (
                         "-"
                      ),
@@ -133,7 +135,7 @@ export default function DetailsTab({ api, setTab }: Props) {
                   key: "request",
                   label: "Yêu cầu gốc",
                   render: (_, e) => (
-                     <Link href={`/head-staff/mobile/requests/${e.request.id}`} prefetch>
+                     <Link href={`/HM/requests/${e.request.id}`} prefetch>
                         {e.request.requester_note}
                         <LinkOutlined className="ml-1" />
                      </Link>

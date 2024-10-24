@@ -1,17 +1,14 @@
 "use client"
 
-import DataListView from "@/components/DataListView"
-import PageHeader from "@/components/layout/PageHeader"
-import ScannerDrawer from "@/components/overlays/Scanner.drawer"
 import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
 import { cn } from "@/lib/utils/cn.util"
 import { isUUID } from "@/lib/utils/isUUID.util"
-import { CheckCircleFilled, MoreOutlined, QrcodeOutlined, TruckFilled } from "@ant-design/icons"
-import { Info, MapPin } from "@phosphor-icons/react"
-import { Skeleton } from "antd"
+import { CheckCircleFilled, DeleteFilled, MoreOutlined, QrcodeOutlined, TruckFilled } from "@ant-design/icons"
+import { CalendarBlank, ClockCounterClockwise, MapPin, Swap, WashingMachine, Wrench } from "@phosphor-icons/react"
+import { ConfigProvider, Descriptions, Divider, Skeleton, Space } from "antd"
 import App from "antd/es/app"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
@@ -42,6 +39,7 @@ import head_maintenance_queries from "@/features/head-maintenance/queries"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import hm_uris from "@/features/head-maintenance/uri"
+import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
@@ -53,6 +51,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    const sendWarrantyRef = useRef<SendWarrantyDrawerRefType | null>(null)
    const control_requestApproveToFixDrawer = useRef<RefType<Request_ApproveToFixDrawerProps>>(null)
    const control_renewDeviceDrawer = useRef<RefType<RenewDeviceDrawerProps> | null>(null)
+   const control_scannerDrawer = useRef<ScannerV2DrawerRefType | null>(null)
 
    const mutate_updateSeen = head_maintenance_mutations.request.seen({ showMessages: false })
 
@@ -131,7 +130,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       return dayjs().isAfter(dayjs(api_device.data.machineModel?.warrantyTerm))
    }, [api_device.isSuccess, api_device.data?.machineModel?.warrantyTerm])
 
-   async function handleScanFinish(result: string, handleClose: () => void) {
+   async function handleScanFinish(result: string) {
       message.destroy("scan-msg")
 
       if (!api_request.isSuccess) {
@@ -160,7 +159,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       }
 
       setHasScanned(true)
-      handleClose()
       message.success("Quét ID thiết bị thành công").then()
       const scannedCache = localStorage.getItem(`scanned-cache-headstaff`)
 
@@ -214,7 +212,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
 
    return (
       <div className="std-layout relative h-max min-h-full bg-white pb-24">
-         <div className={"std-layout-outer absolute left-0 top-0 h-36 w-full bg-head_maintenance"} />
+         <div className={"std-layout-outer fixed left-0 top-0 h-screen w-full bg-head_maintenance"} />
          <Image
             className="std-layout-outer absolute h-32 w-full object-cover opacity-20"
             src="/images/requests.jpg"
@@ -272,36 +270,39 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
             </>
          ) : (
             <>
-               <section className="relative z-50 rounded-lg border-2 border-neutral-200 bg-white shadow-lg">
-                  <DataListView
-                     bordered
-                     dataSource={api_request.data}
-                     itemClassName="py-2"
-                     labelClassName="font-normal text-neutral-400 text-[14px]"
-                     valueClassName="text-[14px] font-medium"
-                     items={[
-                        {
-                           label: "Ngày tạo",
-                           value: (e) => dayjs(e.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
-                        },
-                        {
-                           label: "Người yêu cầu",
-                           value: (e) => e.requester?.username ?? "-",
-                        },
-                        {
-                           label: "Trạng thái",
-                           value: (e) => (
-                              <Tag className="m-0" color={FixRequest_StatusMapper(e).colorInverse}>
-                                 {FixRequest_StatusMapper(e).text}
-                              </Tag>
-                           ),
-                        },
-                        {
-                           label: "Ghi chú",
-                           value: (e) => e.requester_note,
-                        },
-                     ]}
-                  />
+               <section className="relative z-50 rounded-lg border-2 border-neutral-200 bg-white p-layout-half shadow-lg">
+                  {api_request.isPending && <Skeleton.Button active className="w-1/2 leading-8" />}
+                  {api_request.isSuccess && (
+                     <Descriptions
+                        colon={false}
+                        contentStyle={{
+                           display: "flex",
+                           justifyContent: "flex-end",
+                        }}
+                        items={[
+                           {
+                              label: "Ngày tạo",
+                              children: dayjs(api_request.data.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
+                           },
+                           {
+                              label: "Người yêu cầu",
+                              children: api_request.data.requester?.username ?? "-",
+                           },
+                           // {
+                           //    label: "Trạng thái",
+                           //    children: (
+                           //       <Tag className={"m-0"} color={FixRequest_StatusMapper(api_request.data).colorInverse}>
+                           //          {FixRequest_StatusMapper(api_request.data).text}
+                           //       </Tag>
+                           //    ),
+                           // },
+                           {
+                              label: "Ghi chú",
+                              children: api_request.data.requester_note,
+                           },
+                        ]}
+                     />
+                  )}
                </section>
                {pageStatus?.hasRejected && (
                   <section className="std-layout">
@@ -311,153 +312,135 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                      </div>
                   </section>
                )}
-               {api_request.data?.status === FixRequestStatus.APPROVED && (
-                  <section className="std-layout">
-                     <div className="flex w-full items-start rounded-b-lg bg-primary-500 p-3 text-white">
-                        <Info size={32} className="mr-2" />
-                        <div className="text-sm font-medium">
-                           Yêu cầu đã được xác nhận. Vui lòng tạo tác vụ để tiếp tục.
-                        </div>
-                     </div>
-                  </section>
-               )}
 
                <section className="relative z-20 mt-layout">
-                  {api_device.isPending ? (
-                     <Skeleton.Button active className="w-1/2 leading-8" />
-                  ) : (
-                     <h3
-                        className="text-center text-lg font-semibold leading-8 text-neutral-700"
+                  <div className="rounded-lg border-2 border-neutral-200 bg-white py-layout-half">
+                     <h2
+                        className={"flex items-center gap-1 px-layout-half text-base font-medium"}
                         onClick={() => {
-                           window.navigator.clipboard.writeText(api_device.data?.id ?? "")
+                           navigator.clipboard.writeText(api_device.data?.id ?? "")
                         }}
                      >
-                        THÔNG TIN THIẾT BỊ
-                     </h3>
-                  )}
-                  <div className="rounded-lg border-2 border-neutral-200">
-                     <DataListView
-                        bordered
-                        dataSource={api_device.data}
-                        itemClassName="py-2"
-                        labelClassName="font-normal text-neutral-400 text-[14px]"
-                        valueClassName="text-[14px] font-medium"
-                        items={[
-                           {
-                              label: "Mẫu máy",
-                              value: (s) => s.machineModel?.name,
-                           },
-                           {
-                              label: "Nhà sản xuất",
-                              value: (s) => s.machineModel?.manufacturer ?? "Không có",
-                           },
-                           {
-                              label: "Năm sản xuất",
-                              value: (s) => s.machineModel?.yearOfProduction,
-                           },
-                           {
-                              label: "Ngày nhận máy",
-                              value: (s) =>
-                                 s.machineModel?.dateOfReceipt
-                                    ? dayjs(s.machineModel?.dateOfReceipt).format("DD-MM-YYYY")
-                                    : "Không có",
-                           },
-                           {
-                              label: "Thời hạn bảo hành",
-                              value: (s) =>
-                                 s.machineModel.warrantyTerm === null || s.machineModel.warrantyTerm === undefined ? (
-                                    <span>Không bảo hành</span>
-                                 ) : (
-                                    <span className="flex flex-col">
-                                       <span className="text-right">
-                                          {dayjs(s.machineModel?.warrantyTerm).format("DD-MM-YYYY")}
+                        <WashingMachine size={18} weight={"duotone"} />
+                        Thông tin thiết bị
+                     </h2>
+                     <div className={"px-layout-half"}>
+                        <Divider className={"my-layout-half"} />
+                     </div>
+                     {api_device.isSuccess && (
+                        <>
+                           <Descriptions
+                              colon={false}
+                              contentStyle={{
+                                 display: "flex",
+                                 justifyContent: "flex-end",
+                              }}
+                              className={"px-layout-half"}
+                              items={[
+                                 {
+                                    label: "Mẫu máy",
+                                    children: api_device.data.machineModel.name,
+                                 },
+                                 {
+                                    label: "Nhà sản xuất",
+                                    children: api_device.data.machineModel.manufacturer ?? "Không có",
+                                 },
+                                 {
+                                    label: "Năm sản xuất",
+                                    children: api_device.data.machineModel?.yearOfProduction,
+                                 },
+                                 {
+                                    label: "Ngày nhận máy",
+                                    children: api_device.data.machineModel?.dateOfReceipt
+                                       ? dayjs(api_device.data.machineModel?.dateOfReceipt).format("DD-MM-YYYY")
+                                       : "Không có",
+                                 },
+                                 {
+                                    label: "Thời hạn bảo hành",
+                                    children: !api_device.data.machineModel.warrantyTerm ? (
+                                       <span>Không bảo hành</span>
+                                    ) : (
+                                       <span className="flex flex-col">
+                                          <span className="text-right">
+                                             {dayjs(api_device.data.machineModel?.warrantyTerm).format("DD-MM-YYYY")}
+                                          </span>
+                                          {hasExpired && (
+                                             <Tag color="red-inverse" className="m-0">
+                                                Hết bảo hành
+                                             </Tag>
+                                          )}
                                        </span>
-                                       {hasExpired && (
-                                          <Tag color="red-inverse" className="m-0">
-                                             Hết bảo hành
-                                          </Tag>
-                                       )}
-                                    </span>
-                                 ),
-                           },
-                           {
-                              label: "Mô tả",
-                              value: (s) => s.description,
-                           },
-                           {
-                              isDivider: true,
-                              label: "",
-                              value: () => null,
-                           },
-                           {
-                              label: "Khu vực",
-                              value: (s) => s.area?.name,
-                           },
-                           {
-                              label: "Vị trí (x, y)",
-                              value: (s) => (
-                                 <a className="flex items-center gap-1">
-                                    {s.positionX} x {s.positionY}
-                                    <MapPin size={16} weight="fill" />
-                                 </a>
-                              ),
-                           },
-                        ]}
-                     />
+                                    ),
+                                 },
+                                 {
+                                    label: "Mô tả",
+                                    children: api_device.data.description,
+                                 },
+                              ]}
+                           />
+                           <div className={"px-layout-half"}>
+                              <Divider className={"my-layout-half"} />
+                           </div>
+                           <Descriptions
+                              colon={false}
+                              contentStyle={{
+                                 display: "flex",
+                                 justifyContent: "flex-end",
+                              }}
+                              className={"px-layout-half"}
+                              items={[
+                                 {
+                                    label: "Khu vực",
+                                    children: api_device.data.area?.name,
+                                 },
+                                 {
+                                    label: "Vị trí (x, y)",
+                                    children: (
+                                       <a className="flex items-center gap-1">
+                                          {api_device.data.positionX} x {api_device.data.positionY}
+                                          <MapPin size={16} weight="fill" />
+                                       </a>
+                                    ),
+                                 },
+                              ]}
+                           />
+                        </>
+                     )}
                      {api_request.isSuccess && (
-                        <section className="mt-layout px-layout">
+                        <section className="mt-layout">
                            {api_deviceHistory.isSuccess ? (
                               <>
+                                 <h2 className={"flex items-center gap-1 px-layout-half text-base font-medium"}>
+                                    <ClockCounterClockwise size={18} weight={"duotone"} />
+                                    Lịch sử sửa chữa
+                                 </h2>
+                                 <div className={"px-layout-half"}>
+                                    <Divider className={"my-layout-half"} />
+                                 </div>
                                  <List
                                     dataSource={api_deviceHistory.data.requests.slice(0, 2)}
                                     split
-                                    header={
-                                       <h5 className="text-lg font-medium text-neutral-500">
-                                          Lịch sử sửa chữa ({api_deviceHistory.data.requests.length ?? "-"})
-                                       </h5>
-                                    }
+                                    className="px-layout-half"
+                                    itemLayout={"horizontal"}
                                     renderItem={(item, index) => (
-                                       <List.Item
-                                          className={cn(index === 0 && "mt-1")}
-                                          onClick={() => {
-                                             if (
-                                                new Set([
-                                                   FixRequestStatus.APPROVED,
-                                                   FixRequestStatus.IN_PROGRESS,
-                                                   FixRequestStatus.HEAD_CONFIRM,
-                                                   FixRequestStatus.CLOSED,
-                                                ]).has(item.status)
-                                             ) {
-                                                router.push(
-                                                   `/head-staff/mobile/requests/${item.id}/approved?viewingHistory=true`,
-                                                )
-                                             } else {
-                                                router.push(
-                                                   `/head-staff/mobile/requests/${item.id}?viewingHistory=true`,
-                                                )
-                                             }
-                                          }}
-                                          extra={
-                                             <div className="flex flex-col justify-between gap-1">
-                                                <div className="text-right">
-                                                   {item.is_warranty && <Tag color="orange">Bảo hành</Tag>}
-                                                   <Tag
-                                                      className="mr-0"
-                                                      color={FixRequest_StatusMapper(item).colorInverse}
-                                                   >
-                                                      {FixRequest_StatusMapper(item).text}
-                                                   </Tag>
-                                                </div>
-                                                <span className="text-right text-neutral-500">
-                                                   {dayjs(item.updatedAt).add(7, "hours").format("DD/MM/YYYY")}
-                                                </span>
-                                             </div>
-                                          }
-                                       >
+                                       <List.Item className={cn(index === 0 && "pt-0")}>
                                           <List.Item.Meta
-                                             title={item.requester.username}
-                                             description={<span className="line-clamp-1">{item.requester_note}</span>}
-                                          ></List.Item.Meta>
+                                             title={<div className={"text-base"}>{item.requester_note}</div>}
+                                             description={
+                                                <Space
+                                                   className={"text-sm"}
+                                                   split={<Divider type={"vertical"} className="mx-1" />}
+                                                >
+                                                   <div className={FixRequest_StatusMapper(item).className}>
+                                                      {FixRequest_StatusMapper(item).text}
+                                                   </div>
+                                                   <div className={"flex items-center gap-1"}>
+                                                      <CalendarBlank size={16} weight={"duotone"} />
+                                                      {dayjs(item.createdAt).format("DD/MM/YYYY")}
+                                                   </div>
+                                                </Space>
+                                             }
+                                          />
                                        </List.Item>
                                     )}
                                  />
@@ -507,24 +490,19 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                </section>
 
                <section>
-                  <ScannerDrawer onScan={handleScanFinish}>
-                     {(handleOpen) =>
-                        !hasScanned &&
-                        api_request.isSuccess && (
-                           <section className="std-layout-outer fixed bottom-0 left-0 z-[5000] w-full justify-center bg-inherit p-layout">
-                              <Button
-                                 size={"large"}
-                                 className="w-full"
-                                 type="primary"
-                                 onClick={handleOpen}
-                                 icon={<QrcodeOutlined />}
-                              >
-                                 Quét mã QR để tiếp tục
-                              </Button>
-                           </section>
-                        )
-                     }
-                  </ScannerDrawer>
+                  {!hasScanned && api_request.isSuccess && (
+                     <section className="std-layout-outer fixed bottom-0 left-0 w-full justify-center bg-inherit p-layout">
+                        <Button
+                           size={"large"}
+                           className="w-full"
+                           type="primary"
+                           onClick={() => control_scannerDrawer.current?.handleOpen()}
+                           icon={<QrcodeOutlined />}
+                        >
+                           Quét mã QR để tiếp tục
+                        </Button>
+                     </section>
+                  )}
                   {pageStatus?.showingApproveRejectButtons && (
                      <section className="std-layout-outer fixed bottom-0 left-0 flex w-full justify-center gap-3 bg-inherit p-layout">
                         {hasExpired ? (
@@ -567,7 +545,8 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                     ? [
                                          {
                                             key: "continue",
-                                            label: "Tiếp tục xử lý",
+                                            label: "Sửa chữa máy",
+                                            icon: <Wrench size={16} weight={"duotone"} />,
                                             onClick: () =>
                                                control_requestApproveToFixDrawer.current?.handleOpen({
                                                   requestId: params.id,
@@ -578,6 +557,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                  {
                                     key: "no-problem",
                                     label: "Thay máy mới",
+                                    icon: <Swap size={16} weight={"duotone"} />,
                                     onClick: () =>
                                        api_device.isSuccess &&
                                        api_request.isSuccess &&
@@ -592,7 +572,8 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                  },
                                  {
                                     key: "reject",
-                                    label: "Hủy yêu cầu",
+                                    label: "Từ chối yêu cầu",
+                                    icon: <DeleteFilled />,
                                     onClick: () =>
                                        api_request.isSuccess &&
                                        control_requestRejectDrawer.current?.handleOpen({
@@ -610,6 +591,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                </section>
             </>
          )}
+         <ScannerV2Drawer ref={control_scannerDrawer} onScan={(result) => handleScanFinish(result)} />
          <OverlayControllerWithRef ref={control_requestRejectDrawer}>
             <Request_RejectDrawer
                onSuccess={async () => {
@@ -617,14 +599,22 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                }}
             />
          </OverlayControllerWithRef>
-         <OverlayControllerWithRef ref={control_requestApproveToFixDrawer}>
-            <Request_ApproveToFixDrawer
-               refetchFn={() => api_request.refetch()}
-               onSuccess={() => {
-                  router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.APPROVED}`)
-               }}
-            />
-         </OverlayControllerWithRef>
+         <ConfigProvider
+            theme={{
+               token: {
+                  colorPrimary: "#18743b",
+               },
+            }}
+         >
+            <OverlayControllerWithRef ref={control_requestApproveToFixDrawer}>
+               <Request_ApproveToFixDrawer
+                  refetchFn={() => api_request.refetch()}
+                  onSuccess={() => {
+                     router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.APPROVED}`)
+                  }}
+               />
+            </OverlayControllerWithRef>
+         </ConfigProvider>
          <Request_SendWarrantyDrawer ref={sendWarrantyRef} params={{ id: params.id }} />
          <OverlayControllerWithRef ref={control_renewDeviceDrawer}>
             <Request_RenewDeviceDrawer />

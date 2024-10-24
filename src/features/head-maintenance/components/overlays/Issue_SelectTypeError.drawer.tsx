@@ -153,6 +153,7 @@ const Issue_SelectTypeErrorDrawer = forwardRef<CreateIssueModalRefType, Props>(f
                      options={selectOptions}
                      placeholder="Chọn loại lỗi"
                      size="large"
+                     autoClearSearchValue
                      value={selectedTypeErrorControl}
                      onChange={(value) => {
                         setSelectedTypeErrorControl(value)

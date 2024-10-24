@@ -98,7 +98,6 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
    const [issueId, setIssueId] = useState<string | undefined>(undefined)
    const [failReason, setFailReason] = useState<string | undefined>()
    const [status, setStatus] = useState<IssueStatusEnum | undefined>()
-   const [showCancel, setShowCancel] = useState(false)
 
    const basicSelectSparePartDrawerRef = useRef<BasicSelectSparePartDrawerRefType | null>(null)
 
@@ -206,15 +205,15 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
             <section className="grid grid-cols-2 gap-4">
                <div className="">
                   <h5 className="font-medium text-gray-500">Tên lỗi</h5>
-                  <p className="mt-1 flex items-center gap-2">
-                     <Warning size={16} weight="fill" />
+                  <p className="mt-1 flex items-start gap-2">
+                     <Warning size={16} weight="fill" className={"translate-y-1"} />
                      {selectedTypeError?.name}
                   </p>
                </div>
                <div className="">
                   <h5 className="font-medium text-gray-500">Thời gian sửa chữa</h5>
-                  <p className="mt-1 flex items-center gap-2">
-                     <Timer size={16} weight="fill" />
+                  <p className="mt-1 flex items-start gap-2">
+                     <Timer size={16} weight="fill" className={"translate-y-1"} />
                      {selectedTypeError?.duration} phút
                   </p>
                </div>
@@ -314,17 +313,22 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
                               )}
                            </span>
                         ),
-                        value: sparePart.id,
+                        value: sparePart.id + "~~~" + sparePart.name,
                      }))}
                      className="w-full"
                      showSearch
                      size="large"
                      placeholder={<div className="text-sm">+ Chọn linh kiện</div>}
                      value={selectSparePartControl}
+                     filterOption={(input, option) => {
+                        return option?.value.toLowerCase().includes(input.toLowerCase()) ?? false
+                     }}
                      onChange={(sp) => {
-                        setSelectSparePartControl(sp)
-                        if (sp !== null && sp !== undefined && sp !== "") {
-                           const sparePart = unselectedSpareParts.find((s) => s.id === sp)
+                        const label = sp.split("~~~")[1]
+                        const part = sp.split("~~~")[0]
+                        setSelectSparePartControl(label)
+                        if (part !== null && part !== undefined && part !== "") {
+                           const sparePart = unselectedSpareParts.find((s) => s.id === part)
                            !!sparePart && basicSelectSparePartDrawerRef.current?.handleOpen({ sparePart })
                         }
                      }}

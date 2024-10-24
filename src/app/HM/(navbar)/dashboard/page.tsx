@@ -60,14 +60,14 @@ function Page() {
    ])
 
    return (
-      <div className="relative">
-         <div className="absolute left-0 top-0 h-56 w-full bg-head_maintenance" />
+      <div className="relative flex min-h-screen flex-col bg-head_maintenance">
+         {/*<div className="absolute left-0 top-0 h-56 w-full bg-head_maintenance" />*/}
          <PageHeaderV2
             prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}
             title={"Thống kê"}
             nextButton={<Button icon={<FilterOutlined className="text-white" />} type="text" />}
          />
-         <section className={"grid grid-cols-2 gap-3 px-layout"}>
+         <section className={"grid grid-cols-2 gap-3 px-layout pb-layout"}>
             <ClickableArea
                type={"primary"}
                className={cn(
@@ -89,10 +89,14 @@ function Page() {
                <Statistic title="Tác vụ" value={totalTasks} prefix={<CheckSquareOutlined />} />
             </ClickableArea>
          </section>
-         <section className={"mt-3 flex justify-center text-white"}>
-            {tab === "request" && <RequestStatisticsCard className="px-layout" />}
-            {tab === "task" && <TaskStatisticsCard className={"px-layout"} />}
+         <section className="h-96 w-full flex-grow rounded-t-3xl bg-white p-layout">
+            {tab === "request" && <RequestStatisticsCard />}
+            {tab === "task" && <TaskStatisticsCard />}
          </section>
+         {/*<section className={"mt-3 flex justify-center text-white"}>*/}
+         {/*   {tab === "request" && <RequestStatisticsCard className="px-layout" />}*/}
+         {/*   {tab === "task" && <TaskStatisticsCard className={"px-layout"} />}*/}
+         {/*</section>*/}
       </div>
    )
 }

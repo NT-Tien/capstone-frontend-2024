@@ -84,7 +84,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
          if (query.hasReviewed !== undefined)
             if (query.hasReviewed ? i.status === FixRequestStatus.HEAD_CONFIRM : i.status === FixRequestStatus.CLOSED)
                return false
-         if (query.hasSeen !== undefined && query.hasSeen !== i.is_seen) return false
+         if (query.hasSeen !== undefined && query.hasSeen === i.is_seen) return false
 
          return true
       })

@@ -2,10 +2,9 @@
 
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { TypeErrorDto } from "@/lib/domain/TypeError/TypeError.dto"
-import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
 import AlertCard from "@/components/AlertCard"
-import { DeleteOutlined, EditOutlined, SendOutlined } from "@ant-design/icons"
+import { CloseOutlined, DeleteOutlined, EditOutlined, MoreOutlined, SendOutlined } from "@ant-design/icons"
 import { Info } from "@phosphor-icons/react"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
@@ -20,8 +19,7 @@ import Issue_CreateDetailsDrawer, { CreateSingleIssueDrawerRefType } from "./Iss
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import MachineModelUtil from "@/lib/domain/MachineModel/MachineModel.util"
-import { useRouter } from "next/navigation"
-import { App } from "antd"
+import { App, ConfigProvider } from "antd"
 
 type Request_ApproveToFixDrawerProps = {
    requestId?: string
@@ -31,7 +29,6 @@ type Request_ApproveToFixDrawerProps = {
 type Props = Omit<DrawerProps, "children"> & Request_ApproveToFixDrawerProps
 
 function Request_ApproveToFixDrawer(props: Props) {
-   const router = useRouter()
    const { modal } = App.useApp()
 
    const [selectedIssues, setSelectedIssues] = useState<IssueDto[]>([])
@@ -138,7 +135,14 @@ function Request_ApproveToFixDrawer(props: Props) {
 
    return (
       <Drawer
-         title="Xác nhận yêu cầu"
+         title={
+            <div className={"flex w-full items-center justify-between"}>
+               <Button icon={<CloseOutlined />} type={"text"} onClick={props.onClose} />
+               <h1 className={"text-lg font-semibold"}>Xác nhận yêu cầu</h1>
+               <Button icon={<MoreOutlined />} type={"text"} />
+            </div>
+         }
+         closeIcon={false}
          placement="right"
          height="100%"
          width="100%"

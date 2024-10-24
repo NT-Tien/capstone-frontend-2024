@@ -305,10 +305,10 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                   )}
                </section>
                {pageStatus?.hasRejected && (
-                  <section className="std-layout">
+                  <section className="std-layout z-50">
                      <div className="w-full rounded-b-lg bg-red-500 p-3 text-white">
-                        <h3 className="text-base font-semibold">Lý do không tiếp nhận</h3>
-                        <p className="line-clamp-2 text-sm font-normal">{api_request.data?.checker_note}</p>
+                        <h3 className="font-me text-base">Lý do không tiếp nhận</h3>
+                        <p className="line-clamp-2 text-sm font-normal">{api_request.data?.checker_note ?? "-"}</p>
                      </div>
                   </section>
                )}

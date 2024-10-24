@@ -18,6 +18,7 @@ import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import { CheckSquare } from "@phosphor-icons/react"
 import ClickableArea from "@/components/ClickableArea"
 import staff_uri from "@/features/staff/uri"
+import hm_uris from "@/features/head-maintenance/uri"
 
 function Page() {
    const response = useQuery({
@@ -55,7 +56,7 @@ function Page() {
 
    return (
       <div className="relative">
-         <div className="absolute left-0 top-0 h-48 w-full bg-staff" />
+         <div className="absolute left-0 top-0 h-56 w-full bg-staff" />
          <PageHeaderV2
             prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}
             title={"Trang chủ"}
@@ -64,7 +65,7 @@ function Page() {
          />
          <section className={"relative z-50 mb-3 px-layout"}>
             <ClickableArea
-               className={"flex w-full justify-start rounded-lg bg-white p-2"}
+               className={"flex w-full justify-start rounded-lg bg-white p-2 text-black"}
                onClick={() => {
                   if (ongoingtask) {
                      router.push(staff_uri.stack.tasks_id(ongoingtask.id))
@@ -74,35 +75,18 @@ function Page() {
                }}
             >
                <div>
-                  <CheckSquare size={56} />
+                  <CheckSquare size={48} />
                </div>
-               <div className={"flex flex-col items-start"}>
-                  <h2 className={"text-lg font-semibold"}>
+               <div className={"flex w-full flex-col items-start"}>
+                  <h2 className={"text-base font-semibold text-black"}>
                      {ongoingtask ? "Tác vụ đang thực hiện" : "Chọn tác vụ để bắt đầu"}
                   </h2>
-                  <div className={"w-1/2 truncate text-sm"}>{ongoingtask ? ongoingtask.name : "-"}</div>
+                  <div className={"w-11/12 truncate text-left text-xs"}>
+                     {ongoingtask ? ongoingtask.name : "Vui lòng bắt đầu một tác vụ trong danh sách"}
+                  </div>
                </div>
             </ClickableArea>
          </section>
-         {/*{ongoingtask && (*/}
-         {/*   <section className="mb-8 mt-1 flex space-x-4">*/}
-         {/*      <div*/}
-         {/*         className="relative h-full w-full flex-1 transform cursor-pointer rounded-xl p-5 shadow-lg transition duration-300 hover:scale-105 hover:shadow-2xl"*/}
-         {/*         style={{*/}
-         {/*            background: "radial-gradient(circle at top left, #FCD34D, #D97706)", // Matches yellow-300 and amber-700*/}
-         {/*         }}*/}
-         {/*         onClick={() => router.push(`/staff/tasks/${ongoingtask.id}/start`)}*/}
-         {/*      >*/}
-         {/*         <h2 className="text-xl font-bold text-white">Tác vụ đang thực hiện</h2>*/}
-         {/*         <p className="text-base text-white">{ongoingtask?.name ?? ""}</p>*/}
-         {/*         {ongoingtask?.priority && (*/}
-         {/*            <div className="absolute right-2 top-2 rounded-full bg-red-500 px-3 py-1 text-xs font-semibold text-white">*/}
-         {/*               Ưu tiên*/}
-         {/*            </div>*/}
-         {/*         )}*/}
-         {/*      </div>*/}
-         {/*   </section>*/}
-         {/*)}*/}
          <main className="px-layout">
             <article className="w-full text-black">
                <Space.Compact className="w-full">

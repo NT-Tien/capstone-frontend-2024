@@ -24,10 +24,14 @@ export function middleware(request: NextRequest) {
    const payload = decodeJwt(token.value)
    const pathname = request.nextUrl.pathname.split("/")[1]
 
+   console.log(pathname)
+
    if (
       (pathname === "admin" && payload.role !== Role.admin) ||
       (pathname === "staff" && payload.role !== Role.staff) ||
+      (pathname === "S" && payload.role !== Role.staff) ||
       (pathname === "head-staff" && payload.role !== Role.headstaff) ||
+      (pathname === "HM" && payload.role !== Role.headstaff) ||
       (pathname === "head" && payload.role !== Role.head) ||
       (pathname === "manager" && payload.role !== Role.manager) ||
       (pathname === "stockkeeper" && payload.role !== Role.stockkeeper)

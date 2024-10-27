@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react"
 import { DrawerForm, ProForm, ProFormText } from "@ant-design/pro-components"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { App } from "antd"
-import Users_Create from "@/features/admin/api/user/create.api"
+import Admin_Users_Create from "@/features/admin/api/user/create.api"
 import qk from "@/old/querykeys"
 
 type FieldType = {
@@ -19,7 +19,7 @@ export default function CreateUserDrawer({ children }: { children: (handleOpen: 
    const queryClient = useQueryClient()
 
    const mutate_createUser = useMutation({
-      mutationFn: Users_Create,
+      mutationFn: Admin_Users_Create,
       onMutate: async () => {
          message.open({
             content: "Creating user...",
@@ -73,9 +73,9 @@ export default function CreateUserDrawer({ children }: { children: (handleOpen: 
             }}
          >
             <ProFormText name="username" label="Username" rules={[{ required: true }]} />
-            <ProFormText name="phone" label="Phone" rules={[{ required: true }]} />
-            <ProFormText.Password name="password" label="Password" rules={[{ required: true }]} />
-            <ProFormText.Password name="confirmPassword" label="Confirm Password" rules={[{ required: true }]} />
+            <ProFormText name="phone" label="Số điện thoại" rules={[{ required: true }]} />
+            <ProFormText.Password name="password" label="Mật khẩu" rules={[{ required: true }]} />
+            <ProFormText name="role" label="Chức vụ" rules={[{ required: true }]} />
          </DrawerForm>
       </>
    )

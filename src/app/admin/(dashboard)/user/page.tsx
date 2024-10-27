@@ -69,7 +69,7 @@ function Page() {
             <CreateUserDrawer>
                {(handleOpen) => (
                   <Button key="create-user-btn" type="primary" onClick={handleOpen}>
-                     Create
+                     Tạo tài khoản
                   </Button>
                )}
             </CreateUserDrawer>

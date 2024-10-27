@@ -65,7 +65,7 @@ function Page() {
          <PageHeaderV2
             prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}
             title={"Thống kê"}
-            nextButton={<Button icon={<FilterOutlined className="text-white" />} type="text" />}
+            // nextButton={<Button icon={<FilterOutlined className="text-white" />} type="text" />}
          />
          <section className={"grid grid-cols-2 gap-3 px-layout pb-layout"}>
             <ClickableArea

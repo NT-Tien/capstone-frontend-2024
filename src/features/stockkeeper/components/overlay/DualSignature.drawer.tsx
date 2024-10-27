@@ -68,7 +68,7 @@ function DualSignatureDrawer(props: Props) {
                />
             </section>
             <section>
-               <AlertCard text="Vui lòng thêm chữ ký chủ kho" type="info" />
+               <AlertCard text="Vui lòng thêm chữ ký thủ kho" type="info" />
                <SignatureController
                   strokes={stockkeeperStrokes}
                   setStrokes={setStockkeeperStrokes}

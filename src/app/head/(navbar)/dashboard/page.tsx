@@ -32,7 +32,7 @@ function Page() {
          <PageHeaderV2
             prevButton={<PageHeaderV2.MenuButton onClick={navigationDrawer.handleOpen} />}
             title="Trang chủ"
-            nextButton={<Button icon={<FilterOutlined className="text-white" />} type="text" />}
+            // nextButton={<Button icon={<FilterOutlined className="text-white" />} type="text" />}
          />
          <section className="relative z-50 mb-3 flex -translate-y-2 flex-col items-center justify-center text-white">
             <h2 className="text-base">Tổng số yêu cầu đã tạo</h2>

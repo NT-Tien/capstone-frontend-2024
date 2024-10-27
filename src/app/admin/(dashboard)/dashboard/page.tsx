@@ -1,28 +1,37 @@
 "use client"
 
 import { PageContainer } from "@ant-design/pro-components"
-import { Button, Card, Divider, Space, Statistic } from "antd"
+import { Button, Card, DatePicker, Divider, Space, Statistic } from "antd"
 import { FilterOutlined, ReloadOutlined } from "@ant-design/icons"
 import admin_queries from "@/features/admin/queries"
 import { useQuery } from "@tanstack/react-query"
 import Admin_Requests_Dashboard from "@/features/admin/api/request/dashboard.api"
-import dayjs from "dayjs"
+import dayjs, { Dayjs } from "dayjs"
 import Admin_Task_Dashboard from "@/features/admin/api/task/dashboard.api"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
-import { useRef, useState } from "react"
-import FilterModal, { FilterModalProps, Query } from "@/app/admin/(dashboard)/dashboard/Filter.modal"
-import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
-function Page() {
-   const control_filterModal = useRef<RefType<FilterModalProps>>(null)
+type Query = {
+   startDate: string
+   endDate: string
+}
 
+function Page() {
    const router = useRouter()
    const [query, setQuery] = useState<Query>({
       startDate: dayjs().subtract(30, "days").toISOString(),
       endDate: dayjs().add(1, "day").toISOString(),
    })
+   function handleDateChange(dates: [Dayjs | null, Dayjs | null] | null) {
+      if (dates && dates[0] && dates[1]) {
+         setQuery({
+            startDate: dates[0].toISOString(),
+            endDate: dates[1].toISOString(),
+         })
+      }
+   }
    const [tab, setTab] = useState<string | undefined>(undefined)
 
    const api_requests = useQuery({
@@ -56,23 +65,22 @@ function Page() {
       },
    )
 
+   useEffect(() => {
+      api_requests.refetch()
+      api_tasks.refetch()
+   }, [query.startDate, query.endDate])
+
    return (
       <PageContainer
          title="Thống kê"
          subTitle={`Đang hiện thông tin từ ${dayjs(query.startDate).format("DD/MM/YYYY")} đến ${dayjs(query.endDate).format("DD/MM/YYYY")}`}
          extra={
             <Space size="small">
-               <Button
-                  icon={<FilterOutlined />}
-                  onClick={() =>
-                     control_filterModal.current?.handleOpen({
-                        query,
-                        setQuery,
-                     })
-                  }
-               >
-                  Bộ lọc
-               </Button>
+               <DatePicker.RangePicker
+                  className="w-64"
+                  value={[dayjs(query.startDate), dayjs(query.endDate)]}
+                  onChange={handleDateChange}
+               />
                <Button
                   icon={<ReloadOutlined />}
                   onClick={() => {
@@ -373,9 +381,6 @@ function Page() {
                </Card>
             </div>
          </section>
-         <OverlayControllerWithRef ref={control_filterModal}>
-            <FilterModal />
-         </OverlayControllerWithRef>
       </PageContainer>
    )
 }

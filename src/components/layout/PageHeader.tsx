@@ -40,7 +40,7 @@ function PageHeader({ icon, title, className, handleClickIcon, iconProps }: Prop
                disabled={false}
             ></Button>
             <h1 className="flex w-full justify-center text-center text-lg font-bold text-neutral-50">{title}</h1>
-            <Button className="bg-neutral-100/50 p-2" icon={<MoreOutlined />}></Button>
+            {/* <Button className="bg-neutral-100/50 p-2" icon={<MoreOutlined />}></Button> */}
          </div>
       </header>
    )

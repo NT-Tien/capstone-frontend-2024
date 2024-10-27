@@ -100,8 +100,8 @@ export default function ScanPage() {
    return (
       <div className="h-full">
          <PageHeaderV2
-            title="Tạo yêu cầu"
-            nextButton={<PageHeaderV2.InfoButton />}
+            title={<h2 className="text-black">Tạo yêu cầu</h2>}
+            // nextButton={<PageHeaderV2.InfoButton />}
             prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}
          />
          <div className="px-layout py-3">

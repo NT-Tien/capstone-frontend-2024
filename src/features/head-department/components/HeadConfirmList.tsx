@@ -65,7 +65,7 @@ function HeadConfirmList({ requests }: Props) {
             )}
          />
          {requests && requests.length > 3 && (
-            <div className="mt-2 text-center">
+            <div className="mt-2 text-center mb-2">
                <Button onClick={() => router.push("history?status=head_confirm")}>Tải thêm</Button>
             </div>
          )}

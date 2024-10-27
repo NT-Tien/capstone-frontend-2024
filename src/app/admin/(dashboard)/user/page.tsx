@@ -177,7 +177,7 @@ function Page() {
                   dataIndex: "phone",
                },
                {
-                  title: "Quyền",
+                  title: "Chức vụ",
                   dataIndex: "role",
                   width: 200,
                   ellipsis: true,
@@ -203,7 +203,7 @@ function Page() {
                   sorter: true,
                },
                {
-                  title: "Lần trước cập nhật",
+                  title: "Lần cập nhật cuối",
                   dataIndex: "updatedAt",
                   width: 200,
                   render: (_, entity) => dayjs(entity.updatedAt).format("DD/MM/YYYY HH:mm"),

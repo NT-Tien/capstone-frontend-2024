@@ -64,7 +64,7 @@ export default function CreateUserDrawer({ children }: { children: (handleOpen: 
          {children(handleOpen)}
          <DrawerForm
             open={open}
-            title="Create User"
+            title="Tạo tài khoản"
             form={form}
             onFinish={handleSubmit}
             onReset={() => form.resetFields()}

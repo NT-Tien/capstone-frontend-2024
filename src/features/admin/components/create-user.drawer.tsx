@@ -9,7 +9,7 @@ type FieldType = {
    username: string
    phone: string
    password: string
-   confirmPassword: string
+   role: string
 }
 
 export default function CreateUserDrawer({ children }: { children: (handleOpen: () => void) => ReactNode }) {

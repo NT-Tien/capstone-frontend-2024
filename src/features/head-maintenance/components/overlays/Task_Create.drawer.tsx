@@ -4,9 +4,6 @@ import headstaff_qk from "@/features/head-maintenance/qk"
 import HeadStaff_Request_OneById from "@/features/head-maintenance/api/request/oneById.api"
 import HeadStaff_Task_Create from "@/features/head-maintenance/api/task/create.api"
 import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/features/head-maintenance/api/task/update-awaitSparePartToAssignFixer.api"
-import Issue_ViewDetailsDrawer, {
-   IssueDetailsDrawerRefType,
-} from "@/features/head-maintenance/components/overlays/Issue_ViewDetails.drawer"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
 import useModalControls from "@/lib/hooks/useModalControls"
@@ -15,7 +12,21 @@ import AlertCard from "@/components/AlertCard"
 import { CheckOutlined, CloseOutlined, EditOutlined, PlusOutlined, RightOutlined } from "@ant-design/icons"
 import { Clock, Wrench } from "@phosphor-icons/react"
 import { useMutation, useQueries } from "@tanstack/react-query"
-import { App, Button, Card, Checkbox, Drawer, DrawerProps, Input, Modal, Radio, Switch, Tooltip } from "antd"
+import {
+   App,
+   Button,
+   Card,
+   Checkbox,
+   Divider,
+   Drawer,
+   DrawerProps,
+   Input,
+   Modal,
+   Radio,
+   Space,
+   Switch,
+   Tooltip,
+} from "antd"
 import dayjs from "dayjs"
 import { useEffect, useMemo, useRef, useState } from "react"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
@@ -306,7 +317,11 @@ function Task_CreateDrawer(props: Props) {
                            <Checkbox checked={selectedIssueIds.includes(issue.id)} />
                            <div className="w-full truncate text-sm font-medium leading-6">{issue.typeError.name}</div>
                         </div>
-                        <div className="mt-1.5 flex gap-2 text-xs">
+                        <Space
+                           className="mt-1.5 w-full text-xs"
+                           wrap
+                           split={<Divider type={"vertical"} className={"m-0"} />}
+                        >
                            <div
                               className={cn(
                                  "flex items-center gap-1 font-light",
@@ -316,12 +331,15 @@ function Task_CreateDrawer(props: Props) {
                               {FixTypeTagMapper[issue.fixType].icon}
                               {FixTypeTagMapper[issue.fixType].text}
                            </div>
-                           {/* • */}
                            <div className="flex flex-grow items-center gap-1 font-light">
                               <Clock />
                               {issue.typeError.duration} phút
                            </div>
-                        </div>
+                           <div className="flex flex-grow items-center gap-1 font-light">
+                              <Wrench />
+                              {issue.issueSpareParts.length} linh kiện
+                           </div>
+                        </Space>
                      </Card>
                      <Button
                         type="dashed"

@@ -22,7 +22,7 @@ const config: Config = {
                "radial-gradient(circle at top left, theme('colors.indigo.400'), theme('colors.blue.500'))",
             head_maintenance:
                "radial-gradient(circle at top left, theme('colors.green.500'), theme('colors.green.900'))",
-            staff: "radial-gradient(circle at top left, theme('colors.yellow.300'), theme('colors.amber.700'))",
+            staff: "radial-gradient(circle at top left, theme('colors.orange.400'), theme('colors.orange.700'))",
          },
          colors: {
             primary: {
@@ -41,7 +41,7 @@ const config: Config = {
             customLightBlue: "#",
             head_maintenance: "theme('colors.green.500')",
             head_department: "theme('colors.blue.500')",
-            staff: "theme('colors.amber.500')",
+            staff: "var(--staff)",
          },
          padding: {
             base: "1rem",

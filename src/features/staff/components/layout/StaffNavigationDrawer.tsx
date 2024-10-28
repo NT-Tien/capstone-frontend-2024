@@ -12,6 +12,7 @@ import { usePathname, useRouter } from "next/navigation"
 import NavigationDrawer, { NavigationDrawerProps } from "@/components/layout/NavigationDrawer"
 import { createContext, PropsWithChildren, useContext, useRef } from "react"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import staff_uri from "@/features/staff/uri"
 
 type ContextType = {
    handleOpen: () => void
@@ -42,13 +43,13 @@ function StaffNavigationDrawer(props: PropsWithChildren) {
                      label: "Trang chủ",
                      icon: <HomeOutlined />,
                      type: "item",
-                     key: "/staff/dashboard",
+                     key: staff_uri.navbar.dashboard,
                   },
                   {
                      label: "Tác vụ cần làm",
                      icon: <CheckSquareOutlined />,
                      type: "item",
-                     key: "/staff/tasks",
+                     key: staff_uri.navbar.tasks,
                   },
                ]}
             />

@@ -17,7 +17,7 @@ export type QrCodeDisplayModalRefType = {
    handleOpen: (qrCode: string, issueSpareParts: IssueSparePartDto[]) => void
 }
 
-const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function Component(
+const GetSparePartsDrawer = forwardRef<QrCodeDisplayModalRefType, Props>(function Component(
    { children, ...props },
    ref,
 ) {
@@ -116,4 +116,4 @@ const QrCodeDisplayModal = forwardRef<QrCodeDisplayModalRefType, Props>(function
    )
 })
 
-export default QrCodeDisplayModal
+export default GetSparePartsDrawer

@@ -1,7 +1,7 @@
 import type { LiteralUnion } from "antd/es/_util/type"
 import type { PresetColorType, PresetStatusColorType } from "antd/es/_util/colors"
 import { ReactNode } from "react"
-import { Note, Package, SealCheck, Tray, UserMinus, Wrench, XCircle } from "@phosphor-icons/react"
+import { Note, Package, Placeholder, SealCheck, Tray, UserMinus, Wrench, XCircle } from "@phosphor-icons/react"
 
 export enum TaskStatus {
    AWAITING_FIXER = "AWAITING_FIXER", // can update issues, DO NOT DELETE
@@ -45,7 +45,7 @@ export const TaskStatusTagMapper: {
       text: "Đã phân công",
       colorInverse: "blue-inverse",
       color: "blue",
-      icon: <Tray size={16} />,
+      icon: <Placeholder size={16} />,
       className: "text-neutral-500",
       description: "Tác vụ đang chờ nhân viên thực hiện",
       index: 2,

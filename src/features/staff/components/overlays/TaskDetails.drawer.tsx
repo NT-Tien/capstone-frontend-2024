@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
 import staff_qk from "../../api/qk"
 import Staff_Task_OneById from "../../api/task/one-byId.api"
-import QrCodeDisplayModal, { QrCodeDisplayModalRefType } from "./QrCodeDisplay.modal"
+import GetSparePartsDrawer, { QrCodeDisplayModalRefType } from "./GetSparePartsDrawer"
 import Staff_Task_UpdateStart from "../../api/task/update-start.api"
 import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
 import { ReceiveWarrantyTypeErrorId, RenewRequestTypeErrorId } from "@/lib/constants/Warranty"
@@ -408,7 +408,7 @@ const TaskDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(function C
                </>
             )}
          </Drawer>
-         <QrCodeDisplayModal
+         <GetSparePartsDrawer
             title="Lấy linh kiện"
             description="Hãy xuống kho và đưa mã QR sau cho chủ kho."
             refetch={() => {

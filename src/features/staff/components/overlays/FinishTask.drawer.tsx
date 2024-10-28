@@ -13,15 +13,15 @@ import { File_Image_Upload } from "@/features/common/api/file/upload_image.api"
 import { clientEnv } from "@/env"
 import staff_mutations from "@/features/staff/mutations"
 import { useRouter } from "next/navigation"
+import { CloseOutlined, MoreOutlined } from "@ant-design/icons"
 
 type FinishTaskDrawerProps = {
    task?: TaskDto
+   onSuccess?: () => void
 }
 type Props = Omit<DrawerProps, "children"> & FinishTaskDrawerProps
 
 function FinishTaskDrawer(props: Props) {
-   const router = useRouter()
-
    const control_createSignatureDrawer = useRef<CreateSignatureDrawerRefType | null>(null)
    const [captureImageOpen, setCaptureImageOpen] = useState(false)
    const [imageVerification, setImageVerification] = useState<string | undefined>()
@@ -46,9 +46,7 @@ function FinishTaskDrawer(props: Props) {
             },
          },
          {
-            onSuccess: () => {
-               router.push("/staff/tasks")
-            },
+            onSuccess: props.onSuccess,
          },
       )
    }
@@ -81,12 +79,20 @@ function FinishTaskDrawer(props: Props) {
    return (
       <>
          <Drawer
-            title="Hoàn thành tác vụ"
-            placement="bottom"
-            height="100%"
+            title={
+               <div className={"flex items-center justify-between"}>
+                  <Button icon={<CloseOutlined className={"text-white"} />} type={"text"} onClick={props.onClose} />
+                  <h1>Hoàn thành tác vụ</h1>
+                  <Button icon={<MoreOutlined className={"text-white"} />} type={"text"} />
+               </div>
+            }
             classNames={{
+               header: "bg-staff text-white",
                footer: "p-layout",
             }}
+            closeIcon={false}
+            placement="bottom"
+            height="100%"
             footer={
                <div>
                   <div className="mb-3 flex items-start gap-3">

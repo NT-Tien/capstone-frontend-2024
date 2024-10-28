@@ -1,10 +1,10 @@
 const staff_uri = {
    navbar: {
-      dashboard: "/staff/dashboard",
-      tasks: "/staff/tasks",
+      dashboard: "/S/dashboard",
+      tasks: "/S/tasks",
    },
    stack: {
-      tasks_id: (id: string) => `/staff/tasks/${id}/start`,
+      tasks_id: (id: string) => `/S/tasks/${id}`,
    },
 }
 

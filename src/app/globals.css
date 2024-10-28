@@ -25,6 +25,8 @@
     --shadow-fb: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
     --shadow-soft: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;
     --shadow-bottom: 0 10px 20px -20px rgba(0, 0, 0, 0.1);
+
+    --staff: #FF6B00;
 }
 
 html,
@@ -263,5 +265,36 @@ body {
 .head_department_history_list {
     .ant-list-item-meta-title {
         margin-bottom: 0 !important;
+    }
+}
+
+.custom-calendar-styles {
+    .rdp-month_grid {
+        width: 100% !important;
+    }
+
+    .rdp-day, .rdp-day_button {
+        width: 2rem !important;
+        height: 2rem !important;
+    }
+
+    .rdp-selected {
+        font-weight: normal;
+        font-size: initial;
+
+        .rdp-day_button {
+            border: none;
+            @apply rounded-md bg-orange-400 !important;
+
+        }
+    }
+
+    .rdp-today {
+        font-weight: bold;
+        color: white !important;
+    }
+
+    * {
+        color: white;
     }
 }

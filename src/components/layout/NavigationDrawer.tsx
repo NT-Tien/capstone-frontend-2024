@@ -19,8 +19,8 @@ const typeVariants = cva("", {
    variants: {
       bg: {
          head_department: "bg-head_department",
-         head_maintenance: "bg-green-500",
-         staff: "bg-yellow-500",
+         head_maintenance: "bg-head_maintenance",
+         staff: "bg-staff",
       },
       bgLight: {
          head_department: "bg-blue-50",

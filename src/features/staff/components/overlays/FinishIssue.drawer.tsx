@@ -15,7 +15,7 @@ import dynamic from "next/dynamic"
 const CaptureImageDrawer = dynamic(() => import("./CaptureImage.drawer"), { ssr: false })
 const CaptureVideoDrawer = dynamic(() => import("./CaptureVideo.drawer"), { ssr: false })
 
-type SubmitFieldType = {
+type FieldType = {
    imagesVerify?: string[]
    videosVerify?: string
 }
@@ -31,7 +31,7 @@ export default function FinishIssueDrawer({
    children: (handleOpen: (issue: IssueDto) => void) => ReactNode
 } & Props) {
    const { message } = App.useApp()
-   const [form] = Form.useForm<SubmitFieldType>()
+   const [form] = Form.useForm<FieldType>()
 
    const { open, handleOpen, handleClose } = useModalControls({
       onOpen: (issue: IssueDto) => {
@@ -89,7 +89,7 @@ export default function FinishIssueDrawer({
       },
    })
 
-   function handleSubmit(values: SubmitFieldType) {
+   function handleSubmit(values: FieldType) {
       if (!issue) return
 
       if (isWarrantyIssue) {
@@ -123,7 +123,7 @@ export default function FinishIssueDrawer({
          {children(handleOpen)}
 
          <Drawer title="Hoàn thành lỗi" open={open} onClose={handleClose} placement="bottom" height="max-content">
-            <Form<SubmitFieldType>
+            <Form<FieldType>
                form={form}
                onValuesChange={(values) => {
                   console.log(values, typeof values.imagesVerify?.[0])
@@ -139,7 +139,7 @@ export default function FinishIssueDrawer({
                      className="mb-3"
                   />
                )}
-               <Form.Item<SubmitFieldType>
+               <Form.Item<FieldType>
                   label={isWarrantyIssue ? "Biên nhận bảo hành" : "Hình ảnh xác nhận"}
                   shouldUpdate
                   rules={[{ required: isWarrantyIssue }]}

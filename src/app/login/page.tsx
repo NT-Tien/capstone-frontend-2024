@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import EnvEditorProvider from "@/providers/EnvEditor.provider"
 import useLoginMutation from "@/features/common/mutations/Login.mutation"
+import staff_uri from "@/features/staff/uri"
 
 type FieldType = {
    username: string
@@ -48,7 +49,7 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                   break
                }
                case Role.staff: {
-                  router.push("/staff/dashboard")
+                  router.push(staff_uri.navbar.dashboard)
                   break
                }
                case Role.headstaff: {

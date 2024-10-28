@@ -1,46 +1,40 @@
 "use client"
+import { useState } from "react"
+import { CloseOutlined } from "@ant-design/icons"
+import { Button } from "antd"
 
-import { useEffect } from "react"
-import { Html5QrcodeScanner, Html5QrcodeScanType, Html5QrcodeSupportedFormats } from "html5-qrcode"
-
-function Page() {
-   useEffect(() => {
-      const height = window.innerHeight
-      const width = window.innerWidth
-      const scanner = new Html5QrcodeScanner(
-         "scanner",
-         {
-            qrbox: {
-               width: 250,
-               height: 100,
-            },
-            supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-            formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-            videoConstraints: {
-               width: { ideal: width },
-               height: { ideal: height },
-            },
-            fps: 10,
-         },
-         false,
-      )
-
-      scanner.render(
-         (result) => {
-            scanner.clear()
-            console.log(result)
-         },
-         (e) => {
-            console.error(e)
-         },
-      )
-
-      return () => {
-         scanner.clear()
-      }
-   }, [])
-
-   return <div id="scanner" className="h-screen w-screen"></div>
+type Props = {
+   children: React.ReactNode
 }
 
-export default Page
+function CustomDrawer({ children }: Props) {
+   const [isOpen, setIsOpen] = useState(false)
+
+   const handleOpen = () => setIsOpen(true)
+   const handleClose = () => setIsOpen(false)
+
+   return (
+      <div className="min-h-screen h-screen flex">
+         <div className="flex-grow">
+            <Button className="w-full rounded bg-blue-500 p-2 text-white" onClick={handleOpen}>
+               Open Drawer
+            </Button>
+         </div>
+
+         {isOpen && (
+            <div
+               className="right-0 top-0 h-full w-1/3 bg-white p-4 shadow-lg transition-transform duration-300"
+               style={{ transform: isOpen ? "translateX(0)" : "translateX(100%)" }}
+            >
+               <button className="absolute right-2 top-2 text-xl text-gray-500" onClick={handleClose}>
+                  <CloseOutlined />
+               </button>
+
+               <div className="mt-6">{children}</div>
+            </div>
+         )}
+      </div>
+   )
+}
+
+export default CustomDrawer

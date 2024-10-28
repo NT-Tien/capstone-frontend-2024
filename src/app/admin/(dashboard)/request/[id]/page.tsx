@@ -1,17 +1,16 @@
 "use client"
 
 import { PageContainer, ProDescriptions } from "@ant-design/pro-components"
-import { Collapse, List, Progress, Space, Steps, Tag, Tooltip } from "antd"
+import { Progress, Steps, Tag, Tooltip } from "antd"
 import admin_queries from "@/features/admin/queries"
 import {
    FixRequest_StatusData,
    FixRequest_StatusMapper,
    FixRequestStatuses,
 } from "@/lib/domain/Request/RequestStatus.mapper"
-import { DownOutlined, LeftOutlined, QrcodeOutlined, RightOutlined, RobotOutlined, UpOutlined } from "@ant-design/icons"
+import { RobotOutlined } from "@ant-design/icons"
 import Link from "next/link"
 import Card from "antd/es/card"
-import Button from "antd/es/button"
 import QrCodeV2Modal, { QrCodeV2ModalProps } from "@/features/admin/components/QrCodeV2.modal"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import { useRef, useState, useMemo } from "react"
@@ -22,14 +21,11 @@ import IssueDetailsModal, { IssueDetailsModalProps } from "@/features/admin/comp
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { useRouter } from "next/navigation"
-import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
-import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
-import { cn } from "@/lib/utils/cn.util"
+
 import DeviceDetailsSection from "@/features/admin/components/sections/DeviceDetails.section"
 import IssuesListSection from "@/features/admin/components/sections/IssuesList.section"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
-
-const { Panel } = Collapse
+import FixingHistorySection from "./FixingHistorySection"
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -68,43 +64,23 @@ function Page({ params }: { params: { id: string } }) {
       }
    }, [api_request.isSuccess, api_request.data])
 
-   // const spareParts = useMemo(() => {
-   //    if (!api_request.isSuccess || !api_request.data.issues || api_request.data.issues.length === 0) return {}
-   //
-   //    const returnValue: {
-   //       [sparePartId: string]: {
-   //          sparePart: SparePartDto
-   //          issueSpareParts: IssueSparePartDto[]
-   //          totalNeeded: number
-   //       }
-   //    } = {}
-   //
-   //    const issueSparePartsList = api_request.data.issues.map((issue) => issue.issueSpareParts).flat()
-   //
-   //    issueSparePartsList.forEach((issueSparePart) => {
-   //       if (!issueSparePart.sparePart) return {}
-   //       const currentSparePartId = issueSparePart.sparePart?.id
-   //       if (!returnValue[currentSparePartId]) {
-   //          returnValue[currentSparePartId] = {
-   //             sparePart: issueSparePart.sparePart,
-   //             issueSpareParts: [],
-   //             totalNeeded: 0,
-   //          }
-   //       }
-   //
-   //       const { sparePart, ...issueSparePart_ } = issueSparePart
-   //       returnValue[currentSparePartId].issueSpareParts.push(issueSparePart_ as any)
-   //       returnValue[currentSparePartId].totalNeeded += issueSparePart.quantity
-   //    })
-   //
-   //    return Object.values(returnValue)
-   // }, [api_request.isSuccess, api_request.data?.issues])
+   const [drawerVisible, setDrawerVisible] = useState(false)
+   const [selectedEntity, setSelectedEntity] = useState<RequestDto | null>(null)
 
+   const openDrawer = (entity: RequestDto) => {
+      setSelectedEntity(entity)
+      setDrawerVisible(true)
+   }
+
+   const closeDrawer = () => {
+      setDrawerVisible(false)
+      setSelectedEntity(null)
+   }
    return (
-      <>
+      <div className="admin-request-drawer flex">
          <PageContainer
             title="Thông tin yêu cầu"
-            backIcon={<LeftOutlined />}
+            className={drawerVisible ? "page-container-drawer-open" : "page-container"}
             subTitle={
                <Tag color={FixRequest_StatusMapper(api_request.data).colorInverse}>
                   {FixRequest_StatusMapper(api_request.data).text ?? "-"}
@@ -214,81 +190,16 @@ function Page({ params }: { params: { id: string } }) {
                   children: (
                      <>
                         <DeviceDetailsSection device={api_request.data?.device} isLoading={api_request.isPending} />
-                        <Card className="mt-4">
-                           <ProList
-                              pagination={{
-                                 pageSize: 4,
-                                 current: deviceHistory_page,
-                                 total: api_deviceRequestHistory.data?.total,
-                                 onChange: (page) => setDeviceHistory_page(page),
-                              }}
-                              className="w-full"
-                              headerTitle={
-                                 <div className="mb-3 flex w-full items-center justify-between font-bold">
-                                    <span>Lịch sử sửa chữa ({api_deviceRequestHistory.data?.total ?? 0})</span>
-                                 </div>
-                              }
-                              showExtra="always"
-                              dataSource={api_deviceRequestHistory.data?.list}
-                              loading={api_deviceRequestHistory.isPending}
-                              metas={{
-                                 extra: {
-                                    render: (_: any, entity: RequestDto) => (
-                                       <Collapse
-                                          className="w-full"
-                                          expandIcon={({ isActive }) => (isActive ? <UpOutlined /> : <DownOutlined />)}
-                                          ghost
-                                       >
-                                          <Panel
-                                             className="w-full"
-                                             key={entity.id}
-                                             header={
-                                                entity.id === params.id ? (
-                                                   <Tooltip title="Đang xem">
-                                                      <div className="font-bold text-black">
-                                                         {entity.requester_note}
-                                                      </div>
-                                                   </Tooltip>
-                                                ) : (
-                                                   <Link href={`/admin/request/${entity.id}`}>
-                                                      {entity.requester_note}
-                                                   </Link>
-                                                )
-                                             }
-                                          >
-                                             <ProDescriptions
-                                                column={3}
-                                                bordered
-                                             >
-                                                <ProDescriptions.Item label="ID">{entity.id}</ProDescriptions.Item>
-                                                <ProDescriptions.Item label="Lần cập nhật cuối">
-                                                   {dayjs(entity.updatedAt).format("DD/MM/YYYY HH:mm")}
-                                                </ProDescriptions.Item>
-                                                <ProDescriptions.Item label="Người tạo">
-                                                   {entity.requester.username}
-                                                </ProDescriptions.Item>
-                                                <ProDescriptions.Item label="Nhà sản xuất">
-                                                   {entity.device.machineModel.manufacturer}
-                                                </ProDescriptions.Item>
-                                                <ProDescriptions.Item label="Năm sản xuất">
-                                                   {entity.device.machineModel.yearOfProduction}
-                                                </ProDescriptions.Item>
-                                                <ProDescriptions.Item label="Mô tả">
-                                                   {entity.device.machineModel.description}
-                                                </ProDescriptions.Item>
-                                                <ProDescriptions.Item label="Bảo hành">
-                                                   {dayjs(entity.device.machineModel.warrantyTerm).format(
-                                                      "DD/MM/YYYY HH:mm",
-                                                   )}
-                                                </ProDescriptions.Item>
-                                             </ProDescriptions>
-                                          </Panel>
-                                       </Collapse>
-                                    ),
-                                 },
-                              }}
-                           ></ProList>
-                        </Card>
+                        <FixingHistorySection
+                           deviceHistory_page={deviceHistory_page}
+                           api_deviceRequestHistory={api_deviceRequestHistory}
+                           api_request={api_request}
+                           openDrawer={openDrawer}
+                           closeDrawer={closeDrawer}
+                           drawerVisible={drawerVisible}
+                           selectedEntity={selectedEntity}
+                           setDeviceHistory_page={setDeviceHistory_page}
+                        />
                      </>
                   ),
                },
@@ -393,7 +304,7 @@ function Page({ params }: { params: { id: string } }) {
          <OverlayControllerWithRef ref={control_issueDetails}>
             <IssueDetailsModal />
          </OverlayControllerWithRef>
-      </>
+      </div>
    )
 }
 

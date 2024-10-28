@@ -2,7 +2,7 @@
 
 import { FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { Alert, Badge, Button, Input } from "antd"
+import { Alert, Badge, Button, Input, Select } from "antd"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import HistoryList from "./HistoryList.component"
@@ -208,76 +208,20 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
                value={search}
                onChange={(e) => setSearch(e.target.value)}
             />
-            <div
-               className="std-layout-outer hide-scrollbar mb-4 mt-3 flex gap-2 overflow-x-auto px-layout"
-               ref={containerRef}
-            >
-               <ClickableArea
-                  className={cn(
-                     "border-2 border-neutral-300 px-3 py-1 text-sm text-neutral-500",
-                     tab === "pending" && "bg-neutral-500 text-white",
-                  )}
-                  onClick={() => handleChangeTab("pending")}
-                  ref={(el) => {
-                     itemRefs.current[0] = el
-                  }}
-               >
-                  Chưa xử lý
-                  {tab === "pending" && <CloseCircleFilled />}
-               </ClickableArea>
-               <ClickableArea
-                  className={cn(
-                     "border-2 border-blue-500 px-3 py-1 text-sm text-blue-500",
-                     (tab === "in_progress" || tab === "approved") && "bg-blue-500 text-white",
-                  )}
-                  onClick={() => handleChangeTab("in_progress")}
-                  ref={(el) => {
-                     itemRefs.current[1] = el
-                  }}
-               >
-                  Đang sửa chữa
-                  {(tab === "in_progress" || tab === "approved") && <CloseCircleFilled />}
-               </ClickableArea>
-               <ClickableArea
-                  className={cn(
-                     "border-2 border-yellow-500 px-3 py-1 text-sm text-yellow-800",
-                     tab === "head_confirm" && "bg-yellow-500 text-white",
-                  )}
-                  onClick={() => handleChangeTab("head_confirm")}
-                  ref={(el) => {
-                     itemRefs.current[2] = el
-                  }}
-               >
-                  Chờ đánh giá
-                  {tab === "head_confirm" && <CloseCircleFilled />}
-               </ClickableArea>
-               <ClickableArea
-                  className={cn(
-                     "border-2 border-purple-500 px-3 py-1 text-sm text-purple-500",
-                     tab === "closed" && "bg-purple-500 text-white",
-                  )}
-                  onClick={() => handleChangeTab("closed")}
-                  ref={(el) => {
-                     itemRefs.current[3] = el
-                  }}
-               >
-                  Đã đóng
-                  {tab === "closed" && <CloseCircleFilled />}
-               </ClickableArea>
-               <ClickableArea
-                  className={cn(
-                     "border-2 border-red-500 px-3 py-1 text-sm text-red-500",
-                     (tab === "rejected" || tab === "head_cancel") && "bg-red-500 text-white",
-                  )}
-                  onClick={() => handleChangeTab("rejected")}
-                  ref={(el) => {
-                     itemRefs.current[4] = el
-                  }}
-               >
-                  Đã hủy
-                  {(tab === "rejected" || tab === "head_cancel") && <CloseCircleFilled />}
-               </ClickableArea>
-            </div>
+            <Select
+               className="mb-3 mt-4 w-full text-center"
+               size="large"
+               value={tab}
+               loading={api_requests.isPending}
+               onChange={handleChangeTab}
+               options={[
+                  { label: "Chưa xử lý", value: "pending" },
+                  { label: "Đang thực hiện", value: "in_progress" },
+                  { label: "Chờ xác nhận", value: "head_confirm" },
+                  { label: "Đã đóng", value: "closed" },
+                  { label: "Đã hủy", value: "rejected" },
+               ]}
+            />
 
             <HistoryList key={tab} requests={renderList} />
 

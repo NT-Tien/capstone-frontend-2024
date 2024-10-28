@@ -1,7 +1,7 @@
 "use client"
 
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { Badge, Button, Card, Input } from "antd"
+import { Badge, Button, Card, Input, Select } from "antd"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { CheckCircleFilled, FilterOutlined, SearchOutlined } from "@ant-design/icons"
@@ -191,77 +191,20 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
                value={search}
                onChange={(e) => setSearch(e.target.value)}
             />
-            <div
-               className="std-layout-outer hide-scrollbar mb-4 mt-3 flex gap-2 overflow-x-auto px-layout"
-               ref={containerRef}
-            >
-               <ClickableArea
-                  className={cn(
-                     "border-2 border-neutral-300 px-3 py-1 text-sm text-neutral-500",
-                     tab === FixRequestStatus.PENDING && "bg-neutral-500 text-white",
-                  )}
-                  onClick={() => handleChangeTab(FixRequestStatus.PENDING)}
-                  ref={(el) => {
-                     itemRefs.current[0] = el
-                  }}
-               >
-                  Chưa xử lý
-                  {tab === FixRequestStatus.PENDING && <CheckCircleFilled />}
-               </ClickableArea>{" "}
-               <ClickableArea
-                  className={cn(
-                     "border-2 border-green-300 px-3 py-1 text-sm text-green-500",
-                     tab === FixRequestStatus.APPROVED && "bg-green-500 text-white",
-                  )}
-                  onClick={() => handleChangeTab(FixRequestStatus.APPROVED)}
-                  ref={(el) => {
-                     itemRefs.current[1] = el
-                  }}
-               >
-                  Đã xác nhận lỗi
-                  {tab === FixRequestStatus.APPROVED && <CheckCircleFilled />}
-               </ClickableArea>
-               <ClickableArea
-                  className={cn(
-                     "border-2 border-blue-300 px-3 py-1 text-sm text-blue-500",
-                     tab === FixRequestStatus.IN_PROGRESS && "bg-blue-500 text-white",
-                  )}
-                  onClick={() => handleChangeTab(FixRequestStatus.IN_PROGRESS)}
-                  ref={(el) => {
-                     itemRefs.current[2] = el
-                  }}
-               >
-                  Đang thực hiện
-                  {tab === FixRequestStatus.IN_PROGRESS && <CheckCircleFilled />}
-               </ClickableArea>
-               <ClickableArea
-                  className={cn(
-                     "border-2 border-purple-300 px-3 py-1 text-sm text-purple-500",
-                     (tab === FixRequestStatus.CLOSED || tab === FixRequestStatus.HEAD_CONFIRM) &&
-                        "bg-purple-500 text-white",
-                  )}
-                  onClick={() => handleChangeTab(FixRequestStatus.CLOSED)}
-                  ref={(el) => {
-                     itemRefs.current[3] = el
-                  }}
-               >
-                  Đã hoàn thành
-                  {(tab === FixRequestStatus.CLOSED || tab === FixRequestStatus.HEAD_CONFIRM) && <CheckCircleFilled />}
-               </ClickableArea>
-               <ClickableArea
-                  className={cn(
-                     "border-2 border-red-300 px-3 py-1 text-sm text-red-500",
-                     tab === FixRequestStatus.REJECTED && "bg-red-500 text-white",
-                  )}
-                  onClick={() => handleChangeTab(FixRequestStatus.REJECTED)}
-                  ref={(el) => {
-                     itemRefs.current[4] = el
-                  }}
-               >
-                  Từ chối sửa
-                  {tab === FixRequestStatus.REJECTED && <CheckCircleFilled />}
-               </ClickableArea>
-            </div>
+         <Select
+            className="mb-3 mt-4 w-full text-center"
+            size="large"
+            value={tab}
+            loading={api_requests.isPending}
+            onChange={handleChangeTab}
+            options={[
+               { label: "Chưa xử lý", value: "PENDING" },
+               { label: "Đang thực hiện", value: "IN_PROGRESS" },
+               { label: "Chờ xác nhận", value: "HEAD_CONFIRM" },
+               { label: "Đã đóng", value: "CLOSED" },
+               { label: "Đã hủy", value: "REJECTED" },
+            ]}
+         />
 
             {api_requests.isPending && <Card loading />}
 

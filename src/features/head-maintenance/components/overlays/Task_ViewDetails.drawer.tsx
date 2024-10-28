@@ -206,7 +206,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
             <>
                {!!isMissingSpareParts && (
                   <AlertCard
-                     text="Một số linh kiện trong tác vụ này không còn đủ hàng trong kho. Vui lòng liên hệ chủ kho để tiếp tục."
+                     text="Một số linh kiện trong tác vụ này không còn đủ hàng trong kho. Vui lòng liên hệ thủ kho để tiếp tục."
                      className="mb-layout-half"
                   />
                )}

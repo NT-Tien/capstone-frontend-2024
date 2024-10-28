@@ -7,9 +7,10 @@ import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import useModalControls from "@/lib/hooks/useModalControls"
 import { CheckCard } from "@ant-design/pro-components"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Button, Card, DatePicker, Drawer, Empty, Form, Radio, Tag } from "antd"
+import { App, Button, Card, DatePicker, Drawer, Empty, Form, Radio, Switch, Tag } from "antd"
 import dayjs, { Dayjs } from "dayjs"
 import { forwardRef, useImperativeHandle, useMemo, useState } from "react"
+import { CheckOutlined, CloseOutlined } from "@ant-design/icons"
 
 type FieldType = {
    name: string
@@ -205,24 +206,18 @@ const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function C
                            value={fixerDate}
                         />
                      </Form.Item>
-                     <Form.Item<FieldType> label="Mức độ ưu tiên">
-                        <Radio.Group
-                           buttonStyle="solid"
-                           size="large"
-                           className="flex"
-                           value={priority}
-                           onChange={(e) => {
-                              setFixer(undefined)
-                              setPriority(e.target.value)
-                           }}
-                        >
-                           <Radio.Button value={false} className="w-full text-center">
-                              Thường
-                           </Radio.Button>
-                           <Radio.Button value={true} className="w-full text-center">
-                              Ưu tiên
-                           </Radio.Button>
-                        </Radio.Group>
+                     <Form.Item<FieldType>>
+                     <div className="flex gap-2 text-sm">
+                        <h3 className="block flex-grow text-base">Mức độ ưu tiên</h3>
+                        <Switch
+                           className="h-full"
+                           size="default"
+                           checked={priority}
+                           onChange={setPriority}
+                           checkedChildren={<CheckOutlined />}
+                           unCheckedChildren={<CloseOutlined />}
+                        />
+                     </div>
                      </Form.Item>
                   </section>
 

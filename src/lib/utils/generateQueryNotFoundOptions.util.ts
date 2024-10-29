@@ -8,7 +8,7 @@ export default function generateQueryNotFoundOptions<TQueryFnData, TError, TData
    return {
       retry(failureCount, error) {
          if (error instanceof NotFoundError) return false
-         return failureCount < 3
+         return failureCount < 6
       },
       refetchOnWindowFocus(query) {
          return !(query.state.error instanceof NotFoundError)

@@ -217,9 +217,10 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
                options={[
                   { label: "Chưa xử lý", value: "pending" },
                   { label: "Đang thực hiện", value: "in_progress" },
-                  { label: "Chờ xác nhận", value: "head_confirm" },
+                  { label: "Chờ đánh giá", value: "head_confirm" },
                   { label: "Đã đóng", value: "closed" },
                   { label: "Đã hủy", value: "rejected" },
+                  { label: "Tất cả ", value: "all" },
                ]}
             />
 

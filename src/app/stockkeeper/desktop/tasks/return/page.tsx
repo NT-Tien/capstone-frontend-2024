@@ -53,7 +53,12 @@ function Page() {
    const mutate_returnSpareParts = stockkeeper_mutations.task.returnSpareParts()
 
    const spareParts = useMemo(() => {
-      const failedIssues = api.task.data?.issues.filter((issue) => issue.status === IssueStatusEnum.FAILED)
+      const failedIssues = api.task.data?.issues.filter(
+         (issue) =>
+            issue.status === IssueStatusEnum.FAILED &&
+            !issue.returnSparePartsStaffSignature &&
+            !issue.returnSparePartsStaffSignature,
+      )
       const issueSpareParts = failedIssues?.map((issue) => issue.issueSpareParts).flat()
       const result: {
          [key: string]: {

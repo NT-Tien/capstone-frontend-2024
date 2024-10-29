@@ -289,7 +289,13 @@ function Page({ params }: { params: { id: string } }) {
                            control_returnSparePartDrawer.current?.handleOpen({
                               task: api_task.data,
                               returnSpareParts: api_task.data.issues
-                                 .filter((i) => i.issueSpareParts.length > 0 && i.status === IssueStatusEnum.FAILED)
+                                 .filter(
+                                    (i) =>
+                                       i.issueSpareParts.length > 0 &&
+                                       i.status === IssueStatusEnum.FAILED &&
+                                       !i.returnSparePartsStockkeeperSignature &&
+                                       !i.returnSparePartsStaffSignature,
+                                 )
                                  .flatMap((i) => i.issueSpareParts),
                            })
                         }

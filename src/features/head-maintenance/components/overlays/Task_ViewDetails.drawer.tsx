@@ -33,7 +33,7 @@ import { App, Button, Card, Drawer, Dropdown, Spin, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
-import AssignFixerDrawer, { AssignFixerDrawerRefType } from "../../../../app/HM/(stack)/tasks/[id]/AssignFixer.drawer"
+import Task_AssignFixerDrawer, { AssignFixerDrawerRefType } from "./Task_AssignFixer.drawer"
 import Task_CancelDrawer, { CancelTaskDrawerRefType } from "./Task_Cancel.drawer"
 import OldTask_VerifyCompleteDrawer, { CheckSignatureDrawerRefType } from "./oldTask_VerifyComplete.drawer"
 import Task_UpdateFixDateDrawer, { UpdateTaskFixDateDrawerRefType } from "./Task_UpdateFixDate.drawer"
@@ -77,7 +77,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
          setTimeout(() => {
             setTask(null)
             setRequestId("")
-         }, 500)
+         }, 200)
       },
    })
    const router = useRouter()
@@ -612,7 +612,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                }}
             />
          </OverlayControllerWithRef>
-         <AssignFixerDrawer
+         <Task_AssignFixerDrawer
             ref={assignFixerDrawerRef}
             refetchFn={props.refetchFn}
             afterFinish={() => {

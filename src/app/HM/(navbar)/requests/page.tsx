@@ -26,8 +26,8 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
    const [tab, setTab] = useState<FixRequestStatus>(searchParams?.status ?? FixRequestStatus.PENDING)
    const [search, setSearch] = useState<string>("")
 
-   const containerRef = useRef<HTMLDivElement | null>(null)
-   const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
+   // const containerRef = useRef<HTMLDivElement | null>(null)
+   // const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
    const control_filterDrawer = useRef<RefType<FilterDrawerProps>>(null)
 
    const api_requests = head_maintenance_queries.request.all({
@@ -123,41 +123,41 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
       router.push(hm_uris.navbar.requests + `?status=${tab}`)
    }
 
-   useEffect(() => {
-      function scrollToItem(index: number) {
-         const currentItemRef = itemRefs.current[index]
-         if (containerRef.current && currentItemRef) {
-            const containerWidth = containerRef.current.offsetWidth
-            const itemOffsetLeft = currentItemRef.offsetLeft
-            const itemWidth = currentItemRef.offsetWidth
-
-            const scrollPosition = itemOffsetLeft - containerWidth / 2 + itemWidth / 2
-            containerRef.current.scrollTo({
-               left: scrollPosition,
-               behavior: "smooth",
-            })
-         }
-      }
-
-      switch (tab) {
-         case FixRequestStatus.PENDING:
-            scrollToItem(0)
-            break
-         case FixRequestStatus.APPROVED:
-            scrollToItem(1)
-            break
-         case FixRequestStatus.IN_PROGRESS:
-            scrollToItem(2)
-            break
-         case FixRequestStatus.HEAD_CONFIRM:
-         case FixRequestStatus.CLOSED:
-            scrollToItem(3)
-            break
-         case FixRequestStatus.REJECTED:
-            scrollToItem(4)
-            break
-      }
-   }, [tab])
+   // useEffect(() => {
+   //    function scrollToItem(index: number) {
+   //       const currentItemRef = itemRefs.current[index]
+   //       if (containerRef.current && currentItemRef) {
+   //          const containerWidth = containerRef.current.offsetWidth
+   //          const itemOffsetLeft = currentItemRef.offsetLeft
+   //          const itemWidth = currentItemRef.offsetWidth
+   //
+   //          const scrollPosition = itemOffsetLeft - containerWidth / 2 + itemWidth / 2
+   //          containerRef.current.scrollTo({
+   //             left: scrollPosition,
+   //             behavior: "smooth",
+   //          })
+   //       }
+   //    }
+   //
+   //    switch (tab) {
+   //       case FixRequestStatus.PENDING:
+   //          scrollToItem(0)
+   //          break
+   //       case FixRequestStatus.APPROVED:
+   //          scrollToItem(1)
+   //          break
+   //       case FixRequestStatus.IN_PROGRESS:
+   //          scrollToItem(2)
+   //          break
+   //       case FixRequestStatus.HEAD_CONFIRM:
+   //       case FixRequestStatus.CLOSED:
+   //          scrollToItem(3)
+   //          break
+   //       case FixRequestStatus.REJECTED:
+   //          scrollToItem(4)
+   //          break
+   //    }
+   // }, [tab])
 
    return (
       <>
@@ -191,20 +191,20 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
                value={search}
                onChange={(e) => setSearch(e.target.value)}
             />
-         <Select
-            className="mb-3 mt-4 w-full text-center"
-            size="large"
-            value={tab}
-            loading={api_requests.isPending}
-            onChange={handleChangeTab}
-            options={[
-               { label: "Chưa xử lý", value: "PENDING" },
-               { label: "Đang thực hiện", value: "IN_PROGRESS" },
-               { label: "Chờ xác nhận", value: "HEAD_CONFIRM" },
-               { label: "Đã đóng", value: "CLOSED" },
-               { label: "Đã hủy", value: "REJECTED" },
-            ]}
-         />
+            <Select
+               className="mb-3 mt-4 w-full text-center"
+               size="large"
+               value={tab}
+               loading={api_requests.isPending}
+               onChange={handleChangeTab}
+               options={[
+                  { label: "Chưa xử lý", value: "PENDING" },
+                  { label: "Đã xác nhận lỗi", value: "APPROVED" },
+                  { label: "Đang thực hiện", value: "IN_PROGRESS" },
+                  { label: "Đã hoàn thành", value: "CLOSED" },
+                  { label: "Từ chối sửa", value: "REJECTED" },
+               ]}
+            />
 
             {api_requests.isPending && <Card loading />}
 

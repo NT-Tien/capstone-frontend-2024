@@ -56,7 +56,7 @@ function IssueFailDrawer(props: Props) {
       <Drawer
          title={"Hủy lỗi"}
          placement={"bottom"}
-         height={"55%"}
+         height={"70%"}
          closeIcon={<CloseOutlined className={"text-white"} />}
          classNames={{
             footer: "p-layout",

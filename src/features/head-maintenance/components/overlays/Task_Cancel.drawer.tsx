@@ -44,7 +44,7 @@ const Task_CancelDrawer = forwardRef<CancelTaskDrawerRefType, Props>(function Co
       if (!task) return
       mutate_cancelTask.mutate(
          {
-            id: task.id,
+            task,
          },
          {
             onSuccess: () => {

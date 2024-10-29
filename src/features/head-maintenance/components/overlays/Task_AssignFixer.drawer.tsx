@@ -48,7 +48,7 @@ type Props = {
    afterFinish?: () => void
 }
 
-const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function Component({ ...props }, ref) {
+const Task_AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function Component({ ...props }, ref) {
    const { open, handleOpen, handleClose } = useModalControls({
       onOpen: (
          taskId: string,
@@ -207,17 +207,17 @@ const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function C
                         />
                      </Form.Item>
                      <Form.Item<FieldType>>
-                     <div className="flex gap-2 text-sm">
-                        <h3 className="block flex-grow text-base">Mức độ ưu tiên</h3>
-                        <Switch
-                           className="h-full"
-                           size="default"
-                           checked={priority}
-                           onChange={setPriority}
-                           checkedChildren={<CheckOutlined />}
-                           unCheckedChildren={<CloseOutlined />}
-                        />
-                     </div>
+                        <div className="flex gap-2 text-sm">
+                           <h3 className="block flex-grow text-base">Ưu tiên tác vụ này?</h3>
+                           <Switch
+                              className="h-full"
+                              size="default"
+                              checked={priority}
+                              onChange={setPriority}
+                              checkedChildren={<CheckOutlined />}
+                              unCheckedChildren={<CloseOutlined />}
+                           />
+                        </div>
                      </Form.Item>
                   </section>
 
@@ -279,4 +279,4 @@ const AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(function C
    )
 })
 
-export default AssignFixerDrawer
+export default Task_AssignFixerDrawer

@@ -1,6 +1,7 @@
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { SystemTypeErrorIds } from "@/lib/constants/Warranty"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
 
 class TaskUtil {
    /**
@@ -83,6 +84,32 @@ class TaskUtil {
             !i.returnSparePartsStockkeeperSignature &&
             !i.returnSparePartsStaffSignature,
       )
+   }
+
+   static getUniqueSpareParts(task?: TaskDto) {
+      if (!task) return undefined
+
+      const issueSpareParts = task.issues.flatMap((i) => i.issueSpareParts)
+      const returnValue: {
+         [key: string]: {
+            issueSparePart: IssueSparePartDto[]
+            quantity: number
+         }
+      } = {}
+
+      issueSpareParts.forEach((i) => {
+         if (!returnValue[i.sparePart.id]) {
+            returnValue[i.sparePart.id] = {
+               issueSparePart: [],
+               quantity: 0,
+            }
+         }
+
+         returnValue[i.sparePart.id].issueSparePart.push(i)
+         returnValue[i.sparePart.id].quantity += i.quantity
+      })
+
+      return returnValue
    }
 }
 

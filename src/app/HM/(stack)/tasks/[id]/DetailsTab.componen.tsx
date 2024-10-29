@@ -12,7 +12,9 @@ import { App, Avatar, Button, Card, Image, Progress, Steps, Tag } from "antd"
 import dayjs from "dayjs"
 import Link from "next/link"
 import { useRef } from "react"
-import AssignFixerDrawer, { AssignFixerDrawerRefType } from "./AssignFixer.drawer"
+import Task_AssignFixerDrawer, {
+   AssignFixerDrawerRefType,
+} from "../../../../../features/head-maintenance/components/overlays/Task_AssignFixer.drawer"
 
 type Props = {
    api: UseQueryResult<TaskDto, Error>
@@ -334,7 +336,7 @@ export default function DetailsTab({ api, setTab }: Props) {
                </Card>
             </section>
          )}
-         <AssignFixerDrawer ref={assignFixerRef} refetchFn={api.refetch} />
+         <Task_AssignFixerDrawer ref={assignFixerRef} refetchFn={api.refetch} />
       </section>
    )
 }

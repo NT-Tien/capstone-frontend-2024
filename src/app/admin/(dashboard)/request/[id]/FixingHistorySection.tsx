@@ -85,8 +85,13 @@ function FixingHistorySection({
             placement="right"
             width={480}
             onClose={closeDrawer}
-            visible={drawerVisible}
-            bodyStyle={{ padding: 0, overflowX: "hidden" }}
+            open={drawerVisible}
+            styles={{
+               body: {
+                  padding: 0,
+                  overflowX: "hidden",
+               },
+            }}
             mask={false}
          >
             {selectedEntity && (
@@ -118,7 +123,14 @@ function FixingHistorySection({
                               </div>
                            }
                         >
-                           <Card className="mb-4 mt-2" bodyStyle={{ padding: "1rem" }}>
+                           <Card
+                              className="mb-4 mt-2"
+                              styles={{
+                                 body: {
+                                    padding: "1rem",
+                                 },
+                              }}
+                           >
                               <ProDescriptions column={1}>
                                  {api_request.data.tasks.map((task: TaskDto) => (
                                     <div key={task.id}>
@@ -129,8 +141,13 @@ function FixingHistorySection({
                                              style={{ width: "480px" }}
                                              title={
                                                 <div className="flex">
-                                                   <h3 className="w-80 whitespace-normal overflow-hidden">{task.name}</h3>{" "}
-                                                   <Tag style={{ height: "1.5rem" }} color={TaskStatusTagMapper[task.status].colorInverse}>
+                                                   <h3 className="w-80 overflow-hidden whitespace-normal">
+                                                      {task.name}
+                                                   </h3>{" "}
+                                                   <Tag
+                                                      style={{ height: "1.5rem" }}
+                                                      color={TaskStatusTagMapper[task.status].colorInverse}
+                                                   >
                                                       {TaskStatusTagMapper[task.status].text}
                                                    </Tag>
                                                 </div>

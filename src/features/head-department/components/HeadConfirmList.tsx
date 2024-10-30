@@ -18,7 +18,12 @@ function HeadConfirmList({ requests }: Props) {
    return (
       <Card
          size="small"
-         bodyStyle={{ paddingTop: 0, paddingBottom: 0 }}
+         styles={{
+            body: {
+               paddingTop: 0,
+               paddingBottom: 0,
+            },
+         }}
          title={
             <div className="text-center">
                <CheckCircleOutlined /> <Typography.Text>Yêu cầu chờ đánh giá</Typography.Text>
@@ -65,7 +70,7 @@ function HeadConfirmList({ requests }: Props) {
             )}
          />
          {requests && requests.length > 3 && (
-            <div className="mt-2 text-center mb-2">
+            <div className="mb-2 mt-2 text-center">
                <Button onClick={() => router.push("history?status=head_confirm")}>Tải thêm</Button>
             </div>
          )}

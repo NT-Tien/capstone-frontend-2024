@@ -2,7 +2,7 @@
 
 import { FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { Alert, Badge, Button, Input, Select } from "antd"
+import { Alert, Badge, Button, Input, Select, Space } from "antd"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import HistoryList from "./HistoryList.component"
@@ -201,28 +201,29 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
                }
             />
             {/*<section className="relative z-50 h-10 w-full rounded-lg border-2 border-blue-700 bg-blue-50"></section>*/}
-            <Input
-               size="large"
-               placeholder="Tìm kiếm"
-               prefix={<SearchOutlined className="mr-1 text-neutral-500" />}
-               value={search}
-               onChange={(e) => setSearch(e.target.value)}
-            />
-            <Select
-               className="mb-3 mt-4 w-full text-center"
-               size="large"
-               value={tab}
-               loading={api_requests.isPending}
-               onChange={handleChangeTab}
-               options={[
-                  { label: "Chưa xử lý", value: "pending" },
-                  { label: "Đang thực hiện", value: "in_progress" },
-                  { label: "Chờ đánh giá", value: "head_confirm" },
-                  { label: "Đã đóng", value: "closed" },
-                  { label: "Đã hủy", value: "rejected" },
-                  { label: "Tất cả ", value: "all" },
-               ]}
-            />
+            <Space.Compact>
+               <Input
+                  placeholder="Tìm kiếm"
+                  prefix={<SearchOutlined className="mr-1 text-neutral-500" />}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+               />
+               <Select
+                  className="w-full rounded-r-lg bg-head_department text-center text-white"
+                  variant={"borderless"}
+                  value={tab}
+                  loading={api_requests.isPending}
+                  onChange={handleChangeTab}
+                  options={[
+                     { label: "Chưa xử lý", value: "pending" },
+                     { label: "Đang thực hiện", value: "in_progress" },
+                     { label: "Chờ đánh giá", value: "head_confirm" },
+                     { label: "Đã đóng", value: "closed" },
+                     { label: "Đã hủy", value: "rejected" },
+                     { label: "Tất cả ", value: "all" },
+                  ]}
+               />
+            </Space.Compact>
 
             <HistoryList key={tab} requests={renderList} />
 

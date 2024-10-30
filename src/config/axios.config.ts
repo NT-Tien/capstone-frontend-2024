@@ -4,7 +4,7 @@ import { clientEnv } from "@/env"
 const api = axios.create({
    baseURL: clientEnv.BACKEND_URL,
    timeout: 10000, // 10 seconds
-   validateStatus: (status) => (status >= 200 && status < 300), // allow only 2xx, 3xx, 4xx codes,
+   validateStatus: (status) => status >= 200 && status < 300, // allow only 2xx, 3xx, 4xx codes,
    headers: {
       "Content-Type": "application/json",
    },
@@ -12,7 +12,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
    (config) => {
-      console.info(`[DEV MODE]: ${config.method?.toUpperCase()} Request made to ${config.url}: `, config)
+      console.info(`[DEV MODE]: Request to ${config.method?.toUpperCase()} \"${config.url}\": `, config)
       return config
    },
    (error) => {
@@ -27,7 +27,10 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
    (config) => {
-      console.info(`[DEV MODE]: ${config.status} Response received: `, config)
+      console.info(
+         `[DEV MODE]: Response from ${config.config.method?.toUpperCase()} \"${config.config.url}\" (${config.statusText}): `,
+         config,
+      )
       return config
    },
    (error) => {

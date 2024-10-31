@@ -23,7 +23,6 @@ import dayjs from "dayjs"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import Device_ViewRequestHistoryDrawer from "@/features/head-maintenance/components/overlays/Device_ViewRequestHistory.drawer"
-import isApproved from "../../../../../head-staff/mobile/(stack)/requests/[id]/approved/is-approved.util"
 import IssuesListTab from "./IssuesList.tab"
 import TasksListTab from "./TasksList.tab"
 import Task_CreateDrawer, {
@@ -45,7 +44,7 @@ function TabbedLayout(props: Props) {
 
    const [tab, setTab] = useState<string | undefined>()
 
-   const createTaskDrawerRef = useRef<RefType<CreateTaskV2DrawerProps> | null>(null)
+   const control_taskCreateDrawer = useRef<RefType<CreateTaskV2DrawerProps> | null>(null)
 
    const mutate_finishRequest = useMutation({
       mutationFn: HeadStaff_Request_UpdateStatus,
@@ -217,7 +216,9 @@ function TabbedLayout(props: Props) {
                                  type="primary"
                                  size="large"
                                  icon={<PlusOutlined />}
-                                 onClick={() => createTaskDrawerRef.current?.handleOpen({ requestId: props.requestId })}
+                                 onClick={() =>
+                                    control_taskCreateDrawer.current?.handleOpen({ requestId: props.requestId })
+                                 }
                                  disabled={createTaskBtnText}
                               >
                                  Tạo tác vụ
@@ -239,7 +240,14 @@ function TabbedLayout(props: Props) {
                      )}
                </>
             )}
-            {tab === "issues" && <IssuesListTab api_request={props.api_request} />}
+            {tab === "issues" && (
+               <IssuesListTab
+                  api_request={props.api_request}
+                  handleOpenTaskCreate={(requestId, defaultIssueIds) =>
+                     control_taskCreateDrawer.current?.handleOpen({ requestId, defaultIssueIds })
+                  }
+               />
+            )}
             {tab === "device" && (
                <div className="mt-layout-half rounded-lg">
                   <DataListView
@@ -389,7 +397,7 @@ function TabbedLayout(props: Props) {
                </div>
             )}
          </div>
-         <OverlayControllerWithRef ref={createTaskDrawerRef}>
+         <OverlayControllerWithRef ref={control_taskCreateDrawer}>
             <Task_CreateDrawer refetchFn={props.api_request.refetch} />
          </OverlayControllerWithRef>
       </>

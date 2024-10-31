@@ -9,13 +9,13 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import CountUp from "react-countup"
-import HeadMaintenanceNavigaionDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
+import HeadMaintenanceNavigationDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 
 function Page() {
    const router = useRouter()
    const { notification } = App.useApp()
-   const navDrawer = HeadMaintenanceNavigaionDrawer.useDrawer()
+   const navDrawer = HeadMaintenanceNavigationDrawer.useDrawer()
    const api_counts = head_maintenance_queries.dashboard.count({})
 
    const [tab, setTab] = useState("tasks")

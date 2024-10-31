@@ -21,7 +21,10 @@ type ResolveIssueDrawerProps = {
    issue?: IssueDto
    onFinish?: () => void
 }
-type Props = Omit<DrawerProps, "children"> & ResolveIssueDrawerProps
+type Props = Omit<DrawerProps, "children"> &
+   ResolveIssueDrawerProps & {
+      handleClose?: () => void
+   }
 
 function ResolveIssueDrawer(props: Props) {
    const [form] = Form.useForm<FieldType>()
@@ -49,7 +52,10 @@ function ResolveIssueDrawer(props: Props) {
             },
          },
          {
-            onSuccess: props.onFinish,
+            onSuccess: () => {
+               props.onFinish?.()
+               props.handleClose?.()
+            },
          },
       )
    }

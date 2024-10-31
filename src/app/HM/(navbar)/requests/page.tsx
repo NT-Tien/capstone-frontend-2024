@@ -1,12 +1,12 @@
 "use client"
 
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { Badge, Button, Card, Input, Select } from "antd"
+import { Badge, Button, Card, Divider, Input, Select, Space } from "antd"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { CheckCircleFilled, FilterOutlined, SearchOutlined } from "@ant-design/icons"
 import { cn } from "@/lib/utils/cn.util"
-import HeadMaintenanceNavigaionDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
+import HeadMaintenanceNavigationDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 import hm_uris from "@/features/head-maintenance/uri"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
@@ -19,15 +19,13 @@ import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import { UserDto } from "@/lib/domain/User/User.dto"
 
 function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } }) {
-   const navDrawer = HeadMaintenanceNavigaionDrawer.useDrawer()
+   const navDrawer = HeadMaintenanceNavigationDrawer.useDrawer()
    const router = useRouter()
 
    const [query, setQuery] = useState<FilterQuery>({})
    const [tab, setTab] = useState<FixRequestStatus>(searchParams?.status ?? FixRequestStatus.PENDING)
    const [search, setSearch] = useState<string>("")
 
-   // const containerRef = useRef<HTMLDivElement | null>(null)
-   // const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
    const control_filterDrawer = useRef<RefType<FilterDrawerProps>>(null)
 
    const api_requests = head_maintenance_queries.request.all({
@@ -123,46 +121,10 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
       router.push(hm_uris.navbar.requests + `?status=${tab}`)
    }
 
-   // useEffect(() => {
-   //    function scrollToItem(index: number) {
-   //       const currentItemRef = itemRefs.current[index]
-   //       if (containerRef.current && currentItemRef) {
-   //          const containerWidth = containerRef.current.offsetWidth
-   //          const itemOffsetLeft = currentItemRef.offsetLeft
-   //          const itemWidth = currentItemRef.offsetWidth
-   //
-   //          const scrollPosition = itemOffsetLeft - containerWidth / 2 + itemWidth / 2
-   //          containerRef.current.scrollTo({
-   //             left: scrollPosition,
-   //             behavior: "smooth",
-   //          })
-   //       }
-   //    }
-   //
-   //    switch (tab) {
-   //       case FixRequestStatus.PENDING:
-   //          scrollToItem(0)
-   //          break
-   //       case FixRequestStatus.APPROVED:
-   //          scrollToItem(1)
-   //          break
-   //       case FixRequestStatus.IN_PROGRESS:
-   //          scrollToItem(2)
-   //          break
-   //       case FixRequestStatus.HEAD_CONFIRM:
-   //       case FixRequestStatus.CLOSED:
-   //          scrollToItem(3)
-   //          break
-   //       case FixRequestStatus.REJECTED:
-   //          scrollToItem(4)
-   //          break
-   //    }
-   // }, [tab])
-
    return (
       <>
          <div className="std-layout relative h-full min-h-screen bg-white">
-            <div className="std-layout-outer absolute left-0 top-0 h-24 w-full bg-head_maintenance" />
+            <div className="std-layout-outer absolute left-0 top-0 h-[72px] w-full bg-head_maintenance" />
             <PageHeaderV2
                prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}
                title={"Danh sách Yêu cầu"}
@@ -184,29 +146,38 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
                   </Badge>
                }
             />
-            <Input
-               size="large"
-               placeholder="Tìm kiếm"
-               prefix={<SearchOutlined className="mr-1 text-neutral-500" />}
-               value={search}
-               onChange={(e) => setSearch(e.target.value)}
-            />
-            <Select
-               className="mb-3 mt-4 w-full text-center"
-               size="large"
-               value={tab}
-               loading={api_requests.isPending}
-               onChange={handleChangeTab}
-               options={[
-                  { label: "Chưa xử lý", value: "PENDING" },
-                  { label: "Đã xác nhận lỗi", value: "APPROVED" },
-                  { label: "Đang thực hiện", value: "IN_PROGRESS" },
-                  { label: "Đã hoàn thành", value: "CLOSED" },
-                  { label: "Từ chối sửa", value: "REJECTED" },
-               ]}
-            />
 
-            {api_requests.isPending && <Card loading />}
+            <Space.Compact className={"mt-layout"}>
+               <Input
+                  placeholder="Tìm kiếm"
+                  prefix={<SearchOutlined className="mr-1 text-neutral-500" />}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+               />
+               <Select
+                  className="w-full rounded-r-lg bg-head_maintenance text-center *:text-white"
+                  variant={"borderless"}
+                  value={tab}
+                  loading={api_requests.isPending}
+                  onChange={handleChangeTab}
+                  options={[
+                     { label: "Chưa xử lý", value: "PENDING" },
+                     { label: "Đã xác nhận lỗi", value: "APPROVED" },
+                     { label: "Đang thực hiện", value: "IN_PROGRESS" },
+                     { label: "Đã hoàn thành", value: "CLOSED" },
+                     { label: "Từ chối sửa", value: "REJECTED" },
+                  ]}
+               />
+            </Space.Compact>
+
+            {renderList.length > 0 && (
+               <section className={"mb-layout-half"}>
+                  <Divider className={"mb-layout-half mt-layout"} />
+                  <div>Đang hiện {renderList.length} kết quả</div>
+               </section>
+            )}
+
+            {api_requests.isPending && <Card loading className={"mt-layout"} />}
 
             {api_requests.isSuccess && <RequestList key={tab} requests={renderList} />}
 

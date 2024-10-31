@@ -294,16 +294,16 @@ function IssueViewDetailsDrawer(props: Props) {
          <OverlayControllerWithRef ref={control_issueFailDrawer}>
             <IssueFailDrawer
                onSuccess={() => {
-                  props.handleClose?.()
                   props.refetchFn?.()
+                  props.handleClose?.()
                }}
             />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_issueResolveDrawer}>
             <ResolveIssueDrawer
                onFinish={() => {
-                  props.handleClose?.()
                   props.refetchFn?.()
+                  props.handleClose?.()
                }}
             />
          </OverlayControllerWithRef>

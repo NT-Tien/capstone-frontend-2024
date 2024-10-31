@@ -67,15 +67,15 @@ function SelectCountsCard() {
                   max={100}
                />
             </Form.Item>
-            <Form.Item label="Yêu cầu bảo hành">
-               <InputNumber
-                  className="w-full"
-                  value={store.counts_warrantyRequests}
-                  onChange={store.update_counts_warrantyRequests}
-                  min={0}
-                  max={100}
-               />
-            </Form.Item>
+            {/*<Form.Item label="Yêu cầu bảo hành">*/}
+            {/*   <InputNumber*/}
+            {/*      className="w-full"*/}
+            {/*      value={store.counts_warrantyRequests}*/}
+            {/*      onChange={store.update_counts_warrantyRequests}*/}
+            {/*      min={0}*/}
+            {/*      max={100}*/}
+            {/*   />*/}
+            {/*</Form.Item>*/}
          </div>
       </Card>
    )

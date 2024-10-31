@@ -62,9 +62,14 @@ function ScanDetailsDrawer(props: Props) {
             title={
                <div className="flex flex-col">
                   <header className="flex items-center justify-between gap-1">
-                     <Button type="text" icon={<CloseOutlined />} onClick={props.onClose}></Button>
+                     <Button
+                        type="text"
+                        className={"text-white"}
+                        icon={<CloseOutlined />}
+                        onClick={props.onClose}
+                     ></Button>
                      <h1>Kết quả quét QR</h1>
-                     <Button type="text" icon={<MoreOutlined />}></Button>
+                     <Button type="text" className={"text-white"} icon={<MoreOutlined />}></Button>
                   </header>
                   <Tabs
                      className="test-tabs tabs-no-spacing mt-2 font-normal"
@@ -74,7 +79,7 @@ function ScanDetailsDrawer(props: Props) {
                      items={[
                         {
                            label: (
-                              <div className="flex items-center justify-center gap-2 text-sm">
+                              <div className="flex items-center justify-center gap-2 text-sm text-white">
                                  <Info size={18} />
                                  Chi tiết
                               </div>
@@ -83,7 +88,7 @@ function ScanDetailsDrawer(props: Props) {
                         },
                         {
                            label: (
-                              <div className="flex items-center justify-center gap-2 text-sm">
+                              <div className="flex items-center justify-center gap-2 text-sm text-white">
                                  <ClockCounterClockwise size={18} />
                                  Lịch sử
                                  <Badge count={api_deviceHistory.data?.requests.length} size="small" />
@@ -99,7 +104,7 @@ function ScanDetailsDrawer(props: Props) {
             height="100%"
             classNames={{
                footer: "p-layout",
-               header: "pb-0",
+               header: "pb-0 bg-head_department *:text-white",
             }}
             footer={
                <div>

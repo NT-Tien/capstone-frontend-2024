@@ -46,7 +46,7 @@ const nextConfig = {
          },
       ]
    },
-   reactStrictMode: true,
+   reactStrictMode: false,
    reactProductionProfiling: false,
    eslint: {
       ignoreDuringBuilds: false,

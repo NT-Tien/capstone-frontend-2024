@@ -48,6 +48,7 @@ type NavigationDrawerProps = {
    activeKey?: string
    onItemClick?: (item: NavigationDrawerItemProps) => void
    type?: "head_department" | "head_maintenance" | "staff"
+   extraItems?: ReactNode[]
 }
 type Props = Omit<DrawerProps, "children"> &
    NavigationDrawerProps & {
@@ -67,7 +68,14 @@ function NavigationDrawer(props: Props) {
             <div className="font-normal text-white">
                <div className={"mb-6 flex items-center justify-between text-sm"}>
                   <div className="font-light">{dayjs().locale("vi").format("dddd, DD/MM/YYYY")}</div>
-                  <Button icon={<CloseOutlined className="text-white" />} onClick={props.onClose} type="text"></Button>
+                  <div className={"flex"}>
+                     {props.extraItems && props.extraItems.map((item, index) => <div key={index}>{item}</div>)}
+                     <Button
+                        icon={<CloseOutlined className="text-white" />}
+                        onClick={props.onClose}
+                        type="text"
+                     ></Button>
+                  </div>
                </div>
                <Avatar size={56} icon={<UserOutlined />}></Avatar>
                <div className="mt-2 flex items-end justify-between">
@@ -102,7 +110,7 @@ function NavigationDrawer(props: Props) {
             <NavigationDrawer.ItemButton
                icon={<LogoutOutlined />}
                label="Đăng xuất"
-               buttonProps={{ danger: true }}
+               buttonProps={{ danger: true, className: "" }}
                onClick={() => {
                   logout?.()
                }}
@@ -122,7 +130,7 @@ function NavigationDrawer(props: Props) {
                      <NavigationDrawer.ItemButton
                         icon={item.icon}
                         label={item.label}
-                        onClick={(e) => {
+                        onClick={() => {
                            if (item.closeAfterClick !== false) {
                               props?.instantClose?.()
                            }

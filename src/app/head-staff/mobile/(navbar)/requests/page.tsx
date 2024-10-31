@@ -16,13 +16,13 @@ import { cn } from "@/lib/utils/cn.util"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import dayjs from "dayjs"
 import RequestCard from "@/features/head-maintenance/components/RequestCard"
-import HeadMaintenanceNavigaionDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
+import HeadMaintenanceNavigationDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 
 function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } }) {
    const router = useRouter()
    const [tab, setTab] = useState<FixRequestStatus>(searchParams?.status ?? FixRequestStatus.PENDING)
-   const navDrawer = HeadMaintenanceNavigaionDrawer.useDrawer()
+   const navDrawer = HeadMaintenanceNavigationDrawer.useDrawer()
    const api_requestStatistics = head_maintenance_queries.request.statistics({})
 
    function handleChangeTab(tab: FixRequestStatus) {

@@ -16,11 +16,12 @@ import {
    Package,
    Prohibit,
    ShieldWarning,
+   User,
    UserCheck,
    UserCircleDashed,
 } from "@phosphor-icons/react"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
-import { App, ConfigProvider, Divider, Empty, Tabs } from "antd"
+import { App, ConfigProvider, Divider, Empty, Space, Tabs } from "antd"
 import dayjs from "dayjs"
 import { Fragment, useMemo, useRef, useState } from "react"
 import Task_ViewDetailsDrawer, {
@@ -264,33 +265,37 @@ export default function TasksListTab(props: Props) {
                                        </div>
                                        <div className="flex flex-col gap-0.5">
                                           <h3 className="text-sm text-neutral-800">{task.name}</h3>
-                                          <div className="flex items-center">
+                                          <Space split={<Divider type={"vertical"} className={"mx-1"} />}>
                                              <div
-                                                className={cn("text-sm", TaskStatusTagMapper[task.status]?.className)}
+                                                className={cn("text-xs", TaskStatusTagMapper[task.status]?.className)}
                                              >
                                                 {TaskStatusTagMapper[task.status].text}
                                              </div>
                                              {task.priority && (
-                                                <>
-                                                   <Dot size={24} className="text-neutral-500" />
-                                                   <div className="flex items-center">
-                                                      <ExclamationMark size={16} className="mr-1 inline text-red-500" />
-                                                      <span className="text-sm text-red-500">Ưu tiên</span>
-                                                   </div>
-                                                </>
+                                                <div className="flex items-center text-xs">
+                                                   <ExclamationMark size={16} className="mr-1 inline text-red-500" />
+                                                   <span className="text-red-500">Ưu tiên</span>
+                                                </div>
                                              )}
                                              {task.fixerDate && (
-                                                <>
-                                                   <Dot size={24} className="text-neutral-500" />
-                                                   <div className="flex items-center">
-                                                      <CalendarBlank size={16} className="mr-1 inline" />
-                                                      <span className="text-sm">
-                                                         {dayjs(task.fixerDate).format("DD/MM")}
-                                                      </span>
-                                                   </div>
-                                                </>
+                                                <div className="flex items-center text-xs">
+                                                   <CalendarBlank
+                                                      size={14}
+                                                      weight={"duotone"}
+                                                      className="mr-1 inline"
+                                                   />
+                                                   <span className="">
+                                                      {dayjs(task.fixerDate).format("DD/MM/YYYY")}
+                                                   </span>
+                                                </div>
                                              )}
-                                          </div>
+                                             {task.fixer && (
+                                                <div className="flex items-center text-xs">
+                                                   <User size={14} weight={"duotone"} className="mr-1 inline" />
+                                                   <span className="">{task.fixer.username}</span>
+                                                </div>
+                                             )}
+                                          </Space>
                                        </div>
                                     </div>
                                  </Fragment>

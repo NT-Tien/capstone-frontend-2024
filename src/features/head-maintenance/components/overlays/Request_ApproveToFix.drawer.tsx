@@ -5,7 +5,7 @@ import { TypeErrorDto } from "@/lib/domain/TypeError/TypeError.dto"
 import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
 import AlertCard from "@/components/AlertCard"
 import { CloseOutlined, DeleteOutlined, EditOutlined, MoreOutlined, SendOutlined } from "@ant-design/icons"
-import { Info } from "@phosphor-icons/react"
+import { Info, Wrench } from "@phosphor-icons/react"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
 import Drawer from "antd/es/drawer"
@@ -19,7 +19,10 @@ import Issue_CreateDetailsDrawer, { CreateSingleIssueDrawerRefType } from "./Iss
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import MachineModelUtil from "@/lib/domain/MachineModel/MachineModel.util"
-import { App, ConfigProvider } from "antd"
+import { App, ConfigProvider, Divider, Space } from "antd"
+import { cn } from "@/lib/utils/cn.util"
+import IssueSparePartUtil from "@/lib/domain/IssueSparePart/IssueSparePart.util"
+import IssueUtil from "@/lib/domain/Issue/Issue.util"
 
 type Request_ApproveToFixDrawerProps = {
    requestId?: string
@@ -137,9 +140,9 @@ function Request_ApproveToFixDrawer(props: Props) {
       <Drawer
          title={
             <div className={"flex w-full items-center justify-between"}>
-               <Button icon={<CloseOutlined />} type={"text"} onClick={props.onClose} />
+               <Button className={"text-white"} icon={<CloseOutlined />} type={"text"} onClick={props.onClose} />
                <h1 className={"text-lg font-semibold"}>Xác nhận yêu cầu</h1>
-               <Button icon={<MoreOutlined />} type={"text"} />
+               <Button className={"text-white"} icon={<MoreOutlined />} type={"text"} />
             </div>
          }
          closeIcon={false}
@@ -168,23 +171,27 @@ function Request_ApproveToFixDrawer(props: Props) {
          }
          classNames={{
             footer: "p-layout",
+            header: "bg-head_maintenance text-white *:text-white",
          }}
          {...props}
       >
-         <AlertCard
-            text="Vui lòng chọn các lỗi thiết bị hiện có từ danh sách bên dưới"
-            type="info"
-            icon={<Info size={20} weight="fill" />}
-            className="mb-layout"
-         />
+         {selectedIssues.length === 0 && (
+            <AlertCard
+               text="Vui lòng chọn các lỗi thiết bị hiện có từ danh sách bên dưới"
+               type="info"
+               icon={<Info size={20} weight="fill" />}
+               className="mb-layout"
+            />
+         )}
          <Select
             options={selectableTypeErrors?.map((error) => ({
                label: error.name,
                value: JSON.stringify(error),
             }))}
-            className="w-full"
+            className="select-white-placeholder w-full rounded-lg bg-head_maintenance text-white *:text-white"
+            autoClearSearchValue
             showSearch
-            variant="outlined"
+            variant="borderless"
             size="large"
             placeholder="+ Thêm lỗi mới"
             value={selectedTypeErrorControl}
@@ -197,7 +204,7 @@ function Request_ApproveToFixDrawer(props: Props) {
                })
             }}
          />
-         <div className="mt-4">
+         <div className="mt-2">
             {selectedIssues.length === 0 ? (
                <Card size="small">
                   <Empty description={"Chưa có lỗi nào được tạo"} image={Empty.PRESENTED_IMAGE_DEFAULT} />
@@ -206,6 +213,7 @@ function Request_ApproveToFixDrawer(props: Props) {
                <List
                   bordered
                   dataSource={selectedIssues}
+                  itemLayout={"horizontal"}
                   renderItem={(issue) => {
                      return (
                         <List.Item
@@ -236,14 +244,30 @@ function Request_ApproveToFixDrawer(props: Props) {
                            <List.Item.Meta
                               title={issue.typeError.name}
                               description={
-                                 <div className="flex items-center gap-2 text-sm">
-                                    <Tag color={FixTypeTagMapper[issue.fixType].colorInverse}>
+                                 <Space
+                                    wrap
+                                    split={<Divider className={"m-0"} type={"vertical"} />}
+                                    className="flex items-center gap-2 text-sm"
+                                 >
+                                    <div className={FixTypeTagMapper[issue.fixType].className}>
                                        {FixTypeTagMapper[issue.fixType].text}
-                                    </Tag>
-                                    <div className="truncate">{issue.description}</div>
-                                 </div>
+                                    </div>
+                                    {issue.issueSpareParts.length > 0 && (
+                                       <div
+                                          className={cn(
+                                             "flex items-center gap-1",
+                                             IssueUtil.hasOutOfStockIssueSpareParts(issue) && "text-yellow-500",
+                                          )}
+                                       >
+                                          <Wrench size={16} weight={"duotone"} />
+                                          {issue.issueSpareParts.length} linh kiện
+                                       </div>
+                                    )}
+                                 </Space>
                               }
-                           />
+                           >
+                              Test
+                           </List.Item.Meta>
                         </List.Item>
                      )
                   }}

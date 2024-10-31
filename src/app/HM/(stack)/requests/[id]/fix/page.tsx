@@ -10,7 +10,7 @@ import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapp
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, Dropdown } from "antd"
+import { App, ConfigProvider, Dropdown } from "antd"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
 import Result from "antd/es/result"
@@ -192,119 +192,126 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    }, [api_request.data, api_request.isSuccess, modal, params.id])
 
    return (
-      <div className="relative flex min-h-screen flex-col">
-         <div className={"std-layout-outer absolute left-0 top-0 h-36 w-full bg-head_maintenance"} />
-         <PageHeaderV2
-            prevButton={
-               <PageHeaderV2.BackButton
-                  onClick={() =>
-                     api_request.isSuccess
-                        ? router.push(hm_uris.navbar.requests + `?status=${api_request.data.status}`)
-                        : router.back()
-                  }
-               />
-            }
-            title={"Yêu cầu: Sửa chữa"}
-            nextButton={
-               <Dropdown
-                  menu={{
-                     items: [],
-                  }}
-               >
-                  <PageHeaderV2.InfoButton />
-               </Dropdown>
-            }
-            className={"relative z-50"}
-            type={"light"}
-         />
-         {/*<Image*/}
-         {/*   className="absolute top-0 h-32 w-full object-cover opacity-40"*/}
-         {/*   src="/images/requests.jpg"*/}
-         {/*   alt="image"*/}
-         {/*   width={784}*/}
-         {/*   height={100}*/}
-         {/*   style={{*/}
-         {/*      WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",*/}
-         {/*      maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",*/}
-         {/*   }}*/}
-         {/*/>*/}
-         {api_request.isError ? (
-            <>
-               {api_request.error instanceof NotFoundError ? (
-                  <Card className="mx-layout">
-                     <Result
-                        status="404"
-                        title="Không tìm thấy yêu cầu"
-                        subTitle="Yêu cầu không tồn tại hoặc đã bị xóa"
-                        extra={<Button onClick={handleBack}>Quay lại</Button>}
-                     />
-                  </Card>
-               ) : (
-                  <Card className="mx-layout">
-                     <Result
-                        status="error"
-                        title="Có lỗi xảy ra"
-                        subTitle="Vui lòng thử lại sau"
-                        extra={[
-                           <Button onClick={handleBack} key="back">
-                              Quay lại
-                           </Button>,
-                           <Button onClick={() => api_request.refetch()} key="retry">
-                              Thử lại
-                           </Button>,
-                        ]}
-                     />
-                  </Card>
-               )}
-            </>
-         ) : (
-            <>
-               <div className="px-layout">
-                  <section
-                     className={cn(
-                        "relative z-50 rounded-lg border-2 border-neutral-200 bg-white shadow-lg",
-                        isWarranty && "rounded-b-none",
-                     )}
+      <ConfigProvider
+         theme={{
+            token: {
+               colorPrimary: "#176b37",
+            },
+         }}
+      >
+         <div className="relative flex min-h-screen flex-col">
+            <div className={"std-layout-outer absolute left-0 top-0 h-36 w-full bg-head_maintenance"} />
+            <PageHeaderV2
+               prevButton={
+                  <PageHeaderV2.BackButton
+                     onClick={() =>
+                        api_request.isSuccess
+                           ? router.push(hm_uris.navbar.requests + `?status=${api_request.data.status}`)
+                           : router.back()
+                     }
+                  />
+               }
+               title={"Yêu cầu: Sửa chữa"}
+               nextButton={
+                  <Dropdown
+                     menu={{
+                        items: [],
+                     }}
                   >
-                     <DataListView
-                        bordered
-                        dataSource={api_request.data}
-                        itemClassName="py-2"
-                        labelClassName="font-normal text-neutral-400 text-[14px]"
-                        valueClassName="text-[14px] font-medium"
-                        items={[
-                           {
-                              label: "Ngày tạo",
-                              value: (e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
-                           },
-                           {
-                              label: "Người yêu cầu",
-                              value: (e) => e.requester?.username ?? "-",
-                           },
-                           {
-                              label: "Trạng thái",
-                              value: (e) => (
-                                 <Tag className="m-0" color={FixRequest_StatusMapper(e).colorInverse}>
-                                    {FixRequest_StatusMapper(e).text}
-                                 </Tag>
-                              ),
-                           },
-                           {
-                              label: "Ghi chú",
-                              value: (e) => e.requester_note,
-                           },
-                           ...(api_request.data?.return_date_warranty
-                              ? [
-                                   {
-                                      label: "Ngày nhận máy bảo hành",
-                                      value: (e: any) => dayjs(e.return_date_warranty).format("DD/MM/YYYY - HH:mm"),
-                                   },
-                                ]
-                              : []),
-                        ]}
-                     />
-                  </section>
-                  {/* {isWarranty && (
+                     <PageHeaderV2.InfoButton />
+                  </Dropdown>
+               }
+               className={"relative z-50"}
+               type={"light"}
+            />
+            {/*<Image*/}
+            {/*   className="absolute top-0 h-32 w-full object-cover opacity-40"*/}
+            {/*   src="/images/requests.jpg"*/}
+            {/*   alt="image"*/}
+            {/*   width={784}*/}
+            {/*   height={100}*/}
+            {/*   style={{*/}
+            {/*      WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",*/}
+            {/*      maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",*/}
+            {/*   }}*/}
+            {/*/>*/}
+            {api_request.isError ? (
+               <>
+                  {api_request.error instanceof NotFoundError ? (
+                     <Card className="mx-layout">
+                        <Result
+                           status="404"
+                           title="Không tìm thấy yêu cầu"
+                           subTitle="Yêu cầu không tồn tại hoặc đã bị xóa"
+                           extra={<Button onClick={handleBack}>Quay lại</Button>}
+                        />
+                     </Card>
+                  ) : (
+                     <Card className="mx-layout">
+                        <Result
+                           status="error"
+                           title="Có lỗi xảy ra"
+                           subTitle="Vui lòng thử lại sau"
+                           extra={[
+                              <Button onClick={handleBack} key="back">
+                                 Quay lại
+                              </Button>,
+                              <Button onClick={() => api_request.refetch()} key="retry">
+                                 Thử lại
+                              </Button>,
+                           ]}
+                        />
+                     </Card>
+                  )}
+               </>
+            ) : (
+               <>
+                  <div className="px-layout">
+                     <section
+                        className={cn(
+                           "relative z-50 rounded-lg border-2 border-neutral-200 bg-white shadow-lg",
+                           isWarranty && "rounded-b-none",
+                        )}
+                     >
+                        <DataListView
+                           bordered
+                           dataSource={api_request.data}
+                           itemClassName="py-2"
+                           labelClassName="font-normal text-neutral-400 text-[14px]"
+                           valueClassName="text-[14px] font-medium"
+                           items={[
+                              {
+                                 label: "Ngày tạo",
+                                 value: (e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
+                              },
+                              {
+                                 label: "Người yêu cầu",
+                                 value: (e) => e.requester?.username ?? "-",
+                              },
+                              {
+                                 label: "Trạng thái",
+                                 value: (e) => (
+                                    <Tag className="m-0" color={FixRequest_StatusMapper(e).colorInverse}>
+                                       {FixRequest_StatusMapper(e).text}
+                                    </Tag>
+                                 ),
+                              },
+                              {
+                                 label: "Ghi chú",
+                                 value: (e) => e.requester_note,
+                              },
+                              ...(api_request.data?.return_date_warranty
+                                 ? [
+                                      {
+                                         label: "Ngày nhận máy bảo hành",
+                                         value: (e: any) => dayjs(e.return_date_warranty).format("DD/MM/YYYY - HH:mm"),
+                                      },
+                                   ]
+                                 : []),
+                           ]}
+                        />
+                     </section>
+                     {/* {isWarranty && (
                      <div className="rounded-b-lg border-[2px] border-yellow-400 bg-yellow-50 py-2 text-center font-medium text-yellow-600">
                         Thiết bị được bảo hành
                      </div>
@@ -364,48 +371,50 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                         </section>
                      )}
 */}
-                  {api_request.isSuccess && new Set([FixRequestStatus.HEAD_CONFIRM]).has(api_request.data.status) && (
-                     <section className="std-layout">
-                        <div className="flex w-full gap-4 rounded-b-lg bg-yellow-500 p-3 text-white">
-                           Yêu cầu này đã được hoàn thành và đang chờ xác nhận từ trưởng phòng
-                        </div>
-                     </section>
-                  )}
-                  {api_request.isSuccess && api_request.data.status === FixRequestStatus.CLOSED && (
-                     <section className="std-layout">
-                        <div className="flex w-full gap-2 rounded-b-lg bg-purple-500 p-3 text-white">
-                           <div className="font-semibold">Đánh giá</div>
-                           <div>{(api_request.data as any)?.feedback?.content ?? "Không có"}</div>
-                        </div>
-                     </section>
-                  )}
-               </div>
+                     {api_request.isSuccess &&
+                        new Set([FixRequestStatus.HEAD_CONFIRM]).has(api_request.data.status) && (
+                           <section className="std-layout">
+                              <div className="flex w-full gap-4 rounded-b-lg bg-yellow-500 p-3 text-white">
+                                 Yêu cầu này đã được hoàn thành và đang chờ xác nhận từ trưởng phòng
+                              </div>
+                           </section>
+                        )}
+                     {api_request.isSuccess && api_request.data.status === FixRequestStatus.CLOSED && (
+                        <section className="std-layout">
+                           <div className="flex w-full gap-2 rounded-b-lg bg-purple-500 p-3 text-white">
+                              <div className="font-semibold">Đánh giá</div>
+                              <div>{(api_request.data as any)?.feedback?.content ?? "Không có"}</div>
+                           </div>
+                        </section>
+                     )}
+                  </div>
 
-               <Suspense fallback={<Spin />}>
-                  <TabbedLayout
-                     api_device={api_device}
-                     api_deviceHistory={api_deviceHistory}
-                     api_request={api_request}
-                     requestId={params.id}
-                  />
-               </Suspense>
-            </>
-         )}
-         <OverlayControllerWithRef ref={control_rejectRequestDrawer}>
-            <Request_RejectDrawer
-               onSuccess={() => {
-                  router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.REJECTED}`)
+                  <Suspense fallback={<Spin />}>
+                     <TabbedLayout
+                        api_device={api_device}
+                        api_deviceHistory={api_deviceHistory}
+                        api_request={api_request}
+                        requestId={params.id}
+                     />
+                  </Suspense>
+               </>
+            )}
+            <OverlayControllerWithRef ref={control_rejectRequestDrawer}>
+               <Request_RejectDrawer
+                  onSuccess={() => {
+                     router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.REJECTED}`)
+                  }}
+               />
+            </OverlayControllerWithRef>
+            <Task_ViewDetailsDrawer
+               ref={taskDetailsRef}
+               refetchFn={async () => {
+                  await api_request.refetch()
                }}
+               autoCreateTaskFn={async (warrantyDate) => handleAutoCreateWarrantyTask(warrantyDate)}
             />
-         </OverlayControllerWithRef>
-         <Task_ViewDetailsDrawer
-            ref={taskDetailsRef}
-            refetchFn={async () => {
-               await api_request.refetch()
-            }}
-            autoCreateTaskFn={async (warrantyDate) => handleAutoCreateWarrantyTask(warrantyDate)}
-         />
-      </div>
+         </div>
+      </ConfigProvider>
    )
 }
 

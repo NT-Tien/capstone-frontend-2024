@@ -302,14 +302,20 @@ body {
 .admin-request-drawer .page-container {
     width: 100%;
     transition: width 0.3s;
- }
+}
 
- .admin-request-drawer .page-container-drawer-open {
+.admin-request-drawer .page-container-drawer-open {
     width: calc(100% - 480px);
     transition: width 0.3s;
- }
+}
 
- .admin-request-drawer .ant-drawer-content {
+.admin-request-drawer .ant-drawer-content {
     position: relative;
     width: 480px !important;
- }
+}
+
+.select-white-placeholder {
+    .ant-select-selection-placeholder {
+        @apply text-white opacity-50 !important;
+    }
+}

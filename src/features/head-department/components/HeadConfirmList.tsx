@@ -45,6 +45,9 @@ function HeadConfirmList({ requests }: Props) {
                      <DataGrid
                         cols={2}
                         className="flex-grow text-xs text-neutral-500"
+                        spaceProps={{
+                           split: undefined,
+                        }}
                         items={[
                            {
                               value: (

@@ -192,7 +192,7 @@ const Task_AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(funct
          >
             <Form>
                <main className="std-layout">
-                  <section className="std-layout-outer sticky top-0 z-50 bg-white px-layout shadow-lg">
+                  <section className="std-layout-outer sticky top-0 z-50 bg-white px-layout pt-layout shadow-lg">
                      <Form.Item<FieldType> rules={[{ required: true }]} label="Ngày sửa">
                         <DatePicker
                            size="large"

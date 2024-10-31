@@ -1,6 +1,6 @@
 "use client"
 
-import HeadMaintenanceNavigaionDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
+import HeadMaintenanceNavigationDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import { Button, Space, Statistic, Tabs } from "antd"
 import { CheckSquareOutlined, FilterOutlined, InboxOutlined, LikeOutlined } from "@ant-design/icons"
@@ -12,7 +12,7 @@ import head_maintenance_queries from "@/features/head-maintenance/queries"
 import { cn } from "@/lib/utils/cn.util"
 
 function Page() {
-   const navDrawer = HeadMaintenanceNavigaionDrawer.useDrawer()
+   const navDrawer = HeadMaintenanceNavigationDrawer.useDrawer()
    const [tab, setTab] = useState<"request" | "task">("request")
 
    const api_counts = head_maintenance_queries.dashboard.count({})

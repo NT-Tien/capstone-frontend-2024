@@ -9,4 +9,5 @@ export type SparePartDto = {
    createdAt: string
    updatedAt: string
    deletedAt: null | string
+   image: string[]
 }

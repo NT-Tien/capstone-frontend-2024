@@ -12,6 +12,7 @@ import useDevice_AllFilteredAndSortedQuery from "@/features/admin/queries/Device
 import useMachineModel_OneQuery from "@/features/admin/queries/MachineModel_One.query"
 import useDevice_One from "@/features/admin/queries/Device_One.query"
 import useRequest_ManyByIdQuery from "@/features/admin/queries/Request_ManyById.query"
+import useSparePart_AllQuery from "./SparePart_All.query"
 
 const admin_queries = {
    request: {
@@ -40,6 +41,10 @@ const admin_queries = {
       all_filterAndSort: useDevice_AllFilteredAndSortedQuery,
       one: useDevice_One,
    },
+   spare_part: {
+      all: useSparePart_AllQuery,
+      all_filterAndSort: useTask_AllFilteredAndSortedQuery,
+   }
 }
 
 export default admin_queries

@@ -41,13 +41,6 @@ function SparePartsListSection({ spareParts, isLoading }: Props) {
    const api_sparePart = admin_queries.spare_part.all_filterAndSort({
       page: query.page,
       limit: query.limit,
-      search: {
-         name: query.search?.name,
-      },
-      order: {
-         order: undefined,
-         orderBy: undefined
-      }
    })
 
    const filtered_spareParts = useMemo(() => {

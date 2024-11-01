@@ -1,17 +1,17 @@
 import api from "@/config/axios.config"
 import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
-import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import { TypeErrorDto } from "@/lib/domain/TypeError/TypeError.dto"
 
-export type Request = Pick<SparePartDto, "name" | "quantity" | "expirationDate"> & {
+export type Request = Pick<TypeErrorDto, "name" | "duration" | "description"> & {
    machineModel: string
 }
-export type Response = SparePartDto
+export type Response = TypeErrorDto
 
-Admin_SpareParts_Create.URL = "/admin/spare-part"
-export default async function Admin_SpareParts_Create(req: Request): Promise<Response> {
+Admin_TypeError_Create.URL = "/admin/type-error"
+export default async function Admin_TypeError_Create(req: Request): Promise<Response> {
    return api
-      .post<Response>(Admin_SpareParts_Create.URL, req, {
+      .post<Response>(Admin_TypeError_Create.URL, req, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,

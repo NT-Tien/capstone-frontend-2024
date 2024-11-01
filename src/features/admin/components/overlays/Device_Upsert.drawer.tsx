@@ -15,11 +15,13 @@ type FormFieldTypes = {
    machineModel: string
    area?: string
 }
+
 type Device_UpsertDrawerProps = {
    device?: DeviceDto
    machineModel?: MachineModelDto
    onSuccess?: () => void
 }
+
 type Props = Omit<DrawerProps, "children"> & Device_UpsertDrawerProps
 
 function Device_UpsertDrawer(props: Props) {

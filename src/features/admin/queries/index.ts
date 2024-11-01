@@ -13,6 +13,7 @@ import useMachineModel_OneQuery from "@/features/admin/queries/MachineModel_One.
 import useDevice_One from "@/features/admin/queries/Device_One.query"
 import useRequest_ManyByIdQuery from "@/features/admin/queries/Request_ManyById.query"
 import useSparePart_AllQuery from "./SparePart_All.query"
+import useSparePart_AllFilterAndSortedQuery from "./SparePart_AllFilterAndSort.query"
 
 const admin_queries = {
    request: {
@@ -43,6 +44,9 @@ const admin_queries = {
    },
    spare_part: {
       all: useSparePart_AllQuery,
+      all_filterAndSort: useSparePart_AllFilterAndSortedQuery,
+   },
+   type_error: {
       all_filterAndSort: useTask_AllFilteredAndSortedQuery,
    }
 }

@@ -157,7 +157,7 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
                      )}
                   </div>
                ) : (
-                  "Tạo lỗi mới"
+                  "Thêm lỗi mới"
                )
             }
             placement="right"

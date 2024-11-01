@@ -7,6 +7,7 @@ import useRequest_Statistics from "@/features/head-maintenance/queries/Request_S
 import useTypeError_Common from "@/features/head-maintenance/queries/TypeError_Common.query"
 import useIssue_One from "@/features/head-maintenance/queries/Issue_One.query"
 import useRequest_All from "@/features/head-maintenance/queries/Request_All.query"
+import useNotifications_All from "@/features/head-maintenance/queries/Notifications_All.query"
 
 const head_maintenance_queries = {
    device: {
@@ -27,6 +28,9 @@ const head_maintenance_queries = {
    },
    issue: {
       one: useIssue_One,
+   },
+   notifications: {
+      all: useNotifications_All,
    },
 }
 

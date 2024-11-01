@@ -23,7 +23,7 @@ function HistoryList({ requests }: Props) {
 
    if (requests.length === 0) {
       return (
-         <Card className="mt-layout">
+         <Card className={"mt-layout"}>
             <Result title="Không có yêu cầu nào" subTitle="Hiện tại không có yêu cầu nào thuộc trạng thái này." />
          </Card>
       )

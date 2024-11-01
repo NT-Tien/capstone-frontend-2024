@@ -3,6 +3,7 @@ const hm_uris = {
       dashboard: "/HM/dashboard",
       requests: "/HM/requests",
       tasks: "/HM/tasks",
+      notifications: "/HM/notifications",
    },
    stack: {
       requests_id: (id: string) => `/HM/requests/${id}`,

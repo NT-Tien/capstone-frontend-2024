@@ -100,7 +100,7 @@ export default function ScanPage() {
    return (
       <div className="h-full">
          <PageHeaderV2
-            title={<h2 className="text-black">Tạo yêu cầu</h2>}
+            title={"Tạo yêu cầu"}
             type={"dark"}
             nextButton={<PageHeaderV2.InfoButton />}
             prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}

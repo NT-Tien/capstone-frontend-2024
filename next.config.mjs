@@ -2,17 +2,6 @@ import withBundleAnalyzer from "@next/bundle-analyzer"
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
-   webpack: (config, { isServer }) => {
-      if (isServer) {
-         config.externals = config.externals || []
-         config.externals.push({
-            "localStorage": "localStorage",
-            "window": "window",
-         })
-      }
-
-      return config
-   },
    async redirects() {
       return [
          {
@@ -57,7 +46,7 @@ const nextConfig = {
          },
       ]
    },
-   reactStrictMode: true,
+   reactStrictMode: false,
    reactProductionProfiling: false,
    eslint: {
       ignoreDuringBuilds: false,

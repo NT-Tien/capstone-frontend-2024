@@ -1,11 +1,15 @@
 "use client"
 
-import { DashboardFilled, HistoryOutlined, HomeOutlined, PlusOutlined } from "@ant-design/icons"
+import { BellOutlined, DashboardFilled, HistoryOutlined, HomeOutlined, PlusOutlined } from "@ant-design/icons"
 import { usePathname, useRouter } from "next/navigation"
 import NavigationDrawer, { NavigationDrawerProps } from "@/components/layout/NavigationDrawer"
 import { createContext, PropsWithChildren, useContext, useRef } from "react"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import hd_uris from "@/features/head-department/uri"
+import { Badge, Button } from "antd"
+import hm_uris from "@/features/head-maintenance/uri"
+import head_maintenance_queries from "@/features/head-maintenance/queries"
+import head_department_queries from "@/features/head-department/queries"
 
 type ContextType = {
    handleOpen: () => void
@@ -16,6 +20,8 @@ function HeadNavigationDrawer(props: PropsWithChildren) {
    const current = usePathname()
    const router = useRouter()
    const control_ref = useRef<RefType<NavigationDrawerProps>>(null)
+
+   const api_notifications = head_department_queries.notifications.all({ seen: false })
 
    function handleOpen() {
       control_ref.current?.handleOpen({})
@@ -31,6 +37,20 @@ function HeadNavigationDrawer(props: PropsWithChildren) {
                   router.push(item.key)
                }}
                type="head_department"
+               extraItems={[
+                  <Badge key={"notifications"} count={api_notifications.data?.length ?? 0} size={"small"}>
+                     <Button
+                        icon={<BellOutlined className={"text-white"} />}
+                        type={"text"}
+                        onClick={() => {
+                           control_ref.current?.handleClose()
+                           setTimeout(() => {
+                              router.push(hd_uris.navbar.notifications)
+                           }, 200)
+                        }}
+                     />
+                  </Badge>,
+               ]}
                items={[
                   {
                      label: "Trang chủ",

@@ -2,7 +2,7 @@
 
 import { FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { Alert, Badge, Button, Input, Select } from "antd"
+import { Alert, Badge, Button, Divider, Input, Select, Space } from "antd"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import HistoryList from "./HistoryList.component"
@@ -179,7 +179,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
             />
          )}
          <div className="std-layout relative h-full min-h-screen bg-white">
-            <div className="std-layout-outer absolute left-0 top-0 h-24 w-full bg-head_department" />
+            <div className="std-layout-outer absolute left-0 top-0 h-[72px] w-full bg-head_department" />
             <PageHeaderV2
                prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}
                title={"Lịch sử Yêu cầu"}
@@ -201,29 +201,36 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
                }
             />
             {/*<section className="relative z-50 h-10 w-full rounded-lg border-2 border-blue-700 bg-blue-50"></section>*/}
-            <Input
-               size="large"
-               placeholder="Tìm kiếm"
-               prefix={<SearchOutlined className="mr-1 text-neutral-500" />}
-               value={search}
-               onChange={(e) => setSearch(e.target.value)}
-            />
-            <Select
-               className="mb-3 mt-4 w-full text-center"
-               size="large"
-               value={tab}
-               loading={api_requests.isPending}
-               onChange={handleChangeTab}
-               options={[
-                  { label: "Chưa xử lý", value: "pending" },
-                  { label: "Đang thực hiện", value: "in_progress" },
-                  { label: "Chờ đánh giá", value: "head_confirm" },
-                  { label: "Đã đóng", value: "closed" },
-                  { label: "Đã hủy", value: "rejected" },
-                  { label: "Tất cả ", value: "all" },
-               ]}
-            />
+            <Space.Compact className={"mt-layout"}>
+               <Input
+                  placeholder="Tìm kiếm"
+                  prefix={<SearchOutlined className="mr-1 text-neutral-500" />}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+               />
+               <Select
+                  className="w-full rounded-r-lg bg-head_department text-center *:text-white"
+                  variant={"borderless"}
+                  value={tab}
+                  loading={api_requests.isPending}
+                  onChange={handleChangeTab}
+                  options={[
+                     { label: "Chưa xử lý", value: "pending" },
+                     { label: "Đang thực hiện", value: "in_progress" },
+                     { label: "Chờ đánh giá", value: "head_confirm" },
+                     { label: "Đã đóng", value: "closed" },
+                     { label: "Đã hủy", value: "rejected" },
+                     { label: "Tất cả ", value: "all" },
+                  ]}
+               />
+            </Space.Compact>
 
+            {renderList.length > 0 && (
+               <section className={"mb-2 mt-2"}>
+                  <Divider className="my-2" />
+                  <div>Đang hiện {renderList.length} kết quả</div>
+               </section>
+            )}
             <HistoryList key={tab} requests={renderList} />
 
             <OverlayControllerWithRef ref={control_filterDrawer}>

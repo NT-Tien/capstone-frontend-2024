@@ -1,6 +1,7 @@
 "use client"
 
 import {
+   BellOutlined,
    CheckSquareOutlined,
    DashboardFilled,
    HistoryOutlined,
@@ -13,6 +14,10 @@ import NavigationDrawer, { NavigationDrawerProps } from "@/components/layout/Nav
 import { createContext, PropsWithChildren, useContext, useRef } from "react"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import staff_uri from "@/features/staff/uri"
+import head_maintenance_queries from "@/features/head-maintenance/queries"
+import staff_queries from "@/features/staff/queries"
+import { Badge, Button } from "antd"
+import hm_uris from "@/features/head-maintenance/uri"
 
 type ContextType = {
    handleOpen: () => void
@@ -23,6 +28,8 @@ function StaffNavigationDrawer(props: PropsWithChildren) {
    const current = usePathname()
    const router = useRouter()
    const control_ref = useRef<RefType<NavigationDrawerProps>>(null)
+
+   const api_notifications = staff_queries.notifications.all({ seen: false })
 
    function handleOpen() {
       control_ref.current?.handleOpen({})
@@ -38,6 +45,20 @@ function StaffNavigationDrawer(props: PropsWithChildren) {
                   router.push(item.key)
                }}
                type="staff"
+               extraItems={[
+                  <Badge key={"notifications"} count={api_notifications.data?.length ?? 0} size={"small"}>
+                     <Button
+                        icon={<BellOutlined className={"text-white"} />}
+                        type={"text"}
+                        onClick={() => {
+                           control_ref.current?.handleClose()
+                           setTimeout(() => {
+                              router.push(staff_uri.navbar.notifications)
+                           }, 200)
+                        }}
+                     />
+                  </Badge>,
+               ]}
                items={[
                   {
                      label: "Trang chủ",

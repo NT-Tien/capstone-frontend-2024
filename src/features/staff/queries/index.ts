@@ -2,6 +2,7 @@ import useTask_All from "@/features/staff/queries/Task_All.query"
 import useTask_AllByDate from "@/features/staff/queries/Task_AllByDate.query"
 import useTask_AllCounts from "@/features/staff/queries/Task_AllCounts.query"
 import useTask_OneById from "@/features/staff/queries/Task_OneById.query"
+import useNotifications_All from "@/features/staff/queries/Notifications_All.query"
 
 const staff_queries = {
    task: {
@@ -9,6 +10,9 @@ const staff_queries = {
       allByDate: useTask_AllByDate,
       allCounts: useTask_AllCounts,
       one: useTask_OneById,
+   },
+   notifications: {
+      all: useNotifications_All,
    },
 }
 

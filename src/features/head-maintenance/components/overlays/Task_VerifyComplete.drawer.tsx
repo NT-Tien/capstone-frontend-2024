@@ -38,7 +38,7 @@ function Task_VerifyCompleteDrawer(props: Props) {
             {props.task?.imagesVerify.map((img) => (
                <Image
                   key={img}
-                  src={clientEnv.BACKEND_URL + `/file-image/${props.task?.imagesVerify[0]}`}
+                  src={clientEnv.BACKEND_URL + `/file-image/${img}`}
                   alt="Chữ ký"
                   className="aspect-square h-max rounded-lg"
                />

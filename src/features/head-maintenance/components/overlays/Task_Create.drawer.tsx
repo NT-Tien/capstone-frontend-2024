@@ -9,7 +9,14 @@ import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
 import useModalControls from "@/lib/hooks/useModalControls"
 import { cn } from "@/lib/utils/cn.util"
 import AlertCard from "@/components/AlertCard"
-import { CheckOutlined, CloseOutlined, EditOutlined, PlusOutlined, RightOutlined } from "@ant-design/icons"
+import {
+   CheckOutlined,
+   CloseOutlined,
+   EditOutlined,
+   MoreOutlined,
+   PlusOutlined,
+   RightOutlined,
+} from "@ant-design/icons"
 import { Clock, Wrench } from "@phosphor-icons/react"
 import { useMutation, useQueries } from "@tanstack/react-query"
 import {
@@ -96,7 +103,7 @@ function Task_CreateDrawer(props: Props) {
       return api.request.data?.issues
          .filter((i) => {
             const set = new Set([IssueStatusEnum.PENDING])
-            return set.has(i.status)
+            return set.has(i.status) && i.task === null
          })
          .sort((a, b) => {
             if (a.task !== null && b.task === null) return 1
@@ -187,11 +194,19 @@ function Task_CreateDrawer(props: Props) {
       <Drawer
          {...props}
          onClose={onClose}
-         title="Tạo tác vụ"
+         title={
+            <div className={"flex w-full items-center justify-between"}>
+               <Button className={"text-white"} icon={<CloseOutlined />} type={"text"} onClick={props.onClose} />
+               <h1 className={"text-lg font-semibold"}>Tạo tác vụ</h1>
+               <Button className={"text-white"} icon={<MoreOutlined />} type={"text"} />
+            </div>
+         }
+         closeIcon={false}
          placement="right"
          width="100%"
          classNames={{
             footer: "p-layout",
+            header: "bg-head_maintenance text-white",
          }}
          footer={
             <div className="flex flex-col">
@@ -210,7 +225,7 @@ function Task_CreateDrawer(props: Props) {
                         />
                      </div>
                      <div className="flex items-center justify-between text-sm">
-                        <h5 className="block flex-grow font-medium text-gray-500">Ưu tiên</h5>
+                        <h5 className="block flex-grow font-medium text-gray-500">Ưu tiên tác vụ này?</h5>
                         <Switch
                            className="h-full"
                            size="small"
@@ -298,7 +313,7 @@ function Task_CreateDrawer(props: Props) {
                         size="small"
                         className={cn(
                            "col-span-11 rounded-r-none border-r-0",
-                           isSelected && "border-primary-300 bg-primary-100",
+                           isSelected && "border-[#176b37] bg-[#176b37] bg-opacity-10",
                            isSelected && issue.task === null && missingSpareParts && "border-yellow-300 bg-yellow-100",
                         )}
                         onClick={() => {
@@ -345,7 +360,7 @@ function Task_CreateDrawer(props: Props) {
                         type="dashed"
                         className={cn(
                            "grid size-full place-items-center rounded-l-none p-0",
-                           isSelected && "border-primary-300 bg-primary-100",
+                           isSelected && "border-[#176b37] bg-[#176b37] bg-opacity-10",
                            isSelected && issue.task === null && missingSpareParts && "border-yellow-300 bg-yellow-100",
                         )}
                         onClick={() =>

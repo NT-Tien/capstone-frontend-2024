@@ -35,7 +35,6 @@ import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
 import Task_AssignFixerDrawer, { AssignFixerDrawerRefType } from "./Task_AssignFixer.drawer"
 import Task_CancelDrawer, { CancelTaskDrawerRefType } from "./Task_Cancel.drawer"
-import OldTask_VerifyCompleteDrawer, { CheckSignatureDrawerRefType } from "./oldTask_VerifyComplete.drawer"
 import Task_UpdateFixDateDrawer, { UpdateTaskFixDateDrawerRefType } from "./Task_UpdateFixDate.drawer"
 import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
 import Task_VerifyCompleteDrawer, {
@@ -89,7 +88,6 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
    const scannerV2DrawerRef = useRef<ScannerV2DrawerRefType | null>(null)
    const issueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)
    const assignFixerDrawerRef = useRef<AssignFixerDrawerRefType | null>(null)
-   const checkSignatureDrawerRef = useRef<CheckSignatureDrawerRefType | null>(null)
    const updateTaskFixDateDrawerRef = useRef<UpdateTaskFixDateDrawerRefType | null>(null)
    const cancelTaskDrawerRef = useRef<CancelTaskDrawerRefType | null>(null)
    const control_taskVerifyCompleteDrawer = useRef<RefType<Task_VerifyCompleteDrawerProps>>(null)
@@ -356,7 +354,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
             footer={<Footer />}
             extra={
                <div className="flex items-center gap-1">
-                  {task && new Set(TaskStatus.ASSIGNED).has(task.status) && (
+                  {task && task.status === TaskStatus.ASSIGNED && (
                      <Button
                         icon={<EditOutlined />}
                         type="text"
@@ -369,18 +367,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                               fixer: task.fixer,
                            })
                         }}
-                     ></Button>
-                  )}
-                  {task && task.status === TaskStatus.AWAITING_FIXER && (
-                     <Button
-                        icon={<EditOutlined />}
-                        type="text"
-                        size="large"
-                        onClick={() => {
-                           if (!task) return
-                           updateTaskFixDateDrawerRef.current?.handleOpen(task)
-                        }}
-                     ></Button>
+                     />
                   )}
                   <Dropdown
                      menu={{
@@ -514,7 +501,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                                             </div>
                                             <div className="flex-grow">
                                                {issue.typeError?.name ?? ""}
-                                               <div className="mt-1 w-[50vw] truncate text-neutral-400">
+                                               <div className="mt-1 w-[50vw] truncate text-sm text-neutral-400">
                                                   {issue.description}
                                                </div>
                                             </div>
@@ -619,7 +606,6 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                handleClose()
             }}
          />
-         <OldTask_VerifyCompleteDrawer ref={checkSignatureDrawerRef} onSubmit={handleUpdateConfirmCheck} />
          <Task_UpdateFixDateDrawer ref={updateTaskFixDateDrawerRef} refetchFn={props.refetchFn} />
          <Task_CancelDrawer
             ref={cancelTaskDrawerRef}

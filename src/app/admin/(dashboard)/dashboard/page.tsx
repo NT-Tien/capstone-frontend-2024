@@ -24,6 +24,7 @@ function Page() {
       startDate: dayjs().subtract(30, "days").toISOString(),
       endDate: dayjs().add(1, "day").toISOString(),
    })
+
    function handleDateChange(dates: [Dayjs | null, Dayjs | null] | null) {
       if (dates && dates[0] && dates[1]) {
          setQuery({
@@ -32,6 +33,7 @@ function Page() {
          })
       }
    }
+
    const [tab, setTab] = useState<string | undefined>(undefined)
 
    const api_requests = useQuery({
@@ -315,6 +317,22 @@ function Page() {
                </Card>
                <Card
                   size="small"
+                  className="w-full bg-blue-200"
+                  onClick={() => {
+                     router.push("/admin/task?tab=ASSIGNED")
+                  }}
+               >
+                  <Statistic
+                     title="Đã lấy linh kiện"
+                     valueStyle={{
+                        color: "blue",
+                     }}
+                     value={api_tasks.data?.["spare-part-fetched"]}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+               <Card
+                  size="small"
                   className="w-full bg-purple-200"
                   onClick={() => {
                      router.push("/admin/task?tab=IN_PROGRESS")
@@ -374,7 +392,7 @@ function Page() {
                      valueStyle={{
                         color: "green",
                      }}
-                     title="Đã hoàn thành"
+                     title="Đã Đóng"
                      value={api_tasks.data?.COMPLETED}
                      suffix={<span className="text-sm">Tác vụ</span>}
                   />

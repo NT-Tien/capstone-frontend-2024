@@ -10,7 +10,7 @@ type Request = {
    areaId?: string
 }
 type Response = {
-   [key in TaskStatus | "spare-part-fetched"]: number
+   [key in TaskStatus | "spare-part-fetched" | "spare-part-unfetched"]: number
 }
 
 async function Admin_Task_Dashboard(request: Request): Promise<Response> {

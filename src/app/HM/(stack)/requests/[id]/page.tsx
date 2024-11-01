@@ -288,14 +288,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                               label: "Người yêu cầu",
                               children: api_request.data.requester?.username ?? "-",
                            },
-                           // {
-                           //    label: "Trạng thái",
-                           //    children: (
-                           //       <Tag className={"m-0"} color={FixRequest_StatusMapper(api_request.data).colorInverse}>
-                           //          {FixRequest_StatusMapper(api_request.data).text}
-                           //       </Tag>
-                           //    ),
-                           // },
                            {
                               label: "Ghi chú",
                               children: api_request.data.requester_note,

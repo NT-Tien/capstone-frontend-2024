@@ -9,6 +9,7 @@ import useIssue_Cancel from "@/features/head-maintenance/mutations/Issue_Cancel.
 import useIssueSparePart_Create from "@/features/head-maintenance/mutations/IssueSparePart_Create.mutation"
 import useIssue_UpdateFull from "@/features/head-maintenance/mutations/Issue_UpdateFull.mutation"
 import useTaskCancel from "@/features/head-maintenance/mutations/Task_Cancel.mutation"
+import useNotifications_Seen from "@/features/head-maintenance/mutations/Notifications_Seen.mutation"
 
 const head_maintenance_mutations = {
    request: {
@@ -29,6 +30,9 @@ const head_maintenance_mutations = {
    },
    task: {
       cancel: useTaskCancel,
+   },
+   notifications: {
+      seen: useNotifications_Seen,
    },
 }
 

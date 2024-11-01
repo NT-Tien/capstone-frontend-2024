@@ -1,11 +1,11 @@
 import { PropsWithChildren } from "react"
-import HeadMaintenanceNavigaionDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
+import HeadMaintenanceNavigationDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
 
 function Layout({ children }: PropsWithChildren) {
    return (
-      <HeadMaintenanceNavigaionDrawer>
+      <HeadMaintenanceNavigationDrawer>
          <div className="h-max min-h-screen-with-navbar">{children}</div>
-      </HeadMaintenanceNavigaionDrawer>
+      </HeadMaintenanceNavigationDrawer>
    )
 }
 

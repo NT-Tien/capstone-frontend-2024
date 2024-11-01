@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils/cn.util"
 import { DeleteOutlined, EditOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons"
 import { CheckCircle, CircleDashed, Clock, Dot, Eye, MinusCircle, Wrench, XCircle } from "@phosphor-icons/react"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
-import { App, Button, ConfigProvider, Divider, Dropdown, Empty, FloatButton, Space, Tabs } from "antd"
+import { App, Button, Checkbox, ConfigProvider, Divider, Dropdown, Empty, FloatButton, Space, Tabs } from "antd"
 import { Fragment, useMemo, useRef, useState } from "react"
 import Issue_SelectTypeErrorDrawer, {
    CreateIssueModalRefType,
@@ -18,16 +18,18 @@ import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayCon
 import IssueDetailsDrawer, {
    IssueDetailsDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Issue_Details.drawer"
-
-type Props = {
-   api_request: UseQueryResult<RequestDto, Error>
-}
+import IssueUtil from "@/lib/domain/Issue/Issue.util"
 
 function getCount(...ints: number[]) {
    const total = ints.reduce((acc, cur) => acc + cur, 0)
    if (total === 0) return ""
    if (total > 99) return "(99+)"
    return `(${total.toString()})`
+}
+
+type Props = {
+   api_request: UseQueryResult<RequestDto, Error>
+   handleOpenTaskCreate: (requestId: string, defaultIssueIds: string[]) => void
 }
 
 function IssuesListTab(props: Props) {
@@ -37,6 +39,7 @@ function IssuesListTab(props: Props) {
    const control_issueDetailsDrawer = useRef<RefType<IssueDetailsDrawerProps>>(null)
 
    const [tab, setTab] = useState<string>("1")
+   const [selectedIssues, setSelectedIssues] = useState<{ [issueId: string]: IssueDto }>({})
 
    const mutate_deleteIssue = useMutation({
       mutationFn: HeadStaff_Issue_Delete,
@@ -157,105 +160,188 @@ function IssuesListTab(props: Props) {
                      key: "1",
                      label: <div className="py-1">Chưa tác vụ {getCount(issuesGrouped?.noTask.length || 0)}</div>,
                      children: (
-                        <div className="px-layout-half text-sm">
-                           {canMutateIssues && (
-                              <FloatButton
-                                 type="primary"
-                                 icon={<PlusOutlined />}
-                                 onClick={() =>
-                                    props.api_request.isSuccess &&
-                                    createIssuesDrawerRef.current?.handleOpen({
-                                       deviceId: props.api_request.data.device.id,
-                                       request: props.api_request.data,
-                                    })
-                                 }
-                              />
-                           )}
-                           {issuesGrouped?.noTask.length === 0 && (
-                              <div className="grid place-items-center py-12">
-                                 <Empty description="Không tìm thấy lỗi nào" />
-                              </div>
-                           )}
-                           {issuesGrouped?.noTask.map((issue, index) => (
-                              <Fragment key={issue.id}>
-                                 {index !== 0 && <Divider className="my-3" />}
-                                 <div className="flex">
-                                    <div
-                                       className="flex flex-grow cursor-pointer flex-col gap-1"
-                                       onClick={() =>
-                                          props.api_request.isSuccess &&
-                                          control_issueDetailsDrawer.current?.handleOpen({
-                                             issueId: issue.id,
-                                             deviceId: props.api_request.data.device.id,
-                                          })
-                                       }
-                                    >
-                                       <h4>{issue.typeError.name}</h4>
-                                       <Space split={<Dot size={20} />} size={0} className="flex text-neutral-500">
-                                          <div
-                                             className={cn(
-                                                "flex gap-1 whitespace-nowrap",
-                                                FixTypeTagMapper[issue.fixType].className,
-                                             )}
-                                          >
-                                             {FixTypeTagMapper[issue.fixType].icon}
-                                             {FixTypeTagMapper[issue.fixType].text}
-                                          </div>
-                                          <div className="flex items-center gap-1 whitespace-nowrap">
-                                             <Clock size={16} />
-                                             {issue.typeError.duration} phút
-                                          </div>
-                                          <div className="flex items-center gap-1 whitespace-nowrap">
-                                             <Wrench size={16} />
-                                             {issue.issueSpareParts?.length ?? 0} linh kiện
-                                          </div>
-                                       </Space>
-                                    </div>
-                                    <Dropdown
-                                       menu={{
-                                          items: [
-                                             ...(canMutateIssues
-                                                ? [
-                                                     {
-                                                        key: "edit",
-                                                        label: "Cập nhật",
-                                                        icon: <EditOutlined />,
-                                                     },
-                                                     {
-                                                        key: "delete-issue",
-                                                        label: "Xóa",
-                                                        icon: <DeleteOutlined />,
-                                                        danger: true,
-                                                        onClick: () => {
-                                                           modal.confirm({
-                                                              closable: true,
-                                                              maskClosable: true,
-                                                              type: "warn",
-                                                              title: "Lưu ý",
-                                                              content: "Bạn có chắc chắn muốn xóa lỗi này?",
-                                                              okText: "Xóa",
-                                                              centered: true,
-                                                              okButtonProps: {
-                                                                 danger: true,
-                                                              },
-                                                              cancelText: "Hủy",
-                                                              onOk: () => {
-                                                                 handleDeleteIssue(issue)
-                                                              },
-                                                           })
-                                                        },
-                                                     },
-                                                  ]
-                                                : []),
-                                          ],
-                                       }}
-                                    >
-                                       <Button icon={<MoreOutlined />} size="small" type="text" />
-                                    </Dropdown>
+                        <>
+                           <div className="grid grid-cols-1 text-sm *:px-layout-half">
+                              {issuesGrouped?.noTask.length === 0 && (
+                                 <div className="grid place-items-center py-12">
+                                    <Empty description="Không tìm thấy lỗi nào" />
                                  </div>
-                              </Fragment>
-                           ))}
-                        </div>
+                              )}
+                              {issuesGrouped?.noTask.map((issue, index, array) => (
+                                 <Fragment key={issue.id}>
+                                    {index !== 0 && (
+                                       <div className="grid grid-cols-[20px_1fr] gap-3">
+                                          {(array[index - 1] === undefined ||
+                                             array[index - 1]?.status === issue.status) && <div></div>}
+                                          <Divider
+                                             className={cn(
+                                                "my-0",
+                                                array[index - 1] !== undefined &&
+                                                   array[index - 1]?.status !== issue.status &&
+                                                   "col-span-2",
+                                             )}
+                                          />
+                                       </div>
+                                    )}
+                                    <div
+                                       className={cn(
+                                          "grid cursor-pointer grid-cols-[20px_1fr_20px] gap-3 py-3",
+                                          !!selectedIssues[issue.id] && "bg-[#176b37] bg-opacity-10",
+                                       )}
+                                    >
+                                       <div>
+                                          <Checkbox
+                                             checked={!!selectedIssues[issue.id]}
+                                             onChange={(e) => {
+                                                if (e.target.checked) {
+                                                   setSelectedIssues((prev) => {
+                                                      return {
+                                                         ...prev,
+                                                         [issue.id]: issue,
+                                                      }
+                                                   })
+                                                } else {
+                                                   setSelectedIssues((prev) => {
+                                                      const next = { ...prev }
+                                                      delete next[issue.id]
+                                                      return next
+                                                   })
+                                                }
+                                             }}
+                                          />
+                                       </div>
+                                       <div
+                                          className="flex flex-grow cursor-pointer flex-col gap-1"
+                                          onClick={() =>
+                                             props.api_request.isSuccess &&
+                                             control_issueDetailsDrawer.current?.handleOpen({
+                                                issueId: issue.id,
+                                                deviceId: props.api_request.data.device.id,
+                                             })
+                                          }
+                                       >
+                                          <h4>{issue.typeError.name}</h4>
+                                          <Space
+                                             split={<Divider type={"vertical"} className={"mx-2"} />}
+                                             size={0}
+                                             className="flex text-neutral-500"
+                                          >
+                                             <div
+                                                className={cn(
+                                                   "flex gap-1 whitespace-nowrap",
+                                                   FixTypeTagMapper[issue.fixType].className,
+                                                )}
+                                             >
+                                                {FixTypeTagMapper[issue.fixType].icon}
+                                                {FixTypeTagMapper[issue.fixType].text}
+                                             </div>
+                                             <div className="flex items-center gap-1 whitespace-nowrap">
+                                                <Clock size={16} />
+                                                {issue.typeError.duration} phút
+                                             </div>
+                                             {issue.issueSpareParts.length > 0 && (
+                                                <div
+                                                   className={cn(
+                                                      "flex items-center gap-1 whitespace-nowrap",
+                                                      IssueUtil.hasOutOfStockIssueSpareParts(issue) &&
+                                                         "text-yellow-500",
+                                                   )}
+                                                >
+                                                   <Wrench size={16} />
+                                                   {issue.issueSpareParts?.length ?? 0} linh kiện
+                                                </div>
+                                             )}
+                                          </Space>
+                                       </div>
+                                       <Dropdown
+                                          menu={{
+                                             items: [
+                                                ...(canMutateIssues
+                                                   ? [
+                                                        {
+                                                           key: "edit",
+                                                           label: "Cập nhật",
+                                                           icon: <EditOutlined />,
+                                                        },
+                                                        {
+                                                           key: "delete-issue",
+                                                           label: "Xóa",
+                                                           icon: <DeleteOutlined />,
+                                                           danger: true,
+                                                           onClick: () => {
+                                                              modal.confirm({
+                                                                 closable: true,
+                                                                 maskClosable: true,
+                                                                 type: "warn",
+                                                                 title: "Lưu ý",
+                                                                 content: "Bạn có chắc chắn muốn xóa lỗi này?",
+                                                                 okText: "Xóa",
+                                                                 centered: true,
+                                                                 okButtonProps: {
+                                                                    danger: true,
+                                                                 },
+                                                                 cancelText: "Hủy",
+                                                                 onOk: () => {
+                                                                    handleDeleteIssue(issue)
+                                                                 },
+                                                              })
+                                                           },
+                                                        },
+                                                     ]
+                                                   : []),
+                                             ],
+                                          }}
+                                       >
+                                          <Button icon={<MoreOutlined />} size="small" type="text" />
+                                       </Dropdown>
+                                    </div>
+                                 </Fragment>
+                              ))}
+                           </div>
+                           <section
+                              className={
+                                 "fixed bottom-0 left-0 flex w-full items-center gap-3 bg-white p-layout shadow-fb"
+                              }
+                           >
+                              <Button
+                                 block
+                                 type={"primary"}
+                                 size={"large"}
+                                 disabled={Object.keys(selectedIssues).length <= 0}
+                                 onClick={() => {
+                                    props.api_request.isSuccess &&
+                                       props.handleOpenTaskCreate(
+                                          props.api_request.data.id,
+                                          Object.keys(selectedIssues),
+                                       )
+                                    setSelectedIssues({})
+                                 }}
+                              >
+                                 {Object.keys(selectedIssues).length > 0
+                                    ? `Tạo tác vụ mới với ${Object.keys(selectedIssues).length} lỗi`
+                                    : "Chọn lỗi để tạo tác vụ"}
+                              </Button>
+                              <Dropdown
+                                 menu={{
+                                    items: [
+                                       {
+                                          key: "add-issue",
+                                          label: "Thêm lỗi mới",
+                                          icon: <PlusOutlined />,
+                                          onClick: () =>
+                                             props.api_request.isSuccess &&
+                                             createIssuesDrawerRef.current?.handleOpen({
+                                                deviceId: props.api_request.data.device.id,
+                                                request: props.api_request.data,
+                                             }),
+                                       },
+                                    ],
+                                 }}
+                              >
+                                 <Button icon={<MoreOutlined />} className={"aspect-square"} size={"large"} />
+                              </Dropdown>
+                           </section>
+                        </>
                      ),
                   },
                   {

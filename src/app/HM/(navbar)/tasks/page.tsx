@@ -11,14 +11,14 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import PageHeader from "@/components/layout/PageHeader"
 import { FilterOutlined, SearchOutlined } from "@ant-design/icons"
-import HeadMaintenanceNavigaionDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
+import HeadMaintenanceNavigationDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
 import hm_uris from "@/features/head-maintenance/uri"
 
 function Page({ searchParams }: { searchParams: { page?: string; status?: TaskStatus } }) {
    const [status, setStatus] = useState<TaskStatus>(searchParams?.status ?? TaskStatus.AWAITING_FIXER)
    const page = Number(searchParams?.page ?? 1)
    const limit = 5
-   const navDrawer = HeadMaintenanceNavigaionDrawer.useDrawer()
+   const navDrawer = HeadMaintenanceNavigationDrawer.useDrawer()
 
    const result = useInfiniteQuery({
       queryKey: qk.task.all(page, limit, status),

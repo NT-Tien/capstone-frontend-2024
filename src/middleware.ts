@@ -30,7 +30,6 @@ export function middleware(request: NextRequest) {
       (pathname === "admin" && payload.role !== Role.admin) ||
       (pathname === "staff" && payload.role !== Role.staff) ||
       (pathname === "S" && payload.role !== Role.staff) ||
-      (pathname === "head-staff" && payload.role !== Role.headstaff) ||
       (pathname === "HM" && payload.role !== Role.headstaff) ||
       (pathname === "head" && payload.role !== Role.head) ||
       (pathname === "manager" && payload.role !== Role.manager) ||

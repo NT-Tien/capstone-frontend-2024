@@ -193,6 +193,7 @@ body {
 
 .ant-drawer-content-wrapper {
     max-height: 100%;
+    overflow-y: auto;
 }
 
 

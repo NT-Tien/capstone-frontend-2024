@@ -101,11 +101,11 @@ function Page() {
                                        {!item.seen && <div className={"font-bold text-green-500"}>Mới</div>}
                                        <div className={"flex items-center gap-1"}>
                                           <MapPin size={16} weight={"duotone"} />
-                                          <span>{item.content.areaName}</span>
+                                          <span>{item.content?.areaName}</span>
                                        </div>
                                        <div className={"flex items-center gap-1"}>
                                           <Gear size={16} weight={"duotone"} />
-                                          <span className={"truncate"}>{item.content.deviceName}</span>
+                                          <span className={"truncate"}>{item.content?.deviceName}</span>
                                        </div>
                                     </Space>
                                  }

@@ -27,6 +27,7 @@ const ScannerV2Drawer = forwardRef<ScannerV2DrawerRefType, Props>(function Compo
    })
    const [form] = Form.useForm()
    const { message } = App.useApp()
+
    useImperativeHandle(ref, () => ({
       handleOpen,
       handleClose,
@@ -66,6 +67,7 @@ const ScannerV2Drawer = forwardRef<ScannerV2DrawerRefType, Props>(function Compo
             destroyOnClose
             classNames={{
                footer: "p-layout",
+               body: "overflow-y-auto",
             }}
             footer={
                <section>

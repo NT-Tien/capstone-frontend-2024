@@ -26,7 +26,6 @@ import IssueUtil from "@/lib/domain/Issue/Issue.util"
 
 type Request_ApproveToFixDrawerProps = {
    requestId?: string
-   refetchFn?: () => void
    onSuccess?: () => void
 }
 type Props = Omit<DrawerProps, "children"> & Request_ApproveToFixDrawerProps
@@ -141,13 +140,13 @@ function Request_ApproveToFixDrawer(props: Props) {
          title={
             <div className={"flex w-full items-center justify-between"}>
                <Button className={"text-white"} icon={<CloseOutlined />} type={"text"} onClick={props.onClose} />
-               <h1 className={"text-lg font-semibold"}>Xác nhận yêu cầu</h1>
+               <h1 className={"text-lg font-semibold"}>Xác nhận sửa chữa</h1>
                <Button className={"text-white"} icon={<MoreOutlined />} type={"text"} />
             </div>
          }
          closeIcon={false}
-         placement="right"
-         height="100%"
+         placement="bottom"
+         height="75%"
          width="100%"
          footer={
             <Button
@@ -161,7 +160,7 @@ function Request_ApproveToFixDrawer(props: Props) {
                   props.requestId &&
                   handleSubmit({
                      requestId: props.requestId,
-                     hasWarranty: MachineModelUtil.canBeWarranted(api_device.data?.machineModel),
+                     hasWarranty: MachineModelUtil.canBeWarranted(api_device.data?.machineModel) ?? false,
                      selectedIssues,
                   })
                }

@@ -4,8 +4,8 @@ import HeadStaff_Issue_OneById from "@/features/head-maintenance/api/issue/oneBy
 import HeadStaff_Issue_Update from "@/features/head-maintenance/api/issue/update.api"
 import headstaff_qk from "@/features/head-maintenance/qk"
 import HeadStaff_IssueSparePart_Create from "@/features/head-maintenance/api/spare-part/create.api"
-import IssueSparePartDetailsModal from "@/app/head-staff/_components/IssueSparePartDetailsModal"
-import SelectSparePartDrawer from "@/app/head-staff/_components/SelectSparePart.drawer"
+import IssueSparePartDetailsModal from "@/features/head-maintenance/components/overlays/IssueSparePartDetailsModal"
+import SelectSparePartDrawer from "@/features/head-maintenance/components/overlays/SelectSparePart.drawer"
 import ModalConfirm from "@/old/ModalConfirm"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { Issue_StatusMapper } from "@/lib/domain/Issue/IssueStatus.mapper"
@@ -22,6 +22,7 @@ import { App, Badge, Button, Card, Drawer, DrawerProps, Empty, Image, Tag } from
 import dayjs from "dayjs"
 import Link from "next/link"
 import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
+import hm_uris from "@/features/head-maintenance/uri"
 
 export type IssueDetailsDrawerRefType = {
    openDrawer: (issueId: string, deviceId: string, showActions?: boolean) => void
@@ -309,7 +310,7 @@ const Issue_ViewDetailsDrawer = forwardRef<IssueDetailsDrawerRefType, Props>(fun
                         e.task === null ? (
                            "Chưa có"
                         ) : (
-                           <Link href={`/head-staff/mobile/tasks/${e.task.id}`} className="truncate">
+                           <Link href={hm_uris.stack.tasks_id(e.task.id)} className="truncate">
                               {e.task.name}
                            </Link>
                         ),

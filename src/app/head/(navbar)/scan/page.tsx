@@ -15,6 +15,7 @@ import ScanDetailsDrawer, {
 import head_department_queries from "@/features/head-department/queries"
 import { useIsFetching, useQueryClient } from "@tanstack/react-query"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
+import uuidNormalizer from "@/lib/utils/uuid-normalizer.util"
 
 export default function ScanPage() {
    const navDrawer = HeadNavigationDrawer.useDrawer()
@@ -156,25 +157,7 @@ export default function ScanPage() {
                            isUUID(value) ? Promise.resolve() : Promise.reject("Mã thiết bị không hợp lệ"),
                      },
                   ]}
-                  normalize={(original) => {
-                     let value = original.replace(/-/g, "")
-                     if (value.length > 8) {
-                        value = `${value.slice(0, 8)}-${value.slice(8)}`
-                     }
-                     if (value.length > 13) {
-                        value = `${value.slice(0, 13)}-${value.slice(13)}`
-                     }
-                     if (value.length > 18) {
-                        value = `${value.slice(0, 18)}-${value.slice(18)}`
-                     }
-                     if (value.length > 23) {
-                        value = `${value.slice(0, 23)}-${value.slice(23)}`
-                     }
-                     if (value.length > 36) {
-                        value = value.slice(0, 36)
-                     }
-                     return value
-                  }}
+                  normalize={uuidNormalizer}
                >
                   <Input
                      placeholder="e.g., e31d662e-05db-4bc4-8bfd-773f56618725"

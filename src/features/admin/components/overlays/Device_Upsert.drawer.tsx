@@ -128,10 +128,10 @@ function Device_UpsertDrawer(props: Props) {
          >
             <Form.Item<FormFieldTypes>
                name="operationStatus"
-               label="Trạng thái kỹ thuật???"
+               label="Thông số kỹ thuật"
                rules={[{ required: true }, { type: "string" }]}
             >
-               <Input placeholder="Nhập trạng thái" />
+               <Input placeholder="Nhập thông số" />
             </Form.Item>
             <Form.Item<FormFieldTypes>
                name="description"

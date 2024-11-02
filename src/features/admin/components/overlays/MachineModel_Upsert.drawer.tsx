@@ -109,8 +109,8 @@ function MachineModel_UpsertDrawer(props: Props) {
                description: props.machineModel?.description,
                manufacturer: props.machineModel?.manufacturer,
                yearOfProduction: props.machineModel?.yearOfProduction,
-               dateOfReceipt: dayjs(props.machineModel?.dateOfReceipt),
-               warrantyTerm: dayjs(props.machineModel?.warrantyTerm),
+               dateOfReceipt: props.machineModel?.dateOfReceipt ? dayjs(props.machineModel.dateOfReceipt) : null,
+               warrantyTerm: props.machineModel?.warrantyTerm ? dayjs(props.machineModel.warrantyTerm) : null,
             }}
          >
             <Form.Item<FormFieldType>
@@ -179,7 +179,7 @@ function MachineModel_UpsertDrawer(props: Props) {
                />
             </Form.Item>
             <Form.Item<FormFieldType> name="dateOfReceipt" label="Ngày nhập kho" rules={[{ required: true }]}>
-               <DatePicker className="w-full" format="DD/MM/YYYY" placeholder="Chọn ngày nhập kho" minDate={dayjs()} />
+               <DatePicker className="w-full" format="DD/MM/YYYY" placeholder="Chọn ngày nhập kho" />
             </Form.Item>
             <Form.Item<FormFieldType>
                name="yearOfProduction"

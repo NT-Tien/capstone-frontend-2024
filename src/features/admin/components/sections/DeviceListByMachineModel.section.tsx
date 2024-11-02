@@ -186,12 +186,14 @@ function DeviceListByMachineModelSection(props: Props) {
                {
                   title: "Khu vực",
                   dataIndex: ["area", "name"],
+                  key: "area",
                },
                {
                   title: "Mô tả",
                   dataIndex: ["description"],
                   width: 200,
                   ellipsis: true,
+                  key: "description",
                },
                {
                   title: "Ngày tạo",
@@ -203,7 +205,7 @@ function DeviceListByMachineModelSection(props: Props) {
                   hideInSearch: true,
                },
                {
-                  title: "Lần trước cập nhật",
+                  title: "Lần cập nhật cuối",
                   dataIndex: "updatedAt",
                   width: 200,
                   render: (_, entity) => dayjs(entity.updatedAt).format("DD/MM/YYYY HH:mm"),

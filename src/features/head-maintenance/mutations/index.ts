@@ -10,11 +10,13 @@ import useIssueSparePart_Create from "@/features/head-maintenance/mutations/Issu
 import useIssue_UpdateFull from "@/features/head-maintenance/mutations/Issue_UpdateFull.mutation"
 import useTaskCancel from "@/features/head-maintenance/mutations/Task_Cancel.mutation"
 import useNotifications_Seen from "@/features/head-maintenance/mutations/Notifications_Seen.mutation"
+import useRequest_ApproveToWarranty from "@/features/head-maintenance/mutations/Request_ApproveToWarranty.mutation"
 
 const head_maintenance_mutations = {
    request: {
       createRenewRequest: useCreateRenewRequestMutation,
       approveToFix: useRequest_ApproveToFix,
+      approveToWarranty: useRequest_ApproveToWarranty,
       reject: useRequest_Reject,
       seen: useRequest_Seen,
    },

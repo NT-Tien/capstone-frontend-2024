@@ -1,9 +1,10 @@
-import { Card, Descriptions, Drawer, DrawerProps, Input, Segmented } from "antd"
+import { App, Card, Descriptions, Drawer, DrawerProps, Input, Segmented } from "antd"
 import Button from "antd/es/button"
-import { CloseOutlined, MoreOutlined } from "@ant-design/icons"
+import { CloseOutlined, MoreOutlined, TruckOutlined } from "@ant-design/icons"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 import dayjs from "dayjs"
 import Form from "antd/es/form"
+import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 
 type FieldType = {
    note: string
@@ -11,13 +12,13 @@ type FieldType = {
 
 type Request_ApproveToWarrantyDrawerProps = {
    requestId?: string
-   refetchFn?: () => void
    onSuccess?: () => void
 }
 type Props = Omit<DrawerProps, "children"> & Request_ApproveToWarrantyDrawerProps
 
 function Request_ApproveToWarrantyDrawer(props: Props) {
    const [form] = Form.useForm<FieldType>()
+   const { modal } = App.useApp()
 
    const api_request = head_maintenance_queries.request.one(
       {
@@ -28,7 +29,21 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
       },
    )
 
-   function handleSubmit(values: FieldType) {}
+   const mutate_approveToWarranty = head_maintenance_mutations.request.approveToWarranty()
+
+   function handleSubmit(values: FieldType, requestId: string) {
+      mutate_approveToWarranty.mutate(
+         {
+            id: requestId,
+            payload: {
+               note: values.note,
+            },
+         },
+         {
+            onSuccess: props.onSuccess,
+         },
+      )
+   }
 
    return (
       <Drawer
@@ -49,8 +64,8 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
          }}
          loading={api_request.isPending}
          footer={
-            <Button block type={"primary"} size={"large"}>
-               Gửi bảo hành
+            <Button block type={"primary"} size={"large"} icon={<TruckOutlined />} onClick={form.submit}>
+               Xác nhận
             </Button>
          }
          {...props}
@@ -91,6 +106,17 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                               <Card
                                  className={"mt-2 h-20 w-full border-[1px] border-green-700 text-neutral-500"}
                                  size={"small"}
+                                 onClick={() => {
+                                    modal.info({
+                                       title: "Điều khoản bảo hành",
+                                       content: <div>{api_request.data.device.machineModel.description}</div>,
+                                       centered: true,
+                                       maskClosable: true,
+                                       closable: true,
+                                       footer: false,
+                                       height: "90%",
+                                    })
+                                 }}
                               >
                                  {api_request.data.device.machineModel.description}
                               </Card>
@@ -104,7 +130,11 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                   <div className={"mb-2 flex justify-between"}>
                      <h2 className={"text-lg font-medium"}>Thông tin đính kèm</h2>
                   </div>
-                  <Form<FieldType> form={form} layout={"vertical"} onFinish={handleSubmit}>
+                  <Form<FieldType>
+                     form={form}
+                     layout={"vertical"}
+                     onFinish={(values) => props.requestId && handleSubmit(values, props.requestId)}
+                  >
                      <Form.Item<FieldType> name={"note"} rules={[{ required: true }]}>
                         <Input.TextArea
                            placeholder="Nhập thông tin đính kèm cho bên bảo hành thiết bị"

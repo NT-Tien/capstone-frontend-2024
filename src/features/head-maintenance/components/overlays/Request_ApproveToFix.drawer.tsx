@@ -26,7 +26,6 @@ import IssueUtil from "@/lib/domain/Issue/Issue.util"
 
 type Request_ApproveToFixDrawerProps = {
    requestId?: string
-   refetchFn?: () => void
    onSuccess?: () => void
 }
 type Props = Omit<DrawerProps, "children"> & Request_ApproveToFixDrawerProps

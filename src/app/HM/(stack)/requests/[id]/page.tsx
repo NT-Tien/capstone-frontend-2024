@@ -536,14 +536,17 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
             </OverlayControllerWithRef>
             <OverlayControllerWithRef ref={control_requestApproveToFixDrawer}>
                <Request_ApproveToFixDrawer
-                  refetchFn={() => api_request.refetch()}
                   onSuccess={() => {
                      router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.APPROVED}`)
                   }}
                />
             </OverlayControllerWithRef>
             <OverlayControllerWithRef ref={control_requestApproveToWarrantyDrawer}>
-               <Request_ApproveToWarrantyDrawer />
+               <Request_ApproveToWarrantyDrawer
+                  onSuccess={() => {
+                     router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.APPROVED}`)
+                  }}
+               />
             </OverlayControllerWithRef>
             <OverlayControllerWithRef ref={control_renewDeviceDrawer}>
                <Request_RenewDeviceDrawer />

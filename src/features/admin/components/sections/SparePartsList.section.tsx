@@ -7,10 +7,14 @@ import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayCon
 import SparePart_UpsertDrawer, { SparePart_UpsertDrawerProps } from "../overlays/SparePart_Upsert.drawer"
 import { Button } from "antd"
 import admin_queries from "../../queries"
+import Link from "next/link"
 
 type Props = {
    spareParts?: SparePartDto[]
    isLoading?: boolean
+   params: {
+      id: string
+   }
 }
 
 type QueryState = {
@@ -27,7 +31,7 @@ type QueryState = {
    }
 }
 
-function SparePartsListSection({ spareParts, isLoading }: Props) {
+function SparePartsListSection({ spareParts, isLoading, params }: Props) {
    const [query, setQuery] = useState<QueryState>({
       page: 1,
       limit: 10,
@@ -38,7 +42,8 @@ function SparePartsListSection({ spareParts, isLoading }: Props) {
       search: {},
    })
 
-   const api_sparePart = admin_queries.spare_part.all_filterAndSort({
+   const api_sparePart = admin_queries.spare_part.one({ id: params.id })
+   const api_spareParts = admin_queries.spare_part.all_filterAndSort({
       page: query.page,
       limit: query.limit,
    })
@@ -146,6 +151,7 @@ function SparePartsListSection({ spareParts, isLoading }: Props) {
                   dataIndex: "name",
                   width: 200,
                   ellipsis: true,
+                  render: (_, e) => <Link href={`/admin/sparePart/${e.id}`}>{e.name}</Link>,
                },
                {
                   title: "Số lượng trong kho",
@@ -162,7 +168,7 @@ function SparePartsListSection({ spareParts, isLoading }: Props) {
                   sorter: true,
                },
                {
-                  title: "Lần trước cập nhật",
+                  title: "Lần cập nhật cuối",
                   dataIndex: "updatedAt",
                   width: 200,
                   render: (_, entity) => dayjs(entity.updatedAt).format("DD/MM/YYYY HH:mm"),
@@ -172,10 +178,12 @@ function SparePartsListSection({ spareParts, isLoading }: Props) {
             ]}
          />
          <OverlayControllerWithRef ref={control_sparePartUpsertDrawer}>
-            <SparePart_UpsertDrawer onSuccess={async () => {
-               control_sparePartUpsertDrawer.current?.handleClose()
-               await api_sparePart.refetch()
-            }}/>
+            <SparePart_UpsertDrawer
+               onSuccess={async () => {
+                  control_sparePartUpsertDrawer.current?.handleClose()
+                  await api_spareParts.refetch()
+               }}
+            />
          </OverlayControllerWithRef>
       </>
    )

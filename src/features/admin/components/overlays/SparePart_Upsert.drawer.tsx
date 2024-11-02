@@ -29,7 +29,7 @@ function SparePart_UpsertDrawer(props: Props) {
    const [form] = Form.useForm<FormFieldTypes>()
    const mutate_createSparePart = admin_mutations.sparePart.create()
    const mutate_updateSparePart = admin_mutations.sparePart.update()
-   const api_device = admin_queries.machine_model.all({ withDevices: false })
+   const api_machineModel = admin_queries.machine_model.all({ withDevices: false })
    const [loadingImage, setLoadingImage] = useState(false)
 
    const isUpdating = useMemo(() => !!props.sparePart, [props.sparePart])
@@ -58,12 +58,12 @@ function SparePart_UpsertDrawer(props: Props) {
    }, [props.open, imageFile])
 
    const machineModels = useMemo(() => {
-      if (!api_device.isSuccess) return []
-      return api_device.data.map((item) => ({
+      if (!api_machineModel.isSuccess) return []
+      return api_machineModel.data.map((item) => ({
          label: item.name,
          value: item.id,
       }))
-   }, [api_device.data, api_device.isSuccess])
+   }, [api_machineModel.data, api_machineModel.isSuccess])
 
    function handleSubmit(formProps: FormFieldTypes) {
       if (isUpdating) {
@@ -119,9 +119,13 @@ function SparePart_UpsertDrawer(props: Props) {
                expirationDate: dayjs(props.sparePart?.expirationDate),
             }}
          >
-            <Form.Item<FormFieldTypes> name="name" label="Tên linh kiện" rules={[{ required: true }]}>
-               <Input placeholder="Nhập tên linh kiện" />
-            </Form.Item>
+            {isUpdating ? (
+               <Form.Item<FormFieldTypes> name="name" label="Tên linh kiện" rules={[{ required: true }]}>
+                  <Input placeholder="Nhập tên linh kiện" />
+               </Form.Item>
+            ) : (
+               <Form.Item name="name" label="Tên linh kiện" rules={[{ required: true }]}></Form.Item>
+            )}
             <Form.Item<FormFieldTypes>
                name="quantity"
                label="Số lượng trong kho"

@@ -161,7 +161,7 @@ function Request_ApproveToFixDrawer(props: Props) {
                   props.requestId &&
                   handleSubmit({
                      requestId: props.requestId,
-                     hasWarranty: MachineModelUtil.canBeWarranted(api_device.data?.machineModel),
+                     hasWarranty: MachineModelUtil.canBeWarranted(api_device.data?.machineModel) ?? false,
                      selectedIssues,
                   })
                }

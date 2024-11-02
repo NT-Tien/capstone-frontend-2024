@@ -15,6 +15,7 @@ import useRequest_ManyByIdQuery from "@/features/admin/queries/Request_ManyById.
 import useSparePart_AllQuery from "./SparePart_All.query"
 import useSparePart_AllFilterAndSortedQuery from "./SparePart_AllFilterAndSort.query"
 import useSparePart_One from "./SparePart_One.query"
+import useTypeError_One from "./TypeError_One.query"
 
 const admin_queries = {
    request: {
@@ -50,6 +51,7 @@ const admin_queries = {
    },
    type_error: {
       all_filterAndSort: useTask_AllFilteredAndSortedQuery,
+      one: useTypeError_One,
    }
 }
 

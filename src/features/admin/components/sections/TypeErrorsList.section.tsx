@@ -8,6 +8,7 @@ import { Button } from "antd"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import TypeError_UpsertDrawer, { TypeError_UpsertDrawerProps } from "../overlays/TypeError_Upsert.drawer"
 import admin_queries from "../../queries"
+import Link from "next/link"
 
 type Props = {
    typeErrors?: TypeErrorDto[]
@@ -165,6 +166,7 @@ function TypeErrorsListSection({ typeErrors, isLoading }: Props) {
                   dataIndex: "name",
                   width: 200,
                   ellipsis: true,
+                  render: (_, e) => <Link href={`/admin/type-error/${e.id}`}>{e.name}</Link>
                },
                {
                   title: "Thời gian sửa",

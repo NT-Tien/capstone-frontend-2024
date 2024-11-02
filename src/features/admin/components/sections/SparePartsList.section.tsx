@@ -151,7 +151,7 @@ function SparePartsListSection({ spareParts, isLoading, params }: Props) {
                   dataIndex: "name",
                   width: 200,
                   ellipsis: true,
-                  render: (_, e) => <Link href={`/admin/sparePart/${e.id}`}>{e.name}</Link>,
+                  render: (_, e) => <Link href={`/admin/spare-part/${e.id}`}>{e.name}</Link>,
                },
                {
                   title: "Số lượng trong kho",

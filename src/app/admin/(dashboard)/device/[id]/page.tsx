@@ -9,11 +9,18 @@ import Button from "antd/es/button"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import QrCodeV2Modal, { QrCodeV2ModalProps } from "@/features/admin/components/QrCodeV2.modal"
 import { useRef } from "react"
+import { Dropdown } from "antd"
+import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
+import Device_UpsertDrawer, {
+   Device_UpsertDrawerProps,
+} from "@/features/admin/components/overlays/Device_Upsert.drawer"
 
 function Page({ params }: { params: { id: string } }) {
    const api_device = admin_queries.device.one({ id: params.id })
 
    const control_qrCodeV2 = useRef<RefType<QrCodeV2ModalProps> | null>(null)
+
+   const control_deviceUpsertDrawer = useRef<RefType<Device_UpsertDrawerProps>>(null)
 
    return (
       <>
@@ -33,14 +40,25 @@ function Page({ params }: { params: { id: string } }) {
                ],
             }}
             extra={
-               <Button
-                  type="primary"
-                  onClick={() => {
-                     api_device.isSuccess && control_qrCodeV2.current?.handleOpen({ content: api_device.data.id })
-                  }}
-               >
-                  Xem QR Máy
-               </Button>
+               <div className="flex gap-2">
+                  <Button
+                     type="primary"
+                     onClick={() => {
+                        api_device.isSuccess && control_qrCodeV2.current?.handleOpen({ content: api_device.data.id })
+                     }}
+                  >
+                     Xem QR Máy
+                  </Button>
+                  <Dropdown.Button
+                     type="primary"
+                     menu={{
+                        items: [CopyToClipboard({ value: params.id })],
+                     }}
+                     onClick={() => control_deviceUpsertDrawer.current?.handleOpen({ device: api_device.data })}
+                  >
+                     Cập nhật
+                  </Dropdown.Button>
+               </div>
             }
             content={
                <>
@@ -82,6 +100,14 @@ function Page({ params }: { params: { id: string } }) {
          />
          <OverlayControllerWithRef ref={control_qrCodeV2}>
             <QrCodeV2Modal />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_deviceUpsertDrawer}>
+            <Device_UpsertDrawer
+               onSuccess={async () => {
+                  control_deviceUpsertDrawer.current?.handleClose()
+                  await api_device.refetch()
+               }}
+            />
          </OverlayControllerWithRef>
       </>
    )

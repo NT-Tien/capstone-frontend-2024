@@ -139,7 +139,7 @@ function Page({ params }: { params: { id: string } }) {
                            render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY HH:mm"),
                         },
                         {
-                           title: "Ngày cập nhật",
+                           title: "Lần cập nhật cuối",
                            dataIndex: "updatedAt",
                            render: (_, e) => dayjs(e.updatedAt).format("DD/MM/YYYY HH:mm"),
                         },
@@ -156,7 +156,9 @@ function Page({ params }: { params: { id: string } }) {
                {
                   tab: "Linh kiện",
                   key: "spareParts",
-                  children: <SparePartsListSection spareParts={api_machineModel.data?.spareParts ?? []} />,
+                  children: <SparePartsListSection spareParts={api_machineModel.data?.spareParts ?? []} params={{
+                     id: ""
+                  }} />,
                },
                {
                   tab: "Lỗi máy",

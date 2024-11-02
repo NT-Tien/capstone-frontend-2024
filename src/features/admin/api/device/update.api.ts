@@ -6,9 +6,11 @@ import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 
 export type Request = {
    id: string
-   payload: Pick<DeviceDto, "operationStatus" | "description" | "positionX" | "positionY"> & {
+   payload: Pick<DeviceDto, "operationStatus" | "description"> & {
       machineModel: string
-      area: string
+      area?: string
+      positionX?: number;
+      positionY?: number;
    }
 }
 export type Response = AreaDto[]

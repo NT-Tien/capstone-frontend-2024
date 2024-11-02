@@ -20,6 +20,7 @@ import { useEffect, useState } from "react"
 import EnvEditorProvider from "@/providers/EnvEditor.provider"
 import useLoginMutation from "@/features/common/mutations/Login.mutation"
 import staff_uri from "@/features/staff/uri"
+import { Image } from "antd"
 
 type FieldType = {
    username: string
@@ -100,18 +101,26 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
    return (
       <>
          {loading && <Spin fullscreen tip="Logging in..." />}
-         <div className="grid h-full place-content-center gap-3">
+         <div className="bg-animated-gradient flex min-h-screen items-center justify-center p-4">
             <Card
-               onClick={() => {
-                  handleDelayedOpenEnvEditor()
-               }}
+               className="w-full max-w-sm rounded-lg bg-white p-8 shadow-2xl"
+               style={{ paddingTop: "5rem", paddingBottom: "5rem" }}
             >
-               <Typography.Title level={4} className="select-none">
+               <div className="mb-6 flex justify-center">
+                  <Image
+                     src="/images/capstone_logo.png"
+                     alt="Capstone Logo"
+                     width={250}
+                     height={90}
+                     className="object-contain"
+                  />
+               </div>
+               <Typography.Title level={3} className="select-none text-center font-bold text-gray-800">
                   Đăng nhập
                </Typography.Title>
-               <Typography.Text className="select-none">Vui lòng nhập tên đăng nhập và mật khẩu.</Typography.Text>
-            </Card>
-            <Card className="min-w-96">
+               <Typography.Text className="mb-6 block select-none text-center text-gray-500">
+                  Vui lòng nhập tên đăng nhập và mật khẩu.
+               </Typography.Text>
                <Form
                   name="Login_Form"
                   form={form}
@@ -119,25 +128,74 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                   onFinish={handleFinish}
                   disabled={mutations.loginCredentials.isPending}
                >
-                  <Form.Item<FieldType> name="username" label="Tên đăng nhập" rules={[{ required: true }]}>
+                  <Form.Item name="username" rules={[{ required: true, message: "Please input your username!" }]}>
                      <Input
                         size="large"
-                        placeholder="Tên đăng nhập"
+                        placeholder="Username"
                         autoFocus
-                        prefix={<UserOutlined className="mr-1" />}
+                        prefix={<UserOutlined className="mr-2 text-gray-500" />}
+                        className="rounded-md px-3 py-2"
                      />
                   </Form.Item>
-                  <Form.Item<FieldType> name="password" label="Mật khẩu" rules={[{ required: true }]}>
-                     <Input.Password placeholder="********" size="large" prefix={<LockOutlined className="mr-1" />} />
+                  <Form.Item name="password" rules={[{ required: true, message: "Please input your password!" }]}>
+                     <Input.Password
+                        placeholder="Password"
+                        size="large"
+                        prefix={<LockOutlined className="mr-2 text-gray-500" />}
+                        className="rounded-md px-3 py-2"
+                     />
                   </Form.Item>
                   <Form.Item>
-                     <Button type="primary" htmlType="submit" size="large" className="w-full">
-                        Đăng nhập
+                     <Button
+                        htmlType="submit"
+                        size="large"
+                        className="gradient-button w-full rounded-md"
+                        style={{
+                           background: "linear-gradient(90deg, #61D8DE, #915CEA, #E839F6)",
+                           color: "#ffffff",
+                           border: "none",
+                           transition: "background 0.3s ease",
+                        }}
+                     >
+                        Login
                      </Button>
                   </Form.Item>
                </Form>
             </Card>
          </div>
+
+         <style jsx>{`
+            /* Animated Background Gradient */
+            .bg-animated-gradient {
+               background: linear-gradient(90deg, #61d8de, #915cea, #e839f6);
+               background-size: 200% 200%;
+               animation: gradientAnimation 10s ease infinite;
+            }
+
+            @keyframes gradientAnimation {
+               0% {
+                  background-position: 0% 50%;
+               }
+               50% {
+                  background-position: 100% 50%;
+               }
+               100% {
+                  background-position: 0% 50%;
+               }
+            }
+
+            /* Gradient Button */
+            .gradient-button {
+               background: linear-gradient(90deg, #61d8de, #915cea, #e839f6);
+               color: white;
+               border: none;
+               transition: background 0.3s ease;
+            }
+
+            .gradient-button:hover {
+               background: linear-gradient(90deg, #e839f6, #915cea, #61d8de);
+            }
+         `}</style>
       </>
    )
 }

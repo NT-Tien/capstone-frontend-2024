@@ -141,13 +141,13 @@ function Request_ApproveToFixDrawer(props: Props) {
          title={
             <div className={"flex w-full items-center justify-between"}>
                <Button className={"text-white"} icon={<CloseOutlined />} type={"text"} onClick={props.onClose} />
-               <h1 className={"text-lg font-semibold"}>Xác nhận yêu cầu</h1>
+               <h1 className={"text-lg font-semibold"}>Xác nhận sửa chữa</h1>
                <Button className={"text-white"} icon={<MoreOutlined />} type={"text"} />
             </div>
          }
          closeIcon={false}
-         placement="right"
-         height="100%"
+         placement="bottom"
+         height="75%"
          width="100%"
          footer={
             <Button

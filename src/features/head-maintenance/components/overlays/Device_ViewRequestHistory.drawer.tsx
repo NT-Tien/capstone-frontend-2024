@@ -9,7 +9,6 @@ import { Card, Drawer, Empty, List, Result, Segmented, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { ReactNode, useMemo, useState } from "react"
-import isApproved from "../../../../app/head-staff/mobile/(stack)/requests/[id]/approved/is-approved.util"
 
 type Tabs = "fix" | "warranty"
 
@@ -152,13 +151,7 @@ function RenderList(props: RenderListProps) {
             renderItem={(item, index) => (
                <List.Item
                   className={cn(index === 0 && "mt-1")}
-                  onClick={() => {
-                     if (isApproved(item.status)) {
-                        router.push(`/head-staff/mobile/requests/${item.id}/approved?viewingHistory=true`)
-                     } else {
-                        router.push(`/head-staff/mobile/requests/${item.id}?viewingHistory=true`)
-                     }
-                  }}
+                  onClick={() => {}}
                   extra={
                      <div className="flex flex-col justify-between gap-1">
                         <div className="text-right">

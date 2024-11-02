@@ -39,7 +39,10 @@ type FieldType = {
    note: string
 }
 
-const Request_SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function Component({ params }, ref) {
+const OldRequest_ApproveToWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(function Component(
+   { params },
+   ref,
+) {
    const { open, handleOpen, handleClose } = useModalControls({
       onOpen: (
          requestId: string,
@@ -249,4 +252,4 @@ const Request_SendWarrantyDrawer = forwardRef<SendWarrantyDrawerRefType, Props>(
    )
 })
 
-export default Request_SendWarrantyDrawer
+export default OldRequest_ApproveToWarrantyDrawer

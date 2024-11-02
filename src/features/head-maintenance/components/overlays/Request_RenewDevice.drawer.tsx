@@ -86,9 +86,7 @@ function Request_RenewDeviceDrawer(props: Props) {
                   selectedDeviceId: selectedDevice.id,
                },
                {
-                  onSuccess: () => {
-                     router.push(`/head-staff/mobile/requests/${props.requestId}/approved`)
-                  },
+                  onSuccess: () => {},
                },
             )
          },

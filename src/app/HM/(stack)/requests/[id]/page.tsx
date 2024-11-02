@@ -5,7 +5,6 @@ import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
 import { cn } from "@/lib/utils/cn.util"
-import { isUUID } from "@/lib/utils/isUUID.util"
 import { CheckCircleFilled, DeleteFilled, MoreOutlined, QrcodeOutlined, TruckFilled } from "@ant-design/icons"
 import { CalendarBlank, ClockCounterClockwise, MapPin, Swap, WashingMachine, Wrench } from "@phosphor-icons/react"
 import { ConfigProvider, Descriptions, Divider, Skeleton, Space } from "antd"
@@ -20,7 +19,7 @@ import Tag from "antd/es/tag"
 import dayjs from "dayjs"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useMemo, useRef } from "react"
 import Request_ApproveToFixDrawer, {
    type Request_ApproveToFixDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Request_ApproveToFix.drawer"
@@ -28,9 +27,6 @@ import Device_ViewRequestHistoryDrawer from "@/features/head-maintenance/compone
 import Request_RejectDrawer, {
    Request_RejectDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Request_Reject.drawer"
-import Request_SendWarrantyDrawer, {
-   SendWarrantyDrawerRefType,
-} from "@/features/head-maintenance/components/overlays/Request_SendWarranty.drawer"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import Request_RenewDeviceDrawer, {
    RenewDeviceDrawerProps,
@@ -39,19 +35,20 @@ import head_maintenance_queries from "@/features/head-maintenance/queries"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import hm_uris from "@/features/head-maintenance/uri"
-import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
+import Request_ApproveToWarrantyDrawer, {
+   Request_ApproveToWarrantyDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Request_ApproveToWarranty.drawer"
+import MachineModelUtil from "@/lib/domain/MachineModel/MachineModel.util"
+import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
    const { message } = App.useApp()
 
-   const [hasScanned, setHasScanned] = useState<boolean>(false)
-
    const control_requestRejectDrawer = useRef<RefType<Request_RejectDrawerProps>>(null)
-   const sendWarrantyRef = useRef<SendWarrantyDrawerRefType | null>(null)
+   const control_requestApproveToWarrantyDrawer = useRef<RefType<Request_ApproveToWarrantyDrawerProps>>(null)
    const control_requestApproveToFixDrawer = useRef<RefType<Request_ApproveToFixDrawerProps>>(null)
    const control_renewDeviceDrawer = useRef<RefType<RenewDeviceDrawerProps> | null>(null)
-   const control_scannerDrawer = useRef<ScannerV2DrawerRefType | null>(null)
 
    const mutate_updateSeen = head_maintenance_mutations.request.seen({ showMessages: false })
 
@@ -71,6 +68,35 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
          }),
          enabled: api_request.isSuccess,
       },
+   )
+
+   const control_qrCodeScanner = useScanQrCodeDrawer(
+      {
+         defaultScanned: api_request.data?.is_seen,
+         validationFn: async (data) => {
+            if (!api_device.isSuccess) throw new Error("no-comparable-data")
+            return api_device.data?.id === data
+         },
+         onSuccess: (data) => {
+            // on scan success, update seen value in db
+            mutate_updateSeen.mutate(
+               { id: params.id },
+               {
+                  onSuccess: async () => {
+                     await api_request.refetch()
+                  },
+               },
+            )
+         },
+         onError: async (error) => {
+            if (error instanceof Error && error.message === "no-comparable-data") {
+               message.error("Đã xảy ra lỗi. Vui lòng thử lại...")
+            }
+
+            message.error(error.toString())
+         },
+      },
+      [api_device.isSuccess, api_request.isSuccess],
    )
 
    const pageStatus = useMemo(() => {
@@ -94,13 +120,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
          FixRequestStatus.CLOSED,
       ]).has(currentStatus)
 
-      const showingApproveRejectButtons = new Set<any>([FixRequestStatus.PENDING]).has(currentStatus) && hasScanned
-
-      const canCreateTask =
-         new Set<any>([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(currentStatus) &&
-         hasScanned &&
-         api_request.data.issues.length > 0
-
       const hasRejected = new Set<any>([FixRequestStatus.REJECTED]).has(currentStatus)
 
       return {
@@ -108,16 +127,8 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
          canViewTabs,
          hasTaskToCheck,
          canViewIssuesList,
-         showingApproveRejectButtons,
-         canCreateTask,
       }
-   }, [
-      api_request.data?.issues.length,
-      api_request.data?.status,
-      api_request.data?.tasks,
-      api_request.isSuccess,
-      hasScanned,
-   ])
+   }, [api_request.data?.status, api_request.data?.tasks, api_request.isSuccess])
 
    const hasExpired = useMemo(() => {
       if (!api_device.isSuccess) return false
@@ -130,85 +141,9 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       return dayjs().isAfter(dayjs(api_device.data.machineModel?.warrantyTerm))
    }, [api_device.isSuccess, api_device.data?.machineModel?.warrantyTerm])
 
-   async function handleScanFinish(result: string) {
-      message.destroy("scan-msg")
-
-      if (!api_request.isSuccess) {
-         message.error("Quét ID thiết bị thất bại. Vui lòng thử lại.").then()
-         return
-      }
-
-      if (!isUUID(result)) {
-         message
-            .error({
-               content: "ID thiết bị không hợp lệ.",
-               key: "scan-msg",
-            })
-            .then()
-         return
-      }
-
-      if (api_request.data.device.id !== result) {
-         message
-            .error({
-               content: "ID thiết bị được quét không khớp.",
-               key: "scan-msg",
-            })
-            .then()
-         return
-      }
-
-      setHasScanned(true)
-      message.success("Quét ID thiết bị thành công").then()
-      const scannedCache = localStorage.getItem(`scanned-cache-headstaff`)
-
-      if (scannedCache) {
-         const cache = JSON.parse(scannedCache) as {
-            [requestId: string]: string
-         }
-         cache[params.id] = result
-         localStorage.setItem(`scanned-cache-headstaff`, JSON.stringify(cache))
-      } else {
-         localStorage.setItem(
-            `scanned-cache-headstaff`,
-            JSON.stringify({
-               [params.id]: result,
-            }),
-         )
-      }
-   }
-
-   // update seen value in db if user hasn't seen
-   useEffect(() => {
-      if (api_request.isSuccess && !api_request.data.is_seen && mutate_updateSeen.isIdle) {
-         mutate_updateSeen.mutate(
-            { id: api_request.data.id },
-            {
-               onSuccess: async () => {
-                  await api_request.refetch()
-               },
-            },
-         )
-      }
-   }, [api_request, api_request.data, api_request.isSuccess, mutate_updateSeen])
-
-   // user only has to scan if request is pending
-   useEffect(() => {
-      if (!api_request.isSuccess) return
-
-      if (api_request.data.status !== FixRequestStatus.PENDING) {
-         setHasScanned(true)
-         return
-      }
-
-      const scannedCache = localStorage.getItem(`scanned-cache-headstaff`)
-      if (scannedCache) {
-         const cache = JSON.parse(scannedCache) as { [key: string]: string }
-         if (cache[params.id]?.includes(api_request.data.device.id)) {
-            setHasScanned(true)
-         }
-      }
-   }, [api_request.data, api_request.isSuccess, params.id])
+   const canBeWarranted = useMemo(() => {
+      return MachineModelUtil.canBeWarranted(api_request.data?.device.machineModel)
+   }, [api_request.data?.device.machineModel])
 
    return (
       <div className="std-layout relative h-max min-h-full bg-white pb-24">
@@ -481,116 +416,110 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                   </div>
                </section>
 
-               <section>
-                  {!hasScanned && api_request.isSuccess && (
-                     <section className="std-layout-outer fixed bottom-0 left-0 w-full justify-center bg-inherit p-layout">
-                        <Button
-                           size={"large"}
-                           className="w-full"
-                           type="primary"
-                           onClick={() => control_scannerDrawer.current?.handleOpen()}
-                           icon={<QrcodeOutlined />}
-                        >
-                           Quét mã QR để tiếp tục
-                        </Button>
-                     </section>
-                  )}
-                  {pageStatus?.showingApproveRejectButtons && (
-                     <section className="std-layout-outer fixed bottom-0 left-0 flex w-full justify-center gap-3 bg-inherit p-layout">
-                        {hasExpired ? (
+               <footer className={"std-layout-outer fixed bottom-0 left-0 w-full p-layout"}>
+                  {api_request.isSuccess &&
+                     (control_qrCodeScanner.isScanned === false ? (
+                        // if hasn't scanned, force scan
+                        <section>
                            <Button
                               size={"large"}
                               className="w-full"
                               type="primary"
-                              icon={<CheckCircleFilled />}
-                              onClick={() =>
-                                 control_requestApproveToFixDrawer.current?.handleOpen({
-                                    requestId: params.id,
-                                 })
-                              }
+                              onClick={() => control_qrCodeScanner.handleOpenScanner()}
+                              icon={<QrcodeOutlined />}
                            >
-                              Xác nhận yêu cầu
+                              Quét mã QR để tiếp tục
                            </Button>
-                        ) : (
-                           <Button
-                              size={"large"}
-                              className="w-full bg-yellow-600"
-                              type="primary"
-                              icon={<TruckFilled />}
-                              onClick={() =>
-                                 api_device.isSuccess &&
-                                 api_request.isSuccess &&
-                                 sendWarrantyRef.current?.handleOpen(params.id, api_device.data, {
-                                    areaName: api_device.data?.area.name,
-                                    createdAt: api_request.data.createdAt,
-                                    machineModelName: api_device.data?.machineModel.name,
-                                 })
-                              }
+                        </section>
+                     ) : (
+                        // if has scanned, show action buttons
+                        <section className="flex justify-center gap-3">
+                           {canBeWarranted ? (
+                              // recommend warranty if device can be warranted
+                              <Button
+                                 size={"large"}
+                                 className="w-full bg-yellow-600"
+                                 type="primary"
+                                 icon={<TruckFilled />}
+                                 onClick={() =>
+                                    api_device.isSuccess &&
+                                    api_request.isSuccess &&
+                                    control_requestApproveToWarrantyDrawer.current?.handleOpen({
+                                       requestId: params.id,
+                                    })
+                                 }
+                              >
+                                 Gửi bảo hành
+                              </Button>
+                           ) : (
+                              // else, recommend to manually fix
+                              <Button
+                                 size={"large"}
+                                 className="w-full"
+                                 type="primary"
+                                 icon={<CheckCircleFilled />}
+                                 onClick={() =>
+                                    control_requestApproveToFixDrawer.current?.handleOpen({
+                                       requestId: params.id,
+                                    })
+                                 }
+                              >
+                                 Xác nhận yêu cầu
+                              </Button>
+                           )}
+                           <Dropdown
+                              menu={{
+                                 items: [
+                                    ...(hasExpired === false
+                                       ? [
+                                            {
+                                               key: "continue",
+                                               label: "Sửa chữa máy",
+                                               icon: <Wrench size={16} weight={"duotone"} />,
+                                               onClick: () =>
+                                                  control_requestApproveToFixDrawer.current?.handleOpen({
+                                                     requestId: params.id,
+                                                  }),
+                                            },
+                                         ]
+                                       : []),
+                                    {
+                                       key: "no-problem",
+                                       label: "Thay máy mới",
+                                       icon: <Swap size={16} weight={"duotone"} />,
+                                       onClick: () =>
+                                          api_device.isSuccess &&
+                                          api_request.isSuccess &&
+                                          control_renewDeviceDrawer.current?.handleOpen({
+                                             requestId: params.id,
+                                             currentDevice: api_device.data,
+                                             request: api_request.data,
+                                          }),
+                                    },
+                                    {
+                                       type: "divider",
+                                    },
+                                    {
+                                       key: "reject",
+                                       label: "Từ chối yêu cầu",
+                                       icon: <DeleteFilled />,
+                                       onClick: () =>
+                                          api_request.isSuccess &&
+                                          control_requestRejectDrawer.current?.handleOpen({
+                                             request: api_request.data,
+                                          }),
+                                       danger: true,
+                                    },
+                                 ],
+                              }}
                            >
-                              Gửi bảo hành
-                           </Button>
-                        )}
-                        <Dropdown
-                           menu={{
-                              items: [
-                                 ...(hasExpired === false
-                                    ? [
-                                         {
-                                            key: "continue",
-                                            label: "Sửa chữa máy",
-                                            icon: <Wrench size={16} weight={"duotone"} />,
-                                            onClick: () =>
-                                               control_requestApproveToFixDrawer.current?.handleOpen({
-                                                  requestId: params.id,
-                                               }),
-                                         },
-                                      ]
-                                    : []),
-                                 {
-                                    key: "no-problem",
-                                    label: "Thay máy mới",
-                                    icon: <Swap size={16} weight={"duotone"} />,
-                                    onClick: () =>
-                                       api_device.isSuccess &&
-                                       api_request.isSuccess &&
-                                       control_renewDeviceDrawer.current?.handleOpen({
-                                          requestId: params.id,
-                                          currentDevice: api_device.data,
-                                          request: api_request.data,
-                                       }),
-                                 },
-                                 {
-                                    type: "divider",
-                                 },
-                                 {
-                                    key: "reject",
-                                    label: "Từ chối yêu cầu",
-                                    icon: <DeleteFilled />,
-                                    onClick: () =>
-                                       api_request.isSuccess &&
-                                       control_requestRejectDrawer.current?.handleOpen({
-                                          request: api_request.data,
-                                       }),
-                                    danger: true,
-                                 },
-                              ],
-                           }}
-                        >
-                           <Button size="large" className={"aspect-square"} icon={<MoreOutlined />} />
-                        </Dropdown>
-                     </section>
-                  )}
-               </section>
+                              <Button size="large" className={"aspect-square"} icon={<MoreOutlined />} />
+                           </Dropdown>
+                        </section>
+                     ))}
+               </footer>
             </>
          )}
-         <ScannerV2Drawer ref={control_scannerDrawer} onScan={(result) => handleScanFinish(result)} />
-         <OverlayControllerWithRef ref={control_requestRejectDrawer}>
-            <Request_RejectDrawer
-               onSuccess={async () => {
-                  router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.REJECTED}`)
-               }}
-            />
-         </OverlayControllerWithRef>
          <ConfigProvider
             theme={{
                token: {
@@ -598,6 +527,13 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                },
             }}
          >
+            <OverlayControllerWithRef ref={control_requestRejectDrawer}>
+               <Request_RejectDrawer
+                  onSuccess={async () => {
+                     router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.REJECTED}`)
+                  }}
+               />
+            </OverlayControllerWithRef>
             <OverlayControllerWithRef ref={control_requestApproveToFixDrawer}>
                <Request_ApproveToFixDrawer
                   refetchFn={() => api_request.refetch()}
@@ -606,11 +542,14 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                   }}
                />
             </OverlayControllerWithRef>
+            <OverlayControllerWithRef ref={control_requestApproveToWarrantyDrawer}>
+               <Request_ApproveToWarrantyDrawer />
+            </OverlayControllerWithRef>
+            <OverlayControllerWithRef ref={control_renewDeviceDrawer}>
+               <Request_RenewDeviceDrawer />
+            </OverlayControllerWithRef>
+            {control_qrCodeScanner.contextHolder()}
          </ConfigProvider>
-         <Request_SendWarrantyDrawer ref={sendWarrantyRef} params={{ id: params.id }} />
-         <OverlayControllerWithRef ref={control_renewDeviceDrawer}>
-            <Request_RenewDeviceDrawer />
-         </OverlayControllerWithRef>
       </div>
    )
 }

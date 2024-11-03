@@ -16,6 +16,7 @@ import useSparePart_AllQuery from "./SparePart_All.query"
 import useSparePart_AllFilterAndSortedQuery from "./SparePart_AllFilterAndSort.query"
 import useSparePart_One from "./SparePart_One.query"
 import useTypeError_One from "./TypeError_One.query"
+import useDevice_AllQuery from "./Device_All.query"
 
 const admin_queries = {
    request: {
@@ -43,6 +44,7 @@ const admin_queries = {
    device: {
       all_filterAndSort: useDevice_AllFilteredAndSortedQuery,
       one: useDevice_One,
+      all: useDevice_AllQuery,
    },
    spare_part: {
       all: useSparePart_AllQuery,

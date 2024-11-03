@@ -20,7 +20,8 @@ import { useEffect, useState } from "react"
 import EnvEditorProvider from "@/providers/EnvEditor.provider"
 import useLoginMutation from "@/features/common/mutations/Login.mutation"
 import staff_uri from "@/features/staff/uri"
-import { Image } from "antd"
+import { Checkbox, Image } from "antd"
+import { FacebookOutlined, GoogleOutlined, TwitterOutlined } from "@ant-design/icons"
 
 type FieldType = {
    username: string
@@ -101,99 +102,161 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
    return (
       <>
          {loading && <Spin fullscreen tip="Logging in..." />}
-         <div className="bg-animated-gradient flex min-h-screen items-center justify-center p-4">
-            <Card
-               className="w-full max-w-sm rounded-lg bg-white p-8 shadow-2xl"
-               style={{ paddingTop: "5rem", paddingBottom: "5rem" }}
-            >
-               <div className="mb-6 flex justify-center">
-                  <Image
-                     src="/images/capstone_logo.png"
-                     alt="Capstone Logo"
-                     width={250}
-                     height={90}
-                     className="object-contain"
-                  />
+         <div className="bg-half-half-gradient flex min-h-screen items-center p-4">
+            <div className="hidden w-1/2 flex-col items-center justify-center lg:flex">
+               <div className="typing-animation">
+                  <span>Chào mừng bạn đã quay trở lại với trang quản lý của GearCare</span>
                </div>
-               <Typography.Title level={3} className="select-none text-center font-bold text-gray-800">
-                  Đăng nhập
-               </Typography.Title>
-               <Typography.Text className="mb-6 block select-none text-center text-gray-500">
-                  Vui lòng nhập tên đăng nhập và mật khẩu.
-               </Typography.Text>
-               <Form
-                  name="Login_Form"
-                  form={form}
-                  layout="vertical"
-                  onFinish={handleFinish}
-                  disabled={mutations.loginCredentials.isPending}
+            </div>
+            <div className="flex flex-1 justify-center">
+               <Card
+                  className="w-full max-w-sm rounded-xl bg-white p-8 shadow-lg lg:w-3/4"
+                  style={{ paddingTop: "3rem", paddingBottom: "3rem" }}
                >
-                  <Form.Item name="username" rules={[{ required: true, message: "Please input your username!" }]}>
-                     <Input
-                        size="large"
-                        placeholder="Username"
-                        autoFocus
-                        prefix={<UserOutlined className="mr-2 text-gray-500" />}
-                        className="rounded-md px-3 py-2"
+                  <div className="mb-4 flex justify-center">
+                     <Image
+                        src="/images/capstone_logo.png"
+                        alt="Capstone Logo"
+                        width={150}
+                        height={50}
+                        className="object-contain"
                      />
-                  </Form.Item>
-                  <Form.Item name="password" rules={[{ required: true, message: "Please input your password!" }]}>
-                     <Input.Password
-                        placeholder="Password"
-                        size="large"
-                        prefix={<LockOutlined className="mr-2 text-gray-500" />}
-                        className="rounded-md px-3 py-2"
-                     />
-                  </Form.Item>
-                  <Form.Item>
-                     <Button
-                        htmlType="submit"
-                        size="large"
-                        className="gradient-button w-full rounded-md"
-                        style={{
-                           background: "linear-gradient(90deg, #61D8DE, #915CEA, #E839F6)",
-                           color: "#ffffff",
-                           border: "none",
-                           transition: "background 0.3s ease",
-                        }}
-                     >
-                        Login
-                     </Button>
-                  </Form.Item>
-               </Form>
-            </Card>
+                  </div>
+                  <Typography.Text className="mb-6 block select-none text-center text-gray-500">
+                     Vui lòng đăng nhập để tiếp tục.
+                  </Typography.Text>
+                  <Form
+                     name="Login_Form"
+                     form={form}
+                     layout="vertical"
+                     onFinish={handleFinish}
+                     disabled={mutations.loginCredentials.isPending}
+                  >
+                     <Form.Item name="username" rules={[{ required: true, message: "Vui lòng nhập email hoặc tên đăng nhập!" }]}>
+                        <Input
+                           size="large"
+                           placeholder="Email hoặc tên đăng nhập"
+                           autoFocus
+                           prefix={<UserOutlined className="mr-2 text-gray-500" />}
+                           className="rounded-md px-3 py-2"
+                        />
+                     </Form.Item>
+                     <Form.Item name="password" rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}>
+                        <Input.Password
+                           placeholder="Mật khẩu"
+                           size="large"
+                           prefix={<LockOutlined className="mr-2 text-gray-500" />}
+                           className="rounded-md px-3 py-2"
+                        />
+                     </Form.Item>
+                     <div className="mb-4 flex flex-col items-center justify-between md:flex-row">
+                        <Form.Item name="remember" valuePropName="checked" noStyle>
+                           <Checkbox className="text-gray-500">Nhớ tôi?</Checkbox>
+                        </Form.Item>
+                        <a href="#" className="mt-2 text-sm text-blue-600 hover:underline md:mt-0">
+                           Quân mật khẩu?
+                        </a>
+                     </div>
+                     <Form.Item>
+                        <Button htmlType="submit" size="large" className="gradient-button w-full rounded-md">
+                           Đăng nhập
+                        </Button>
+                     </Form.Item>
+                  </Form>
+                  <div className="mt-4 text-center text-sm text-gray-500">
+                     Mới trên nền tảng của chúng tôi?{" "}
+                     <a href="#" className="text-blue-600 hover:underline">
+                        Đăng ký tài khoản
+                     </a>
+                  </div>
+                  <div className="mt-4 flex justify-center space-x-3">
+                     <Button shape="circle" icon={<FacebookOutlined />} className="social-button" />
+                     <Button shape="circle" icon={<GoogleOutlined />} className="social-button" />
+                     <Button shape="circle" icon={<TwitterOutlined />} className="social-button" />
+                  </div>
+               </Card>
+            </div>
          </div>
 
          <style jsx>{`
             /* Animated Background Gradient */
-            .bg-animated-gradient {
-               background: linear-gradient(90deg, #61d8de, #915cea, #e839f6);
-               background-size: 200% 200%;
-               animation: gradientAnimation 10s ease infinite;
+            .bg-half-half-gradient {
+               background: linear-gradient(90deg, #f1f0ff 70%, #dbdcf3 30%);
             }
 
-            @keyframes gradientAnimation {
+            /* Responsive Background Gradient */
+            @media (max-width: 768px) {
+               .bg-half-half-gradient {
+                  background: linear-gradient(90deg, #f1f0ff 50%, #dbdcf3 50%);
+               }
+            }
+
+            /* Typing Animation */
+            .typing-animation {
+               font-size: 1.5rem;
+               font-weight: bold;
+               white-space: nowrap;
+               overflow: hidden;
+               border-right: 0.15em solid #000;
+               animation:
+                  typing 16s steps(40, end) infinite,
+                  blink-caret 0.75s step-end infinite;
+            }
+
+            @keyframes typing {
                0% {
-                  background-position: 0% 50%;
+                  width: 0;
                }
                50% {
-                  background-position: 100% 50%;
+                  width: 100%;
                }
                100% {
-                  background-position: 0% 50%;
+                  width: 0;
+               }
+            }
+
+            @keyframes blink-caret {
+               from,
+               to {
+                  border-color: transparent;
+               }
+               50% {
+                  border-color: black;
                }
             }
 
             /* Gradient Button */
             .gradient-button {
-               background: linear-gradient(90deg, #61d8de, #915cea, #e839f6);
+               background: linear-gradient(90deg, #6366f1, #3b82f6);
                color: white;
                border: none;
-               transition: background 0.3s ease;
+               transition:
+                  background 0.3s ease,
+                  border 0.3s ease,
+                  color 0.3s ease;
             }
 
+            /* Gradient Outline on Hover */
             .gradient-button:hover {
-               background: linear-gradient(90deg, #e839f6, #915cea, #61d8de);
+               background: transparent;
+               color: #3b82f6;
+               border: 2px solid transparent;
+               border-image: linear-gradient(90deg, #61d8de, #915cea, #e839f6);
+               border-image-slice: 1;
+            }
+
+            /* Social Button */
+            .social-button {
+               border: 1px solid #e0e0e0;
+               color: #757575;
+               transition:
+                  color 0.3s ease,
+                  border-color 0.3s ease;
+            }
+
+            .social-button:hover {
+               color: #3b82f6;
+               border-color: #3b82f6;
             }
          `}</style>
       </>

@@ -132,7 +132,10 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                      onFinish={handleFinish}
                      disabled={mutations.loginCredentials.isPending}
                   >
-                     <Form.Item name="username" rules={[{ required: true, message: "Vui lòng nhập email hoặc tên đăng nhập!" }]}>
+                     <Form.Item
+                        name="username"
+                        rules={[{ required: true, message: "Vui lòng nhập email hoặc tên đăng nhập!" }]}
+                     >
                         <Input
                            size="large"
                            placeholder="Email hoặc tên đăng nhập"
@@ -154,7 +157,7 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                            <Checkbox className="text-gray-500">Nhớ tôi?</Checkbox>
                         </Form.Item>
                         <a href="#" className="mt-2 text-sm text-blue-600 hover:underline md:mt-0">
-                           Quân mật khẩu?
+                           Quên mật khẩu?
                         </a>
                      </div>
                      <Form.Item>
@@ -225,24 +228,27 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                }
             }
 
-            /* Gradient Button */
             .gradient-button {
-               background: linear-gradient(90deg, #6366f1, #3b82f6);
-               color: white;
-               border: none;
+               background: linear-gradient(90deg, #6366f1, #3b82f6); /* Background gradient */
+               color: white; /* Text color */
+               border: none; /* No border initially */
                transition:
                   background 0.3s ease,
                   border 0.3s ease,
-                  color 0.3s ease;
+                  color 0.3s ease; /* Smooth transition for hover effects */
             }
 
             /* Gradient Outline on Hover */
             .gradient-button:hover {
-               background: transparent;
-               color: #3b82f6;
-               border: 2px solid transparent;
-               border-image: linear-gradient(90deg, #61d8de, #915cea, #e839f6);
-               border-image-slice: 1;
+               background: transparent; /* Make the background transparent on hover */
+               color: #3b82f6; /* Change text color on hover */
+               border: 2px solid transparent; /* Set a transparent border to enable the gradient effect */
+               border-image: linear-gradient(90deg, #61d8de, #915cea, #e839f6); /* Apply gradient to border */
+               border-image-slice: 1; /* Fill the border with gradient */
+            }
+
+            .gradient-button:focus {
+               outline: none; /* Remove default focus outline */
             }
 
             /* Social Button */

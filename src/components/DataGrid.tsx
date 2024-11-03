@@ -19,7 +19,10 @@ type Props = {
 }
 
 function DataGrid(props: Props) {
-   const no_rows = useMemo(() => Math.ceil(props.items.length / props.cols), [props.cols, props.items.length])
+   const no_rows = useMemo(() => {
+      const items = props.items.filter((i) => i.hidden !== true)
+      return Math.ceil(items.length / props.cols)
+   }, [props.cols, props.items])
 
    const item_rows = useMemo(() => {
       let returnValue = []

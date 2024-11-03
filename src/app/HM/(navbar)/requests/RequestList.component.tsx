@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { Avatar, List, Tag } from "antd"
+import { Avatar, List, Progress, Tag } from "antd"
 import generateAvatarData from "@/lib/utils/generateAvatarData.util"
 import { cn } from "@/lib/utils/cn.util"
 import DataGrid from "@/components/DataGrid"
@@ -11,6 +11,7 @@ import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { RightOutlined } from "@ant-design/icons"
 import hm_uris from "@/features/head-maintenance/uri"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 
 type Props = {
    requests: RequestDto[]
@@ -30,7 +31,7 @@ function RequestList(props: Props) {
          case FixRequestStatus.IN_PROGRESS:
          case FixRequestStatus.HEAD_CONFIRM:
             if (request.is_warranty === true) {
-               router.push(hm_uris.stack.requests_id_fix(request.id))
+               router.push(hm_uris.stack.requests_id_warranty(request.id))
                break
             }
 
@@ -52,6 +53,10 @@ function RequestList(props: Props) {
          itemLayout={"vertical"}
          renderItem={(item, index) => {
             const avatarData = generateAvatarData(item.device.machineModel.name)
+            const percentFinished =
+               Math.floor(
+                  item.issues.filter((i) => i.status === IssueStatusEnum.RESOLVED).length / item.issues.length,
+               ) * 100
             return (
                <List.Item
                   className={cn(
@@ -79,70 +84,76 @@ function RequestList(props: Props) {
                      }
                   ></List.Item.Meta>
                   <div className="flex items-end">
-                     <DataGrid
-                        spaceProps={{
-                           split: undefined,
-                        }}
-                        className="flex-grow text-xs text-neutral-500"
-                        items={[
-                           {
-                              value: (
-                                 <>
-                                    {item.device.area.name}{" "}
-                                    {item.device.positionX && item.device.positionY
-                                       ? `(${item.device.positionX}, ${item.device.positionY})`
-                                       : ""}
-                                 </>
-                              ),
-                              icon: <MapPinArea size={16} weight="duotone" />,
-                           },
-                           {
-                              value: dayjs(item.createdAt).format("DD/MM/YYYY"),
-                              icon: <CalendarBlank size={16} weight="duotone" />,
-                              className: "text-head_department",
-                           },
-                           {
-                              value: `${item.issues?.length ?? 0} lỗi`,
-                              icon: <Warning size={16} weight={"duotone"} />,
-                              hidden: !new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
-                                 item.status,
-                              ),
-                           },
-                           {
-                              value: `Lý do: ${item.checker_note ?? "-"}`,
-                              icon: <Warning size={16} weight={"duotone"} />,
-                              hidden: !new Set([FixRequestStatus.REJECTED]).has(item.status),
-                           },
-                           {
-                              value: `${item.tasks?.length ?? 0} tác vụ`,
-                              icon: <CheckSquare size={16} weight={"duotone"} />,
-                              hidden: !new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
-                                 item.status,
-                              ),
-                           },
-                           {
-                              value: (
-                                 <div className={"w-32 truncate"}>
-                                    {item.status === FixRequestStatus.HEAD_CONFIRM
-                                       ? "Chưa đánh giá"
-                                       : `Đánh giá: ${item.feedback?.content ?? "-"}`}
-                                 </div>
-                              ),
-                              icon: <Pen size={16} weight={"duotone"} />,
-                              hidden: !new Set([FixRequestStatus.HEAD_CONFIRM, FixRequestStatus.CLOSED]).has(
-                                 item.status,
-                              ),
-                           },
-                           {
-                              icon: <Truck size={16} weight="duotone" />,
-                              value: "Bảo hành",
-                              hidden: !item.is_warranty,
-                              className: "text-orange-500",
-                           },
-                        ]}
-                        cols={2}
-                     />
-                     <RightOutlined className="text-xs text-neutral-500" />
+                     <div className={"w-full"}>
+                        <DataGrid
+                           spaceProps={{
+                              split: undefined,
+                           }}
+                           className="flex-grow text-xs text-neutral-500"
+                           items={[
+                              {
+                                 value: (
+                                    <>
+                                       {item.device.area.name}{" "}
+                                       {item.device.positionX && item.device.positionY
+                                          ? `(${item.device.positionX}, ${item.device.positionY})`
+                                          : ""}
+                                    </>
+                                 ),
+                                 icon: <MapPinArea size={16} weight="duotone" />,
+                              },
+                              {
+                                 value: dayjs(item.createdAt).format("DD/MM/YYYY"),
+                                 icon: <CalendarBlank size={16} weight="duotone" />,
+                                 className: "text-head_department",
+                              },
+                              {
+                                 icon: <Truck size={16} weight="duotone" />,
+                                 value: "Bảo hành",
+                                 hidden: !item.is_warranty,
+                                 className: "text-orange-500",
+                              },
+                              {
+                                 value: `${item.issues?.length ?? 0} lỗi`,
+                                 icon: <Warning size={16} weight={"duotone"} />,
+                                 hidden:
+                                    !new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
+                                       item.status,
+                                    ) || item.is_warranty,
+                              },
+                              {
+                                 value: `Lý do: ${item.checker_note ?? "-"}`,
+                                 icon: <Warning size={16} weight={"duotone"} />,
+                                 hidden: !new Set([FixRequestStatus.REJECTED]).has(item.status),
+                              },
+                              {
+                                 value: `${item.tasks?.length ?? 0} tác vụ`,
+                                 icon: <CheckSquare size={16} weight={"duotone"} />,
+                                 hidden: !new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
+                                    item.status,
+                                 ),
+                              },
+                              {
+                                 value: (
+                                    <div className={"w-32 truncate"}>
+                                       {item.status === FixRequestStatus.HEAD_CONFIRM
+                                          ? "Chưa đánh giá"
+                                          : `Đánh giá: ${item.feedback?.content ?? "-"}`}
+                                    </div>
+                                 ),
+                                 icon: <Pen size={16} weight={"duotone"} />,
+                                 hidden: !new Set([FixRequestStatus.HEAD_CONFIRM, FixRequestStatus.CLOSED]).has(
+                                    item.status,
+                                 ),
+                              },
+                           ]}
+                           cols={2}
+                        />
+                        {item.status === FixRequestStatus.IN_PROGRESS && (
+                           <Progress percent={percentFinished} size={"small"} className={"mt-1 pr-2"} />
+                        )}
+                     </div>
+                     <RightOutlined className="pb-1 text-xs text-neutral-500" />
                   </div>
                </List.Item>
             )

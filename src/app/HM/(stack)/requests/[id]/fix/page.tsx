@@ -5,7 +5,6 @@ import HeadStaff_Device_OneByIdWithHistory from "@/features/head-maintenance/api
 import headstaff_qk from "@/features/head-maintenance/qk"
 import HeadStaff_Request_OneById from "@/features/head-maintenance/api/request/oneById.api"
 import DataListView from "@/components/DataListView"
-import PageHeader from "@/components/layout/PageHeader"
 import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
@@ -17,7 +16,6 @@ import Result from "antd/es/result"
 import Spin from "antd/es/spin"
 import Tag from "antd/es/tag"
 import dayjs from "dayjs"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Suspense, useEffect, useMemo, useRef } from "react"
 import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
@@ -32,7 +30,7 @@ import Request_RejectDrawer, {
 import Task_ViewDetailsDrawer, {
    TaskDetailsDrawerRefType,
 } from "@/features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
-import TabbedLayout from "@/app/HM/(stack)/requests/[id]/fix/TabbedLayout.component"
+import TabbedLayout from "@/app/HM/(stack)/requests/[id]/fix/Tabs.component"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import hm_uris from "@/features/head-maintenance/uri"
 

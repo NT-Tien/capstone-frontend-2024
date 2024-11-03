@@ -290,9 +290,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                type="default"
                className="w-full"
                size="large"
-               onClick={() => {
-                  message.info("Not implemented")
-               }}
+               onClick={() => router.push(hm_uris.stack.tasks_id(task.id))}
             >
                Xem chi tiết
             </Button>
@@ -372,11 +370,11 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                   <Dropdown
                      menu={{
                         items: [
-                           {
-                              label: "Chi tiết",
-                              key: "detail",
-                              onClick: () => message.info("Not implemented"),
-                           },
+                           // {
+                           //    label: "Chi tiết",
+                           //    key: "detail",
+                           //    onClick: () => message.info("Not implemented"),
+                           // },
                            ...(task &&
                            new Set([
                               TaskStatus.AWAITING_SPARE_SPART,

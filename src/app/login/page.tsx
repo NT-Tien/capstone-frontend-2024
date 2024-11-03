@@ -104,21 +104,24 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
          {loading && <Spin fullscreen tip="Logging in..." />}
          <div className="bg-half-half-gradient flex min-h-screen items-center p-4">
             <div className="hidden w-1/2 flex-col items-center justify-center lg:flex">
+               <Image className="object-contain" src="/images/Capstone_login.png" alt="Capstone Login" />
                <div className="typing-animation">
-                  <span>Chào mừng bạn đã quay trở lại với GearCare</span>
+                  <span>
+                     Chào mừng bạn đã quay trở lại với <span style={{ color: "#f6c018" }}>MMMS</span>
+                  </span>
                </div>
             </div>
             <div className="flex flex-1 justify-center">
                <Card
-                  className="w-full max-w-lg rounded-xl bg-white p-8 shadow-lg lg:w-3/4"
+                  className="w-full max-w-sm md:max-w-lg rounded-xl bg-white p-8 shadow-lg lg:w-3/4"
                   style={{ paddingTop: "3rem", paddingBottom: "3rem" }}
                >
                   <div className="mb-4 flex justify-center">
                      <Image
-                        src="/images/capstone_logo.png"
+                        src="/images/capstone_logo2.png"
                         alt="Capstone Logo"
-                        width={150}
-                        height={50}
+                        width={450}
+                        height={100}
                         className="object-contain"
                      />
                   </div>
@@ -161,12 +164,12 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                         </a>
                      </div>
                      <Form.Item>
-                        <Button htmlType="submit" size="large" className="bg-[#6a6df4] text-white w-full rounded-md">
+                        <Button htmlType="submit" size="large" className="w-full rounded-md bg-[#6a6df4] text-white">
                            Đăng nhập
                         </Button>
                      </Form.Item>
                   </Form>
-                  <div className="mt-4 text-center text-sm text-gray-500">
+                  {/* <div className="mt-4 text-center text-sm text-gray-500">
                      Mới trên nền tảng của chúng tôi?{" "}
                      <a href="#" className="text-blue-600 hover:underline">
                         Đăng ký tài khoản
@@ -176,7 +179,7 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                      <Button shape="circle" icon={<FacebookOutlined />} className="social-button" />
                      <Button shape="circle" icon={<GoogleOutlined />} className="social-button" />
                      <Button shape="circle" icon={<TwitterOutlined />} className="social-button" />
-                  </div>
+                  </div> */}
                </Card>
             </div>
          </div>

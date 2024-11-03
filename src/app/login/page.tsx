@@ -105,7 +105,7 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
          <div className="bg-half-half-gradient flex min-h-screen items-center p-4">
             <div className="hidden w-1/2 flex-col items-center justify-center lg:flex">
                <div className="typing-animation">
-                  <span>Chào mừng bạn đã quay trở lại với trang quản lý của GearCare</span>
+                  <span>Chào mừng bạn đã quay trở lại với GearCare</span>
                </div>
             </div>
             <div className="flex flex-1 justify-center">

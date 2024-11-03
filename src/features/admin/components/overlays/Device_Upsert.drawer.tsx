@@ -1,11 +1,12 @@
-import { Drawer, DrawerProps, Input, Select, Divider } from "antd"
+import { Drawer, DrawerProps, Input, Select, Divider, message } from "antd"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import Button from "antd/es/button"
 import Form from "antd/es/form"
 import admin_mutations from "../../mutations"
 import admin_queries from "../../queries"
+import DevicePositionModal from "../DevicePosition.modal"
 
 type FormFieldTypes = {
    operationStatus: number
@@ -26,6 +27,9 @@ type Props = Omit<DrawerProps, "children"> & Device_UpsertDrawerProps
 
 function Device_UpsertDrawer(props: Props) {
    const [form] = Form.useForm<FormFieldTypes>()
+   const [isModalVisible, setIsModalVisible] = useState(false)
+   const [selectedPosition, setSelectedPosition] = useState<{ x: number; y: number } | null>(null)
+   const [areaDimensions, setAreaDimensions] = useState<{ width: number; height: number } | null>(null)
    const mutate_createDevice = admin_mutations.device.create()
    const mutate_updateDevice = admin_mutations.device.update()
    const api_device = admin_queries.machine_model.all({ withDevices: false })
@@ -35,7 +39,7 @@ function Device_UpsertDrawer(props: Props) {
       if (!api_device.isSuccess) return []
       return api_device.data.map((item) => ({
          label: item.name,
-         value: item.id 
+         value: item.id,
       }))
    }, [api_device.data, api_device.isSuccess])
 
@@ -43,7 +47,7 @@ function Device_UpsertDrawer(props: Props) {
       if (!api_deviceArea.isSuccess) return []
       return api_deviceArea.data.map((item) => ({
          label: item.name,
-         value: item.id 
+         value: item.id,
       }))
    }, [api_deviceArea.data, api_deviceArea.isSuccess])
 
@@ -61,32 +65,26 @@ function Device_UpsertDrawer(props: Props) {
             machineModel: props.device?.machineModel.id,
             area: props.device?.area.id,
          })
+         setSelectedPosition(props.device ? { x: props.device.positionX, y: props.device.positionY } : null)
+         if (props.device?.area) {
+            setAreaDimensions({ width: props.device.area.width, height: props.device.area.height })
+         }
       }
    }, [props.open])
 
-   function handleSubmit(formProps: FormFieldTypes) {
+   const handleSubmit = (formProps: FormFieldTypes) => {
+      const payload = {
+         positionX: selectedPosition?.x ?? 0,
+         positionY: selectedPosition?.y ?? 0,
+         area: formProps.area ?? "",
+         operationStatus: formProps.operationStatus,
+         description: formProps.description,
+         machineModel: formProps.machineModel,
+      }
+
       if (isUpdating) {
          mutate_updateDevice.mutate(
-            {
-               id: props.device!.id,
-               payload: {
-                  ...formProps,
-                  area: formProps.area ?? "",
-                  positionX: formProps.positionX ?? 0,
-                  positionY: formProps.positionY ?? 0,
-               },
-            },
-            {
-               onSuccess: () => {
-                  props.onSuccess?.()
-               },
-            },
-         )
-      } else {
-         mutate_createDevice.mutate(
-            {
-               ...formProps,
-            },
+            { id: props.device!.id, payload },
             {
                onSuccess: () => {
                   props.onSuccess?.()
@@ -94,8 +92,39 @@ function Device_UpsertDrawer(props: Props) {
                },
             },
          )
+      } else {
+         mutate_createDevice.mutate(payload, {
+            onSuccess: () => {
+               props.onSuccess?.()
+               form.resetFields()
+            },
+         })
       }
    }
+
+   const handleAreaChange = (areaId: string) => {
+      const selectedArea = api_deviceArea.data?.find((area) => area.id === areaId)
+      if (selectedArea) {
+         setAreaDimensions({ width: selectedArea.width, height: selectedArea.height })
+      } else {
+         setAreaDimensions(null)
+      }
+   }
+
+   const handleSelectPosition = (x: number, y: number) => {
+      setSelectedPosition({ x, y })
+      form.setFieldsValue({ positionX: x, positionY: y })
+      setIsModalVisible(false)
+   }
+   const handleOpenModal = () => {
+      const area = form.getFieldValue("area")
+      if (!area) {
+         message.warning("Vui lòng chọn khu vực trước khi chọn vị trí.")
+         return
+      }
+      setIsModalVisible(true)
+   }
+   console.log(form.getFieldValue("area"))
 
    return (
       <Drawer
@@ -126,34 +155,6 @@ function Device_UpsertDrawer(props: Props) {
                area: props.device?.area.id,
             }}
          >
-            <Form.Item<FormFieldTypes>
-               name="operationStatus"
-               label="Thông số kỹ thuật"
-               rules={[{ required: true }, { type: "string" }]}
-            >
-               <Input placeholder="Nhập thông số" />
-            </Form.Item>
-            <Form.Item<FormFieldTypes>
-               name="description"
-               label="Mô tả"
-               rules={[{ required: true }, { type: "string", max: 300 }]}
-            >
-               <Input placeholder="Nhập mô tả" />
-            </Form.Item>
-            <Form.Item<FormFieldTypes>
-               name="positionX"
-               label="Vị trí (X)"
-               rules={[{ required: true }, { type: "string" }]}
-            >
-               <Input placeholder="Nhập vị trí" />
-            </Form.Item>
-            <Form.Item<FormFieldTypes>
-               name="positionY"
-               label="Vị trí (Y)"
-               rules={[{ required: true }, { type: "string" }]}
-            >
-               <Input placeholder="Nhập vị trí" />
-            </Form.Item>
             <Form.Item<FormFieldTypes> name="machineModel" label="Mẫu máy" rules={[{ required: true }]}>
                <Select
                   placeholder="Chọn mẫu máy"
@@ -169,9 +170,24 @@ function Device_UpsertDrawer(props: Props) {
                   options={machineModels}
                />
             </Form.Item>
+            <Form.Item<FormFieldTypes>
+               name="description"
+               label="Mô tả"
+               rules={[{ required: true }, { type: "string", max: 300 }]}
+            >
+               <Input placeholder="Nhập mô tả" />
+            </Form.Item>
+            <Form.Item<FormFieldTypes>
+               name="operationStatus"
+               label="Thông số kỹ thuật"
+               rules={[{ required: true }, { type: "string" }]}
+            >
+               <Input placeholder="Nhập thông số" />
+            </Form.Item>
             <Form.Item<FormFieldTypes> name="area" label="Khu vực" rules={[{ required: true }]}>
                <Select
                   placeholder="Chọn khu vực"
+                  onChange={handleAreaChange}
                   dropdownRender={(menu) => (
                      <>
                         {menu}
@@ -184,7 +200,20 @@ function Device_UpsertDrawer(props: Props) {
                   options={areas}
                />
             </Form.Item>
+            <Form.Item label="Vị trí" rules={[{ required: true }]}>
+               <Button onClick={handleOpenModal}>
+                  {selectedPosition ? `X: ${selectedPosition.x}, Y: ${selectedPosition.y}` : "Chọn vị trí"}
+               </Button>
+            </Form.Item>
          </Form>
+         <DevicePositionModal
+            visible={isModalVisible}
+            onClose={() => setIsModalVisible(false)}
+            onSelectPosition={handleSelectPosition}
+            areaId={form.getFieldValue("area")}
+            width={areaDimensions?.width || 0}
+            height={areaDimensions?.height || 0}
+         />
       </Drawer>
    )
 }

@@ -110,7 +110,7 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
             </div>
             <div className="flex flex-1 justify-center">
                <Card
-                  className="w-full max-w-sm rounded-xl bg-white p-8 shadow-lg lg:w-3/4"
+                  className="w-full max-w-lg rounded-xl bg-white p-8 shadow-lg lg:w-3/4"
                   style={{ paddingTop: "3rem", paddingBottom: "3rem" }}
                >
                   <div className="mb-4 flex justify-center">

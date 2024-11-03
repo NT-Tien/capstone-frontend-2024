@@ -161,7 +161,7 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                         </a>
                      </div>
                      <Form.Item>
-                        <Button htmlType="submit" size="large" className="gradient-button w-full rounded-md">
+                        <Button htmlType="submit" size="large" className="bg-[#6a6df4] text-white w-full rounded-md">
                            Đăng nhập
                         </Button>
                      </Form.Item>

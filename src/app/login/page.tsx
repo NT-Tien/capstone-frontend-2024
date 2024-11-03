@@ -104,7 +104,7 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
          {loading && <Spin fullscreen tip="Logging in..." />}
          <div className="bg-half-half-gradient flex min-h-screen items-center p-4">
             <div className="hidden w-1/2 flex-col items-center justify-center lg:flex">
-               <Image className="object-contain" src="/images/Capstone_login.png" alt="Capstone Login" />
+               <Image className="object-contain" src="/images/logo2.png" height={320} width={600} alt="Capstone Login" />
                <div className="typing-animation">
                   <span>
                      Chào mừng bạn đã quay trở lại với <span style={{ color: "#f6c018" }}>MMMS</span>

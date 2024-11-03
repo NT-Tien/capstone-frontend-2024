@@ -34,20 +34,34 @@ function Page({ params }: { params: { id: string } }) {
    const api_task = staff_queries.task.one({ id: params.id })
 
    const issueSpareParts = useMemo(() => {
-      return api_task.data?.issues.flatMap((i) => i.issueSpareParts) ?? []
+      return api_task.data?.issues?.flatMap((issue) => issue.issueSpareParts) || []
    }, [api_task.data?.issues])
 
    const hasResolvedAllIssues = useMemo(() => {
-      return api_task.data?.issues.every((i) => i.status !== IssueStatusEnum.PENDING)
-   }, [api_task.data?.issues])
+      if (api_task.isLoading || !api_task.data) return false
+      return api_task.data.issues.every((i) => i.status !== IssueStatusEnum.PENDING)
+   }, [api_task.isLoading, api_task.data?.issues])
 
    const hasFailedIssueWithSparePart = useMemo(() => {
-      return api_task.data?.issues.some((i) => i.status === IssueStatusEnum.FAILED && i.issueSpareParts.length > 0)
-   }, [api_task.data?.issues])
+      if (api_task.isLoading || !api_task.data) return false
+      return api_task.data.issues.some((i) => i.status === IssueStatusEnum.FAILED && i.issueSpareParts.length > 0)
+   }, [api_task.isLoading, api_task.data?.issues])
 
    const hasReturnedSpareParts = useMemo(() => {
+      if (api_task.isLoading || !api_task.data) return false
       return TaskUtil.hasReturnedSpareParts(api_task.data)
-   }, [api_task.data])
+   }, [api_task.isLoading, api_task.data])
+
+   const hasFailedIssueWithoutSparePart = useMemo(() => {
+      if (api_task.isLoading || !api_task.data) return false
+      return api_task.data.issues.some((i) => i.status === IssueStatusEnum.FAILED && issueSpareParts.length === 0)
+   }, [api_task.isLoading, api_task.data?.issues])
+
+   if (!api_task.isSuccess) {
+      return <div>Loading...</div>
+   }
+
+   console.log("issueSpareParts length:", issueSpareParts.length)
 
    return (
       <ConfigProvider
@@ -277,48 +291,47 @@ function Page({ params }: { params: { id: string } }) {
                   />
                )}
             </section>
-            {hasResolvedAllIssues && (
-               <footer className={"absolute bottom-0 left-0 w-full bg-white p-layout shadow-fb"}>
-                  {hasReturnedSpareParts === false ? (
-                     <Button
-                        block
-                        type={"primary"}
-                        size={"large"}
-                        onClick={() =>
-                           api_task.isSuccess &&
-                           control_returnSparePartDrawer.current?.handleOpen({
-                              task: api_task.data,
-                              returnSpareParts: api_task.data.issues
-                                 .filter(
-                                    (i) =>
-                                       i.issueSpareParts.length > 0 &&
-                                       i.status === IssueStatusEnum.FAILED &&
-                                       !i.returnSparePartsStockkeeperSignature &&
-                                       !i.returnSparePartsStaffSignature,
-                                 )
-                                 .flatMap((i) => i.issueSpareParts),
-                           })
-                        }
-                     >
-                        Trả linh kiện
-                     </Button>
-                  ) : (
-                     <Button
-                        block
-                        type={"primary"}
-                        size={"large"}
-                        onClick={() =>
-                           api_task.isSuccess &&
-                           control_finishTaskDrawer.current?.handleOpen({
-                              task: api_task.data,
-                           })
-                        }
-                     >
-                        Hoàn thành tác vụ
-                     </Button>
-                  )}
-               </footer>
-            )}
+            <footer className={"absolute bottom-0 left-0 w-full bg-white p-layout shadow-fb"}>
+               {(hasResolvedAllIssues && hasReturnedSpareParts && hasFailedIssueWithoutSparePart) && (
+                  <Button
+                     block
+                     type={"primary"}
+                     size={"large"}
+                     onClick={() =>
+                        api_task.isSuccess &&
+                        control_finishTaskDrawer.current?.handleOpen({
+                           task: api_task.data,
+                        })
+                     }
+                  >
+                     Hoàn thành tác vụ
+                  </Button>
+               )}
+               {(!hasReturnedSpareParts && hasFailedIssueWithSparePart) && (
+                  <Button
+                     block
+                     type={"primary"}
+                     size={"large"}
+                     onClick={() =>
+                        api_task.isSuccess &&
+                        control_returnSparePartDrawer.current?.handleOpen({
+                           task: api_task.data,
+                           returnSpareParts: api_task.data.issues
+                              .filter(
+                                 (i) =>
+                                    i.issueSpareParts.length > 0 &&
+                                    i.status === IssueStatusEnum.FAILED &&
+                                    !i.returnSparePartsStockkeeperSignature &&
+                                    !i.returnSparePartsStaffSignature,
+                              )
+                              .flatMap((i) => i.issueSpareParts),
+                        })
+                     }
+                  >
+                     Trả linh kiện
+                  </Button>
+               )}
+            </footer>
          </div>
          <OverlayControllerWithRef ref={control_issueViewDetailsDrawer}>
             <IssueViewDetailsDrawer refetchFn={api_task.refetch} />

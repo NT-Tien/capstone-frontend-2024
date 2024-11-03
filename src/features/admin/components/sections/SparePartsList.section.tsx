@@ -37,12 +37,13 @@ function SparePartsListSection({ spareParts, isLoading, params }: Props) {
       limit: 10,
       sort: {
          order: "ASC",
-         orderBy: "position",
+         orderBy: "name",
       },
       search: {},
    })
 
    const api_sparePart = admin_queries.spare_part.one({ id: params.id })
+
    const api_spareParts = admin_queries.spare_part.all_filterAndSort({
       page: query.page,
       limit: query.limit,
@@ -54,14 +55,13 @@ function SparePartsListSection({ spareParts, isLoading, params }: Props) {
             ? item.name?.toLowerCase().includes(query.search.name.toLowerCase())
             : true
          const matchQuantity = query.search?.quantity ? item.quantity === query.search.quantity : true
-
          return matchName && matchQuantity
       })
 
-      return {
-         list: filtered?.slice((query.page - 1) * query.limit, query.page * query.limit),
-         total: filtered?.length,
-      }
+      const sorted = filtered?.sort((a, b) =>
+         query.sort?.order === "ASC" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name),
+      )
+      return { list: sorted?.slice((query.page - 1) * query.limit, query.page * query.limit), total: sorted?.length }
    }, [spareParts, query])
 
    const control_sparePartUpsertDrawer = useRef<RefType<SparePart_UpsertDrawerProps>>(null)
@@ -87,7 +87,7 @@ function SparePartsListSection({ spareParts, isLoading, params }: Props) {
                      </div>
                   ),
                searchText: "Tìm kiếm",
-               resetText: "Xóa",
+               resetText: "Làm mới",
             }}
             onSubmit={(props: QueryState["search"]) => {
                setQuery((prev) => ({

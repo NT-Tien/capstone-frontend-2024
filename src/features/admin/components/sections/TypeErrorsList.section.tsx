@@ -102,7 +102,7 @@ function TypeErrorsListSection({ typeErrors, isLoading }: Props) {
                      </div>
                   ),
                searchText: "Tìm kiếm",
-               resetText: "Xóa",
+               resetText: "Làm mới",
             }}
             onSubmit={(props: QueryState["search"]) => {
                setQuery((prev) => ({
@@ -169,7 +169,7 @@ function TypeErrorsListSection({ typeErrors, isLoading }: Props) {
                   render: (_, e) => <Link href={`/admin/type-error/${e.id}`}>{e.name}</Link>
                },
                {
-                  title: "Thời gian sửa",
+                  title: "Thời lượng",
                   width: 200,
                   ellipsis: true,
                   dataIndex: "duration",

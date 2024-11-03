@@ -56,7 +56,7 @@ function Page({ params }: { params: { id: string } }) {
                      items: [
                         CopyToClipboard({ value: params.id }),
                         {
-                           label: "Xóa",
+                           label: "Làm mới",
                            key: "delete",
                            danger: true,
                            icon: <DeleteOutlined />,
@@ -156,9 +156,14 @@ function Page({ params }: { params: { id: string } }) {
                {
                   tab: "Linh kiện",
                   key: "spareParts",
-                  children: <SparePartsListSection spareParts={api_machineModel.data?.spareParts ?? []} params={{
-                     id: ""
-                  }} />,
+                  children: (
+                     <SparePartsListSection
+                        spareParts={api_machineModel.data?.spareParts ?? []}
+                        params={{
+                           id: "",
+                        }}
+                     />
+                  ),
                },
                {
                   tab: "Lỗi máy",

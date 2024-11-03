@@ -120,7 +120,7 @@ function RequestsListByMachineModelSection(props: Props) {
                   </div>
                ),
             searchText: "Tìm kiếm",
-            resetText: "Xóa",
+            resetText: "Làm mới",
          }}
          pagination={{
             pageSize: query.limit,

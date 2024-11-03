@@ -15,6 +15,8 @@ type Request = {
       machineModelId?: string
       positionX?: number
       positionY?: number
+      area?: string
+      description?: string
    }
 
    sort?: {

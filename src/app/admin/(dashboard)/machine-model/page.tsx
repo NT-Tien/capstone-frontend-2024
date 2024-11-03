@@ -175,7 +175,7 @@ function Page() {
                         </div>
                      ),
                   searchText: "Tìm kiếm",
-                  resetText: "Xóa",
+                  resetText: "Làm mới",
                }}
                onSubmit={(props: QueryState["search"]) => {
                   setQuery((prev) => ({
@@ -203,6 +203,7 @@ function Page() {
                      return newValues
                   },
                }}
+               toolBarRender={false}
                pagination={{
                   pageSize: query.limit,
                   current: query.page,
@@ -254,7 +255,7 @@ function Page() {
                      dataIndex: "warrantyTerm",
                      width: 200,
                      render: (_, entity) =>
-                        entity.warrantyTerm ? dayjs(entity.warrantyTerm).format("DD/MM/YYYY") : "Không có",
+                        entity.warrantyTerm ? dayjs(entity.warrantyTerm).format("DD/MM/YYYY") : "-",
                      valueType: "date",
                      sorter: true,
                      renderFormItem: (item, { type, defaultRender, ...rest }, form) => (

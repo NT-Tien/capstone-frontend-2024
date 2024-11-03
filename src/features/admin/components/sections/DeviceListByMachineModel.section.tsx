@@ -20,6 +20,8 @@ type QueryState = {
    search: {
       positionX?: string
       positionY?: string
+      area?: string
+      description?: string
    }
    sort: {
       order?: "ASC" | "DESC"
@@ -45,6 +47,8 @@ function DeviceListByMachineModelSection(props: Props) {
          machineModelId: props.machineModelId,
          positionX: Number(query.search?.positionX),
          positionY: Number(query.search?.positionY),
+         area: query.search?.area,
+         description: query.search?.description,
       },
       sort: {
          order: query.sort?.order,
@@ -109,7 +113,7 @@ function DeviceListByMachineModelSection(props: Props) {
                      </div>
                   ),
                searchText: "Tìm kiếm",
-               resetText: "Xóa",
+               resetText: "Làm mới",
             }}
             pagination={{
                pageSize: query.limit,
@@ -126,9 +130,13 @@ function DeviceListByMachineModelSection(props: Props) {
                },
             }}
             toolBarRender={() => [
-               <Button key="create" type="primary" onClick={() => {
-                  control_deviceUpsertDrawer.current?.handleOpen({})
-               }}>
+               <Button
+                  key="create"
+                  type="primary"
+                  onClick={() => {
+                     control_deviceUpsertDrawer.current?.handleOpen({})
+                  }}
+               >
                   Tạo thiết bị
                </Button>,
             ]}
@@ -137,6 +145,7 @@ function DeviceListByMachineModelSection(props: Props) {
                   title: "ID",
                   dataIndex: "id",
                   hideInTable: true,
+                  hideInSearch: true,
                },
                {
                   title: "STT",
@@ -175,11 +184,16 @@ function DeviceListByMachineModelSection(props: Props) {
                   hideInSearch: true,
                },
                {
+                  title: "Khu vực",
+                  dataIndex: ["area", "name"],
+                  key: "area",
+               },
+               {
                   title: "Mô tả",
                   dataIndex: ["description"],
                   width: 200,
                   ellipsis: true,
-                  hideInSearch: true,
+                  key: "description",
                },
                {
                   title: "Ngày tạo",
@@ -191,7 +205,7 @@ function DeviceListByMachineModelSection(props: Props) {
                   hideInSearch: true,
                },
                {
-                  title: "Lần trước cập nhật",
+                  title: "Lần cập nhật cuối",
                   dataIndex: "updatedAt",
                   width: 200,
                   render: (_, entity) => dayjs(entity.updatedAt).format("DD/MM/YYYY HH:mm"),
@@ -202,10 +216,14 @@ function DeviceListByMachineModelSection(props: Props) {
                },
             ]}
          />
-         <OverlayControllerWithRef ref={control_deviceUpsertDrawer}><Device_UpsertDrawer onSuccess={async () => {
-            control_deviceUpsertDrawer.current?.handleClose()
-            await api_devices.refetch()
-         }}/></OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_deviceUpsertDrawer}>
+            <Device_UpsertDrawer
+               onSuccess={async () => {
+                  control_deviceUpsertDrawer.current?.handleClose()
+                  await api_devices.refetch()
+               }}
+            />
+         </OverlayControllerWithRef>
       </>
    )
 }

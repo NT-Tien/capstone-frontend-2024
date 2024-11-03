@@ -155,7 +155,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
                   onChange={(e) => setSearch(e.target.value)}
                />
                <Select
-                  className="w-full rounded-r-lg bg-head_maintenance text-center *:text-white"
+                  className="w-full rounded-r-lg bg-head_maintenance text-left *:text-white"
                   variant={"borderless"}
                   value={tab}
                   loading={api_requests.isPending}

@@ -98,6 +98,7 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
    const [issueId, setIssueId] = useState<string | undefined>(undefined)
    const [failReason, setFailReason] = useState<string | undefined>()
    const [status, setStatus] = useState<IssueStatusEnum | undefined>()
+   const fixType = Form.useWatch<FieldType>("fixType", form)
 
    const basicSelectSparePartDrawerRef = useRef<BasicSelectSparePartDrawerRefType | null>(null)
 

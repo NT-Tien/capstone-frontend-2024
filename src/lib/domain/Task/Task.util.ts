@@ -1,5 +1,11 @@
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
-import { SystemTypeErrorIds } from "@/lib/constants/Warranty"
+import {
+   AssembleDeviceTypeErrorId,
+   DisassembleDeviceTypeErrorId,
+   ReceiveWarrantyTypeErrorId,
+   SendWarrantyTypeErrorId,
+   SystemTypeErrorIds,
+} from "@/lib/constants/Warranty"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
 
@@ -18,7 +24,33 @@ class TaskUtil {
       })
    }
 
-   static isTask_Warranty(task: TaskDto) {}
+   static isTask_Warranty(task?: TaskDto, type?: "send" | "receive"): boolean | undefined {
+      if (!task) return undefined
+
+      if (type === undefined) {
+         return !!task.issues.find(
+            (i) =>
+               i.typeError.id === SendWarrantyTypeErrorId ||
+               i.typeError.id === DisassembleDeviceTypeErrorId ||
+               i.typeError.id === ReceiveWarrantyTypeErrorId ||
+               i.typeError.id === AssembleDeviceTypeErrorId,
+         )
+      }
+
+      if (type === "send") {
+         return !!task.issues.find(
+            (i) => i.typeError.id === SendWarrantyTypeErrorId || i.typeError.id === DisassembleDeviceTypeErrorId,
+         )
+      }
+
+      if (type === "receive") {
+         return !!task.issues.find(
+            (i) => i.typeError.id === ReceiveWarrantyTypeErrorId || i.typeError.id === AssembleDeviceTypeErrorId,
+         )
+      }
+
+      return undefined
+   }
 
    static isTask_Renew(task: TaskDto) {}
 

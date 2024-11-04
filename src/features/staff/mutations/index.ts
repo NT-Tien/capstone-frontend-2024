@@ -4,11 +4,15 @@ import useTask_BeginTask from "@/features/staff/mutations/Task_Begin.mutation"
 import useIssue_Resolve from "@/features/staff/mutations/Issue_Resolve.mutation"
 import useTask_Close from "@/features/staff/mutations/Task_Close.mutation"
 import useNotifications_Seen from "@/features/staff/mutations/Notifications_Seen.mutation"
+import useRequest_UpdateWarrantyDate from "@/features/staff/mutations/Request_UpdateWarrantyDate.mutation"
 
 const staff_mutations = {
    issues: {
       failed: useIssue_Failed,
       resolve: useIssue_Resolve,
+   },
+   request: {
+      updateWarrantyDate: useRequest_UpdateWarrantyDate,
    },
    task: { finish: useTask_Finish, begin: useTask_BeginTask, close: useTask_Close },
    notifications: {

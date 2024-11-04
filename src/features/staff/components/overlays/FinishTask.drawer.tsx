@@ -14,6 +14,8 @@ import { clientEnv } from "@/env"
 import staff_mutations from "@/features/staff/mutations"
 import { useRouter } from "next/navigation"
 import { CloseOutlined, MoreOutlined } from "@ant-design/icons"
+import TaskUtil from "@/lib/domain/Task/Task.util"
+import { cn } from "@/lib/utils/cn.util"
 
 type FinishTaskDrawerProps = {
    task?: TaskDto
@@ -76,6 +78,20 @@ function FinishTaskDrawer(props: Props) {
       }
    }, [props.open])
 
+   const canFinishTask = useMemo(() => {
+      if (TaskUtil.isTask_Warranty(props.task, "send") && signatureVerification && props.task) return true
+      if (imageVerification && signatureVerification && props.task) return true
+      return false
+   }, [imageVerification, props.task, signatureVerification])
+
+   console.log(
+      TaskUtil.isTask_Warranty(props.task, "send"),
+      imageVerification,
+      signatureVerification,
+      props.task,
+      !!(imageVerification && signatureVerification && props.task),
+   )
+
    return (
       <>
          <Drawer
@@ -100,7 +116,7 @@ function FinishTaskDrawer(props: Props) {
                         id="sign"
                         checked={signed}
                         onChange={(e) => setSigned(e.target.checked)}
-                        disabled={!imageVerification || !signatureVerification || !props.task}
+                        disabled={!canFinishTask}
                      />
                      <label htmlFor="sign" className={"font-bold"}>
                         Tối muốn hoàn thành tác vụ này
@@ -113,7 +129,7 @@ function FinishTaskDrawer(props: Props) {
                      onClick={() =>
                         handleFinish(props.task?.id ?? "", imageVerification ?? "", signatureVerification ?? "", note)
                      }
-                     disabled={!imageVerification || !signatureVerification || !props.task || !signed}
+                     disabled={!signed}
                   >
                      Hoàn thành
                   </Button>
@@ -154,36 +170,39 @@ function FinishTaskDrawer(props: Props) {
                </Form.Item>
             </section>
             <Divider className="mt-12 text-base font-semibold">Xác nhận hoàn thành</Divider>
-            <section className="grid grid-cols-2 gap-3">
-               {imageVerification ? (
-                  <Image
-                     alt="image"
-                     key={imageVerification + "_image"}
-                     src={clientEnv.BACKEND_URL + "/file-image/" + imageVerification}
-                     className="aspect-square w-full rounded-lg"
-                  />
-               ) : (
-                  <Button block className="aspect-square h-max" onClick={() => setCaptureImageOpen(true)}>
-                     <div className="whitespace-pre-wrap">Thêm hình ảnh trưởng phòng</div>
-                  </Button>
-               )}
+
+            {/*image verification only if task is fix or renew. for send warranty, just sign */}
+            <div className={"grid grid-cols-2 gap-3"}>
+               {!TaskUtil.isTask_Warranty(props.task, "send") &&
+                  (imageVerification ? (
+                     <Image
+                        alt="image"
+                        key={imageVerification + "_image"}
+                        src={clientEnv.BACKEND_URL + "/file-image/" + imageVerification}
+                        className="aspect-square w-full rounded-lg"
+                     />
+                  ) : (
+                     <Button block className="aspect-square h-max w-full" onClick={() => setCaptureImageOpen(true)}>
+                        <div className="whitespace-pre-wrap">Thêm hình ảnh trưởng phòng</div>
+                     </Button>
+                  ))}
                {signatureVerification ? (
                   <Image
                      alt="image"
                      key={signatureVerification + "_image"}
                      src={clientEnv.BACKEND_URL + "/file-image/" + signatureVerification}
-                     className="aspect-square w-full rounded-lg"
+                     className={cn("mt-3 aspect-square w-full rounded-lg")}
                   />
                ) : (
                   <Button
                      block
-                     className="aspect-square h-max"
+                     className={cn("aspect-square h-max")}
                      onClick={() => control_createSignatureDrawer.current?.handleOpen()}
                   >
                      <div className="whitespace-pre-wrap">Thêm chữ ký xác nhận</div>
                   </Button>
                )}
-            </section>
+            </div>
          </Drawer>
          <CaptureImageDrawer
             open={captureImageOpen}

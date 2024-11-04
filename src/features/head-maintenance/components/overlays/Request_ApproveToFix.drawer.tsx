@@ -136,145 +136,147 @@ function Request_ApproveToFixDrawer(props: Props) {
    }
 
    return (
-      <Drawer
-         title={
-            <div className={"flex w-full items-center justify-between"}>
-               <Button className={"text-white"} icon={<CloseOutlined />} type={"text"} onClick={props.onClose} />
-               <h1 className={"text-lg font-semibold"}>Xác nhận sửa chữa</h1>
-               <Button className={"text-white"} icon={<MoreOutlined />} type={"text"} />
-            </div>
-         }
-         closeIcon={false}
-         placement="bottom"
-         height="75%"
-         width="100%"
-         footer={
-            <Button
-               size={"large"}
-               className="w-full"
-               type="primary"
-               icon={<SendOutlined />}
-               disabled={selectedIssues.length === 0}
-               loading={mutate_requestApproveToFix.isPending}
-               onClick={() =>
-                  props.requestId &&
-                  handleSubmit({
-                     requestId: props.requestId,
-                     hasWarranty: MachineModelUtil.canBeWarranted(api_device.data?.machineModel) ?? false,
-                     selectedIssues,
-                  })
-               }
-            >
-               Gửi
-            </Button>
-         }
-         classNames={{
-            footer: "p-layout",
-            header: "bg-head_maintenance text-white *:text-white",
-         }}
-         {...props}
-      >
-         {selectedIssues.length === 0 && (
-            <AlertCard
-               text="Vui lòng chọn các lỗi thiết bị hiện có từ danh sách bên dưới"
-               type="info"
-               icon={<Info size={20} weight="fill" />}
-               className="mb-layout"
-            />
-         )}
-         <Select
-            options={selectableTypeErrors?.map((error) => ({
-               label: error.name,
-               value: JSON.stringify(error),
-            }))}
-            className="select-white-placeholder w-full rounded-lg bg-head_maintenance text-white *:text-white"
-            autoClearSearchValue
-            showSearch
-            variant="borderless"
-            size="large"
-            placeholder="+ Thêm lỗi mới"
-            value={selectedTypeErrorControl}
-            onChange={(value) => {
-               setSelectedTypeErrorControl(value)
-               if (!api_device.isSuccess) return
-               control_createSingleIssueDrawer.current?.handleOpen({
-                  device: api_device.data,
-                  typeError: JSON.parse(value as any) as TypeErrorDto,
-               })
+      <>
+         <Drawer
+            title={
+               <div className={"flex w-full items-center justify-between"}>
+                  <Button className={"text-white"} icon={<CloseOutlined />} type={"text"} onClick={props.onClose} />
+                  <h1 className={"text-lg font-semibold"}>Xác nhận sửa chữa</h1>
+                  <Button className={"text-white"} icon={<MoreOutlined />} type={"text"} />
+               </div>
+            }
+            closeIcon={false}
+            placement="bottom"
+            height="75%"
+            width="100%"
+            footer={
+               <Button
+                  size={"large"}
+                  className="w-full"
+                  type="primary"
+                  icon={<SendOutlined />}
+                  disabled={selectedIssues.length === 0}
+                  loading={mutate_requestApproveToFix.isPending}
+                  onClick={() =>
+                     props.requestId &&
+                     handleSubmit({
+                        requestId: props.requestId,
+                        hasWarranty: MachineModelUtil.canBeWarranted(api_device.data?.machineModel) ?? false,
+                        selectedIssues,
+                     })
+                  }
+               >
+                  Gửi
+               </Button>
+            }
+            classNames={{
+               footer: "p-layout",
+               header: "bg-head_maintenance text-white *:text-white",
             }}
-         />
-         <div className="mt-2">
-            {selectedIssues.length === 0 ? (
-               <Card size="small">
-                  <Empty description={"Chưa có lỗi nào được tạo"} image={Empty.PRESENTED_IMAGE_DEFAULT} />
-               </Card>
-            ) : (
-               <List
-                  bordered
-                  dataSource={selectedIssues}
-                  itemLayout={"horizontal"}
-                  renderItem={(issue) => {
-                     return (
-                        <List.Item
-                           className="p-3"
-                           actions={[
-                              <Button
-                                 key="edit"
-                                 type="text"
-                                 icon={<EditOutlined />}
-                                 onClick={() => {
-                                    if (!api_device.data) return
-                                    control_createSingleIssueDrawer.current?.handleOpen({
-                                       device: api_device.data,
-                                       typeError: issue.typeError,
-                                       defaultIssue: issue,
-                                    })
-                                 }}
-                              ></Button>,
-                              <Button
-                                 key="delete"
-                                 type="text"
-                                 danger
-                                 icon={<DeleteOutlined />}
-                                 onClick={() => handleDeleteSingleIssue(issue)}
-                              />,
-                           ]}
-                        >
-                           <List.Item.Meta
-                              title={issue.typeError.name}
-                              description={
-                                 <Space
-                                    wrap
-                                    split={<Divider className={"m-0"} type={"vertical"} />}
-                                    className="flex items-center gap-2 text-sm"
-                                 >
-                                    <div className={FixTypeTagMapper[issue.fixType].className}>
-                                       {FixTypeTagMapper[issue.fixType].text}
-                                    </div>
-                                    {issue.issueSpareParts.length > 0 && (
-                                       <div
-                                          className={cn(
-                                             "flex items-center gap-1",
-                                             IssueUtil.hasOutOfStockIssueSpareParts(issue) && "text-yellow-500",
-                                          )}
-                                       >
-                                          <Wrench size={16} weight={"duotone"} />
-                                          {issue.issueSpareParts.length} linh kiện
-                                       </div>
-                                    )}
-                                 </Space>
-                              }
-                           >
-                              Test
-                           </List.Item.Meta>
-                        </List.Item>
-                     )
-                  }}
+            {...props}
+         >
+            {selectedIssues.length === 0 && (
+               <AlertCard
+                  text="Vui lòng chọn các lỗi thiết bị hiện có từ danh sách bên dưới"
+                  type="info"
+                  icon={<Info size={20} weight="fill" />}
+                  className="mb-layout"
                />
             )}
-         </div>
+            <Select
+               options={selectableTypeErrors?.map((error) => ({
+                  label: error.name,
+                  value: JSON.stringify(error),
+               }))}
+               className="select-white-placeholder w-full rounded-lg bg-head_maintenance text-white *:text-white"
+               autoClearSearchValue
+               showSearch
+               variant="borderless"
+               size="large"
+               placeholder="+ Thêm lỗi mới"
+               value={selectedTypeErrorControl}
+               onChange={(value) => {
+                  setSelectedTypeErrorControl(value)
+                  if (!api_device.isSuccess) return
+                  control_createSingleIssueDrawer.current?.handleOpen({
+                     device: api_device.data,
+                     typeError: JSON.parse(value as any) as TypeErrorDto,
+                  })
+               }}
+            />
+            <div className="mt-2">
+               {selectedIssues.length === 0 ? (
+                  <Card size="small">
+                     <Empty description={"Chưa có lỗi nào được tạo"} image={Empty.PRESENTED_IMAGE_DEFAULT} />
+                  </Card>
+               ) : (
+                  <List
+                     bordered
+                     dataSource={selectedIssues}
+                     itemLayout={"horizontal"}
+                     renderItem={(issue) => {
+                        return (
+                           <List.Item
+                              className="p-3"
+                              actions={[
+                                 <Button
+                                    key="edit"
+                                    type="text"
+                                    icon={<EditOutlined />}
+                                    onClick={() => {
+                                       if (!api_device.data) return
+                                       control_createSingleIssueDrawer.current?.handleOpen({
+                                          device: api_device.data,
+                                          typeError: issue.typeError,
+                                          defaultIssue: issue,
+                                       })
+                                    }}
+                                 ></Button>,
+                                 <Button
+                                    key="delete"
+                                    type="text"
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                    onClick={() => handleDeleteSingleIssue(issue)}
+                                 />,
+                              ]}
+                           >
+                              <List.Item.Meta
+                                 title={issue.typeError.name}
+                                 description={
+                                    <Space
+                                       wrap
+                                       split={<Divider className={"m-0"} type={"vertical"} />}
+                                       className="flex items-center gap-2 text-sm"
+                                    >
+                                       <div className={FixTypeTagMapper[issue.fixType].className}>
+                                          {FixTypeTagMapper[issue.fixType].text}
+                                       </div>
+                                       {issue.issueSpareParts.length > 0 && (
+                                          <div
+                                             className={cn(
+                                                "flex items-center gap-1",
+                                                IssueUtil.hasOutOfStockIssueSpareParts(issue) && "text-yellow-500",
+                                             )}
+                                          >
+                                             <Wrench size={16} weight={"duotone"} />
+                                             {issue.issueSpareParts.length} linh kiện
+                                          </div>
+                                       )}
+                                    </Space>
+                                 }
+                              >
+                                 Test
+                              </List.Item.Meta>
+                           </List.Item>
+                        )
+                     }}
+                  />
+               )}
+            </div>
+         </Drawer>
          <Issue_CreateDetailsDrawer onFinish={handleCreateOrUpdateSingleIssue} ref={control_createSingleIssueDrawer} />
-      </Drawer>
+      </>
    )
 }
 

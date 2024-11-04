@@ -8,6 +8,8 @@ export type Request = {
    id: string
    payload: {
       fixer: string
+      fixerDate: string
+      priority: boolean
    }
 } & AuthTokenWrapper
 export type Response = TaskDto

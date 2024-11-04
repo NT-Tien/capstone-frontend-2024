@@ -1,16 +1,21 @@
 "use client"
 
-import { Button, Card, DatePicker, Drawer, Form, DrawerProps, Image, App } from "antd"
+import { Button, Card, DatePicker, Drawer, Form, DrawerProps, Image, App, Divider, Space, Descriptions } from "antd"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { clientEnv } from "@/env"
-import { useState } from "react"
-import { Dayjs } from "dayjs"
-import { SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
+import { Fragment, useState } from "react"
+import dayjs, { Dayjs } from "dayjs"
+import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import AlertCard from "@/components/AlertCard"
+import { CloseOutlined, MoreOutlined, RightOutlined } from "@ant-design/icons"
+import { cn } from "@/lib/utils/cn.util"
+import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
+import { CheckCircle, CircleDashed, MinusCircle, XCircle } from "@phosphor-icons/react"
+import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
 
 type Task_VerifyComplete_WarrantyDrawerProps = {
    task?: TaskDto
-   onSubmit?: (warrantyDate?: string) => void
+   onSubmit?: () => void
 }
 type Props = Omit<DrawerProps, "children"> &
    Task_VerifyComplete_WarrantyDrawerProps & {
@@ -18,70 +23,92 @@ type Props = Omit<DrawerProps, "children"> &
    }
 
 function Task_VerifyComplete_WarrantyDrawer(props: Props) {
-   const { message } = App.useApp()
-   const [warrantyDate, setWarrantyDate] = useState<Dayjs | null>(null)
-
    function handleSubmit() {
-      if (!warrantyDate) {
-         message.error("Vui lòng chọn ngày bảo hành")
-         return
-      }
-      props.onSubmit?.(warrantyDate?.toISOString())
+      props.onSubmit?.()
       props.handleClose?.()
    }
 
    return (
       <Drawer
-         title="Kiểm tra chữ ký"
-         height="max-content"
+         title={
+            <div className={"flex items-center justify-between"}>
+               <Button icon={<CloseOutlined className={"text-white"} />} type={"text"} onClick={props.onClose} />
+               <h1>Kiểm tra tác vụ</h1>
+               <Button icon={<MoreOutlined className={"text-white"} />} type={"text"} />
+            </div>
+         }
+         closeIcon={false}
+         height="100%"
          placement="bottom"
          footer={
             <Button size="large" block type="primary" onClick={handleSubmit}>
                Xác nhận thông tin
             </Button>
          }
-         classNames={{
-            footer: "p-layout",
-         }}
+         classNames={{ footer: "p-layout", header: "bg-head_maintenance text-white" }}
          {...props}
       >
-         <AlertCard text="Vui lòng kiểm tra chữ ký bên dưới" type="info" />
-         <div className="mt-3 grid grid-cols-2 gap-3">
-            {props.task?.imagesVerify.map((img) => (
-               <Image
-                  key={img}
-                  src={clientEnv.BACKEND_URL + `/file-image/${props.task?.imagesVerify[0]}`}
-                  alt="Chữ ký"
-                  className="aspect-square h-max rounded-lg"
-               />
-            ))}
-         </div>
-         <section className="mt-3">
-            <h3 className="mb-2 text-base font-medium text-gray-600">Biên lai bảo hành</h3>
-            <div className="mb-3 grid grid-cols-4 gap-3">
-               {props.task?.issues
-                  .find((issue) => issue.typeError?.id === SendWarrantyTypeErrorId)
-                  ?.imagesVerify.map((img) => (
-                     <Image
-                        key={img}
-                        src={clientEnv.BACKEND_URL + `/file-image/${img}`}
-                        alt="image"
-                        className="aspect-square h-full rounded-lg"
-                     />
-                  ))}
-            </div>
-            <Form.Item rules={[{ required: true }]}>
-               <DatePicker
-                  className="w-full"
-                  placeholder="Chọn ngày bảo hành xong"
-                  size="large"
-                  value={warrantyDate}
-                  onChange={(date) => {
-                     setWarrantyDate(date)
-                  }}
-               />
-            </Form.Item>
-         </section>
+         <Descriptions
+            size={"small"}
+            contentStyle={{
+               display: "flex",
+               justifyContent: "flex-end",
+            }}
+            items={[
+               {
+                  label: "Thời gian hoàn thành",
+                  children: props.task?.completedAt ? dayjs(props.task.completedAt).format("HH:mm DD/MM/YYYY") : "-",
+               },
+               {
+                  label: "Ghi chú",
+                  children: props.task?.fixerNote || "Không có",
+               },
+               {
+                  label: "Biên lai bảo hành",
+                  className: "*:flex-col",
+                  children: (
+                     <div className="mt-3 grid grid-cols-4 gap-3">
+                        {props.task?.issues
+                           .find(
+                              (i) =>
+                                 i.typeError.id === SendWarrantyTypeErrorId ||
+                                 i.typeError.id === ReceiveWarrantyTypeErrorId,
+                           )
+                           ?.imagesVerify.map(
+                              (img) =>
+                                 img && (
+                                    <Image
+                                       key={img}
+                                       src={clientEnv.BACKEND_URL + `/file-image/${img}`}
+                                       alt="Chữ ký"
+                                       className="h-max w-full rounded-lg"
+                                    />
+                                 ),
+                           )}
+                     </div>
+                  ),
+               },
+               {
+                  label: "Minh chứng hoàn thành",
+                  className: "*:flex-col",
+                  children: (
+                     <div className="mt-3 grid grid-cols-2 gap-3">
+                        {props.task?.imagesVerify.map(
+                           (img) =>
+                              img && (
+                                 <Image
+                                    key={img}
+                                    src={clientEnv.BACKEND_URL + `/file-image/${img}`}
+                                    alt="Chữ ký"
+                                    className="h-max w-full rounded-lg"
+                                 />
+                              ),
+                        )}
+                     </div>
+                  ),
+               },
+            ]}
+         />
       </Drawer>
    )
 }

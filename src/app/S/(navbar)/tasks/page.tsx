@@ -20,6 +20,10 @@ import TaskViewDetails_FixDrawer, {
 } from "@/features/staff/components/overlays/TaskViewDetails_Fix.drawer"
 import TaskUtil from "@/lib/domain/Task/Task.util"
 import { Check, Clock, Hourglass, Placeholder, SealWarning } from "@phosphor-icons/react"
+import { ExportStatus } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
+import TaskViewDetails_WarrantyDrawer, {
+   TaskViewDetails_WarrantyDrawerProps,
+} from "@/features/staff/components/overlays/TaskViewDetails_Warranty.drawer"
 
 const isCompletedSet = new Set([TaskStatus.COMPLETED, TaskStatus.CANCELLED, TaskStatus.HEAD_STAFF_CONFIRM])
 
@@ -44,7 +48,12 @@ function Page({ searchParams }: { searchParams: { completed?: string } }) {
 
       return api_tasks.data.reduce(
          (acc, curr) => {
-            if (isCompletedSet.has(curr.status)) return acc
+            if (
+               isCompletedSet.has(curr.status) ||
+               (curr.export_warehouse_ticket?.[0] &&
+                  curr.export_warehouse_ticket?.[0]?.status !== ExportStatus.ACCEPTED)
+            )
+               return acc
 
             const date = dayjs(curr.fixerDate).format("DD/MM/YYYY")
             if (acc[date]) acc[date]++
@@ -76,6 +85,15 @@ function Page({ searchParams }: { searchParams: { completed?: string } }) {
       if (!api_tasks.isSuccess) return returnValue
 
       api_tasks.data.forEach((task) => {
+         if (task.export_warehouse_ticket.length !== 0) {
+            if (
+               task?.export_warehouse_ticket[0]?.status !== ExportStatus.ACCEPTED &&
+               task?.export_warehouse_ticket[0]?.status !== ExportStatus.EXPORTED
+            ) {
+               return
+            }
+         }
+
          const fixerDate = dayjs(task.fixerDate)
          if (fixerDate.isSame(dayjs(selectedDate), "day"))
             if (isCompletedSet.has(task.status)) {
@@ -191,14 +209,22 @@ type ListRendererTabs = "unfinished" | "finished"
 function ListRendererCard(props: ListRendererProps) {
    const [tab, setTab] = useState<ListRendererTabs>("unfinished")
 
-   const control_taskDetailsDrawer = useRef<TaskDetailsDrawerRefType | null>(null)
    const control_taskViewDetails_fixDrawer = useRef<RefType<TaskViewDetails_FixDrawerProps>>(null)
+   const control_taskViewDetails_warrantyDrawer = useRef<RefType<TaskViewDetails_WarrantyDrawerProps>>(null)
 
    function handleItemClick(task: TaskDto) {
       if (TaskUtil.isTask_Fix(task)) {
          control_taskViewDetails_fixDrawer.current?.handleOpen({
             taskId: task.id,
          })
+         return
+      }
+
+      if (TaskUtil.isTask_Warranty(task)) {
+         control_taskViewDetails_warrantyDrawer.current?.handleOpen({
+            taskId: task.id,
+         })
+         return
       }
    }
 
@@ -281,7 +307,6 @@ function ListRendererCard(props: ListRendererProps) {
                )}
             />
          </article>
-         <TaskDetailsDrawer ref={control_taskDetailsDrawer} />
          <ConfigProvider
             theme={{
                token: {
@@ -292,6 +317,9 @@ function ListRendererCard(props: ListRendererProps) {
          >
             <OverlayControllerWithRef ref={control_taskViewDetails_fixDrawer}>
                <TaskViewDetails_FixDrawer refetchFn={props.refetchFn} />
+            </OverlayControllerWithRef>
+            <OverlayControllerWithRef ref={control_taskViewDetails_warrantyDrawer}>
+               <TaskViewDetails_WarrantyDrawer refetchFn={props.refetchFn} />
             </OverlayControllerWithRef>
          </ConfigProvider>
       </>

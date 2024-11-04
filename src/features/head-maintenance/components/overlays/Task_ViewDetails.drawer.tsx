@@ -22,6 +22,7 @@ import {
    CheckCircle,
    Circle,
    Clock,
+   Gear,
    ImageSquare,
    Pen,
    Users,
@@ -55,6 +56,11 @@ import IssueDetailsDrawer, {
    IssueDetailsDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Issue_Details.drawer"
 import hm_uris from "@/features/head-maintenance/uri"
+import Task_UpdateFixerAndFixerDate, {
+   Task_UpdateFixerAndFixerDateRefType,
+} from "@/features/head-maintenance/components/overlays/Task_UpdateFixerAndFixerDate.drawer"
+import head_maintenance_mutations from "@/features/head-maintenance/mutations"
+import { ExportStatusMapper } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto, requestId: string) => void
@@ -96,6 +102,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
       useRef<RefType<Task_VerifyComplete_IssueFailedDrawerProps>>(null)
    const control_taskCreateDrawer = useRef<RefType<CreateTaskV2DrawerProps>>(null)
    const control_issueDetailsDrawer = useRef<RefType<IssueDetailsDrawerProps>>(null)
+   const control_taskUpdateFixerAndFixerDateDrawer = useRef<Task_UpdateFixerAndFixerDateRefType | null>(null)
 
    function handleOpenTaskVerifyComplete() {
       if (!api_task.isSuccess) return
@@ -108,7 +115,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
          return
       }
 
-      control_taskVerifyCompleteDrawer.current?.handleOpen({ task: api_task.data })
+      control_taskVerifyCompleteDrawer.current?.handleOpen({ task: api_task.data, requestId: requestId })
    }
 
    const api_task = useQuery({
@@ -117,7 +124,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
       enabled: !!task?.id,
    })
 
-   const mutate_updateStatus = useMutation({
+   const mutate_updateCompleteTask = useMutation({
       mutationFn: HeadStaff_Task_UpdateComplete,
       onSuccess: async () => {
          message.success("Xác nhận thành công")
@@ -137,6 +144,9 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
       },
    })
 
+   const mutate_closeTask = head_maintenance_mutations.task.close()
+   const mutate_createIssues = head_maintenance_mutations.issue.createMany()
+
    const mutate_updateRequest = useMutation({
       mutationFn: HeadStaff_Request_UpdateStatus,
    })
@@ -145,19 +155,39 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
       mutationFn: HeadStaff_Task_UpdateAwaitSparePartToAssignFixer,
    })
 
-   async function handleUpdateConfirmCheck(warrantyDate?: string) {
+   async function handleCheckTask(newIssues?: IssueDto[]) {
+      try {
+         if (!task) return
+         await mutate_closeTask.mutateAsync({
+            id: task.id,
+         })
+
+         if (newIssues && newIssues.length > 0) {
+            await mutate_createIssues.mutateAsync({
+               request: requestId,
+               issues: newIssues.map((i) => ({
+                  description: i.description,
+                  fixType: i.fixType,
+                  typeError: i.typeError.id,
+                  spareParts: i.issueSpareParts.map((sp) => ({
+                     sparePart: sp.sparePart.id,
+                     quantity: sp.quantity,
+                  })),
+               })),
+            })
+         }
+
+         handleClose()
+         await props.refetchFn?.()
+      } catch (e) {
+         console.error(e)
+      }
+   }
+
+   async function handleUpdateConfirmCheck() {
       if (!task || !api_task.isSuccess) return
 
-      if (warrantyDate) {
-         await mutate_updateRequest.mutateAsync({
-            id: api_task.data.request.id,
-            payload: {
-               return_date_warranty: warrantyDate,
-            },
-         })
-      }
-
-      await mutate_updateStatus.mutateAsync(
+      await mutate_updateCompleteTask.mutateAsync(
          {
             id: api_task.data.id,
          },
@@ -165,9 +195,6 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
             onSuccess: async () => {
                handleClose()
                await props.refetchFn?.()
-               if (isWarrantyTask) {
-                  props.autoCreateTaskFn?.(warrantyDate)
-               }
             },
          },
       )
@@ -211,7 +238,6 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                <Button
                   type="primary"
                   className="w-full"
-                  size="large"
                   disabled={!!isMissingSpareParts}
                   onClick={async () => {
                      await mutate_checkSparePartStock.mutateAsync(
@@ -242,7 +268,6 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
             <Button
                type="primary"
                className="w-full"
-               size="large"
                onClick={() => {
                   assignFixerDrawerRef.current?.handleOpen(task.id, {
                      priority: task.priority,
@@ -261,7 +286,6 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
             <Button
                type="primary"
                className="w-full"
-               size="large"
                onClick={() => {
                   const lastIssuesDataJson = task?.last_issues_data
                   const parsedLastIssuesDataJson = lastIssuesDataJson ? JSON.parse(lastIssuesDataJson) : []
@@ -289,7 +313,6 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
             <Button
                type="default"
                className="w-full"
-               size="large"
                onClick={() => {
                   message.info("Not implemented")
                }}
@@ -310,7 +333,6 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                <Button
                   type="primary"
                   className="w-full"
-                  size="large"
                   onClick={() => {
                      if (!api_task.isSuccess) return
                      if (isSendWarrantyTask) {
@@ -358,10 +380,9 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                      <Button
                         icon={<EditOutlined />}
                         type="text"
-                        size="large"
                         onClick={() => {
                            if (!task) return
-                           assignFixerDrawerRef.current?.handleOpen(task.id, {
+                           control_taskUpdateFixerAndFixerDateDrawer.current?.handleOpen(task.id, {
                               priority: task.priority,
                               fixerDate: dayjs(task.fixerDate).add(7, "hours"),
                               fixer: task.fixer,
@@ -398,7 +419,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                         ],
                      }}
                   >
-                     <Button icon={<MoreOutlined />} type="text" size="large"></Button>
+                     <Button icon={<MoreOutlined />} type="text"></Button>
                   </Dropdown>
                </div>
             }
@@ -445,6 +466,15 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                         {task.fixerDate ? dayjs(task.fixerDate).add(7, "hours").format("DD/MM/YYYY") : "Chưa có"}
                      </div>
                   </div>
+                  {api_task.data.status !== TaskStatus.AWAITING_FIXER &&
+                     api_task.data?.issues.find((i) => i.issueSpareParts.length > 0) && (
+                        <div className="mt-layout flex items-center gap-3">
+                           <Gear size={18} weight="fill" color="#737373" />
+                           <div>
+                              Linh kiện: {ExportStatusMapper(api_task.data.export_warehouse_ticket[0]?.status)?.text}
+                           </div>
+                        </div>
+                     )}
                   <div className="mt-layout flex items-center gap-3">
                      <Users size={18} weight="fill" color="#737373" />
                      <div>{task.fixer?.username ?? "Chưa có"}</div>
@@ -586,7 +616,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
             <IssueDetailsDrawer />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_taskVerifyCompleteDrawer}>
-            <Task_VerifyCompleteDrawer onSubmit={handleUpdateConfirmCheck} />
+            <Task_VerifyCompleteDrawer onSubmit={(newIssues) => handleCheckTask(newIssues)} />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_taskVerifyComplete_warrantyDrawer}>
             <Task_VerifyComplete_WarrantyDrawer onSubmit={handleUpdateConfirmCheck} />
@@ -594,7 +624,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
          <OverlayControllerWithRef ref={control_taskVerifyComplete_issueFailedDrawer}>
             <Task_VerifyComplete_IssueFailedDrawer
                onSubmit={() => {
-                  handleUpdateConfirmCheck()
+                  handleCheckTask()
                   requestId && router.push(hm_uris.stack.requests_id_fix(requestId) + `?tab=issues`)
                }}
             />
@@ -607,6 +637,13 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
             }}
          />
          <Task_UpdateFixDateDrawer ref={updateTaskFixDateDrawerRef} refetchFn={props.refetchFn} />
+         <Task_UpdateFixerAndFixerDate
+            ref={control_taskUpdateFixerAndFixerDateDrawer}
+            refetchFn={props.refetchFn}
+            afterFinish={() => {
+               handleClose()
+            }}
+         />
          <Task_CancelDrawer
             ref={cancelTaskDrawerRef}
             refetchFn={() => {

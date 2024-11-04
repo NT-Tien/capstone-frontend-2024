@@ -5,7 +5,7 @@ import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
 import { DeleteOutlined } from "@ant-design/icons"
 import { ChatDots, MapPin, XCircle } from "@phosphor-icons/react"
-import { App, Button, Card, Descriptions, Divider, Dropdown, Progress, Result, Skeleton, Steps } from "antd"
+import { App, Button, Card, Descriptions, Divider, Dropdown, Progress, Result, Skeleton, Space, Steps } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { FixRequest_StatusData, FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
@@ -251,8 +251,39 @@ function Page({ params }: { params: { id: string } }) {
                               className: api_requests.data?.status === FixRequestStatus.HEAD_CANCEL ? "" : "hidden",
                            },
                            {
-                              title: "Đang sửa chữa",
-                              description: <span className={"text-sm"}>Đang sửa chữa thiết bị</span>,
+                              title: `Đang ${api_requests.data?.is_warranty ? "bảo hành" : "sửa chữa"}`,
+                              description: (
+                                 <div className={"flex flex-col"}>
+                                    <span className={"text-sm"}>
+                                       Đang {api_requests.data?.is_warranty ? "bảo hành" : "sửa chữa"} thiết bị
+                                    </span>
+                                    {(api_requests.data?.status === FixRequestStatus.APPROVED ||
+                                       api_requests.data?.status === FixRequestStatus.IN_PROGRESS) && (
+                                       <Space split={<Divider type={"vertical"} className={"m-0"} />} wrap>
+                                          <div>
+                                             <span className={"text-xs"}>
+                                                {
+                                                   api_requests.data?.issues.filter(
+                                                      (i) => i.status === IssueStatusEnum.PENDING,
+                                                   ).length
+                                                }{" "}
+                                                lỗi chưa xử lý
+                                             </span>
+                                          </div>
+                                          <div>
+                                             <span className={"text-xs"}>
+                                                {
+                                                   api_requests.data?.issues.filter(
+                                                      (i) => i.status === IssueStatusEnum.RESOLVED,
+                                                   ).length
+                                                }{" "}
+                                                lỗi đã hoàn thành
+                                             </span>
+                                          </div>
+                                       </Space>
+                                    )}
+                                 </div>
+                              ),
                               className:
                                  api_requests.isSuccess &&
                                  new Set([FixRequestStatus.REJECTED, FixRequestStatus.HEAD_CANCEL]).has(

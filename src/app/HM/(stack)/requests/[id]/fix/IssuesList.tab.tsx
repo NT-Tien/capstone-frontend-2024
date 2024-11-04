@@ -133,7 +133,7 @@ function IssuesListTab(props: Props) {
    }
 
    return (
-      <div>
+      <div className={"pb-24"}>
          <ConfigProvider
             theme={{
                components: {
@@ -306,7 +306,6 @@ function IssuesListTab(props: Props) {
                               <Button
                                  block
                                  type={"primary"}
-                                 size={"large"}
                                  disabled={Object.keys(selectedIssues).length <= 0}
                                  onClick={() => {
                                     props.api_request.isSuccess &&
@@ -338,7 +337,7 @@ function IssuesListTab(props: Props) {
                                     ],
                                  }}
                               >
-                                 <Button icon={<MoreOutlined />} className={"aspect-square"} size={"large"} />
+                                 <Button icon={<MoreOutlined />} className={"aspect-square"} />
                               </Dropdown>
                            </section>
                         </>
@@ -560,7 +559,7 @@ function IssuesListTab(props: Props) {
          <OverlayControllerWithRef ref={control_issueDetailsDrawer}>
             <IssueDetailsDrawer refetchFn={() => props.api_request.refetch()} />
          </OverlayControllerWithRef>
-         <Issue_SelectTypeErrorDrawer onFinish={props.api_request.refetch} ref={createIssuesDrawerRef} />
+         <Issue_SelectTypeErrorDrawer onFinish={() => props.api_request.refetch()} ref={createIssuesDrawerRef} />
       </div>
    )
 }

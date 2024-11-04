@@ -32,7 +32,7 @@ import Request_RejectDrawer, {
 import Task_ViewDetailsDrawer, {
    TaskDetailsDrawerRefType,
 } from "@/features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
-import TabbedLayout from "@/app/HM/(stack)/requests/[id]/fix/Tabs.component"
+import TabbedLayout from "@/app/HM/(stack)/requests/[id]/warranty/Tabs.component"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import hm_uris from "@/features/head-maintenance/uri"
 
@@ -138,38 +138,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
 
    useEffect(() => {
       if (!api_request.isSuccess) return
-
-      const task = api_request.data.tasks.find((task) => task.status === TaskStatus.HEAD_STAFF_CONFIRM)
-
-      if (!!task) {
-         notification.destroy("head-staff-confirm")
-         notification.info({
-            message: "Thông báo",
-            description: "Trên hệ thống có tác vụ đã hoàn thành và đang chờ xác nhận từ trưởng phòng",
-            placement: "bottomRight",
-            key: "head-staff-confirm",
-            btn: (
-               <Button
-                  type="primary"
-                  size="large"
-                  onClick={() => {
-                     notification.destroy("head-staff-confirm")
-                     taskDetailsRef.current?.handleOpen(task, params.id)
-                  }}
-               >
-                  Xem tác vụ
-               </Button>
-            ),
-         })
-      }
-
-      return () => {
-         notification.destroy("head-staff-confirm")
-      }
-   }, [api_request.data?.tasks, api_request.isSuccess, notification, params.id])
-
-   useEffect(() => {
-      if (!api_request.isSuccess) return
       if (!api_request.data.return_date_warranty) return
 
       const now = dayjs()
@@ -256,12 +224,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
             ) : (
                <>
                   <div className="px-layout">
-                     <section
-                        className={cn(
-                           "relative z-50 rounded-lg border-2 border-neutral-200 bg-white shadow-lg",
-                           isWarranty && "rounded-b-none",
-                        )}
-                     >
+                     <section className={cn("relative z-50 rounded-lg border-2 border-neutral-200 bg-white shadow-lg")}>
                         <DataListView
                            bordered
                            dataSource={api_request.data}
@@ -292,8 +255,8 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                               ...(api_request.data?.return_date_warranty
                                  ? [
                                       {
-                                         label: "Ngày nhận máy bảo hành",
-                                         value: (e: any) => dayjs(e.return_date_warranty).format("DD/MM/YYYY - HH:mm"),
+                                         label: "Ngày nhận bảo hành (dự tính)",
+                                         value: (e: any) => dayjs(e.return_date_warranty).format("DD/MM/YYYY"),
                                       },
                                    ]
                                  : []),

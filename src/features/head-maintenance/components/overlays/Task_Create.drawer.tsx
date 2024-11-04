@@ -71,8 +71,6 @@ function Task_CreateDrawer(props: Props) {
       }
    }, [props.open])
 
-   console.log(selectedIssueIds, props.defaultIssueIds)
-
    const api = useQueries({
       queries: [
          {
@@ -244,7 +242,6 @@ function Task_CreateDrawer(props: Props) {
                <Button
                   icon={<PlusOutlined />}
                   type="primary"
-                  size="large"
                   disabled={selectedIssueIds.length === 0}
                   onClick={() => {
                      const hasMissingSpareParts = api.request.data?.issues
@@ -264,7 +261,7 @@ function Task_CreateDrawer(props: Props) {
                                  </div>
 
                                  <div className="mt-2">
-                                    <strong>Bên kho sẽ được thông báo để nhập kho linh kiện.</strong>
+                                    <strong>Sau khi phân công, bên kho sẽ được thông báo để nhập kho linh kiện.</strong>
                                  </div>
                               </div>
                            ),

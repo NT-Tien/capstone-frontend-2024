@@ -16,7 +16,7 @@ api.interceptors.request.use(
       return config
    },
    (error) => {
-      console.info("[DEV MODE]: Request error: ", error)
+      console.info("[DEV MODE]: Request error: ", JSON.stringify(error, null, 2))
       return Promise.reject(error)
    },
    {

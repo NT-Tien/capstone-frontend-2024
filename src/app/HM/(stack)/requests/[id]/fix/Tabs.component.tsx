@@ -71,27 +71,6 @@ function TabbedLayout(props: Props) {
       },
    })
 
-   function handleFinishRequest() {
-      modal.confirm({
-         title: "Đóng yêu cầu",
-         content: "Bạn có chắc chắn muốn đóng yêu cầu này?",
-         onOk: () => {
-            mutate_finishRequest.mutate(
-               { id: props.requestId, payload: { status: FixRequestStatus.HEAD_CONFIRM } },
-               {
-                  onSettled: () => props.api_request.refetch(),
-                  onSuccess: () => router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.IN_PROGRESS}`),
-               },
-            )
-         },
-         cancelText: "Hủy",
-         okText: "Hoàn tất",
-         closable: true,
-         centered: true,
-         maskClosable: true,
-      })
-   }
-
    const hasExpired = useMemo(() => {
       if (!props.api_device.isSuccess) return false
       return dayjs().isAfter(dayjs(props.api_device.data.machineModel?.warrantyTerm))
@@ -177,7 +156,7 @@ function TabbedLayout(props: Props) {
                onClick={() => handleTabChange("tasks")}
             >
                <CheckSquareOffset size={20} weight={"duotone"} />
-               <div className="text-center text-sm">Tác vụ</div>
+               <div className="text-center text-sm">Tác vụ ({props.api_request.data?.tasks.length ?? 0})</div>
             </div>
             <div
                className={cn(
@@ -187,7 +166,7 @@ function TabbedLayout(props: Props) {
                onClick={() => handleTabChange("issues")}
             >
                <WarningDiamond size={20} weight={"duotone"} />
-               <div className="text-center text-sm">Lỗi máy</div>
+               <div className="text-center text-sm">Lỗi máy ({props.api_request.data?.issues.length ?? 0})</div>
             </div>
             <div
                className={cn(
@@ -202,43 +181,16 @@ function TabbedLayout(props: Props) {
          </nav>
          <div className="flex h-full flex-1 flex-col rounded-t-2xl border-neutral-200 bg-white shadow-fb">
             {tab === "tasks" && (
-               <>
-                  <TasksListTab api_request={props.api_request} className="flex-1" highlightTaskId={highlightedId} />
-
-                  {props.api_request.isSuccess &&
-                     new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
-                        props.api_request.data.status,
-                     ) && (
-                        <section className="fixed bottom-0 left-0 w-full bg-inherit p-layout">
-                           <div className="flex w-full items-center gap-3">
-                              <Button
-                                 className="w-full"
-                                 type="primary"
-                                 size="large"
-                                 icon={<PlusOutlined />}
-                                 onClick={() =>
-                                    control_taskCreateDrawer.current?.handleOpen({ requestId: props.requestId })
-                                 }
-                                 disabled={createTaskBtnText}
-                              >
-                                 Tạo tác vụ
-                              </Button>
-                              {props.api_request.data?.tasks.every(
-                                 (task) => task.status === TaskStatus.COMPLETED || task.status === TaskStatus.CANCELLED,
-                              ) &&
-                                 props.api_request.data?.issues.every(
-                                    (issue) =>
-                                       issue.status === IssueStatusEnum.RESOLVED ||
-                                       issue.status === IssueStatusEnum.CANCELLED,
-                                 ) && (
-                                    <Button className="" size="large" type="primary" onClick={handleFinishRequest}>
-                                       Đóng yêu cầu
-                                    </Button>
-                                 )}
-                           </div>
-                        </section>
-                     )}
-               </>
+               <TasksListTab
+                  api_request={props.api_request}
+                  className="flex-1"
+                  highlightTaskId={highlightedId}
+                  handleOpenCreateTask={() => {
+                     control_taskCreateDrawer.current?.handleOpen({ requestId: props.requestId })
+                  }}
+                  onSuccess_FinishRequest={() => router.push(hm_uris.navbar.requests)}
+                  disabledCreateTask={createTaskBtnText}
+               />
             )}
             {tab === "issues" && (
                <IssuesListTab

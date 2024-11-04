@@ -3,6 +3,7 @@ import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { UserDto } from "@/lib/domain/User/User.dto"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { ExportWarehouseDto } from "@/lib/domain/ExportWarehouse/ExportWarehouse.dto"
 
 export type TaskDto = {
    id: string
@@ -18,18 +19,19 @@ export type TaskDto = {
    completedAt: string
    imagesVerify: string[]
    videosVerify: string
-   confirmReceipt: boolean | null
    fixerDate: string
    device: DeviceDto
    request: RequestDto
    fixer: UserDto
    issues: IssueDto[]
+   confirmReceipt: boolean | null
    confirmReceiptStaffSignature: string
    confirmReceiptStockkeeperSignature: string
    device_renew: DeviceDto
    last_issues_data: any
    return_spare_part_data: any
    cancelReason?: string
+   export_warehouse_ticket: ExportWarehouseDto[]
 }
 
 export const PriorityTagMapper: {

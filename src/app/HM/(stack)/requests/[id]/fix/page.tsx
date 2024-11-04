@@ -9,7 +9,7 @@ import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapp
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, ConfigProvider, Dropdown } from "antd"
+import { App, ConfigProvider, Descriptions, Dropdown } from "antd"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
 import Result from "antd/es/result"
@@ -33,6 +33,7 @@ import Task_ViewDetailsDrawer, {
 import TabbedLayout from "@/app/HM/(stack)/requests/[id]/fix/Tabs.component"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import hm_uris from "@/features/head-maintenance/uri"
+import { InfoCircleFilled } from "@ant-design/icons"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
@@ -134,37 +135,37 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       }
    }
 
-   useEffect(() => {
-      if (!api_request.isSuccess) return
-
-      const task = api_request.data.tasks.find((task) => task.status === TaskStatus.HEAD_STAFF_CONFIRM)
-
-      if (!!task) {
-         notification.destroy("head-staff-confirm")
-         notification.info({
-            message: "Thông báo",
-            description: "Trên hệ thống có tác vụ đã hoàn thành và đang chờ xác nhận từ trưởng phòng",
-            placement: "bottomRight",
-            key: "head-staff-confirm",
-            btn: (
-               <Button
-                  type="primary"
-                  size="large"
-                  onClick={() => {
-                     notification.destroy("head-staff-confirm")
-                     taskDetailsRef.current?.handleOpen(task, params.id)
-                  }}
-               >
-                  Xem tác vụ
-               </Button>
-            ),
-         })
-      }
-
-      return () => {
-         notification.destroy("head-staff-confirm")
-      }
-   }, [api_request.data?.tasks, api_request.isSuccess, notification, params.id])
+   // useEffect(() => {
+   //    if (!api_request.isSuccess) return
+   //
+   //    const task = api_request.data.tasks.find((task) => task.status === TaskStatus.HEAD_STAFF_CONFIRM)
+   //
+   //    if (!!task) {
+   //       notification.destroy("head-staff-confirm")
+   //       notification.info({
+   //          message: "Thông báo",
+   //          description: "Trên hệ thống có tác vụ đã hoàn thành và đang chờ xác nhận từ trưởng phòng",
+   //          placement: "bottomRight",
+   //          key: "head-staff-confirm",
+   //          btn: (
+   //             <Button
+   //                type="primary"
+   //                size="large"
+   //                onClick={() => {
+   //                   notification.destroy("head-staff-confirm")
+   //                   taskDetailsRef.current?.handleOpen(task, params.id)
+   //                }}
+   //             >
+   //                Xem tác vụ
+   //             </Button>
+   //          ),
+   //       })
+   //    }
+   //
+   //    return () => {
+   //       notification.destroy("head-staff-confirm")
+   //    }
+   // }, [api_request.data?.tasks, api_request.isSuccess, notification, params.id])
 
    useEffect(() => {
       if (!api_request.isSuccess) return
@@ -264,111 +265,60 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                </>
             ) : (
                <>
-                  <div className="px-layout">
+                  <div className="px-layout-half">
                      <section
                         className={cn(
-                           "relative z-50 rounded-lg border-2 border-neutral-200 bg-white shadow-lg",
+                           "relative z-50 rounded-lg border-2 border-neutral-200 bg-white p-layout-half shadow-lg",
                            isWarranty && "rounded-b-none",
                         )}
                      >
-                        <DataListView
-                           bordered
-                           dataSource={api_request.data}
-                           itemClassName="py-2"
-                           labelClassName="font-normal text-neutral-400 text-[14px]"
-                           valueClassName="text-[14px] font-medium"
-                           items={[
-                              {
-                                 label: "Ngày tạo",
-                                 value: (e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
-                              },
-                              {
-                                 label: "Người yêu cầu",
-                                 value: (e) => e.requester?.username ?? "-",
-                              },
-                              {
-                                 label: "Trạng thái",
-                                 value: (e) => (
-                                    <Tag className="m-0" color={FixRequest_StatusMapper(e).colorInverse}>
-                                       {FixRequest_StatusMapper(e).text}
-                                    </Tag>
-                                 ),
-                              },
-                              {
-                                 label: "Ghi chú",
-                                 value: (e) => e.requester_note,
-                              },
-                              ...(api_request.data?.return_date_warranty
-                                 ? [
-                                      {
-                                         label: "Ngày nhận máy bảo hành",
-                                         value: (e: any) => dayjs(e.return_date_warranty).format("DD/MM/YYYY - HH:mm"),
-                                      },
-                                   ]
-                                 : []),
-                           ]}
-                        />
+                        {api_request.isPending && <Card loading></Card>}
+                        {api_request.isSuccess && (
+                           <Descriptions
+                              size={"small"}
+                              className={"text-sm *:text-sm"}
+                              contentStyle={{
+                                 display: "flex",
+                                 justifyContent: "flex-end",
+                                 fontSize: "14px",
+                              }}
+                              labelStyle={{
+                                 fontSize: "14px",
+                              }}
+                              colon={false}
+                              items={[
+                                 {
+                                    label: "Ngày tạo",
+                                    children: dayjs(api_request.data.createdAt).format("DD/MM/YYYY - HH:mm"),
+                                 },
+                                 {
+                                    label: "Người yêu cầu",
+                                    children: api_request.data.requester?.username ?? "-",
+                                 },
+                                 {
+                                    label: "Trạng thái",
+                                    children: (
+                                       <div className={FixRequest_StatusMapper(api_request.data).className}>
+                                          {FixRequest_StatusMapper(api_request.data).text}
+                                       </div>
+                                    ),
+                                 },
+                                 {
+                                    label: "Ghi chú",
+                                    children: <div className={"line-clamp-1"}>{api_request.data.requester_note}</div>,
+                                 },
+                              ]}
+                           />
+                        )}
                      </section>
-                     {/* {isWarranty && (
-                     <div className="rounded-b-lg border-[2px] border-yellow-400 bg-yellow-50 py-2 text-center font-medium text-yellow-600">
-                        Thiết bị được bảo hành
-                     </div>
-                  )}
-                  {api_request.data?.status === FixRequestStatus.APPROVED && api_request.data?.tasks.length === 0 && (
-                     <section className="std-layout">
-                        <div className="flex w-full items-start rounded-b-lg bg-primary-500 p-3 text-white">
-                           <Info size={32} className="mr-2" />
-                           <div className="text-sm font-medium">
-                              Yêu cầu đã được xác nhận. Vui lòng tạo tác vụ để tiếp tục.
-                           </div>
-                        </div>
-                     </section>
-                  )}
-                  {api_request.isSuccess &&
-                     api_request.data.tasks.length > 0 &&
-                     new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
-                        api_request.data.status,
-                     ) && (
+                     {api_request.data?.issues.find((i) => i.task === null) && (
                         <section className="std-layout">
-                           <div className="flex w-full gap-4 rounded-b-lg bg-blue-600 p-3 text-white">
-                              <div className="flex flex-grow flex-col items-start">
-                                 <div className="flex w-full justify-between">
-                                    <h5 className="font-semibold text-neutral-100">Phần trăm hoàn thành </h5>
-                                    <div className="font-semibold text-neutral-100">{percentFinished}%</div>
-                                 </div>
-                                 <Progress
-                                    size={"default"}
-                                    status="active"
-                                    strokeColor="rgba(255, 255, 255, 0.8)"
-                                    showInfo={false}
-                                    type="line"
-                                    percent={percentFinished}
-                                 />
-                              </div>
-                              <div className="grid place-items-center">
-                                 <Dropdown
-                                    menu={{
-                                       items: [
-                                          {
-                                             key: "cancel-request",
-                                             label: "Hủy yêu cầu",
-                                             danger: true,
-                                             onClick: () => {
-                                                rejectRequestRef.current?.handleOpen({
-                                                   request: api_request.data,
-                                                })
-                                             },
-                                          },
-                                       ],
-                                    }}
-                                 >
-                                    <Button icon={<MoreOutlined />} />
-                                 </Dropdown>
-                              </div>
+                           <div className="flex w-full gap-2 rounded-b-lg bg-blue-500 p-3 text-white">
+                              <InfoCircleFilled />
+                              Có {api_request.data?.issues.filter((i) => i.task === null).length} lỗi chưa có tác vụ
                            </div>
                         </section>
                      )}
-*/}
                      {api_request.isSuccess &&
                         new Set([FixRequestStatus.HEAD_CONFIRM]).has(api_request.data.status) && (
                            <section className="std-layout">

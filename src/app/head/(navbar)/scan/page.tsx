@@ -110,23 +110,25 @@ export default function ScanPage() {
             <AlertCard text="Vui lòng quét mã QR hoặc nhập ID của thiết bị" icon={<InfoCircleOutlined />} type="info" />
          </div>
          {isFetching > 0 && <Spin fullscreen />}
-         <Scanner
-            paused={false}
-            formats={["qr_code"]}
-            onScan={handleScan}
-            allowMultiple={true}
-            scanDelay={1000}
-            components={{}}
-            constraints={{
-               aspectRatio: 1,
-            }}
-            styles={{
-               video: {
-                  width: "100%",
-                  height: "100%",
-               },
-            }}
-         />
+         <section className={"aspect-square h-full w-full"}>
+            <Scanner
+               paused={false}
+               formats={["qr_code"]}
+               onScan={handleScan}
+               allowMultiple={true}
+               scanDelay={1000}
+               components={{}}
+               constraints={{
+                  aspectRatio: 1,
+               }}
+               styles={{
+                  video: {
+                     width: "100%",
+                     height: "100%",
+                  },
+               }}
+            />
+         </section>
          <Form form={form} layout="horizontal" onFinish={handleManualSubmit} className="mt-4 px-layout">
             <Card
                size="small"

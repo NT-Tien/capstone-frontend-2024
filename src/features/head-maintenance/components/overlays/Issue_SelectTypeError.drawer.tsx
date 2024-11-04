@@ -12,7 +12,7 @@ import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import HeadStaff_Issue_CreateMany from "@/features/head-maintenance/api/issue/create-many.api"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
-import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
+import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId, SystemTypeErrorIds } from "@/lib/constants/Warranty"
 
 type HandleOpen = {
    deviceId: string
@@ -25,7 +25,8 @@ export type CreateIssueModalRefType = {
 
 type Props = {
    children?: (handleOpen: (props: HandleOpen) => void) => ReactNode
-   onFinish?: () => void
+   onFinish?: (result: IssueDto) => void
+   returnResult?: boolean
 }
 
 const Issue_SelectTypeErrorDrawer = forwardRef<CreateIssueModalRefType, Props>(function Component(props, ref) {
@@ -89,7 +90,7 @@ const Issue_SelectTypeErrorDrawer = forwardRef<CreateIssueModalRefType, Props>(f
       if (!api_device.isSuccess || !api_commonTypeErrors.isSuccess || !request) return []
 
       const allOptions = [...api_device.data.machineModel.typeErrors, ...api_commonTypeErrors.data]
-      const existingOptions: Set<string> = new Set<string>([SendWarrantyTypeErrorId, ReceiveWarrantyTypeErrorId])
+      const existingOptions: Set<string> = SystemTypeErrorIds
 
       // cannot create two issues with the same typeError if issue is pending
       request.issues.forEach((issue) => {
@@ -114,28 +115,33 @@ const Issue_SelectTypeErrorDrawer = forwardRef<CreateIssueModalRefType, Props>(f
 
    function handleFinish(issue: IssueDto) {
       if (!request) return
-      mutate_createIssues.mutate(
-         {
-            request: request.id,
-            issues: [
-               {
-                  description: issue.description,
-                  fixType: issue.fixType,
-                  typeError: issue.typeError.id,
-                  spareParts: issue.issueSpareParts.map((sp) => ({
-                     sparePart: sp.sparePart.id,
-                     quantity: sp.quantity,
-                  })),
-               },
-            ],
-         },
-         {
-            onSuccess: () => {
-               handleClose()
-               props.onFinish?.()
+      if (props.returnResult) {
+         props.onFinish?.(issue)
+         handleClose()
+      } else {
+         mutate_createIssues.mutate(
+            {
+               request: request.id,
+               issues: [
+                  {
+                     description: issue.description,
+                     fixType: issue.fixType,
+                     typeError: issue.typeError.id,
+                     spareParts: issue.issueSpareParts.map((sp) => ({
+                        sparePart: sp.sparePart.id,
+                        quantity: sp.quantity,
+                     })),
+                  },
+               ],
             },
-         },
-      )
+            {
+               onSuccess: () => {
+                  handleClose()
+                  props.onFinish?.(issue)
+               },
+            },
+         )
+      }
    }
 
    return (

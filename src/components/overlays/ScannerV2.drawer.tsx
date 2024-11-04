@@ -104,33 +104,35 @@ const ScannerV2Drawer = forwardRef<ScannerV2DrawerRefType, Props>(function Compo
             {/*      </span>*/}
             {/*   </div>*/}
             {/*</section>*/}
-            <Scanner
-               paused={!open}
-               onScan={async (e) => {
-                  if (e.length === 0) return
+            <section className={"aspect-square w-full"}>
+               <Scanner
+                  paused={!open}
+                  onScan={async (e) => {
+                     if (e.length === 0) return
 
-                  const currentId = e[0].rawValue
+                     const currentId = e[0].rawValue
 
-                  // only continue if currentId exists
-                  if (currentId) {
-                     await handleFinish(currentId)
-                  }
-               }}
-               allowMultiple={true}
-               scanDelay={1000}
-               components={{}}
-               constraints={{}}
-               styles={{
-                  container: {
-                     // width: "100%",
-                     // aspectRatio: "1/1",
-                     // borderRadius: "1rem !important",
-                  },
-                  video: {
-                     // borderRadius: "1rem !important",
-                  },
-               }}
-            />
+                     // only continue if currentId exists
+                     if (currentId) {
+                        await handleFinish(currentId)
+                     }
+                  }}
+                  allowMultiple={true}
+                  scanDelay={1000}
+                  components={{}}
+                  constraints={{}}
+                  styles={{
+                     container: {
+                        // width: "100%",
+                        // aspectRatio: "1/1",
+                        // borderRadius: "1rem !important",
+                     },
+                     video: {
+                        // borderRadius: "1rem !important",
+                     },
+                  }}
+               />
+            </section>
          </Drawer>
       </>
    )

@@ -11,6 +11,11 @@ import useIssue_UpdateFull from "@/features/head-maintenance/mutations/Issue_Upd
 import useTaskCancel from "@/features/head-maintenance/mutations/Task_Cancel.mutation"
 import useNotifications_Seen from "@/features/head-maintenance/mutations/Notifications_Seen.mutation"
 import useRequest_ApproveToWarranty from "@/features/head-maintenance/mutations/Request_ApproveToWarranty.mutation"
+import useRequest_Finish from "@/features/head-maintenance/mutations/Request_Finish.mutation"
+import useTask_AssignFixer from "@/features/head-maintenance/mutations/Task_AssignFixer.mutation"
+import useTaskUpdate from "@/features/head-maintenance/mutations/Task_Update.mutation"
+import useTask_Close from "@/features/head-maintenance/mutations/Task_Close.mutation"
+import useIssue_CreateMany from "@/features/head-maintenance/mutations/Issue_Create.mutation"
 
 const head_maintenance_mutations = {
    request: {
@@ -19,12 +24,14 @@ const head_maintenance_mutations = {
       approveToWarranty: useRequest_ApproveToWarranty,
       reject: useRequest_Reject,
       seen: useRequest_Seen,
+      finish: useRequest_Finish,
    },
    issue: {
       update: useIssue_Update,
       updateMany: useIssue_UpdateMany,
       updateFull: useIssue_UpdateFull,
       cancel: useIssue_Cancel,
+      createMany: useIssue_CreateMany,
    },
    issueSparePart: {
       replaceMany: useIssueSparePart_ReplaceMany,
@@ -32,6 +39,9 @@ const head_maintenance_mutations = {
    },
    task: {
       cancel: useTaskCancel,
+      assignFixer: useTask_AssignFixer,
+      update: useTaskUpdate,
+      close: useTask_Close,
    },
    notifications: {
       seen: useNotifications_Seen,

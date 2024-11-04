@@ -1,12 +1,9 @@
 "use client"
 
-import LoginCredentials from "@/features/common/api/login-credentials.api"
 import { Role } from "@/lib/domain/User/role.enum"
-import { NotFoundError } from "@/lib/error/not-found.error"
 import { decodeJwt } from "@/lib/domain/User/decodeJwt.util"
 import LockOutlined from "@ant-design/icons/LockOutlined"
 import UserOutlined from "@ant-design/icons/UserOutlined"
-import { useMutation } from "@tanstack/react-query"
 import App from "antd/es/app"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
@@ -21,7 +18,6 @@ import EnvEditorProvider from "@/providers/EnvEditor.provider"
 import useLoginMutation from "@/features/common/mutations/Login.mutation"
 import staff_uri from "@/features/staff/uri"
 import { Checkbox, Image } from "antd"
-import { FacebookOutlined, GoogleOutlined, TwitterOutlined } from "@ant-design/icons"
 
 type FieldType = {
    username: string
@@ -104,7 +100,13 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
          {loading && <Spin fullscreen tip="Logging in..." />}
          <div className="bg-half-half-gradient flex min-h-screen items-center p-4">
             <div className="hidden w-1/2 flex-col items-center justify-center lg:flex">
-               <Image className="object-contain" src="/images/logo2.png" height={320} width={600} alt="Capstone Login" />
+               <Image
+                  className="object-contain"
+                  src="/images/logo2.png"
+                  height={320}
+                  width={600}
+                  alt="Capstone Login"
+               />
                <div className="typing-animation">
                   <span>
                      Chào mừng bạn đã quay trở lại với <span style={{ color: "#f6c018" }}>MMMS</span>
@@ -113,7 +115,7 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
             </div>
             <div className="flex flex-1 justify-center">
                <Card
-                  className="w-full max-w-sm md:max-w-lg rounded-xl bg-white p-8 shadow-lg lg:w-3/4"
+                  className="w-full max-w-sm rounded-xl bg-white p-8 shadow-lg md:max-w-lg lg:w-3/4"
                   style={{ paddingTop: "3rem", paddingBottom: "3rem" }}
                >
                   <div className="mb-4 flex justify-center">

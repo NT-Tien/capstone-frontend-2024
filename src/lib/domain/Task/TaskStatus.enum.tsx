@@ -42,7 +42,7 @@ export const TaskStatusTagMapper: {
       index: 0,
    },
    [TaskStatus.ASSIGNED]: {
-      text: "Đã phân công",
+      text: "Chưa bắt đầu",
       colorInverse: "blue-inverse",
       color: "blue",
       icon: <Placeholder size={16} />,
@@ -69,12 +69,12 @@ export const TaskStatusTagMapper: {
       index: 4,
    },
    [TaskStatus.COMPLETED]: {
-      text: "Hoàn thành",
+      text: "Đã đóng",
       colorInverse: "green-inverse",
       color: "green",
       icon: <SealCheck size={16} />,
       className: "text-green-500",
-      description: "Tác vụ đã hoàn thành",
+      description: "Tác vụ đã được đóng",
       index: 5,
    },
    [TaskStatus.CANCELLED]: {

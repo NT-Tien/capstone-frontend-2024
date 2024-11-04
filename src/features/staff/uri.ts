@@ -6,6 +6,7 @@ const staff_uri = {
    },
    stack: {
       tasks_id: (id: string) => `/S/tasks/${id}`,
+      tasks_id_warranty: (id: string) => `/S/tasks/${id}/warranty`,
    },
 }
 

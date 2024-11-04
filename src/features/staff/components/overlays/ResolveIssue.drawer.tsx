@@ -20,6 +20,11 @@ type FieldType = {}
 type ResolveIssueDrawerProps = {
    issue?: IssueDto
    onFinish?: () => void
+   submitConditions?: (uploadImages: string[], uploadVideo: string | undefined, issueId: string) => boolean
+   labels?: {
+      image?: string
+      video?: string
+   }
 }
 type Props = Omit<DrawerProps, "children"> &
    ResolveIssueDrawerProps & {
@@ -43,6 +48,12 @@ function ResolveIssueDrawer(props: Props) {
    const [uploadVideo, setUploadVideo] = useState<string | undefined>()
 
    function handleSubmit(uploadImages: string[], uploadVideo: string | undefined, issueId: string) {
+      if (props.submitConditions) {
+         if (!props.submitConditions(uploadImages, uploadVideo, issueId)) {
+            return
+         }
+      }
+
       mutate_resolveIssue.mutate(
          {
             id: issueId,
@@ -65,7 +76,7 @@ function ResolveIssueDrawer(props: Props) {
          title={
             <div className={"flex items-center justify-between"}>
                <Button icon={<CloseOutlined className={"text-white"} />} type={"text"} onClick={props.onClose} />
-               <h1>Hoàn thành lỗi</h1>
+               <h1>Xác nhận Hoàn thành</h1>
                <Button icon={<MoreOutlined className={"text-white"} />} type={"text"} />
             </div>
          }
@@ -74,7 +85,7 @@ function ResolveIssueDrawer(props: Props) {
          height="85%"
          footer={
             <Button block type="primary" size="large" onClick={form.submit}>
-               Xác nhận thành công
+               Xác nhận
             </Button>
          }
          classNames={{
@@ -93,7 +104,7 @@ function ResolveIssueDrawer(props: Props) {
                imagesVerify: [],
             }}
          >
-            <Form.Item<FieldType> label={"Hình ảnh xác nhận"} shouldUpdate>
+            <Form.Item<FieldType> label={props.labels?.image ?? "Hình ảnh xác nhận"} shouldUpdate>
                <div className="mb-2 grid grid-cols-5 gap-2">
                   {uploadImages.map((img) => (
                      <Button
@@ -137,7 +148,7 @@ function ResolveIssueDrawer(props: Props) {
                </Button>
             </Form.Item>
 
-            <Form.Item label="Video xác nhận" shouldUpdate>
+            <Form.Item label={props.labels?.video ?? "Video xác nhận"} shouldUpdate>
                <div className="mb-3">
                   {uploadVideo && (
                      <div className="mb-2">

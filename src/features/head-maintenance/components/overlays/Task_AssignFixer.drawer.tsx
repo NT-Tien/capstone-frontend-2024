@@ -11,6 +11,7 @@ import { App, Button, Card, DatePicker, Drawer, Empty, Form, Radio, Switch, Tag 
 import dayjs, { Dayjs } from "dayjs"
 import { forwardRef, useImperativeHandle, useMemo, useState } from "react"
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons"
+import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 
 type FieldType = {
    name: string
@@ -128,39 +129,19 @@ const Task_AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(funct
       return response
    }, [api_user.data, api_user.isSuccess, fixerDate])
 
-   const mutate_update = useMutation({
-      mutationFn: HeadStaff_Task_Update,
-      onMutate: async () => {
-         message.destroy("loading")
-         message.open({
-            type: "loading",
-            content: "Vui lòng chờ đợi...",
-            key: "loading",
-         })
-      },
-      onSuccess: async () => {
-         message.success("Cập nhật tác vụ thành công")
-      },
-      onError: async (error) => {
-         message.error("Cập nhật tác vụ thất bại: " + error.message)
-      },
-      onSettled: async () => {
-         message.destroy("loading")
-      },
-   })
+   const mutate_assignFixer = head_maintenance_mutations.task.assignFixer()
 
    function handleSubmit() {
       if (!taskId) return
       if (fixer === undefined || fixerDate === undefined) return
 
-      mutate_update.mutate(
+      mutate_assignFixer.mutate(
          {
             id: taskId,
             payload: {
                fixer: fixer.id,
                fixerDate: fixerDate.toISOString(),
                priority,
-               status: TaskStatus.ASSIGNED,
             },
          },
          {
@@ -182,7 +163,7 @@ const Task_AssignFixerDrawer = forwardRef<AssignFixerDrawerRefType, Props>(funct
          <Drawer
             open={open}
             onClose={handleClose}
-            title="Cập nhật tác vụ"
+            title="Phân công tác vụ"
             placement="bottom"
             height="100%"
             className="pb-24"

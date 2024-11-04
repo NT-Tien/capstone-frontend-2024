@@ -2,6 +2,8 @@ import useTask_ReturnSpareParts from "@/features/stockkeeper/mutations/Task_Retu
 import useTask_Cancel from "@/features/stockkeeper/mutations/Task_Cancel.mutation"
 import useIssueFail from "@/features/stockkeeper/mutations/Issue_Fail.mutation"
 import useIssueFailMany from "@/features/stockkeeper/mutations/Issue_FailMany.mutation"
+import useExportWarehouse_Accept from "@/features/stockkeeper/mutations/ExportWarehouse_Accept.mutation"
+import useExportWarehouse_Delay from "@/features/stockkeeper/mutations/ExportWarehouse_Delay.mutation"
 
 const stockkeeper_mutations = {
    task: {
@@ -11,6 +13,10 @@ const stockkeeper_mutations = {
    issue: {
       fail: useIssueFail,
       failMany: useIssueFailMany,
+   },
+   exportWarehouse: {
+      accept: useExportWarehouse_Accept,
+      delay: useExportWarehouse_Delay,
    },
 }
 

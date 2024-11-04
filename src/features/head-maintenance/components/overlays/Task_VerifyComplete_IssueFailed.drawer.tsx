@@ -1,6 +1,6 @@
 "use client"
 
-import { App, Button, Divider, Drawer, DrawerProps, Image, Tag } from "antd"
+import { App, Button, Descriptions, Divider, Drawer, DrawerProps, Image, Space, Tag } from "antd"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { clientEnv } from "@/env"
 import AlertCard from "@/components/AlertCard"
@@ -13,6 +13,8 @@ import Issue_CreateDetailsDrawer, {
    CreateSingleIssueDrawerRefType,
 } from "@/features/head-maintenance/components/overlays/Issue_CreateDetails.drawer"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
+import dayjs from "dayjs"
+import { CloseOutlined, MoreOutlined, RightOutlined } from "@ant-design/icons"
 
 type Task_VerifyComplete_IssueFailedDrawerProps = {
    task?: TaskDto
@@ -72,8 +74,15 @@ function Task_VerifyComplete_IssueFailedDrawer(props: Props) {
    return (
       <>
          <Drawer
-            title="Kiểm tra chữ ký"
-            height="max-content"
+            title={
+               <div className={"flex items-center justify-between"}>
+                  <Button icon={<CloseOutlined className={"text-white"} />} type={"text"} onClick={props.onClose} />
+                  <h1>Kiểm tra tác vụ</h1>
+                  <Button icon={<MoreOutlined className={"text-white"} />} type={"text"} />
+               </div>
+            }
+            closeIcon={false}
+            height="100%"
             placement="bottom"
             footer={
                <Button
@@ -115,119 +124,139 @@ function Task_VerifyComplete_IssueFailedDrawer(props: Props) {
                   Xác nhận thông tin
                </Button>
             }
-            classNames={{ footer: "p-layout" }}
+            classNames={{ footer: "p-layout", header: "bg-head_maintenance text-white" }}
             {...props}
          >
-            <section className="mb-3">
-               <AlertCard text="Vui lòng cập nhật thông tin các lỗi sau" type="info" />
-               <div className="mt-6">
-                  {issues?.map((issue, index, array) => (
-                     <Fragment key={issue.id}>
-                        {index !== 0 && (
-                           <div className="grid grid-cols-[24px_1fr] gap-4">
-                              {(array[index - 1] === undefined || array[index - 1]?.status === issue.status) && (
-                                 <div></div>
-                              )}
-                              <Divider
-                                 className={cn(
-                                    "my-3",
-                                    array[index - 1] !== undefined &&
-                                       array[index - 1]?.status !== issue.status &&
-                                       "col-span-2",
-                                 )}
+            <Descriptions
+               size={"small"}
+               contentStyle={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+               }}
+               items={[
+                  {
+                     label: "Thời gian hoàn thành",
+                     children: props.task?.completedAt ? dayjs(props.task.completedAt).format("HH:mm DD/MM/YYYY") : "-",
+                  },
+                  {
+                     label: "Ghi chú",
+                     children: props.task?.fixerNote || "Không có",
+                  },
+                  {
+                     label: "Minh chứng",
+                     className: "*:flex-col",
+                     children: (
+                        <div className="mt-3 grid grid-cols-2 gap-3">
+                           {props.task?.imagesVerify.map((img) => (
+                              <Image
+                                 key={img}
+                                 src={clientEnv.BACKEND_URL + `/file-image/${img}`}
+                                 alt="Chữ ký"
+                                 className="aspect-square h-max rounded-lg"
                               />
-                           </div>
-                        )}
-                        <div className="grid cursor-pointer grid-cols-[24px_1fr] gap-4">
-                           <div
-                              onClick={() =>
-                                 props.task &&
-                                 control_issueCreateDetailsDrawer.current?.handleOpen({
-                                    defaultIssue: issue,
-                                    device: props.task.device,
-                                    typeError: issue.typeError,
-                                 })
-                              }
-                           >
-                              {issue.status === IssueStatusEnum.PENDING && (
-                                 <MinusCircle
-                                    size={24}
-                                    weight="fill"
-                                    className={IssueStatusEnumTagMapper[issue.status].className}
-                                 />
-                              )}
-                              {issue.status === IssueStatusEnum.RESOLVED && (
-                                 <CheckCircle
-                                    size={24}
-                                    weight="fill"
-                                    className={IssueStatusEnumTagMapper[issue.status].className}
-                                 />
-                              )}
-                              {issue.status === IssueStatusEnum.FAILED && (
-                                 <XCircle
-                                    size={24}
-                                    weight="fill"
-                                    className={IssueStatusEnumTagMapper[issue.status].className}
-                                 />
-                              )}
-                              {issue.status === IssueStatusEnum.CANCELLED && (
-                                 <CircleDashed
-                                    size={24}
-                                    weight="fill"
-                                    className={IssueStatusEnumTagMapper[issue.status].className}
-                                 />
-                              )}
-                           </div>
-                           <div
-                              className="flex flex-col gap-1"
-                              onClick={() =>
-                                 props.task &&
-                                 control_issueCreateDetailsDrawer.current?.handleOpen({
-                                    defaultIssue: issue,
-                                    device: props.task.device,
-                                    typeError: issue.typeError,
-                                 })
-                              }
-                           >
-                              <header className="flex items-center justify-between gap-3">
-                                 <h4>{issue.typeError.name}</h4>
-                                 {issue.status === IssueStatusEnum.CANCELLED && (
-                                    <Tag color={IssueStatusEnumTagMapper[issue.status].color}>
-                                       {IssueStatusEnumTagMapper[issue.status].text}
-                                    </Tag>
-                                 )}
-                              </header>
-                              <div className="flex text-neutral-500">
-                                 <div className={cn("flex gap-1", FixTypeTagMapper[issue.fixType].className)}>
-                                    {FixTypeTagMapper[issue.fixType].icon}
-                                    {FixTypeTagMapper[issue.fixType].text}
-                                 </div>
-                                 <Dot size={24} />
-                                 <div className="flex items-center gap-1">
-                                    <Clock size={16} />
-                                    {issue.typeError.duration} phút
-                                 </div>
-                              </div>
-                           </div>
+                           ))}
                         </div>
-                     </Fragment>
-                  ))}
-               </div>
-            </section>
-            <Divider />
-            <section>
-               <AlertCard text="Vui lòng kiểm tra chữ ký bên dưới" type="info" />
-               <div className="mt-3 grid grid-cols-2 gap-3">
-                  {props.task?.imagesVerify.map((img) => (
-                     <Image
-                        key={img}
-                        src={clientEnv.BACKEND_URL + `/file-image/${props.task?.imagesVerify[0]}`}
-                        alt="Chữ ký"
-                        className="aspect-square h-max rounded-lg"
-                     />
-                  ))}
-               </div>
-            </section>
+                     ),
+                  },
+                  {
+                     label: "Lỗi thất bại",
+                     className: "*:flex-col",
+                     contentStyle: {
+                        justifyContent: "flex-start",
+                     },
+                     children: (
+                        <div className="mt-2 flex w-full flex-col gap-2">
+                           {issues?.map((issue, index, array) => (
+                              <Fragment key={issue.id}>
+                                 {index !== 0 && (
+                                    <div className="grid grid-cols-[24px_1fr] gap-4">
+                                       {(array[index - 1] === undefined ||
+                                          array[index - 1]?.status === issue.status) && <div></div>}
+                                       <Divider
+                                          className={cn(
+                                             "my-3",
+                                             array[index - 1] !== undefined &&
+                                                array[index - 1]?.status !== issue.status &&
+                                                "col-span-2",
+                                          )}
+                                       />
+                                    </div>
+                                 )}
+                                 <div className="grid cursor-pointer grid-cols-[24px_1fr] gap-4">
+                                    <div
+                                       onClick={() =>
+                                          props.task &&
+                                          control_issueCreateDetailsDrawer.current?.handleOpen({
+                                             defaultIssue: issue,
+                                             device: props.task.device,
+                                             typeError: issue.typeError,
+                                          })
+                                       }
+                                    >
+                                       {issue.status === IssueStatusEnum.PENDING && (
+                                          <MinusCircle
+                                             size={24}
+                                             weight="fill"
+                                             className={IssueStatusEnumTagMapper[issue.status].className}
+                                          />
+                                       )}
+                                       {issue.status === IssueStatusEnum.RESOLVED && (
+                                          <CheckCircle
+                                             size={24}
+                                             weight="fill"
+                                             className={IssueStatusEnumTagMapper[issue.status].className}
+                                          />
+                                       )}
+                                       {issue.status === IssueStatusEnum.FAILED && (
+                                          <XCircle
+                                             size={24}
+                                             weight="fill"
+                                             className={IssueStatusEnumTagMapper[issue.status].className}
+                                          />
+                                       )}
+                                       {issue.status === IssueStatusEnum.CANCELLED && (
+                                          <CircleDashed
+                                             size={24}
+                                             weight="fill"
+                                             className={IssueStatusEnumTagMapper[issue.status].className}
+                                          />
+                                       )}
+                                    </div>
+                                    <div
+                                       className="flex flex-col gap-1"
+                                       onClick={() =>
+                                          props.task &&
+                                          control_issueCreateDetailsDrawer.current?.handleOpen({
+                                             defaultIssue: issue,
+                                             device: props.task.device,
+                                             typeError: issue.typeError,
+                                          })
+                                       }
+                                    >
+                                       <header className="flex items-center justify-between gap-3">
+                                          <h4 className={"line-clamp-1"}>{issue.typeError.name}</h4>
+                                          <RightOutlined />
+                                       </header>
+                                       <Space
+                                          split={<Divider type={"vertical"} className="m-0" />}
+                                          wrap
+                                          className="text-sm text-neutral-500"
+                                       >
+                                          <div className={cn("flex gap-1", FixTypeTagMapper[issue.fixType].className)}>
+                                             {FixTypeTagMapper[issue.fixType].icon}
+                                             {FixTypeTagMapper[issue.fixType].text}
+                                          </div>
+                                          <div className={"line-clamp-1"}>{issue.failReason ?? "-"}</div>
+                                       </Space>
+                                    </div>
+                                 </div>
+                              </Fragment>
+                           ))}
+                        </div>
+                     ),
+                  },
+               ]}
+            />
          </Drawer>
          <Issue_CreateDetailsDrawer
             showCancel

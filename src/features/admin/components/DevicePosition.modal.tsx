@@ -1,30 +1,15 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { Modal, Button, message } from "antd";
-import admin_queries from "../queries";
+import React, { useEffect, useState, useMemo } from "react"
+import { Modal, Button, message } from "antd"
+import admin_queries from "../queries"
 
 type DevicePositionModalProps = {
-   visible: boolean;
-   onClose: () => void;
-   onSelectPosition: (x: number, y: number) => void;
-   areaId?: string;
-   width?: number;
-   height?: number;
-};
-
-type QueryState = {
-   page: number;
-   limit: number;
-   search: {
-      positionX?: string;
-      positionY?: string;
-      area?: string;
-      description?: string;
-   };
-   sort: {
-      order?: "ASC" | "DESC";
-      orderBy?: string;
-   };
-};
+   visible: boolean
+   onClose: () => void
+   onSelectPosition: (x: number, y: number) => void
+   areaId?: string
+   width?: number
+   height?: number
+}
 
 const DevicePositionModal: React.FC<DevicePositionModalProps> = ({
    visible,
@@ -32,67 +17,36 @@ const DevicePositionModal: React.FC<DevicePositionModalProps> = ({
    onSelectPosition,
    areaId,
    width = 10,
-   height = 10
+   height = 10,
 }) => {
-   const [occupiedPositions, setOccupiedPositions] = useState<Set<string>>(new Set());
-   const [query, setQuery] = useState<QueryState>({
-    page: 1,
-    limit: 10,
-    sort: {
-       order: "ASC",
-       orderBy: "position",
-    },
-    search: {},
- })
-   const queryProps = useMemo(() => ({
-      page: 1,
-      limit: 100,
-      sort: {
-         order: "ASC",
-         orderBy: "position",
-      },
-      search: {
-         area: areaId,
-         positionX: undefined,
-         positionY: undefined,
-         description: undefined,
-      },
-   }), [areaId]);
+   const [occupiedPositions, setOccupiedPositions] = useState<Set<string>>(new Set())
 
-   const api_devices = admin_queries.device.all_filterAndSort({
-    page: query.page,
-    limit: query.limit,
-    filters: {
-       positionX: Number(query.search?.positionX),
-       positionY: Number(query.search?.positionY),
-       area: query.search?.area,
-       description: query.search?.description,
-    },
-    sort: {
-       order: query.sort?.order,
-       orderBy: query.sort?.orderBy as any,
-    },
- })
+   const api_devices = admin_queries.device.all()
    useEffect(() => {
       if (visible && api_devices.data) {
          const positions = new Set(
-            api_devices.data.list
-               .filter(device => device.positionX != null && device.positionY != null)
-               .map(device => `${device.positionX},${device.positionY}`)
-         );
-         setOccupiedPositions(positions);
-      } else {
-         setOccupiedPositions(new Set());
+            api_devices.data
+               .filter((device) => {
+                  return (
+                     device.positionX != null &&
+                     device.positionY != null &&
+                     device.area?.id === areaId
+                   );               })
+               .map((device) => `${device.positionX},${device.positionY}`),
+         )
+         setOccupiedPositions(positions)
       }
-   }, [visible, api_devices.data]);
+   }, [visible, api_devices.data])
+
+   
 
    const renderCells = () => {
-      const cells = [];
+      const cells = []
       if (width && height) {
          for (let y = 1; y <= height; y++) {
             for (let x = 1; x <= width; x++) {
-               const positionKey = `${x},${y}`;
-               const isOccupied = occupiedPositions.has(positionKey);
+               const positionKey = `${x},${y}`
+               const isOccupied = occupiedPositions.has(positionKey)
                cells.push(
                   <Button
                      key={positionKey}
@@ -106,29 +60,29 @@ const DevicePositionModal: React.FC<DevicePositionModalProps> = ({
                      }}
                      onClick={() => {
                         if (!isOccupied) {
-                           onSelectPosition(x, y);
-                           onClose();
+                           onSelectPosition(x, y)
+                           onClose()
                         } else {
-                           message.info(`Vị trí (${x}, ${y}) đã được sử dụng.`);
+                           message.info(`Vị trí (${x}, ${y}) đã được sử dụng.`)
                         }
                      }}
                      disabled={isOccupied}
                   >
                      {x}x{y}
-                  </Button>
-               );
+                  </Button>,
+               )
             }
          }
       }
-      return cells;
-   };
+      return cells
+   }
 
    return (
-      <Modal 
-         title="Chọn vị trí thiết bị" 
-         visible={visible} 
-         onCancel={onClose} 
-         footer={null} 
+      <Modal
+         title="Chọn vị trí thiết bị"
+         visible={visible}
+         onCancel={onClose}
+         footer={null}
          width={Math.min(width * 55, 800)}
       >
          <div
@@ -146,7 +100,7 @@ const DevicePositionModal: React.FC<DevicePositionModalProps> = ({
             {api_devices.isLoading ? <p>Loading...</p> : renderCells()}
          </div>
       </Modal>
-   );
-};
+   )
+}
 
-export default DevicePositionModal;
+export default DevicePositionModal

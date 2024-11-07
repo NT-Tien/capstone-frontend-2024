@@ -56,7 +56,7 @@ function Device_UpsertDrawer(props: Props) {
    }, [props.device])
 
    useEffect(() => {
-      if (!props.open) {
+      if (props.device) {
          form.setFieldsValue({
             operationStatus: props.device?.operationStatus,
             description: props.device?.description,
@@ -70,7 +70,7 @@ function Device_UpsertDrawer(props: Props) {
             setAreaDimensions({ width: props.device.area.width, height: props.device.area.height })
          }
       }
-   }, [props.open])
+   }, [props.device])
 
    const handleSubmit = (formProps: FormFieldTypes) => {
       const payload = {
@@ -184,7 +184,7 @@ function Device_UpsertDrawer(props: Props) {
             >
                <Input placeholder="Nhập thông số" />
             </Form.Item>
-            <Form.Item<FormFieldTypes> name="area" label="Khu vực" rules={[{ required: true }]}>
+            <Form.Item<FormFieldTypes> name="area" label="Khu vực">
                <Select
                   placeholder="Chọn khu vực"
                   onChange={handleAreaChange}
@@ -200,7 +200,7 @@ function Device_UpsertDrawer(props: Props) {
                   options={areas}
                />
             </Form.Item>
-            <Form.Item label="Vị trí" rules={[{ required: true }]}>
+            <Form.Item label="Vị trí">
                <Button onClick={handleOpenModal}>
                   {selectedPosition ? `X: ${selectedPosition.x}, Y: ${selectedPosition.y}` : "Chọn vị trí"}
                </Button>

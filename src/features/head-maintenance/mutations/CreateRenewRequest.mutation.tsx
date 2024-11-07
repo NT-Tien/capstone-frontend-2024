@@ -32,6 +32,13 @@ export default function useCreateRenewRequestMutation(props?: Props) {
             typeError: RenewRequestTypeErrorId,
             description: "Thay thế thiết bị cũ bằng thiết bị mới",
          })
+         
+         const issue2 = await HeadStaff_Issue_Create({
+            request: req.requestId,
+            fixType: FixType.REPLACE,
+            typeError: RenewRequestTypeErrorId,
+            description: "Thay thế thiết bị cũ bằng thiết bị mới",
+         })
 
          // create renew task
          const task = await HeadStaff_Task_Create({

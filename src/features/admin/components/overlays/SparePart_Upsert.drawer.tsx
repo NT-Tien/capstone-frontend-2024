@@ -46,16 +46,16 @@ function SparePart_UpsertDrawer(props: Props) {
       : undefined
 
    useEffect(() => {
-      if (!props.open) {
+      if (props.sparePart) {
          form.setFieldsValue({
             name: props.sparePart?.name,
             quantity: props.sparePart?.quantity,
-            expirationDate: props.sparePart?.expirationDate,
-            machineModel: props.sparePart?.machineModel.id,
+            expirationDate: dayjs(props?.sparePart?.expirationDate).format("DD/MM/YYYY HH:mm"),
+            machineModel: props?.sparePart?.machineModel?.id,
             image: imageFile,
          })
       }
-   }, [props.open, imageFile])
+   }, [props.sparePart, imageFile])
 
    const machineModels = useMemo(() => {
       if (!api_machineModel.isSuccess) return []
@@ -116,7 +116,7 @@ function SparePart_UpsertDrawer(props: Props) {
             initialValues={{
                name: props.sparePart?.name,
                quantity: props.sparePart?.quantity,
-               expirationDate: dayjs(props.sparePart?.expirationDate),
+               expirationDate: dayjs(props.sparePart?.expirationDate).format("DD/MM/YYYY HH:mm"),
             }}
          >
             {isUpdating ? (
@@ -124,7 +124,10 @@ function SparePart_UpsertDrawer(props: Props) {
                   <Input placeholder="Nhập tên linh kiện" />
                </Form.Item>
             ) : (
-               <Form.Item name="name" label="Tên linh kiện" rules={[{ required: true }]}></Form.Item>
+               <Form.Item name="name" label="Tên linh kiện" rules={[{ required: true }]}>
+                  {" "}
+                  <Input placeholder="Nhập tên linh kiện" />
+               </Form.Item>
             )}
             <Form.Item<FormFieldTypes>
                name="quantity"

@@ -1,17 +1,28 @@
 "use client"
 
 import AlertCard from "@/components/AlertCard"
+import BackendImage from "@/components/BackendImage"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import { clientEnv } from "@/env"
 import IssueFailDrawer, { IssueFailDrawerProps } from "@/features/staff/components/overlays/Issue_Fail.drawer"
 import ResolveIssueDrawer, { ResolveIssueDrawerProps } from "@/features/staff/components/overlays/ResolveIssue.drawer"
+import Issue_Resolve_AssembleDrawer, {
+   Issue_Resolve_AssembleDrawerProps,
+} from "@/features/staff/components/overlays/warranty/Issue_Resolve_Assemble.drawer"
 import Issue_Resolve_DisassembleDrawer, {
    Issue_Resolve_DisassembleDrawerProps,
 } from "@/features/staff/components/overlays/warranty/Issue_Resolve_Disassemble.drawer"
-import ResolveIssue_WarrantyDrawer, {
-   ResolveIssue_WarrantyDrawerProps,
-} from "@/features/staff/components/overlays/warranty/ResolveIssue_Warranty.drawer"
+import Issue_Resolve_ReceiveDrawer, {
+   Issue_Resolve_ReceiveDrawerProps,
+} from "@/features/staff/components/overlays/warranty/Issue_Resolve_Receive.drawer"
+import Issue_Resolve_SendDrawer, {
+   Issue_Resolve_SendDrawerProps,
+} from "@/features/staff/components/overlays/warranty/Issue_Resolve_Send.drawer"
+import Issue_WarrantyFailedModal, {
+   Issue_WarrantyFailedModalProps,
+} from "@/features/staff/components/overlays/warranty/Issue_WarrantyFailed.modal"
 import staff_mutations from "@/features/staff/mutations"
+import staff_uri from "@/features/staff/uri"
 import {
    AssembleDeviceTypeErrorId,
    DisassembleDeviceTypeErrorId,
@@ -23,6 +34,7 @@ import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/Is
 import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import TaskUtil from "@/lib/domain/Task/Task.util"
 import {
    BookOutlined,
    CheckOutlined,
@@ -32,9 +44,10 @@ import {
    UpOutlined,
    WarningOutlined,
 } from "@ant-design/icons"
-import { ChartDonut, Factory, FileText, MapPin, SealWarning, Truck } from "@phosphor-icons/react"
+import { ChartDonut, Factory, FileText, ImageBroken, MapPin, SealWarning, Truck } from "@phosphor-icons/react"
 import { App, Button, Card, Descriptions, Drawer, DrawerProps, Dropdown, Image, Segmented } from "antd"
-import { useEffect, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 type IssueViewDetails_WarrantyDrawerProps = {
    issue?: IssueDto
@@ -51,49 +64,23 @@ type Props = Omit<DrawerProps, "children"> &
 
 function IssueViewDetails_WarrantyDrawer(props: Props) {
    const { modal, message } = App.useApp()
+   const router = useRouter()
 
    const [showTypeErrorDescription, setShowTypeErrorDescription] = useState<boolean>(false)
-   const [tab, setTab] = useState<"spare-parts" | "evidence">("spare-parts")
 
-   const control_issueFailDrawer = useRef<RefType<IssueFailDrawerProps>>(null)
-   const control_issueResolve_WarrantyDrawer = useRef<RefType<ResolveIssue_WarrantyDrawerProps>>(null)
-   const control_issueResolveDrawer = useRef<RefType<ResolveIssueDrawerProps>>(null)
-   const control_issueResolveDrawer_forAssemble = useRef<RefType<ResolveIssueDrawerProps>>(null)
+   const control_issueFailDrawer = useRef<RefType<Issue_WarrantyFailedModalProps>>(null)
+   const control_issueResolveAssembleDrawer = useRef<RefType<Issue_Resolve_AssembleDrawerProps>>(null)
    const control_issueResolveDisassembleDrawer = useRef<RefType<Issue_Resolve_DisassembleDrawerProps>>(null)
+   const control_issueResolveSendDrawer = useRef<RefType<Issue_Resolve_SendDrawerProps>>(null)
+   const control_issueResolveReceiveDrawer = useRef<RefType<Issue_Resolve_ReceiveDrawerProps>>(null)
 
-   const mutate_resolveIssue = staff_mutations.issues.resolve()
-
-   function handleResolveIssue(issueId: string) {
-      mutate_resolveIssue.mutate(
-         {
-            id: issueId,
-            payload: {
-               imagesVerify: [],
-               videosVerify: "",
-            },
-         },
-         {
-            onSuccess: () => {
-               props.refetchFn?.()
-               props.handleClose?.()
-            },
-         },
-      )
-   }
+   const mutate_finishTaskWarrantySend = staff_mutations.task.finishWarrantySend()
 
    useEffect(() => {
       if (!props.open) {
          setShowTypeErrorDescription(false)
       }
    }, [props.open])
-
-   useEffect(() => {
-      if (props.issue?.status === IssueStatusEnum.RESOLVED) {
-         setTab("evidence")
-      } else {
-         setTab("spare-parts")
-      }
-   }, [props.issue?.status])
 
    function Footer() {
       if (props.issue?.status === IssueStatusEnum.PENDING) {
@@ -110,28 +97,28 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                      onClick={() => {
                         if (!props.issue) return
 
-                        switch(props.issue.typeError.id) {
+                        switch (props.issue.typeError.id) {
                            case DisassembleDeviceTypeErrorId: {
                               control_issueResolveDisassembleDrawer.current?.handleOpen({
-                                 issue: props.issue
+                                 issue: props.issue,
                               })
                               return
                            }
                            case SendWarrantyTypeErrorId: {
-                              control_issueResolve_WarrantyDrawer.current?.handleOpen({
+                              control_issueResolveSendDrawer.current?.handleOpen({
                                  issue: props.issue,
-                                 request: props.request,
+                                 requestId: props.request?.id,
                               })
                               return
                            }
                            case ReceiveWarrantyTypeErrorId: {
-                              control_issueResolveDrawer.current?.handleOpen({
+                              control_issueResolveReceiveDrawer.current?.handleOpen({
                                  issue: props.issue,
                               })
                               return
                            }
                            case AssembleDeviceTypeErrorId: {
-                              control_issueResolveDrawer_forAssemble.current?.handleOpen({
+                              control_issueResolveAssembleDrawer.current?.handleOpen({
                                  issue: props.issue,
                               })
                               return
@@ -154,8 +141,10 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                               disabled: props.isDisabled,
                               onClick: () =>
                                  props.issue &&
+                                 props.task &&
                                  control_issueFailDrawer.current?.handleOpen({
-                                    issueId: props.issue.id,
+                                    issueDto: props.issue,
+                                    taskId: props.task.id,
                                  }),
                            },
                         ],
@@ -306,32 +295,6 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                         ),
                         className: "*:flex-col",
                      },
-                     // ...(props.issue.typeError.id === ReceiveWarrantyTypeErrorId
-                     //    ? [
-                     //         {
-                     //            label: (
-                     //               <div className={"flex items-center gap-1"}>
-                     //                  <File size={18} weight={"fill"} />
-                     //                  <span>Biên lai gửi bảo hành</span>
-                     //               </div>
-                     //            ),
-                     //            children: (
-                     //               <div className={"grid grid-cols-4 gap-2"}>
-                     //                  {props.request?.issues
-                     //                     .find((i) => i.typeError.id === SendWarrantyTypeErrorId)
-                     //                     ?.imagesVerify.map((img) => (
-                     //                        <Image
-                     //                           key={img}
-                     //                           src={clientEnv.BACKEND_URL + `/file-image/${img}`}
-                     //                           alt="image"
-                     //                           className="aspect-square h-full rounded-lg"
-                     //                        />
-                     //                     ))}
-                     //               </div>
-                     //            ),
-                     //         },
-                     //      ]
-                     //    : []),
                   ]}
                />
                {props.issue.status === IssueStatusEnum.FAILED && (
@@ -343,77 +306,23 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                      {props.issue.failReason}
                   </Card>
                )}
-               {(props.issue.typeError.id === SendWarrantyTypeErrorId ||
-                  props.issue.typeError.id === ReceiveWarrantyTypeErrorId) && (
-                  <>
-                     <Segmented
-                        block
-                        className={"mt-6"}
-                        value={tab}
-                        onChange={(value) => setTab(value as any)}
-                        size={"large"}
-                        options={[
-                           ...(props.issue.status === IssueStatusEnum.RESOLVED
-                              ? [
-                                   {
-                                      label: "Minh chứng",
-                                      value: "evidence",
-                                      icon: <BookOutlined />,
-                                   },
-                                ]
-                              : []),
-                        ]}
-                     />
-                     <section className={"mt-3"}>
-                        {tab === "evidence" && (
-                           <div>
-                              {props.issue.status === IssueStatusEnum.RESOLVED && (
-                                 <>
-                                    <section>
-                                       <h2 className="mb-2 text-sub-base font-medium">Hình ảnh minh chứng</h2>
-                                       {props.issue.imagesVerify.length !== 0 ? (
-                                          <div className="grid grid-cols-3 gap-3">
-                                             {props.issue.imagesVerify.map((img) => (
-                                                <Image
-                                                   key={img}
-                                                   src={clientEnv.BACKEND_URL + `/file-image/${img}`}
-                                                   alt="image"
-                                                   className="aspect-square h-full rounded-lg"
-                                                />
-                                             ))}
-                                          </div>
-                                       ) : (
-                                          <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">
-                                             Không có
-                                          </div>
-                                       )}
-                                    </section>
-                                    <section className="mt-4">
-                                       <h2 className="mb-2 text-sub-base font-medium">Video minh chứng</h2>
-                                       {!!props.issue.videosVerify ? (
-                                          <video width="100%" height="240" controls>
-                                             <source
-                                                src={clientEnv.BACKEND_URL + `/file-video/${props.issue.videosVerify}`}
-                                                type="video/mp4"
-                                             />
-                                          </video>
-                                       ) : (
-                                          <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">
-                                             Không có
-                                          </div>
-                                       )}
-                                    </section>
-                                 </>
-                              )}
-                           </div>
-                        )}
-                     </section>
-                  </>
+
+               {props.issue.typeError.id === ReceiveWarrantyTypeErrorId && props.request && (
+                  <SendWarrantyReceipt request={props.request} />
                )}
             </>
          )}
+         {/* Fail issue */}
          <OverlayControllerWithRef ref={control_issueFailDrawer}>
-            <IssueFailDrawer
+            <Issue_WarrantyFailedModal
+               onSuccess={() => {
+                  router.push(staff_uri.navbar.tasks)
+               }}
+            />
+         </OverlayControllerWithRef>
+         {/* Resolve issue for disassemble warranty issue */}
+         <OverlayControllerWithRef ref={control_issueResolveDisassembleDrawer}>
+            <Issue_Resolve_DisassembleDrawer
                onSuccess={() => {
                   props.refetchFn?.()
                   props.handleClose?.()
@@ -421,47 +330,76 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
             />
          </OverlayControllerWithRef>
          {/* Resolve issue for send warranty issue */}
-         <OverlayControllerWithRef ref={control_issueResolve_WarrantyDrawer}>
-            <ResolveIssue_WarrantyDrawer
-               onFinish={() => {
+         <OverlayControllerWithRef ref={control_issueResolveSendDrawer}>
+            <Issue_Resolve_SendDrawer
+               onSuccess={() => {
+                  // finish tsk after sending warranty
+                  mutate_finishTaskWarrantySend.mutate(
+                     {
+                        id: props.task?.id ?? "",
+                     },
+                     {
+                        onSuccess: () => {
+                           router.push(staff_uri.navbar.tasks)
+                        },
+                     },
+                  )
+               }}
+            />
+         </OverlayControllerWithRef>
+         {/* Resolve issue for receive warranty issue */}
+         <OverlayControllerWithRef ref={control_issueResolveReceiveDrawer}>
+            <Issue_Resolve_ReceiveDrawer
+               onSuccess={() => {
                   props.refetchFn?.()
                   props.handleClose?.()
                }}
             />
          </OverlayControllerWithRef>
-         {/* Resolve issue with images and video */}
-         <OverlayControllerWithRef ref={control_issueResolveDrawer}>
-            <ResolveIssueDrawer
-               onFinish={() => {
-                  props.refetchFn?.()
-                  props.handleClose?.()
-               }}
-               labels={{
-                  image: "Biên lai sau bảo hành (bắt buộc)",
-                  video: "Video xác nhận (nếu có)",
-               }}
-               submitConditions={(images, video) => {
-                  if (images.length === 0) {
-                     message.error("Vui lòng chụp hình biên lai sau bảo hành")
-                     return false
-                  }
-
-                  return true
-               }}
-            />
-         </OverlayControllerWithRef>
-         <OverlayControllerWithRef ref={control_issueResolveDrawer_forAssemble}>
-            <ResolveIssueDrawer
-               onFinish={() => {
+         {/* Resolve issue for assemble warranty issue */}
+         <OverlayControllerWithRef ref={control_issueResolveAssembleDrawer}>
+            <Issue_Resolve_AssembleDrawer
+               onSuccess={() => {
                   props.refetchFn?.()
                   props.handleClose?.()
                }}
             />
-         </OverlayControllerWithRef>
-         <OverlayControllerWithRef ref={control_issueResolveDisassembleDrawer}>
-            <Issue_Resolve_DisassembleDrawer />
          </OverlayControllerWithRef>
       </Drawer>
+   )
+}
+
+function SendWarrantyReceipt(props: { request: RequestDto }) {
+   const sendWarrantyTask = props.request.tasks.find((task) => TaskUtil.isTask_Warranty(task, "send"))
+
+   if (!sendWarrantyTask) return null
+
+   const sendWarrantyIssue = sendWarrantyTask.issues.find((issue) => issue.typeError.id === SendWarrantyTypeErrorId)
+
+   if (!sendWarrantyIssue) return null
+
+   return (
+      <section className="mt-layout">
+         <header className="">
+            <h3 className="text-base font-semibold">Biên nhận bảo hành</h3>
+            <p className="font-base text-sm text-neutral-500">Thông tin biên nhận sau khi gửi bảo hành</p>
+         </header>
+         <div className="mt-2 grid grid-cols-4 gap-3">
+            {sendWarrantyIssue.imagesVerify.map((img, index) => (
+               <BackendImage
+                  key={img + index + "_image"}
+                  src={img}
+                  alt={`image_${index}`}
+                  className="aspect-square w-full rounded-lg"
+               />
+            ))}
+            {new Array(4 - sendWarrantyIssue.imagesVerify.length).fill(0).map((_, index) => (
+               <div className="grid aspect-square w-full place-items-center rounded-lg border-[2px] border-dashed border-gray-300 text-gray-300">
+                  <ImageBroken size={24} />
+               </div>
+            ))}
+         </div>
+      </section>
    )
 }
 

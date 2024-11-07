@@ -12,8 +12,8 @@ import { App, Button, Drawer, Form, Image } from "antd"
 import { ReactNode, useMemo, useState } from "react"
 import dynamic from "next/dynamic"
 
-const CaptureImageDrawer = dynamic(() => import("./CaptureImage.drawer"), { ssr: false })
-const CaptureVideoDrawer = dynamic(() => import("./CaptureVideo.drawer"), { ssr: false })
+const CaptureImageDrawer = dynamic(() => import("@/components/CaptureImage.drawer"), { ssr: false })
+const CaptureVideoDrawer = dynamic(() => import("@/components/CaptureVideo.drawer"), { ssr: false })
 
 type FieldType = {
    imagesVerify?: string[]
@@ -132,13 +132,6 @@ export default function FinishIssueDrawer({
                   imagesVerify: [],
                }}
             >
-               {isWarrantyIssue && (
-                  <AlertCard
-                     text="Vui lòng cập nhật biên nhận bảo hành để hoàn thành lỗi."
-                     type="info"
-                     className="mb-3"
-                  />
-               )}
                <Form.Item<FieldType>
                   label={isWarrantyIssue ? "Biên nhận bảo hành" : "Hình ảnh xác nhận"}
                   shouldUpdate

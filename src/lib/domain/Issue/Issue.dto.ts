@@ -16,8 +16,10 @@ export type IssueDto = {
    issueSpareParts: IssueSparePartDto[]
    task: TaskDto
    imagesVerify: string[]
+   imagesVerifyFail: string[]
    videosVerify: string
    failReason?: string
    returnSparePartsStaffSignature?: string
    returnSparePartsStockkeeperSignature?: string
+   resolvedNote?: string
 }

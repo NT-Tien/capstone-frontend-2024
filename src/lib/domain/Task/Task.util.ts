@@ -8,8 +8,22 @@ import {
 } from "@/lib/constants/Warranty"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 
 class TaskUtil {
+   static isTask_Running(task?: TaskDto): boolean | undefined {
+      if (!task) return undefined
+      const set = new Set([
+         TaskStatus.ASSIGNED,
+         TaskStatus.IN_PROGRESS,
+         TaskStatus.AWAITING_FIXER,
+         TaskStatus.AWAITING_SPARE_SPART,
+         TaskStatus.HEAD_STAFF_CONFIRM,
+      ])
+      return set.has(task.status)
+   }
+
    /**
     * Returns
     * - undefined if task is null
@@ -53,6 +67,22 @@ class TaskUtil {
    }
 
    static isTask_Renew(task: TaskDto) {}
+   
+   static getTask_Warranty_FirstIssue(task?: TaskDto): IssueDto | undefined {
+      if (!task) return undefined
+
+      return task.issues.find(
+         (i) => i.typeError.id === DisassembleDeviceTypeErrorId || i.typeError.id === ReceiveWarrantyTypeErrorId,
+      )
+   }
+
+   static getTask_Warranty_SecondIssue(task?: TaskDto): IssueDto | undefined {
+      if (!task) return undefined
+
+      return task.issues.find(
+         (i) => i.typeError.id === AssembleDeviceTypeErrorId || i.typeError.id === SendWarrantyTypeErrorId,
+      )
+   }
 
    /**
     * Returns

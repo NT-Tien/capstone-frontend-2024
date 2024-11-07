@@ -44,7 +44,7 @@ import Task_VerifyCompleteDrawer, {
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import Task_VerifyComplete_WarrantyDrawer, {
    Task_VerifyComplete_WarrantyDrawerProps,
-} from "@/features/head-maintenance/components/overlays/Task_VerifyComplete_Warranty.drawer"
+} from "@/features/head-maintenance/components/overlays/warranty/Task_VerifyComplete_Warranty.drawer"
 import Task_VerifyComplete_IssueFailedDrawer, {
    Task_VerifyComplete_IssueFailedDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Task_VerifyComplete_IssueFailed.drawer"
@@ -61,6 +61,7 @@ import Task_UpdateFixerAndFixerDate, {
 } from "@/features/head-maintenance/components/overlays/Task_UpdateFixerAndFixerDate.drawer"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import { ExportStatusMapper } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
+import Task_AssignFixerV2Drawer, { Task_AssignFixerModalProps } from "@/features/head-maintenance/components/overlays/Task_AssignFixerV2.drawer"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto, requestId: string) => void
@@ -94,6 +95,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
    const scannerV2DrawerRef = useRef<ScannerV2DrawerRefType | null>(null)
    const issueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)
    const assignFixerDrawerRef = useRef<AssignFixerDrawerRefType | null>(null)
+   const control_taskAssignFixerDrawer = useRef<RefType<Task_AssignFixerModalProps>>(null)
    const updateTaskFixDateDrawerRef = useRef<UpdateTaskFixDateDrawerRefType | null>(null)
    const cancelTaskDrawerRef = useRef<CancelTaskDrawerRefType | null>(null)
    const control_taskVerifyCompleteDrawer = useRef<RefType<Task_VerifyCompleteDrawerProps>>(null)
@@ -144,6 +146,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
       },
    })
 
+   const mutate_assignFixer = head_maintenance_mutations.task.assignFixer()
    const mutate_closeTask = head_maintenance_mutations.task.close()
    const mutate_createIssues = head_maintenance_mutations.issue.createMany()
 
@@ -247,11 +250,18 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                         {
                            onSuccess: async () => {
                               await props.refetchFn?.()
-                              assignFixerDrawerRef.current?.handleOpen(task.id, {
-                                 priority: task.priority,
-                                 fixerDate: dayjs(task.fixerDate).add(7, "hours"),
-                                 fixer: task.fixer,
+                              control_taskAssignFixerDrawer.current?.handleOpen({
+                                 defaults: {
+                                    priority: task.priority ? "priority" : "normal",
+                                    date: dayjs(task.fixerDate).toDate(),
+                                    fixer: task.fixer
+                                 }
                               })
+                              // assignFixerDrawerRef.current?.handleOpen(task.id, {
+                              //    priority: task.priority,
+                              //    fixerDate: dayjs(task.fixerDate).add(7, "hours"),
+                              //    fixer: task.fixer,
+                              // })
                            },
                         },
                      )
@@ -269,11 +279,18 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                type="primary"
                className="w-full"
                onClick={() => {
-                  assignFixerDrawerRef.current?.handleOpen(task.id, {
-                     priority: task.priority,
-                     fixerDate: dayjs(task.fixerDate).add(7, "hours"),
-                     fixer: task.fixer,
+                  control_taskAssignFixerDrawer.current?.handleOpen({
+                     defaults: {
+                        priority: task.priority ? "priority" : "normal",
+                        date: dayjs(task.fixerDate).toDate(),
+                        fixer: task.fixer
+                     }
                   })
+                  // assignFixerDrawerRef.current?.handleOpen(task.id, {
+                  //    priority: task.priority,
+                  //    fixerDate: dayjs(task.fixerDate).add(7, "hours"),
+                  //    fixer: task.fixer,
+                  // })
                }}
             >
                Phân công tác vụ
@@ -627,6 +644,24 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                   requestId && router.push(hm_uris.stack.requests_id_fix(requestId) + `?tab=issues`)
                }}
             />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_taskAssignFixerDrawer}>
+            <Task_AssignFixerV2Drawer onSubmit={(fixer, date, priority) => {
+               if(!task) return
+               mutate_assignFixer.mutate({
+                  id: task?.id,
+                  payload: {
+                     fixer: fixer.id,
+                     fixerDate: date.toISOString(),
+                     priority
+                  }
+               }, {
+                  onSuccess: () => {
+                     handleClose()
+                     props.refetchFn?.()
+                  }
+               })
+            }} />
          </OverlayControllerWithRef>
          <Task_AssignFixerDrawer
             ref={assignFixerDrawerRef}

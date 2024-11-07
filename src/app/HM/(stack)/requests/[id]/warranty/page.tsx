@@ -35,13 +35,16 @@ import Task_ViewDetailsDrawer, {
 import TabbedLayout from "@/app/HM/(stack)/requests/[id]/warranty/Tabs.component"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import hm_uris from "@/features/head-maintenance/uri"
+import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
-   const { modal, notification, message } = App.useApp()
+   const { modal } = App.useApp()
 
    const control_rejectRequestDrawer = useRef<RefType<Request_RejectDrawerProps> | null>(null)
    const taskDetailsRef = useRef<TaskDetailsDrawerRefType | null>(null)
+
+   const mutate_closeRequest = head_maintenance_mutations.request.finish()
 
    const api_request = useQuery({
       queryKey: headstaff_qk.request.byId(params.id),
@@ -68,20 +71,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       enabled: api_request.isSuccess,
    })
 
-   const mutate_createTask = useMutation({
-      mutationFn: HeadStaff_Task_Create,
-   })
-
-   const mutate_updateTaskStatus = useMutation({
-      mutationFn: HeadStaff_Task_Update,
-   })
-
-   const isWarranty = useMemo(() => {
-      return api_request.data?.issues.find(
-         (issue) => issue.typeError.id === SendWarrantyTypeErrorId || issue.typeError.id === ReceiveWarrantyTypeErrorId,
-      )
-   }, [api_request.data])
-
    function handleBack() {
       if (searchParams.viewingHistory === "true") {
          router.back()
@@ -89,75 +78,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
          router.push(`/HM/requests?status=${api_request.data?.status}`)
       }
    }
-
-   async function handleAutoCreateWarrantyTask(returnDate?: string) {
-      try {
-         console.log("Test")
-         if (!api_request.isSuccess) {
-            console.log("Failed 1")
-            return
-         }
-         const issue = api_request.data.issues.find((issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId)
-         if (!issue) {
-            console.log("Failed 2")
-            return
-         }
-         console.log("Reacted herer")
-
-         // check if already has warranty task
-         if (issue.task !== null) {
-            console.log("Failed 3")
-            return
-         }
-
-         const task = await mutate_createTask.mutateAsync({
-            issueIDs: [issue.id],
-            name: `${dayjs(api_request.data.createdAt).add(7, "hours").format("DDMMYY")}_${api_request.data.device.area.name}_${api_request.data.device.machineModel.name}_Lắp máy bảo hành`,
-            operator: 0,
-            priority: false,
-            request: api_request.data.id,
-            totalTime: issue.typeError.duration,
-            fixerDate: returnDate ?? api_request.data.return_date_warranty ?? undefined,
-         })
-
-         console.log("stuff")
-
-         const taskUpdate = await mutate_updateTaskStatus.mutateAsync({
-            id: task.id,
-            payload: {
-               status: TaskStatus.AWAITING_FIXER,
-            },
-         })
-
-         api_request.refetch()
-      } catch (error) {
-         console.error(error)
-         message.error("Có lỗi xảy ra khi tạo tác vụ bảo hành, vui lòng thử lại")
-      }
-   }
-
-   useEffect(() => {
-      if (!api_request.isSuccess) return
-      if (!api_request.data.return_date_warranty) return
-
-      const now = dayjs()
-      const warrantyDate = dayjs(api_request.data.return_date_warranty).add(7, "hours")
-      const returnWarrantyTask = api_request.data.issues.find(
-         (issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId,
-      )?.task
-
-      if (now.isAfter(warrantyDate) && returnWarrantyTask?.status === TaskStatus.AWAITING_FIXER) {
-         modal.info({
-            title: "Thông báo",
-            content: "Thiết bị đã bảo hành xong. Vui lòng tạo tác vụ để nhận và lắp đặt thiết bị",
-            okText: "Xem tác vụ",
-            onOk: () => {
-               taskDetailsRef.current?.handleOpen(returnWarrantyTask, params.id)
-            },
-            cancelText: "Đóng",
-         })
-      }
-   }, [api_request.data, api_request.isSuccess, modal, params.id])
 
    return (
       <ConfigProvider
@@ -183,7 +103,34 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                nextButton={
                   <Dropdown
                      menu={{
-                        items: [],
+                        items: [
+                           {
+                              key: "1-main",
+                              label: "Đóng yêu cầu",
+                              onClick: () => {
+                                 modal.confirm({
+                                    title: "Lưu ý",
+                                    content: "Bạn có chắc muốn đóng yêu cầu này?",
+                                    centered: true,
+                                    maskClosable: true,
+                                    onOk: () => {
+                                       mutate_closeRequest.mutate(
+                                          {
+                                             id: params.id,
+                                          },
+                                          {
+                                             onSuccess: () => {
+                                                router.push(
+                                                   hm_uris.navbar.requests + `?status=${FixRequestStatus.CLOSED}`,
+                                                )
+                                             },
+                                          },
+                                       )
+                                    },
+                                 })
+                              },
+                           },
+                        ],
                      }}
                   >
                      <PageHeaderV2.InfoButton />
@@ -304,7 +251,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                refetchFn={async () => {
                   await api_request.refetch()
                }}
-               autoCreateTaskFn={async (warrantyDate) => handleAutoCreateWarrantyTask(warrantyDate)}
             />
          </div>
       </ConfigProvider>

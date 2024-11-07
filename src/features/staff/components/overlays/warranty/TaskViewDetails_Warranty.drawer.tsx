@@ -236,15 +236,6 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
                         },
                         {
                            label: (
-                              <div className={"flex items-center gap-1"}>
-                                 <Clock size={18} weight={"fill"} />
-                                 <span>Thời gian dự tính</span>
-                              </div>
-                           ),
-                           children: `${api_task.data.totalTime} phút`,
-                        },
-                        {
-                           label: (
                               <div className={"flex items-center gap-2"}>
                                  <User size={18} weight={"fill"} />
                                  <span>Người làm</span>

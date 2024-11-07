@@ -1,17 +1,11 @@
 "use client"
 
-import { Button, Card, DatePicker, Drawer, Form, DrawerProps, Image, App, Divider, Space, Descriptions } from "antd"
-import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { clientEnv } from "@/env"
-import { Fragment, useState } from "react"
-import dayjs, { Dayjs } from "dayjs"
 import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
-import AlertCard from "@/components/AlertCard"
-import { CloseOutlined, MoreOutlined, RightOutlined } from "@ant-design/icons"
-import { cn } from "@/lib/utils/cn.util"
-import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
-import { CheckCircle, CircleDashed, MinusCircle, XCircle } from "@phosphor-icons/react"
-import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { CloseOutlined, MoreOutlined } from "@ant-design/icons"
+import { Button, Descriptions, Drawer, DrawerProps, Image } from "antd"
+import dayjs from "dayjs"
 
 type Task_VerifyComplete_WarrantyDrawerProps = {
    task?: TaskDto

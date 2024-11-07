@@ -6,6 +6,7 @@ import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 
 export type Request = {
    id: string
+   autoClose?: boolean
    payload: {
       fixerNote: string
       imagesVerify: string[]
@@ -14,7 +15,12 @@ export type Request = {
 } & AuthTokenWrapper
 export type Response = TaskDto
 
-Staff_Task_UpdateFinish.URL = (req: Request) => `/staff/task/complete/${req.id}`
+Staff_Task_UpdateFinish.URL = (req: Request) => {
+   const urlSearchParams = new URLSearchParams()
+   if (req.autoClose) urlSearchParams.append("autoClose", req.autoClose.toString())
+      
+   return `/staff/task/complete/${req.id}` + (urlSearchParams.toString() ? `?${urlSearchParams.toString()}` : "")
+}
 export default async function Staff_Task_UpdateFinish(req: Request): Promise<Response> {
    return api
       .post<Response>(Staff_Task_UpdateFinish.URL(req), req.payload, {

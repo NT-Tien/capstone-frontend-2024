@@ -1,21 +1,18 @@
 "use client"
 
-import { Button, Checkbox, Descriptions, Divider, Drawer, DrawerProps, Form, Image, Input } from "antd"
 import AlertCard from "@/components/AlertCard"
-import dayjs from "dayjs"
-import CreateSignatureDrawer, { CreateSignatureDrawerRefType } from "@/components/overlays/CreateSignature.drawer"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { TaskDto } from "@/lib/domain/Task/Task.dto"
-import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
-import CaptureImageDrawer from "@/features/staff/components/overlays/CaptureImage.drawer"
-import { useMutation } from "@tanstack/react-query"
+import ImageUploader from "@/components/ImageUploader"
+import { CreateSignatureDrawerRefType } from "@/components/overlays/CreateSignature.drawer"
+import SignatureUploader from "@/components/SignatureUploader"
 import { File_Image_Upload } from "@/features/common/api/file/upload_image.api"
-import { clientEnv } from "@/env"
 import staff_mutations from "@/features/staff/mutations"
-import { useRouter } from "next/navigation"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { CloseOutlined, MoreOutlined } from "@ant-design/icons"
-import TaskUtil from "@/lib/domain/Task/Task.util"
-import { cn } from "@/lib/utils/cn.util"
+import { useMutation } from "@tanstack/react-query"
+import { Button, Checkbox, Descriptions, Divider, Drawer, DrawerProps, Input } from "antd"
+import dayjs from "dayjs"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 type FinishTaskDrawerProps = {
    task?: TaskDto
@@ -24,16 +21,10 @@ type FinishTaskDrawerProps = {
 type Props = Omit<DrawerProps, "children"> & FinishTaskDrawerProps
 
 function FinishTaskDrawer(props: Props) {
-   const control_createSignatureDrawer = useRef<CreateSignatureDrawerRefType | null>(null)
-   const [captureImageOpen, setCaptureImageOpen] = useState(false)
-   const [imageVerification, setImageVerification] = useState<string | undefined>()
    const [signatureVerification, setSignatureVerification] = useState<string | undefined>()
+   const [imagesVerification, setImagesVerification] = useState<string[]>([])
    const [note, setNote] = useState<string>("")
    const [signed, setSigned] = useState<boolean>(false)
-
-   const mutate_uploadImage = useMutation({
-      mutationFn: File_Image_Upload,
-   })
 
    const mutate_finishTask = staff_mutations.task.finish()
 
@@ -73,24 +64,10 @@ function FinishTaskDrawer(props: Props) {
 
    useEffect(() => {
       if (!props.open) {
-         setImageVerification(undefined)
+         setImagesVerification([])
          setSignatureVerification(undefined)
       }
    }, [props.open])
-
-   const canFinishTask = useMemo(() => {
-      if (TaskUtil.isTask_Warranty(props.task, "send") && signatureVerification && props.task) return true
-      if (imageVerification && signatureVerification && props.task) return true
-      return false
-   }, [imageVerification, props.task, signatureVerification])
-
-   console.log(
-      TaskUtil.isTask_Warranty(props.task, "send"),
-      imageVerification,
-      signatureVerification,
-      props.task,
-      !!(imageVerification && signatureVerification && props.task),
-   )
 
    return (
       <>
@@ -116,7 +93,7 @@ function FinishTaskDrawer(props: Props) {
                         id="sign"
                         checked={signed}
                         onChange={(e) => setSigned(e.target.checked)}
-                        disabled={!canFinishTask}
+                        disabled={!signatureVerification || !imagesVerification.length}
                      />
                      <label htmlFor="sign" className={"font-bold"}>
                         Tối muốn hoàn thành tác vụ này
@@ -127,7 +104,10 @@ function FinishTaskDrawer(props: Props) {
                      type="primary"
                      size="large"
                      onClick={() =>
-                        handleFinish(props.task?.id ?? "", imageVerification ?? "", signatureVerification ?? "", note)
+                        signatureVerification &&
+                        props.task &&
+                        imagesVerification.length &&
+                        handleFinish(props.task?.id, imagesVerification[0], signatureVerification, note)
                      }
                      disabled={!signed}
                   >
@@ -145,6 +125,7 @@ function FinishTaskDrawer(props: Props) {
                }}
                className="mt-4"
                colon={false}
+               size="small"
                items={[
                   {
                      label: "Số lượng thành công",
@@ -155,71 +136,42 @@ function FinishTaskDrawer(props: Props) {
                      children: issueStatusCounts.FAILED,
                   },
                   { label: "Thời gian hoàn thành", children: dayjs().format("HH:mm DD/MM/YYYY") },
+                  {
+                     label: "Ghi chú:",
+                     className: "*:flex-col",
+                     children: (
+                        <Input.TextArea
+                           value={note}
+                           onChange={(e) => setNote(e.target.value)}
+                           placeholder="Vui lòng nhập ghi chú"
+                           rows={3}
+                           className="mt-2 w-full"
+                           maxLength={300}
+                           showCount
+                        />
+                     ),
+                  },
                ]}
             />
-            <section className="mt-3">
-               <Form.Item label={<div className="text-neutral-500">Ghi chú</div>} layout="vertical">
-                  <Input.TextArea
-                     value={note}
-                     onChange={(e) => setNote(e.target.value)}
-                     placeholder="Vui lòng nhập ghi chú sau sửa chữa"
-                     rows={3}
-                     maxLength={300}
-                     showCount
-                  />
-               </Form.Item>
+            <Divider className='mt-layout' />
+            <section>
+               <header className="mb-2">
+                  <h3 className="text-base font-semibold">Chữ ký xác nhận</h3>
+                  <p className="font-base text-sm text-neutral-500">Vui lòng đưa thiết bị cho trưởng phòng ký</p>
+               </header>
+               <SignatureUploader signature={signatureVerification} setSignature={setSignatureVerification}>
+                  <SignatureUploader.Head_Department />
+               </SignatureUploader>
             </section>
-            <Divider className="mt-12 text-base font-semibold">Xác nhận hoàn thành</Divider>
 
-            {/*image verification only if task is fix or renew. for send warranty, just sign */}
-            <div className={"grid grid-cols-2 gap-3"}>
-               {!TaskUtil.isTask_Warranty(props.task, "send") &&
-                  (imageVerification ? (
-                     <Image
-                        alt="image"
-                        key={imageVerification + "_image"}
-                        src={clientEnv.BACKEND_URL + "/file-image/" + imageVerification}
-                        className="aspect-square w-full rounded-lg"
-                     />
-                  ) : (
-                     <Button block className="aspect-square h-max w-full" onClick={() => setCaptureImageOpen(true)}>
-                        <div className="whitespace-pre-wrap">Thêm hình ảnh trưởng phòng</div>
-                     </Button>
-                  ))}
-               {signatureVerification ? (
-                  <Image
-                     alt="image"
-                     key={signatureVerification + "_image"}
-                     src={clientEnv.BACKEND_URL + "/file-image/" + signatureVerification}
-                     className={cn("mt-3 aspect-square w-full rounded-lg")}
-                  />
-               ) : (
-                  <Button
-                     block
-                     className={cn("aspect-square h-max")}
-                     onClick={() => control_createSignatureDrawer.current?.handleOpen()}
-                  >
-                     <div className="whitespace-pre-wrap">Thêm chữ ký xác nhận</div>
-                  </Button>
-               )}
-            </div>
+            <section className="mt-layout">
+               <header className="mb-2">
+                  <h3 className="text-base font-semibold">Hình ảnh xác nhận</h3>
+                  <p className="font-base text-sm text-neutral-500">Vui lòng chụp hình trưởng phòng</p>
+               </header>
+               <ImageUploader imageUris={imagesVerification} setImageUris={setImagesVerification} maxCount={1} />
+            </section>
          </Drawer>
-         <CaptureImageDrawer
-            open={captureImageOpen}
-            onClose={() => setCaptureImageOpen(false)}
-            onCapture={async (file) => {
-               const result = await mutate_uploadImage.mutateAsync({ file })
-               setImageVerification(result.data.path)
-               setCaptureImageOpen(false)
-            }}
-         />
-         <CreateSignatureDrawer
-            onSubmit={(result) => {
-               setSignatureVerification(result)
-               control_createSignatureDrawer.current?.handleClose()
-            }}
-            ref={control_createSignatureDrawer}
-         />
       </>
    )
 }

@@ -9,6 +9,7 @@ useRequest_OneByIdQuery.qk = (props: Props) => ["head-department", "request", "o
 useRequest_OneByIdQuery.queryOptions = (props: Props): QueryOptions => ({
    queryKey: useRequest_OneByIdQuery.qk(props),
    queryFn: () => Head_Request_OneById(props),
+   retry: 10,
    ...generateQueryNotFoundOptions(),
 })
 

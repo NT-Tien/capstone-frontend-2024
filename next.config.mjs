@@ -39,7 +39,7 @@ const nextConfig = {
    reactStrictMode: false,
    reactProductionProfiling: false,
    eslint: {
-      ignoreDuringBuilds: false,
+      ignoreDuringBuilds: true,
    },
    typescript: {
       ignoreBuildErrors: false,

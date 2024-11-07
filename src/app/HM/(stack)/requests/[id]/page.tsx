@@ -37,7 +37,7 @@ import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import hm_uris from "@/features/head-maintenance/uri"
 import Request_ApproveToWarrantyDrawer, {
    Request_ApproveToWarrantyDrawerProps,
-} from "@/features/head-maintenance/components/overlays/Request_ApproveToWarranty.drawer"
+} from "@/features/head-maintenance/components/overlays/warranty/Request_ApproveToWarranty.drawer"
 import MachineModelUtil from "@/lib/domain/MachineModel/MachineModel.util"
 import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
 

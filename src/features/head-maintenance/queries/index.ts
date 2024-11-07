@@ -8,6 +8,7 @@ import useTypeError_Common from "@/features/head-maintenance/queries/TypeError_C
 import useIssue_One from "@/features/head-maintenance/queries/Issue_One.query"
 import useRequest_All from "@/features/head-maintenance/queries/Request_All.query"
 import useNotifications_All from "@/features/head-maintenance/queries/Notifications_All.query"
+import useUser_AllStaff from "@/features/head-maintenance/queries/User_AllStaff.query"
 
 const head_maintenance_queries = {
    device: {
@@ -31,6 +32,9 @@ const head_maintenance_queries = {
    },
    notifications: {
       all: useNotifications_All,
+   },
+   user: {
+      allStaff: useUser_AllStaff,
    },
 }
 

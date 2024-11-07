@@ -58,7 +58,7 @@ function CaptureVideoDrawer({
 
    return (
       <Drawer
-         title="Record Video"
+         title="Thêm Video"
          open={open}
          onClose={onClose}
          placement="bottom"

@@ -12,6 +12,7 @@ type Request = {
    payload: {
       issues: CreateManyRequest["issues"]
    }
+   shouldNotUpdateRequest?: boolean
 } & AuthTokenWrapper
 
 type Response = {}
@@ -27,6 +28,8 @@ export default function useRequest_ApproveToFix(props?: Props) {
             issues: req.payload.issues,
             request: req.id,
          })
+
+         if(req.shouldNotUpdateRequest) return {}
 
          // update request status to APPROVED
          const updateResult = await HeadStaff_Request_UpdateStatus({

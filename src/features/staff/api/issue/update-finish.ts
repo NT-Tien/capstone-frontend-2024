@@ -8,7 +8,8 @@ export type Request = {
    id: string
    payload: {
       imagesVerify: string[]
-      videosVerify: string
+      videosVerify?: string
+      resolvedNote?: string
    }
 } & AuthTokenWrapper
 export type Response = TaskDto

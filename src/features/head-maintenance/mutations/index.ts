@@ -16,6 +16,7 @@ import useTask_AssignFixer from "@/features/head-maintenance/mutations/Task_Assi
 import useTaskUpdate from "@/features/head-maintenance/mutations/Task_Update.mutation"
 import useTask_Close from "@/features/head-maintenance/mutations/Task_Close.mutation"
 import useIssue_CreateMany from "@/features/head-maintenance/mutations/Issue_Create.mutation"
+import useIssue_DetatchAndRecreateTaskWarranty from "@/features/head-maintenance/mutations/Issue_DetatchAndRecreateTaskWarranty.mutation"
 
 const head_maintenance_mutations = {
    request: {
@@ -32,6 +33,7 @@ const head_maintenance_mutations = {
       updateFull: useIssue_UpdateFull,
       cancel: useIssue_Cancel,
       createMany: useIssue_CreateMany,
+      detatchAndRecreateTaskWarranty: useIssue_DetatchAndRecreateTaskWarranty,
    },
    issueSparePart: {
       replaceMany: useIssueSparePart_ReplaceMany,

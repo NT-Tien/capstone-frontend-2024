@@ -300,6 +300,38 @@ body {
     }
 }
 
+.custom-calendar-styles-hm {
+    .rdp-month_grid {
+        width: 100% !important;
+    }
+
+    .rdp-day, .rdp-day_button {
+        width: 1.6rem !important;
+        height: 1.6rem !important;
+    }
+
+    .rdp-selected {
+        font-weight: normal;
+        font-size: initial;
+
+        .rdp-day_button {
+            border: none;
+            @apply rounded-md bg-white text-green-700 !important;
+
+        }
+    }
+
+    .rdp-today {
+        font-weight: bold;
+        color: white !important;
+    }
+
+    * {
+        color: white;
+    }
+}
+
+
 .admin-request-drawer .page-container {
     width: 100%;
     transition: width 0.3s;
@@ -318,5 +350,11 @@ body {
 .select-white-placeholder {
     .ant-select-selection-placeholder {
         @apply text-white opacity-50 !important;
+    }
+}
+
+.steps-title-w-full {
+    .ant-steps-item-title {
+        width: 100%;
     }
 }

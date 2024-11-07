@@ -114,6 +114,7 @@ export default function IndexProvider({ children }: Readonly<{ children: ReactNo
                   <ConfigProvider
                      locale={vi_VN}
                      wave={{ showEffect: showInsetEffect }}
+                     form={{validateMessages: {required: "Trường này bắt buộc"}}}
                      theme={{
                         components: {
                            Result: {

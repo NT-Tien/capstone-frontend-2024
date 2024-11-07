@@ -16,8 +16,8 @@ import { Dayjs } from "dayjs"
 import { SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 
-const CaptureImageDrawer = dynamic(() => import("../CaptureImage.drawer"), { ssr: false })
-const CaptureVideoDrawer = dynamic(() => import("../CaptureVideo.drawer"), { ssr: false })
+const CaptureImageDrawer = dynamic(() => import("@/components/CaptureImage.drawer"), { ssr: false })
+const CaptureVideoDrawer = dynamic(() => import("@/components/CaptureVideo.drawer"), { ssr: false })
 
 type FieldType = {
    warranty_date: Dayjs

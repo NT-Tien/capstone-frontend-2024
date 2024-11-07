@@ -1,40 +1,29 @@
 "use client"
 
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
-import { useRouter } from "next/navigation"
-import staff_uri from "@/features/staff/uri"
-import { Avatar, Button, Card, ConfigProvider, Descriptions, Divider, Empty, List, Space, Tabs } from "antd"
-import staff_queries from "@/features/staff/queries"
-import { Calendar, ChartDonut, Clock, Export, Gear, User, Wrench } from "@phosphor-icons/react"
-import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
-import { cn } from "@/lib/utils/cn.util"
-import dayjs from "dayjs"
-import { useMemo, useRef, useState } from "react"
-import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
-import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
-import { CheckOutlined, CloseOutlined, ExclamationOutlined, MinusOutlined, RightOutlined } from "@ant-design/icons"
-import IssueViewDetailsDrawer, {
-   IssueViewDetailsDrawerProps,
-} from "@/features/staff/components/overlays/IssueViewDetails.drawer"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import FinishTaskDrawer, { FinishTaskDrawerProps } from "@/features/staff/components/overlays/FinishTask.drawer"
+import IssueViewDetails_WarrantyDrawer, {
+   IssueViewDetails_WarrantyDrawerProps,
+} from "@/features/staff/components/overlays/warranty/IssueViewDetails_Warranty.drawer"
 import ReturnSparePartDrawer, {
    ReturnSparePartDrawerProps,
 } from "@/features/staff/components/overlays/ReturnSparePart.drawer"
+import staff_queries from "@/features/staff/queries"
+import staff_uri from "@/features/staff/uri"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import TaskUtil from "@/lib/domain/Task/Task.util"
-import {
-   AssembleDeviceTypeErrorId,
-   DisassembleDeviceTypeErrorId,
-   ReceiveWarrantyTypeErrorId,
-   SendWarrantyTypeErrorId,
-} from "@/lib/constants/Warranty"
-import IssueViewDetails_WarrantyDrawer, {
-   IssueViewDetails_WarrantyDrawerProps,
-} from "@/features/staff/components/overlays/IssueViewDetails_Warranty.drawer"
+import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import { cn } from "@/lib/utils/cn.util"
+import { RightOutlined } from "@ant-design/icons"
+import { Calendar, ChartDonut, Clock, Gear, User } from "@phosphor-icons/react"
+import { Avatar, Button, Card, ConfigProvider, Descriptions, Divider, Segmented, Space, Steps, Tabs } from "antd"
+import dayjs from "dayjs"
+import { useRouter } from "next/navigation"
+import { useMemo, useRef, useState } from "react"
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
-   const [tab, setTab] = useState<"issues">("issues")
 
    const control_issueViewDetails_WarrantyDrawer = useRef<RefType<IssueViewDetails_WarrantyDrawerProps>>(null)
    const control_finishTaskDrawer = useRef<RefType<FinishTaskDrawerProps>>(null)
@@ -46,21 +35,13 @@ function Page({ params }: { params: { id: string } }) {
       return api_task.data?.issues.every((i) => i.status !== IssueStatusEnum.PENDING)
    }, [api_task.data?.issues])
 
-   const firstStep = useMemo(() => {
-      return api_task.data?.issues.find(
-         (i) =>
-            i.typeError.id.toUpperCase() === DisassembleDeviceTypeErrorId.toUpperCase() ||
-            i.typeError.id.toUpperCase() === ReceiveWarrantyTypeErrorId.toUpperCase(),
-      )
-   }, [api_task.data?.issues])
+   const firstIssue = useMemo(() => {
+      return TaskUtil.getTask_Warranty_FirstIssue(api_task.data)
+   }, [api_task.data])
 
-   const secondStep = useMemo(() => {
-      return api_task.data?.issues.find(
-         (i) =>
-            i.typeError.id.toUpperCase() === AssembleDeviceTypeErrorId.toUpperCase() ||
-            i.typeError.id.toUpperCase() === SendWarrantyTypeErrorId.toUpperCase(),
-      )
-   }, [api_task.data?.issues])
+   const secondIssue = useMemo(() => {
+      return TaskUtil.getTask_Warranty_SecondIssue(api_task.data)
+   }, [api_task.data])
 
    return (
       <ConfigProvider
@@ -179,94 +160,75 @@ function Page({ params }: { params: { id: string } }) {
                )}
             </section>
 
-            <section className={"px-layout"}>
-               {api_task.isSuccess && (
-                  <Tabs
-                     className={"test-tabs mt-3"}
-                     activeKey={tab}
-                     onChange={(key) => setTab(key as any)}
-                     animated={{
-                        inkBar: true,
-                        tabPane: true,
-                     }}
+            <section className={"mt-layout px-layout"}>
+               <Divider className='text-sm' orientation="left">
+                  Tác vụ có {api_task.data?.issues.length} bước
+               </Divider>
+               <div>
+                  <Steps
+                     current={(function () {
+                        if (
+                           firstIssue?.status === IssueStatusEnum.PENDING ||
+                           firstIssue?.status === IssueStatusEnum.FAILED
+                        )
+                           return 0
+                        return 1
+                     })()}
+                     status={(function () {
+                        if (firstIssue?.status === IssueStatusEnum.PENDING) return "process"
+                        if (firstIssue?.status === IssueStatusEnum.FAILED) return "error"
+                        if (firstIssue?.status === IssueStatusEnum.CANCELLED) return "error"
+
+                        if(secondIssue?.status === IssueStatusEnum.PENDING) return "process"
+                        if(secondIssue?.status === IssueStatusEnum.FAILED) return "error"
+                        if(secondIssue?.status === IssueStatusEnum.CANCELLED) return "error"
+
+                        return "finish"
+                     })()}
+                     className="steps-title-w-full"
                      items={[
                         {
-                           label: `Tác vụ này có ${api_task.data?.issues.length} bước`,
-                           key: "issues",
-                           children: (
-                              <div>
-                                 <List
-                                    dataSource={api_task.data?.issues}
-                                    renderItem={(issue, index) => {
-                                       const isFirstIssue = issue.id === firstStep?.id
-                                       const isSecondIssue = issue.id === secondStep?.id
-                                       const isDisabled = isSecondIssue && firstStep?.status === IssueStatusEnum.PENDING
-                                       return (
-                                          <List.Item
-                                             className={cn(index === 0 && "pt-0", isDisabled && "opacity-50")}
-                                             onClick={() => {
-                                                api_task.isSuccess &&
-                                                   control_issueViewDetails_WarrantyDrawer.current?.handleOpen({
-                                                      issue,
-                                                      machineModel: api_task.data.device.machineModel,
-                                                      request: api_task.data.request,
-                                                      isDisabled,
-                                                      task: api_task.data,
-                                                   })
-                                             }}
-                                             actions={[
-                                                <Button key={"details"} icon={<RightOutlined />} type={"text"} />,
-                                             ]}
-                                          >
-                                             <List.Item.Meta
-                                                title={
-                                                   <div className={"text-base"}>
-                                                      {isFirstIssue && "1. "}
-                                                      {isSecondIssue && "2. "}
-                                                      {issue.typeError.name}
-                                                   </div>
-                                                }
-                                                description={
-                                                   <Space
-                                                      className={"text-sm"}
-                                                      split={<Divider type={"vertical"} className={"m-0"} />}
-                                                   >
-                                                      {issue.typeError.description}
-                                                   </Space>
-                                                }
-                                                avatar={
-                                                   <Avatar
-                                                      size={"small"}
-                                                      className={cn(
-                                                         issue.status === IssueStatusEnum.PENDING && "bg-neutral-500",
-                                                         issue.status === IssueStatusEnum.RESOLVED && "bg-green-500",
-                                                         issue.status === IssueStatusEnum.FAILED && "bg-red-500",
-                                                         issue.status === IssueStatusEnum.CANCELLED && "bg-gray-500",
-                                                      )}
-                                                      icon={
-                                                         issue.status === IssueStatusEnum.PENDING ? (
-                                                            <MinusOutlined />
-                                                         ) : issue.status === IssueStatusEnum.RESOLVED ? (
-                                                            <CheckOutlined />
-                                                         ) : issue.status === IssueStatusEnum.FAILED ? (
-                                                            <ExclamationOutlined />
-                                                         ) : (
-                                                            <CloseOutlined />
-                                                         )
-                                                      }
-                                                   />
-                                                }
-                                             />
-                                          </List.Item>
-                                       )
-                                    }}
-                                 />
+                           className: cn(firstIssue?.status !== IssueStatusEnum.PENDING && "opacity-50"),
+                           title: (
+                              <div className="flex w-full justify-between">
+                                 <div className={cn("text-base font-semibold", firstIssue?.status !== IssueStatusEnum.PENDING && "line-through")}>{firstIssue?.typeError.name}</div>
+                                 <RightOutlined className="text-sm" />
                               </div>
                            ),
+                           description: <div className="text-sm">{firstIssue?.typeError.description}</div>,
+                           onClick: () => {
+                              api_task.isSuccess &&
+                                 control_issueViewDetails_WarrantyDrawer.current?.handleOpen({
+                                    issue: firstIssue,
+                                    machineModel: api_task.data.device.machineModel,
+                                    request: api_task.data.request,
+                                    task: api_task.data,
+                                 })
+                           },
+                        },
+                        {
+                           className: cn(secondIssue?.status !== IssueStatusEnum.PENDING && "opacity-50"),
+                           title: (
+                              <div className="flex w-full justify-between">
+                                 <div className={cn("text-base font-semibold", secondIssue?.status !== IssueStatusEnum.PENDING && "line-through")}>{secondIssue?.typeError.name}</div>
+                                 <RightOutlined className="text-sm" />
+                              </div>
+                           ),
+                           description: <div className="text-sm">{secondIssue?.typeError.description}</div>,
+                           onClick: () => {
+                              api_task.isSuccess &&
+                                 control_issueViewDetails_WarrantyDrawer.current?.handleOpen({
+                                    issue: secondIssue,
+                                    machineModel: api_task.data.device.machineModel,
+                                    request: api_task.data.request,
+                                    isDisabled: firstIssue?.status === IssueStatusEnum.PENDING,
+                                    task: api_task.data,
+                                 })
+                           },
                         },
                      ]}
                   />
-               )}
+               </div>
             </section>
             {hasResolvedAllIssues && (
                <footer className={"absolute bottom-0 left-0 w-full bg-white p-layout shadow-fb"}>

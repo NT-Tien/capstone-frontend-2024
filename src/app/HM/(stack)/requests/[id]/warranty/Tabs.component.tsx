@@ -1,14 +1,19 @@
-import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
-import { DeviceDto } from "@/lib/domain/Device/Device.dto"
-import { RequestDto } from "@/lib/domain/Request/Request.dto"
-import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
-import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
-import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
-import { cn } from "@/lib/utils/cn.util"
 import DataListView from "@/components/DataListView"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
+import Device_ViewRequestHistoryDrawer from "@/features/head-maintenance/components/overlays/Device_ViewRequestHistory.drawer"
+import Task_CreateDrawer, {
+   CreateTaskV2DrawerProps,
+} from "@/features/head-maintenance/components/overlays/Task_Create.drawer"
+import hm_uris from "@/features/head-maintenance/uri"
 import { SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
-import { CheckSquareOffset, Devices, MapPin } from "@phosphor-icons/react"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import { cn } from "@/lib/utils/cn.util"
+import { CheckSquareOffset, Devices, MapPin, Truck, WarningDiamond } from "@phosphor-icons/react"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
 import { App } from "antd"
 import Button from "antd/es/button"
@@ -20,12 +25,10 @@ import Tag from "antd/es/tag"
 import dayjs from "dayjs"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
-import Device_ViewRequestHistoryDrawer from "@/features/head-maintenance/components/overlays/Device_ViewRequestHistory.drawer"
-import TasksListTab from "./TasksList.tab"
-import Task_CreateDrawer, {
-   CreateTaskV2DrawerProps,
-} from "@/features/head-maintenance/components/overlays/Task_Create.drawer"
-import hm_uris from "@/features/head-maintenance/uri"
+import WarrantyTab from "./Warranty.tab"
+import RequestUtil from "@/lib/domain/Request/Request.util"
+import TasksTab from "@/app/HM/(stack)/requests/[id]/warranty/Tasks.tab"
+import IssuesTab from "@/app/HM/(stack)/requests/[id]/warranty/Issues.tab"
 
 type Props = {
    requestId: string
@@ -42,6 +45,10 @@ function TabbedLayout(props: Props) {
    const [tab, setTab] = useState<string | undefined>()
 
    const control_taskCreateDrawer = useRef<RefType<CreateTaskV2DrawerProps> | null>(null)
+
+   const hasFixTasks = useMemo(() => {
+      return RequestUtil.hasFixIssues(props.api_request.data)
+   }, [props.api_request.data])
 
    const mutate_finishRequest = useMutation({
       mutationFn: HeadStaff_Request_UpdateStatus,
@@ -138,23 +145,47 @@ function TabbedLayout(props: Props) {
    }
 
    useEffect(() => {
-      const currentTab = searchParams.get("tab") || "tasks"
+      const currentTab = searchParams.get("tab") || "warranty"
       setTab(currentTab)
    }, [searchParams])
 
    return (
       <>
-         <nav className="mt-5 grid grid-cols-2 gap-0 *:pb-3">
+         <nav className={cn("mt-5 grid grid-cols-2 gap-0 *:pb-3", hasFixTasks && "grid-cols-4")}>
             <div
                className={cn(
-                  "relative grid cursor-pointer place-items-center gap-2 text-neutral-400 transition-all before:absolute before:inset-x-0 before:bottom-0 before:left-1/2 before:h-1 before:w-1/2 before:-translate-x-1/2 before:rounded-t-lg before:bg-red-500 before:opacity-0 before:transition-all before:content-['']",
-                  tab === "tasks" && "before:opacity-1 text-red-500",
+                  "relative grid cursor-pointer place-items-center gap-2 text-neutral-400 transition-all before:absolute before:inset-x-0 before:bottom-0 before:left-1/2 before:h-1 before:w-1/2 before:-translate-x-1/2 before:rounded-t-lg before:bg-purple-500 before:opacity-0 before:transition-all before:content-['']",
+                  tab === "warranty" && "before:opacity-1 text-purple-500",
                )}
-               onClick={() => handleTabChange("tasks")}
+               onClick={() => handleTabChange("warranty")}
             >
-               <CheckSquareOffset size={20} weight={"duotone"} />
-               <div className="text-center text-sm">Tác vụ ({props.api_request.data?.tasks.length ?? 0})</div>
+               <Truck size={20} weight={"duotone"} />
+               <div className="text-center text-sm">Bảo hành</div>
             </div>
+            {hasFixTasks && (
+               <>
+                  <div
+                     className={cn(
+                        "relative grid cursor-pointer place-items-center gap-2 text-neutral-400 transition-all before:absolute before:inset-x-0 before:bottom-0 before:left-1/2 before:h-1 before:w-1/2 before:-translate-x-1/2 before:rounded-t-lg before:bg-red-500 before:opacity-0 before:transition-all before:content-['']",
+                        tab === "tasks" && "before:opacity-1 text-red-500",
+                     )}
+                     onClick={() => handleTabChange("tasks")}
+                  >
+                     <CheckSquareOffset size={20} weight={"duotone"} />
+                     <div className="text-center text-sm">Tác vụ</div>
+                  </div>
+                  <div
+                     className={cn(
+                        "relative grid cursor-pointer place-items-center gap-2 text-neutral-400 transition-all before:absolute before:inset-x-0 before:bottom-0 before:left-1/2 before:h-1 before:w-1/2 before:-translate-x-1/2 before:rounded-t-lg before:bg-blue-500 before:opacity-0 before:transition-all before:content-['']",
+                        tab === "issues" && "before:opacity-1 text-blue-500",
+                     )}
+                     onClick={() => handleTabChange("issues")}
+                  >
+                     <WarningDiamond size={20} weight={"duotone"} />
+                     <div className="text-center text-sm">Lỗi máy</div>
+                  </div>
+               </>
+            )}
             <div
                className={cn(
                   "relative grid cursor-pointer place-items-center gap-2 text-neutral-400 transition-all before:absolute before:inset-x-0 before:bottom-0 before:left-1/2 before:h-1 before:w-1/2 before:-translate-x-1/2 before:rounded-t-lg before:bg-green-500 before:opacity-0 before:transition-all before:content-['']",
@@ -167,8 +198,8 @@ function TabbedLayout(props: Props) {
             </div>
          </nav>
          <div className="flex h-full flex-1 flex-col rounded-t-2xl border-neutral-200 bg-white shadow-fb">
-            {tab === "tasks" && (
-               <TasksListTab
+            {tab === "warranty" && (
+               <WarrantyTab
                   api_request={props.api_request}
                   className="flex-1"
                   highlightTaskId={highlightedId}
@@ -177,6 +208,26 @@ function TabbedLayout(props: Props) {
                   }}
                   onSuccess_FinishRequest={() => router.push(hm_uris.navbar.requests)}
                   disabledCreateTask={createTaskBtnText}
+               />
+            )}
+            {tab === "tasks" && hasFixTasks && (
+               <TasksTab
+                  api_request={props.api_request}
+                  className="flex-1"
+                  highlightTaskId={highlightedId}
+                  handleOpenCreateTask={() => {
+                     control_taskCreateDrawer.current?.handleOpen({ requestId: props.requestId })
+                  }}
+                  onSuccess_FinishRequest={() => router.push(hm_uris.navbar.requests)}
+                  disabledCreateTask={createTaskBtnText}
+               />
+            )}
+            {tab === "issues" && hasFixTasks && (
+               <IssuesTab
+                  api_request={props.api_request}
+                  handleOpenTaskCreate={(requestId, defaultIssueIds) =>
+                     control_taskCreateDrawer.current?.handleOpen({ requestId, defaultIssueIds })
+                  }
                />
             )}
             {tab === "device" && (

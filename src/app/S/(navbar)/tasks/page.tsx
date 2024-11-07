@@ -23,7 +23,7 @@ import { Check, Clock, Hourglass, Placeholder, SealWarning } from "@phosphor-ico
 import { ExportStatus } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
 import TaskViewDetails_WarrantyDrawer, {
    TaskViewDetails_WarrantyDrawerProps,
-} from "@/features/staff/components/overlays/TaskViewDetails_Warranty.drawer"
+} from "@/features/staff/components/overlays/warranty/TaskViewDetails_Warranty.drawer"
 
 const isCompletedSet = new Set([TaskStatus.COMPLETED, TaskStatus.CANCELLED, TaskStatus.HEAD_STAFF_CONFIRM])
 

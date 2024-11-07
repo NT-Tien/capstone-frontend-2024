@@ -69,7 +69,6 @@ function ScannerV3Drawer(props: Props) {
          <AlertCard type="info" className="mb-3" text={props.infoText ?? "Vui lòng đặt mã QR vào ô bên dưới"} />
          <section className={"aspect-square h-full w-full"}>
             <Scanner
-               paused={!open}
                onScan={async (e) => e[0]?.rawValue && handleFinishScan(e[0].rawValue)}
                allowMultiple={true}
                scanDelay={1000}

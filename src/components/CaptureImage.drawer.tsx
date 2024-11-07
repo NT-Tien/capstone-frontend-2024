@@ -35,7 +35,7 @@ function CaptureImageDrawer({
 
    return (
       <Drawer
-         title="Capture Image"
+         title="Thêm hình ảnh"
          open={open}
          onClose={onClose}
          placement="bottom"

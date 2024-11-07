@@ -12,6 +12,8 @@ import { RightOutlined } from "@ant-design/icons"
 import hm_uris from "@/features/head-maintenance/uri"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import { useMemo } from "react"
+import TaskUtil from "@/lib/domain/Task/Task.util"
 
 type Props = {
    requests: RequestDto[]
@@ -127,7 +129,7 @@ function RequestList(props: Props) {
                                  hidden: !new Set([FixRequestStatus.REJECTED]).has(item.status),
                               },
                               {
-                                 value: `${item.tasks?.length ?? 0} tác vụ`,
+                                 value: `${item.tasks.filter((t) => TaskUtil.isTask_Running(t)).length ?? 0} tác vụ`,
                                  icon: <CheckSquare size={16} weight={"duotone"} />,
                                  hidden: !new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
                                     item.status,

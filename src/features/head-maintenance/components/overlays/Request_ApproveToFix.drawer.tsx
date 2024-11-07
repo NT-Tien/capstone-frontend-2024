@@ -27,6 +27,7 @@ import IssueUtil from "@/lib/domain/Issue/Issue.util"
 type Request_ApproveToFixDrawerProps = {
    requestId?: string
    onSuccess?: () => void
+   shouldNotUpdateRequest?: boolean
 }
 type Props = Omit<DrawerProps, "children"> & Request_ApproveToFixDrawerProps
 
@@ -108,6 +109,7 @@ function Request_ApproveToFixDrawer(props: Props) {
                         })),
                      })),
                   },
+                  shouldNotUpdateRequest: props.shouldNotUpdateRequest,
                },
                {
                   onSuccess: props.onSuccess,
@@ -147,7 +149,7 @@ function Request_ApproveToFixDrawer(props: Props) {
             }
             closeIcon={false}
             placement="bottom"
-            height="75%"
+            height="90%"
             width="100%"
             footer={
                <Button

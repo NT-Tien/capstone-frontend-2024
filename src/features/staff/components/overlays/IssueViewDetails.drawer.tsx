@@ -20,6 +20,8 @@ import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayCon
 import IssueFailDrawer, { IssueFailDrawerProps } from "@/features/staff/components/overlays/Issue_Fail.drawer"
 import ResolveIssueDrawer, { ResolveIssueDrawerProps } from "@/features/staff/components/overlays/ResolveIssue.drawer"
 import { clientEnv } from "@/env"
+import ImageUploader from "@/components/ImageUploader"
+import VideoUploader from "@/components/VideoUploader"
 
 type IssueViewDetailsDrawerProps = {
    issue?: IssueDto
@@ -251,38 +253,16 @@ function IssueViewDetailsDrawer(props: Props) {
                         {props.issue.status === IssueStatusEnum.RESOLVED && (
                            <>
                               <section>
-                                 <h2 className="mb-2 text-sub-base font-medium">Hình ảnh minh chứng</h2>
-                                 {props.issue.imagesVerify.length !== 0 ? (
-                                    <div className="grid grid-cols-3 gap-3">
-                                       {props.issue.imagesVerify.map((img) => (
-                                          <Image
-                                             key={img}
-                                             src={clientEnv.BACKEND_URL + `/file-image/${img}`}
-                                             alt="image"
-                                             className="aspect-square h-full rounded-lg"
-                                          />
-                                       ))}
-                                    </div>
-                                 ) : (
-                                    <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">
-                                       Không có
-                                    </div>
-                                 )}
+                                 <header className="mb-2">
+                                    <h1 className="text-base font-bold">Hình ảnh xác nhận</h1>
+                                 </header>
+                                 <ImageUploader imageUris={props.issue.imagesVerify} />
                               </section>
-                              <section className="mt-4">
-                                 <h2 className="mb-2 text-sub-base font-medium">Video minh chứng</h2>
-                                 {!!props.issue.videosVerify ? (
-                                    <video width="100%" height="240" controls>
-                                       <source
-                                          src={clientEnv.BACKEND_URL + `/file-video/${props.issue.videosVerify}`}
-                                          type="video/mp4"
-                                       />
-                                    </video>
-                                 ) : (
-                                    <div className="grid h-20 w-full place-content-center rounded-lg bg-neutral-100">
-                                       Không có
-                                    </div>
-                                 )}
+                              <section className="mt-layout">
+                                 <header className="mb-2">
+                                    <h1 className="text-base font-bold">Video xác nhận</h1>
+                                 </header>
+                                 <VideoUploader videoUris={[props.issue.videosVerify]} />
                               </section>
                            </>
                         )}

@@ -134,10 +134,10 @@ function FilterDrawer(props: Props) {
                <Form.Item<FilterQuery> name={"hasSeen"} label={"Trạng thái xem"}>
                   <Radio.Group className="flex w-full" buttonStyle={"solid"}>
                      <Radio.Button className={"w-full"} value={false}>
-                        Chưa xem
+                        Đã xem
                      </Radio.Button>
                      <Radio.Button className={"w-full"} value={true}>
-                        Đã xem
+                        Chưa xem
                      </Radio.Button>
                   </Radio.Group>
                </Form.Item>

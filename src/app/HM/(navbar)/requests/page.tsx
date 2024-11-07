@@ -121,6 +121,13 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
       router.push(hm_uris.navbar.requests + `?status=${tab}`)
    }
 
+   useEffect(() => {
+      let current = searchParams.status
+      if (!current) current = FixRequestStatus.PENDING
+      if (current === FixRequestStatus.HEAD_CONFIRM) current = FixRequestStatus.CLOSED
+      setTab(current)
+   }, [searchParams.status])
+
    return (
       <>
          <div className="std-layout relative h-full min-h-screen bg-white">

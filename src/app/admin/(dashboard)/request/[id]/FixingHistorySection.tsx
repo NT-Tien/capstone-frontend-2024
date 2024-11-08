@@ -66,7 +66,7 @@ function FixingHistorySection({
                                  <div>
                                     {entity.is_warranty ? (
                                        <Tag color="blue">Bảo hành</Tag>
-                                    ) : entity.is_renew ? (
+                                    ) : entity.is_rennew ? (
                                        <Tag color="orange">Thay thế</Tag>
                                     ) : (
                                        <Tag color="green">Sửa chữa</Tag>

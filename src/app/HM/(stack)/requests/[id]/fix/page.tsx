@@ -34,6 +34,7 @@ import TabbedLayout from "@/app/HM/(stack)/requests/[id]/fix/Tabs.component"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import hm_uris from "@/features/head-maintenance/uri"
 import { InfoCircleFilled } from "@ant-design/icons"
+import { NewDeviceInstallation, RemoveOldDeviceTypeErrorId } from "@/lib/constants/Renew"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
@@ -78,6 +79,12 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    const isWarranty = useMemo(() => {
       return api_request.data?.issues.find(
          (issue) => issue.typeError.id === SendWarrantyTypeErrorId || issue.typeError.id === ReceiveWarrantyTypeErrorId,
+      )
+   }, [api_request.data])
+
+   const isRenew = useMemo(() => {
+      return api_request.data?.issues.find(
+         (issue) => issue.typeError.id === RemoveOldDeviceTypeErrorId || issue.typeError.id === NewDeviceInstallation,
       )
    }, [api_request.data])
 
@@ -269,7 +276,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                      <section
                         className={cn(
                            "relative z-50 rounded-lg border-2 border-neutral-200 bg-white p-layout-half shadow-lg",
-                           isWarranty && "rounded-b-none",
+                           isWarranty && isRenew && "rounded-b-none",
                         )}
                      >
                         {api_request.isPending && <Card loading></Card>}

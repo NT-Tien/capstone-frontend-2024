@@ -10,11 +10,15 @@ import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { useRouter } from "next/navigation"
 import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import App from "antd/es/app"
+import hm_uris from "../../uri"
 
 type RenewDeviceDrawerProps = {
    requestId?: string
    currentDevice?: DeviceDto
    request?: RequestDto
+   deviceId: string
+   note: string
+   onSuccess?: () => void
 }
 
 type Props = Omit<DrawerProps, "children"> & RenewDeviceDrawerProps
@@ -30,7 +34,7 @@ function Request_RenewDeviceDrawer(props: Props) {
       },
    )
 
-   const mutate_createRenewRequest = head_maintenance_mutations.request.createRenewRequest()
+   const mutate_createRenewRequest = head_maintenance_mutations.request.approveToRenew()
 
    const filtered_api_devices = useMemo(() => {
       if (!api_devices.isSuccess) return
@@ -81,12 +85,14 @@ function Request_RenewDeviceDrawer(props: Props) {
             if (!props.requestId || !props.request || !selectedDevice) return
             mutate_createRenewRequest.mutate(
                {
-                  requestId: props.requestId,
-                  request: props.request,
-                  selectedDeviceId: selectedDevice.id,
+                  id: props.requestId,
+                  payload: {
+                     deviceId: props.deviceId,
+                     note: props.note
+                  }
                },
                {
-                  onSuccess: () => {},
+                  onSuccess: () => {router.push(hm_uris.stack.requests_id_renew(props.requestId!))},
                },
             )
          },

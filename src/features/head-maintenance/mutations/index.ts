@@ -17,12 +17,14 @@ import useTaskUpdate from "@/features/head-maintenance/mutations/Task_Update.mut
 import useTask_Close from "@/features/head-maintenance/mutations/Task_Close.mutation"
 import useIssue_CreateMany from "@/features/head-maintenance/mutations/Issue_Create.mutation"
 import useIssue_DetatchAndRecreateTaskWarranty from "@/features/head-maintenance/mutations/Issue_DetatchAndRecreateTaskWarranty.mutation"
+import useRequest_ApproveToRenew from "./Request_ApproveToRenew.mutation"
 
 const head_maintenance_mutations = {
    request: {
       createRenewRequest: useCreateRenewRequestMutation,
       approveToFix: useRequest_ApproveToFix,
       approveToWarranty: useRequest_ApproveToWarranty,
+      approveToRenew: useRequest_ApproveToRenew,
       reject: useRequest_Reject,
       seen: useRequest_Seen,
       finish: useRequest_Finish,

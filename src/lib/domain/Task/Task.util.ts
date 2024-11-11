@@ -10,6 +10,7 @@ import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import { NewDeviceInstallation, RemoveOldDeviceTypeErrorId } from "@/lib/constants/Renew"
 
 class TaskUtil {
    static isTask_Running(task?: TaskDto): boolean | undefined {
@@ -65,8 +66,6 @@ class TaskUtil {
 
       return undefined
    }
-
-   static isTask_Renew(task: TaskDto) {}
    
    static getTask_Warranty_FirstIssue(task?: TaskDto): IssueDto | undefined {
       if (!task) return undefined
@@ -81,6 +80,46 @@ class TaskUtil {
 
       return task.issues.find(
          (i) => i.typeError.id === AssembleDeviceTypeErrorId || i.typeError.id === SendWarrantyTypeErrorId,
+      )
+   }
+
+   static isTask_Renew(task?: TaskDto, type?: "remove" | "install"): boolean | undefined {
+      if (!task) return undefined
+
+      if (type === undefined) {
+         return !!task.issues.find(
+            (i) => i.typeError.id === RemoveOldDeviceTypeErrorId || i.typeError.id === NewDeviceInstallation
+         )
+      }
+
+      if (type === "remove") {
+         return !!task.issues.find(
+            (i) => i.typeError.id === RemoveOldDeviceTypeErrorId
+         )
+      }
+
+      if (type === "install") {
+         return !!task.issues.find(
+            (i) => i.typeError.id === NewDeviceInstallation
+         )
+      }
+
+      return undefined
+   }
+
+   static getTask_Renew_FirstIssue(task?: TaskDto): IssueDto | undefined {
+      if (!task) return undefined
+
+      return task.issues.find(
+         (i) => i.typeError.id === RemoveOldDeviceTypeErrorId
+      )
+   }
+
+   static getTask_Renew_SecondIssue(task?: TaskDto): IssueDto | undefined {
+      if (!task) return undefined
+
+      return task.issues.find(
+         (i) => i.typeError.id === NewDeviceInstallation
       )
    }
 

@@ -23,7 +23,7 @@ export type RequestDto = {
    issues: IssueDto[]
    is_seen: boolean
    is_warranty: boolean
-   is_renew: boolean
+   is_rennew: boolean
    return_date_warranty: string | null
    feedback?: FeedbackDto
 }

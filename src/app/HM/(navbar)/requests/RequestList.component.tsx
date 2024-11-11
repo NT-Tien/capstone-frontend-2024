@@ -37,8 +37,8 @@ function RequestList(props: Props) {
                break
             }
 
-            if (request.is_renew === true) {
-               router.push(hm_uris.stack.requests_id_fix(request.id))
+            if (request.is_rennew === true) {
+               router.push(hm_uris.stack.requests_id_renew(request.id))
                break
             }
 

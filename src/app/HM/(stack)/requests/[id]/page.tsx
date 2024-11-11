@@ -532,6 +532,8 @@ function Page({ params }: { params: { id: string } }) {
                                              requestId: params.id,
                                              currentDevice: api_device.data,
                                              request: api_request.data,
+                                             deviceId: api_device.data.id,
+                                             note: api_request.data.requester_note,
                                           }),
                                     },
                                     {
@@ -587,7 +589,7 @@ function Page({ params }: { params: { id: string } }) {
                />
             </OverlayControllerWithRef>
             <OverlayControllerWithRef ref={control_renewDeviceDrawer}>
-               <Request_RenewDeviceDrawer />
+               <Request_RenewDeviceDrawer deviceId={""} note={""} onSuccess={() => router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.APPROVED}`)} />
             </OverlayControllerWithRef>
             {control_qrCodeScanner.contextHolder()}
          </ConfigProvider>

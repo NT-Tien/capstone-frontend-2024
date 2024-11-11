@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation"
 import staff_uri from "@/features/staff/uri"
 import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
 import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
-import QrCodeDisplayForRenewModal, { QrCodeDisplayForRenewModalRefType } from "../QrCodeDisplayForRenew.modal"
+import QrCodeDisplayForRenewModal, { QrCodeDisplayForRenewModalRefType } from "./QrCodeDisplayForRenew.modal"
 import { ExportStatus } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
 
 type TaskViewDetails_RenewDrawerProps = {

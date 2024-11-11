@@ -37,7 +37,7 @@ function DualSignatureDrawer(props: Props) {
 
    return (
       <Drawer
-         title="Kỹ tên xác nhận"
+         title="Ký tên xác nhận"
          placement="right"
          width="100%"
          footer={

@@ -52,7 +52,7 @@ import Issue_Resolve_RemoveDrawer, { Issue_Resolve_RemoveDrawerProps } from "./I
 import { NewDeviceInstallation, RemoveOldDeviceTypeErrorId } from "@/lib/constants/Renew"
 import Issue_Resolve_InstallDrawer, { Issue_Resolve_InstallDrawerProps } from "./Issue_Resolve_Install.drawer"
 import { ExportStatus } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
-import QrCodeDisplayForRenewModal, { QrCodeDisplayForRenewModalRefType } from "../QrCodeDisplayForRenew.modal"
+import QrCodeDisplayForRenewModal, { QrCodeDisplayForRenewModalRefType } from "./QrCodeDisplayForRenew.modal"
 
 type IssueViewDetails_RenewDrawerProps = {
    issue?: IssueDto

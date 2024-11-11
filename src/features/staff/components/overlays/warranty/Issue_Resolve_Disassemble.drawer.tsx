@@ -86,10 +86,10 @@ function Issue_Resolve_DisassembleDrawer(props: Props) {
          <section className="mt-8">
             <header className="mb-2">
                <h3 className="text-base font-semibold">Chữ ký xác nhận</h3>
-               <p className="font-base text-sm text-neutral-500">Vui lòng đưa thiết bị cho trưởng bảo trì ký</p>
+               <p className="font-base text-sm text-neutral-500">Vui lòng đưa thiết bị cho trưởng phòng sản xuất ký</p>
             </header>
             <SignatureUploader setSignature={setSignature} signature={signature}>
-               <SignatureUploader.Head_Maintenance />
+               <SignatureUploader.Head_Department />
             </SignatureUploader>
          </section>
       </Drawer>

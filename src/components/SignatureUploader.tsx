@@ -1,7 +1,7 @@
 "use client"
 
 import ClickableArea from "@/components/ClickableArea"
-import { Signature, UserCheck, Wrench } from "@phosphor-icons/react"
+import { Pen, Signature, UserCheck, Wrench } from "@phosphor-icons/react"
 import { App, Button, Image, Space } from "antd"
 import { EditOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons"
 import SignatureDrawer, { SignatureDrawerProps } from "@/components/Signature.drawer"
@@ -28,7 +28,7 @@ function SignatureUploader(props: Props) {
          {props.signature ? (
             <Space.Compact className="flex h-12">
                <ClickableArea className="flex-grow rounded-lg rounded-r-none border-orange-400 bg-orange-100 text-orange-400">
-                  <Signature size={32} />
+                  <Pen size={20} />
                   <p className="text-sm font-bold tracking-wide">Đã ký</p>
                </ClickableArea>
                {showActions && (
@@ -48,8 +48,10 @@ function SignatureUploader(props: Props) {
             </Space.Compact>
          ) : (
             <div className="flex h-12" onClick={() => showActions && control_signatureDrawer.current?.handleOpen({})}>
-               <ClickableArea className={cn("flex-grow rounded-lg bg-gray-100 text-gray-300", showActions && "rounded-r-none")}>
-                  <Signature size={32} />
+               <ClickableArea
+                  className={cn("flex-grow rounded-lg bg-gray-100 text-gray-300", showActions && "rounded-r-none")}
+               >
+                  <Pen size={20} />
                   <p className="text-sm font-bold tracking-wide">Chưa ký</p>
                </ClickableArea>
                {showActions && (
@@ -62,14 +64,15 @@ function SignatureUploader(props: Props) {
             </div>
          )}
          {props.signature && (
-            <BackendImage
-               src={props.signature}
-               preview={{
-                  visible: isSignatureVisible,
-                  onVisibleChange: setIsSignatureVisible,
-               }}
-               className="hidden"
-            />
+            <div className="pointer-events-none fixed hidden">
+               <BackendImage
+                  src={props.signature}
+                  preview={{
+                     visible: isSignatureVisible,
+                     onVisibleChange: setIsSignatureVisible,
+                  }}
+               />
+            </div>
          )}
          <OverlayControllerWithRef ref={control_signatureDrawer}>
             <SignatureDrawer onSubmit={(path) => props.setSignature?.(path)}>{props.children}</SignatureDrawer>

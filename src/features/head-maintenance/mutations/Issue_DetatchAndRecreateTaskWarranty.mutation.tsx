@@ -1,5 +1,6 @@
 import HeadStaff_Issue_Update from "@/features/head-maintenance/api/issue/update.api"
 import HeadStaff_Task_Create from "@/features/head-maintenance/api/task/create.api"
+import HeadStaff_Task_UpdateAssignFixer from "@/features/head-maintenance/api/task/update-assignFixer.api"
 import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/features/head-maintenance/api/task/update-awaitSparePartToAssignFixer.api"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
@@ -14,6 +15,9 @@ import { useQueryClient } from "@tanstack/react-query"
 type Request = {
    issueDto: IssueDto
    requestId: string
+   fixerId: string
+   fixerDate: string
+   priority: boolean
 }
 
 type Response = TaskDto
@@ -59,6 +63,15 @@ export default function useIssue_DetatchAndRecreateTaskWarranty(props?: Props) {
 
          await HeadStaff_Task_UpdateAwaitSparePartToAssignFixer({
             id: task.id,
+         })
+
+         await HeadStaff_Task_UpdateAssignFixer({
+            id: task.id,
+            payload: {
+               fixer: req.fixerId,
+               fixerDate: req.fixerDate,
+               priority: req.priority,
+            },
          })
 
          return task

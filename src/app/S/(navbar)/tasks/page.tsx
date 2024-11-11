@@ -1,29 +1,27 @@
 "use client"
 
 import CustomCalendar from "@/components/CustomCalendar"
-import dayjs from "dayjs"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
-import StaffNavigationDrawer from "@/features/staff/components/layout/StaffNavigationDrawer"
-import { Suspense, useEffect, useMemo, useRef, useState } from "react"
-import { App, Avatar, Button, ConfigProvider, Divider, List, Space, Spin, Tabs } from "antd"
-import { CalendarOutlined, DownOutlined, LoadingOutlined } from "@ant-design/icons"
-import SelectYearModal, { SelectYearModalProps } from "@/components/overlays/SelectYear.modal"
+import SelectMonthYearDrawer, { SelectMonthYearDrawerProps } from "@/components/overlays/SelectMonthYear.drawer"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import SelectMonthModal, { SelectMonthModalProps } from "@/components/overlays/SelectMonth.modal"
-import staff_queries from "@/features/staff/queries"
-import { TaskDto } from "@/lib/domain/Task/Task.dto"
-import { cn } from "@/lib/utils/cn.util"
-import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
-import TaskDetailsDrawer, { TaskDetailsDrawerRefType } from "@/features/staff/components/overlays/TaskDetails.drawer"
+import StaffNavigationDrawer from "@/features/staff/components/layout/StaffNavigationDrawer"
 import TaskViewDetails_FixDrawer, {
    TaskViewDetails_FixDrawerProps,
 } from "@/features/staff/components/overlays/TaskViewDetails_Fix.drawer"
-import TaskUtil from "@/lib/domain/Task/Task.util"
-import { Check, Clock, Hourglass, Placeholder, SealWarning } from "@phosphor-icons/react"
-import { ExportStatus } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
 import TaskViewDetails_WarrantyDrawer, {
    TaskViewDetails_WarrantyDrawerProps,
 } from "@/features/staff/components/overlays/warranty/TaskViewDetails_Warranty.drawer"
+import staff_queries from "@/features/staff/queries"
+import { ExportStatus } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import TaskUtil from "@/lib/domain/Task/Task.util"
+import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import { cn } from "@/lib/utils/cn.util"
+import { CalendarOutlined, DownOutlined, LoadingOutlined } from "@ant-design/icons"
+import { Check, Clock, Hourglass, Placeholder, SealWarning } from "@phosphor-icons/react"
+import { App, Avatar, Button, ConfigProvider, Divider, List, Space, Spin, Tabs } from "antd"
+import dayjs from "dayjs"
+import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 
 const isCompletedSet = new Set([TaskStatus.COMPLETED, TaskStatus.CANCELLED, TaskStatus.HEAD_STAFF_CONFIRM])
 
@@ -31,12 +29,14 @@ function Page({ searchParams }: { searchParams: { completed?: string } }) {
    const navDrawer = StaffNavigationDrawer.useDrawer()
    const { notification } = App.useApp()
 
+   const minDate = dayjs().subtract(10, "years").toDate()
+   const maxDate = dayjs().add(10, "years").toDate()
+
    const [selectedDate, setSelectedDate] = useState<Date>(dayjs().toDate())
    const [selectedYear, setSelectedYear] = useState<number>(dayjs().year())
    const [selectedMonth, setSelectedMonth] = useState<number>(dayjs().month())
 
-   const control_selectYearModal = useRef<RefType<SelectYearModalProps>>(null)
-   const control_selectMonthModal = useRef<RefType<SelectMonthModalProps>>(null)
+   const control_selectMonthYearDrawer = useRef<RefType<SelectMonthYearDrawerProps>>(null)
 
    const api_tasks = staff_queries.task.allByDate({
       start_date: dayjs().set("month", selectedMonth).set("year", selectedYear).startOf("month").toISOString(),
@@ -135,32 +135,27 @@ function Page({ searchParams }: { searchParams: { completed?: string } }) {
          <PageHeaderV2
             prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}
             title={"Danh sách tác vụ"}
-            nextButton={<Button type={"text"} icon={<CalendarOutlined className="text-white" />} />}
+            nextButton={<Button type={"text"} icon={<CalendarOutlined className="text-white" />} onClick={() => {
+               setSelectedDate(dayjs().toDate())
+               setSelectedYear(dayjs().year())
+               setSelectedMonth(dayjs().month())
+            }} />}
             className="pb-1"
          />
          <section className={"mt-4 flex justify-center"}>
-            <Space.Compact>
-               <Button
-                  className={"text-white"}
-                  type={"text"}
-                  size={"middle"}
-                  onClick={() =>
-                     control_selectMonthModal.current?.handleOpen({
-                        currentMonth: selectedMonth,
-                     })
-                  }
-               >
-                  Tháng {selectedMonth + 1} <DownOutlined className="text-xs" />
-               </Button>
-               <Button
-                  className={"text-white"}
-                  type={"text"}
-                  size={"middle"}
-                  onClick={() => control_selectYearModal.current?.handleOpen({ currentYear: selectedYear })}
-               >
-                  {selectedYear} <DownOutlined className="text-xs" />
-               </Button>
-            </Space.Compact>
+            <Button
+               type="text"
+               className="text-white"
+               onClick={() =>
+                  control_selectMonthYearDrawer.current?.handleOpen({
+                     defaultDate: dayjs().toDate(),
+                  })
+               }
+               icon={<DownOutlined className="text-xs" />}
+               iconPosition="end"
+            >
+               Tháng {selectedMonth + 1}, {selectedYear}
+            </Button>
          </section>
          <section className={"mb-4 grid place-items-center px-layout-half"}>
             <Suspense
@@ -173,8 +168,10 @@ function Page({ searchParams }: { searchParams: { completed?: string } }) {
                <CustomCalendar
                   mode={"single"}
                   month={dayjs().set("month", selectedMonth).set("year", selectedYear).toDate()}
-                  onDayClick={(date) => setSelectedDate(date)}
+                  onSelect={(date) => date && setSelectedDate(date)}
                   selected={selectedDate}
+                  startMonth={minDate}
+                  endMonth={maxDate}
                   className={"custom-calendar-styles w-full"}
                   classNames={{
                      months: "w-full",
@@ -188,11 +185,16 @@ function Page({ searchParams }: { searchParams: { completed?: string } }) {
             </Suspense>
          </section>
          <ListRendererCard tasks={api_tasks_data} refetchFn={api_tasks.refetch} />
-         <OverlayControllerWithRef ref={control_selectYearModal}>
-            <SelectYearModal onSubmit={(year) => setSelectedYear(year)} />
-         </OverlayControllerWithRef>
-         <OverlayControllerWithRef ref={control_selectMonthModal}>
-            <SelectMonthModal onSubmit={(month) => setSelectedMonth(month)} />
+         <OverlayControllerWithRef ref={control_selectMonthYearDrawer}>
+            <SelectMonthYearDrawer
+               minDate={minDate}
+               maxDate={maxDate}
+               onSubmit={(month, year) => {
+                  setSelectedMonth(month - 1)
+                  setSelectedYear(year)
+                  api_tasks.refetch()
+               }}
+            />
          </OverlayControllerWithRef>
       </div>
    )
@@ -250,7 +252,7 @@ function ListRendererCard(props: ListRendererProps) {
                      },
                      {
                         key: "finished",
-                        label: `Đã hoàn thành (${props.tasks.finished.length})`,
+                        label: `Đã đóng (${props.tasks.finished.length})`,
                      },
                   ]}
                />

@@ -106,6 +106,7 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                   height={320}
                   width={600}
                   alt="Capstone Login"
+                  preview={false}
                />
                <div className="typing-animation">
                   <span>
@@ -125,6 +126,7 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                         width={450}
                         height={100}
                         className="object-contain"
+                        preview={false}
                      />
                   </div>
                   <Typography.Text className="mb-6 block select-none text-center text-gray-500" onClick={() => handleDelayedOpenEnvEditor()}>

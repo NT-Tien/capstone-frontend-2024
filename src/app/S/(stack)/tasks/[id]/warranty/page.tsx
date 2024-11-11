@@ -160,10 +160,13 @@ function Page({ params }: { params: { id: string } }) {
                )}
             </section>
 
-            <section className={"mt-layout px-layout"}>
-               <Divider className='text-sm' orientation="left">
-                  Tác vụ có {api_task.data?.issues.length} bước
-               </Divider>
+            <section className={"mt-4 px-layout"}>
+               <header className="mb-4 text-center">
+                  <Divider className="m-0 text-base font-semibold">Chi tiết tác vụ</Divider>
+                  <p className="font-base text-sm text-neutral-500">
+                     Tác vụ có {api_task.data?.issues.length} bước cần được thực hiện
+                  </p>
+               </header>
                <div>
                   <Steps
                      current={(function () {
@@ -179,9 +182,9 @@ function Page({ params }: { params: { id: string } }) {
                         if (firstIssue?.status === IssueStatusEnum.FAILED) return "error"
                         if (firstIssue?.status === IssueStatusEnum.CANCELLED) return "error"
 
-                        if(secondIssue?.status === IssueStatusEnum.PENDING) return "process"
-                        if(secondIssue?.status === IssueStatusEnum.FAILED) return "error"
-                        if(secondIssue?.status === IssueStatusEnum.CANCELLED) return "error"
+                        if (secondIssue?.status === IssueStatusEnum.PENDING) return "process"
+                        if (secondIssue?.status === IssueStatusEnum.FAILED) return "error"
+                        if (secondIssue?.status === IssueStatusEnum.CANCELLED) return "error"
 
                         return "finish"
                      })()}
@@ -191,7 +194,14 @@ function Page({ params }: { params: { id: string } }) {
                            className: cn(firstIssue?.status !== IssueStatusEnum.PENDING && "opacity-50"),
                            title: (
                               <div className="flex w-full justify-between">
-                                 <div className={cn("text-base font-semibold", firstIssue?.status !== IssueStatusEnum.PENDING && "line-through")}>{firstIssue?.typeError.name}</div>
+                                 <div
+                                    className={cn(
+                                       "text-base font-semibold",
+                                       firstIssue?.status !== IssueStatusEnum.PENDING && "line-through",
+                                    )}
+                                 >
+                                    {firstIssue?.typeError.name}
+                                 </div>
                                  <RightOutlined className="text-sm" />
                               </div>
                            ),
@@ -210,7 +220,14 @@ function Page({ params }: { params: { id: string } }) {
                            className: cn(secondIssue?.status !== IssueStatusEnum.PENDING && "opacity-50"),
                            title: (
                               <div className="flex w-full justify-between">
-                                 <div className={cn("text-base font-semibold", secondIssue?.status !== IssueStatusEnum.PENDING && "line-through")}>{secondIssue?.typeError.name}</div>
+                                 <div
+                                    className={cn(
+                                       "text-base font-semibold",
+                                       secondIssue?.status !== IssueStatusEnum.PENDING && "line-through",
+                                    )}
+                                 >
+                                    {secondIssue?.typeError.name}
+                                 </div>
                                  <RightOutlined className="text-sm" />
                               </div>
                            ),

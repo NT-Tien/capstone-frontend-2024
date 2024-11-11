@@ -10,6 +10,7 @@ export type Request = {
       failReason: string
       taskId: string
       imagesVerify?: string[]
+      shouldSkipUpdateTask?: boolean
    }
 } & AuthTokenWrapper
 export type Response = TaskDto

@@ -9,6 +9,8 @@ import IssueSparePartUtil from "@/lib/domain/IssueSparePart/IssueSparePart.util"
 import { cn } from "@/lib/utils/cn.util"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import ExportWarehouse_DelayModal from "@/features/stockkeeper/components/overlay/ExportWarehouse_DelayModal"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 
 type ExportWarehouse_ViewDetailsDrawerProps = {
    id?: string
@@ -60,9 +62,17 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
 
    function delayExport() {}
 
+   function isIssueDto(item: DeviceDto | IssueDto): item is IssueDto {
+      return (item as IssueDto).issueSpareParts !== undefined;
+   }
+   
    const uniqueSpareParts = useMemo(() => {
-      return IssueSparePartUtil.mapToUniqueSpareParts(api_export.data?.detail.flatMap((i) => i.issueSpareParts) ?? [])
-   }, [api_export.data?.detail])
+      const details = Array.isArray(api_export.data?.detail) ? api_export.data?.detail : [];
+      return IssueSparePartUtil.mapToUniqueSpareParts(
+         details.flatMap((i) => (isIssueDto(i) ? i.issueSpareParts : []))
+      );
+   }, [api_export.data?.detail]);
+   
 
    return (
       <Drawer
@@ -117,31 +127,60 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
          <Tabs
             className={"mt-3"}
             items={[
-               {
-                  key: "spare-parts",
-                  label: "Linh kiện",
-                  children: (
-                     <List
-                        dataSource={uniqueSpareParts}
-                        renderItem={(item, index) => {
-                           const notEnoughInWarehouse = item.quantity > item.sparePart.quantity
-                           return (
-                              <List.Item className={cn(index === 0 && "pt-0")}>
-                                 <List.Item.Meta
-                                    title={item.sparePart.name}
-                                    description={
-                                       <div className={"flex items-center justify-between gap-2"}>
-                                          <div>x{item.quantity}</div>
-                                          {notEnoughInWarehouse && <Tag color={"red-inverse"}>Không đủ trong kho</Tag>}
-                                       </div>
-                                    }
-                                 />
-                              </List.Item>
-                           )
-                        }}
-                     />
-                  ),
-               },
+               ...(api_export.data?.export_type === ExportType.SPARE_PART
+                  ? [
+                       {
+                          key: "spare-parts",
+                          label: "Linh kiện",
+                          children: (
+                             <List
+                                dataSource={uniqueSpareParts}
+                                renderItem={(item, index) => {
+                                   const notEnoughInWarehouse = item.quantity > item.sparePart.quantity;
+                                   return (
+                                      <List.Item className={cn(index === 0 && "pt-0")}>
+                                         <List.Item.Meta
+                                            title={item.sparePart.name}
+                                            description={
+                                               <div className={"flex items-center justify-between gap-2"}>
+                                                  <div>x{item.quantity}</div>
+                                                  {notEnoughInWarehouse && (
+                                                     <Tag color={"red-inverse"}>Không đủ trong kho</Tag>
+                                                  )}
+                                               </div>
+                                            }
+                                         />
+                                      </List.Item>
+                                   );
+                                }}
+                             />
+                          ),
+                       },
+                    ]
+                  : []),
+               ...(api_export.data?.export_type === ExportType.DEVICE
+                  ? [
+                       {
+                          key: "device",
+                          label: "Thiết bị",
+                          children: (
+                             <Descriptions
+                                column={1}
+                                items={[
+                                   {
+                                      label: "Tên thiết bị",
+                                      children: api_export?.data?.task?.device_renew?.machineModel?.name,
+                                   },
+                                   {
+                                      label: "Loại",
+                                      children: api_export?.data?.task?.device_renew?.operationStatus,
+                                   },
+                                ]}
+                             />
+                          ),
+                       },
+                    ]
+                  : []),
                {
                   key: "task",
                   label: "Tác vụ",

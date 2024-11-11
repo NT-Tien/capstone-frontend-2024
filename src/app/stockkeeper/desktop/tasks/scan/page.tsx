@@ -132,11 +132,28 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
    const isRenewAndNotCollected = useMemo(() => {
       return api.task.data?.device_renew && !api.task.data?.confirmReceipt
    }, [api.task])
+   console.log("isRenewAndCollected: ", isRenewAndCollected)
+   console.log("hasSparePartsAndCollected: ", hasSparePartsAndCollected)
+   console.log("hasSparePartsButNotCollected: ", hasSparePartsButNotCollected)
+   console.log("isRenewAndNotCollected: ", isRenewAndNotCollected)
+   console.log(
+      "Button class:",
+      cn(
+         (!scannedResult ||
+            hasSparePartsAndCollected ||
+            hasNoSpareParts ||
+            isRenewAndCollected ||
+            api.task.data?.status !== TaskStatus.ASSIGNED) &&
+            "hidden",
+      ),
+   )
 
    const isNotRenew = useMemo(() => {
       return !api.task.data?.device_renew
    }, [api.task.data?.device_renew])
+   console.log("taskStatus: ", api.task.data?.status)
 
+   console.log("isNotRenew: ", isNotRenew)
    return (
       <DesktopScannerDrawer
          drawerProps={{
@@ -176,11 +193,11 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                         <Button
                            key="complete"
                            className={cn(
-                              (!scannedResult ||
+                              !scannedResult ||
                                  hasSparePartsAndCollected ||
                                  hasNoSpareParts ||
-                                 api.task.data?.status !== TaskStatus.ASSIGNED) &&
-                                 "hidden",
+                                 isRenewAndCollected ||
+                                 api.task.data?.status !== TaskStatus.ASSIGNED,
                            )}
                            type="primary"
                            onClick={() => control_dualSignatureDrawer.current?.handleOpen({})}

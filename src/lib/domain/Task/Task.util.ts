@@ -66,7 +66,7 @@ class TaskUtil {
 
       return undefined
    }
-   
+
    static getTask_Warranty_FirstIssue(task?: TaskDto): IssueDto | undefined {
       if (!task) return undefined
 
@@ -88,20 +88,16 @@ class TaskUtil {
 
       if (type === undefined) {
          return !!task.issues.find(
-            (i) => i.typeError.id === RemoveOldDeviceTypeErrorId || i.typeError.id === NewDeviceInstallation
+            (i) => i.typeError.id === RemoveOldDeviceTypeErrorId || i.typeError.id === NewDeviceInstallation,
          )
       }
 
       if (type === "remove") {
-         return !!task.issues.find(
-            (i) => i.typeError.id === RemoveOldDeviceTypeErrorId
-         )
+         return !!task.issues.find((i) => i.typeError.id === RemoveOldDeviceTypeErrorId)
       }
 
       if (type === "install") {
-         return !!task.issues.find(
-            (i) => i.typeError.id === NewDeviceInstallation
-         )
+         return !!task.issues.find((i) => i.typeError.id === NewDeviceInstallation)
       }
 
       return undefined
@@ -110,17 +106,13 @@ class TaskUtil {
    static getTask_Renew_FirstIssue(task?: TaskDto): IssueDto | undefined {
       if (!task) return undefined
 
-      return task.issues.find(
-         (i) => i.typeError.id === RemoveOldDeviceTypeErrorId
-      )
+      return task.issues.find((i) => i.typeError.id === RemoveOldDeviceTypeErrorId)
    }
 
    static getTask_Renew_SecondIssue(task?: TaskDto): IssueDto | undefined {
       if (!task) return undefined
 
-      return task.issues.find(
-         (i) => i.typeError.id === NewDeviceInstallation
-      )
+      return task.issues.find((i) => i.typeError.id === NewDeviceInstallation)
    }
 
    /**
@@ -137,6 +129,18 @@ class TaskUtil {
          return i.issueSpareParts.length > 0
       })
    }
+
+   static hasRenewDevice(task?: TaskDto): boolean | undefined {
+      if (!task) return undefined;
+   
+      return !!task.issues.find((i) => {
+         const renewDevice = i.task?.device_renew;
+         // Check if device_renew is an array or a single object
+         return Array.isArray(renewDevice) ? renewDevice.length > 0 : !!renewDevice;
+      });
+   }
+   
+    
 
    /**
     * Returns

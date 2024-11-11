@@ -24,6 +24,7 @@ import { ExportStatus } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
 import TaskViewDetails_WarrantyDrawer, {
    TaskViewDetails_WarrantyDrawerProps,
 } from "@/features/staff/components/overlays/warranty/TaskViewDetails_Warranty.drawer"
+import TaskViewDetails_RenewDrawer, { TaskViewDetails_RenewDrawerProps } from "@/features/staff/components/overlays/renew/TaskViewDetails_Renew.drawer"
 
 const isCompletedSet = new Set([TaskStatus.COMPLETED, TaskStatus.CANCELLED, TaskStatus.HEAD_STAFF_CONFIRM])
 
@@ -211,6 +212,7 @@ function ListRendererCard(props: ListRendererProps) {
 
    const control_taskViewDetails_fixDrawer = useRef<RefType<TaskViewDetails_FixDrawerProps>>(null)
    const control_taskViewDetails_warrantyDrawer = useRef<RefType<TaskViewDetails_WarrantyDrawerProps>>(null)
+   const control_taskViewDetails_renewDrawer = useRef<RefType<TaskViewDetails_RenewDrawerProps>>(null)
 
    function handleItemClick(task: TaskDto) {
       if (TaskUtil.isTask_Fix(task)) {
@@ -223,6 +225,13 @@ function ListRendererCard(props: ListRendererProps) {
       if (TaskUtil.isTask_Warranty(task)) {
          control_taskViewDetails_warrantyDrawer.current?.handleOpen({
             taskId: task.id,
+         })
+         return
+      }
+
+      if (TaskUtil.isTask_Renew(task)) {
+         control_taskViewDetails_renewDrawer.current?.handleOpen({
+            taskId: task.id
          })
          return
       }
@@ -320,6 +329,9 @@ function ListRendererCard(props: ListRendererProps) {
             </OverlayControllerWithRef>
             <OverlayControllerWithRef ref={control_taskViewDetails_warrantyDrawer}>
                <TaskViewDetails_WarrantyDrawer refetchFn={props.refetchFn} />
+            </OverlayControllerWithRef>
+            <OverlayControllerWithRef ref={control_taskViewDetails_renewDrawer}>
+               <TaskViewDetails_RenewDrawer refetchFn={props.refetchFn}/>
             </OverlayControllerWithRef>
          </ConfigProvider>
       </>

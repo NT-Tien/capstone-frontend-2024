@@ -48,8 +48,13 @@ import { ChartDonut, Factory, FileText, ImageBroken, MapPin, SealWarning, Truck 
 import { App, Button, Card, Descriptions, Drawer, DrawerProps, Dropdown, Image, Segmented } from "antd"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
+import Issue_Resolve_RemoveDrawer, { Issue_Resolve_RemoveDrawerProps } from "./Issue_Resolve_Remove.drawer"
+import { NewDeviceInstallation, RemoveOldDeviceTypeErrorId } from "@/lib/constants/Renew"
+import Issue_Resolve_InstallDrawer, { Issue_Resolve_InstallDrawerProps } from "./Issue_Resolve_Install.drawer"
+import { ExportStatus } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
+import QrCodeDisplayForRenewModal, { QrCodeDisplayForRenewModalRefType } from "../QrCodeDisplayForRenew.modal"
 
-type IssueViewDetails_WarrantyDrawerProps = {
+type IssueViewDetails_RenewDrawerProps = {
    issue?: IssueDto
    machineModel?: MachineModelDto
    request?: RequestDto
@@ -58,23 +63,32 @@ type IssueViewDetails_WarrantyDrawerProps = {
    isDisabled?: boolean
 }
 type Props = Omit<DrawerProps, "children"> &
-   IssueViewDetails_WarrantyDrawerProps & {
+   IssueViewDetails_RenewDrawerProps & {
       handleClose?: () => void
    }
 
-function IssueViewDetails_WarrantyDrawer(props: Props) {
+function IssueViewDetails_RenewDrawer(props: Props) {
    const { modal, message } = App.useApp()
    const router = useRouter()
 
    const [showTypeErrorDescription, setShowTypeErrorDescription] = useState<boolean>(false)
 
    const control_issueFailDrawer = useRef<RefType<Issue_WarrantyFailedModalProps>>(null)
-   const control_issueResolveAssembleDrawer = useRef<RefType<Issue_Resolve_AssembleDrawerProps>>(null)
-   const control_issueResolveDisassembleDrawer = useRef<RefType<Issue_Resolve_DisassembleDrawerProps>>(null)
-   const control_issueResolveSendDrawer = useRef<RefType<Issue_Resolve_SendDrawerProps>>(null)
-   const control_issueResolveReceiveDrawer = useRef<RefType<Issue_Resolve_ReceiveDrawerProps>>(null)
+   const control_issueResolveRemoveDrawer = useRef<RefType<Issue_Resolve_RemoveDrawerProps>>(null)
+   const control_issueResolveInstallDrawer = useRef<RefType<Issue_Resolve_InstallDrawerProps>>(null)
+   const hasTakenRenewDevice = useMemo(() => TaskUtil.hasRenewDevice(props.task), [props.task])
+   const control_qrCodeDisplayForRenewModal = useRef<QrCodeDisplayForRenewModalRefType | null>(null)
 
-   const mutate_finishTaskWarrantySend = staff_mutations.task.finishWarrantySend()
+   const mutate_finishIssue = staff_mutations.issues.resolve()
+
+   const renewDevice = useMemo(() => {
+      if (!props.task?.device_renew) return
+
+      const deviceArray = Array.isArray(props.task.device_renew) ? props.task.device_renew : [props.task.device_renew]
+      const devices = deviceArray.filter((device) => device !== undefined)
+
+      return devices.length > 0 ? devices[0] : undefined
+   }, [props.task?.device_renew])
 
    useEffect(() => {
       if (!props.open) {
@@ -83,79 +97,106 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
    }, [props.open])
 
    function Footer() {
-      if (props.issue?.status === IssueStatusEnum.PENDING) {
-         return (
-            <div className={"flex flex-col"}>
-               {props.isDisabled && (
-                  <AlertCard text={"Vui lòng hoàn thành bước trước đó"} type={"info"} className={"mb-4"} />
-               )}
-               <div className={"flex items-center gap-2"}>
-                  <Button
-                     block
-                     type={"primary"}
-                     size={"large"}
-                     onClick={() => {
-                        if (!props.issue) return
+      if (!props?.task) return null
+      console.log("props.task.device_renew:", props.task?.device_renew)
+      console.log("isArray:", hasTakenRenewDevice)
+      console.log("renewDevice:", renewDevice)
 
-                        switch (props.issue.typeError.id) {
-                           case DisassembleDeviceTypeErrorId: {
-                              control_issueResolveDisassembleDrawer.current?.handleOpen({
-                                 issue: props.issue,
-                              })
-                              return
-                           }
-                           case SendWarrantyTypeErrorId: {
-                              control_issueResolveSendDrawer.current?.handleOpen({
-                                 issue: props.issue,
-                                 requestId: props.request?.id,
-                              })
-                              return
-                           }
-                           case ReceiveWarrantyTypeErrorId: {
-                              control_issueResolveReceiveDrawer.current?.handleOpen({
-                                 issue: props.issue,
-                              })
-                              return
-                           }
-                           case AssembleDeviceTypeErrorId: {
-                              control_issueResolveAssembleDrawer.current?.handleOpen({
-                                 issue: props.issue,
-                              })
-                              return
-                           }
-                        }
-                     }}
-                     icon={<CheckOutlined />}
-                     disabled={props.isDisabled}
-                  >
-                     Hoàn thành
-                  </Button>
-                  <Dropdown
-                     menu={{
-                        items: [
-                           {
-                              label: "Không hoàn thành được bước",
-                              key: "cancel-issue",
-                              danger: true,
-                              icon: <WarningOutlined />,
-                              disabled: props.isDisabled,
-                              onClick: () =>
-                                 props.issue &&
-                                 props.task &&
-                                 control_issueFailDrawer.current?.handleOpen({
-                                    issueDto: props.issue,
-                                    taskId: props.task.id,
-                                 }),
-                           },
-                        ],
-                     }}
-                  >
-                     <Button size={"large"} icon={<MoreOutlined />} className={"aspect-square"} />
-                  </Dropdown>
-               </div>
+      // if (
+      //    hasTakenRenewDevice === true ||
+      //    props.task.export_warehouse_ticket?.some(
+      //       (ticket) => ticket.status === ExportStatus.ACCEPTED || ticket.status === ExportStatus.EXPORTED,
+      //    )
+      // ) {
+         return (
+            <div>
+               <AlertCard text="Vui lòng lấy linh kiện mới ở kho." className="mb-layout" />
+               <Button
+                  block
+                  type="primary"
+                  size="large"
+                  onClick={() =>
+                     renewDevice && control_qrCodeDisplayForRenewModal.current?.handleOpen(props.task!.id, renewDevice)
+                  }
+               >
+                  Lấy thiết bị
+               </Button>
             </div>
          )
-      }
+      // }
+      // if (props.issue?.status === IssueStatusEnum.PENDING) {
+      //    return (
+      //       <div className={"flex flex-col"}>
+      //          {props.isDisabled && (
+      //             <AlertCard text={"Vui lòng hoàn thành bước trước đó"} type={"info"} className={"mb-4"} />
+      //          )}
+      //          <div className={"flex items-center gap-2"}>
+      //             <Button
+      //                block
+      //                type={"primary"}
+      //                size={"large"}
+      //                onClick={() => {
+      //                   if (!props.issue) return
+
+      //                   switch (props.issue.typeError.id) {
+      //                      //    case DisassembleDeviceTypeErrorId: {
+      //                      //       control_issueResolveDisassembleDrawer.current?.handleOpen({
+      //                      //          issue: props.issue,
+      //                      //       })
+      //                      //       return
+      //                      //    }
+      //                      case RemoveOldDeviceTypeErrorId: {
+      //                         control_issueResolveRemoveDrawer.current?.handleOpen({
+      //                            issue: props.issue,
+      //                            requestId: props.request?.id,
+      //                         })
+      //                         return
+      //                      }
+      //                      case NewDeviceInstallation: {
+      //                         control_issueResolveInstallDrawer.current?.handleOpen({
+      //                            issue: props.issue,
+      //                         })
+      //                         return
+      //                      }
+      //                      //    case AssembleDeviceTypeErrorId: {
+      //                      //       control_issueResolveAssembleDrawer.current?.handleOpen({
+      //                      //          issue: props.issue,
+      //                      //       })
+      //                      //       return
+      //                      //    }
+      //                   }
+      //                }}
+      //                icon={<CheckOutlined />}
+      //                disabled={props.isDisabled}
+      //             >
+      //                Hoàn thành
+      //             </Button>
+      //             <Dropdown
+      //                menu={{
+      //                   items: [
+      //                      {
+      //                         label: "Không hoàn thành được bước",
+      //                         key: "cancel-issue",
+      //                         danger: true,
+      //                         icon: <WarningOutlined />,
+      //                         disabled: props.isDisabled,
+      //                         onClick: () =>
+      //                            props.issue &&
+      //                            props.task &&
+      //                            control_issueFailDrawer.current?.handleOpen({
+      //                               issueDto: props.issue,
+      //                               taskId: props.task.id,
+      //                            }),
+      //                      },
+      //                   ],
+      //                }}
+      //             >
+      //                <Button size={"large"} icon={<MoreOutlined />} className={"aspect-square"} />
+      //             </Dropdown>
+      //          </div>
+      //       </div>
+      //    )
+      // }
    }
 
    return (
@@ -247,54 +288,54 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                         ),
                         children: props.issue.description || "-",
                      },
-                     ...(props.issue.typeError.id === AssembleDeviceTypeErrorId
-                        ? [
-                             {
-                                label: (
-                                   <div className={"flex items-center gap-1"}>
-                                      <MapPin size={18} weight={"fill"} />
-                                      <span>Vị trí lắp đặt</span>
-                                   </div>
-                                ),
-                                children: (
-                                   <div>
-                                      {props.task?.device.area.name}{" "}
-                                      {props.task?.device.positionX && props.task?.device.positionY
-                                         ? `(${props.task?.device.positionX}, ${props.task?.device.positionY})`
-                                         : ""}
-                                   </div>
-                                ),
-                             },
-                          ]
-                        : []),
-                     {
-                        label: (
-                           <div className={"flex items-center gap-1"}>
-                              <Truck size={18} weight={"fill"} />
-                              <span>Điều khoản bảo hành</span>
-                           </div>
-                        ),
-                        children: (
-                           <Card
-                              className={"mt-2 h-20 w-full border-[1px] border-orange-500 text-neutral-500"}
-                              size={"small"}
-                              onClick={() => {
-                                 modal.info({
-                                    title: "Điều khoản bảo hành",
-                                    content: <div>{props.machineModel?.description}</div>,
-                                    centered: true,
-                                    maskClosable: true,
-                                    closable: true,
-                                    footer: false,
-                                    height: "90%",
-                                 })
-                              }}
-                           >
-                              {props.machineModel?.description}
-                           </Card>
-                        ),
-                        className: "*:flex-col",
-                     },
+                     //  ...(props.issue.typeError.id === AssembleDeviceTypeErrorId
+                     //     ? [
+                     //          {
+                     //             label: (
+                     //                <div className={"flex items-center gap-1"}>
+                     //                   <MapPin size={18} weight={"fill"} />
+                     //                   <span>Vị trí lắp đặt</span>
+                     //                </div>
+                     //             ),
+                     //             children: (
+                     //                <div>
+                     //                   {props.task?.device.area.name}{" "}
+                     //                   {props.task?.device.positionX && props.task?.device.positionY
+                     //                      ? `(${props.task?.device.positionX}, ${props.task?.device.positionY})`
+                     //                      : ""}
+                     //                </div>
+                     //             ),
+                     //          },
+                     //       ]
+                     //     : []),
+                     //  {
+                     //     label: (
+                     //        <div className={"flex items-center gap-1"}>
+                     //           <Truck size={18} weight={"fill"} />
+                     //           <span>Điều khoản bảo hành</span>
+                     //        </div>
+                     //     ),
+                     //     children: (
+                     //        <Card
+                     //           className={"mt-2 h-20 w-full border-[1px] border-orange-500 text-neutral-500"}
+                     //           size={"small"}
+                     //           onClick={() => {
+                     //              modal.info({
+                     //                 title: "Điều khoản bảo hành",
+                     //                 content: <div>{props.machineModel?.description}</div>,
+                     //                 centered: true,
+                     //                 maskClosable: true,
+                     //                 closable: true,
+                     //                 footer: false,
+                     //                 height: "90%",
+                     //              })
+                     //           }}
+                     //        >
+                     //           {props.machineModel?.description}
+                     //        </Card>
+                     //     ),
+                     //     className: "*:flex-col",
+                     //  },
                   ]}
                />
                {props.issue.status === IssueStatusEnum.FAILED && (
@@ -321,22 +362,26 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
             />
          </OverlayControllerWithRef>
          {/* Resolve issue for disassemble warranty issue */}
-         <OverlayControllerWithRef ref={control_issueResolveDisassembleDrawer}>
+         {/* <OverlayControllerWithRef ref={control_issueResolveDisassembleDrawer}>
             <Issue_Resolve_DisassembleDrawer
                onSuccess={() => {
                   props.refetchFn?.()
                   props.handleClose?.()
                }}
             />
-         </OverlayControllerWithRef>
+         </OverlayControllerWithRef> */}
          {/* Resolve issue for send warranty issue */}
-         <OverlayControllerWithRef ref={control_issueResolveSendDrawer}>
-            <Issue_Resolve_SendDrawer
+         <OverlayControllerWithRef ref={control_issueResolveRemoveDrawer}>
+            <Issue_Resolve_RemoveDrawer
                onSuccess={() => {
                   // finish tsk after sending warranty
-                  mutate_finishTaskWarrantySend.mutate(
+                  mutate_finishIssue.mutate(
                      {
-                        id: props.task?.id ?? "",
+                        id: props.issue?.id ?? "",
+                        payload: {
+                           imagesVerify: props.issue?.imagesVerify ?? [],
+                           videosVerify: props.issue?.videosVerify ?? "",
+                        },
                      },
                      {
                         onSuccess: () => {
@@ -348,23 +393,30 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
             />
          </OverlayControllerWithRef>
          {/* Resolve issue for receive warranty issue */}
-         <OverlayControllerWithRef ref={control_issueResolveReceiveDrawer}>
-            <Issue_Resolve_ReceiveDrawer
+         <OverlayControllerWithRef ref={control_issueResolveInstallDrawer}>
+            <Issue_Resolve_InstallDrawer
                onSuccess={() => {
                   props.refetchFn?.()
                   props.handleClose?.()
                }}
             />
          </OverlayControllerWithRef>
+         <QrCodeDisplayForRenewModal
+            refetch={() => props.refetchFn}
+            ref={control_qrCodeDisplayForRenewModal}
+            title="Lấy máy mới"
+            description="Hãy xuống kho và đưa mã này cho thủ kho"
+            onComplete={() => {}}
+         />
          {/* Resolve issue for assemble warranty issue */}
-         <OverlayControllerWithRef ref={control_issueResolveAssembleDrawer}>
+         {/* <OverlayControllerWithRef ref={control_issueResolveAssembleDrawer}>
             <Issue_Resolve_AssembleDrawer
                onSuccess={() => {
                   props.refetchFn?.()
                   props.handleClose?.()
                }}
             />
-         </OverlayControllerWithRef>
+         </OverlayControllerWithRef> */}
       </Drawer>
    )
 }
@@ -404,5 +456,5 @@ function SendWarrantyReceipt(props: { request: RequestDto }) {
    )
 }
 
-export default IssueViewDetails_WarrantyDrawer
-export type { IssueViewDetails_WarrantyDrawerProps }
+export default IssueViewDetails_RenewDrawer
+export type { IssueViewDetails_RenewDrawerProps }

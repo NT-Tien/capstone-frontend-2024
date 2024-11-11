@@ -27,6 +27,7 @@ import IssueFailed_ResolveOptions, {
 import Request_ApproveToFixDrawer, {
    Request_ApproveToFixDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Request_ApproveToFix.drawer"
+import { NewDeviceInstallation, RemoveOldDeviceTypeErrorId } from "@/lib/constants/Renew"
 
 type Issue_ViewDetails_RenewDrawerProps = {
    issueId?: string
@@ -60,7 +61,7 @@ function Issue_ViewDetails_RenewDrawer(props: Props) {
       // failure states
       if (api_issue.data?.status === IssueStatusEnum.FAILED) {
          switch (api_issue.data.typeError.id) {
-            case DisassembleDeviceTypeErrorId:
+            case RemoveOldDeviceTypeErrorId:
                return (
                   <Button
                      block
@@ -77,7 +78,7 @@ function Issue_ViewDetails_RenewDrawer(props: Props) {
                      Phân công lại
                   </Button>
                )
-            case SendWarrantyTypeErrorId:
+            case NewDeviceInstallation:
                return (
                   <Button
                      block
@@ -90,41 +91,41 @@ function Issue_ViewDetails_RenewDrawer(props: Props) {
                      Cập nhật
                   </Button>
                )
-            case ReceiveWarrantyTypeErrorId:
-               if (api_issue.data.failReason?.includes("Đổi ngày nhận máy:")) {
-                  return (
-                     <Button
-                        block
-                        type="primary"
-                        icon={<EditOutlined />}
-                        onClick={() =>
-                           api_issue.isSuccess &&
-                           props.requestId &&
-                           control_taskAssignFixerDrawer.current?.handleOpen({
-                              recommendedFixerIds: [api_issue.data?.task?.fixer?.id],
-                              defaults: {
-                                 fixer: api_issue.data?.task?.fixer,
-                              },
-                           })
-                        }
-                     >
-                        Đổi ngày nhận máy
-                     </Button>
-                  )
-               } else {
-                  return (
-                     <Button
-                        block
-                        type="primary"
-                        icon={<EditOutlined />}
-                        // onClick={() => {
-                        //    control_issueFailedResolveOptionsModal.current?.handleOpen({})
-                        // }}
-                     >
-                        Cập nhật
-                     </Button>
-                  )
-               }
+            // case ReceiveWarrantyTypeErrorId:
+            //    if (api_issue.data.failReason?.includes("Đổi ngày nhận máy:")) {
+            //       return (
+            //          <Button
+            //             block
+            //             type="primary"
+            //             icon={<EditOutlined />}
+            //             onClick={() =>
+            //                api_issue.isSuccess &&
+            //                props.requestId &&
+            //                control_taskAssignFixerDrawer.current?.handleOpen({
+            //                   recommendedFixerIds: [api_issue.data?.task?.fixer?.id],
+            //                   defaults: {
+            //                      fixer: api_issue.data?.task?.fixer,
+            //                   },
+            //                })
+            //             }
+            //          >
+            //             Đổi ngày nhận máy
+            //          </Button>
+            //       )
+            //    } else {
+            //       return (
+            //          <Button
+            //             block
+            //             type="primary"
+            //             icon={<EditOutlined />}
+            //             // onClick={() => {
+            //             //    control_issueFailedResolveOptionsModal.current?.handleOpen({})
+            //             // }}
+            //          >
+            //             Cập nhật
+            //          </Button>
+            //       )
+            //    }
          }
       }
    }
@@ -171,7 +172,7 @@ function Issue_ViewDetails_RenewDrawer(props: Props) {
                   },
                ]}
             />
-            {api_issue.data?.typeError.id === DisassembleDeviceTypeErrorId && (
+            {api_issue.data?.typeError.id === RemoveOldDeviceTypeErrorId && (
                <>
                   {(api_issue.data.status === IssueStatusEnum.RESOLVED ||
                      api_issue.data.status === IssueStatusEnum.PENDING) && (
@@ -211,7 +212,7 @@ function Issue_ViewDetails_RenewDrawer(props: Props) {
                   )}
                </>
             )}
-            {api_issue.data?.typeError.id === AssembleDeviceTypeErrorId && (
+            {api_issue.data?.typeError.id === NewDeviceInstallation && (
                <>
                   {(api_issue.data.status === IssueStatusEnum.RESOLVED ||
                      api_issue.data.status === IssueStatusEnum.PENDING) && (
@@ -326,7 +327,7 @@ function Issue_ViewDetails_RenewDrawer(props: Props) {
                }}
             />
          </OverlayControllerWithRef> */}
-         <OverlayControllerWithRef ref={control_requestApproveFixDrawer}>
+         {/* <OverlayControllerWithRef ref={control_requestApproveFixDrawer}>
             <Request_ApproveToFixDrawer
                onSuccess={() => {
                   control_requestApproveFixDrawer.current?.handleClose()
@@ -334,10 +335,10 @@ function Issue_ViewDetails_RenewDrawer(props: Props) {
                   props.handleClose?.()
                }}
             />
-         </OverlayControllerWithRef>
+         </OverlayControllerWithRef> */}
       </>
    )
 }
 
 export default Issue_ViewDetails_RenewDrawer
-export type { Issue_ViewDetails_RenewDrawerProps as Issue_ViewDetails_RenewDrawerProps }
+export type { Issue_ViewDetails_RenewDrawerProps }

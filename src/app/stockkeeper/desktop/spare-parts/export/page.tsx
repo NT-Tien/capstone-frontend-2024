@@ -126,9 +126,21 @@ function Page() {
                },
                {
                   title: "Số lượng xuất",
-                  render: (_, e) => e.detail.flatMap((i) => i.issueSpareParts).length,
+                  render: (_, e) => {
+                     if (e.export_type === ExportType.SPARE_PART) {
+                        return e.detail.reduce((count, item) => {
+                           if ("issueSpareParts" in item && item.issueSpareParts) {
+                              count += item.issueSpareParts.length;
+                           }
+                           return count;
+                        }, 0);
+                     } else if (e.export_type === ExportType.DEVICE) {
+                        return e?.task.export_warehouse_ticket?.length || 0;
+                     }
+                     return 0;
+                  },
                   width: 150,
-               },
+               },               
                {
                   title: "",
                   fixed: "right",

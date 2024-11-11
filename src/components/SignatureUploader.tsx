@@ -78,6 +78,7 @@ function SignatureUploader(props: Props) {
    )
 }
 
+// eslint-disable-next-line react/display-name
 SignatureUploader.Head_Maintenance = () => {
    return (
       <div className="flex flex-col items-center gap-1 text-neutral-400/50">
@@ -87,11 +88,22 @@ SignatureUploader.Head_Maintenance = () => {
    )
 }
 
+// eslint-disable-next-line react/display-name
 SignatureUploader.Head_Department = () => {
    return (
       <div className="flex flex-col items-center gap-1 text-neutral-400/50">
          <UserCheck size={32} weight="fill" />
          <p className="font-semibold">Trưởng phòng sản xuất</p>
+      </div>
+   )
+}
+
+// eslint-disable-next-line react/display-name
+SignatureUploader.Stockkeeper = () => {
+   return (
+      <div className="flex flex-col items-center gap-1 text-neutral-400/50">
+         <UserCheck size={32} weight="fill" />
+         <p className="font-semibold">Thủ kho</p>
       </div>
    )
 }

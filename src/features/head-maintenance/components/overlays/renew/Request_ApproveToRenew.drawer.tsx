@@ -24,7 +24,7 @@ import { useEffect, useRef, useState } from "react"
 
 type FieldType = {
    note: string
-   fixerDate: Dayjs
+   deviceId: string
 }
 
 type Request_ApproveToRenewDrawerProps = {
@@ -52,7 +52,7 @@ function Request_ApproveToRenewDrawer(props: Props) {
       },
    )
 
-   const mutate_approveToWarranty = head_maintenance_mutations.request.approveToWarranty()
+   const mutate_approveToRenew = head_maintenance_mutations.request.approveToRenew()
 
    function handleSubmit(
       values: FieldType,
@@ -61,14 +61,15 @@ function Request_ApproveToRenewDrawer(props: Props) {
       selectedPriority: boolean,
       requestId: string,
    ) {
-      mutate_approveToWarranty.mutate(
+      mutate_approveToRenew.mutate(
          {
             id: requestId,
             payload: {
+               deviceId: values.deviceId,
                note: values.note,
-               fixerDate: selectedDate.toISOString(),
-               fixer: selectedUserId,
-               priority: selectedPriority,
+               // fixerDate: selectedDate.toISOString(),
+               // fixer: selectedUserId,
+               // priority: selectedPriority,
             },
          },
          {

@@ -72,6 +72,8 @@ function TaskViewDetails_FixDrawer(props: Props) {
       if (!api_task.isSuccess) return
       return api_task.data.issues.flatMap((i) => i.issueSpareParts)
    }, [api_task.data?.issues, api_task.isSuccess])
+   console.log("hasSpareParts: ", hasSpareParts)
+   console.log("issueSpareParts: ", issueSpareParts)
 
    function onCloseWrapper(e: React.MouseEvent | React.KeyboardEvent) {
       props.onClose?.(e)
@@ -146,7 +148,7 @@ function TaskViewDetails_FixDrawer(props: Props) {
                      control_getSparePartsDrawer.current?.handleOpen(api_task.data.id, issueSpareParts)
                   }
                >
-                  Lấy linh kiện
+                  Lấy linh kiện hihi
                </Button>
             </div>
          )
@@ -490,7 +492,7 @@ function TaskViewDetails_FixDrawer(props: Props) {
          </Drawer>
          <GetSparePartsDrawer
             title="Lấy linh kiện"
-            description="Hãy xuống kho và đưa mã QR sau cho chủ kho."
+            description="Hãy xuống kho và đưa mã QR sau cho thủ kho."
             refetch={() => api_task.refetch()}
             ref={control_getSparePartsDrawer}
             onComplete={() => {}}

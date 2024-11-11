@@ -1,41 +1,37 @@
 "use client"
 
+import TabbedLayout from "@/app/HM/(stack)/requests/[id]/warranty/Tabs.component"
+import ViewDetailsDrawer, { ViewDetailsDrawerProps } from "@/app/HM/(stack)/requests/[id]/warranty/ViewDetails.drawer"
+import PageHeaderV2 from "@/components/layout/PageHeaderV2"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
 import HeadStaff_Device_OneByIdWithHistory from "@/features/head-maintenance/api/device/one-byIdWithHistory.api"
-import headstaff_qk from "@/features/head-maintenance/qk"
 import HeadStaff_Request_OneById from "@/features/head-maintenance/api/request/oneById.api"
-import DataListView from "@/components/DataListView"
-import PageHeader from "@/components/layout/PageHeader"
-import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
-import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { NotFoundError } from "@/lib/error/not-found.error"
-import { useMutation, useQuery } from "@tanstack/react-query"
-import { App, ConfigProvider, Dropdown } from "antd"
-import Button from "antd/es/button"
-import Card from "antd/es/card"
-import Result from "antd/es/result"
-import Spin from "antd/es/spin"
-import Tag from "antd/es/tag"
-import dayjs from "dayjs"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { Suspense, useEffect, useMemo, useRef } from "react"
-import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
-import { cn } from "@/lib/utils/cn.util"
-import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
-import HeadStaff_Task_Create from "@/features/head-maintenance/api/task/create.api"
-import HeadStaff_Task_Update from "@/features/head-maintenance/api/task/update.api"
-import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import Request_RejectDrawer, {
    Request_RejectDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Request_Reject.drawer"
 import Task_ViewDetailsDrawer, {
    TaskDetailsDrawerRefType,
 } from "@/features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
-import TabbedLayout from "@/app/HM/(stack)/requests/[id]/warranty/Tabs.component"
-import PageHeaderV2 from "@/components/layout/PageHeaderV2"
-import hm_uris from "@/features/head-maintenance/uri"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import hm_uris from "@/features/head-maintenance/uri"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
+import { NotFoundError } from "@/lib/error/not-found.error"
+import { cn } from "@/lib/utils/cn.util"
+import { DownOutlined, UpOutlined } from "@ant-design/icons"
+import { Calendar, ChartDonut, Note, User } from "@phosphor-icons/react"
+import { useQuery } from "@tanstack/react-query"
+import { App, ConfigProvider, Descriptions, Dropdown, Typography } from "antd"
+import Button from "antd/es/button"
+import Card from "antd/es/card"
+import Result from "antd/es/result"
+import Spin from "antd/es/spin"
+import Tag from "antd/es/tag"
+import dayjs from "dayjs"
+import { useRouter } from "next/navigation"
+import { Suspense, useRef } from "react"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
@@ -43,6 +39,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
 
    const control_rejectRequestDrawer = useRef<RefType<Request_RejectDrawerProps> | null>(null)
    const taskDetailsRef = useRef<TaskDetailsDrawerRefType | null>(null)
+   const control = useRef<RefType<ViewDetailsDrawerProps>>(null)
 
    const mutate_closeRequest = head_maintenance_mutations.request.finish()
 
@@ -171,8 +168,89 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
             ) : (
                <>
                   <div className="px-layout">
-                     <section className={cn("relative z-50 rounded-lg border-2 border-neutral-200 bg-white shadow-lg")}>
-                        <DataListView
+                     <section
+                        className={cn(
+                           "relative z-50 rounded-lg border-2 border-neutral-200 bg-white p-layout-half shadow-lg overflow-hidden",
+                        )}
+                     >
+                        {api_request.isSuccess ? (
+                           <>
+                              <Descriptions
+                                 size="small"
+                                 colon={false}
+                                 contentStyle={{
+                                    display: "flex",
+                                    justifyContent: "flex-end",
+                                 }}
+                                 items={[
+                                    {
+                                       label: (
+                                          <div className="flex items-center gap-1">
+                                             <Calendar size={17} weight="duotone" />
+                                             <h2>Ngày tạo</h2>
+                                          </div>
+                                       ),
+                                       children: dayjs(api_request.data.createdAt).format("DD/MM/YYYY - HH:mm"),
+                                    },
+                                    {
+                                       label: (
+                                          <div className="flex items-center gap-1">
+                                             <User size={17} weight="duotone" />
+                                             <h2>Người yêu cầu</h2>
+                                          </div>
+                                       ),
+                                       children: api_request.data.requester.username,
+                                    },
+                                    {
+                                       label: (
+                                          <div className="flex items-center gap-1">
+                                             <ChartDonut size={17} weight="duotone" />
+                                             <h2>Trạng thái</h2>
+                                          </div>
+                                       ),
+                                       children: (
+                                          <Tag
+                                             className="m-0"
+                                             color={FixRequest_StatusMapper(api_request.data).colorInverse}
+                                          >
+                                             {FixRequest_StatusMapper(api_request.data).text}
+                                          </Tag>
+                                       ),
+                                    },
+                                    {
+                                       label: (
+                                          <div className="flex items-center gap-1">
+                                             <Note size={17} weight="duotone" />
+                                             <h2>Ghi chú</h2>
+                                          </div>
+                                       ),
+                                       children: (
+                                          <Typography.Link
+                                             className="ml-6 truncate"
+                                             onClick={() => control.current?.handleOpen({
+                                                text: api_request.data.requester_note,
+                                             })}
+                                          >
+                                             {api_request.data.requester_note}
+                                          </Typography.Link>
+                                       ),
+                                    },
+                                 ]}
+                              />
+                              <OverlayControllerWithRef ref={control}>
+                                 <ViewDetailsDrawer getContainer={false} text={""} />
+                              </OverlayControllerWithRef>
+                           </>
+                        ) : (
+                           <>
+                              {api_request.isPending && (
+                                 <div className="grid h-48 w-full place-items-center">
+                                    <Spin />
+                                 </div>
+                              )}
+                           </>
+                        )}
+                        {/* <DataListView
                            bordered
                            dataSource={api_request.data}
                            itemClassName="py-2"
@@ -208,7 +286,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                    ]
                                  : []),
                            ]}
-                        />
+                        /> */}
                      </section>
 
                      {api_request.isSuccess &&

@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import { ReactNode } from "react"
 import AppConsts from "@/lib/constants/AppConsts"
+import FloatButtonProvider from "@/providers/FloatButtonProvider"
 
 const font = Inter({
    subsets: ["latin", "vietnamese"],

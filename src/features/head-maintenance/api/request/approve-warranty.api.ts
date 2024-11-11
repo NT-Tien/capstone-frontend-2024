@@ -9,9 +9,6 @@ export type Request = {
    id: string
    payload: {
       note: string
-      fixerDate: string;
-      fixer: string;
-      priority: boolean;
    }
 } & AuthTokenWrapper
 export type Response = RequestDto

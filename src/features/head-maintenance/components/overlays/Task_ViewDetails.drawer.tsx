@@ -1,20 +1,44 @@
 "use client"
 
-import headstaff_qk from "@/features/head-maintenance/qk"
+import AlertCard from "@/components/AlertCard"
+import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
 import HeadStaff_Task_OneById from "@/features/head-maintenance/api/task/one-byId.api"
 import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/features/head-maintenance/api/task/update-awaitSparePartToAssignFixer.api"
 import HeadStaff_Task_UpdateComplete from "@/features/head-maintenance/api/task/update-complete.api"
+import IssueDetailsDrawer, {
+   IssueDetailsDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Issue_Details.drawer"
 import Issue_ViewDetailsDrawer, {
    IssueDetailsDrawerRefType,
 } from "@/features/head-maintenance/components/overlays/Issue_ViewDetails.drawer"
-import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import Task_AssignFixerV2Drawer, {
+   Task_AssignFixerModalProps,
+} from "@/features/head-maintenance/components/overlays/Task_AssignFixerV2.drawer"
+import Task_CreateDrawer, {
+   CreateTaskV2DrawerProps,
+} from "@/features/head-maintenance/components/overlays/Task_Create.drawer"
+import Task_UpdateFixerAndFixerDate, {
+   Task_UpdateFixerAndFixerDateRefType,
+} from "@/features/head-maintenance/components/overlays/Task_UpdateFixerAndFixerDate.drawer"
+import Task_VerifyCompleteDrawer, {
+   Task_VerifyCompleteDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Task_VerifyComplete.drawer"
+import Task_VerifyComplete_IssueFailedDrawer, {
+   Task_VerifyComplete_IssueFailedDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Task_VerifyComplete_IssueFailed.drawer"
+import head_maintenance_mutations from "@/features/head-maintenance/mutations"
+import headstaff_qk from "@/features/head-maintenance/qk"
+import hm_uris from "@/features/head-maintenance/uri"
+import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
+import { ExportStatusMapper } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import useModalControls from "@/lib/hooks/useModalControls"
 import { cn } from "@/lib/utils/cn.util"
-import AlertCard from "@/components/AlertCard"
-import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import { EditOutlined, MoreOutlined, RightOutlined } from "@ant-design/icons"
 import {
    ArrowElbowDownRight,
@@ -37,31 +61,6 @@ import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState }
 import Task_AssignFixerDrawer, { AssignFixerDrawerRefType } from "./Task_AssignFixer.drawer"
 import Task_CancelDrawer, { CancelTaskDrawerRefType } from "./Task_Cancel.drawer"
 import Task_UpdateFixDateDrawer, { UpdateTaskFixDateDrawerRefType } from "./Task_UpdateFixDate.drawer"
-import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
-import Task_VerifyCompleteDrawer, {
-   Task_VerifyCompleteDrawerProps,
-} from "@/features/head-maintenance/components/overlays/Task_VerifyComplete.drawer"
-import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import Task_VerifyComplete_WarrantyDrawer, {
-   Task_VerifyComplete_WarrantyDrawerProps,
-} from "@/features/head-maintenance/components/overlays/warranty/Task_VerifyComplete_Warranty.drawer"
-import Task_VerifyComplete_IssueFailedDrawer, {
-   Task_VerifyComplete_IssueFailedDrawerProps,
-} from "@/features/head-maintenance/components/overlays/Task_VerifyComplete_IssueFailed.drawer"
-import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
-import Task_CreateDrawer, {
-   CreateTaskV2DrawerProps,
-} from "@/features/head-maintenance/components/overlays/Task_Create.drawer"
-import IssueDetailsDrawer, {
-   IssueDetailsDrawerProps,
-} from "@/features/head-maintenance/components/overlays/Issue_Details.drawer"
-import hm_uris from "@/features/head-maintenance/uri"
-import Task_UpdateFixerAndFixerDate, {
-   Task_UpdateFixerAndFixerDateRefType,
-} from "@/features/head-maintenance/components/overlays/Task_UpdateFixerAndFixerDate.drawer"
-import head_maintenance_mutations from "@/features/head-maintenance/mutations"
-import { ExportStatusMapper } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
-import Task_AssignFixerV2Drawer, { Task_AssignFixerModalProps } from "@/features/head-maintenance/components/overlays/Task_AssignFixerV2.drawer"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto, requestId: string) => void
@@ -99,7 +98,6 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
    const updateTaskFixDateDrawerRef = useRef<UpdateTaskFixDateDrawerRefType | null>(null)
    const cancelTaskDrawerRef = useRef<CancelTaskDrawerRefType | null>(null)
    const control_taskVerifyCompleteDrawer = useRef<RefType<Task_VerifyCompleteDrawerProps>>(null)
-   const control_taskVerifyComplete_warrantyDrawer = useRef<RefType<Task_VerifyComplete_WarrantyDrawerProps>>(null)
    const control_taskVerifyComplete_issueFailedDrawer =
       useRef<RefType<Task_VerifyComplete_IssueFailedDrawerProps>>(null)
    const control_taskCreateDrawer = useRef<RefType<CreateTaskV2DrawerProps>>(null)
@@ -108,10 +106,6 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
 
    function handleOpenTaskVerifyComplete() {
       if (!api_task.isSuccess) return
-      if (isWarrantyTask) {
-         control_taskVerifyComplete_warrantyDrawer.current?.handleOpen({ task: api_task.data })
-         return
-      }
       if (api_task.data.issues.find((i) => i.status === IssueStatusEnum.FAILED)) {
          control_taskVerifyComplete_issueFailedDrawer.current?.handleOpen({ task: api_task.data })
          return
@@ -254,8 +248,8 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                                  defaults: {
                                     priority: task.priority ? "priority" : "normal",
                                     date: dayjs(task.fixerDate).toDate(),
-                                    fixer: task.fixer
-                                 }
+                                    fixer: task.fixer,
+                                 },
                               })
                               // assignFixerDrawerRef.current?.handleOpen(task.id, {
                               //    priority: task.priority,
@@ -283,8 +277,8 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                      defaults: {
                         priority: task.priority ? "priority" : "normal",
                         date: dayjs(task.fixerDate).toDate(),
-                        fixer: task.fixer
-                     }
+                        fixer: task.fixer,
+                     },
                   })
                   // assignFixerDrawerRef.current?.handleOpen(task.id, {
                   //    priority: task.priority,
@@ -351,10 +345,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                   className="w-full"
                   onClick={() => {
                      if (!api_task.isSuccess) return
-                     if (isSendWarrantyTask) {
-                        control_taskVerifyComplete_warrantyDrawer.current?.handleOpen({ task: api_task.data })
-                        return
-                     }
+
                      const cache = localStorage.getItem("head_staff_confirm_device_ids")
                      if (cache) {
                         const cacheArr = JSON.parse(cache) as string[]
@@ -634,9 +625,6 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
          <OverlayControllerWithRef ref={control_taskVerifyCompleteDrawer}>
             <Task_VerifyCompleteDrawer onSubmit={(newIssues) => handleCheckTask(newIssues)} />
          </OverlayControllerWithRef>
-         <OverlayControllerWithRef ref={control_taskVerifyComplete_warrantyDrawer}>
-            <Task_VerifyComplete_WarrantyDrawer onSubmit={handleUpdateConfirmCheck} />
-         </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_taskVerifyComplete_issueFailedDrawer}>
             <Task_VerifyComplete_IssueFailedDrawer
                onSubmit={() => {
@@ -646,22 +634,27 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
             />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_taskAssignFixerDrawer}>
-            <Task_AssignFixerV2Drawer onSubmit={(fixer, date, priority) => {
-               if(!task) return
-               mutate_assignFixer.mutate({
-                  id: task?.id,
-                  payload: {
-                     fixer: fixer.id,
-                     fixerDate: date.toISOString(),
-                     priority
-                  }
-               }, {
-                  onSuccess: () => {
-                     handleClose()
-                     props.refetchFn?.()
-                  }
-               })
-            }} />
+            <Task_AssignFixerV2Drawer
+               onSubmit={(fixer, date, priority) => {
+                  if (!task) return
+                  mutate_assignFixer.mutate(
+                     {
+                        id: task?.id,
+                        payload: {
+                           fixer: fixer.id,
+                           fixerDate: date.toISOString(),
+                           priority,
+                        },
+                     },
+                     {
+                        onSuccess: () => {
+                           handleClose()
+                           props.refetchFn?.()
+                        },
+                     },
+                  )
+               }}
+            />
          </OverlayControllerWithRef>
          <Task_AssignFixerDrawer
             ref={assignFixerDrawerRef}

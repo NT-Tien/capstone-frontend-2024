@@ -34,7 +34,9 @@ const OverlayControllerWithRef = forwardRef<RefType<any>, Props<any>>(function C
          setComponentProps(props)
       },
       onClose: () => {
-         setComponentProps(undefined)
+         setTimeout(() => {
+            setComponentProps(undefined)
+         }, 100)
       },
    })
 

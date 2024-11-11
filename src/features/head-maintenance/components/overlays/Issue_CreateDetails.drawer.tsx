@@ -269,7 +269,7 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
                   </Radio.Group>
                </Form.Item>
                <Form.Item<FieldType>
-                  label={<span className="font-medium text-gray-500">Mô tả lỗi</span>}
+                  label={<span className="font-medium text-gray-500">Ghi chú</span>}
                   name="description"
                   rules={[{ required: true }]}
                >
@@ -283,7 +283,7 @@ const Issue_CreateDetailsDrawer = forwardRef<CreateSingleIssueDrawerRefType, Pro
                      }}
                      maxLength={300}
                      rows={3}
-                     placeholder="Ghi mô tả lỗi. Ví dụ: Máy không khởi động."
+                     placeholder="Ghi chú khi sửa chữa"
                   />
                </Form.Item>
 

@@ -357,4 +357,8 @@ body {
     .ant-steps-item-title {
         width: 100%;
     }
+    
+    .steps-inner-item-title {
+        width: 100%;
+    }
 }

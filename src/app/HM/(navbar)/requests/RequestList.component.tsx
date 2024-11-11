@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { Avatar, List, Progress, Tag } from "antd"
+import { Avatar, Divider, List, Progress, Space, Tag } from "antd"
 import generateAvatarData from "@/lib/utils/generateAvatarData.util"
 import { cn } from "@/lib/utils/cn.util"
 import DataGrid from "@/components/DataGrid"
@@ -80,8 +80,10 @@ function RequestList(props: Props) {
                         </div>
                      }
                      description={
-                        <div className="truncate text-sm">
-                           {item.requester.username} | {item.requester_note}
+                        <div className="text-sm w-full flex gap-2 items-center">
+                           <div>{item.requester.username}</div>
+                           <Divider type="vertical" className="m-0" />
+                           <div className="truncate">{item.requester_note}</div>
                         </div>
                      }
                   ></List.Item.Meta>

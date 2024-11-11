@@ -62,7 +62,7 @@ const config: Config = {
             "sub-base": "var(--font-sub-base)",
          },
          fontFamily: {
-            base: "var(--font)",
+            base: "var(--font) !important",
          },
          height: {
             navbar: "var(--navbar-height)",

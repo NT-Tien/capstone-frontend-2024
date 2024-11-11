@@ -29,6 +29,7 @@ import {
    ReceiveWarrantyTypeErrorId,
    SendWarrantyTypeErrorId,
 } from "@/lib/constants/Warranty"
+import { WarrantyFailedReasonsList } from "@/lib/constants/WarrantyFailedReasons"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
 import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
@@ -176,6 +177,7 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
          height="85%"
          loading={!props.issue}
          footer={<Footer />}
+         push={false}
          {...props}
       >
          {props.issue && (
@@ -276,7 +278,7 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                         ),
                         children: (
                            <Card
-                              className={"mt-2 h-20 w-full border-[1px] border-orange-500 text-neutral-500"}
+                              className={"mt-2 w-full border-[1px] border-orange-500 text-neutral-500"}
                               size={"small"}
                               onClick={() => {
                                  modal.info({
@@ -290,7 +292,7 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                                  })
                               }}
                            >
-                              {props.machineModel?.description}
+                              <div className="line-clamp-3 h-full w-full">{props.machineModel?.description}</div>
                            </Card>
                         ),
                         className: "*:flex-col",
@@ -315,8 +317,13 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
          {/* Fail issue */}
          <OverlayControllerWithRef ref={control_issueFailDrawer}>
             <Issue_WarrantyFailedModal
-               onSuccess={() => {
-                  router.push(staff_uri.navbar.tasks)
+               onSuccess={(values) => {
+                  if (values.selectedReason === WarrantyFailedReasonsList.WARRANTY_REJECTED_AFTER_PROCESS) {
+                     props.refetchFn?.()
+                     props.handleClose?.()
+                  } else {
+                     router.push(staff_uri.navbar.tasks)
+                  }
                }}
             />
          </OverlayControllerWithRef>
@@ -394,8 +401,10 @@ function SendWarrantyReceipt(props: { request: RequestDto }) {
                />
             ))}
             {new Array(4 - sendWarrantyIssue.imagesVerify.length).fill(0).map((_, index) => (
-               // eslint-disable-next-line react/jsx-key
-               <div className="grid aspect-square w-full place-items-center rounded-lg border-[2px] border-dashed border-gray-300 text-gray-300">
+               <div
+                  className="grid aspect-square w-full place-items-center rounded-lg border-[2px] border-dashed border-gray-300 text-gray-300"
+                  key={`empty_image_${index}`}
+               >
                   <ImageBroken size={24} />
                </div>
             ))}

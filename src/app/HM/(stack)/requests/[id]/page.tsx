@@ -6,8 +6,18 @@ import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
 import { cn } from "@/lib/utils/cn.util"
 import { CheckCircleFilled, DeleteFilled, MoreOutlined, QrcodeOutlined, TruckFilled } from "@ant-design/icons"
-import { CalendarBlank, ClockCounterClockwise, MapPin, Swap, WashingMachine, Wrench } from "@phosphor-icons/react"
-import { ConfigProvider, Descriptions, Divider, Skeleton, Space } from "antd"
+import {
+   Calendar,
+   CalendarBlank,
+   ClockCounterClockwise,
+   MapPin,
+   Note,
+   Swap,
+   User,
+   WashingMachine,
+   Wrench,
+} from "@phosphor-icons/react"
+import { ConfigProvider, Descriptions, Divider, Skeleton, Space, Typography } from "antd"
 import App from "antd/es/app"
 import Button from "antd/es/button"
 import Card from "antd/es/card"
@@ -41,7 +51,7 @@ import Request_ApproveToWarrantyDrawer, {
 import MachineModelUtil from "@/lib/domain/MachineModel/MachineModel.util"
 import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
 
-function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
+function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
    const { message } = App.useApp()
 
@@ -214,18 +224,46 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                            display: "flex",
                            justifyContent: "flex-end",
                         }}
+                        size="small"
                         items={[
                            {
-                              label: "Ngày tạo",
+                              label: (
+                                 <div className="flex items-center gap-2">
+                                    <Calendar size={18} weight="duotone" />
+                                    <h2>Ngày tạo</h2>
+                                 </div>
+                              ),
                               children: dayjs(api_request.data.createdAt).add(7, "hours").format("DD/MM/YYYY - HH:mm"),
                            },
                            {
-                              label: "Người yêu cầu",
+                              label: (
+                                 <div className="flex items-center gap-2">
+                                    <User size={18} weight="duotone" />
+                                    <h2>Người yêu cầu</h2>
+                                 </div>
+                              ),
                               children: api_request.data.requester?.username ?? "-",
                            },
                            {
-                              label: "Ghi chú",
-                              children: api_request.data.requester_note,
+                              label: (
+                                 <div className='flex items-center gap-2'>
+                                    <Note size={18} weight="duotone" />
+                                    <h2>Ghi chú</h2>
+                                 </div>
+                              ),
+                              className: "*:flex-col",
+                              children: (
+                                 <Typography.Paragraph
+                                    ellipsis={{
+                                       rows: 2,
+                                       expandable: true,
+                                       symbol: "Xem thêm",
+                                    }}
+                                    className="mb-0 mt-1 ml-7 text-sm w-full"
+                                 >
+                                    {api_request.data.requester_note}
+                                 </Typography.Paragraph>
+                              ),
                            },
                         ]}
                      />

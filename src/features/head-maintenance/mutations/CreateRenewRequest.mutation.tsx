@@ -3,7 +3,7 @@ import { CustomMutationHookProps } from "@/lib/types/CustomMutationHookProps"
 import HeadStaff_Task_Create from "@/features/head-maintenance/api/task/create.api"
 import HeadStaff_Issue_Create from "@/features/head-maintenance/api/issue/create.api"
 import { FixType } from "@/lib/domain/Issue/FixType.enum"
-import { RenewRequestTypeErrorId } from "@/lib/constants/Warranty"
+import { DismantleOldDeviceTypeErrorId } from "@/lib/constants/Warranty"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import dayjs from "dayjs"
 import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
@@ -29,7 +29,7 @@ export default function useCreateRenewRequestMutation(props?: Props) {
          const issue = await HeadStaff_Issue_Create({
             request: req.requestId,
             fixType: FixType.REPLACE,
-            typeError: RenewRequestTypeErrorId,
+            typeError: DismantleOldDeviceTypeErrorId,
             description: "Thay thế thiết bị cũ bằng thiết bị mới",
          })
          

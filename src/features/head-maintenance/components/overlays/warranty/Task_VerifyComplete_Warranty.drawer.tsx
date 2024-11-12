@@ -101,9 +101,9 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
                      showButtons: ["fix", "renew"],
                      onChooseFix: () => {
                         const taskId = props.task?.id
-                        if (!taskId) return
+                        if (!taskId || !props.request) return
                         control_requestApproveToFixDrawer.current?.handleOpen({
-                           requestId: props.request?.id,
+                           requestId: props.request.id,
                            onSuccess: () => {
                               mutate_completeTask.mutate({
                                  id: taskId,

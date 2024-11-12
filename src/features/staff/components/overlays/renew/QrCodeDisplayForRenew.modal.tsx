@@ -3,7 +3,7 @@ import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dt
 import useModalControls from "@/lib/hooks/useModalControls"
 import { InfoCircleOutlined } from "@ant-design/icons"
 import { WashingMachine, Wrench } from "@phosphor-icons/react"
-import { Button, Card, Drawer, Empty, List, Modal, QRCode } from "antd"
+import { Button, Card, Checkbox, Drawer, Empty, List, Modal, QRCode } from "antd"
 import { create } from "domain"
 import { forwardRef, ReactNode, useImperativeHandle, useRef, useState } from "react"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
@@ -26,6 +26,7 @@ const QrCodeDisplayForRenewModal = forwardRef<QrCodeDisplayForRenewModalRefType,
 ) {
    const [qrCode, setQrCode] = useState<string | undefined>(undefined)
    const [device, setDevice] = useState<DeviceDto | undefined>(undefined)
+   const [signed, setSigned] = useState<boolean>(false)
 
    const { open, handleOpen, handleClose } = useModalControls({
       onOpen: (qrCode: string, renewDevice: DeviceDto) => {
@@ -69,14 +70,22 @@ const QrCodeDisplayForRenewModal = forwardRef<QrCodeDisplayForRenewModalRefType,
                footer: "p-layout",
             }}
             footer={
-               <Button
-                  className="w-full"
-                  size="large"
-                  type="primary"
-                  onClick={() => createSignatureDrawerRef.current?.handleOpen()}
-               >
-                  Ký xác nhận
-               </Button>
+               <div>
+                  <div className="mb-3 flex items-start gap-3">
+                     <Checkbox id="sign" checked={signed} onChange={(e) => setSigned(e.target.checked)} />
+                     <label htmlFor="sign" className={"font-bold"}>
+                        Tôi đã ký xác nhận
+                     </label>
+                  </div>
+                  <Button
+                     className="w-full"
+                     size="large"
+                     type="primary"
+                     onClick={() => createSignatureDrawerRef.current?.handleOpen()}
+                  >
+                     Hoàn tất
+                  </Button>
+               </div>
             }
          >
             {props.description && (

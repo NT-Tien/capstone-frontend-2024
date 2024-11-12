@@ -16,7 +16,7 @@ import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/S
 import { ReceiveWarrantyTypeErrorId, DismantleOldDeviceTypeErrorId } from "@/lib/constants/Warranty"
 import QrCodeDisplayForRenewModal, {
    QrCodeDisplayForRenewModalRefType,
-} from "@/features/staff/components/overlays/QrCodeDisplayForRenew.modal"
+} from "@/features/staff/components/overlays/renew/QrCodeDisplayForRenew.modal"
 import staff_mutations from "@/features/staff/mutations"
 
 type HandleOpenProps = {

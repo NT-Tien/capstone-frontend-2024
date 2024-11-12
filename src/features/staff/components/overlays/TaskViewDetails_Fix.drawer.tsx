@@ -148,7 +148,7 @@ function TaskViewDetails_FixDrawer(props: Props) {
                      control_getSparePartsDrawer.current?.handleOpen(api_task.data.id, issueSpareParts)
                   }
                >
-                  Lấy linh kiện hihi
+                  Lấy linh kiện
                </Button>
             </div>
          )

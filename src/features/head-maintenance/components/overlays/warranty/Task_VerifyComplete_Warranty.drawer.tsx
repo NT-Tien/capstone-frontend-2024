@@ -109,7 +109,9 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
                                  id: taskId,
                               }, {
                                  onSuccess: () => {
+                                    control_requestApproveToFixDrawer.current?.handleClose()
                                     props.handleClose?.()
+                                    props.onSubmit?.()
                                  }
                               })
                            },

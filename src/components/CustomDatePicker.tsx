@@ -45,7 +45,7 @@ function CustomDatePicker(props: Props) {
                   <CalendarOutlined />
                </div>
                <div className="mr-auto text-base">
-                  {currentDate ? capitalizeFirstLetter(currentDate.format("dddd DD/MM/YYYY")) : <span className='text-neutral-300'>Chọn ngày, tháng, năm</span>}
+                  {currentDate ? capitalizeFirstLetter(currentDate.format("DD/MM/YYYY")) : <span className='text-neutral-300'>Chọn ngày, tháng, năm</span>}
                </div>
             </ClickableArea>
             {currentDate && (

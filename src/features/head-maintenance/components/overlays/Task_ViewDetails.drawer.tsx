@@ -478,7 +478,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                         <div className="mt-layout flex items-center gap-3">
                            <Gear size={18} weight="fill" color="#737373" />
                            <div>
-                              Linh kiện: {ExportStatusMapper(api_task.data.export_warehouse_ticket[0]?.status)?.text}
+                              Đơn xuất kho: {ExportStatusMapper(api_task.data.export_warehouse_ticket[0]?.status)?.text}
                            </div>
                         </div>
                      )}

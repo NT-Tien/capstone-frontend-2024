@@ -320,7 +320,7 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                onSuccess={(values) => {
                   if (values.selectedReason === WarrantyFailedReasonsList.WARRANTY_REJECTED_AFTER_PROCESS) {
                      props.refetchFn?.()
-                     props.handleClose?.()
+                     router.push(staff_uri.navbar.tasks)
                   } else {
                      router.push(staff_uri.navbar.tasks)
                   }
@@ -331,8 +331,7 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
          <OverlayControllerWithRef ref={control_issueResolveDisassembleDrawer}>
             <Issue_Resolve_DisassembleDrawer
                onSuccess={() => {
-                  props.refetchFn?.()
-                  props.handleClose?.()
+                  router.push(staff_uri.navbar.tasks)
                }}
             />
          </OverlayControllerWithRef>

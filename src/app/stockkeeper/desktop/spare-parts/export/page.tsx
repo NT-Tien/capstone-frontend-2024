@@ -41,6 +41,8 @@ function Page() {
       return { list: list.slice(query.page * query.pageSize, (query.page + 1) * query.pageSize), total: list.length }
    }, [api_exports.data, api_exports.isSuccess, query, tab])
 
+   console.log(renderData)
+
    const statusCounts = useMemo(() => {
       if (!api_exports.isSuccess) return
 
@@ -63,7 +65,13 @@ function Page() {
       <PageContainer
          title={"Đơn xuất kho"}
          tabActiveKey={tab}
-         onTabChange={(key) => setTab(key as ExportStatus)}
+         onTabChange={(key) => {
+            setTab(key as ExportStatus)
+            setQuery({
+               page: 0,
+               pageSize: 10,
+            })
+         }}
          tabList={[
             {
                key: ExportStatus.WAITING,

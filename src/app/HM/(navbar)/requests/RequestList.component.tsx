@@ -5,7 +5,7 @@ import { Avatar, Divider, List, Progress, Space, Tag } from "antd"
 import generateAvatarData from "@/lib/utils/generateAvatarData.util"
 import { cn } from "@/lib/utils/cn.util"
 import DataGrid from "@/components/DataGrid"
-import { CalendarBlank, CheckSquare, MapPinArea, Pen, Truck, Warning } from "@phosphor-icons/react"
+import { CalendarBlank, CheckSquare, MapPinArea, Pen, Swap, Truck, Warning } from "@phosphor-icons/react"
 import dayjs from "dayjs"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { RightOutlined } from "@ant-design/icons"
@@ -118,12 +118,18 @@ function RequestList(props: Props) {
                                  className: "text-orange-500",
                               },
                               {
+                                 icon: <Swap size={16} weight="duotone" />,
+                                 value: "Thay máy",
+                                 hidden: !item.is_rennew,
+                                 className: "text-purple-500",
+                              },
+                              {
                                  value: `${item.issues?.length ?? 0} lỗi`,
                                  icon: <Warning size={16} weight={"duotone"} />,
                                  hidden:
                                     !new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
                                        item.status,
-                                    ) || item.is_warranty,
+                                    ) || item.is_warranty || item.is_rennew,
                               },
                               {
                                  value: `Lý do: ${item.checker_note ?? "-"}`,

@@ -16,4 +16,5 @@ export type MachineModelDto = {
    spareParts: SparePartDto[]
    typeErrors: TypeErrorDto[]
    devices: DeviceDto[]
+   image: string
 }

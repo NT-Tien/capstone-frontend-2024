@@ -15,6 +15,8 @@ import ClickableArea from "@/components/ClickableArea"
 import staff_uri from "@/features/staff/uri"
 import staff_queries from "@/features/staff/queries"
 import TaskStatisticsCard from "@/features/staff/components/TaskStatisticsCard"
+import TaskUtil from "@/lib/domain/Task/Task.util"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
 
 function Page() {
    const navDrawer = StaffNavigationDrawer.useDrawer()
@@ -49,6 +51,23 @@ function Page() {
       return null
    }, [api_tasks.data, api_tasks.isSuccess])
 
+   function handleItemClick(task: TaskDto) {
+      if (TaskUtil.isTask_Fix(task)) {
+         router.push(staff_uri.stack.tasks_id(task.id))
+         return
+      }
+
+      if (TaskUtil.isTask_Warranty(task)) {
+         router.push(staff_uri.stack.tasks_id_warranty(task.id))
+         return
+      }
+
+      if (TaskUtil.isTask_Renew(task)) {
+         router.push(staff_uri.stack.task_id_renew(task.id))
+         return
+      }
+   }
+
    return (
       <div className="relative">
          <div className="absolute left-0 top-0 h-56 w-full bg-staff" />
@@ -63,7 +82,7 @@ function Page() {
                className={"flex w-full justify-start rounded-lg bg-white p-2 text-black"}
                onClick={() => {
                   if (ongoingtask) {
-                     router.push(staff_uri.stack.tasks_id(ongoingtask.id))
+                     handleItemClick(ongoingtask)
                   } else {
                      router.push(staff_uri.navbar.tasks)
                   }

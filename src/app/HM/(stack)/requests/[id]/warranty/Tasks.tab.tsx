@@ -7,6 +7,7 @@ import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import { SystemTypeErrorIds } from "@/lib/constants/Warranty"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
@@ -511,37 +512,45 @@ export default function TasksTab(props: Props) {
                               },
                            ]}
                         />
-                        <section className="fixed bottom-0 left-0 w-full bg-inherit p-layout">
-                           <div className="flex w-full items-center gap-3">
-                              <Button
-                                 className="w-full"
-                                 type="primary"
-                                 icon={<PlusOutlined />}
-                                 onClick={() => props.handleOpenCreateTask?.()}
-                                 disabled={props.disabledCreateTask}
-                              >
-                                 Tạo tác vụ
-                              </Button>
-                              {props.api_request.data?.tasks.every(
-                                 (task) => task.status === TaskStatus.COMPLETED || task.status === TaskStatus.CANCELLED,
-                              ) &&
-                                 props.api_request.data?.issues.every(
-                                    (issue) =>
-                                       issue.status === IssueStatusEnum.RESOLVED ||
-                                       issue.status === IssueStatusEnum.CANCELLED,
-                                 ) && (
-                                    <Button
-                                       className=""
-                                       type="primary"
-                                       onClick={() =>
-                                          props.api_request.isSuccess && handleFinishRequest(props.api_request.data.id)
-                                       }
-                                    >
-                                       Đóng yêu cầu
-                                    </Button>
-                                 )}
-                           </div>
-                        </section>
+                        {new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
+                           props.api_request.data.status,
+                        ) && (
+                           <section className="fixed bottom-0 left-0 w-full bg-inherit p-layout">
+                              <div className="flex w-full items-center gap-3">
+                                 <Button
+                                    className="w-full"
+                                    type="primary"
+                                    icon={<PlusOutlined />}
+                                    onClick={() => props.handleOpenCreateTask?.()}
+                                    disabled={props.disabledCreateTask}
+                                 >
+                                    Tạo tác vụ
+                                 </Button>
+                                 {props.api_request.data?.tasks.every(
+                                    (task) =>
+                                       task.status === TaskStatus.COMPLETED || task.status === TaskStatus.CANCELLED,
+                                 ) &&
+                                    props.api_request.data?.issues
+                                       .filter((i) => SystemTypeErrorIds.has(i.typeError.id) === false)
+                                       .every(
+                                          (issue) =>
+                                             issue.status === IssueStatusEnum.RESOLVED ||
+                                             issue.status === IssueStatusEnum.CANCELLED,
+                                       ) && (
+                                       <Button
+                                          className=""
+                                          type="primary"
+                                          onClick={() =>
+                                             props.api_request.isSuccess &&
+                                             handleFinishRequest(props.api_request.data.id)
+                                          }
+                                       >
+                                          Đóng yêu cầu
+                                       </Button>
+                                    )}
+                              </div>
+                           </section>
+                        )}
                      </>
                   ) : (
                      <div className={"grid h-64 place-items-center"}>

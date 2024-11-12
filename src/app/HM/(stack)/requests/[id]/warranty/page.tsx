@@ -2,6 +2,7 @@
 
 import TabbedLayout from "@/app/HM/(stack)/requests/[id]/warranty/Tabs.component"
 import ViewDetailsDrawer, { ViewDetailsDrawerProps } from "@/app/HM/(stack)/requests/[id]/warranty/ViewDetails.drawer"
+import ClickableArea from "@/components/ClickableArea"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
@@ -16,6 +17,8 @@ import Task_ViewDetailsDrawer, {
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import headstaff_qk from "@/features/head-maintenance/qk"
 import hm_uris from "@/features/head-maintenance/uri"
+import { SystemRenewTypeErrorIds } from "@/lib/constants/Renew"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
 import { NotFoundError } from "@/lib/error/not-found.error"
@@ -170,7 +173,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                   <div className="px-layout">
                      <section
                         className={cn(
-                           "relative z-50 rounded-lg border-2 border-neutral-200 bg-white p-layout-half shadow-lg overflow-hidden",
+                           "relative z-50 overflow-hidden rounded-lg border-2 border-neutral-200 bg-white p-layout-half shadow-lg",
                         )}
                      >
                         {api_request.isSuccess ? (
@@ -227,9 +230,11 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                                        children: (
                                           <Typography.Link
                                              className="ml-6 truncate"
-                                             onClick={() => control.current?.handleOpen({
-                                                text: api_request.data.requester_note,
-                                             })}
+                                             onClick={() =>
+                                                control.current?.handleOpen({
+                                                   text: api_request.data.requester_note,
+                                                })
+                                             }
                                           >
                                              {api_request.data.requester_note}
                                           </Typography.Link>
@@ -250,45 +255,19 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                               )}
                            </>
                         )}
-                        {/* <DataListView
-                           bordered
-                           dataSource={api_request.data}
-                           itemClassName="py-2"
-                           labelClassName="font-normal text-neutral-400 text-[14px]"
-                           valueClassName="text-[14px] font-medium"
-                           items={[
-                              {
-                                 label: "Ngày tạo",
-                                 value: (e) => dayjs(e.createdAt).format("DD/MM/YYYY - HH:mm"),
-                              },
-                              {
-                                 label: "Người yêu cầu",
-                                 value: (e) => e.requester?.username ?? "-",
-                              },
-                              {
-                                 label: "Trạng thái",
-                                 value: (e) => (
-                                    <Tag className="m-0" color={FixRequest_StatusMapper(e).colorInverse}>
-                                       {FixRequest_StatusMapper(e).text}
-                                    </Tag>
-                                 ),
-                              },
-                              {
-                                 label: "Ghi chú",
-                                 value: (e) => e.requester_note,
-                              },
-                              ...(api_request.data?.return_date_warranty
-                                 ? [
-                                      {
-                                         label: "Ngày nhận bảo hành (dự tính)",
-                                         value: (e: any) => dayjs(e.return_date_warranty).format("DD/MM/YYYY"),
-                                      },
-                                   ]
-                                 : []),
-                           ]}
-                        /> */}
                      </section>
 
+                     {/* TEMPORARY CODE
+                     {api_request.data?.issues
+                        .filter((i) => !SystemRenewTypeErrorIds.has(i.typeError.id))
+                        .every((i) => i.status === IssueStatusEnum.RESOLVED) && (
+                        <section className="std-layout">
+                           <div className="flex w-full justify-between gap-4 rounded-b-lg bg-neutral-500 p-3 text-white">
+                              <p>Tất cả các lỗi đã được sửa</p>
+                              <Button size="small">Đóng yêu cầu</Button>
+                           </div>
+                        </section>
+                     )} */}
                      {api_request.isSuccess &&
                         new Set([FixRequestStatus.HEAD_CONFIRM]).has(api_request.data.status) && (
                            <section className="std-layout">

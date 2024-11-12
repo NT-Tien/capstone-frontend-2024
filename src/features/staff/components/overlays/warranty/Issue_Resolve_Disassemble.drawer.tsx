@@ -33,7 +33,6 @@ function Issue_Resolve_DisassembleDrawer(props: Props) {
          {
             onSuccess: () => {
                props.onSuccess?.()
-               props.handleClose?.()
             },
          },
       )

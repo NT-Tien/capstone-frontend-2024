@@ -9,12 +9,14 @@ import useIssue_One from "@/features/head-maintenance/queries/Issue_One.query"
 import useRequest_All from "@/features/head-maintenance/queries/Request_All.query"
 import useNotifications_All from "@/features/head-maintenance/queries/Notifications_All.query"
 import useUser_AllStaff from "@/features/head-maintenance/queries/User_AllStaff.query"
+import useDevice_AllUnused from "@/features/head-maintenance/queries/Device_AllUnused.query"
 
 const head_maintenance_queries = {
    device: {
       all_noPosition: useDevice_AllNoPosition,
       one: useDevice_OneQuery,
       all_requestHistory: useDevice_AllRequestHistoryQuery,
+      all_unused: useDevice_AllUnused,
    },
    request: {
       all: useRequest_All,

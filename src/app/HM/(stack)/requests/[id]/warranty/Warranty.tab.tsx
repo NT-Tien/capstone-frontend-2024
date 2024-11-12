@@ -569,7 +569,7 @@ function WarrantyTab(props: Props) {
          </OverlayControllerWithRef>
          {control_qrScanner.contextHolder()}
          <OverlayControllerWithRef ref={control_taskVerifyComplete_warrantyDrawer}>
-            <Task_VerifyComplete_WarrantyDrawer onSubmit={() => {}} />
+            <Task_VerifyComplete_WarrantyDrawer onSubmit={() => props.api_request.refetch()} />
          </OverlayControllerWithRef>
       </section>
    )

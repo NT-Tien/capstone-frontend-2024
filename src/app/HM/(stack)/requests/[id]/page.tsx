@@ -50,6 +50,9 @@ import Request_ApproveToWarrantyDrawer, {
 } from "@/features/head-maintenance/components/overlays/warranty/Request_ApproveToWarranty.drawer"
 import MachineModelUtil from "@/lib/domain/MachineModel/MachineModel.util"
 import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
+import Request_ApproveToRenewDrawer, {
+   Request_ApproveToRenewDrawerProps,
+} from "@/features/head-maintenance/components/overlays/renew/Request_ApproveToRenew.drawer"
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -59,6 +62,7 @@ function Page({ params }: { params: { id: string } }) {
    const control_requestApproveToWarrantyDrawer = useRef<RefType<Request_ApproveToWarrantyDrawerProps>>(null)
    const control_requestApproveToFixDrawer = useRef<RefType<Request_ApproveToFixDrawerProps>>(null)
    const control_renewDeviceDrawer = useRef<RefType<RenewDeviceDrawerProps> | null>(null)
+   const control_requestApproveToRenewDrawer = useRef<RefType<Request_ApproveToRenewDrawerProps>>(null)
 
    const mutate_updateSeen = head_maintenance_mutations.request.seen({ showMessages: false })
 
@@ -246,7 +250,7 @@ function Page({ params }: { params: { id: string } }) {
                            },
                            {
                               label: (
-                                 <div className='flex items-center gap-2'>
+                                 <div className="flex items-center gap-2">
                                     <Note size={18} weight="duotone" />
                                     <h2>Ghi chú</h2>
                                  </div>
@@ -259,7 +263,7 @@ function Page({ params }: { params: { id: string } }) {
                                        expandable: true,
                                        symbol: "Xem thêm",
                                     }}
-                                    className="mb-0 mt-1 ml-7 text-sm w-full"
+                                    className="mb-0 ml-7 mt-1 w-full text-sm"
                                  >
                                     {api_request.data.requester_note}
                                  </Typography.Paragraph>
@@ -528,13 +532,16 @@ function Page({ params }: { params: { id: string } }) {
                                        onClick: () =>
                                           api_device.isSuccess &&
                                           api_request.isSuccess &&
-                                          control_renewDeviceDrawer.current?.handleOpen({
+                                          control_requestApproveToRenewDrawer.current?.handleOpen({
                                              requestId: params.id,
-                                             currentDevice: api_device.data,
-                                             request: api_request.data,
-                                             deviceId: api_device.data.id,
-                                             note: api_request.data.requester_note,
                                           }),
+                                       // control_renewDeviceDrawer.current?.handleOpen({
+                                       //    requestId: params.id,
+                                       //    currentDevice: api_device.data,
+                                       //    request: api_request.data,
+                                       //    deviceId: api_device.data.id,
+                                       //    note: api_request.data.requester_note,
+                                       // }),
                                     },
                                     {
                                        type: "divider",
@@ -589,7 +596,16 @@ function Page({ params }: { params: { id: string } }) {
                />
             </OverlayControllerWithRef>
             <OverlayControllerWithRef ref={control_renewDeviceDrawer}>
-               <Request_RenewDeviceDrawer deviceId={""} note={""} onSuccess={() => router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.APPROVED}`)} />
+               <Request_RenewDeviceDrawer
+                  deviceId={""}
+                  note={""}
+                  onSuccess={() => router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.APPROVED}`)}
+               />
+            </OverlayControllerWithRef>
+            <OverlayControllerWithRef ref={control_requestApproveToRenewDrawer}>
+               <Request_ApproveToRenewDrawer
+                  onSuccess={() => router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.APPROVED}`)}
+               />
             </OverlayControllerWithRef>
             {control_qrCodeScanner.contextHolder()}
          </ConfigProvider>

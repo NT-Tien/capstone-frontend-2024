@@ -95,6 +95,8 @@ function IssueViewDetails_RenewDrawer(props: Props) {
          setShowTypeErrorDescription(false)
       }
    }, [props.open])
+   console.log("hasTakenRenewDevice: ",hasTakenRenewDevice);
+   
 
    function Footer() {
       if (!props?.task) return null
@@ -102,12 +104,12 @@ function IssueViewDetails_RenewDrawer(props: Props) {
       console.log("isArray:", hasTakenRenewDevice)
       console.log("renewDevice:", renewDevice)
 
-      // if (
-      //    hasTakenRenewDevice === true ||
-      //    props.task.export_warehouse_ticket?.some(
-      //       (ticket) => ticket.status === ExportStatus.ACCEPTED || ticket.status === ExportStatus.EXPORTED,
-      //    )
-      // ) {
+      if (
+         (props.task.confirmReceiptStaffSignature === "false" && props.task.confirmReceiptStockkeeperSignature === "false") ||
+         props.task.export_warehouse_ticket?.some(
+            (ticket) => ticket.status === ExportStatus.ACCEPTED || ticket.status === ExportStatus.EXPORTED,
+         )
+      ) {
          return (
             <div>
                <AlertCard text="Vui lòng lấy linh kiện mới ở kho." className="mb-layout" />
@@ -123,80 +125,68 @@ function IssueViewDetails_RenewDrawer(props: Props) {
                </Button>
             </div>
          )
-      // }
-      // if (props.issue?.status === IssueStatusEnum.PENDING) {
-      //    return (
-      //       <div className={"flex flex-col"}>
-      //          {props.isDisabled && (
-      //             <AlertCard text={"Vui lòng hoàn thành bước trước đó"} type={"info"} className={"mb-4"} />
-      //          )}
-      //          <div className={"flex items-center gap-2"}>
-      //             <Button
-      //                block
-      //                type={"primary"}
-      //                size={"large"}
-      //                onClick={() => {
-      //                   if (!props.issue) return
+      }
+      if (props.issue?.status === IssueStatusEnum.PENDING) {
+         return (
+            <div className={"flex flex-col"}>
+               {props.isDisabled && (
+                  <AlertCard text={"Vui lòng hoàn thành bước trước đó"} type={"info"} className={"mb-4"} />
+               )}
+               <div className={"flex items-center gap-2"}>
+                  <Button
+                     block
+                     type={"primary"}
+                     size={"large"}
+                     onClick={() => {
+                        if (!props.issue) return
 
-      //                   switch (props.issue.typeError.id) {
-      //                      //    case DisassembleDeviceTypeErrorId: {
-      //                      //       control_issueResolveDisassembleDrawer.current?.handleOpen({
-      //                      //          issue: props.issue,
-      //                      //       })
-      //                      //       return
-      //                      //    }
-      //                      case RemoveOldDeviceTypeErrorId: {
-      //                         control_issueResolveRemoveDrawer.current?.handleOpen({
-      //                            issue: props.issue,
-      //                            requestId: props.request?.id,
-      //                         })
-      //                         return
-      //                      }
-      //                      case NewDeviceInstallation: {
-      //                         control_issueResolveInstallDrawer.current?.handleOpen({
-      //                            issue: props.issue,
-      //                         })
-      //                         return
-      //                      }
-      //                      //    case AssembleDeviceTypeErrorId: {
-      //                      //       control_issueResolveAssembleDrawer.current?.handleOpen({
-      //                      //          issue: props.issue,
-      //                      //       })
-      //                      //       return
-      //                      //    }
-      //                   }
-      //                }}
-      //                icon={<CheckOutlined />}
-      //                disabled={props.isDisabled}
-      //             >
-      //                Hoàn thành
-      //             </Button>
-      //             <Dropdown
-      //                menu={{
-      //                   items: [
-      //                      {
-      //                         label: "Không hoàn thành được bước",
-      //                         key: "cancel-issue",
-      //                         danger: true,
-      //                         icon: <WarningOutlined />,
-      //                         disabled: props.isDisabled,
-      //                         onClick: () =>
-      //                            props.issue &&
-      //                            props.task &&
-      //                            control_issueFailDrawer.current?.handleOpen({
-      //                               issueDto: props.issue,
-      //                               taskId: props.task.id,
-      //                            }),
-      //                      },
-      //                   ],
-      //                }}
-      //             >
-      //                <Button size={"large"} icon={<MoreOutlined />} className={"aspect-square"} />
-      //             </Dropdown>
-      //          </div>
-      //       </div>
-      //    )
-      // }
+                        switch (props.issue.typeError.id) {
+                           case RemoveOldDeviceTypeErrorId: {
+                              control_issueResolveRemoveDrawer.current?.handleOpen({
+                                 issue: props.issue,
+                                 requestId: props.request?.id,
+                              })
+                              return
+                           }
+                           case NewDeviceInstallation: {
+                              control_issueResolveInstallDrawer.current?.handleOpen({
+                                 issue: props.issue,
+                              })
+                              return
+                           }
+                        }
+                     }}
+                     icon={<CheckOutlined />}
+                     disabled={props.isDisabled}
+                  >
+                     Hoàn thành
+                  </Button>
+                  <Dropdown
+                     menu={{
+                        items: [
+                           {
+                              label: "Không hoàn thành được bước",
+                              key: "cancel-issue",
+                              danger: true,
+                              icon: <WarningOutlined />,
+                              disabled: props.isDisabled,
+                              onClick: () =>
+                                 props.issue &&
+                                 props.task &&
+                                 control_issueFailDrawer.current?.handleOpen({
+                                    issueDto: props.issue,
+                                    taskId: props.task.id,
+                                 }),
+                           },
+                        ],
+                     }}
+                  >
+                     <Button size={"large"} icon={<MoreOutlined />} className={"aspect-square"} />
+                  </Dropdown>
+               </div>
+            </div>
+         )
+      }
    }
 
    return (

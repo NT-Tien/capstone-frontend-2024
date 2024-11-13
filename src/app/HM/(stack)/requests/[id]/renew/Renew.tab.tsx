@@ -76,8 +76,8 @@ function RenewTab(props: Props) {
    }, [props.api_request.data?.tasks, props.api_request.isSuccess])
 
    const renewIssues = useMemo(() => {
-      const remove = TaskUtil.getTask_Renew_FirstIssue(removeDeviceTask)
-      const install = TaskUtil.getTask_Renew_SecondIssue(installedDeviceTask)
+      const remove = TaskUtil.getTask_Renew_FirstIssue(installedDeviceTask)
+      const install = TaskUtil.getTask_Renew_SecondIssue(removeDeviceTask)
 
       return {
          remove,

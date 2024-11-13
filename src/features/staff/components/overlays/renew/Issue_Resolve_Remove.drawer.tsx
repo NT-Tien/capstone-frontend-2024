@@ -97,17 +97,17 @@ function Issue_Resolve_RemoveDrawer(props: Props) {
                   size="large"
                   icon={<EditOutlined />}
                   disabled={!props.issue || !uploadImages.length || !props.requestId}
-                  onClick={() =>
-                     props.issue &&
-                     signatureVerification &&
-                     props.requestId &&
-                     handleSubmit(
-                        uploadImages[0],
-                        uploadVideo.length > 0 ? uploadVideo[0] : undefined,
-                        props.issue.id,
-                        signatureVerification,
-                     )
-                  }
+                  onClick={() => {
+                     if (props.issue && signatureVerification && props.requestId) {
+                        handleSubmit(
+                           uploadImages[0],
+                           uploadVideo.length > 0 ? uploadVideo[0] : undefined,
+                           props.issue.id,
+                           signatureVerification,
+                        )
+                     }
+                     props.handleClose?.()
+                  }}
                >
                   Cập nhật
                </Button>

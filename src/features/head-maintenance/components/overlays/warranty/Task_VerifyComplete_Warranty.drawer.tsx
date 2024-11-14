@@ -47,6 +47,7 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
    const control_requestApproveToFixDrawer = useRef<RefType<Request_ApproveToFixDrawerProps>>(null)
 
    const mutate_completeTask = head_maintenance_mutations.task.close()
+   const mutate_closeRequest = head_maintenance_mutations.request.finish()
 
    const sendWarrantyTask = useMemo(() => {
       if (!props.request) return
@@ -138,7 +139,7 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
                type="primary"
                onClick={() => {
                   props.task &&
-                     mutate_completeTask.mutate(
+                     mutate_closeRequest.mutate(
                         {
                            id: props.task.id,
                         },

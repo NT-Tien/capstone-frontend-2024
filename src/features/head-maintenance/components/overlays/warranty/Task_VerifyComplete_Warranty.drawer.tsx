@@ -138,10 +138,10 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
                block
                type="primary"
                onClick={() => {
-                  props.task &&
+                  props.request &&
                      mutate_closeRequest.mutate(
                         {
-                           id: props.task.id,
+                           id: props.request.id,
                         },
                         {
                            onSuccess: () => {

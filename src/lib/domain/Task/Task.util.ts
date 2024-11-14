@@ -106,13 +106,13 @@ class TaskUtil {
    static getTask_Renew_FirstIssue(task?: TaskDto): IssueDto | undefined {
       if (!task) return undefined
 
-      return task.issues.find((i) => i.typeError.id === RemoveOldDeviceTypeErrorId)
+      return task.issues.find((i) => i.typeError.id === NewDeviceInstallation)
    }
 
    static getTask_Renew_SecondIssue(task?: TaskDto): IssueDto | undefined {
       if (!task) return undefined
 
-      return task.issues.find((i) => i.typeError.id === NewDeviceInstallation)
+      return task.issues.find((i) => i.typeError.id === RemoveOldDeviceTypeErrorId)
    }
 
    /**

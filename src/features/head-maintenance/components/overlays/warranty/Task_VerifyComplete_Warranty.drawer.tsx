@@ -20,12 +20,14 @@ import {
 } from "@/lib/constants/Warranty"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import TaskUtil from "@/lib/domain/Task/Task.util"
 import { CheckOutlined, CloseOutlined, MoreOutlined, RightOutlined } from "@ant-design/icons"
 import { ChartDonut, Clock, Images, Note, User } from "@phosphor-icons/react"
 import { Avatar, Button, Descriptions, Drawer, DrawerProps, Dropdown, Image } from "antd"
 import dayjs from "dayjs"
+import { useRouter } from "next/navigation"
 import { useMemo, useRef } from "react"
 
 type Task_VerifyComplete_WarrantyDrawerProps = {
@@ -39,14 +41,12 @@ type Props = Omit<DrawerProps, "children"> &
    }
 
 function Task_VerifyComplete_WarrantyDrawer(props: Props) {
+   const router = useRouter()
+
    const control_issueFailedResolveOptionsDrawer = useRef<RefType<IssueFailed_ResolveOptionsProps>>(null)
    const control_requestApproveToFixDrawer = useRef<RefType<Request_ApproveToFixDrawerProps>>(null)
 
    const mutate_completeTask = head_maintenance_mutations.task.close()
-
-   function handleSubmit() {
-      props.handleClose?.()
-   }
 
    const sendWarrantyTask = useMemo(() => {
       if (!props.request) return
@@ -105,15 +105,18 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
                         control_requestApproveToFixDrawer.current?.handleOpen({
                            requestId: props.request.id,
                            onSuccess: () => {
-                              mutate_completeTask.mutate({
-                                 id: taskId,
-                              }, {
-                                 onSuccess: () => {
-                                    control_requestApproveToFixDrawer.current?.handleClose()
-                                    props.handleClose?.()
-                                    props.onSubmit?.()
-                                 }
-                              })
+                              mutate_completeTask.mutate(
+                                 {
+                                    id: taskId,
+                                 },
+                                 {
+                                    onSuccess: () => {
+                                       control_requestApproveToFixDrawer.current?.handleClose()
+                                       props.handleClose?.()
+                                       props.onSubmit?.()
+                                    },
+                                 },
+                              )
                            },
                         })
                      },
@@ -129,7 +132,24 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
 
       return (
          <div className="flex items-center gap-3">
-            <Button size="large" block type="primary" onClick={handleSubmit}>
+            <Button
+               size="large"
+               block
+               type="primary"
+               onClick={() => {
+                  props.task &&
+                     mutate_completeTask.mutate(
+                        {
+                           id: props.task.id,
+                        },
+                        {
+                           onSuccess: () => {
+                              router.push(`/HM/requests?status=${FixRequestStatus.HEAD_CONFIRM}`)
+                           },
+                        },
+                     )
+               }}
+            >
                Đóng yêu cầu
             </Button>
             <Dropdown>

@@ -11,7 +11,9 @@ import TaskViewDetails_FixDrawer, {
 import TaskViewDetails_WarrantyDrawer, {
    TaskViewDetails_WarrantyDrawerProps,
 } from "@/features/staff/components/overlays/warranty/TaskViewDetails_Warranty.drawer"
-import TaskViewDetails_RenewDrawer, { TaskViewDetails_RenewDrawerProps } from "@/features/staff/components/overlays/renew/TaskViewDetails_Renew.drawer"
+import TaskViewDetails_RenewDrawer, {
+   TaskViewDetails_RenewDrawerProps,
+} from "@/features/staff/components/overlays/renew/TaskViewDetails_Renew.drawer"
 import staff_queries from "@/features/staff/queries"
 import { ExportStatus } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
@@ -19,7 +21,7 @@ import TaskUtil from "@/lib/domain/Task/Task.util"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
 import { CalendarOutlined, DownOutlined, LoadingOutlined } from "@ant-design/icons"
-import { Check, Clock, Hourglass, Placeholder, SealWarning } from "@phosphor-icons/react"
+import { Calendar, Check, Clock, Hourglass, Placeholder, SealWarning } from "@phosphor-icons/react"
 import { App, Avatar, Button, ConfigProvider, Divider, List, Space, Spin, Tabs } from "antd"
 import dayjs from "dayjs"
 import { Suspense, useEffect, useMemo, useRef, useState } from "react"
@@ -136,11 +138,17 @@ function Page({ searchParams }: { searchParams: { completed?: string } }) {
          <PageHeaderV2
             prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}
             title={"Danh sách tác vụ"}
-            nextButton={<Button type={"text"} icon={<CalendarOutlined className="text-white" />} onClick={() => {
-               setSelectedDate(dayjs().toDate())
-               setSelectedYear(dayjs().year())
-               setSelectedMonth(dayjs().month())
-            }} />}
+            nextButton={
+               <Button
+                  type={"text"}
+                  icon={<CalendarOutlined className="text-white" />}
+                  onClick={() => {
+                     setSelectedDate(dayjs().toDate())
+                     setSelectedYear(dayjs().year())
+                     setSelectedMonth(dayjs().month())
+                  }}
+               />
+            }
             className="pb-1"
          />
          <section className={"mt-4 flex justify-center"}>
@@ -233,7 +241,7 @@ function ListRendererCard(props: ListRendererProps) {
 
       if (TaskUtil.isTask_Renew(task)) {
          control_taskViewDetails_renewDrawer.current?.handleOpen({
-            taskId: task.id
+            taskId: task.id,
          })
          return
       }
@@ -295,7 +303,7 @@ function ListRendererCard(props: ListRendererProps) {
                         }
                         title={item.name}
                         description={
-                           <Space wrap split={<Divider type={"vertical"} className={"m-0 text-sm"} />}>
+                           <Space wrap split={<Divider type={"vertical"} className={"m-0"} />} className="text-sm">
                               {item.priority && <div className={"text-red-500"}>Ưu tiên</div>}
                               {item.status !== TaskStatus.ASSIGNED ? (
                                  <div className={TaskStatusTagMapper[item.status].className}>
@@ -310,6 +318,10 @@ function ListRendererCard(props: ListRendererProps) {
                               <div className={"flex items-center gap-1"}>
                                  <SealWarning size={16} weight={"duotone"} />
                                  <span>{item.issues.length} Lỗi</span>
+                              </div>
+                              <div className={"flex items-center gap-1"}>
+                                 <Calendar size={16} weight={"duotone"} />
+                                 <span>Tạo: {dayjs(item.createdAt).format("DD/MM/YYYY")}</span>
                               </div>
                            </Space>
                         }
@@ -333,7 +345,7 @@ function ListRendererCard(props: ListRendererProps) {
                <TaskViewDetails_WarrantyDrawer refetchFn={props.refetchFn} />
             </OverlayControllerWithRef>
             <OverlayControllerWithRef ref={control_taskViewDetails_renewDrawer}>
-               <TaskViewDetails_RenewDrawer refetchFn={props.refetchFn}/>
+               <TaskViewDetails_RenewDrawer refetchFn={props.refetchFn} />
             </OverlayControllerWithRef>
          </ConfigProvider>
       </>

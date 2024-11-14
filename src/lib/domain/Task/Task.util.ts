@@ -39,8 +39,12 @@ class TaskUtil {
       })
    }
 
-   static isTask_Warranty(task?: TaskDto, type?: "send" | "receive"): boolean | undefined {
+   static isTask_Warranty(task?: TaskDto, type?: "send" | "receive", isActive?: boolean): boolean | undefined {
       if (!task) return undefined
+
+      if(isActive && TaskUtil.isTask_Running(task)) { 
+         return false;
+      }
 
       if (type === undefined) {
          return !!task.issues.find(

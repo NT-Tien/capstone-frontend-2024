@@ -9,7 +9,7 @@ const ClickableArea = forwardRef<RefType, Props>(function ClickableAreaComponent
    const { className, ...propsRest } = props
 
    return (
-      <Button ref={ref} className={cn("h-auto p-0", className)} {...propsRest}>
+      <Button ref={ref} className={cn("h-auto p-0 text-left", className)} {...propsRest}>
          {props?.children}
       </Button>
    )

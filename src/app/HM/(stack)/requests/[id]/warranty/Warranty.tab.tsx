@@ -194,15 +194,11 @@ function WarrantyTab(props: Props) {
                         })()}
                         className="steps-title-w-full"
                         items={[
+                           // ! SEND TO WARRANTY TASK
                            {
                               title: (
                                  <div className={"flex w-full items-center"}>
-                                    <div
-                                       className={"flex-grow text-base font-bold"}
-                                       onClick={() => handleTaskClick(sendWarrantyTask)}
-                                    >
-                                       Gửi máy đi bảo hành
-                                    </div>
+                                    <div className={"flex-grow text-base font-bold"}>Gửi máy đi bảo hành</div>
                                     <Dropdown
                                        autoFocus
                                        menu={{
@@ -213,7 +209,7 @@ function WarrantyTab(props: Props) {
                                                 key: "edit-send-warranty",
                                                 className: cn(
                                                    "hidden",
-                                                   sendWarrantyTask.status === TaskStatus.ASSIGNED && "block",
+                                                   sendWarrantyTask.status === TaskStatus.ASSIGNED && "flex",
                                                 ),
                                                 onClick: () => {
                                                    control_taskAssignFixerDrawer.current?.handleOpen({
@@ -243,34 +239,45 @@ function WarrantyTab(props: Props) {
                               ),
                               description: (
                                  <div className={"flex flex-col text-xs"}>
-                                    <div className="flex flex-col" onClick={() => handleTaskClick(sendWarrantyTask)}>
-                                       <div>Tháo gỡ và gửi máy đến trung tâm bảo hành</div>
-                                       <Space
-                                          split={<Divider type={"vertical"} className={"m-0"} />}
-                                          className={"mt-2 overflow-y-auto"}
-                                       >
-                                          <div
-                                             className={cn(
-                                                "flex items-center gap-1 whitespace-pre",
-                                                TaskStatusTagMapper[sendWarrantyTask.status].className,
-                                             )}
+                                    <div className="flex flex-col">
+                                       <div>{sendWarrantyTask.name}</div>
+                                       {sendWarrantyTask.status !== TaskStatus.AWAITING_FIXER ? (
+                                          <Space
+                                             split={<Divider type={"vertical"} className={"m-0"} />}
+                                             className={"mt-2 overflow-y-auto"}
                                           >
-                                             {TaskStatusTagMapper[sendWarrantyTask.status].icon}
-                                             {TaskStatusTagMapper[sendWarrantyTask.status].text}
-                                          </div>
-                                          {sendWarrantyTask.fixer && (
-                                             <div className={cn("flex items-center gap-1")}>
-                                                <User size={16} weight={"duotone"} />
-                                                {sendWarrantyTask.fixer.username}
+                                             <div
+                                                className={cn(
+                                                   "flex items-center gap-1 whitespace-pre",
+                                                   TaskStatusTagMapper[sendWarrantyTask.status].className,
+                                                )}
+                                             >
+                                                {TaskStatusTagMapper[sendWarrantyTask.status].icon}
+                                                {TaskStatusTagMapper[sendWarrantyTask.status].text}
                                              </div>
-                                          )}
-                                          {sendWarrantyTask.fixerDate && (
-                                             <div className={cn("flex items-center gap-1")}>
-                                                <Calendar size={16} weight={"duotone"} />
-                                                {dayjs(sendWarrantyTask.fixerDate).format("DD/MM/YYYY")}
-                                             </div>
-                                          )}
-                                       </Space>
+                                             {sendWarrantyTask.fixer && (
+                                                <div className={cn("flex items-center gap-1")}>
+                                                   <User size={16} weight={"duotone"} />
+                                                   {sendWarrantyTask.fixer.username}
+                                                </div>
+                                             )}
+                                             {sendWarrantyTask.fixerDate && (
+                                                <div className={cn("flex items-center gap-1")}>
+                                                   <Calendar size={16} weight={"duotone"} />
+                                                   {dayjs(sendWarrantyTask.fixerDate).format("DD/MM/YYYY")}
+                                                </div>
+                                             )}
+                                          </Space>
+                                       ) : (
+                                          <Button
+                                             type="primary"
+                                             className="mt-2 text-sm"
+                                             icon={<UserOutlined />}
+                                             onClick={() => handleTaskClick(sendWarrantyTask)}
+                                          >
+                                             Phân công tác vụ
+                                          </Button>
+                                       )}
                                     </div>
                                     <Steps
                                        className="steps-title-w-full mt-4"
@@ -347,15 +354,11 @@ function WarrantyTab(props: Props) {
                                  </div>
                               ),
                            },
+                           // ! RECEIVE FROM WARRANTY TASK
                            {
                               title: (
                                  <div className={"flex w-full items-center"}>
-                                    <div
-                                       className={"flex-grow text-base font-bold"}
-                                       onClick={() => handleTaskClick(receiveWarrantyTask)}
-                                    >
-                                       Nhận mày và lắp đặt
-                                    </div>
+                                    <div className={"flex-grow text-base font-bold"}>Nhận mày và lắp đặt</div>
                                     <Dropdown
                                        autoFocus
                                        menu={{
@@ -398,34 +401,46 @@ function WarrantyTab(props: Props) {
                               ),
                               description: (
                                  <div className={"flex flex-col text-xs"}>
-                                    <div className="flex flex-col" onClick={() => handleTaskClick(receiveWarrantyTask)}>
-                                       <div>Nhận máy từ trung tâm bảo hành và lắp đặt tại xưởng</div>
-                                       <Space
-                                          split={<Divider type={"vertical"} className={"m-0"} />}
-                                          className={"mt-2 overflow-y-auto"}
-                                       >
-                                          <div
-                                             className={cn(
-                                                "flex items-center gap-1 whitespace-pre",
-                                                TaskStatusTagMapper[receiveWarrantyTask.status].className,
-                                             )}
+                                    <div className="flex flex-col">
+                                       <div>{receiveWarrantyTask.name}</div>
+                                       {receiveWarrantyTask.status !== TaskStatus.AWAITING_FIXER ? (
+                                          <Space
+                                             split={<Divider type={"vertical"} className={"m-0"} />}
+                                             className={"mt-2 overflow-y-auto"}
                                           >
-                                             {TaskStatusTagMapper[receiveWarrantyTask.status].icon}
-                                             {TaskStatusTagMapper[receiveWarrantyTask.status].text}
-                                          </div>
-                                          {receiveWarrantyTask.fixer && (
-                                             <div className={cn("flex items-center gap-1")}>
-                                                <User size={16} weight={"duotone"} />
-                                                {receiveWarrantyTask.fixer.username}
+                                             <div
+                                                className={cn(
+                                                   "flex items-center gap-1 whitespace-pre",
+                                                   TaskStatusTagMapper[receiveWarrantyTask.status].className,
+                                                )}
+                                             >
+                                                {TaskStatusTagMapper[receiveWarrantyTask.status].icon}
+                                                {TaskStatusTagMapper[receiveWarrantyTask.status].text}
                                              </div>
-                                          )}
-                                          {receiveWarrantyTask.fixerDate && (
-                                             <div className={cn("flex items-center gap-1")}>
-                                                <Calendar size={16} weight={"duotone"} />
-                                                {dayjs(receiveWarrantyTask.fixerDate).format("DD/MM/YYYY")}
-                                             </div>
-                                          )}
-                                       </Space>
+                                             {receiveWarrantyTask.fixer && (
+                                                <div className={cn("flex items-center gap-1")}>
+                                                   <User size={16} weight={"duotone"} />
+                                                   {receiveWarrantyTask.fixer.username}
+                                                </div>
+                                             )}
+                                             {receiveWarrantyTask.fixerDate && (
+                                                <div className={cn("flex items-center gap-1")}>
+                                                   <Calendar size={16} weight={"duotone"} />
+                                                   {dayjs(receiveWarrantyTask.fixerDate).format("DD/MM/YYYY")}
+                                                </div>
+                                             )}
+                                          </Space>
+                                       ) : (
+                                          <Button
+                                             icon={<UserOutlined />}
+                                             type="primary"
+                                             size="small"
+                                             className="mt-2 text-sm"
+                                             onClick={() => handleTaskClick(receiveWarrantyTask)}
+                                          >
+                                             Phân công tác vụ
+                                          </Button>
+                                       )}
                                     </div>
                                     <Steps
                                        className="steps-title-w-full mt-4"

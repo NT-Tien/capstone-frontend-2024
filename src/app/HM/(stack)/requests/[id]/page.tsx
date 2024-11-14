@@ -458,7 +458,11 @@ function Page({ params }: { params: { id: string } }) {
                   </div>
                </section>
 
-               <footer className={"std-layout-outer fixed bottom-0 left-0 w-full p-layout"}>
+               <footer
+                  className={
+                     "std-layout-outer fixed bottom-0 left-0 z-50 w-full bg-white p-layout shadow-fb"
+                  }
+               >
                   {api_request.isSuccess &&
                      (control_qrCodeScanner.isScanned === false ? (
                         // if hasn't scanned, force scan
@@ -535,13 +539,6 @@ function Page({ params }: { params: { id: string } }) {
                                           control_requestApproveToRenewDrawer.current?.handleOpen({
                                              requestId: params.id,
                                           }),
-                                       // control_renewDeviceDrawer.current?.handleOpen({
-                                       //    requestId: params.id,
-                                       //    currentDevice: api_device.data,
-                                       //    request: api_request.data,
-                                       //    deviceId: api_device.data.id,
-                                       //    note: api_request.data.requester_note,
-                                       // }),
                                     },
                                     {
                                        type: "divider",

@@ -376,7 +376,7 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
 }
 
 function SendWarrantyReceipt(props: { request: RequestDto }) {
-   const sendWarrantyTask = props.request.tasks.find((task) => TaskUtil.isTask_Warranty(task, "send"))
+   const sendWarrantyTask = props.request.tasks.find((task) => TaskUtil.isTask_Warranty(task, "send", true))
 
    if (!sendWarrantyTask) return null
 

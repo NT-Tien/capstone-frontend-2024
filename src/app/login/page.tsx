@@ -127,7 +127,7 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                         className="object-contain"
                      />
                   </div>
-                  <Typography.Text className="mb-6 block select-none text-center text-gray-500">
+                  <Typography.Text className="mb-6 block select-none text-center text-gray-500" onClick={() => handleDelayedOpenEnvEditor()}>
                      Vui lòng đăng nhập để tiếp tục.
                   </Typography.Text>
                   <Form

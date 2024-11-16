@@ -13,7 +13,7 @@ import Staff_Task_OneById from "../../api/task/one-byId.api"
 import GetSparePartsDrawer, { QrCodeDisplayModalRefType } from "./GetSparePartsDrawer"
 import Staff_Task_UpdateStart from "../../api/task/update-start.api"
 import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
-import { ReceiveWarrantyTypeErrorId, RenewRequestTypeErrorId } from "@/lib/constants/Warranty"
+import { ReceiveWarrantyTypeErrorId, DismantleOldDeviceTypeErrorId } from "@/lib/constants/Warranty"
 import QrCodeDisplayForRenewModal, {
    QrCodeDisplayForRenewModalRefType,
 } from "@/features/staff/components/overlays/QrCodeDisplayForRenew.modal"

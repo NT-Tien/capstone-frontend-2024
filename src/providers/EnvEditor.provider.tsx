@@ -1,3 +1,5 @@
+"use client"
+
 import { createContext, ReactNode, useContext, useRef, useState } from "react"
 import { App, Form, Modal } from "antd"
 import { ProFormText } from "@ant-design/pro-components"

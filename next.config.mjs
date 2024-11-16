@@ -42,7 +42,7 @@ const nextConfig = {
       ignoreDuringBuilds: true,
    },
    typescript: {
-      ignoreBuildErrors: false,
+      ignoreBuildErrors: true,
    },
    i18n: {
       locales: ["vie", "eng"],

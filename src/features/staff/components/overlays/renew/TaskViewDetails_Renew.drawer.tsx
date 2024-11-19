@@ -78,7 +78,9 @@ function TaskViewDetails_RenewDrawer(props: Props) {
          : [api_task.data.device_renew]
 
       // Get the first available device (if any)
-      const devices = deviceArray.flatMap((ticket) => ticket?.task?.device_renew).filter((device) => device !== undefined)
+      const devices = deviceArray
+         .flatMap((ticket) => ticket?.task?.device_renew)
+         .filter((device) => device !== undefined)
 
       // Return the first device or undefined if none is found
       return devices.length > 0 ? devices[0] : undefined
@@ -126,7 +128,6 @@ function TaskViewDetails_RenewDrawer(props: Props) {
    }
 
    function Footer() {
-
       // task hasnt started and all issues failed
       if (
          api_task.data?.status === TaskStatus.ASSIGNED &&
@@ -334,8 +335,8 @@ function TaskViewDetails_RenewDrawer(props: Props) {
                                        >
                                           {api_task.data.device.machineModel.manufacturer}
                                           <span>
-                                             Khu vực {api_task.data.device.area.name} ({api_task.data.device.positionX},{" "}
-                                             {api_task.data.device.positionY})
+                                             Khu vực {api_task?.data?.device?.area?.name} (
+                                             {api_task?.data?.device?.positionX}, {api_task?.data?.device?.positionY})
                                           </span>
                                        </Space>
                                        <h3 className={"line-clamp-2 text-base font-semibold"}>

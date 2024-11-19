@@ -16,5 +16,6 @@ export type MachineModelDto = {
    spareParts: SparePartDto[]
    typeErrors: TypeErrorDto[]
    devices: DeviceDto[]
+   device_renew: DeviceDto
    image: string
 }

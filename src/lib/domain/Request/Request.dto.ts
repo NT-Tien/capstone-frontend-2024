@@ -14,6 +14,7 @@ export type RequestDto = {
    requester_note: string
    status: FixRequestStatus
    device: DeviceDto
+   device_renew: DeviceDto
    requester: UserDto
    tasks: TaskDto[]
    type: RequestTypeEnum

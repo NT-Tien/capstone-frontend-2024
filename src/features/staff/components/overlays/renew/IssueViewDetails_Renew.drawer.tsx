@@ -112,7 +112,7 @@ function IssueViewDetails_RenewDrawer(props: Props) {
       ) {
          return (
             <div>
-               <AlertCard text="Vui lòng lấy linh kiện mới ở kho." className="mb-layout" />
+               <AlertCard text="Vui lòng lấy thiết bị mới ở kho." className="mb-layout" />
                <Button
                   block
                   type="primary"

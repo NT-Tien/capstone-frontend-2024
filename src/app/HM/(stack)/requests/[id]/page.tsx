@@ -29,7 +29,7 @@ import Tag from "antd/es/tag"
 import dayjs from "dayjs"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useMemo, useRef } from "react"
+import { useMemo, useRef, useState } from "react"
 import Request_ApproveToFixDrawer, {
    type Request_ApproveToFixDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Request_ApproveToFix.drawer"
@@ -458,11 +458,7 @@ function Page({ params }: { params: { id: string } }) {
                   </div>
                </section>
 
-               <footer
-                  className={
-                     "std-layout-outer fixed bottom-0 left-0 z-50 w-full bg-white p-layout shadow-fb"
-                  }
-               >
+               <footer className={"std-layout-outer fixed bottom-0 left-0 z-50 w-full bg-white p-layout shadow-fb"}>
                   {api_request.isSuccess &&
                      (control_qrCodeScanner.isScanned === false ? (
                         // if hasn't scanned, force scan

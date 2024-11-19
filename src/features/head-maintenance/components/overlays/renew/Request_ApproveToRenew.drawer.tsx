@@ -38,7 +38,6 @@ function Request_ApproveToRenewDrawer(props: Props) {
          enabled: !!props.requestId,
       },
    )
-
    const mutate_createRenewRequest = head_maintenance_mutations.request.approveToRenew()
 
    const renderList = useMemo(() => {
@@ -64,7 +63,7 @@ function Request_ApproveToRenewDrawer(props: Props) {
                   id: props.requestId,
                   payload: {
                      deviceId: api_request.data.device.id,
-                     note: "",
+                     note: api_request.data.requester_note,
                   },
                },
                {
@@ -99,13 +98,20 @@ function Request_ApproveToRenewDrawer(props: Props) {
          }}
          loading={api_request.isPending}
          footer={
-            <Button block type={"primary"} size={"large"} icon={<Swap size={16} />} onClick={handleSubmit} disabled={!selectedMachineModel || !note}>
+            <Button
+               block
+               type={"primary"}
+               size={"large"}
+               icon={<Swap size={16} />}
+               onClick={handleSubmit}
+               disabled={!selectedMachineModel || !note}
+            >
                Xác nhận
             </Button>
          }
          {...props}
       >
-         <section className='mb-10'>
+         <section className="mb-10">
             <header className="mb-3">
                <h2 className="text-base font-semibold">Ghi chú</h2>
                <p className="font-base text-sm text-neutral-500">Ghi chú cho quá trình thay máy</p>

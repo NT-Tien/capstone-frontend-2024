@@ -23,7 +23,6 @@ import DualSignatureDrawer, {
    DualSignatureDrawerProps,
 } from "@/features/stockkeeper/components/overlay/DualSignature.drawer"
 import stockkeeper_mutations from "@/features/stockkeeper/mutations"
-import Link from "next/link"
 import { CopyOutlined, DownloadOutlined } from "@ant-design/icons"
 import useDownloadImportSpareParts from "@/features/stockkeeper/useDownloadImportSpareParts"
 
@@ -50,7 +49,20 @@ function Page() {
       }),
    })
 
+   const handleScannedResult = async (scannedResult: string) => {
+      try {
+        const taskData = await Stockkeeper_Task_GetById({ id: scannedResult });
+        const deviceId = taskData.device.id; // Extract deviceId from the task data
+        setScannedResult(deviceId); // Update scannedResult with deviceId
+      } catch (error) {
+        message.error("Failed to process scanned result.");
+        console.error(error);
+      }
+    };
+    
+
    const mutate_returnSpareParts = stockkeeper_mutations.task.returnSpareParts()
+   const mutate_returnRemovedDevice = stockkeeper_mutations.device.returnRemovedDevice()
 
    const spareParts = useMemo(() => {
       const failedIssues = api.task.data?.issues.filter(
@@ -115,45 +127,60 @@ function Page() {
                      )}
                      {api.task.isSuccess && scannedResult && (
                         <div>
-                           <Descriptions
-                              items={[
-                                 {
-                                    label: "Tên tác vụ",
-                                    children: api.task.data?.name,
-                                    span: 3,
-                                 },
-                                 {
-                                    label: "Trạng thái",
-                                    children: TaskStatusTagMapper[api.task.data?.status ?? ""]?.text,
-                                 },
-                                 {
-                                    label: "Người sửa",
-                                    children: api.task.data?.fixer?.username ?? "-",
-                                 },
-                                 {
-                                    label: "Ngày sửa",
-                                    children: api.task.data?.fixerDate
-                                       ? dayjs(api.task.data?.fixerDate).format("DD/MM/YYYY")
-                                       : "-",
-                                 },
-                                 {
-                                    label: "Mức độ ưu tiên",
-                                    children: api.task.data?.priority ? "Ưu tiên" : "Bình thường",
-                                 },
-                                 {
-                                    label: "Linh kiện",
-                                    children: api.task.data.confirmReceipt ? "Đã lấy" : "Chưa lấy",
-                                 },
-                                 {
-                                    label: "Mẫu máy",
-                                    children: api.task.data?.device.machineModel.name,
-                                 },
-                                 {
-                                    label: "Trả linh kiện",
-                                    children: api.task.data.return_spare_part_data ? "Đã trả" : "Chưa trả",
-                                 },
-                              ]}
-                           />
+                           {scannedResult === api.task.data.id ? (
+                              <Descriptions
+                                 items={[
+                                    {
+                                       label: "Tên tác vụ",
+                                       children: api.task.data?.name,
+                                       span: 3,
+                                    },
+                                    {
+                                       label: "Trạng thái",
+                                       children: TaskStatusTagMapper[api.task.data?.status ?? ""]?.text,
+                                    },
+                                    {
+                                       label: "Người sửa",
+                                       children: api.task.data?.fixer?.username ?? "-",
+                                    },
+                                    {
+                                       label: "Ngày sửa",
+                                       children: api.task.data?.fixerDate
+                                          ? dayjs(api.task.data?.fixerDate).format("DD/MM/YYYY")
+                                          : "-",
+                                    },
+                                    {
+                                       label: "Mức độ ưu tiên",
+                                       children: api.task.data?.priority ? "Ưu tiên" : "Bình thường",
+                                    },
+                                    {
+                                       label: "Linh kiện",
+                                       children: api.task.data.confirmReceipt ? "Đã lấy" : "Chưa lấy",
+                                    },
+                                    {
+                                       label: "Mẫu máy",
+                                       children: api.task.data?.device.machineModel.name,
+                                    },
+                                    {
+                                       label: "Trả linh kiện",
+                                       children: api.task.data.return_spare_part_data ? "Đã trả" : "Chưa trả",
+                                    },
+                                 ]}
+                              />
+                           ) : (
+                              <Descriptions
+                                 items={[
+                                    {
+                                       label: "Tên tác vụ",
+                                       children: api.task.data?.name,
+                                    },
+                                    {
+                                       label: "Mẫu máy",
+                                       children: `${api.task.data?.device.machineModel.name} - ${api.task.data?.device.description}`,
+                                    },
+                                 ]}
+                              />
+                           )}
                         </div>
                      )}
                   </div>
@@ -167,52 +194,40 @@ function Page() {
                   </Button>
                }
                tabList={[
-                  {
-                     tab: "Linh kiện được trả",
-                     key: "spare-part",
-                     children: (function SpareParts() {
-                        return (
-                           <Table
-                              dataSource={Object.values(spareParts)}
-                              pagination={false}
-                              columns={[
-                                 {
-                                    key: "index",
-                                    title: "STT",
-                                    render: (_, __, index) => index + 1,
-                                    width: 50,
-                                 },
-                                 {
-                                    key: "name",
-                                    title: "Tên linh kiện",
-                                    dataIndex: ["sparePart", "name"],
-                                    render: (_, e) => (
-                                       <a
-                                          onClick={() => {
-                                             message.destroy("copy")
-                                             navigator.clipboard.writeText(e.sparePart.id)
-                                             message.success({
-                                                content: "Đã sao chép mã linh kiện",
-                                                key: "copy",
-                                             })
-                                          }}
-                                          className={"flex items-center gap-2"}
-                                       >
-                                          {e.sparePart.name}
-                                          <CopyOutlined />
-                                       </a>
-                                    ),
-                                 },
-                                 {
-                                    key: "quantity",
-                                    title: "Số lượng trả",
-                                    dataIndex: "quantity",
-                                 },
-                              ]}
-                           />
-                        )
-                     })(),
-                  },
+                  scannedResult === api.task.data?.return_spare_part_data
+                     ? {
+                          tab: "Linh kiện được trả",
+                          key: "spare-part",
+                          children: (
+                             <Table
+                                dataSource={Object.values(spareParts)}
+                                pagination={false}
+                                columns={[
+                                   { key: "index", title: "STT", render: (_, __, index) => index + 1 },
+                                   { key: "name", title: "Tên linh kiện", dataIndex: ["sparePart", "name"] },
+                                   { key: "quantity", title: "Số lượng trả", dataIndex: "quantity" },
+                                ]}
+                             />
+                          ),
+                       }
+                     : {
+                          tab: "Trả thiết bị",
+                          key: "device",
+                          children: (
+                             <Descriptions
+                                items={[
+                                   {
+                                      label: "Tên tác vụ",
+                                      children: api.task.data?.name,
+                                   },
+                                   {
+                                      label: "Mẫu máy",
+                                      children: `${api.task.data?.device.machineModel.name} - ${api.task.data?.device.description}`,
+                                   },
+                                ]}
+                             />
+                          ),
+                       },
                ]}
             >
                <OverlayControllerWithRef ref={control_updateSparePartQuantityModal}>
@@ -226,27 +241,47 @@ function Page() {
                </OverlayControllerWithRef>
                <OverlayControllerWithRef ref={control_dualSignatureDrawer}>
                   <DualSignatureDrawer
-                     onSubmit={(staff, stockkeeper) => {
-                        if (!scannedResult) return
-                        mutate_returnSpareParts.mutate(
-                           {
-                              id: scannedResult,
-                              payload: {
-                                 staff_signature: staff,
-                                 stockkeeper_signature: stockkeeper,
-                              },
-                           },
-                           {
-                              onSuccess: () => {
-                                 api.task.refetch()
-                                 control_dualSignatureDrawer.current?.handleClose()
-                                 setTimeout(() => {
-                                    handleOpen()
-                                 }, 500)
-                              },
-                           },
-                        )
-                     }}
+                         onSubmit={(staff, stockkeeper) => {
+                           if (!scannedResult) return;
+                     
+                           const isSparePartReturn = scannedResult === api.task.data?.return_spare_part_data;
+                     
+                           // Determine mutation and payload
+                           const mutationInstance = isSparePartReturn
+                             ? mutate_returnSpareParts
+                             : mutate_returnRemovedDevice;
+                     
+                           const payload = isSparePartReturn
+                             ? {
+                                 id: scannedResult,
+                                 payload: {
+                                   staff_signature: staff,
+                                   stockkeeper_signature: stockkeeper,
+                                 },
+                               }
+                             : {
+                                 id: api.task.data?.device.id || "", // Use the `device.id` for removed device
+                                 payload: {
+                                   staff_signature: staff,
+                                   stockkeeper_signature: stockkeeper,
+                                 },
+                               };
+                     
+                           // Execute mutation
+                           mutationInstance.mutate(payload, {
+                             onSuccess: () => {
+                               api.task.refetch(); // Refresh task data
+                               control_dualSignatureDrawer.current?.handleClose(); // Close the drawer
+                               setTimeout(() => {
+                                 handleOpen(); // Reopen scanner drawer after success
+                               }, 500);
+                             },
+                             onError: (error) => {
+                               message.error("Action failed. Please try again.");
+                               console.error(error);
+                             },
+                           });
+                         }}
                   />
                </OverlayControllerWithRef>
             </PageContainer>

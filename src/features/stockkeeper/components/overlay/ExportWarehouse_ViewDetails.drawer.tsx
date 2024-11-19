@@ -206,10 +206,10 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
                                  ? dayjs(api_export.data?.task?.fixerDate).format("DD/MM/YYYY")
                                  : "-",
                            },
-                           {
-                              label: "Thiết bị mới",
-                              children: api_export.data?.task?.device_renew?.id
-                           }
+                           // {
+                           //    label: "Thiết bị mới",
+                           //    children: api_export.data?.task?.device_renew?.id
+                           // }
                         ]}
                      />
                   ),

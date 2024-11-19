@@ -53,16 +53,26 @@ function Request_ApproveToRenewDrawer(props: Props) {
    }, [api_machineModels.data, api_machineModels.isSuccess, query.search])
 
    function handleSubmit() {
+      if (!selectedMachineModel) {
+         modal.error({
+            title: "Lỗi",
+            content: "Vui lòng chọn thiết bị mới trước khi xác nhận.",
+         })
+         return
+      }
+      console.log("Selected Machine Model:", selectedMachineModel)
+      console.log("Device Renew ID:", selectedMachineModel.devices)
       modal.confirm({
          title: "Xác nhận thay máy",
          content: `Bạn có chắc chắn muốn thay máy mới cho yêu cầu này không?`,
          onOk: () => {
             if (!props.requestId || !api_request.isSuccess) return
+            setSelectedMachineModel(selectedMachineModel)
             mutate_createRenewRequest.mutate(
                {
                   id: props.requestId,
                   payload: {
-                     deviceId: api_request.data.device.id,
+                     deviceId: selectedMachineModel?.devices[0]?.id,
                      note: api_request.data.requester_note,
                   },
                },

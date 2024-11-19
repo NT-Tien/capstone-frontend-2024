@@ -51,7 +51,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
       const users: { [key: string]: UserDto } = {}
 
       api_requests.data.list.forEach((i) => {
-         areas[i.device.area.id] = i.device.area
+         areas[i.device.area?.id] = i.device.area
          machineModels[i.device.machineModel.id] = i.device.machineModel
          users[i.requester.id] = i.requester
       })

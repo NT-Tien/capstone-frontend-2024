@@ -44,7 +44,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
 
       let returnValue: { [key: string]: AreaDto } = {}
       api_requests.data.forEach((i) => {
-         returnValue[i.device.area.id] = i.device.area
+         returnValue[i.device.area?.id] = i.device.area
       })
 
       return Object.values(returnValue)

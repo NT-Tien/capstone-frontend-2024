@@ -56,7 +56,7 @@ function HistoryList({ requests }: Props) {
                            {
                               value: (
                                  <>
-                                    {item.device.area.name}{" "}
+                                    {item.device.area?.name}{" "}
                                     {item.device.positionX && item.device.positionY
                                        ? `(${item.device.positionX}, ${item.device.positionY})`
                                        : ""}

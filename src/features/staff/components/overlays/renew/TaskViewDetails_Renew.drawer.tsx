@@ -206,20 +206,17 @@ function TaskViewDetails_RenewDrawer(props: Props) {
                type={"primary"}
                size={"large"}
                onClick={() => {
-                  if (TaskUtil.isTask_Renew(api_task.data, "remove")) {
-                     control_scannerDrawer.handleOpenScanner()
-                  } else {
-                     api_task.isSuccess &&
-                        mutate_beginTask.mutate(
-                           {
-                              id: api_task.data.id,
+                  if (api_task.isSuccess) {
+                     mutate_beginTask.mutate(
+                        {
+                           id: api_task.data.id,
+                        },
+                        {
+                           onSuccess: () => {
+                              router.push(staff_uri.stack.task_id_renew(api_task.data.id))
                            },
-                           {
-                              onSuccess: () => {
-                                 router.push(staff_uri.stack.task_id_renew(api_task.data.id))
-                              },
-                           },
-                        )
+                        },
+                     )
                   }
                }}
             >

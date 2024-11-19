@@ -187,7 +187,7 @@ function Request_ApproveToRenewDrawer(props: Props) {
                               description={
                                  <Space split={<Divider type="vertical" className="m-0" />} wrap className="text-xs">
                                     {mm.devices.length === 0 ? (
-                                       <div className="flex items-center gap-1 text-red-500">Nhập kho</div>
+                                       <div className="flex items-center gap-1 text-red-500">Hết máy</div>
                                     ) : (
                                        <div className="flex items-center gap-1">
                                           <DeviceTablet size={16} weight="duotone" />

@@ -37,7 +37,11 @@ function Page({ params }: { params: { id: string } }) {
       return api_task.data?.issues?.flatMap((issue) => issue.issueSpareParts) || []
    }, [api_task.data?.issues])
 
-   const hasResolvedAllIssues = useMemo(() => {
+   const allIssuesResolved = useMemo(() => {
+      return api_task.data?.issues.every((i) => i.status === IssueStatusEnum.RESOLVED)
+   }, [api_task.data?.issues])
+
+   const hasDoneAllIssues = useMemo(() => {
       if (!api_task.isSuccess) return false
       return api_task.data.issues.every((i) => i.status !== IssueStatusEnum.PENDING)
    }, [api_task.isLoading, api_task.data?.issues])
@@ -292,7 +296,7 @@ function Page({ params }: { params: { id: string } }) {
                )}
             </section>
             <footer className={"absolute bottom-0 left-0 w-full bg-white p-layout shadow-fb"}>
-               {hasResolvedAllIssues && (
+               {/* {hasResolvedAllIssues && (
                   <Button
                      block
                      type={"primary"}
@@ -306,22 +310,24 @@ function Page({ params }: { params: { id: string } }) {
                   >
                      Hoàn thành tác vụ
                   </Button>
-               )}
-               {hasResolvedAllIssues && hasReturnedSpareParts && hasFailedIssueWithoutSparePart && (
-                  <Button
-                     block
-                     type={"primary"}
-                     size={"large"}
-                     onClick={() =>
-                        api_task.isSuccess &&
-                        control_finishTaskDrawer.current?.handleOpen({
-                           task: api_task.data,
-                        })
-                     }
-                  >
-                     Hoàn thành tác vụ
-                  </Button>
-               )}
+               )} */}
+
+               {allIssuesResolved ||
+                  (hasDoneAllIssues && hasReturnedSpareParts && hasFailedIssueWithoutSparePart && (
+                     <Button
+                        block
+                        type={"primary"}
+                        size={"large"}
+                        onClick={() =>
+                           api_task.isSuccess &&
+                           control_finishTaskDrawer.current?.handleOpen({
+                              task: api_task.data,
+                           })
+                        }
+                     >
+                        Hoàn thành tác vụ
+                     </Button>
+                  ))}
                {!hasReturnedSpareParts && hasFailedIssueWithSparePart && (
                   <Button
                      block

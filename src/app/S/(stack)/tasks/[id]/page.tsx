@@ -296,7 +296,7 @@ function Page({ params }: { params: { id: string } }) {
                )}
             </section>
             <footer className={"absolute bottom-0 left-0 w-full bg-white p-layout shadow-fb"}>
-               {/* {hasResolvedAllIssues && (
+               {hasResolvedAllIssues && (
                   <Button
                      block
                      type={"primary"}
@@ -310,7 +310,7 @@ function Page({ params }: { params: { id: string } }) {
                   >
                      Hoàn thành tác vụ
                   </Button>
-               )} */}
+               )}
 
                {allIssuesResolved ||
                   (hasDoneAllIssues && hasReturnedSpareParts && hasFailedIssueWithoutSparePart && (

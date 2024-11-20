@@ -14,7 +14,7 @@ type QueryState = {
    page: number
    limit: number
    search: {
-      status?: any
+      // status?: any
       priority?: boolean
       name?: string
       fixerDate?: string
@@ -34,7 +34,7 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
       page: 1,
       limit: 10,
       search: {
-         status: searchParams.tab ?? TaskStatus.AWAITING_FIXER,
+         // status: searchParams.tab ?? TaskStatus.AWAITING_FIXER,
          fixerName: undefined
       },
       order: {
@@ -47,7 +47,7 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
       page: query.page,
       limit: query.limit,
       search: {
-         status: query.search?.status === "none" ? undefined : query.search?.status,
+         // status: query.search?.status === "none" ? undefined : query.search?.status,
          priority: query.search?.priority,
          name: query.search?.name,
          fixerDate: query.search?.fixerDate,
@@ -89,9 +89,9 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
       setQuery({
          ...query,
          page: 1,
-         search: {
-            status: activeKey as TaskStatus,
-         },
+         // search: {
+         //    status: activeKey as TaskStatus,
+         // },
          order: {
             order: "DESC",
             orderBy: "updatedAt",
@@ -126,41 +126,41 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
             rootClassName: "mt-4",
          }}
          fixedHeader={true}
-         tabActiveKey={query.search?.status}
-         tabList={[
-            {
-               key: TaskStatus.AWAITING_FIXER,
-               tab: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text,
-            },
-            {
-               key: TaskStatus.AWAITING_SPARE_SPART,
-               tab: TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].text,
-            },
-            {
-               key: TaskStatus.ASSIGNED,
-               tab: TaskStatusTagMapper[TaskStatus.ASSIGNED].text,
-            },
-            {
-               key: TaskStatus.IN_PROGRESS,
-               tab: TaskStatusTagMapper[TaskStatus.IN_PROGRESS].text,
-            },
-            {
-               key: TaskStatus.HEAD_STAFF_CONFIRM,
-               tab: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text,
-            },
-            {
-               key: TaskStatus.COMPLETED,
-               tab: TaskStatusTagMapper[TaskStatus.COMPLETED].text,
-            },
-            {
-               key: TaskStatus.CANCELLED,
-               tab: TaskStatusTagMapper[TaskStatus.CANCELLED].text,
-            },
-            {
-               key: "none",
-               tab: "Tất cả",
-            },
-         ]}
+         // tabActiveKey={query.search?.status}
+         // tabList={[
+         //    {
+         //       key: TaskStatus.AWAITING_FIXER,
+         //       tab: TaskStatusTagMapper[TaskStatus.AWAITING_FIXER].text,
+         //    },
+         //    {
+         //       key: TaskStatus.AWAITING_SPARE_SPART,
+         //       tab: TaskStatusTagMapper[TaskStatus.AWAITING_SPARE_SPART].text,
+         //    },
+         //    {
+         //       key: TaskStatus.ASSIGNED,
+         //       tab: TaskStatusTagMapper[TaskStatus.ASSIGNED].text,
+         //    },
+         //    {
+         //       key: TaskStatus.IN_PROGRESS,
+         //       tab: TaskStatusTagMapper[TaskStatus.IN_PROGRESS].text,
+         //    },
+         //    {
+         //       key: TaskStatus.HEAD_STAFF_CONFIRM,
+         //       tab: TaskStatusTagMapper[TaskStatus.HEAD_STAFF_CONFIRM].text,
+         //    },
+         //    {
+         //       key: TaskStatus.COMPLETED,
+         //       tab: TaskStatusTagMapper[TaskStatus.COMPLETED].text,
+         //    },
+         //    {
+         //       key: TaskStatus.CANCELLED,
+         //       tab: TaskStatusTagMapper[TaskStatus.CANCELLED].text,
+         //    },
+         //    {
+         //       key: "none",
+         //       tab: "Tất cả",
+         //    },
+         // ]}
       >
          <ProTable
             dataSource={api_tasks.data?.list}
@@ -181,7 +181,7 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
                setQuery((prev) => ({
                   ...prev,
                   search: {
-                     status: prev.search?.status,
+                     // status: prev.search?.status,
                      ...props,
                   },
                }))
@@ -191,7 +191,7 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
                   page: 1,
                   limit: 10,
                   search: {
-                     status: prev.search.status,
+                     // status: prev.search.status,
                   },
                   order: {
                      order: "DESC",
@@ -279,7 +279,7 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
                   title: "Trạng thái",
                   dataIndex: ["status"],
                   width: 100,
-                  hideInTable: query.search?.status !== "none",
+                  hideInTable: false,
                   hideInSearch: true,
                   align: "center",
                   render: (_, entity) => (
@@ -355,7 +355,7 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
                      true: "Đã nhận",
                      false: "Chưa nhận",
                   },
-                  hideInTable: query.search?.status !== TaskStatus.ASSIGNED,
+                  hideInTable: true,
                   render: (_, entity) =>
                      entity.confirmReceipt === true ? (
                         <Tag color="green-inverse">Đã nhận</Tag>
@@ -374,18 +374,14 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
                   valueType: "digit",
                   hideInSearch: true,
                   render: (_, entity) => `${entity.totalTime} phút`,
-                  hideInTable: new Set([TaskStatus.AWAITING_SPARE_SPART, TaskStatus.AWAITING_FIXER]).has(
-                     query.search?.status,
-                  ),
+                  hideInTable: false,
                   sorter: true,
                },
                {
                   title: "Người sửa",
                   dataIndex: ["fixer", "username"],
                   width: 150,
-                  hideInTable: new Set([TaskStatus.AWAITING_SPARE_SPART, TaskStatus.AWAITING_FIXER]).has(
-                     query.search?.status,
-                  ),
+                  hideInTable: false,
                   render: (_, entity) =>
                      entity.fixer ? (
                         <Link href={`/admin/user/${entity?.fixer?.id}`}>{entity?.fixer?.username}</Link>
@@ -408,9 +404,7 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
                   width: 160,
                   valueType: "date",
                   render: (_, entity) => (entity.fixerDate ? dayjs(entity.fixerDate).format("DD/MM/YYYY") : "-"),
-                  hideInTable: new Set([TaskStatus.AWAITING_SPARE_SPART, TaskStatus.AWAITING_FIXER]).has(
-                     query.search?.status,
-                  ),
+                  hideInTable: false,
                   sorter: true,
                },
                {

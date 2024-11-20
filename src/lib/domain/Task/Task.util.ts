@@ -34,9 +34,11 @@ class TaskUtil {
     */
    static isTask_Fix(task?: TaskDto): boolean | undefined {
       if (!task) return undefined
-      return task.issues.every((i) => {
-         return !SystemTypeErrorIds.has(i.typeError.id)
-      })
+      const regex = /^\d+$/
+      return regex.test(task.name.split("_")[1])
+      // return task.issues.every((i) => {
+      //    return !SystemTypeErrorIds.has(i.typeError.id)
+      // })
    }
 
    static isTask_Warranty(task?: TaskDto, type?: "send" | "receive", isActive?: boolean): boolean | undefined {

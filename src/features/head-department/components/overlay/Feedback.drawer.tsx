@@ -41,9 +41,9 @@ function FeedbackDrawer(props: Props) {
          <Drawer
             title="Xác nhận và Đánh giá"
             placement="bottom"
-            height="50%"
+            height="max-content"
             footer={
-               <Button block type="primary" size={"large"} onClick={form.submit}>
+               <Button block type="primary" onClick={form.submit}>
                   Gửi
                </Button>
             }

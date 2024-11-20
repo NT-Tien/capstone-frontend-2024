@@ -233,16 +233,6 @@ const Task_ViewDetailsDrawerWarranty = forwardRef<Task_ViewDetailsDrawerWarranty
          return isReceiveWarrantyTask || isSendWarrantyTask
       }, [isReceiveWarrantyTask, isSendWarrantyTask])
 
-      const isMissingSpareParts = useMemo(() => {
-         return api_task.data?.issues
-            .flatMap((issue) => issue.issueSpareParts)
-            .find((sp) => sp.quantity > sp.sparePart.quantity)
-
-         // return api_task.data?.issues.find(
-         //    (issue) => issue.issueSpareParts.filter((sp) => sp.quantity > sp.sparePart.quantity).length > 0,
-         // )
-      }, [api_task.data?.issues])
-
       function Footer() {
          if (!task) return null
 

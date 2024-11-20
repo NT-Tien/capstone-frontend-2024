@@ -51,7 +51,9 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
       const users: { [key: string]: UserDto } = {}
 
       api_requests.data.list.forEach((i) => {
-         areas[i.device.area.id] = i.device.area
+         if (i.device.area) {
+            areas[i.device.area.id] = i.device.area
+         }
          machineModels[i.device.machineModel.id] = i.device.machineModel
          users[i.requester.id] = i.requester
       })
@@ -76,12 +78,12 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
          return (
             i.requester_note.toLowerCase().includes(search.toLowerCase()) ||
             i.device.machineModel.name.toLowerCase().includes(search.toLowerCase()) ||
-            i.device.area.name.toLowerCase().includes(search.toLowerCase())
+            i.device?.area?.name.toLowerCase().includes(search.toLowerCase())
          )
       })
 
       list = list.filter((i) => {
-         if (query.areaId && i.device.area.id !== query.areaId) return false
+         if (query.areaId && i.device?.area?.id !== query.areaId) return false
          if (query.machineModelId && i.device.machineModel.id !== query.machineModelId) return false
          if (query.requester_note && !i.requester_note.toLowerCase().includes(query.requester_note.toLowerCase()))
             return false

@@ -1,16 +1,10 @@
 import { RefType } from "@/components/utils/OverlayControllerWithRef"
-import {
-   Task_AssignFixerModalProps,
-} from "@/features/head-maintenance/components/overlays/Task_AssignFixerV2.drawer"
+import { Task_AssignFixerModalProps } from "@/features/head-maintenance/components/overlays/Task_AssignFixerV2.drawer"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
-import {
-   CloseOutlined,
-   MoreOutlined,
-   TruckOutlined
-} from "@ant-design/icons"
-import { Laptop, Truck } from "@phosphor-icons/react"
-import { App, Card, Descriptions, Divider, Drawer, DrawerProps, Input } from "antd"
+import { CloseOutlined, MoreOutlined, TruckOutlined } from "@ant-design/icons"
+import { Calendar, Factory, Gavel, Gear, Truck } from "@phosphor-icons/react"
+import { App, Divider, Drawer, DrawerProps, Input } from "antd"
 import Button from "antd/es/button"
 import Form from "antd/es/form"
 import dayjs, { Dayjs } from "dayjs"
@@ -23,6 +17,7 @@ type FieldType = {
 
 type Request_ApproveToWarrantyDrawerProps = {
    requestId?: string
+   isMultiple?: boolean
    onSuccess?: () => void
 }
 type Props = Omit<DrawerProps, "children"> & Request_ApproveToWarrantyDrawerProps
@@ -30,8 +25,6 @@ type Props = Omit<DrawerProps, "children"> & Request_ApproveToWarrantyDrawerProp
 function Request_ApproveToWarrantyDrawer(props: Props) {
    const [form] = Form.useForm<FieldType>()
    const { modal } = App.useApp()
-
-   const control_taskAssignFixerModal = useRef<RefType<Task_AssignFixerModalProps>>(null)
 
    const api_request = head_maintenance_queries.request.one(
       {
@@ -44,15 +37,13 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
 
    const mutate_approveToWarranty = head_maintenance_mutations.request.approveToWarranty()
 
-   function handleSubmit(
-      values: FieldType,
-      requestId: string,
-   ) {
+   function handleSubmit(values: FieldType, requestId: string) {
       mutate_approveToWarranty.mutate(
          {
             id: requestId,
             payload: {
                note: values.note,
+               isMultiple: props.isMultiple,
             },
          },
          {
@@ -72,7 +63,7 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
          title={
             <div className={"flex w-full items-center justify-between"}>
                <Button className={"text-white"} icon={<CloseOutlined />} type={"text"} onClick={props.onClose} />
-               <h1 className={"text-lg font-semibold"}>Xác nhận bảo hành</h1>
+               <h1 className={"text-lg font-semibold"}>Bảo hành thiết bị</h1>
                <Button className={"text-white"} icon={<MoreOutlined />} type={"text"} />
             </div>
          }
@@ -86,7 +77,7 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
          }}
          loading={api_request.isPending}
          footer={
-            <Button block type={"primary"} size={"large"} icon={<TruckOutlined />} onClick={form.submit}>
+            <Button block type={"primary"} icon={<TruckOutlined />} onClick={form.submit}>
                Xác nhận
             </Button>
          }
@@ -94,75 +85,64 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
       >
          {api_request.isSuccess && (
             <>
-               <section>
-                  <div className={"mb-2 flex justify-between"}>
-                     <h2 className={"flex items-center gap-2 text-lg font-medium"}>
-                        <Laptop size={18} weight="fill" />
-                        Chi tiết thiết bị
-                     </h2>
-                  </div>
-                  <Descriptions
-                     contentStyle={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                     }}
-                     colon={false}
-                     size={"small"}
-                     items={[
-                        {
-                           label: "Mẫu máy",
-                           children: api_request.data.device.machineModel.name,
-                        },
-                        {
-                           label: "Nhà sản xuất",
-                           children: api_request.data.device.machineModel.manufacturer,
-                        },
-                        {
-                           label: "Năm sản xuất",
-                           children: api_request.data.device.machineModel.yearOfProduction,
-                        },
-                        {
-                           label: "Hạn bảo hành",
-                           children: dayjs(api_request.data.device.machineModel.warrantyTerm).format("DD/MM/YYYY"),
-                        },
-                        {
-                           label: "Điều khoản bảo hành",
-                           children: (
-                              <Card
-                                 className={"mt-2 w-full border-[1px] border-green-700 text-neutral-500"}
-                                 size={"small"}
-                                 onClick={() => {
-                                    modal.info({
-                                       title: "Điều khoản bảo hành",
-                                       content: <div>{api_request.data.device.machineModel.description}</div>,
-                                       centered: true,
-                                       maskClosable: true,
-                                       closable: true,
-                                       footer: false,
-                                       height: "90%",
-                                    })
-                                 }}
-                              >
-                                 <div
-                                    className="line-clamp-3 h-full w-full"
-                                 >
-                                    {api_request.data.device.machineModel.description}
-                                 </div>
-                              </Card>
-                           ),
-                           className: "*:flex-col",
-                        },
-                     ]}
-                  />
-               </section>
+               <div className="text-base">
+                  <section className="flex pb-3">
+                     <h3 className="flex items-center gap-1.5 font-medium">
+                        <Gear size={18} weight="fill" />
+                        Mẫu máy
+                     </h3>
+                     <p className="ml-auto text-neutral-700">{api_request.data.device.machineModel.name}</p>
+                  </section>
+                  <Divider className="m-0" />
+                  <section className="flex py-3">
+                     <h3 className="flex items-center gap-1.5 font-medium">
+                        <Factory size={18} weight="fill" />
+                        Nhà sản xuất
+                     </h3>
+                     <p className="ml-auto text-neutral-700">{api_request.data.device.machineModel.manufacturer}</p>
+                  </section>
+                  <Divider className="m-0" />
+                  <section className="flex py-3">
+                     <h3 className="flex items-center gap-1.5 font-medium">
+                        <Calendar size={18} weight="fill" />
+                        Hạn bảo hành
+                     </h3>
+                     <p className="ml-auto text-neutral-700">
+                        {dayjs(api_request.data.device.machineModel.warrantyTerm).format("DD/MM/YYYY")}
+                     </p>
+                  </section>
+                  <Divider className="m-0" />
+                  <section className="flex flex-col pt-3">
+                     <h3 className="flex items-center gap-1.5 font-medium">
+                        <Gavel size={18} weight="fill" />
+                        Điều khoản bảo hành
+                     </h3>
+                     <p className="ml-6 mt-1 line-clamp-2 text-neutral-700">
+                        {api_request.data.device.machineModel.description}
+                     </p>
+                     <a
+                        className="ml-6 font-medium text-black underline underline-offset-2"
+                        onClick={() => {
+                           modal.info({
+                              title: "Điều khoản bảo hành",
+                              content: <div>{api_request.data.device.machineModel.description}</div>,
+                              centered: true,
+                              maskClosable: true,
+                              closable: true,
+                              footer: false,
+                              height: "90%",
+                           })
+                        }}
+                     >
+                        Xem thêm
+                     </a>
+                  </section>
+               </div>
                <Divider className="" />
                <Form<FieldType>
                   form={form}
                   layout={"vertical"}
-                  onFinish={(values) =>
-                     props.requestId &&
-                     handleSubmit(values, props.requestId)
-                  }
+                  onFinish={(values) => props.requestId && handleSubmit(values, props.requestId)}
                >
                   <div className="mb-3">
                      <h2 className={"flex items-center gap-2 text-lg font-medium"}>
@@ -174,7 +154,7 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                   <section className={"mt-2"}>
                      <Form.Item<FieldType> name={"note"} rules={[{ required: true }]}>
                         <Input.TextArea
-                           placeholder="Ghi chú bảo hành"
+                           placeholder="Bảo hành bọc sắt thiết bị do bị gỉ"
                            maxLength={300}
                            showCount
                            allowClear

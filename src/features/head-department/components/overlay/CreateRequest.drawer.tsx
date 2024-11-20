@@ -1,13 +1,14 @@
 "use client"
 
-import { Button, Drawer, DrawerProps, Input, Select } from "antd"
-import AlertCard from "@/components/AlertCard"
-import Form from "antd/es/form"
-import RequestErrors from "@/lib/domain/Request/RequestErrors"
-import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import head_department_mutations from "@/features/head-department/mutations"
-import { useRouter } from "next/navigation"
 import hd_uris from "@/features/head-department/uri"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
+import RequestErrors from "@/lib/domain/Request/RequestErrors"
+import { CloseOutlined, SendOutlined } from "@ant-design/icons"
+import { Clipboard } from "@phosphor-icons/react"
+import { Button, Drawer, DrawerProps, Input, Select } from "antd"
+import Form from "antd/es/form"
+import { useRouter } from "next/navigation"
 
 type FieldType = {
    name: string
@@ -43,40 +44,79 @@ function CreateRequestDrawer(props: Props) {
 
    return (
       <Drawer
-         title="Tạo yêu cầu"
+         title={
+            <div className="flex items-center">
+               <h1 className="mr-auto flex items-center gap-2 text-lg font-semibold">
+                  <Clipboard size={20} weight="fill" />
+                  Tạo yêu cầu sửa chữa
+               </h1>
+               <Button type="text" icon={<CloseOutlined />} onClick={props.onClose} />
+            </div>
+         }
          placement="bottom"
          height="max-content"
          classNames={{
             footer: "p-layout",
+            header: "border-none pb-0",
          }}
+         closeIcon={false}
          footer={
-            <Button block type="primary" size="large" onClick={form.submit}>
-               Gửi
+            <Button
+               block
+               type="primary"
+               onClick={form.submit}
+               icon={<SendOutlined />}
+               iconPosition="end"
+               loading={mutate_createRequest.isPending}
+               disabled={!props.device}
+            >
+               Gửi yêu cầu
             </Button>
          }
          {...props}
       >
-         <AlertCard text="Vui lòng chọn vấn đề của thiết bị" type="info" />
          <Form<FieldType>
             form={form}
             layout="vertical"
-            className="mt-6"
             onFinish={(data) => props.device && handleSubmit(data, props.device.id)}
          >
-            <Form.Item<FieldType> name="name" label="Tên vấn đề" rules={[{ required: true }]}>
-               <Select options={RequestErrors} placeholder="Chọn vấn đề" />
-            </Form.Item>
-            <Form.Item<FieldType>
-               name="description"
-               label="Mô tả"
-               rules={[
-                  {
-                     required: name === "create",
-                  },
-               ]}
-            >
-               <Input.TextArea placeholder="Thêm mô tả vấn đề" maxLength={300} showCount rows={3} />
-            </Form.Item>
+            <section>
+               <header className="mb-2">
+                  <h2 className="text-base font-semibold">Phân loại vấn đề</h2>
+                  <p className="font-base text-sm text-neutral-500">
+                     Vui lòng chọn vấn đề của thiết bị trong danh sách sau
+                  </p>
+               </header>
+               <Form.Item<FieldType> name="name" rules={[{ required: true }]}>
+                  <Select
+                     options={RequestErrors}
+                     placeholder="Chọn vấn đề"
+                     className={"placeholder:text-sm"}
+                  />
+               </Form.Item>
+            </section>
+            <section>
+               <header className="mb-2">
+                  <h2 className="text-base font-semibold">Mô tả vấn đề</h2>
+                  <p className="font-base text-sm text-neutral-500">Hãy miêu tả chi tiết vấn đề của thiết bị</p>
+               </header>
+               <Form.Item<FieldType>
+                  name="description"
+                  rules={[
+                     {
+                        required: name === "create",
+                     },
+                  ]}
+               >
+                  <Input.TextArea
+                     placeholder="Thiết bị phát ra tiếng kêu lạ khi hoạt động, bọc thiết bị lỏng, gây ra tiếng ồn"
+                     maxLength={300}
+                     showCount
+                     minLength={50}
+                     rows={3}
+                  />
+               </Form.Item>
+            </section>
          </Form>
       </Drawer>
    )

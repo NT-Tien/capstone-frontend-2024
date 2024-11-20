@@ -2,7 +2,7 @@
 
 import { Badge, Button, Card, Descriptions, Divider, Drawer, DrawerProps, Empty, Input, List, Space, Tabs } from "antd"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
-import { CalendarOutlined, CloseOutlined, MoreOutlined } from "@ant-design/icons"
+import { CalendarOutlined, CloseOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons"
 import head_department_queries from "@/features/head-department/queries"
 import CreateRequestDrawer, {
    CreateRequestDrawerProps,
@@ -118,7 +118,7 @@ function ScanDetailsDrawer(props: Props) {
                   <Button
                      type="primary"
                      block
-                     size="large"
+                     icon={<PlusOutlined />}
                      onClick={() => control_createRequestDrawer.current?.handleOpen({ device: props.device })}
                      disabled={cannotCreateRequest && cannotCreateRequest?.length > 0}
                   >
@@ -154,7 +154,7 @@ function ScanDetailsDrawer(props: Props) {
                                  Khu vực
                               </div>
                            ),
-                           children: props.device?.area.name,
+                           children: props.device?.area?.name ?? "-",
                         },
                         {
                            label: (
@@ -163,7 +163,7 @@ function ScanDetailsDrawer(props: Props) {
                                  Vị trí
                               </div>
                            ),
-                           children: `${props.device?.positionX} x ${props.device?.positionY}`,
+                           children: `${props.device?.positionX ?? "-"} x ${props.device?.positionY ?? "-"}`,
                         },
                         {
                            label: (
@@ -178,7 +178,7 @@ function ScanDetailsDrawer(props: Props) {
                   />
                   <Divider className="my-4" />
                   <section className="">
-                     <header className="flex items-center justify-center">
+                     <header className="mb-2 flex items-center justify-center">
                         <h2 className="text-center text-base font-semibold">Yêu cầu gần đây</h2>
                      </header>
                      <section>

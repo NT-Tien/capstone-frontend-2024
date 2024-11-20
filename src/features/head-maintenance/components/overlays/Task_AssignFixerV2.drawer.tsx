@@ -147,19 +147,13 @@ function Task_AssignFixerV2Drawer(props: Props) {
 
    useEffect(() => {
       if (!props.open) {
-         setSelectedDate(dayjs().toDate())
-         setSelectedUser(undefined)
-         setSelectedPriority(false)
+         setSelectedDate(props.defaults?.date ?? dayjs().toDate())
+         setSelectedUser(props.defaults?.fixer ?? undefined)
+         setSelectedPriority(props.defaults?.priority ? props.defaults.priority === "priority" : false)
       } else {
          setDisabledAssign(props.disabledAssignProps?.defaultEnabled ?? false)
       }
-   }, [props.disabledAssignProps?.defaultEnabled, props.open])
-
-   useEffect(() => {
-      if (props.defaults?.date) setSelectedDate(props.defaults.date)
-      if (props.defaults?.fixer) setSelectedUser(props.defaults.fixer)
-      if (props.defaults?.priority) setSelectedPriority(props.defaults.priority === "priority")
-   }, [props.defaults])
+   }, [props.defaults?.date, props.defaults?.fixer, props.defaults?.priority, props.disabledAssignProps?.defaultEnabled, props.open])
 
    return (
       <>

@@ -18,6 +18,7 @@ import useTask_Close from "@/features/head-maintenance/mutations/Task_Close.muta
 import useIssue_CreateMany from "@/features/head-maintenance/mutations/Issue_Create.mutation"
 import useIssue_DetatchAndRecreateTaskWarranty from "@/features/head-maintenance/mutations/Issue_DetatchAndRecreateTaskWarranty.mutation"
 import useRequest_ApproveToRenew from "./Request_ApproveToRenew.mutation"
+import useRequest_WarrantyFailed from "@/features/head-maintenance/mutations/Request_WarrantyFailed.mutation"
 
 const head_maintenance_mutations = {
    request: {
@@ -28,6 +29,7 @@ const head_maintenance_mutations = {
       reject: useRequest_Reject,
       seen: useRequest_Seen,
       finish: useRequest_Finish,
+      warrantyFailed: useRequest_WarrantyFailed,
    },
    issue: {
       update: useIssue_Update,

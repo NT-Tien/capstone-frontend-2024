@@ -15,6 +15,7 @@ type Query = {
 
 type Request_ApproveToRenewDrawerProps = {
    requestId?: string
+   isMultiple?: boolean
    onSuccess?: () => void
 }
 type Props = Omit<DrawerProps, "children"> & Request_ApproveToRenewDrawerProps
@@ -65,6 +66,7 @@ function Request_ApproveToRenewDrawer(props: Props) {
                   payload: {
                      deviceId: api_request.data.device.id,
                      note: "",
+                     isMultiple: props.isMultiple,
                   },
                },
                {
@@ -99,13 +101,20 @@ function Request_ApproveToRenewDrawer(props: Props) {
          }}
          loading={api_request.isPending}
          footer={
-            <Button block type={"primary"} size={"large"} icon={<Swap size={16} />} onClick={handleSubmit} disabled={!selectedMachineModel || !note}>
+            <Button
+               block
+               type={"primary"}
+               size={"large"}
+               icon={<Swap size={16} />}
+               onClick={handleSubmit}
+               disabled={!selectedMachineModel || !note}
+            >
                Xác nhận
             </Button>
          }
          {...props}
       >
-         <section className='mb-10'>
+         <section className="mb-10">
             <header className="mb-3">
                <h2 className="text-base font-semibold">Ghi chú</h2>
                <p className="font-base text-sm text-neutral-500">Ghi chú cho quá trình thay máy</p>

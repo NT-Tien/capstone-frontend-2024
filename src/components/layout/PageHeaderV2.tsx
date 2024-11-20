@@ -26,9 +26,9 @@ function PageHeaderV2(props: Props) {
                props.className,
             )}
          >
-            {props.prevButton ?? <div></div>}
+            {props.prevButton ?? <div className='size-8'></div>}
             <h1 className={cn("text-lg font-bold", props.classNames?.title)}>{props.title}</h1>
-            {props.nextButton ?? <div></div>}
+            {props.nextButton ?? <div className='size-8'></div>}
          </header>
       </PageHeaderV2Context.Provider>
    )

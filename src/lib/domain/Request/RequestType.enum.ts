@@ -1,4 +1,6 @@
 export enum RequestTypeEnum {
-   FIX = "FIX",
-   MAINTENANCE = "MAINTENANCE",
+   FIX = 'FIX',
+  WARRANTY = 'WARRANTY',
+  RENEW = 'RENEW',
+  MAINTENANCE = 'MAINTENANCE',
 }

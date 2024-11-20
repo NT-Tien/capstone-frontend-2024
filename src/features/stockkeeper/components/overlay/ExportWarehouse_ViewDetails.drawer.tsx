@@ -11,6 +11,7 @@ import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayCon
 import ExportWarehouse_DelayModal from "@/features/stockkeeper/components/overlay/ExportWarehouse_DelayModal"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import DeviceUtil from "@/lib/domain/Device/Device.util"
 
 type ExportWarehouse_ViewDetailsDrawerProps = {
    id?: string
@@ -66,12 +67,21 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
       return (item as IssueDto).issueSpareParts !== undefined;
    }
    
+   // function isDeviceDto(item: DeviceDto | IssueDto): item is IssueDto {
+   //    return (item as IssueDto).task.device_renew !== undefined
+   // }
+
    const uniqueSpareParts = useMemo(() => {
       const details = Array.isArray(api_export.data?.detail) ? api_export.data?.detail : [];
       return IssueSparePartUtil.mapToUniqueSpareParts(
          details.flatMap((i) => (isIssueDto(i) ? i.issueSpareParts : []))
       );
    }, [api_export.data?.detail]);
+
+   // const uniqueDevice = useMemo(() => {
+   //    const details = Array.isArray(api_export.data?.detail) ? api_export.data?.detail : []
+   //    return DeviceUtil.mapToUniqueDevice(details.flatMap((i) => (isDeviceDto(i) ? i.task.device_renew : [])))
+   // }, [api_export.data?.detail])
    
 
    return (
@@ -158,29 +168,23 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
                        },
                     ]
                   : []),
-               ...(api_export.data?.export_type === ExportType.DEVICE
-                  ? [
-                       {
-                          key: "device",
-                          label: "Thiết bị",
-                          children: (
-                             <Descriptions
-                                column={1}
-                                items={[
-                                   {
-                                      label: "Tên thiết bị",
-                                      children: api_export?.data?.task?.device_renew?.machineModel?.name,
-                                   },
-                                   {
-                                      label: "Loại",
-                                      children: api_export?.data?.task?.device_renew?.operationStatus,
-                                   },
-                                ]}
-                             />
-                          ),
-                       },
-                    ]
-                  : []),
+               // ...(api_export.data?.export_type === ExportType.DEVICE
+               //    ? [
+               //         {
+               //            key: "device",
+               //            label: "Thiết bị",
+               //            children: (
+               //               <List dataSource={uniqueDevice} renderItem={(item, index) => {
+               //                return (
+               //                   <List.Item className={cn(index === 0 && "pt-0")}>
+               //                      <List.Item.Meta title={item.device.description}/>
+               //                   </List.Item>
+               //                )
+               //               }}/>
+               //            ),
+               //         },
+               //      ]
+               //    : []),
                {
                   key: "task",
                   label: "Tác vụ",
@@ -202,6 +206,10 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
                                  ? dayjs(api_export.data?.task?.fixerDate).format("DD/MM/YYYY")
                                  : "-",
                            },
+                           // {
+                           //    label: "Thiết bị mới",
+                           //    children: api_export.data?.task?.device_renew?.id
+                           // }
                         ]}
                      />
                   ),

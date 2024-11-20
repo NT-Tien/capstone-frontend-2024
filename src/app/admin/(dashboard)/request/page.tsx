@@ -25,7 +25,7 @@ type QueryType = {
       createdAt?: string[]
       updatedAt?: string[]
       requester_note?: string
-      status?: any
+      // status?: any
       is_warranty?: string
       is_seen?: string
       requesterName?: string
@@ -42,7 +42,7 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
       page: 1,
       limit: 10,
       search: {
-         status: searchParams.tab ?? FixRequestStatus.PENDING,
+         // status: searchParams.tab ?? FixRequestStatus.PENDING,
          is_warranty: searchParams.is_warranty,
          requesterName: undefined,
       },
@@ -62,7 +62,7 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
       page: query.page,
       limit: query.limit,
       filters: {
-         status: query.search?.status === "none" ? undefined : query.search?.status,
+         // status: query.search?.status === "none" ? undefined : query.search?.status,
          requester_note: query.search?.requester_note,
          id: query.search?.id,
          is_warranty: query.search?.is_warranty,
@@ -84,20 +84,20 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
       },
    })
 
-   function handleTabChange(activeKey: string) {
-      setQuery((prev) => ({
-         ...prev,
-         page: 1,
-         search: {
-            ...prev.search,
-            status: activeKey as FixRequestStatus,
-         },
-         sort: {
-            order: "DESC",
-            orderBy: "updatedAt",
-         },
-      }))
-   }
+   // function handleTabChange(activeKey: string) {
+   //    setQuery((prev) => ({
+   //       ...prev,
+   //       page: 1,
+   //       search: {
+   //          ...prev.search,
+   //          status: activeKey as FixRequestStatus,
+   //       },
+   //       sort: {
+   //          order: "DESC",
+   //          orderBy: "updatedAt",
+   //       },
+   //    }))
+   // }
 
    return (
       <PageContainer
@@ -112,47 +112,47 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
             rootClassName: "mt-4",
          }}
          fixedHeader={true}
-         onTabChange={handleTabChange}
+         // onTabChange={handleTabChange}
          childrenContentStyle={{
             paddingTop: "2rem",
          }}
-         tabActiveKey={query.search?.status}
-         tabList={[
-            {
-               key: FixRequestStatus.PENDING,
-               tab: FixRequest_StatusData("pending").text,
-            },
-            {
-               key: FixRequestStatus.APPROVED,
-               tab: FixRequest_StatusData("approved").text,
-            },
-            {
-               key: FixRequestStatus.IN_PROGRESS,
-               tab: FixRequest_StatusData("in_progress").text,
-            },
-            {
-               key: FixRequestStatus.HEAD_CONFIRM,
-               tab: FixRequest_StatusData("head_confirm").text,
-            },
-            {
-               key: FixRequestStatus.CLOSED,
-               tab: FixRequest_StatusData("closed").text,
-            },
-            {
-               key: FixRequestStatus.HEAD_CANCEL,
-               tab: FixRequest_StatusData("head_cancel").text,
-            },
-            {
-               key: FixRequestStatus.REJECTED,
-               tab: FixRequest_StatusData("rejected").text,
-            },
-            {
-               key: "none",
-               tab: "Tất cả",
-            },
-         ]}
+         // tabActiveKey={query.search?.status}
+         // tabList={[
+         //    {
+         //       key: FixRequestStatus.PENDING,
+         //       tab: FixRequest_StatusData("pending").text,
+         //    },
+         //    {
+         //       key: FixRequestStatus.APPROVED,
+         //       tab: FixRequest_StatusData("approved").text,
+         //    },
+         //    {
+         //       key: FixRequestStatus.IN_PROGRESS,
+         //       tab: FixRequest_StatusData("in_progress").text,
+         //    },
+         //    {
+         //       key: FixRequestStatus.HEAD_CONFIRM,
+         //       tab: FixRequest_StatusData("head_confirm").text,
+         //    },
+         //    {
+         //       key: FixRequestStatus.CLOSED,
+         //       tab: FixRequest_StatusData("closed").text,
+         //    },
+         //    {
+         //       key: FixRequestStatus.HEAD_CANCEL,
+         //       tab: FixRequest_StatusData("head_cancel").text,
+         //    },
+         //    {
+         //       key: FixRequestStatus.REJECTED,
+         //       tab: FixRequest_StatusData("rejected").text,
+         //    },
+         //    {
+         //       key: "none",
+         //       tab: "Tất cả",
+         //    },
+         // ]}
       >
-         <ProTable<RequestDto>
+         {/* <ProTable<RequestDto>
             dataSource={api_requests.data?.list}
             scroll={{ x: "max-content" }}
             loading={api_requests.isPending}
@@ -390,6 +390,237 @@ function Page({ searchParams }: { searchParams: { tab?: FixRequestStatus; is_war
                      FixRequestStatus.REJECTED,
                      FixRequestStatus.CLOSED,
                   ]).has(query.search?.status),
+               },
+               {
+                  title: "Khu vực",
+                  dataIndex: ["device", "area", "name"],
+                  width: 100,
+                  valueType: "select",
+                  valueEnum: api_areas.data?.reduce((acc, area) => {
+                     acc[area.id] = { text: area.name }
+                     return acc
+                  }, {} as any),
+               },
+               {
+                  title: "Người tạo",
+                  dataIndex: ["requester", "username"],
+                  width: 125,
+                  ellipsis: true,
+                  valueType: "select",
+                  valueEnum: api_head_departments.data?.reduce((acc, user) => {
+                     acc[user.username] = { text: user.username }
+                     return acc
+                  }, {} as any),
+               },
+               {
+                  title: "Ngày tạo",
+                  dataIndex: "createdAt",
+                  width: 200,
+                  render: (_, entity) => dayjs(entity.createdAt).format("DD/MM/YYYY HH:mm"),
+                  valueType: "dateRange",
+                  sorter: true,
+               },
+               {
+                  title: "Lần cập nhật cuối",
+                  dataIndex: "updatedAt",
+                  width: 200,
+                  render: (_, entity) => dayjs(entity.updatedAt).format("DD/MM/YYYY HH:mm"),
+                  sorter: true,
+                  valueType: "dateRange",
+                  defaultSortOrder: "descend",
+               },
+            ]}
+         /> */}
+         <ProTable<RequestDto>
+            tableLayout="fixed"
+            dataSource={api_requests.data?.list}
+            scroll={{ x: "max-content" }}
+            loading={api_requests.isPending}
+            form={{
+               syncToUrl: (values, type) => {
+                  const { ...newValues } = values
+                  return newValues
+               },
+            }}
+            onSubmit={(
+               props: QueryType["search"] & {
+                  requester?: { username: string }
+                  device?: { area?: { name: string } }
+               },
+            ) => {
+               setQuery((prev) => ({
+                  ...prev,
+                  search: {
+                     requesterName: props?.requester?.username,
+                     areaId: props?.device?.area?.name,
+                     ...props,
+                  },
+               }))
+            }}
+            onReset={() => {
+               setQuery((prev) => ({
+                  page: 1,
+                  limit: 10,
+                  search: {},
+               }))
+            }}
+            onChange={(page, filters, sorter, extra) => {
+               let order, orderBy
+               if (Array.isArray(sorter)) {
+                  order = sorter[0].order === "descend" ? "DESC" : "ASC"
+                  orderBy = sorter[0].field
+               } else {
+                  order = sorter.order === "descend" ? "DESC" : "ASC"
+                  orderBy = sorter.field
+               }
+
+               setQuery((prev) => ({
+                  ...prev,
+                  sort: {
+                     order: order as any,
+                     orderBy: orderBy as any,
+                  },
+               }))
+            }}
+            search={{
+               layout: "vertical",
+               collapseRender: (collapsed) =>
+                  collapsed ? (
+                     <div className="flex items-center gap-1">
+                        Mở
+                        <CaretDown />
+                     </div>
+                  ) : (
+                     <div className="flex items-center gap-1">
+                        Đóng
+                        <CaretUp />
+                     </div>
+                  ),
+               searchText: "Tìm kiếm",
+               resetText: "Xóa",
+            }}
+            pagination={{
+               pageSize: query.limit,
+               current: query.page,
+               total: api_requests.data?.total ?? 0,
+               showQuickJumper: true,
+               showLessItems: true,
+               onChange: (page, pageSize) => {
+                  setQuery((prev) => ({
+                     ...prev,
+                     page,
+                     limit: pageSize,
+                  }))
+               },
+            }}
+            columns={[
+               {
+                  title: "ID",
+                  dataIndex: "id",
+                  hideInTable: true,
+               },
+               {
+                  title: "STT",
+                  valueType: "indexBorder",
+                  width: 50,
+                  align: "center",
+                  hideInSearch: true,
+                  fixed: "left",
+                  render: (value, record, index) => index + 1 + (query.page - 1) * query.limit,
+               },
+               {
+                  title: "% Hoàn thành",
+                  hideInSearch: true,
+                  hideInTable: true,
+                  render: (_, e) => {
+                     const total = e.issues.length
+                     const fixed = e.issues.filter((i) => i.status === IssueStatusEnum.RESOLVED).length
+                     const failed = e.issues.filter((i) => i.status === IssueStatusEnum.FAILED).length
+
+                     const percentFinished = Math.ceil((fixed / total) * 100)
+                     const percentFailed = Math.ceil((failed / total) * 100)
+                     const percentPending = Math.ceil(((total - fixed - failed) / total) * 100)
+
+                     return (
+                        <Tooltip
+                           title={
+                              <div className="flex flex-col">
+                                 <span>Hoàn thành {percentFinished}%</span>
+                                 <span>Thất bại {percentFailed}%</span>
+                                 <span>Chưa thực hiện {percentPending}%</span>
+                              </div>
+                           }
+                        >
+                           <Progress
+                              percent={percentFinished}
+                              success={{ percent: percentFailed, strokeColor: "red" }}
+                              strokeColor="green"
+                              showInfo={false}
+                           />
+                        </Tooltip>
+                     )
+                  },
+               },
+               {
+                  title: "Đã xem",
+                  dataIndex: ["is_seen"],
+                  valueType: "select",
+                  width: 100,
+                  valueEnum: {
+                     true: { text: "Đã xem" },
+                     false: { text: "Chưa xem" },
+                  },
+                  render: (_, e) => (
+                     <Tag color={e.is_seen ? "green" : "default"}>{e.is_seen ? "Đã xem" : "Chưa xem"}</Tag>
+                  ),
+                  hideInTable: true,
+                  hideInSearch: true,
+               },
+               {
+                  title: "Thông tin yêu cầu",
+                  dataIndex: ["requester_note"],
+                  width: 200,
+                  ellipsis: true,
+                  render: (_, entity) => (
+                     <div style={{ width: "200px" }}>
+                        <Link href={`/admin/request/${entity.id}`} className="truncate">
+                           {entity.requester_note}
+                        </Link>
+                     </div>
+                  ),
+               },
+               {
+                  title: "Trạng thái",
+                  dataIndex: ["status"],
+                  width: 100,
+                  // hideInTable: query.search?.status !== "none",
+                  hideInSearch: true,
+                  render: (_, entity) => (
+                     <Tag color={FixRequest_StatusMapper(entity).color}>{FixRequest_StatusMapper(entity).text}</Tag>
+                  ),
+               },
+               {
+                  title: "Mẫu thiết bị",
+                  dataIndex: ["device", "machineModel", "name"],
+                  width: 150,
+                  ellipsis: true,
+                  hideInSearch: true,
+               },
+               {
+                  title: "Số lỗi",
+                  width: 80,
+                  align: "center",
+                  render: (_, e) => e.issues?.length ?? 0,
+                  hideInSearch: true,
+                  hideInTable: true,
+               },
+               {
+                  title: "Số tác vụ",
+                  width: 100,
+                  align: "center",
+                  render: (_, e) => e.tasks?.length ?? 0,
+                  hideInSearch: true,
+                  hideInTable: true,
                },
                {
                   title: "Khu vực",

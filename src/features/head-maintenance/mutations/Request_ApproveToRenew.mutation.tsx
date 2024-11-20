@@ -6,7 +6,7 @@ import HeadStaff_Request_ApproveRenew from "../api/request/approve.renew.api"
 type Request = {
     id: string
     payload: {
-        deviceId: string
+        deviceId?: string
         note: string
     }
 } & AuthTokenWrapper

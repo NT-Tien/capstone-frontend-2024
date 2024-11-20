@@ -21,20 +21,29 @@ import { Avatar, Button, Card, ConfigProvider, Descriptions, Divider, Segmented,
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useMemo, useRef, useState } from "react"
-import IssueViewDetails_RenewDrawer, { IssueViewDetails_RenewDrawerProps } from "@/features/staff/components/overlays/renew/IssueViewDetails_Renew.drawer"
+import IssueViewDetails_RenewDrawer, {
+   IssueViewDetails_RenewDrawerProps,
+} from "@/features/staff/components/overlays/renew/IssueViewDetails_Renew.drawer"
+import ReturnRemovedDevice, {
+   ReturnRemovedDeviceProps,
+} from "@/features/staff/components/overlays/renew/ReturnRemovedDevice.drawer"
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
 
    const control_issueViewDetails_RenewDrawer = useRef<RefType<IssueViewDetails_RenewDrawerProps>>(null)
    const control_finishTaskDrawer = useRef<RefType<FinishTaskDrawerProps>>(null)
-   const control_returnSparePartDrawer = useRef<RefType<ReturnSparePartDrawerProps>>(null)
+   const control_returnRemovedDeviceDrawer = useRef<RefType<ReturnRemovedDeviceProps>>(null)
 
    const api_task = staff_queries.task.one({ id: params.id })
 
    const hasResolvedAllIssues = useMemo(() => {
       return api_task.data?.issues.every((i) => i.status !== IssueStatusEnum.PENDING)
    }, [api_task.data?.issues])
+
+   const isDeviceLocationSet = useMemo(() => {
+      return api_task.data?.device?.positionX !== null && api_task.data?.device?.positionY !== null
+   }, [api_task.data?.device])
 
    const firstIssue = useMemo(() => {
       return TaskUtil.getTask_Renew_FirstIssue(api_task.data)
@@ -143,8 +152,8 @@ function Page({ params }: { params: { id: string } }) {
                               <Space className={"text-xs"} split={<Divider type={"vertical"} className={"m-0"} />}>
                                  {api_task.data.device.machineModel.manufacturer}
                                  <span>
-                                    Khu vực {api_task.data.device.area.name} ({api_task.data.device.positionX},{" "}
-                                    {api_task.data.device.positionY})
+                                    Khu vực {api_task?.data?.device?.area?.name} ({api_task?.data?.device?.positionX},{" "}
+                                    {api_task?.data?.device?.positionY})
                                  </span>
                               </Space>
                               <h3 className={"line-clamp-2 text-base font-semibold"}>
@@ -162,7 +171,7 @@ function Page({ params }: { params: { id: string } }) {
             </section>
 
             <section className={"mt-layout px-layout"}>
-               <Divider className='text-sm' orientation="left">
+               <Divider className="text-sm" orientation="left">
                   Tác vụ có {api_task.data?.issues.length} bước
                </Divider>
                <div>
@@ -180,9 +189,9 @@ function Page({ params }: { params: { id: string } }) {
                         if (firstIssue?.status === IssueStatusEnum.FAILED) return "error"
                         if (firstIssue?.status === IssueStatusEnum.CANCELLED) return "error"
 
-                        if(secondIssue?.status === IssueStatusEnum.PENDING) return "process"
-                        if(secondIssue?.status === IssueStatusEnum.FAILED) return "error"
-                        if(secondIssue?.status === IssueStatusEnum.CANCELLED) return "error"
+                        if (secondIssue?.status === IssueStatusEnum.PENDING) return "process"
+                        if (secondIssue?.status === IssueStatusEnum.FAILED) return "error"
+                        if (secondIssue?.status === IssueStatusEnum.CANCELLED) return "error"
 
                         return "finish"
                      })()}
@@ -192,7 +201,14 @@ function Page({ params }: { params: { id: string } }) {
                            className: cn(firstIssue?.status !== IssueStatusEnum.PENDING && "opacity-50"),
                            title: (
                               <div className="flex w-full justify-between">
-                                 <div className={cn("text-base font-semibold", firstIssue?.status !== IssueStatusEnum.PENDING && "line-through")}>{firstIssue?.typeError.name}</div>
+                                 <div
+                                    className={cn(
+                                       "text-base font-semibold",
+                                       firstIssue?.status !== IssueStatusEnum.PENDING && "line-through",
+                                    )}
+                                 >
+                                    {firstIssue?.typeError.name}
+                                 </div>
                                  <RightOutlined className="text-sm" />
                               </div>
                            ),
@@ -211,7 +227,14 @@ function Page({ params }: { params: { id: string } }) {
                            className: cn(secondIssue?.status !== IssueStatusEnum.PENDING && "opacity-50"),
                            title: (
                               <div className="flex w-full justify-between">
-                                 <div className={cn("text-base font-semibold", secondIssue?.status !== IssueStatusEnum.PENDING && "line-through")}>{secondIssue?.typeError.name}</div>
+                                 <div
+                                    className={cn(
+                                       "text-base font-semibold",
+                                       secondIssue?.status !== IssueStatusEnum.PENDING && "line-through",
+                                    )}
+                                 >
+                                    {secondIssue?.typeError.name}
+                                 </div>
                                  <RightOutlined className="text-sm" />
                               </div>
                            ),
@@ -232,20 +255,36 @@ function Page({ params }: { params: { id: string } }) {
                </div>
             </section>
             {hasResolvedAllIssues && (
-               <footer className={"absolute bottom-0 left-0 w-full bg-white p-layout shadow-fb"}>
-                  <Button
-                     block
-                     type={"primary"}
-                     size={"large"}
-                     onClick={() =>
-                        api_task.isSuccess &&
-                        control_finishTaskDrawer.current?.handleOpen({
-                           task: api_task.data,
-                        })
-                     }
-                  >
-                     Hoàn thành tác vụ
-                  </Button>
+               <footer className="absolute bottom-0 left-0 w-full bg-white p-layout shadow-fb">
+                  {isDeviceLocationSet ? (
+                     <Button
+                        block
+                        type="primary"
+                        size="large"
+                        onClick={() =>
+                           api_task.isSuccess &&
+                           control_returnRemovedDeviceDrawer.current?.handleOpen({
+                              task: api_task.data,
+                           })
+                        }
+                     >
+                        Trả thiết bị
+                     </Button>
+                  ) : (
+                     <Button
+                        block
+                        type="primary"
+                        size="large"
+                        onClick={() =>
+                           api_task.isSuccess &&
+                           control_finishTaskDrawer.current?.handleOpen({
+                              task: api_task.data,
+                           })
+                        }
+                     >
+                        Hoàn thành tác vụ
+                     </Button>
+                  )}
                </footer>
             )}
          </div>
@@ -257,11 +296,11 @@ function Page({ params }: { params: { id: string } }) {
                onSuccess={() => router.push(staff_uri.navbar.tasks + `?completed=${api_task.data?.name}`)}
             />
          </OverlayControllerWithRef>
-         <OverlayControllerWithRef ref={control_returnSparePartDrawer}>
-            <ReturnSparePartDrawer
+         <OverlayControllerWithRef ref={control_returnRemovedDeviceDrawer}>
+            <ReturnRemovedDevice
                onFinish={async () => {
                   await api_task.refetch()
-                  control_returnSparePartDrawer.current?.handleClose()
+                  control_returnRemovedDeviceDrawer.current?.handleClose()
                }}
             />
          </OverlayControllerWithRef>

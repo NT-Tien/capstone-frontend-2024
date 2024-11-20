@@ -64,10 +64,10 @@ function Issue_Resolve_RemoveDrawer(props: Props) {
    return (
       <Drawer
          title={
-            <div className={"flex items-center justify-between"}>
-               <Button icon={<CloseOutlined className={"text-white"} />} type={"text"} onClick={props.onClose} />
+            <div className="flex items-center justify-between">
+               <Button icon={<CloseOutlined className="text-white" />} type="text" onClick={props.onClose} />
                <h1>Hoàn thành bước</h1>
-               <Button icon={<MoreOutlined className={"text-white"} />} type={"text"} />
+               <Button icon={<MoreOutlined className="text-white" />} type="text" />
             </div>
          }
          classNames={{
@@ -75,22 +75,11 @@ function Issue_Resolve_RemoveDrawer(props: Props) {
             footer: "p-layout",
          }}
          closeIcon={false}
-         placement={"bottom"}
+         placement="bottom"
          height="max-content"
          loading={!props.issue}
          footer={
             <div>
-               <div className="mb-3 flex items-start gap-3">
-                  <Checkbox
-                     id="sign"
-                     checked={signed}
-                     onChange={(e) => setSigned(e.target.checked)}
-                     disabled={!signatureVerification || !uploadImages.length}
-                  />
-                  <label htmlFor="sign" className={"font-bold"}>
-                     Tôi đã giao máy cho thủ kho
-                  </label>
-               </div>
                <Button
                   block
                   type="primary"
@@ -118,10 +107,10 @@ function Issue_Resolve_RemoveDrawer(props: Props) {
          <section>
             <header className="mb-2">
                <h3 className="text-base font-semibold">Chữ ký xác nhận</h3>
-               <p className="font-base text-sm text-neutral-500">Vui lòng đưa thiết bị cho thủ kho ký</p>
+               <p className="font-base text-sm text-neutral-500">Vui lòng đưa thiết bị cho trưởng phòng sản xuất</p>
             </header>
             <SignatureUploader signature={signatureVerification} setSignature={setSignatureVerification}>
-               <SignatureUploader.Stockkeeper />
+               <SignatureUploader.Head_Department />
             </SignatureUploader>
          </section>
          <section>
@@ -136,7 +125,7 @@ function Issue_Resolve_RemoveDrawer(props: Props) {
          <section className="mt-layout">
             <header className="mb-2">
                <h1 className="text-base font-bold">Video xác nhận</h1>
-               <p className="font-base text-sm text-neutral-500">Vui lòng tải video lỗi đã sửa lên hê thống (nếu có)</p>
+               <p className="font-base text-sm text-neutral-500">Vui lòng tải video lỗi đã sửa lên hệ thống (nếu có)</p>
             </header>
             <VideoUploader videoUris={uploadVideo} setVideoUris={setUploadVideo} />
          </section>

@@ -332,6 +332,7 @@ function Page({ searchParams }: { searchParams: { tab?: TaskStatus } }) {
                      </Link>
                   ),
                   sorter: true,
+                  hideInSearch: true,
                },
                {
                   title: "Ưu tiên",

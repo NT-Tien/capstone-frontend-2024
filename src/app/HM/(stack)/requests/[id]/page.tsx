@@ -62,7 +62,7 @@ function Page({ params }: { params: { id: string } }) {
 
    return (
       <>
-         <main className="min-h-screen pb-14">
+         <main className="min-h-screen pb-20">
             <div className="absolute left-0 top-0 z-0 h-36 w-full bg-head_maintenance" />
             <PageHeaderV2
                prevButton={<PageHeaderV2.BackButton onClick={handleBack} />}

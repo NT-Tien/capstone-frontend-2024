@@ -19,6 +19,7 @@ import IssueDetailsDrawer, {
    IssueDetailsDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Issue_Details.drawer"
 import IssueUtil from "@/lib/domain/Issue/Issue.util"
+import { SystemTypeErrorIds } from "@/lib/constants/Warranty"
 
 function getCount(...ints: number[]) {
    const total = ints.reduce((acc, cur) => acc + cur, 0)

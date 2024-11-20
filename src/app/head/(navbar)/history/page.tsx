@@ -44,7 +44,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
 
       let returnValue: { [key: string]: AreaDto } = {}
       api_requests.data.forEach((i) => {
-         returnValue[i.device.area?.id] = i.device.area
+         if (i.device.area) returnValue[i.device.area.id] = i.device.area
       })
 
       return Object.values(returnValue)
@@ -179,10 +179,10 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
             />
          )}
          <div className="std-layout relative h-full min-h-screen bg-white">
-            <div className="std-layout-outer absolute left-0 top-0 h-[72px] w-full bg-head_department" />
             <PageHeaderV2
                prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}
                title={"Lịch sử Yêu cầu"}
+               className='bg-head_department sticky top-0 left-0 z-50'
                nextButton={
                   <Badge dot={Object.values(query).length > 0}>
                      <Button
@@ -209,7 +209,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
                   onChange={(e) => setSearch(e.target.value)}
                />
                <Select
-                  className="w-full rounded-r-lg bg-head_department text-center *:text-white"
+                  className="w-full rounded-r-lg bg-head_department text-left *:text-white"
                   variant={"borderless"}
                   value={tab}
                   loading={api_requests.isPending}

@@ -1,28 +1,20 @@
 "use client"
 
-import CustomDatePicker from "@/components/CustomDatePicker"
-import dayjs, { Dayjs } from "dayjs"
+import DeviceDetails from "@/features/head-maintenance/components/DeviceDetails"
+import head_maintenance_queries from "@/features/head-maintenance/queries"
+import AuthTokens from "@/lib/constants/AuthTokens"
+import { Dayjs } from "dayjs"
 import React from "react"
 
 function Page() {
    const [date, setDate] = React.useState<Dayjs | undefined>()
 
-   return (
-      <div className="p-layout">
-         <CustomDatePicker
-            value={date}
-            onChange={setDate}
-            bounds={{
-               max: dayjs().add(2, "years").set("month", 4).set("day", 15),
-               min: dayjs(),
-            }}
-         />
-         <div>
-            <h1>OUTSIDE DATE</h1>
-            <div>{date ? date.format("DD/MM/YYYY") : "No date selected"}</div>
-         </div>
-      </div>
-   )
+   const device = head_maintenance_queries.device.one({
+      id: "e9175635-8871-4006-8460-c3c394f1554c",
+      token: AuthTokens.Head_Maintenance,
+   })
+
+   return <div className="p-layout">{device.isSuccess && <DeviceDetails device={device.data} />}</div>
 }
 
 export default Page

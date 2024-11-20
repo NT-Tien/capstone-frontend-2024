@@ -1,10 +1,11 @@
-import { App, Button, Drawer, DrawerProps, Dropdown, Form, Input, InputProps } from "antd"
+import { App, Button, Card, Drawer, DrawerProps, Dropdown, Form, Input, InputProps, Result } from "antd"
 import AlertCard from "@/components/AlertCard"
 import { Scanner } from "@yudiel/react-qr-scanner"
-import { IdcardOutlined, MoreOutlined, PhoneOutlined, SendOutlined } from "@ant-design/icons"
+import { CloseCircleFilled, IdcardOutlined, MoreOutlined, PhoneOutlined, ReloadOutlined, SendOutlined } from "@ant-design/icons"
 import { cn } from "@/lib/utils/cn.util"
 import { isUUID } from "@/lib/utils/isUUID.util"
 import uuidNormalizer from "@/lib/utils/uuid-normalizer.util"
+import { useEffect, useState } from "react"
 
 type FieldType = {
    deviceId: string
@@ -23,6 +24,7 @@ type Props = Omit<DrawerProps, "children"> &
 function ScannerV3Drawer(props: Props) {
    const [form] = Form.useForm<FieldType>()
    const { message } = App.useApp()
+   const [error, setError] = useState<string | null>(null)
 
    function handleFinishScan(scannedValue: string) {
       handleFinish(scannedValue)
@@ -36,6 +38,32 @@ function ScannerV3Drawer(props: Props) {
       props.onScan?.(value)
       props.handleClose?.()
    }
+
+   function handleError(e: unknown) {
+      console.log(e instanceof DOMException)
+      if (e instanceof DOMException) {
+         switch (e.name) {
+            case "NotAllowedError": {
+               setError("Ứng dụng không được cấp quyền truy cập camera")
+               break
+            }
+            case "NotFoundError": {
+               setError("Không tìm thấy camera")
+               break
+            }
+            default: {
+               setError("Có lỗi đã xảy ra khi kết nối camera. Vui lòng thử lại")
+               break
+            }
+         }
+      }
+   }
+
+   useEffect(() => {
+      if (!props.open) {
+         setError(null)
+      }
+   }, [props.open])
 
    return (
       <Drawer
@@ -68,19 +96,36 @@ function ScannerV3Drawer(props: Props) {
       >
          <AlertCard type="info" className="mb-3" text={props.infoText ?? "Vui lòng đặt mã QR vào ô bên dưới"} />
          <section className={"aspect-square h-full w-full"}>
-            <Scanner
-               onScan={async (e) => e[0]?.rawValue && handleFinishScan(e[0].rawValue)}
-               allowMultiple={true}
-               scanDelay={1000}
-               onError={async (e) => {
-                  message.destroy("cannot-access-camera")
-                  await message.error({
-                     key: "cannot-access-camera",
-                     content: "Không truy cập được camera. Vui lòng thử lại sau.",
-                  })
-               }}
-               components={{ torch: true }}
-            />
+            {error ? (
+               <Card className="h-full w-full" classNames={{ body: "grid place-items-center h-full" }}>
+                  <Result
+                     className="p-0"
+                     title={<h1 className='text-xl font-bold'>Đã xảy ra lỗi</h1>}
+                     icon={<CloseCircleFilled className='text-red-500 text-[60px]' />}
+                     status={"error"}
+                     subTitle={<p className='text-base'>{error}</p>}
+                     extra={
+                        <Button
+                           type={"primary"}
+                           onClick={async () => {
+                              setError(null)
+                           }}
+                           icon={<ReloadOutlined />}
+                        >
+                           Thử lại
+                        </Button>
+                     }
+                  />
+               </Card>
+            ) : (
+               <Scanner
+                  onScan={async (e) => e[0]?.rawValue && handleFinishScan(e[0].rawValue)}
+                  allowMultiple={true}
+                  scanDelay={1000}
+                  onError={handleError}
+                  components={{ torch: true }}
+               />
+            )}
          </section>
          <Form<FieldType>
             form={form}

@@ -7,26 +7,13 @@ import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 
 export type Request = {
    id: string
-   payload: {
-      note: string
-      isMultiple?: boolean
-   }
 } & AuthTokenWrapper
 export type Response = RequestDto
 
-HeadStaff_Request_ApproveWarranty.URL = (req: Request) => {
-   const urlSearchParams = new URLSearchParams()
-   if (req.payload.isMultiple) {
-      urlSearchParams.append("isMultiple", "true")
-   }
-
-   return (
-      `/head-staff/request/approve-warranty/${req.id}` + (urlSearchParams.toString() ? `?${urlSearchParams.toString()}` : "")
-   )
-}
-export default async function HeadStaff_Request_ApproveWarranty(req: Request): Promise<Response> {
+HeadStaff_Request_WarrantyFailed.URL = (req: Request) => `/head-staff/request/warranty-failed${req.id}`
+export default async function HeadStaff_Request_WarrantyFailed(req: Request): Promise<Response> {
    return api
-      .put<Response>(HeadStaff_Request_ApproveWarranty.URL(req), req.payload, {
+      .put<Response>(HeadStaff_Request_WarrantyFailed.URL(req), undefined, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,

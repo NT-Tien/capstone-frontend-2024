@@ -9,11 +9,22 @@ export type Request = {
    payload: {
       deviceId: string
       note: string
+      isMultiple?: boolean
    }
 } & AuthTokenWrapper
 export type Response = RequestDto
 
-HeadStaff_Request_ApproveRenew.URL = (req: Request) => `/head-staff/request/approve-renew/${req.id}`
+HeadStaff_Request_ApproveRenew.URL = (req: Request) => {
+   const urlSearchParams = new URLSearchParams()
+   if (req.payload.isMultiple) {
+      urlSearchParams.append("isMultiple", "true")
+   }
+
+   return (
+      `/head-staff/request/approve-renew/${req.id}` +
+      (urlSearchParams.toString() ? `?${urlSearchParams.toString()}` : "")
+   )
+}
 export default async function HeadStaff_Request_ApproveRenew(req: Request): Promise<Response> {
    return api
       .put<Response>(HeadStaff_Request_ApproveRenew.URL(req), req.payload, {

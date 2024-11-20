@@ -71,7 +71,7 @@ function Page() {
             <ClickableArea
                type={"primary"}
                className={cn(
-                  "block h-24 shadow-md",
+                  "block h-24 shadow-md p-3",
                   tab === "request" ? "border-4 border-green-400 bg-green-200" : "bg-neutral-50",
                )}
                onClick={() => setTab("request")}
@@ -81,7 +81,7 @@ function Page() {
             <ClickableArea
                type={"primary"}
                className={cn(
-                  "block h-24 shadow-md",
+                  "block h-24 shadow-md p-3",
                   tab === "task" ? "border-4 border-green-400 bg-green-200" : "bg-neutral-50",
                )}
                onClick={() => setTab("task")}

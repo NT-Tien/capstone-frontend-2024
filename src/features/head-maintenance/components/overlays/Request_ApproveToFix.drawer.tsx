@@ -26,8 +26,8 @@ import IssueUtil from "@/lib/domain/Issue/Issue.util"
 
 type Request_ApproveToFixDrawerProps = {
    requestId?: string
+   isMultiple?: boolean
    onSuccess?: () => void
-   shouldNotUpdateRequest?: boolean
 }
 type Props = Omit<DrawerProps, "children"> & Request_ApproveToFixDrawerProps
 
@@ -99,6 +99,7 @@ function Request_ApproveToFixDrawer(props: Props) {
                {
                   id: submitData.requestId,
                   payload: {
+                     isMultiple: props.isMultiple,
                      issues: submitData.selectedIssues.map((issue) => ({
                         fixType: issue.fixType,
                         description: issue.description,
@@ -109,7 +110,6 @@ function Request_ApproveToFixDrawer(props: Props) {
                         })),
                      })),
                   },
-                  shouldNotUpdateRequest: props.shouldNotUpdateRequest,
                },
                {
                   onSuccess: props.onSuccess,

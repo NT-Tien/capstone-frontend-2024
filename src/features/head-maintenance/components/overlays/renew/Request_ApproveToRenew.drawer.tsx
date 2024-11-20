@@ -15,6 +15,7 @@ type Query = {
 
 type Request_ApproveToRenewDrawerProps = {
    requestId?: string
+   isMultiple?: boolean
    onSuccess?: () => void
 }
 type Props = Omit<DrawerProps, "children"> & Request_ApproveToRenewDrawerProps
@@ -74,6 +75,7 @@ function Request_ApproveToRenewDrawer(props: Props) {
                   payload: {
                      deviceId: selectedMachineModel?.devices[0]?.id,
                      note: api_request.data.requester_note,
+                     isMultiple: props.isMultiple,
                   },
                },
                {

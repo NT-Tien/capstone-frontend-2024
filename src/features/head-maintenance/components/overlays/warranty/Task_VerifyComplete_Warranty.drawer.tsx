@@ -5,6 +5,9 @@ import ClickableArea from "@/components/ClickableArea"
 import SignatureUploader from "@/components/SignatureUploader"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import { clientEnv } from "@/env"
+import Request_ApproveToRenewDrawer, {
+   Request_ApproveToRenewDrawerProps,
+} from "@/features/head-maintenance/components/overlays/renew/Request_ApproveToRenew.drawer"
 import Request_ApproveToFixDrawer, {
    Request_ApproveToFixDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Request_ApproveToFix.drawer"
@@ -12,6 +15,7 @@ import IssueFailed_ResolveOptions, {
    IssueFailed_ResolveOptionsProps,
 } from "@/features/head-maintenance/components/overlays/warranty/IssueFailed_ResolveOptions.modal"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
+import hm_uris from "@/features/head-maintenance/uri"
 import {
    AssembleDeviceTypeErrorId,
    DisassembleDeviceTypeErrorId,
@@ -45,8 +49,10 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
 
    const control_issueFailedResolveOptionsDrawer = useRef<RefType<IssueFailed_ResolveOptionsProps>>(null)
    const control_requestApproveToFixDrawer = useRef<RefType<Request_ApproveToFixDrawerProps>>(null)
+   const control_requestApproveToRenewDrawer = useRef<RefType<Request_ApproveToRenewDrawerProps>>(null)
 
    const mutate_completeTask = head_maintenance_mutations.task.close()
+   const mutate_closeRequest = head_maintenance_mutations.request.finish()
 
    const sendWarrantyTask = useMemo(() => {
       if (!props.request) return
@@ -97,30 +103,7 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
                block
                type="primary"
                onClick={() => {
-                  control_issueFailedResolveOptionsDrawer.current?.handleOpen({
-                     showButtons: ["fix", "renew"],
-                     onChooseFix: () => {
-                        const taskId = props.task?.id
-                        if (!taskId || !props.request) return
-                        control_requestApproveToFixDrawer.current?.handleOpen({
-                           requestId: props.request.id,
-                           onSuccess: () => {
-                              mutate_completeTask.mutate(
-                                 {
-                                    id: taskId,
-                                 },
-                                 {
-                                    onSuccess: () => {
-                                       control_requestApproveToFixDrawer.current?.handleClose()
-                                       props.handleClose?.()
-                                       props.onSubmit?.()
-                                    },
-                                 },
-                              )
-                           },
-                        })
-                     },
-                  })
+                  control_issueFailedResolveOptionsDrawer.current?.handleOpen({})
                }}
                icon={<RightOutlined />}
                iconPosition="end"
@@ -137,10 +120,10 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
                block
                type="primary"
                onClick={() => {
-                  props.task &&
-                     mutate_completeTask.mutate(
+                  props.request &&
+                     mutate_closeRequest.mutate(
                         {
-                           id: props.task.id,
+                           id: props.request.id,
                         },
                         {
                            onSuccess: () => {
@@ -152,7 +135,19 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
             >
                Đóng yêu cầu
             </Button>
-            <Dropdown>
+            <Dropdown
+               menu={{
+                  items: [
+                     {
+                        key: "1",
+                        label: "Tiếp tục xử lý",
+                        onClick: () => {
+                           control_issueFailedResolveOptionsDrawer.current?.handleOpen({})
+                        },
+                     },
+                  ],
+               }}
+            >
                <Button icon={<MoreOutlined />} className="aspect-square" />
             </Dropdown>
          </div>
@@ -369,10 +364,53 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
             </section>
          </Drawer>
          <OverlayControllerWithRef ref={control_issueFailedResolveOptionsDrawer}>
-            <IssueFailed_ResolveOptions />
+            <IssueFailed_ResolveOptions
+               showButtons={["fix", "renew"]}
+               onChooseFix={() => {
+                  const taskId = props.task?.id
+                  if (!taskId || !props.request) return
+                  control_requestApproveToFixDrawer.current?.handleOpen({
+                     requestId: props.request.id,
+                     onSuccess: () => {
+                        mutate_completeTask.mutate(
+                           {
+                              id: taskId,
+                           },
+                           {
+                              onSettled: () => {
+                                 router.push(hm_uris.stack.requests_id_fix(props.request?.id ?? ""))
+                              },
+                           },
+                        )
+                     },
+                  })
+               }}
+               onChooseWarranty={() => {
+                  const taskId = props.task?.id
+                  if (!taskId || !props.request) return
+                  control_requestApproveToRenewDrawer.current?.handleOpen({
+                     requestId: props.request.id,
+                     onSuccess: () => {
+                        mutate_completeTask.mutate(
+                           {
+                              id: taskId,
+                           },
+                           {
+                              onSettled: () => {
+                                 router.push(hm_uris.stack.requests_id_renew(props.request?.id ?? ""))
+                              },
+                           },
+                        )
+                     },
+                  })
+               }}
+            />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_requestApproveToFixDrawer}>
-            <Request_ApproveToFixDrawer shouldNotUpdateRequest />
+            <Request_ApproveToFixDrawer isMultiple />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_requestApproveToRenewDrawer}>
+            <Request_ApproveToRenewDrawer isMultiple />
          </OverlayControllerWithRef>
       </>
    )

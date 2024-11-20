@@ -36,6 +36,7 @@ import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import TaskUtil from "@/lib/domain/Task/Task.util"
+import { cn } from "@/lib/utils/cn.util"
 import {
    BookOutlined,
    CheckOutlined,
@@ -45,8 +46,20 @@ import {
    UpOutlined,
    WarningOutlined,
 } from "@ant-design/icons"
-import { ChartDonut, Factory, FileText, ImageBroken, MapPin, SealWarning, Truck } from "@phosphor-icons/react"
-import { App, Button, Card, Descriptions, Drawer, DrawerProps, Dropdown, Image, Segmented } from "antd"
+import {
+   ChartDonut,
+   Factory,
+   FileDoc,
+   FileText,
+   Gavel,
+   ImageBroken,
+   MapPin,
+   Note,
+   SealWarning,
+   Truck,
+   XCircle,
+} from "@phosphor-icons/react"
+import { App, Button, Card, Descriptions, Divider, Drawer, DrawerProps, Dropdown, Image, Segmented } from "antd"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 
@@ -64,7 +77,7 @@ type Props = Omit<DrawerProps, "children"> &
    }
 
 function IssueViewDetails_WarrantyDrawer(props: Props) {
-   const { modal, message } = App.useApp()
+   const { modal } = App.useApp()
    const router = useRouter()
 
    const [showTypeErrorDescription, setShowTypeErrorDescription] = useState<boolean>(false)
@@ -182,135 +195,105 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
       >
          {props.issue && (
             <>
-               <Descriptions
-                  colon={false}
-                  contentStyle={{
-                     display: "flex",
-                     justifyContent: "end",
-                  }}
-                  items={[
-                     {
-                        label: (
-                           <div className={"flex items-center gap-1"}>
-                              <SealWarning size={18} weight={"fill"} />
-                              <span>Tên bước</span>
-                           </div>
-                        ),
-                        children: (
-                           <div className={"flex flex-col items-end text-right"}>
-                              <div className={"font-bold"} onClick={() => setShowTypeErrorDescription((prev) => !prev)}>
-                                 {props.issue.typeError.name}
-                                 <button>
-                                    {showTypeErrorDescription ? (
-                                       <UpOutlined className={"ml-2 text-xs"} />
-                                    ) : (
-                                       <DownOutlined className={"ml-2 text-xs"} />
-                                    )}
-                                 </button>
-                              </div>
-                              {showTypeErrorDescription ? (
-                                 <div className={"text-sm text-neutral-500"}>{props.issue.typeError.description}</div>
-                              ) : (
-                                 <div className={"w-48 truncate text-right text-sm text-neutral-500"}>
-                                    {props.issue.typeError.description}
-                                 </div>
-                              )}
-                           </div>
-                        ),
-                     },
-                     {
-                        label: (
-                           <div className={"flex items-center gap-1"}>
-                              <ChartDonut size={18} weight={"fill"} />
-                              <span>Trạng thái</span>
-                           </div>
-                        ),
-                        children: (
-                           <div className={IssueStatusEnumTagMapper[props.issue.status].className}>
-                              {IssueStatusEnumTagMapper[props.issue.status].text}
-                           </div>
-                        ),
-                     },
-                     {
-                        label: (
-                           <div className={"flex items-center gap-1"}>
-                              <Factory size={18} weight={"fill"} />
-                              <span>Nhà sản xuất</span>
-                           </div>
-                        ),
-                        children: props.machineModel?.manufacturer,
-                     },
-                     {
-                        label: (
-                           <div className={"flex items-center gap-1"}>
-                              <FileText size={18} weight={"fill"} />
-                              <span>Thông tin đính kèm</span>
-                           </div>
-                        ),
-                        children: props.issue.description || "-",
-                     },
-                     ...(props.issue.typeError.id === AssembleDeviceTypeErrorId
-                        ? [
-                             {
-                                label: (
-                                   <div className={"flex items-center gap-1"}>
-                                      <MapPin size={18} weight={"fill"} />
-                                      <span>Vị trí lắp đặt</span>
-                                   </div>
-                                ),
-                                children: (
-                                   <div>
-                                      {props.task?.device.area.name}{" "}
-                                      {props.task?.device.positionX && props.task?.device.positionY
-                                         ? `(${props.task?.device.positionX}, ${props.task?.device.positionY})`
-                                         : ""}
-                                   </div>
-                                ),
-                             },
-                          ]
-                        : []),
-                     {
-                        label: (
-                           <div className={"flex items-center gap-1"}>
-                              <Truck size={18} weight={"fill"} />
-                              <span>Điều khoản bảo hành</span>
-                           </div>
-                        ),
-                        children: (
-                           <Card
-                              className={"mt-2 w-full border-[1px] border-orange-500 text-neutral-500"}
-                              size={"small"}
-                              onClick={() => {
-                                 modal.info({
-                                    title: "Điều khoản bảo hành",
-                                    content: <div>{props.machineModel?.description}</div>,
-                                    centered: true,
-                                    maskClosable: true,
-                                    closable: true,
-                                    footer: false,
-                                    height: "90%",
-                                 })
-                              }}
-                           >
-                              <div className="line-clamp-3 h-full w-full">{props.machineModel?.description}</div>
-                           </Card>
-                        ),
-                        className: "*:flex-col",
-                     },
-                  ]}
-               />
+               <div className="text-base">
+                  <section className="pb-3">
+                     <div className="flex">
+                        <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                           <SealWarning size={16} weight={"fill"} />
+                           {props.issue.typeError.name}
+                        </h2>
+                        <div className={cn(IssueStatusEnumTagMapper[props.issue.status].className, "text-sm")}>
+                           {IssueStatusEnumTagMapper[props.issue.status].text}
+                        </div>
+                     </div>
+                     <p className="text-sm text-neutral-500">{props.issue.typeError.description}</p>
+                  </section>
+                  <Divider className="m-0" />
+                  <section className="flex py-3">
+                     <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                        <Factory size={16} weight={"fill"} />
+                        Nhà sản xuất
+                     </h2>
+                     <p className="text-sm text-neutral-500">{props.machineModel?.manufacturer}</p>
+                  </section>
+                  {props.issue.typeError.id === AssembleDeviceTypeErrorId && (
+                     <>
+                        <Divider className="m-0" />
+                        <section className="flex py-3">
+                           <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                              <MapPin size={16} weight={"fill"} />
+                              Vị trí lắp đặt
+                           </h2>
+                           <p className="text-sm text-neutral-500">
+                              {props.task?.device?.area?.name}{" "}
+                              {props.task?.device.positionX && props.task?.device.positionY
+                                 ? `(${props.task?.device.positionX}, ${props.task?.device.positionY})`
+                                 : ""}
+                           </p>
+                        </section>
+                     </>
+                  )}
+                  {props.issue.description && (
+                     <>
+                        <Divider className="m-0" />
+                        <section className="py-3">
+                           <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                              <Note size={16} weight={"fill"} />
+                              Thông tin đính kèm
+                           </h2>
+                           <p className="text-sm text-neutral-500">{props.issue.description}</p>
+                        </section>
+                     </>
+                  )}
+                  <Divider className="m-0" />
+                  <section className="flex flex-col py-3">
+                     <h3 className="flex items-center gap-1.5 font-medium">
+                        <Gavel size={16} weight="fill" />
+                        Điều khoản bảo hành
+                     </h3>
+                     <p className="ml-6 mt-1 line-clamp-2 text-neutral-700">
+                        {props.task?.device.machineModel.description}
+                     </p>
+                     <a
+                        className="ml-6 font-medium text-black underline underline-offset-2"
+                        onClick={() => {
+                           modal.info({
+                              title: "Điều khoản bảo hành",
+                              content: <div>{props.task?.device.machineModel.description}</div>,
+                              centered: true,
+                              maskClosable: true,
+                              closable: true,
+                              footer: false,
+                              height: "90%",
+                           })
+                        }}
+                     >
+                        Xem thêm
+                     </a>
+                  </section>
+               </div>
                {props.issue.status === IssueStatusEnum.FAILED && (
-                  <Card
-                     size={"small"}
-                     className={"mt-layout bg-red-500 text-white"}
-                     title={<div className="w-full text-center text-white">Lý do thất bại</div>}
-                  >
-                     {props.issue.failReason}
-                  </Card>
+                  <section>
+                     <h3 className="flex items-center gap-1.5 font-medium text-red-500">
+                        <XCircle size={16} weight="fill" />
+                        Lý do thất bại
+                     </h3>
+                     <p className='text-sm text-red-400'>{props.issue.failReason}</p>
+                  </section>
+                  // <Card
+                  //    size={"small"}
+                  //    className={"mt-layout bg-red-500 text-white"}
+                  //    title={<div className="w-full text-center text-white">Lý do thất bại</div>}
+                  // >
+                  //    {props.issue.failReason}
+                  // </Card>
                )}
 
                {props.issue.typeError.id === ReceiveWarrantyTypeErrorId && props.request && (
-                  <SendWarrantyReceipt request={props.request} />
+                  <>
+                     <Divider className="m-0" />
+                     <SendWarrantyReceipt className="py-3" request={props.request} />
+                  </>
                )}
             </>
          )}
@@ -375,7 +358,7 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
    )
 }
 
-function SendWarrantyReceipt(props: { request: RequestDto }) {
+function SendWarrantyReceipt(props: { request: RequestDto; className?: string }) {
    const sendWarrantyTask = props.request.tasks.find((task) => TaskUtil.isTask_Warranty(task, "send", true))
 
    if (!sendWarrantyTask) return null
@@ -385,9 +368,12 @@ function SendWarrantyReceipt(props: { request: RequestDto }) {
    if (!sendWarrantyIssue) return null
 
    return (
-      <section className="mt-layout">
+      <section className={props.className}>
          <header className="">
-            <h3 className="text-base font-semibold">Biên nhận bảo hành</h3>
+            <h3 className="flex items-center gap-1.5 text-base font-semibold">
+               <FileDoc size={16} weight="fill" />
+               Biên nhận bảo hành
+            </h3>
             <p className="font-base text-sm text-neutral-500">Thông tin biên nhận sau khi gửi bảo hành</p>
          </header>
          <div className="mt-2 grid grid-cols-4 gap-3">

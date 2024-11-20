@@ -9,7 +9,7 @@ type Props = {
    validationFn: (data: string) => Promise<boolean>
    defaultScanned?: boolean
    onSuccess?: (data: string) => void
-   onError?: (error: any) => void
+   onError?: (error: unknown) => void
    showMessages?: boolean
    messages?: {
       success?: string

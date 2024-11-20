@@ -5,6 +5,9 @@ import ImageUploader from "@/components/ImageUploader"
 import ViewMapModal, { ViewMapModalProps } from "@/components/overlays/ViewMap.modal"
 import SignatureUploader from "@/components/SignatureUploader"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import Request_ApproveToRenewDrawer, {
+   Request_ApproveToRenewDrawerProps,
+} from "@/features/head-maintenance/components/overlays/renew/Request_ApproveToRenew.drawer"
 import Request_ApproveToFixDrawer, {
    Request_ApproveToFixDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Request_ApproveToFix.drawer"
@@ -16,6 +19,7 @@ import IssueFailed_ResolveOptions, {
 } from "@/features/head-maintenance/components/overlays/warranty/IssueFailed_ResolveOptions.modal"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
+import hm_uris from "@/features/head-maintenance/uri"
 import {
    AssembleDeviceTypeErrorId,
    DisassembleDeviceTypeErrorId,
@@ -29,6 +33,7 @@ import { CloseOutlined, EditOutlined, MoreOutlined, RightOutlined } from "@ant-d
 import { ChartDonut, IdentificationCard, MapPin, Note } from "@phosphor-icons/react"
 import { Button, ConfigProvider, Descriptions, Divider, Drawer, DrawerProps, Typography } from "antd"
 import dayjs from "dayjs"
+import { useRouter } from "next/navigation"
 import { useRef } from "react"
 
 type Issue_ViewDetails_WarrantyDrawerProps = {
@@ -42,6 +47,7 @@ type Props = Omit<DrawerProps, "children"> &
    }
 
 function Issue_ViewDetails_WarrantyDrawer(props: Props) {
+   const router = useRouter()
    const api_issue = head_maintenance_queries.issue.one(
       {
          id: props.issueId ?? "",
@@ -52,11 +58,13 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
    )
 
    const mutate_detatchIssueAndRecreateTask = head_maintenance_mutations.issue.detatchAndRecreateTaskWarranty()
+   const mutate_requestWarrantyFailed = head_maintenance_mutations.request.warrantyFailed()
 
    const control_taskAssignFixerDrawer = useRef<RefType<Task_AssignFixerModalProps>>(null)
    const control_viewMapModal = useRef<RefType<ViewMapModalProps>>(null)
    const control_issueFailedResolveOptionsModal = useRef<RefType<IssueFailed_ResolveOptionsProps>>(null)
    const control_requestApproveFixDrawer = useRef<RefType<Request_ApproveToFixDrawerProps>>(null)
+   const control_requestApproveRenewDrawer = useRef<RefType<Request_ApproveToRenewDrawerProps>>(null)
 
    function Footer() {
       // failure states
@@ -133,7 +141,9 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
                         Đổi ngày nhận máy
                      </Button>
                   )
-               } else if(api_issue.data.failReason?.includes(WarrantyFailedReasonsList.WARRANTY_REJECTED_AFTER_PROCESS)) {
+               } else if (
+                  api_issue.data.failReason?.includes(WarrantyFailedReasonsList.WARRANTY_REJECTED_AFTER_PROCESS)
+               ) {
                   return undefined
                } else {
                   return (
@@ -401,14 +411,45 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
                onChooseFix={() => {
                   props.requestId && control_requestApproveFixDrawer.current?.handleOpen({ requestId: props.requestId })
                }}
+               onChooseRenew={() => {
+                  props.requestId &&
+                     control_requestApproveRenewDrawer.current?.handleOpen({ requestId: props.requestId })
+               }}
             />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_requestApproveFixDrawer}>
             <Request_ApproveToFixDrawer
+               isMultiple={true}
+               onSuccess={async () => {
+                  if (!props.requestId) return
+                  mutate_requestWarrantyFailed.mutate(
+                     {
+                        id: props.requestId,
+                     },
+                     {
+                        onSettled: () => {
+                           router.push(hm_uris.stack.requests_id_fix(props.requestId ?? ""))
+                        },
+                     },
+                  )
+               }}
+            />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_requestApproveRenewDrawer}>
+            <Request_ApproveToRenewDrawer
+               isMultiple={true}
                onSuccess={() => {
-                  control_requestApproveFixDrawer.current?.handleClose()
-                  props.refetchFn?.()
-                  props.handleClose?.()
+                  if (!props.requestId) return
+                  mutate_requestWarrantyFailed.mutate(
+                     {
+                        id: props.requestId,
+                     },
+                     {
+                        onSettled: () => {
+                           router.push(hm_uris.stack.requests_id_renew(props.requestId ?? ""))
+                        },
+                     },
+                  )
                }}
             />
          </OverlayControllerWithRef>

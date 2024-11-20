@@ -10,7 +10,7 @@ import TaskUtil from "@/lib/domain/Task/Task.util"
 import { cn } from "@/lib/utils/cn.util"
 import generateAvatarData from "@/lib/utils/generateAvatarData.util"
 import { RightOutlined } from "@ant-design/icons"
-import { CalendarBlank, CheckSquare, MapPinArea, Pen, Swap, Truck, Warning } from "@phosphor-icons/react"
+import { CalendarBlank, CheckSquare, MapPinArea, Pen, Swap, Truck, Warning, Wrench } from "@phosphor-icons/react"
 import { Avatar, Divider, List, Progress, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
@@ -57,10 +57,16 @@ function RequestList(props: Props) {
             const avatarData = generateAvatarData(item.device.machineModel.name)
             const percentFinished =
                Math.floor(
-                  item.issues.filter((i) => i.status === IssueStatusEnum.RESOLVED).length / item.issues.length,
+                  item.issues.filter(
+                     (i) => i.status === IssueStatusEnum.RESOLVED || i.status === IssueStatusEnum.CANCELLED,
+                  ).length / item.issues.length,
                ) * 100
+
+            const percentFailed =
+               Math.floor(item.issues.filter((i) => i.status === IssueStatusEnum.FAILED).length / item.issues.length) *
+               100
             return (
-               <ClickableArea className='block w-full' onClick={() => handleGotoDetails(item)}>
+               <ClickableArea className="block w-full" onClick={() => handleGotoDetails(item)}>
                   <List.Item
                      className={cn(
                         "w-full px-layout",
@@ -98,7 +104,7 @@ function RequestList(props: Props) {
                                  {
                                     value: (
                                        <>
-                                          {item.device.area?.name}{" "}
+                                          {item.device?.area?.name}{" "}
                                           {item.device.positionX && item.device.positionY
                                              ? `(${item.device.positionX}, ${item.device.positionY})`
                                              : ""}
@@ -122,6 +128,12 @@ function RequestList(props: Props) {
                                     value: "Thay máy",
                                     hidden: !item.is_rennew,
                                     className: "text-purple-500",
+                                 },
+                                 {
+                                    icon: <Wrench size={16} weight="duotone" />,
+                                    value: "Sửa chữa",
+                                    hidden: !item.is_fix,
+                                    className: "text-blue-500",
                                  },
                                  {
                                     value: `${item.issues?.length ?? 0} lỗi`,
@@ -162,7 +174,13 @@ function RequestList(props: Props) {
                               cols={2}
                            />
                            {item.status === FixRequestStatus.IN_PROGRESS && (
-                              <Progress percent={percentFinished} size={"small"} className={"mt-1 pr-2"} />
+                              <Progress
+                                 percent={percentFailed}
+                                 strokeColor={"rgb(112, 0, 0)"}
+                                 success={{ percent: percentFinished, strokeColor: "rgb(3, 83, 18)" }}
+                                 size={"small"}
+                                 className={"mt-1 pr-2"}
+                              />
                            )}
                         </div>
                         <RightOutlined className="pb-1 text-xs text-neutral-500" />

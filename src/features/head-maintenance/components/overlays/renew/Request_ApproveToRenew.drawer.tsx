@@ -161,8 +161,8 @@ function Request_ApproveToRenewDrawer(props: Props) {
                            key={mm.id}
                            cover={
                               <BackendImage
-                                 src={"0a926957-2018-42e4-881f-1e64bcf63579.jpeg"}
-                                 alt={mm.name}
+                                 src={mm.image}
+                                 alt={mm.image}
                                  rootClassName="w-full h-32"
                                  wrapperClassName="w-full h-32"
                                  className="h-32 w-full rounded-t-lg object-cover"

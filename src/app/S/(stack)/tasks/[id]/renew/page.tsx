@@ -27,12 +27,13 @@ import IssueViewDetails_RenewDrawer, {
 import ReturnRemovedDevice, {
    ReturnRemovedDeviceProps,
 } from "@/features/staff/components/overlays/renew/ReturnRemovedDevice.drawer"
+import FinishRenewTaskDrawer, { FinishRenewTaskDrawerProps } from "@/features/staff/components/overlays/renew/FinishRenewTask.drawer"
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
 
    const control_issueViewDetails_RenewDrawer = useRef<RefType<IssueViewDetails_RenewDrawerProps>>(null)
-   const control_finishTaskDrawer = useRef<RefType<FinishTaskDrawerProps>>(null)
+   const control_finishRenewTaskDrawer = useRef<RefType<FinishRenewTaskDrawerProps>>(null)
    const control_returnRemovedDeviceDrawer = useRef<RefType<ReturnRemovedDeviceProps>>(null)
 
    const api_task = staff_queries.task.one({ id: params.id })
@@ -277,7 +278,7 @@ function Page({ params }: { params: { id: string } }) {
                         size="large"
                         onClick={() =>
                            api_task.isSuccess &&
-                           control_finishTaskDrawer.current?.handleOpen({
+                           control_finishRenewTaskDrawer.current?.handleOpen({
                               task: api_task.data,
                            })
                         }
@@ -291,8 +292,8 @@ function Page({ params }: { params: { id: string } }) {
          <OverlayControllerWithRef ref={control_issueViewDetails_RenewDrawer}>
             <IssueViewDetails_RenewDrawer refetchFn={api_task.refetch} />
          </OverlayControllerWithRef>
-         <OverlayControllerWithRef ref={control_finishTaskDrawer}>
-            <FinishTaskDrawer
+         <OverlayControllerWithRef ref={control_finishRenewTaskDrawer}>
+            <FinishRenewTaskDrawer
                onSuccess={() => router.push(staff_uri.navbar.tasks + `?completed=${api_task.data?.name}`)}
             />
          </OverlayControllerWithRef>

@@ -66,7 +66,7 @@ function RequestList(props: Props) {
                Math.floor(item.issues.filter((i) => i.status === IssueStatusEnum.FAILED).length / item.issues.length) *
                100
             return (
-               <ClickableArea className="block w-full" onClick={() => handleGotoDetails(item)}>
+               <ClickableArea className="block w-full" reset onClick={() => handleGotoDetails(item)}>
                   <List.Item
                      className={cn(
                         "w-full px-layout",

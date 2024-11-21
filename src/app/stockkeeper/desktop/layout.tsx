@@ -103,6 +103,24 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                   ],
                },
                {
+                  key: "forms",
+                  name: "Thủ tục",
+                  children: [
+                     {
+                        key: "import",
+                        name: "Đơn nhập kho",
+                        icon: <ImportOutlined />,
+                        path: "/stockkeeper/desktop/spare-parts/import",
+                     },
+                     {
+                        key: "export",
+                        name: "Đơn xuất kho",
+                        icon: <FileTextOutlined />,
+                        path: "/stockkeeper/desktop/spare-parts/export",
+                     },
+                  ],
+               },
+               {
                   key: "spare-part",
                   name: "Linh kiện",
                   children: [
@@ -117,18 +135,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         name: "Linh kiện thiếu",
                         icon: <ApiOutlined />,
                         path: "/stockkeeper/desktop/spare-parts/missing",
-                     },
-                     {
-                        key: "import",
-                        name: "Nhập linh kiện",
-                        icon: <ImportOutlined />,
-                        path: "/stockkeeper/desktop/spare-parts/import",
-                     },
-                     {
-                        key: "export",
-                        name: "Đơn xuất kho",
-                        icon: <FileTextOutlined />,
-                        path: "/stockkeeper/desktop/spare-parts/export",
                      },
                   ],
                },

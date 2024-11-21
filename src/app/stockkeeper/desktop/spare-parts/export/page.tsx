@@ -1,11 +1,11 @@
 "use client"
 
-import { PageContainer } from "@ant-design/pro-components"
+import { PageContainer, ProTable } from "@ant-design/pro-components"
 import stockkeeper_queries from "@/features/stockkeeper/queries"
 import { ExportStatus } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
 import { useMemo, useRef, useState } from "react"
 import { Button, Table } from "antd"
-import dayjs from "dayjs"
+import dayjs, { Dayjs } from "dayjs"
 import { ExportType } from "@/lib/domain/ExportWarehouse/ExportType.enum"
 import { EyeOutlined } from "@ant-design/icons"
 import ExportWarehouse_ViewDetailsDrawer, {
@@ -16,6 +16,16 @@ import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayCon
 type Query = {
    page: number
    pageSize: number
+   filters?: {
+      task?: {
+         fixerDate?: Dayjs
+         name?: string
+         fixer?: {
+            username?: string
+         }
+      }
+      export_type?: ExportType
+   }
 }
 
 function Page() {
@@ -35,13 +45,31 @@ function Page() {
       let list = api_exports.data
 
       list = list.filter((item) => {
-         return item.status === tab
+         if (item.status !== tab) return false
+
+         let result = true
+
+         if (query.filters?.task?.fixerDate) {
+            result = result && dayjs(item.task.fixerDate).isSame(query.filters.task.fixerDate, "day")
+         }
+
+         if (query.filters?.task?.name) {
+            result = result && item.task.name.includes(query.filters.task.name)
+         }
+
+         if (query.filters?.export_type) {
+            result = result && item.export_type === query.filters.export_type
+         }
+
+         if (query.filters?.task?.fixer?.username) {
+            result = result && item.task.fixer.username.includes(query.filters.task.fixer.username)
+         }
+
+         return result
       })
 
       return { list: list.slice(query.page * query.pageSize, (query.page + 1) * query.pageSize), total: list.length }
    }, [api_exports.data, api_exports.isSuccess, query, tab])
-
-   console.log(renderData)
 
    const statusCounts = useMemo(() => {
       if (!api_exports.isSuccess) return
@@ -95,7 +123,7 @@ function Page() {
             },
          ]}
       >
-         <Table
+         <ProTable
             dataSource={renderData?.list}
             pagination={{
                pageSize: 10,
@@ -103,6 +131,26 @@ function Page() {
                   setQuery({ page, pageSize })
                },
                total: renderData?.total,
+            }}
+            search={{
+               layout: "vertical",
+            }}
+            onReset={() => {
+               setQuery({
+                  page: 0,
+                  pageSize: 10,
+               })
+            }}
+            onSubmit={(query) => {
+               console.log(query)
+
+               setQuery({
+                  page: 0,
+                  pageSize: 10,
+                  filters: {
+                     ...query,
+                  },
+               })
             }}
             loading={api_exports.isPending}
             columns={[
@@ -112,45 +160,57 @@ function Page() {
                   align: "center",
                   fixed: "left",
                   render: (value, record, index) => index + 1,
+                  hideInSearch: true,
                },
                {
-                  title: "Ngày tạo",
-                  dataIndex: "createdAt",
-                  render: (_, e) => dayjs(e.createdAt).format("DD/MM/YYYY"),
+                  title: "Ngày sửa chữa",
+                  dataIndex: ["task", "fixerDate"],
+                  render: (_, e) => (dayjs(e.fixerDate).isValid() ? dayjs(e.fixerDate).format("DD/MM/YYYY") : "-"),
                   width: 150,
+                  valueType: "date",
                },
                {
-                  title: "Xuất",
+                  title: "Loại xuất",
                   dataIndex: "export_type",
-                  render: (value) => {
-                     return value === ExportType.SPARE_PART ? "Linh kiện" : "Thiết bị"
-                  },
+                  align: "center",
                   width: 150,
+                  valueType: "select",
+                  valueEnum: {
+                     [ExportType.SPARE_PART]: { text: "Linh kiện" },
+                     [ExportType.DEVICE]: { text: "Thiết bị" },
+                  },
                },
                {
                   title: "Tác vụ",
+                  dataIndex: ["task", "name"],
                   render: (_, e) => e.task.name,
                   width: 400,
+               },
+               {
+                  title: "Nhân viên",
+                  dataIndex: ["task", "fixer", "username"],
                },
                {
                   title: "Số lượng xuất",
                   render: (_, e) => {
                      if (e.export_type === ExportType.SPARE_PART) {
-                        return e.detail.reduce((count, item) => {
+                        return e.detail.reduce((count: any, item: any) => {
                            if ("issueSpareParts" in item && item.issueSpareParts) {
-                              count += item.issueSpareParts.length;
+                              count += item.issueSpareParts.length
                            }
-                           return count;
-                        }, 0);
+                           return count
+                        }, 0)
                      } else if (e.export_type === ExportType.DEVICE) {
-                        return e?.task.export_warehouse_ticket?.length || 0;
+                        return 1
                      }
-                     return 0;
+                     return 0
                   },
                   width: 150,
-               },               
+                  hideInSearch: true,
+               },
                {
                   title: "",
+                  hideInSearch: true,
                   fixed: "right",
                   align: "right",
                   render: (_, e) => {

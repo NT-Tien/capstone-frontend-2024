@@ -72,7 +72,7 @@ function Page() {
                type={"primary"}
                className={cn(
                   "block h-24 shadow-md p-3",
-                  tab === "request" ? "border-4 border-green-400 bg-green-200" : "bg-neutral-50",
+                  tab === "request" ? "border-2 border-red-700 bg-red-200" : "bg-neutral-50",
                )}
                onClick={() => setTab("request")}
             >
@@ -82,7 +82,7 @@ function Page() {
                type={"primary"}
                className={cn(
                   "block h-24 shadow-md p-3",
-                  tab === "task" ? "border-4 border-green-400 bg-green-200" : "bg-neutral-50",
+                  tab === "task" ? "border-2 border-red-700 bg-red-200" : "bg-neutral-50",
                )}
                onClick={() => setTab("task")}
             >

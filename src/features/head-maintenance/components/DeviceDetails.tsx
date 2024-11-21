@@ -6,7 +6,7 @@ import RequestStatus_Mapper from "@/lib/domain/Request/RequestStatusMapperV2"
 import { cn } from "@/lib/utils/cn.util"
 import { CalendarPlus, CaretRight, ClockCounterClockwise, MapPin, Truck } from "@phosphor-icons/react"
 import { UseQueryResult } from "@tanstack/react-query"
-import { Button, Card, CardProps, Divider, Space, Spin, Typography } from "antd"
+import { Button, Card, CardProps, Divider, Image, Space, Spin, Typography } from "antd"
 import dayjs from "dayjs"
 import { HTMLAttributes } from "react"
 
@@ -39,7 +39,8 @@ function DeviceDetails(props: Props) {
    return (
       <Card size="small" {...props}>
          <section className="h-36 w-full rounded-lg border-[1px] border-red-800">
-            <BackendLocalImage
+            <Image
+               alt="device-image"
                src={props.device.machineModel.image}
                className="h-full w-full object-contain"
                rootClassName="w-full h-full"
@@ -52,7 +53,12 @@ function DeviceDetails(props: Props) {
             <h2 className="text-lg font-semibold">{props.device.machineModel.name}</h2>
          </header>
          <section className="mt-1">
-            <Typography.Paragraph ellipsis={{rows: 3, expandable: true, symbol: "Xem thêm"}} className="text-sm text-neutral-500">{props.device.description}</Typography.Paragraph>
+            <Typography.Paragraph
+               ellipsis={{ rows: 3, expandable: true, symbol: "Xem thêm" }}
+               className="text-sm text-neutral-500"
+            >
+               {props.device.description}
+            </Typography.Paragraph>
          </section>
          <section className="mt-4 *:text-sm">
             <Divider className="m-0" />
@@ -62,7 +68,8 @@ function DeviceDetails(props: Props) {
                   Vị trí
                </h3>
                <p className="ml-auto text-neutral-600">
-                  Khu vực {props.device?.area?.name ?? "-"} ({props.device?.positionX ?? "-"},{props.device?.positionY ?? "-"})
+                  Khu vực {props.device?.area?.name ?? "-"} ({props.device?.positionX ?? "-"},
+                  {props.device?.positionY ?? "-"})
                   <CaretRight size={14} weight="regular" className="ml-1 inline" />
                </p>
             </ClickableArea>

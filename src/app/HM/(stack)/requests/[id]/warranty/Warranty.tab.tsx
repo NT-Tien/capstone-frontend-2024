@@ -335,7 +335,7 @@ function WarrantyTab(props: Props) {
                         {
                            title: (
                               <div className={"flex w-full items-center"}>
-                                 <div className={"flex-grow text-base font-bold"}>Nhận mày và lắp đặt</div>
+                                 <div className={"flex-grow text-base font-bold"}>Nhận máy và lắp đặt</div>
                                  <Dropdown
                                     autoFocus
                                     menu={{

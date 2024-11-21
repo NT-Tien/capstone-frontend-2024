@@ -5,7 +5,7 @@ import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import { cn } from "@/lib/utils/cn.util"
 import { CloseOutlined, MoreOutlined, SearchOutlined } from "@ant-design/icons"
 import { DeviceTablet, Factory, Swap } from "@phosphor-icons/react"
-import { App, Button, Card, Divider, Drawer, DrawerProps, Input, Radio, Space, Spin } from "antd"
+import { App, Button, Card, Divider, Drawer, DrawerProps, Image, Input, Radio, Space, Spin } from "antd"
 import { useMemo, useState } from "react"
 
 type Query = {
@@ -160,8 +160,8 @@ function Request_ApproveToRenewDrawer(props: Props) {
                         <Card
                            key={mm.id}
                            cover={
-                              <BackendImage
-                                 src={"0a926957-2018-42e4-881f-1e64bcf63579.jpeg"}
+                              <Image
+                                 src={mm.image}
                                  alt={mm.name}
                                  rootClassName="w-full h-32"
                                  wrapperClassName="w-full h-32"

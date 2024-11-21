@@ -24,12 +24,12 @@ const typeVariants = cva("", {
       },
       bgLight: {
          head_department: "bg-blue-50",
-         head_maintenance: "bg-purple-50",
+         head_maintenance: "bg-red-50",
          staff: "bg-yellow-50",
       },
       text: {
          head_department: "text-blue-500",
-         head_maintenance: "text-purple-500",
+         head_maintenance: "text-red-500",
          staff: "text-yellow-500",
       },
    },

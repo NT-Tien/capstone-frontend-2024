@@ -296,7 +296,7 @@ function Page({ params }: { params: { id: string } }) {
                )}
             </section>
             <footer className={"absolute bottom-0 left-0 w-full bg-white p-layout shadow-fb"}>
-               {hasResolvedAllIssues && (
+               {hasDoneAllIssues && (
                   <Button
                      block
                      type={"primary"}

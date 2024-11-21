@@ -44,7 +44,7 @@ const QrCodeDisplayForRenewModal = forwardRef<QrCodeDisplayForRenewModalRefType,
    const createSignatureDrawerRef = useRef<CreateSignatureDrawerRefType | null>(null)
 
    function handleCompleteSpareParts() {
-      createSignatureDrawerRef.current?.handleClose()
+      // createSignatureDrawerRef.current?.handleClose()
       handleClose()
       props.onComplete?.()
       setTimeout(() => {
@@ -81,7 +81,7 @@ const QrCodeDisplayForRenewModal = forwardRef<QrCodeDisplayForRenewModalRefType,
                      className="w-full"
                      size="large"
                      type="primary"
-                     onClick={() => createSignatureDrawerRef.current?.handleOpen()}
+                     onClick={handleCompleteSpareParts}
                   >
                      Hoàn tất
                   </Button>

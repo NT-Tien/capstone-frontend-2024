@@ -136,16 +136,6 @@ function RequestList(props: Props) {
                                     className: "text-blue-500",
                                  },
                                  {
-                                    value: `${item.issues?.length ?? 0} lỗi`,
-                                    icon: <Warning size={16} weight={"duotone"} />,
-                                    hidden:
-                                       !new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS]).has(
-                                          item.status,
-                                       ) ||
-                                       item.is_warranty ||
-                                       item.is_rennew,
-                                 },
-                                 {
                                     value: `Lý do: ${item.checker_note ?? "-"}`,
                                     icon: <Warning size={16} weight={"duotone"} />,
                                     hidden: !new Set([FixRequestStatus.REJECTED]).has(item.status),

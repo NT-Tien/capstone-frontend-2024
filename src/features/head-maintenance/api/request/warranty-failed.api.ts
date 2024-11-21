@@ -10,7 +10,7 @@ export type Request = {
 } & AuthTokenWrapper
 export type Response = RequestDto
 
-HeadStaff_Request_WarrantyFailed.URL = (req: Request) => `/head-staff/request/warranty-failed${req.id}`
+HeadStaff_Request_WarrantyFailed.URL = (req: Request) => `/head-staff/request/warranty-failed/${req.id}`
 export default async function HeadStaff_Request_WarrantyFailed(req: Request): Promise<Response> {
    return api
       .put<Response>(HeadStaff_Request_WarrantyFailed.URL(req), undefined, {

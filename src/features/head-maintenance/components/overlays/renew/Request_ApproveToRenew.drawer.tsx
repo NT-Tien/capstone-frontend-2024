@@ -171,7 +171,7 @@ function Request_ApproveToRenewDrawer(props: Props) {
                            }
                            className={cn(
                               "relative w-full rounded-lg bg-neutral-100",
-                              selectedMachineModel?.id === mm.id && "bg-green-100",
+                              selectedMachineModel?.id === mm.id && "bg-red-200",
                            )}
                            classNames={{
                               body: "px-2 py-4",

@@ -20,12 +20,20 @@ import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import headstaff_qk from "@/features/head-maintenance/qk"
 import hm_uris from "@/features/head-maintenance/uri"
 import { SystemRenewTypeErrorIds } from "@/lib/constants/Renew"
+import {
+   SendWarrantyTypeErrorId,
+   DisassembleDeviceTypeErrorId,
+   ReceiveWarrantyTypeErrorId,
+   AssembleDeviceTypeErrorId,
+} from "@/lib/constants/Warranty"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
+import TaskUtil from "@/lib/domain/Task/Task.util"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
 import { cn } from "@/lib/utils/cn.util"
-import { DownOutlined, UpOutlined } from "@ant-design/icons"
+import { DownOutlined, InfoCircleFilled, UpOutlined } from "@ant-design/icons"
 import { Calendar, ChartDonut, Note, Swap, User, Wrench } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
 import { App, ConfigProvider, Descriptions, Dropdown, Typography } from "antd"
@@ -36,7 +44,7 @@ import Spin from "antd/es/spin"
 import Tag from "antd/es/tag"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import { Suspense, useRef } from "react"
+import { Suspense, useMemo, useRef } from "react"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
@@ -71,6 +79,44 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       select: (data) => data.requests.filter((req) => req.id !== params.id),
       enabled: api_request.isSuccess,
    })
+
+   const sendWarrantyTask = useMemo(() => {
+      if (!api_request.isSuccess) return
+
+      return api_request.data.tasks
+         .filter((t) =>
+            t.issues.find(
+               (i) => i.typeError.id === SendWarrantyTypeErrorId || i.typeError.id === DisassembleDeviceTypeErrorId,
+            ),
+         )
+         .sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))[0]
+   }, [api_request.data?.tasks, api_request.isSuccess])
+
+   const receiveWarrantyTask = useMemo(() => {
+      if (!api_request.isSuccess) return
+
+      return api_request.data.tasks
+         .filter((t) =>
+            t.issues.find(
+               (i) => i.typeError.id === ReceiveWarrantyTypeErrorId || i.typeError.id === AssembleDeviceTypeErrorId,
+            ),
+         )
+         .sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))[0]
+   }, [api_request.data?.tasks, api_request.isSuccess])
+
+   const warrantyIssues = useMemo(() => {
+      const disassemble = TaskUtil.getTask_Warranty_FirstIssue(sendWarrantyTask)
+      const send = TaskUtil.getTask_Warranty_SecondIssue(sendWarrantyTask)
+      const receive = TaskUtil.getTask_Warranty_FirstIssue(receiveWarrantyTask)
+      const assemble = TaskUtil.getTask_Warranty_SecondIssue(receiveWarrantyTask)
+
+      return {
+         disassemble,
+         send,
+         receive,
+         assemble,
+      }
+   }, [receiveWarrantyTask, sendWarrantyTask])
 
    if (api_request.isPending) {
       return <PageLoader />
@@ -254,6 +300,31 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                   </div>
                </section>
             )}
+            {sendWarrantyTask?.status === TaskStatus.COMPLETED &&
+               warrantyIssues.receive?.status === IssueStatusEnum.PENDING && (
+                  <div className="mt-2 flex w-full gap-3 rounded-lg bg-red-900 p-3 text-white shadow-lg">
+                     <div className="flex-shrink-0">
+                        <InfoCircleFilled />
+                     </div>
+                     <div>
+                        Thiết bị dự tính sẽ bảo hành xong vào{" "}
+                        <strong>{dayjs(api_request.data.return_date_warranty).format("DD/MM/YYYY")}</strong>
+                     </div>
+                  </div>
+               )}
+            {sendWarrantyTask?.status === TaskStatus.COMPLETED &&
+               (warrantyIssues.receive?.status === IssueStatusEnum.RESOLVED ||
+                  warrantyIssues.receive?.status === IssueStatusEnum.FAILED) && (
+                  <div className="mt-2 flex w-full gap-3 rounded-lg bg-red-900 p-3 text-white shadow-lg">
+                     <div className="flex-shrink-0">
+                        <InfoCircleFilled />
+                     </div>
+                     <div>
+                        Thiết bị đã được nhận từ trung tâm bảo hành vào{" "}
+                        <strong>{dayjs(receiveWarrantyTask?.fixerDate).format("DD/MM/YYYY")}</strong>
+                     </div>
+                  </div>
+               )}
          </div>
 
          <Suspense fallback={<Spin />}>

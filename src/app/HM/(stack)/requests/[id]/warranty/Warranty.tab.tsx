@@ -141,29 +141,8 @@ function WarrantyTab(props: Props) {
       })
    }
 
-   function handleTaskClick(task?: TaskDto) {
-      if (task?.status === TaskStatus.AWAITING_FIXER) {
-         control_taskAssignFixerDrawer.current?.handleOpen({
-            disabledAssignProps: {
-               label: "Chọn nhân viên",
-               icon: <UserOutlined />,
-               enabledContent: "Tự động",
-               disabledContent: "Thủ công",
-               defaultEnabled: true,
-            },
-            taskId: task?.id,
-            defaults: {
-               date: task?.fixerDate ? new Date(task.fixerDate) : undefined,
-               priority: task?.priority ? "priority" : "normal",
-               fixer: task?.fixer,
-            },
-            recommendedFixerIds: [task.fixer?.id],
-         })
-      }
-   }
-
    return (
-      <section className={cn("flex-1 pb-[100px]", props.className)}>
+      <section className={cn("relative flex-1 pb-[80px]", props.className)}>
          {props.api_request.isSuccess && (
             <div className={"p-layout"}>
                {sendWarrantyTask && receiveWarrantyTask && (
@@ -346,7 +325,7 @@ function WarrantyTab(props: Props) {
                                              key: "edit-receive-warranty",
                                              className: cn(
                                                 "hidden",
-                                                receiveWarrantyTask.status === TaskStatus.ASSIGNED && "block",
+                                                receiveWarrantyTask.status === TaskStatus.ASSIGNED && "flex",
                                              ),
                                              onClick: () => {
                                                 control_taskAssignFixerDrawer.current?.handleOpen({
@@ -550,6 +529,30 @@ function WarrantyTab(props: Props) {
          <OverlayControllerWithRef ref={control_taskVerifyComplete_warrantyDrawer}>
             <Task_VerifyComplete_WarrantyDrawer onSubmit={() => props.api_request.refetch()} />
          </OverlayControllerWithRef>
+         {sendWarrantyTask?.status === TaskStatus.COMPLETED &&
+            receiveWarrantyTask?.status === TaskStatus.AWAITING_FIXER && (
+               <footer className="absolute bottom-0 left-0 z-50 w-full border-t-[1px] border-t-neutral-300 bg-white p-layout">
+                  <Button
+                     block
+                     type="primary"
+                     onClick={() =>
+                        control_taskAssignFixerDrawer.current?.handleOpen({
+                           defaults: {
+                              date: props.api_request.data?.return_date_warranty
+                                 ? new Date(props.api_request.data.return_date_warranty)
+                                 : undefined,
+                              priority: "normal",
+                              fixer: sendWarrantyTask?.fixer ? sendWarrantyTask.fixer : undefined,
+                           },
+                           recommendedFixerIds: [sendWarrantyTask.fixer?.id],
+                           taskId: receiveWarrantyTask.id,
+                        })
+                     }
+                  >
+                     Nhận máy đã bảo hành
+                  </Button>
+               </footer>
+            )}
       </section>
    )
 }

@@ -120,17 +120,25 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
                block
                type="primary"
                onClick={() => {
-                  props.request &&
-                     mutate_closeRequest.mutate(
-                        {
-                           id: props.request.id,
-                        },
-                        {
-                           onSuccess: () => {
-                              router.push(`/HM/requests?status=${FixRequestStatus.HEAD_CONFIRM}`)
-                           },
-                        },
-                     )
+                  const request = props.request
+                  const task = props.task
+                  if(!request || !task) return
+                     mutate_completeTask.mutate({
+                        id: task.id,
+                     }, {
+                        onSuccess: () => {
+                           mutate_closeRequest.mutate(
+                              {
+                                 id: request.id,
+                              },
+                              {
+                                 onSuccess: () => {
+                                    router.push(`/HM/requests?status=${FixRequestStatus.HEAD_CONFIRM}`)
+                                 },
+                              },
+                           )
+                        }
+                     })
                }}
             >
                Đóng yêu cầu

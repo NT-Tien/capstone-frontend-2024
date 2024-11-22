@@ -28,7 +28,6 @@ function DatePickerDrawer(props: Props) {
    })
 
    const [days, setDays] = useState<string[]>(() => {
-      console.log(pickerValue.month, pickerValue.year, props.bounds)
       return getDayArray(pickerValue.month as string, pickerValue.year as string, props.bounds)
    })
    const [months, setMonths] = useState<string[]>(() => getMonthArray(pickerValue.year as string, props.bounds))

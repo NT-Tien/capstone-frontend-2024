@@ -2,8 +2,8 @@
 
 import TabbedLayout from "@/app/HM/(stack)/requests/[id]/warranty/Tabs.component"
 import ViewDetailsDrawer, { ViewDetailsDrawerProps } from "@/app/HM/(stack)/requests/[id]/warranty/ViewDetails.drawer"
-import ClickableArea from "@/components/ClickableArea"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
+import DatePickerDrawer, { DatePickerDrawerProps } from "@/components/overlays/DatePicker.drawer"
 import PageError from "@/components/PageError"
 import PageLoader from "@/components/PageLoader"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
@@ -13,18 +13,14 @@ import HeadStaff_Request_OneById from "@/features/head-maintenance/api/request/o
 import Request_RejectDrawer, {
    Request_RejectDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Request_Reject.drawer"
-import Task_ViewDetailsDrawer, {
-   TaskDetailsDrawerRefType,
-} from "@/features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import headstaff_qk from "@/features/head-maintenance/qk"
 import hm_uris from "@/features/head-maintenance/uri"
-import { SystemRenewTypeErrorIds } from "@/lib/constants/Renew"
 import {
-   SendWarrantyTypeErrorId,
+   AssembleDeviceTypeErrorId,
    DisassembleDeviceTypeErrorId,
    ReceiveWarrantyTypeErrorId,
-   AssembleDeviceTypeErrorId,
+   SendWarrantyTypeErrorId,
 } from "@/lib/constants/Warranty"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
@@ -33,27 +29,27 @@ import TaskUtil from "@/lib/domain/Task/Task.util"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
 import { cn } from "@/lib/utils/cn.util"
-import { DownOutlined, InfoCircleFilled, UpOutlined } from "@ant-design/icons"
+import { DownOutlined, EditOutlined, InfoCircleFilled } from "@ant-design/icons"
 import { Calendar, ChartDonut, Note, Swap, User, Wrench } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
-import { App, ConfigProvider, Descriptions, Dropdown, Typography } from "antd"
+import { App, Descriptions, Dropdown, Typography } from "antd"
 import Button from "antd/es/button"
-import Card from "antd/es/card"
-import Result from "antd/es/result"
 import Spin from "antd/es/spin"
 import Tag from "antd/es/tag"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { Suspense, useMemo, useRef } from "react"
 
-function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
+function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
    const { modal } = App.useApp()
 
-   const control_rejectRequestDrawer = useRef<RefType<Request_RejectDrawerProps> | null>(null)
-   const control = useRef<RefType<ViewDetailsDrawerProps>>(null)
+   const control_rejectRequestDrawer = useRef<RefType<Request_RejectDrawerProps>>(null)
+   const control_datePickerDrawer = useRef<RefType<DatePickerDrawerProps>>(null)
+   const control_viewDetailsDrawer = useRef<RefType<ViewDetailsDrawerProps>>(null)
 
    const mutate_closeRequest = head_maintenance_mutations.request.finish()
+   const mutate_updateWarrantyDate = head_maintenance_mutations.request.updateWarrantyReturnDate()
 
    const api_request = useQuery({
       queryKey: headstaff_qk.request.byId(params.id),
@@ -269,7 +265,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                            <Typography.Link
                               className="ml-6 truncate"
                               onClick={() =>
-                                 control.current?.handleOpen({
+                                 control_viewDetailsDrawer.current?.handleOpen({
                                     text: api_request.data.requester_note,
                                  })
                               }
@@ -280,7 +276,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                      },
                   ]}
                />
-               <OverlayControllerWithRef ref={control}>
+               <OverlayControllerWithRef ref={control_viewDetailsDrawer}>
                   <ViewDetailsDrawer getContainer={false} text={""} />
                </OverlayControllerWithRef>
             </section>
@@ -310,6 +306,35 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                         Thiết bị dự tính sẽ bảo hành xong vào{" "}
                         <strong>{dayjs(api_request.data.return_date_warranty).format("DD/MM/YYYY")}</strong>
                      </div>
+                     <Button
+                        className="self-center"
+                        icon={<EditOutlined />}
+                        size="large"
+                        onClick={() =>
+                           control_datePickerDrawer.current?.handleOpen({
+                              bounds: {
+                                 min: dayjs().startOf("day"),
+                                 max: dayjs().add(10, "years").endOf("year"),
+                              },
+                              value: dayjs().startOf("day"),
+                              onSubmit(date) {
+                                 mutate_updateWarrantyDate.mutate(
+                                    {
+                                       id: params.id,
+                                       payload: {
+                                          return_date_warranty: date.toISOString(),
+                                       },
+                                    },
+                                    {
+                                       onSuccess: () => {
+                                          api_request.refetch()
+                                       },
+                                    },
+                                 )
+                              },
+                           })
+                        }
+                     />
                   </div>
                )}
             {sendWarrantyTask?.status === TaskStatus.COMPLETED &&
@@ -341,6 +366,9 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                   router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.REJECTED}`)
                }}
             />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_datePickerDrawer}>
+            <DatePickerDrawer />
          </OverlayControllerWithRef>
       </div>
    )

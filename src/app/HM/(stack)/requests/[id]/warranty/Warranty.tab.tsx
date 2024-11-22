@@ -472,6 +472,7 @@ function WarrantyTab(props: Props) {
                                  )}
                               </div>
                            ),
+                           className: cn(sendWarrantyTask.status === TaskStatus.COMPLETED ? "initial" : "hidden"),
                         },
                      ]}
                   />
@@ -530,7 +531,8 @@ function WarrantyTab(props: Props) {
             <Task_VerifyComplete_WarrantyDrawer onSubmit={() => props.api_request.refetch()} />
          </OverlayControllerWithRef>
          {sendWarrantyTask?.status === TaskStatus.COMPLETED &&
-            receiveWarrantyTask?.status === TaskStatus.AWAITING_FIXER && (
+            receiveWarrantyTask?.status === TaskStatus.AWAITING_FIXER &&
+            dayjs(props.api_request.data?.return_date_warranty).isSame(dayjs(), "day") && (
                <footer className="absolute bottom-0 left-0 z-50 w-full border-t-[1px] border-t-neutral-300 bg-white p-layout">
                   <Button
                      block

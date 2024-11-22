@@ -1,30 +1,23 @@
 "use client"
 
-import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
-import { Button } from "antd"
-import { useRouter } from "next/navigation"
-import { useMemo, useRef } from "react"
-import TaskDetailsDrawer, {
-   TaskDetailsDrawerRefType,
-} from "../../../../features/staff/components/overlays/TaskDetails.drawer"
-import StaffNavigationDrawer from "@/features/staff/components/layout/StaffNavigationDrawer"
-import { FilterOutlined } from "@ant-design/icons"
-import PageHeaderV2 from "@/components/layout/PageHeaderV2"
-import { CheckSquare } from "@phosphor-icons/react"
 import ClickableArea from "@/components/ClickableArea"
-import staff_uri from "@/features/staff/uri"
-import staff_queries from "@/features/staff/queries"
+import PageHeaderV2 from "@/components/layout/PageHeaderV2"
+import StaffNavigationDrawer from "@/features/staff/components/layout/StaffNavigationDrawer"
 import TaskStatisticsCard from "@/features/staff/components/TaskStatisticsCard"
-import TaskUtil from "@/lib/domain/Task/Task.util"
+import staff_queries from "@/features/staff/queries"
+import staff_uri from "@/features/staff/uri"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import TaskUtil from "@/lib/domain/Task/Task.util"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import { CheckSquare } from "@phosphor-icons/react"
+import { useRouter } from "next/navigation"
+import { useMemo } from "react"
 
 function Page() {
    const navDrawer = StaffNavigationDrawer.useDrawer()
    const router = useRouter()
 
    const api_tasks = staff_queries.task.all({})
-
-   const taskDetailsDrawerRef = useRef<TaskDetailsDrawerRefType | null>(null)
 
    const counts = useMemo(() => {
       const counts: {
@@ -104,7 +97,6 @@ function Page() {
          <main className="px-layout">
             <TaskStatisticsCard counts={counts} />
          </main>
-         <TaskDetailsDrawer ref={taskDetailsDrawerRef} />
       </div>
    )
 }

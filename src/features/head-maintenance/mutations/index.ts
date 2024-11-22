@@ -19,6 +19,7 @@ import useIssue_CreateMany from "@/features/head-maintenance/mutations/Issue_Cre
 import useIssue_DetatchAndRecreateTaskWarranty from "@/features/head-maintenance/mutations/Issue_DetatchAndRecreateTaskWarranty.mutation"
 import useRequest_ApproveToRenew from "./Request_ApproveToRenew.mutation"
 import useRequest_WarrantyFailed from "@/features/head-maintenance/mutations/Request_WarrantyFailed.mutation"
+import useRequest_UpdateWarrantyReturnDate from "@/features/head-maintenance/mutations/Request_UpdateWarrantyReturnDate.mutation"
 
 const head_maintenance_mutations = {
    request: {
@@ -30,6 +31,7 @@ const head_maintenance_mutations = {
       seen: useRequest_Seen,
       finish: useRequest_Finish,
       warrantyFailed: useRequest_WarrantyFailed,
+      updateWarrantyReturnDate: useRequest_UpdateWarrantyReturnDate,
    },
    issue: {
       update: useIssue_Update,

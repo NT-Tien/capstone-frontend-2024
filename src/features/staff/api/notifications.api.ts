@@ -5,15 +5,15 @@ import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 import { NotificationDto } from "@/lib/domain/Notification/Notification.dto"
 
 export type Request = {
-   seen?: boolean
+   hasSeen?: boolean
 } & AuthTokenWrapper
 export type Response = NotificationDto[]
 
 Staff_Notifications.URL = (req: Request) => {
    const searchParams = new URLSearchParams()
-   if (req.seen !== null && req.seen !== undefined) searchParams.append("seen", req.seen.toString())
+   if (req.hasSeen !== null && req.hasSeen !== undefined) searchParams.append("hasSeen", req.hasSeen.toString())
 
-   return `notify/staff` + (searchParams.toString() ? `?${searchParams.toString()}` : ``)
+   return `staff/notifications` + (searchParams.toString() ? `?${searchParams.toString()}` : ``)
 }
 export default async function Staff_Notifications(req: Request): Promise<Response> {
    return api

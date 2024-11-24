@@ -9,7 +9,7 @@ export type Request = {
 } & AuthTokenWrapper
 export type Response = NotificationDto
 
-Head_Notifications_Seen.URL = (req: Request) => `/notify/head/${req.id}/seen`
+Head_Notifications_Seen.URL = (req: Request) => `/head/notifications/${req.id}/seen`
 export default async function Head_Notifications_Seen(req: Request): Promise<Response> {
    return api
       .put<Response>(Head_Notifications_Seen.URL(req), undefined, {

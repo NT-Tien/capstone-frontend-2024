@@ -19,7 +19,7 @@ function HeadMaintenanceNavigationDrawer(props: PropsWithChildren) {
    const router = useRouter()
    const control_ref = useRef<RefType<NavigationDrawerProps>>(null)
 
-   const api_notifications = head_maintenance_queries.notifications.all({ seen: false })
+   const api_notifications = head_maintenance_queries.notifications.all({ hasSeen: false })
 
    function handleOpen() {
       control_ref.current?.handleOpen({})

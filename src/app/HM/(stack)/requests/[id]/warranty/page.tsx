@@ -307,9 +307,10 @@ function Page({ params }: { params: { id: string } }) {
                         <strong>{dayjs(api_request.data.return_date_warranty).format("DD/MM/YYYY")}</strong>
                      </div>
                      <Button
-                        className="self-center"
+                        className="self-center aspect-square text-white"
+                        type="text"
                         icon={<EditOutlined />}
-                        size="large"
+                        size="small"
                         onClick={() =>
                            control_datePickerDrawer.current?.handleOpen({
                               bounds: {

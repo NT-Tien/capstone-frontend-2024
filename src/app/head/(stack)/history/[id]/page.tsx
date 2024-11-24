@@ -1,9 +1,10 @@
 "use client"
 
-import BackendLocalImage from "@/components/BackendLocalImage"
 import ClickableArea from "@/components/ClickableArea"
 import DateViewSwitcher from "@/components/DateViewSwitcher"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
+import PageError from "@/components/PageError"
+import PageLoader from "@/components/PageLoader"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import FeedbackDrawer, { FeedbackDrawerProps } from "@/features/head-department/components/overlay/Feedback.drawer"
 import RequestStatusTag from "@/features/head-department/components/RequestStatusTag"
@@ -11,13 +12,10 @@ import head_department_queries from "@/features/head-department/queries"
 import hd_uris from "@/features/head-department/uri"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
-import { DownOutlined, UpOutlined } from "@ant-design/icons"
-import { Divider } from "antd"
+import { DownOutlined, PlusOutlined, UpOutlined } from "@ant-design/icons"
+import { Divider, Image } from "antd"
 import { useRouter } from "next/navigation"
 import { useRef, useState } from "react"
-import { PlusOutlined } from "@ant-design/icons"
-import PageLoader from "@/components/PageLoader"
-import PageError from "@/components/PageError"
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -60,13 +58,14 @@ function Page({ params }: { params: { id: string } }) {
             <section className="relative z-10 mb-3 px-layout">
                <div className="w-full bg-white p-3">
                   <h1 className="font-semibold">Đánh giá</h1>
-                  <p className='text-neutral-500'>{api_request.data?.feedback?.content}</p>
+                  <p className="text-neutral-500">{api_request.data?.feedback?.content}</p>
                </div>
             </section>
          )}
          <div className="absolute left-0 top-0 z-0 h-48 w-full bg-head_department" />
          <section className="px-layout">
-            <BackendLocalImage
+            <Image
+               alt="Image"
                src={api_request.data.device.machineModel.image}
                rootClassName="w-full"
                className="aspect-square rounded-lg object-fill"

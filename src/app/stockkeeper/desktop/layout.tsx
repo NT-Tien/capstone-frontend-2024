@@ -125,6 +125,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         path: "/stockkeeper/desktop/spare-parts/import",
                      },
                      {
+                        key: "import-model",
+                        name: "Nhập mẫu máy",
+                        icon: <ImportOutlined />,
+                        path: "/stockkeeper/desktop/model/import",
+                     },
+                     {
                         key: "export",
                         name: "Đơn xuất kho",
                         icon: <FileTextOutlined />,

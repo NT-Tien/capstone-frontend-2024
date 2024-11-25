@@ -139,6 +139,7 @@ function Page({ searchParams }: { searchParams: { from?: "missing" } }) {
    }
 
    function handleUpdateMany(data: UploadFileResult[]) {
+      console.log("Data gửi lên API:" + data);
       console.log(
          data.map((item) => ({
             sparePartName: item["Tên linh kiện"],

@@ -147,6 +147,12 @@ function RightNavbar({ children }: PropsWithChildren) {
                         icon: <LaptopOutlined />,
                         path: "/admin/machine-model",
                      },
+                     {
+                        key: "request-ticket",
+                        name: "Vé yêu cầu",
+                        icon: <InboxOutlined />,
+                        path: "/admin/request-ticket",
+                     },
                      // {
                      //    key: "spare parts",
                      //    name: "Linh kiện",

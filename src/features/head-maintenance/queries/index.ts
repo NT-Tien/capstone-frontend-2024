@@ -10,6 +10,7 @@ import useRequest_All from "@/features/head-maintenance/queries/Request_All.quer
 import useNotifications_All from "@/features/head-maintenance/queries/Notifications_All.query"
 import useUser_AllStaff from "@/features/head-maintenance/queries/User_AllStaff.query"
 import useDevice_AllUnused from "@/features/head-maintenance/queries/Device_AllUnused.query"
+import useTask_All from "./Task_All.query"
 
 const head_maintenance_queries = {
    device: {
@@ -38,6 +39,9 @@ const head_maintenance_queries = {
    user: {
       allStaff: useUser_AllStaff,
    },
+   task: {
+      all: useTask_All
+   }
 }
 
 export default head_maintenance_queries

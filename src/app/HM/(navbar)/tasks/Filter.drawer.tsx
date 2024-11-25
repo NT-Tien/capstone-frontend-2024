@@ -9,13 +9,14 @@ import { AreaDto } from "@/lib/domain/Area/Area.dto"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { UserDto } from "@/lib/domain/User/User.dto"
 import { DeleteOutlined } from "@ant-design/icons"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 
 type FilterQuery = {
    status: boolean
    areaId?: string
-   requester_note?: string
+   fixerNote?: string
    machineModelId?: string
-   requesterId?: string
+   fixerId?: string
    createdAt_start?: string
    createdAt_end?: string
    no_issues_min?: number
@@ -23,16 +24,15 @@ type FilterQuery = {
    no_tasks_min?: number
    no_tasks_max?: number
    hasReviewed?: boolean
-   hasSeen?: boolean
 }
 type FilterDrawerProps = {
    query?: FilterQuery
-   status?: FixRequestStatus
-   onSubmit?: (query: FilterQuery, status: FixRequestStatus) => void
+   status?: TaskStatus
+   onSubmit?: (query: FilterQuery, status: TaskStatus) => void
    onReset?: () => void
    machineModels?: MachineModelDto[]
    areas?: AreaDto[]
-   requesters?: UserDto[]
+   fixer?: UserDto[]
 }
 type Props = Omit<DrawerProps, "children"> &
    FilterDrawerProps & {
@@ -41,9 +41,9 @@ type Props = Omit<DrawerProps, "children"> &
 
 function FilterDrawer(props: Props) {
    const [form] = Form.useForm<FilterQuery>()
-   const [selectedStatus, setSelectedStatus] = useState<FixRequestStatus>(props.status ?? FixRequestStatus.PENDING)
+   const [selectedStatus, setSelectedStatus] = useState<TaskStatus>(props.status ?? TaskStatus.AWAITING_FIXER)
 
-   function handleSubmit(values: FilterQuery, status: FixRequestStatus) {
+   function handleSubmit(values: FilterQuery, status: TaskStatus) {
       form.resetFields()
       props.handleClose?.()
       props.onSubmit?.(values, status)
@@ -56,7 +56,7 @@ function FilterDrawer(props: Props) {
    }
 
    useEffect(() => {
-      setSelectedStatus(props.status ?? FixRequestStatus.PENDING)
+      setSelectedStatus(props.status ?? TaskStatus.AWAITING_FIXER)
       form.setFieldsValue({
          ...props.query,
       })
@@ -88,50 +88,58 @@ function FilterDrawer(props: Props) {
                <section className={"grid grid-cols-2 gap-2"}>
                   <Button
                      size="middle"
-                     type={selectedStatus === FixRequestStatus.PENDING ? "primary" : "default"}
+                     type={selectedStatus === TaskStatus.AWAITING_FIXER ? "primary" : "default"}
                      className={cn("text-sm")}
-                     onClick={() => setSelectedStatus(FixRequestStatus.PENDING)}
+                     onClick={() => setSelectedStatus(TaskStatus.AWAITING_FIXER)}
                   >
-                     Đang xử lý
+                     Chưa phân công
                   </Button>
                   <Button
                      size="middle"
-                     type={selectedStatus === FixRequestStatus.APPROVED ? "primary" : "default"}
+                     type={selectedStatus === TaskStatus.ASSIGNED ? "primary" : "default"}
                      className={cn("text-sm")}
-                     onClick={() => setSelectedStatus(FixRequestStatus.APPROVED)}
+                     onClick={() => setSelectedStatus(TaskStatus.ASSIGNED)}
                   >
-                     Đã xác nhận lỗi
+                     Chưa bắt đầu
                   </Button>
                </section>
                <section className={"grid grid-cols-3 gap-2"}>
                   <Button
                      size="middle"
-                     type={selectedStatus === FixRequestStatus.IN_PROGRESS ? "primary" : "default"}
+                     type={selectedStatus === TaskStatus.IN_PROGRESS ? "primary" : "default"}
                      className={cn("text-sm")}
-                     onClick={() => setSelectedStatus(FixRequestStatus.IN_PROGRESS)}
+                     onClick={() => setSelectedStatus(TaskStatus.IN_PROGRESS)}
                   >
-                     Đang thực hiện
+                     Đang làm
                   </Button>
                   <Button
                      size="middle"
-                     type={selectedStatus === FixRequestStatus.CLOSED ? "primary" : "default"}
+                     type={selectedStatus === TaskStatus.COMPLETED ? "primary" : "default"}
                      className={cn("text-sm")}
-                     onClick={() => setSelectedStatus(FixRequestStatus.CLOSED)}
+                     onClick={() => setSelectedStatus(TaskStatus.COMPLETED)}
                   >
-                     Đã hoàn thành
+                     Đã đóng
                   </Button>
                   <Button
                      size="middle"
-                     type={selectedStatus === FixRequestStatus.REJECTED ? "primary" : "default"}
+                     type={selectedStatus === TaskStatus.AWAITING_SPARE_SPART ? "primary" : "default"}
                      className={cn("text-sm")}
-                     onClick={() => setSelectedStatus(FixRequestStatus.REJECTED)}
+                     onClick={() => setSelectedStatus(TaskStatus.AWAITING_SPARE_SPART)}
                   >
-                     Từ chối sửa
+                     Chờ linh kiện
+                  </Button>
+                  <Button
+                     size="middle"
+                     type={selectedStatus === TaskStatus.CANCELLED ? "primary" : "default"}
+                     className={cn("text-sm")}
+                     onClick={() => setSelectedStatus(TaskStatus.CANCELLED)}
+                  >
+                     Đã hủy
                   </Button>
                </section>
             </article>
             <Divider />
-            {selectedStatus === FixRequestStatus.PENDING && (
+            {/* {selectedStatus === FixRequestStatus.PENDING && (
                <Form.Item<FilterQuery> name={"hasSeen"} label={"Trạng thái xem"}>
                   <Radio.Group className="flex w-full" buttonStyle={"solid"}>
                      <Radio.Button className={"w-full"} value={false}>
@@ -142,8 +150,8 @@ function FilterDrawer(props: Props) {
                      </Radio.Button>
                   </Radio.Group>
                </Form.Item>
-            )}
-            {selectedStatus === FixRequestStatus.CLOSED && (
+            )} */}
+            {selectedStatus === TaskStatus.COMPLETED && (
                <Form.Item<FilterQuery> name={"hasReviewed"} label={"Trạng thái đánh giá (trưởng phòng)"}>
                   <Radio.Group className="flex w-full" buttonStyle={"solid"}>
                      <Radio.Button className={"w-full"} value={false}>
@@ -155,7 +163,7 @@ function FilterDrawer(props: Props) {
                   </Radio.Group>
                </Form.Item>
             )}
-            {new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS, FixRequestStatus.CLOSED]).has(
+            {new Set([TaskStatus.ASSIGNED, TaskStatus.IN_PROGRESS, TaskStatus.COMPLETED]).has(
                selectedStatus,
             ) && (
                <Form.Item label={"Số lỗi"}>
@@ -169,7 +177,7 @@ function FilterDrawer(props: Props) {
                   </Space.Compact>
                </Form.Item>
             )}
-            {new Set([FixRequestStatus.APPROVED, FixRequestStatus.IN_PROGRESS, FixRequestStatus.CLOSED]).has(
+            {new Set([TaskStatus.ASSIGNED, TaskStatus.IN_PROGRESS, TaskStatus.COMPLETED]).has(
                selectedStatus,
             ) && (
                <Form.Item label={"Số tác vụ"}>
@@ -195,13 +203,13 @@ function FilterDrawer(props: Props) {
                   filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase()) ?? false}
                />
             </Form.Item>
-            <Form.Item<FilterQuery> name={"requester_note"} label={"Ghi chú"}>
+            <Form.Item<FilterQuery> name={"fixerNote"} label={"Ghi chú"}>
                <Input placeholder={"Tìm kiếm theo ghi chú"} allowClear />
             </Form.Item>
-            <Form.Item<FilterQuery> name={"requesterId"} label={"Người yêu cầu"}>
+            <Form.Item<FilterQuery> name={"fixerId"} label={"Người sửa"}>
                <Select
-                  placeholder={"Tìm kiếm theo người yêu cầu"}
-                  options={props.requesters?.map((i) => ({
+                  placeholder={"Tìm kiếm theo người sửa"}
+                  options={props.fixer?.map((i) => ({
                      label: i.username,
                      value: i.id,
                   }))}

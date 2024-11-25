@@ -50,7 +50,7 @@ export default function TaskCard(props: Props) {
          <section className="mb-1 mt-1 text-sm text-neutral-500">
             <EnvironmentOutlined className="mr-1" />
             <span>
-               {props.task.device.area.name} · ({props.task.device.positionX}, {props.task.device.positionY})
+               {props.task.device.area?.name} · ({props.task.device?.positionX}, {props.task.device?.positionY})
             </span>
          </section>
          <section className="mt-2 flex gap-1">

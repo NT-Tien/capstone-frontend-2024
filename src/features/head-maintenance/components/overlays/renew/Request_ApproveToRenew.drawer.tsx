@@ -1,4 +1,3 @@
-import BackendImage from "@/components/BackendImage"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
@@ -58,6 +57,32 @@ function Request_ApproveToRenewDrawer(props: Props) {
          modal.error({
             title: "Lỗi",
             content: "Vui lòng chọn thiết bị mới trước khi xác nhận.",
+         })
+         return
+      }
+      if (selectedMachineModel.devices.length === 0) {
+         modal.confirm({
+            title: "Đề nghị mua máy mới",
+            content: "Mẫu máy không còn trong kho, đề nghị quản trị viên mua máy mới?",
+            okText: "Đồng ý",
+            cancelText: "Hủy",
+            onOk: () => {
+               if (!props.requestId || !api_request.isSuccess) return
+               setSelectedMachineModel(selectedMachineModel)
+               mutate_createRenewRequest.mutate(
+                  {
+                     id: props.requestId,
+                     payload: {
+                        deviceId: selectedMachineModel?.devices[0]?.id,
+                        note: api_request.data.requester_note,
+                        isMultiple: props.isMultiple,
+                     },
+                  },
+                  {
+                     onSuccess: props.onSuccess,
+                  },
+               )
+            },
          })
          return
       }

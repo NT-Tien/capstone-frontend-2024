@@ -69,6 +69,13 @@ function FinishTaskDrawer(props: Props) {
       }
    }, [props.open])
 
+   useEffect(() => {
+      if (imagesVerification.length === 0) {
+         setSignatureVerification(undefined)
+         setSigned(false)
+      }
+   }, [imagesVerification])
+
    return (
       <>
          <Drawer
@@ -153,23 +160,27 @@ function FinishTaskDrawer(props: Props) {
                   },
                ]}
             />
-            <Divider className='mt-layout' />
-            <section>
-               <header className="mb-2">
-                  <h3 className="text-base font-semibold">Chữ ký xác nhận</h3>
-                  <p className="font-base text-sm text-neutral-500">Vui lòng đưa thiết bị cho trưởng phòng ký</p>
-               </header>
-               <SignatureUploader signature={signatureVerification} setSignature={setSignatureVerification}>
-                  <SignatureUploader.Head_Department />
-               </SignatureUploader>
-            </section>
-
+            <Divider className="mt-layout" />
             <section className="mt-layout">
                <header className="mb-2">
                   <h3 className="text-base font-semibold">Hình ảnh xác nhận</h3>
                   <p className="font-base text-sm text-neutral-500">Vui lòng chụp hình trưởng phòng</p>
                </header>
                <ImageUploader imageUris={imagesVerification} setImageUris={setImagesVerification} maxCount={1} />
+            </section>
+            <Divider className="mt-layout" />
+            <section>
+               <header className="mb-2">
+                  <h3 className="text-base font-semibold">Chữ ký xác nhận</h3>
+                  <p className="font-base text-sm text-neutral-500">Vui lòng đưa thiết bị cho trưởng phòng ký</p>
+               </header>
+               <SignatureUploader
+                  signature={signatureVerification}
+                  setSignature={setSignatureVerification}
+                  disabled={!imagesVerification.length}
+               >
+                  <SignatureUploader.Head_Department />
+               </SignatureUploader>
             </section>
          </Drawer>
       </>

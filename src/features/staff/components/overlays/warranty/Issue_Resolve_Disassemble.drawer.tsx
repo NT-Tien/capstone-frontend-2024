@@ -44,6 +44,13 @@ function Issue_Resolve_DisassembleDrawer(props: Props) {
       }
    }, [props.open])
 
+   useEffect(() => {
+      if (imageUris.length === 0) {
+         setSignature(undefined);
+      }
+   }, [imageUris]);
+   
+
    return (
       <Drawer
          title={
@@ -87,7 +94,7 @@ function Issue_Resolve_DisassembleDrawer(props: Props) {
                <h3 className="text-base font-semibold">Chữ ký xác nhận</h3>
                <p className="font-base text-sm text-neutral-500">Vui lòng đưa thiết bị cho trưởng phòng sản xuất ký</p>
             </header>
-            <SignatureUploader setSignature={setSignature} signature={signature}>
+            <SignatureUploader setSignature={setSignature} signature={signature} disabled={!imageUris.length}>
                <SignatureUploader.Head_Department />
             </SignatureUploader>
          </section>

@@ -61,6 +61,13 @@ function Issue_Resolve_RemoveDrawer(props: Props) {
       }
    }, [props.open])
 
+   useEffect(() => {
+      if (uploadImages.length === 0) {
+         setSignatureVerification(undefined)
+         setSigned(false)
+      }
+   }, [uploadImages])
+
    return (
       <Drawer
          title={
@@ -106,15 +113,6 @@ function Issue_Resolve_RemoveDrawer(props: Props) {
       >
          <section>
             <header className="mb-2">
-               <h3 className="text-base font-semibold">Chữ ký xác nhận</h3>
-               <p className="font-base text-sm text-neutral-500">Vui lòng đưa thiết bị cho trưởng phòng sản xuất</p>
-            </header>
-            <SignatureUploader signature={signatureVerification} setSignature={setSignatureVerification}>
-               <SignatureUploader.Head_Department />
-            </SignatureUploader>
-         </section>
-         <section>
-            <header className="mb-2">
                <h1 className="text-base font-bold">Hình ảnh xác nhận</h1>
                <p className="font-base text-sm text-neutral-500">
                   Vui lòng tải hình ảnh lỗi đã sửa lên hê thống (nếu có)
@@ -128,6 +126,19 @@ function Issue_Resolve_RemoveDrawer(props: Props) {
                <p className="font-base text-sm text-neutral-500">Vui lòng tải video lỗi đã sửa lên hệ thống (nếu có)</p>
             </header>
             <VideoUploader videoUris={uploadVideo} setVideoUris={setUploadVideo} />
+         </section>
+         <section>
+            <header className="mb-2">
+               <h3 className="text-base font-semibold">Chữ ký xác nhận</h3>
+               <p className="font-base text-sm text-neutral-500">Vui lòng đưa thiết bị cho trưởng phòng sản xuất</p>
+            </header>
+            <SignatureUploader
+               signature={signatureVerification}
+               setSignature={setSignatureVerification}
+               disabled={!uploadImages.length}
+            >
+               <SignatureUploader.Head_Department />
+            </SignatureUploader>
          </section>
          <OverlayControllerWithRef ref={control_viewMapModal}>
             <ViewMapModal />

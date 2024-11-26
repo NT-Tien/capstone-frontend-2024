@@ -3,9 +3,7 @@
 import AlertCard from "@/components/AlertCard"
 import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import HeadStaff_Request_UpdateStatus from "@/features/head-maintenance/api/request/updateStatus.api"
 import HeadStaff_Task_OneById from "@/features/head-maintenance/api/task/one-byId.api"
-import HeadStaff_Task_UpdateAwaitSparePartToAssignFixer from "@/features/head-maintenance/api/task/update-awaitSparePartToAssignFixer.api"
 import HeadStaff_Task_UpdateComplete from "@/features/head-maintenance/api/task/update-complete.api"
 import IssueDetailsDrawer, {
    IssueDetailsDrawerProps,
@@ -31,15 +29,15 @@ import Task_VerifyComplete_IssueFailedDrawer, {
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import headstaff_qk from "@/features/head-maintenance/qk"
 import hm_uris from "@/features/head-maintenance/uri"
-import { ReceiveWarrantyTypeErrorId, SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
-import { ExportStatusMapper } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
+import { ExportStatus, ExportStatusMapper } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import TaskUtil from "@/lib/domain/Task/Task.util"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import useModalControls from "@/lib/hooks/useModalControls"
 import { cn } from "@/lib/utils/cn.util"
-import { EditOutlined, MoreOutlined, RightOutlined } from "@ant-design/icons"
+import { EditOutlined, MoreOutlined, RightOutlined, UserOutlined } from "@ant-design/icons"
 import {
    ArrowElbowDownRight,
    CalendarBlank,
@@ -49,6 +47,7 @@ import {
    Gear,
    ImageSquare,
    Pen,
+   Ticket,
    Users,
    WashingMachine,
    XCircle,
@@ -57,10 +56,11 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { App, Button, Card, Drawer, Dropdown, Spin, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from "react"
+import { forwardRef, ReactNode, useImperativeHandle, useRef, useState } from "react"
 import Task_AssignFixerDrawer, { AssignFixerDrawerRefType } from "./Task_AssignFixer.drawer"
 import Task_CancelDrawer, { CancelTaskDrawerRefType } from "./Task_Cancel.drawer"
 import Task_UpdateFixDateDrawer, { UpdateTaskFixDateDrawerRefType } from "./Task_UpdateFixDate.drawer"
+import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto, requestId: string) => void
@@ -91,7 +91,36 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
    const [task, setTask] = useState<TaskDto | null>(null)
    const [requestId, setRequestId] = useState<string>("")
 
-   const scannerV2DrawerRef = useRef<ScannerV2DrawerRefType | null>(null)
+   const api_task = useQuery({
+      queryKey: headstaff_qk.task.byId(task?.id ?? ""),
+      queryFn: () => HeadStaff_Task_OneById({ id: task?.id ?? "" }),
+      enabled: !!task?.id,
+   })
+
+   const control_scanner = useScanQrCodeDrawer({
+      validationFn: async (result) => {
+         if (!api_task.isSuccess) return false
+
+         if (api_task.data.device_renew && api_task.data.device_renew.id !== result) {
+            return false
+         }
+
+         if (!api_task.data.device_renew && result !== api_task.data.device.id) {
+            return false
+         }
+
+         return true
+      },
+      infoText: api_task.data?.device_renew
+         ? "Vui lòng đặt QR thiết bị MỚI vào khung hình"
+         : "Vui lòng đặt QR thiết bị vào khung hình",
+      onSuccess: () => {
+         setTimeout(() => {
+            handleOpenTaskVerifyComplete()
+         }, 500)
+      },
+   })
+
    const issueDetailsDrawerRef = useRef<IssueDetailsDrawerRefType | null>(null)
    const assignFixerDrawerRef = useRef<AssignFixerDrawerRefType | null>(null)
    const control_taskAssignFixerDrawer = useRef<RefType<Task_AssignFixerModalProps>>(null)
@@ -114,43 +143,12 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
       control_taskVerifyCompleteDrawer.current?.handleOpen({ task: api_task.data, requestId: requestId })
    }
 
-   const api_task = useQuery({
-      queryKey: headstaff_qk.task.byId(task?.id ?? ""),
-      queryFn: () => HeadStaff_Task_OneById({ id: task?.id ?? "" }),
-      enabled: !!task?.id,
-   })
-
-   const mutate_updateCompleteTask = useMutation({
-      mutationFn: HeadStaff_Task_UpdateComplete,
-      onSuccess: async () => {
-         message.success("Xác nhận thành công")
-      },
-      onMutate: async () => {
-         message.destroy("loading")
-         message.loading({
-            content: "Đang xác nhận...",
-            key: "loading",
-         })
-      },
-      onSettled: () => {
-         message.destroy("loading")
-      },
-      onError: async () => {
-         message.error("Xác nhận thất bại")
-      },
-   })
+   
 
    const mutate_assignFixer = head_maintenance_mutations.task.assignFixer()
    const mutate_closeTask = head_maintenance_mutations.task.close()
    const mutate_createIssues = head_maintenance_mutations.issue.createMany()
-
-   const mutate_updateRequest = useMutation({
-      mutationFn: HeadStaff_Request_UpdateStatus,
-   })
-
-   const mutate_checkSparePartStock = useMutation({
-      mutationFn: HeadStaff_Task_UpdateAwaitSparePartToAssignFixer,
-   })
+   const mutate_taskCreateExportWarehouse = head_maintenance_mutations.task.createExportWarehouse()
 
    async function handleCheckTask(newIssues?: IssueDto[]) {
       try {
@@ -181,90 +179,40 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
       }
    }
 
-   async function handleUpdateConfirmCheck() {
-      if (!task || !api_task.isSuccess) return
-
-      await mutate_updateCompleteTask.mutateAsync(
-         {
-            id: api_task.data.id,
-         },
-         {
-            onSuccess: async () => {
-               handleClose()
-               await props.refetchFn?.()
-            },
-         },
-      )
-   }
-
-   const isReceiveWarrantyTask = useMemo(() => {
-      if (!api_task.isSuccess) return
-      return !!api_task.data.issues.find((issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId)
-   }, [api_task.data?.issues, api_task.isSuccess])
-
-   const isSendWarrantyTask = useMemo(() => {
-      if (!api_task.isSuccess) return
-      return !!api_task.data.issues.find((issue) => issue.typeError.id === SendWarrantyTypeErrorId)
-   }, [api_task.data?.issues, api_task.isSuccess])
-
-   const isWarrantyTask = useMemo(() => {
-      return isReceiveWarrantyTask || isSendWarrantyTask
-   }, [isReceiveWarrantyTask, isSendWarrantyTask])
-
-   const isMissingSpareParts = useMemo(() => {
-      return api_task.data?.issues
-         .flatMap((issue) => issue.issueSpareParts)
-         .find((sp) => sp.quantity > sp.sparePart.quantity)
-
-      // return api_task.data?.issues.find(
-      //    (issue) => issue.issueSpareParts.filter((sp) => sp.quantity > sp.sparePart.quantity).length > 0,
-      // )
-   }, [api_task.data?.issues])
-
    function Footer() {
       if (!task) return null
-      if (task.status === TaskStatus.AWAITING_SPARE_SPART) {
+
+      if (TaskUtil.hasSpareParts(task) && task.export_warehouse_ticket?.length === 0) {
          return (
-            <>
-               {!!isMissingSpareParts && (
-                  <AlertCard
-                     text="Một số linh kiện trong tác vụ này không còn đủ hàng trong kho. Vui lòng liên hệ thủ kho để tiếp tục."
-                     className="mb-layout-half"
-                  />
-               )}
-               <Button
-                  type="primary"
-                  className="w-full"
-                  disabled={!!isMissingSpareParts}
-                  onClick={async () => {
-                     await mutate_checkSparePartStock.mutateAsync(
-                        {
-                           id: task.id,
+            <Button
+               type="primary"
+               className="w-full"
+               onClick={() => {
+                  mutate_taskCreateExportWarehouse.mutate(
+                     {
+                        taskId: task.id,
+                     },
+                     {
+                        onSuccess: () => {
+                           props.refetchFn?.()
+                           handleClose()
                         },
-                        {
-                           onSuccess: async () => {
-                              await props.refetchFn?.()
-                              control_taskAssignFixerDrawer.current?.handleOpen({
-                                 defaults: {
-                                    priority: task.priority ? "priority" : "normal",
-                                    date: dayjs(task.fixerDate).toDate(),
-                                    fixer: task.fixer,
-                                 },
-                              })
-                              // assignFixerDrawerRef.current?.handleOpen(task.id, {
-                              //    priority: task.priority,
-                              //    fixerDate: dayjs(task.fixerDate).add(7, "hours"),
-                              //    fixer: task.fixer,
-                              // })
-                           },
-                        },
-                     )
-                  }}
-               >
-                  Phân công tác vụ
-               </Button>
-            </>
+                     },
+                  )
+               }}
+               icon={<Ticket size={24} weight="fill" />}
+            >
+               Tạo đơn xuất kho
+            </Button>
          )
+      }
+
+      if (
+         TaskUtil.hasSpareParts(task) &&
+         task.export_warehouse_ticket?.length !== 0 &&
+         task.export_warehouse_ticket[0].status === ExportStatus.WAITING
+      ) {
+         return <AlertCard text="Đơn xuất kho đang chờ duyệt. Vui lòng chờ đợi hoặc liên hệ thủ kho." type="info" />
       }
 
       if (task.status === TaskStatus.AWAITING_FIXER) {
@@ -272,6 +220,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
             <Button
                type="primary"
                className="w-full"
+               icon={<UserOutlined />}
                onClick={() => {
                   control_taskAssignFixerDrawer.current?.handleOpen({
                      defaults: {
@@ -346,17 +295,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                   onClick={() => {
                      if (!api_task.isSuccess) return
 
-                     const cache = localStorage.getItem("head_staff_confirm_device_ids")
-                     if (cache) {
-                        const cacheArr = JSON.parse(cache) as string[]
-                        if (cacheArr.includes(api_task.data.device.id)) {
-                           handleOpenTaskVerifyComplete()
-                        } else {
-                           scannerV2DrawerRef.current?.handleOpen()
-                        }
-                     } else {
-                        scannerV2DrawerRef.current?.handleOpen()
-                     }
+                     control_scanner.handleOpenScanner()
                   }}
                >
                   Xác nhận hoàn thành
@@ -445,12 +384,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                      }}
                   >
                      <div>
-                        <div
-                           className={cn(
-                              "mx-0.5 aspect-square h-[16px] w-[16px] rounded-md bg-neutral-500",
-                              isWarrantyTask && "bg-orange-500",
-                           )}
-                        />
+                        <div className={cn("mx-0.5 aspect-square h-[16px] w-[16px] rounded-md bg-neutral-500")} />
                      </div>
                      <h2 className="w-full text-wrap break-words align-middle font-bold leading-[18px]">
                         {task?.name}
@@ -459,7 +393,6 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                            <Tag color={TaskStatusTagMapper[task.status].colorInverse}>
                               {TaskStatusTagMapper[task.status].text}
                            </Tag>
-                           {isWarrantyTask && <Tag color="orange-inverse">Bảo hành</Tag>}
                         </div>
                      </h2>
                   </div>
@@ -473,15 +406,24 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                         {task.fixerDate ? dayjs(task.fixerDate).add(7, "hours").format("DD/MM/YYYY") : "Chưa có"}
                      </div>
                   </div>
-                  {api_task.data.status !== TaskStatus.AWAITING_FIXER &&
-                     api_task.data?.issues.find((i) => i.issueSpareParts.length > 0) && (
-                        <div className="mt-layout flex items-center gap-3">
-                           <Gear size={18} weight="fill" color="#737373" />
-                           <div>
-                              Đơn xuất kho: {ExportStatusMapper(api_task.data.export_warehouse_ticket[0]?.status)?.text}
-                           </div>
+                  {TaskUtil.hasSpareParts(task) && (
+                     <div
+                        className={cn(
+                           "mt-layout flex items-center gap-3",
+                           api_task.data.export_warehouse_ticket?.length === 0 && "text-red-500",
+                        )}
+                     >
+                        <Gear
+                           size={18}
+                           weight="fill"
+                           color={api_task.data.export_warehouse_ticket?.length === 0 ? "rgb(224, 10, 10)" : "#737373"}
+                        />
+                        <div>
+                           Đơn xuất kho:{" "}
+                           {ExportStatusMapper(api_task.data.export_warehouse_ticket[0]?.status)?.text ?? "Chưa có"}
                         </div>
-                     )}
+                     </div>
+                  )}
                   <div className="mt-layout flex items-center gap-3">
                      <Users size={18} weight="fill" color="#737373" />
                      <div>{task.fixer?.username ?? "Chưa có"}</div>
@@ -678,39 +620,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                handleClose()
             }}
          />
-         <ScannerV2Drawer
-            ref={scannerV2DrawerRef}
-            alertText={
-               api_task.data?.device_renew
-                  ? "Vui lòng đặt QR thiết bị MỚI vào khung hình"
-                  : "Vui lòng đặt QR thiết bị vào khung hình"
-            }
-            onScan={(result) => {
-               if (!api_task.isSuccess) return
-
-               if (api_task.data.device_renew && api_task.data.device_renew.id !== result) {
-                  message.error("Mã QR không đúng")
-                  return
-               }
-
-               if (!api_task.data.device_renew && result !== api_task.data.device.id) {
-                  message.error("Mã QR không đúng")
-                  return
-               }
-
-               const cache = localStorage.getItem("head_staff_confirm_device_ids")
-               if (cache) {
-                  const cacheArr = JSON.parse(cache) as string[]
-                  localStorage.setItem("head_staff_confirm_device_ids", JSON.stringify([...cacheArr, result]))
-               } else {
-                  localStorage.setItem("head_staff_confirm_device_ids", JSON.stringify([result]))
-               }
-               // scannerV2DrawerRef.current?.handleClose()
-               setTimeout(() => {
-                  handleOpenTaskVerifyComplete()
-               }, 500)
-            }}
-         />
+         {control_scanner.contextHolder()}
          <OverlayControllerWithRef ref={control_taskCreateDrawer}>
             <Task_CreateDrawer
                refetchFn={() => {

@@ -120,6 +120,30 @@ function WarrantyTab(props: Props) {
       }
    }, [receiveWarrantyTask, sendWarrantyTask])
 
+   const isSendCompleted = useMemo(() => {
+      return (
+         sendWarrantyTask?.status === TaskStatus.COMPLETED &&
+         sendWarrantyTask?.issues.every((i) => i.status === IssueStatusEnum.RESOLVED)
+      )
+   }, [sendWarrantyTask?.issues, sendWarrantyTask?.status])
+
+   const warrantyStatus = useMemo(() => {
+      if (warrantyIssues.disassemble?.status !== IssueStatusEnum.RESOLVED) return "Chưa gửi"
+      if (warrantyIssues.send?.status === IssueStatusEnum.PENDING) return "Đang gửi"
+      if (
+         warrantyIssues.send?.status === IssueStatusEnum.RESOLVED &&
+         warrantyIssues.receive?.status !== IssueStatusEnum.RESOLVED
+      )
+         return "Đang bảo hành"
+      if (
+         warrantyIssues.send?.status === IssueStatusEnum.FAILED ||
+         warrantyIssues.receive?.status === IssueStatusEnum.FAILED
+      )
+         return "Từ chối bảo hành"
+      
+      if(warrantyIssues.receive?.status === IssueStatusEnum.RESOLVED) return "Bảo hành thành công"
+   }, [warrantyIssues])
+
    function handleFinishRequest(requestId: string) {
       modal.confirm({
          title: "Đóng yêu cầu",
@@ -145,6 +169,10 @@ function WarrantyTab(props: Props) {
       <section className={cn("relative flex-1 pb-[80px]", props.className)}>
          {props.api_request.isSuccess && (
             <div className={"p-layout"}>
+               <div className="mb-layout flex w-full rounded-lg bg-red-800 p-2 text-white">
+                  <h3 className="mr-auto font-semibold">Trạng thái bảo hành</h3>
+                  <p>{warrantyStatus}</p>
+               </div>
                {sendWarrantyTask && receiveWarrantyTask && (
                   <Steps
                      size="small"
@@ -315,46 +343,50 @@ function WarrantyTab(props: Props) {
                            title: (
                               <div className={"flex w-full items-center"}>
                                  <div className={"flex-grow text-base font-bold"}>Nhận máy và lắp đặt</div>
-                                 <Dropdown
-                                    autoFocus
-                                    menu={{
-                                       items: [
-                                          {
-                                             label: "Cập nhật",
-                                             icon: <EditOutlined />,
-                                             key: "edit-receive-warranty",
-                                             className: cn(
-                                                "hidden",
-                                                receiveWarrantyTask.status === TaskStatus.ASSIGNED && "flex",
-                                             ),
-                                             onClick: () => {
-                                                control_taskAssignFixerDrawer.current?.handleOpen({
-                                                   taskId: receiveWarrantyTask.id,
-                                                   defaults: {
-                                                      date: receiveWarrantyTask?.fixerDate
-                                                         ? new Date(receiveWarrantyTask.fixerDate)
-                                                         : undefined,
-                                                      priority: receiveWarrantyTask?.priority ? "priority" : "normal",
-                                                      fixer: receiveWarrantyTask?.fixer,
-                                                   },
-                                                   recommendedFixerIds: [receiveWarrantyTask.fixer?.id],
-                                                })
+                                 {isSendCompleted && (
+                                    <Dropdown
+                                       autoFocus
+                                       menu={{
+                                          items: [
+                                             {
+                                                label: "Cập nhật",
+                                                icon: <EditOutlined />,
+                                                key: "edit-receive-warranty",
+                                                className: cn(
+                                                   "hidden",
+                                                   receiveWarrantyTask.status === TaskStatus.ASSIGNED && "flex",
+                                                ),
+                                                onClick: () => {
+                                                   control_taskAssignFixerDrawer.current?.handleOpen({
+                                                      taskId: receiveWarrantyTask.id,
+                                                      defaults: {
+                                                         date: receiveWarrantyTask?.fixerDate
+                                                            ? new Date(receiveWarrantyTask.fixerDate)
+                                                            : undefined,
+                                                         priority: receiveWarrantyTask?.priority
+                                                            ? "priority"
+                                                            : "normal",
+                                                         fixer: receiveWarrantyTask?.fixer,
+                                                      },
+                                                      recommendedFixerIds: [receiveWarrantyTask.fixer?.id],
+                                                   })
+                                                },
                                              },
-                                          },
-                                       ],
-                                    }}
-                                 >
-                                    <Button
-                                       className="translate-x-2"
-                                       size="small"
-                                       type="text"
-                                       icon={<MoreOutlined />}
-                                    />
-                                 </Dropdown>
+                                          ],
+                                       }}
+                                    >
+                                       <Button
+                                          className="translate-x-2"
+                                          size="small"
+                                          type="text"
+                                          icon={<MoreOutlined />}
+                                       />
+                                    </Dropdown>
+                                 )}
                               </div>
                            ),
                            description: (
-                              <div className={"flex flex-col text-xs"}>
+                              <div className={cn("hidden flex-col text-xs", isSendCompleted && "flex")}>
                                  <div className="flex flex-col">
                                     <div>{receiveWarrantyTask.name}</div>
                                     {receiveWarrantyTask.status !== TaskStatus.AWAITING_FIXER && (
@@ -472,7 +504,6 @@ function WarrantyTab(props: Props) {
                                  )}
                               </div>
                            ),
-                           className: cn(sendWarrantyTask.status === TaskStatus.COMPLETED ? "initial" : "hidden"),
                         },
                      ]}
                   />

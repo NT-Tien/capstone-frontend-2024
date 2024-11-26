@@ -32,6 +32,7 @@ export type TaskDto = {
    return_spare_part_data: any
    cancelReason?: string
    export_warehouse_ticket: ExportWarehouseDto[]
+   device_static?: DeviceDto
 }
 
 export const PriorityTagMapper: {

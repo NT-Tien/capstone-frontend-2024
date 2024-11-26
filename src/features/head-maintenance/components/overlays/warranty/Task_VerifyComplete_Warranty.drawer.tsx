@@ -116,7 +116,6 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
       return (
          <div className="flex items-center gap-3">
             <Button
-               size="large"
                block
                type="primary"
                onClick={() => {
@@ -309,7 +308,7 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
             <section className="mt-layout">
                <header className="mb-3">
                   <h2 className="text-base font-semibold">Quá trình lắp đặt</h2>
-                  <p className="font-base text-sm text-neutral-500"></p>
+                  <p className="font-base text-sm text-neutral-500">Quá trính tháo và lắp đặt máy tại xưởng</p>
                </header>
                <main>
                   {warrantyIssues.disassemble && warrantyIssues.assemble && (

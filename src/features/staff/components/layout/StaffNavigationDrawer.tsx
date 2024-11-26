@@ -1,23 +1,17 @@
 "use client"
 
+import NavigationDrawer, { NavigationDrawerProps } from "@/components/layout/NavigationDrawer"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import staff_queries from "@/features/staff/queries"
+import staff_uri from "@/features/staff/uri"
 import {
    BellOutlined,
    CheckSquareOutlined,
-   DashboardFilled,
-   HistoryOutlined,
-   HomeOutlined,
-   InboxOutlined,
-   PlusOutlined,
+   HomeOutlined
 } from "@ant-design/icons"
-import { usePathname, useRouter } from "next/navigation"
-import NavigationDrawer, { NavigationDrawerProps } from "@/components/layout/NavigationDrawer"
-import { createContext, PropsWithChildren, useContext, useRef } from "react"
-import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import staff_uri from "@/features/staff/uri"
-import head_maintenance_queries from "@/features/head-maintenance/queries"
-import staff_queries from "@/features/staff/queries"
 import { Badge, Button } from "antd"
-import hm_uris from "@/features/head-maintenance/uri"
+import { usePathname, useRouter } from "next/navigation"
+import { createContext, PropsWithChildren, useContext, useRef } from "react"
 
 type ContextType = {
    handleOpen: () => void
@@ -67,7 +61,7 @@ function StaffNavigationDrawer(props: PropsWithChildren) {
                      key: staff_uri.navbar.dashboard,
                   },
                   {
-                     label: "Tác vụ cần làm",
+                     label: "Lịch sử Tác vụ",
                      icon: <CheckSquareOutlined />,
                      type: "item",
                      key: staff_uri.navbar.tasks,

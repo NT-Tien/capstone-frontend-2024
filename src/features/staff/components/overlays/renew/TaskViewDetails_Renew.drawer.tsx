@@ -66,7 +66,16 @@ function TaskViewDetails_RenewDrawer(props: Props) {
    const control_qrCodeDrawer = useRef<RefType<QrCodeDrawerProps>>(null)
 
    const control_qrCodeDisplayForRenewModal = useRef<QrCodeDisplayForRenewModalRefType | null>(null)
+
    const api_task = staff_queries.task.one({ id: props.taskId ?? "" }, { enabled: !!props.taskId })
+   const api_task_inProgress = staff_queries.task.allInProgress(
+      {},
+      {
+         select: (data) => data.filter((i) => i.id !== props.taskId),
+         enabled: !!props.taskId,
+      },
+   )
+
    const mutate_beginTask = staff_mutations.task.begin({ showMessages: false })
    const mutate_closeTask = staff_mutations.task.close({ showMessages: false })
 
@@ -128,6 +137,17 @@ function TaskViewDetails_RenewDrawer(props: Props) {
    }
 
    function Footer() {
+      // exists another in progress task
+      if (!api_task_inProgress.isSuccess) return
+      if(api_task_inProgress.data.length > 0) {
+         return (
+            <AlertCard
+               text="Vui lòng hoàn thành tất cả các tác vụ đang thực hiện để bắt đầu tác vụ này"
+               type="info"
+            />
+         )
+      }
+
       // task hasnt started and all issues failed
       if (
          api_task.data?.status === TaskStatus.ASSIGNED &&

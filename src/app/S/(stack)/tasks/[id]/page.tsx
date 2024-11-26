@@ -22,6 +22,8 @@ import ReturnSparePartDrawer, {
    ReturnSparePartDrawerProps,
 } from "@/features/staff/components/overlays/ReturnSparePart.drawer"
 import TaskUtil from "@/lib/domain/Task/Task.util"
+import PageLoader from "@/components/PageLoader"
+import PageError from "@/components/PageError"
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -41,15 +43,38 @@ function Page({ params }: { params: { id: string } }) {
       return api_task.data?.issues.every((i) => i.status === IssueStatusEnum.RESOLVED)
    }, [api_task.data?.issues])
 
+   const allFailedSparePartsIssuesResolved = useMemo(() => {
+      for (const issue of api_task.data?.issues ?? []) {
+         if (issue.status === IssueStatusEnum.PENDING) return false
+         if (issue.status === IssueStatusEnum.RESOLVED) continue
+         if (issue.status === IssueStatusEnum.FAILED && issue.issueSpareParts.length === 0) continue
+         if (
+            issue.status === IssueStatusEnum.FAILED &&
+            issue.issueSpareParts.length > 0 &&
+            !issue.returnSparePartsStockkeeperSignature &&
+            !issue.returnSparePartsStaffSignature
+         )
+            return false
+      }
+      return true
+      const failedIssuesWithSpareParts = api_task.data?.issues.filter(
+         (i) => i.issueSpareParts.length > 0 && i.status === IssueStatusEnum.FAILED,
+      )
+
+      return failedIssuesWithSpareParts?.every(
+         (i) => i.returnSparePartsStockkeeperSignature && i.returnSparePartsStaffSignature,
+      )
+   }, [api_task.data?.issues])
+
    const hasDoneAllIssues = useMemo(() => {
       if (!api_task.isSuccess) return false
       return api_task.data.issues.every((i) => i.status !== IssueStatusEnum.PENDING)
-   }, [api_task.isLoading, api_task.data?.issues])
+   }, [api_task.isSuccess, api_task.data?.issues])
 
    const hasFailedIssueWithSparePart = useMemo(() => {
       if (api_task.isLoading || !api_task.data) return false
       return api_task.data.issues.some((i) => i.status === IssueStatusEnum.FAILED && i.issueSpareParts.length > 0)
-   }, [api_task.isLoading, api_task.data?.issues])
+   }, [api_task.isLoading, api_task.data])
 
    const hasReturnedSpareParts = useMemo(() => {
       if (api_task.isLoading || !api_task.data) return false
@@ -59,22 +84,18 @@ function Page({ params }: { params: { id: string } }) {
    const hasFailedIssueWithoutSparePart = useMemo(() => {
       if (api_task.isLoading || !api_task.data) return false
       return api_task.data.issues.some((i) => i.status === IssueStatusEnum.FAILED && issueSpareParts.length === 0)
-   }, [api_task.isLoading, api_task.data?.issues])
+   }, [api_task.isLoading, api_task.data, issueSpareParts.length])
 
-   if (!api_task.isSuccess) {
-      return <div>Loading...</div>
+   if (api_task.isPending) {
+      return <PageLoader />
    }
 
-   console.log("issueSpareParts length:", issueSpareParts.length)
+   if (api_task.isError) {
+      return <PageError />
+   }
 
    return (
-      <ConfigProvider
-         theme={{
-            token: {
-               colorPrimary: "#FF6B00",
-            },
-         }}
-      >
+      <>
          <div className={"relative min-h-screen pb-32"}>
             <div className={"absolute left-0 top-0 h-36 w-full bg-staff"} />
             <PageHeaderV2
@@ -166,8 +187,8 @@ function Page({ params }: { params: { id: string } }) {
                               <Space className={"text-xs"} split={<Divider type={"vertical"} className={"m-0"} />}>
                                  {api_task.data.device.machineModel.manufacturer}
                                  <span>
-                                    Khu vực {api_task.data.device.area.name} ({api_task.data.device.positionX},{" "}
-                                    {api_task.data.device.positionY})
+                                    Khu vực {api_task.data.device?.area?.name ?? "-"} (
+                                    {api_task.data.device?.positionX ?? "-"}, {api_task.data.device?.positionY ?? "-"})
                                  </span>
                               </Space>
                               <h3 className={"line-clamp-2 text-base font-semibold"}>
@@ -206,7 +227,14 @@ function Page({ params }: { params: { id: string } }) {
                                        <List.Item
                                           className={cn(index === 0 && "pt-0")}
                                           onClick={() => control_issueViewDetailsDrawer.current?.handleOpen({ issue })}
-                                          actions={[<Button key={"details"} icon={<RightOutlined />} type={"text"} />]}
+                                          actions={[
+                                             <Button
+                                                size="small"
+                                                key={"details"}
+                                                icon={<RightOutlined />}
+                                                type={"text"}
+                                             />,
+                                          ]}
                                        >
                                           <List.Item.Meta
                                              title={<div className={"text-base"}>{issue.typeError.name}</div>}
@@ -214,6 +242,7 @@ function Page({ params }: { params: { id: string } }) {
                                                 <Space
                                                    className={"text-sm"}
                                                    split={<Divider type={"vertical"} className={"m-0"} />}
+                                                   wrap
                                                 >
                                                    <div
                                                       className={cn(
@@ -296,7 +325,7 @@ function Page({ params }: { params: { id: string } }) {
                )}
             </section>
             <footer className={"absolute bottom-0 left-0 w-full bg-white p-layout shadow-fb"}>
-               {hasDoneAllIssues && (
+               {(allIssuesResolved || allFailedSparePartsIssuesResolved) && (
                   <Button
                      block
                      type={"primary"}
@@ -311,23 +340,6 @@ function Page({ params }: { params: { id: string } }) {
                      Hoàn thành tác vụ
                   </Button>
                )}
-
-               {allIssuesResolved ||
-                  (hasDoneAllIssues && hasReturnedSpareParts && hasFailedIssueWithoutSparePart && (
-                     <Button
-                        block
-                        type={"primary"}
-                        size={"large"}
-                        onClick={() =>
-                           api_task.isSuccess &&
-                           control_finishTaskDrawer.current?.handleOpen({
-                              task: api_task.data,
-                           })
-                        }
-                     >
-                        Hoàn thành tác vụ
-                     </Button>
-                  ))}
                {!hasReturnedSpareParts && hasFailedIssueWithSparePart && (
                   <Button
                      block
@@ -370,7 +382,7 @@ function Page({ params }: { params: { id: string } }) {
                }}
             />
          </OverlayControllerWithRef>
-      </ConfigProvider>
+      </>
    )
 }
 

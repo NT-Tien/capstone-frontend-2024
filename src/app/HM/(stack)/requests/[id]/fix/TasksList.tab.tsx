@@ -3,13 +3,12 @@
 import HeadStaff_Task_Create from "@/features/head-maintenance/api/task/create.api"
 import HeadStaff_Task_Update from "@/features/head-maintenance/api/task/update.api"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
-import { ReceiveWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
-import { PlusOutlined } from "@ant-design/icons"
+import { InfoCircleFilled, PlusOutlined } from "@ant-design/icons"
 import {
    CalendarBlank,
    CheckCircle,
@@ -19,6 +18,7 @@ import {
    Package,
    Prohibit,
    ShieldWarning,
+   Ticket,
    User,
    UserCheck,
    UserCircleDashed,
@@ -31,6 +31,9 @@ import { Fragment, useMemo, useRef, useState } from "react"
 import Task_ViewDetailsDrawer, {
    TaskDetailsDrawerRefType,
 } from "../../../../../../features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
+import TaskUtil from "@/lib/domain/Task/Task.util"
+import { ExportStatusMapper } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 
 type Props = {
    api_request: UseQueryResult<RequestDto, Error>
@@ -44,7 +47,7 @@ type Props = {
 
 export default function TasksListTab(props: Props) {
    const taskDetailsRef = useRef<TaskDetailsDrawerRefType | null>(null)
-   const { message, modal } = App.useApp()
+   const { modal } = App.useApp()
 
    const [tab, setTab] = useState<string>("1")
 
@@ -63,14 +66,6 @@ export default function TasksListTab(props: Props) {
          return a.status === TaskStatus.COMPLETED ? -1 : 1
       })
    }, [props.api_request.data])
-
-   const mutate_createTask = useMutation({
-      mutationFn: HeadStaff_Task_Create,
-   })
-
-   const mutate_updateTaskStatus = useMutation({
-      mutationFn: HeadStaff_Task_Update,
-   })
 
    function handleFinishRequest(requestId: string) {
       modal.confirm({
@@ -131,52 +126,6 @@ export default function TasksListTab(props: Props) {
 
       return result
    }, [taskSorted])
-
-   async function handleAutoCreateWarrantyTask(returnDate?: string) {
-      try {
-         console.log("Test")
-         if (!props.api_request.isSuccess) {
-            console.log("Failed 1")
-            return
-         }
-         const issue = props.api_request.data.issues.find((issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId)
-         if (!issue) {
-            console.log("Failed 2")
-            return
-         }
-         console.log("Reacted herer")
-
-         // check if already has warranty task
-         if (issue.task !== null) {
-            console.log("Failed 3")
-            return
-         }
-
-         const task = await mutate_createTask.mutateAsync({
-            issueIDs: [issue.id],
-            name: `${dayjs(props.api_request.data.createdAt).add(7, "hours").format("DDMMYY")}_${props.api_request.data.device.area.name}_${props.api_request.data.device.machineModel.name}_Lắp máy bảo hành`,
-            operator: 0,
-            priority: false,
-            request: props.api_request.data.id,
-            totalTime: issue.typeError.duration,
-            fixerDate: returnDate ?? props.api_request.data.return_date_warranty ?? undefined,
-         })
-
-         console.log("stuff")
-
-         const taskUpdate = await mutate_updateTaskStatus.mutateAsync({
-            id: task.id,
-            payload: {
-               status: TaskStatus.AWAITING_FIXER,
-            },
-         })
-
-         props.api_request.refetch()
-      } catch (error) {
-         console.error(error)
-         message.error("Có lỗi xảy ra khi tạo tác vụ bảo hành, vui lòng thử lại")
-      }
-   }
 
    function getCount(...ints: number[]) {
       const total = ints.reduce((acc, cur) => acc + cur, 0)
@@ -276,7 +225,7 @@ export default function TasksListTab(props: Props) {
                                                    taskDetailsRef.current?.handleOpen(task, props.api_request.data?.id)
                                                 }
                                              >
-                                                <div className="grid place-items-center">
+                                                <div className="grid">
                                                    {task.status === TaskStatus.AWAITING_FIXER && (
                                                       <UserCircleDashed
                                                          size={24}
@@ -304,47 +253,70 @@ export default function TasksListTab(props: Props) {
                                                 </div>
                                                 <div className="flex flex-col gap-0.5">
                                                    <h3 className="text-sm text-neutral-800">{task.name}</h3>
-                                                   <Space split={<Divider type={"vertical"} className={"mx-1"} />}>
-                                                      <div
-                                                         className={cn(
-                                                            "text-xs",
-                                                            TaskStatusTagMapper[task.status]?.className,
-                                                         )}
+                                                   <div className="w-full overflow-x-auto">
+                                                      <Space
+                                                         wrap
+                                                         split={<Divider type={"vertical"} className={"mx-1"} />}
                                                       >
-                                                         {TaskStatusTagMapper[task.status].text}
-                                                      </div>
-                                                      {task.priority && (
-                                                         <div className="flex items-center text-xs">
-                                                            <ExclamationMark
-                                                               size={16}
-                                                               className="mr-1 inline text-red-500"
-                                                            />
-                                                            <span className="text-red-500">Ưu tiên</span>
+                                                         <div
+                                                            className={cn(
+                                                               "text-xs",
+                                                               TaskStatusTagMapper[task.status]?.className,
+                                                            )}
+                                                         >
+                                                            {TaskStatusTagMapper[task.status].text}
                                                          </div>
-                                                      )}
-                                                      {task.fixerDate && (
-                                                         <div className="flex items-center text-xs">
-                                                            <CalendarBlank
-                                                               size={14}
-                                                               weight={"duotone"}
-                                                               className="mr-1 inline"
-                                                            />
-                                                            <span className="">
-                                                               {dayjs(task.fixerDate).format("DD/MM/YYYY")}
+                                                         {task.priority && (
+                                                            <div className="flex items-center text-xs">
+                                                               <ExclamationMark
+                                                                  size={16}
+                                                                  className="mr-1 inline text-red-500"
+                                                               />
+                                                               <span className="text-red-500">Ưu tiên</span>
+                                                            </div>
+                                                         )}
+                                                         {task.fixerDate && (
+                                                            <div className="flex items-center text-xs">
+                                                               <CalendarBlank
+                                                                  size={14}
+                                                                  weight={"duotone"}
+                                                                  className="mr-1 inline"
+                                                               />
+                                                               <span className="">
+                                                                  {dayjs(task.fixerDate).format("DD/MM/YYYY")}
+                                                               </span>
+                                                            </div>
+                                                         )}
+                                                         {task.fixer && (
+                                                            <div className="flex items-center text-xs">
+                                                               <User
+                                                                  size={14}
+                                                                  weight={"duotone"}
+                                                                  className="mr-1 inline"
+                                                               />
+                                                               <span className="">{task.fixer.username}</span>
+                                                            </div>
+                                                         )}
+                                                         <div className="flex items-center gap-1 text-xs">
+                                                            <InfoCircleFilled size={14} />
+                                                            <span>{task.issues.length} lỗi</span>
+                                                         </div>
+                                                      </Space>
+                                                   </div>
+                                                   {TaskUtil.hasSpareParts(task) &&
+                                                      task.status === TaskStatus.AWAITING_FIXER && (
+                                                         <div className="flex items-center gap-1 text-neutral-500">
+                                                            <Ticket size={16} weight="fill" />
+                                                            <span className="text-xs">
+                                                               Đơn xuất kho:{" "}
+                                                               {task.export_warehouse_ticket.length === 0
+                                                                  ? "Chưa tạo"
+                                                                  : ExportStatusMapper(
+                                                                       task.export_warehouse_ticket[0].status,
+                                                                    )?.text}
                                                             </span>
                                                          </div>
                                                       )}
-                                                      {task.fixer && (
-                                                         <div className="flex items-center text-xs">
-                                                            <User
-                                                               size={14}
-                                                               weight={"duotone"}
-                                                               className="mr-1 inline"
-                                                            />
-                                                            <span className="">{task.fixer.username}</span>
-                                                         </div>
-                                                      )}
-                                                   </Space>
                                                 </div>
                                              </div>
                                           </Fragment>
@@ -564,35 +536,40 @@ export default function TasksListTab(props: Props) {
                            ]}
                         />
                         <section className="fixed bottom-0 left-0 w-full bg-inherit p-layout">
-                           <div className="flex w-full items-center gap-3">
-                              <Button
-                                 className="w-full"
-                                 type="primary"
-                                 icon={<PlusOutlined />}
-                                 onClick={() => props.handleOpenCreateTask?.()}
-                                 disabled={props.disabledCreateTask}
-                              >
-                                 Tạo tác vụ
-                              </Button>
-                              {props.api_request.data?.tasks.every(
-                                 (task) => task.status === TaskStatus.COMPLETED || task.status === TaskStatus.CANCELLED,
-                              ) &&
-                                 props.api_request.data?.issues.every(
-                                    (issue) =>
-                                       issue.status === IssueStatusEnum.RESOLVED ||
-                                       issue.status === IssueStatusEnum.CANCELLED,
-                                 ) && (
-                                    <Button
-                                       className=""
-                                       type="primary"
-                                       onClick={() =>
-                                          props.api_request.isSuccess && handleFinishRequest(props.api_request.data.id)
-                                       }
-                                    >
-                                       Đóng yêu cầu
-                                    </Button>
-                                 )}
-                           </div>
+                           {(props.api_request.data.status === FixRequestStatus.IN_PROGRESS ||
+                              props.api_request.data.status === FixRequestStatus.APPROVED) && (
+                              <div className="flex w-full items-center gap-3">
+                                 <Button
+                                    className="w-full"
+                                    type="primary"
+                                    icon={<PlusOutlined />}
+                                    onClick={() => props.handleOpenCreateTask?.()}
+                                    disabled={props.disabledCreateTask}
+                                 >
+                                    Tạo tác vụ
+                                 </Button>
+                                 {props.api_request.data?.tasks.every(
+                                    (task) =>
+                                       task.status === TaskStatus.COMPLETED || task.status === TaskStatus.CANCELLED,
+                                 ) &&
+                                    props.api_request.data?.issues.every(
+                                       (issue) =>
+                                          issue.status === IssueStatusEnum.RESOLVED ||
+                                          issue.status === IssueStatusEnum.CANCELLED,
+                                    ) && (
+                                       <Button
+                                          className=""
+                                          type="primary"
+                                          onClick={() =>
+                                             props.api_request.isSuccess &&
+                                             handleFinishRequest(props.api_request.data.id)
+                                          }
+                                       >
+                                          Đóng yêu cầu
+                                       </Button>
+                                    )}
+                              </div>
+                           )}
                         </section>
                      </>
                   ) : (
@@ -616,7 +593,6 @@ export default function TasksListTab(props: Props) {
             refetchFn={async () => {
                await props.api_request.refetch()
             }}
-            autoCreateTaskFn={handleAutoCreateWarrantyTask}
          />
       </section>
    )

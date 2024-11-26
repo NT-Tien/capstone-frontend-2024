@@ -1,25 +1,24 @@
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import HeadStaff_Issue_Delete from "@/features/head-maintenance/api/issue/delete.api"
 import HeadStaff_IssueSparePart_Delete from "@/features/head-maintenance/api/spare-part/delete.api"
-import { RequestDto } from "@/lib/domain/Request/Request.dto"
-import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import Issue_CreateSingle_SelectTypeErrorModal, {
+   Issue_CreateSingle_SelectTypeErrorModalProps,
+} from "@/features/head-maintenance/components/overlays/Issue_CreateSingle_SelectTypeError.modal"
+import IssueDetailsDrawer, {
+   IssueDetailsDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Issue_Details.drawer"
 import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import IssueUtil from "@/lib/domain/Issue/Issue.util"
 import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
 import { DeleteOutlined, EditOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons"
 import { CheckCircle, CircleDashed, Clock, Dot, Eye, MinusCircle, Wrench, XCircle } from "@phosphor-icons/react"
 import { useMutation, UseQueryResult } from "@tanstack/react-query"
-import { App, Button, Checkbox, ConfigProvider, Divider, Dropdown, Empty, FloatButton, Space, Tabs } from "antd"
+import { App, Button, Checkbox, ConfigProvider, Divider, Dropdown, Empty, Space, Tabs } from "antd"
 import { Fragment, useMemo, useRef, useState } from "react"
-import Issue_SelectTypeErrorDrawer, {
-   CreateIssueModalRefType,
-} from "../../../../../../features/head-maintenance/components/overlays/Issue_SelectTypeError.drawer"
-import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import IssueDetailsDrawer, {
-   IssueDetailsDrawerProps,
-} from "@/features/head-maintenance/components/overlays/Issue_Details.drawer"
-import IssueUtil from "@/lib/domain/Issue/Issue.util"
-import { SystemTypeErrorIds } from "@/lib/constants/Warranty"
 
 function getCount(...ints: number[]) {
    const total = ints.reduce((acc, cur) => acc + cur, 0)
@@ -36,7 +35,8 @@ type Props = {
 function IssuesListTab(props: Props) {
    const { modal, message } = App.useApp()
 
-   const createIssuesDrawerRef = useRef<CreateIssueModalRefType | null>(null)
+   const control_issueCreateSingle_SelectTypeErrorDrawer =
+      useRef<RefType<Issue_CreateSingle_SelectTypeErrorModalProps>>(null)
    const control_issueDetailsDrawer = useRef<RefType<IssueDetailsDrawerProps>>(null)
 
    const [tab, setTab] = useState<string>("1")
@@ -257,13 +257,20 @@ function IssuesListTab(props: Props) {
                                        <Dropdown
                                           menu={{
                                              items: [
+                                                {
+                                                   key: "view",
+                                                   label: "Xem chi tiết",
+                                                   icon: <Eye />,
+                                                   onClick: () => {
+                                                      props.api_request.isSuccess &&
+                                                         control_issueDetailsDrawer.current?.handleOpen({
+                                                            issueId: issue.id,
+                                                            deviceId: props.api_request.data.device.id,
+                                                         })
+                                                   },
+                                                },
                                                 ...(canMutateIssues
                                                    ? [
-                                                        {
-                                                           key: "edit",
-                                                           label: "Cập nhật",
-                                                           icon: <EditOutlined />,
-                                                        },
                                                         {
                                                            key: "delete-issue",
                                                            label: "Xóa",
@@ -299,48 +306,51 @@ function IssuesListTab(props: Props) {
                                  </Fragment>
                               ))}
                            </div>
-                           <section
-                              className={
-                                 "fixed bottom-0 left-0 flex w-full items-center gap-3 bg-white p-layout shadow-fb"
-                              }
-                           >
-                              <Button
-                                 block
-                                 type={"primary"}
-                                 disabled={Object.keys(selectedIssues).length <= 0}
-                                 onClick={() => {
-                                    props.api_request.isSuccess &&
-                                       props.handleOpenTaskCreate(
-                                          props.api_request.data.id,
-                                          Object.keys(selectedIssues),
-                                       )
-                                    setSelectedIssues({})
-                                 }}
+                           {(props.api_request.data?.status === FixRequestStatus.IN_PROGRESS ||
+                              props.api_request.data?.status === FixRequestStatus.APPROVED) && (
+                              <section
+                                 className={
+                                    "fixed bottom-0 left-0 flex w-full items-center gap-3 bg-white p-layout shadow-fb"
+                                 }
                               >
-                                 {Object.keys(selectedIssues).length > 0
-                                    ? `Tạo tác vụ mới với ${Object.keys(selectedIssues).length} lỗi`
-                                    : "Chọn lỗi để tạo tác vụ"}
-                              </Button>
-                              <Dropdown
-                                 menu={{
-                                    items: [
-                                       {
-                                          key: "add-issue",
-                                          label: "Thêm lỗi mới",
-                                          icon: <PlusOutlined />,
-                                          onClick: () =>
-                                             props.api_request.isSuccess &&
-                                             createIssuesDrawerRef.current?.handleOpen({
-                                                deviceId: props.api_request.data.device.id,
-                                                request: props.api_request.data,
-                                             }),
-                                       },
-                                    ],
-                                 }}
-                              >
-                                 <Button icon={<MoreOutlined />} className={"aspect-square"} />
-                              </Dropdown>
-                           </section>
+                                 <Button
+                                    block
+                                    type={"primary"}
+                                    disabled={Object.keys(selectedIssues).length <= 0}
+                                    onClick={() => {
+                                       props.api_request.isSuccess &&
+                                          props.handleOpenTaskCreate(
+                                             props.api_request.data.id,
+                                             Object.keys(selectedIssues),
+                                          )
+                                       setSelectedIssues({})
+                                    }}
+                                 >
+                                    {Object.keys(selectedIssues).length > 0
+                                       ? `Tạo tác vụ mới với ${Object.keys(selectedIssues).length} lỗi`
+                                       : "Chọn lỗi để tạo tác vụ"}
+                                 </Button>
+                                 <Dropdown
+                                    menu={{
+                                       items: [
+                                          {
+                                             key: "add-issue",
+                                             label: "Thêm lỗi mới",
+                                             icon: <PlusOutlined />,
+                                             onClick: () =>
+                                                props.api_request.isSuccess &&
+                                                control_issueCreateSingle_SelectTypeErrorDrawer.current?.handleOpen({
+                                                   deviceId: props.api_request.data.device.id,
+                                                   request: props.api_request.data,
+                                                }),
+                                          },
+                                       ],
+                                    }}
+                                 >
+                                    <Button icon={<MoreOutlined />} className={"aspect-square"} />
+                                 </Dropdown>
+                              </section>
+                           )}
                         </>
                      ),
                   },
@@ -437,9 +447,16 @@ function IssuesListTab(props: Props) {
                                        menu={{
                                           items: [
                                              {
-                                                key: "view-task",
-                                                label: "Xem tác vụ",
+                                                key: "view",
+                                                label: "Xem chi tiết",
                                                 icon: <Eye />,
+                                                onClick: () => {
+                                                   props.api_request.isSuccess &&
+                                                      control_issueDetailsDrawer.current?.handleOpen({
+                                                         issueId: issue.id,
+                                                         deviceId: props.api_request.data.device.id,
+                                                      })
+                                                },
                                              },
                                           ],
                                        }}
@@ -560,7 +577,9 @@ function IssuesListTab(props: Props) {
          <OverlayControllerWithRef ref={control_issueDetailsDrawer}>
             <IssueDetailsDrawer refetchFn={() => props.api_request.refetch()} />
          </OverlayControllerWithRef>
-         <Issue_SelectTypeErrorDrawer onFinish={() => props.api_request.refetch()} ref={createIssuesDrawerRef} />
+         <OverlayControllerWithRef ref={control_issueCreateSingle_SelectTypeErrorDrawer}>
+            <Issue_CreateSingle_SelectTypeErrorModal onFinish={() => props.api_request.refetch()} />
+         </OverlayControllerWithRef>
       </div>
    )
 }

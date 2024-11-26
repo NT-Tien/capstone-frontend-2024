@@ -135,9 +135,9 @@ function TabbedLayout(props: Props) {
    function handleTabChange(value: string) {
       setTab(value)
 
-      const urlSearchParams = new URLSearchParams(searchParams.toString())
-      urlSearchParams.set("tab", value)
-      router.push(hm_uris.stack.requests_id_renew(props.requestId) + `?${urlSearchParams.toString()}`)
+      // const urlSearchParams = new URLSearchParams(searchParams.toString())
+      // urlSearchParams.set("tab", value)
+      // router.push(hm_uris.stack.requests_id_renew(props.requestId) + `?${urlSearchParams.toString()}`)
    }
 
    useEffect(() => {

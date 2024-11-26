@@ -114,6 +114,13 @@ function Page({ params }: { params: { id: string } }) {
       }
    }, [receiveWarrantyTask, sendWarrantyTask])
 
+   const isSendCompleted = useMemo(() => {
+      return (
+         sendWarrantyTask?.status === TaskStatus.COMPLETED &&
+         sendWarrantyTask?.issues.every((i) => i.status === IssueStatusEnum.RESOLVED)
+      )
+   }, [sendWarrantyTask?.issues, sendWarrantyTask?.status])
+
    if (api_request.isPending) {
       return <PageLoader />
    }
@@ -141,7 +148,7 @@ function Page({ params }: { params: { id: string } }) {
                         items: [
                            {
                               icon: <Wrench size={16} weight="fill" />,
-                              label: "sửa chứa",
+                              label: "Sửa chứa",
                               key: "fix",
                               onClick: () => {
                                  router.push(hm_uris.stack.requests_id_fix(params.id))
@@ -296,7 +303,7 @@ function Page({ params }: { params: { id: string } }) {
                   </div>
                </section>
             )}
-            {sendWarrantyTask?.status === TaskStatus.COMPLETED &&
+            {isSendCompleted &&
                warrantyIssues.receive?.status === IssueStatusEnum.PENDING && (
                   <div className="mt-2 flex w-full gap-3 rounded-lg bg-red-900 p-3 text-white shadow-lg">
                      <div className="flex-shrink-0">

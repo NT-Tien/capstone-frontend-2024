@@ -32,9 +32,10 @@ import Task_ViewDetailsDrawer, {
 } from "@/features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import hm_uris from "@/features/head-maintenance/uri"
-import { InfoCircleFilled } from "@ant-design/icons"
+import { DownOutlined, InfoCircleFilled } from "@ant-design/icons"
 import { NewDeviceInstallation, RemoveOldDeviceTypeErrorId } from "@/lib/constants/Renew"
 import TabbedLayout from "./Tabs.component"
+import { Truck, Wrench } from "@phosphor-icons/react"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
@@ -217,7 +218,43 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                      }
                   />
                }
-               title={"Yêu cầu: Thay mới"}
+               title={
+                  api_request.isSuccess && api_request.data.is_multiple_types ? (
+                     <Dropdown
+                        menu={{
+                           items: [
+                              {
+                                 icon: <Wrench size={16} weight="fill" />,
+                                 label: "Sửa chữa",
+                                 key: "fix",
+                                 onClick: () => {
+                                    router.push(hm_uris.stack.requests_id_fix(params.id))
+                                 },
+                              },
+                              {
+                                 icon: <Truck size={16} weight="fill" />,
+                                 label: "Bảo hành",
+                                 key: "warranty",
+                                 onClick: () => {
+                                    router.push(hm_uris.stack.requests_id_warranty(params.id))
+                                 },
+                              },
+                           ],
+                        }}
+                     >
+                        <Button
+                           className="text-lg font-bold text-white"
+                           iconPosition="end"
+                           icon={<DownOutlined />}
+                           type="text"
+                        >
+                           Yêu cầu: Sửa chữa
+                        </Button>
+                     </Dropdown>
+                  ) : (
+                     "Yêu cầu: Sửa chữa"
+                  )
+               }
                nextButton={
                   <Dropdown
                      menu={{
@@ -230,17 +267,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                className={"relative z-50"}
                type={"light"}
             />
-            {/*<Image*/}
-            {/*   className="absolute top-0 h-32 w-full object-cover opacity-40"*/}
-            {/*   src="/images/requests.jpg"*/}
-            {/*   alt="image"*/}
-            {/*   width={784}*/}
-            {/*   height={100}*/}
-            {/*   style={{*/}
-            {/*      WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",*/}
-            {/*      maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",*/}
-            {/*   }}*/}
-            {/*/>*/}
             {api_request.isError ? (
                <>
                   {api_request.error instanceof NotFoundError ? (

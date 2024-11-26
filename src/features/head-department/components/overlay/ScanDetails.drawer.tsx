@@ -1,6 +1,20 @@
 "use client"
 
-import { Badge, Button, Card, Descriptions, Divider, Drawer, DrawerProps, Empty, Input, List, Space, Tabs } from "antd"
+import {
+   Badge,
+   Button,
+   Card,
+   Descriptions,
+   Divider,
+   Drawer,
+   DrawerProps,
+   Empty,
+   Input,
+   List,
+   Space,
+   Tabs,
+   Typography,
+} from "antd"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import { CalendarOutlined, CloseOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons"
 import head_department_queries from "@/features/head-department/queries"
@@ -45,7 +59,10 @@ function ScanDetailsDrawer(props: Props) {
       if (!api_deviceHistory.isSuccess) return
 
       return api_deviceHistory.data.requests.filter(
-         (req) => req.status === FixRequestStatus.PENDING || req.status === FixRequestStatus.IN_PROGRESS,
+         (req) =>
+            req.status === FixRequestStatus.PENDING ||
+            req.status === FixRequestStatus.IN_PROGRESS ||
+            req.status === FixRequestStatus.APPROVED,
       )
    }, [api_deviceHistory.data?.requests, api_deviceHistory.isSuccess])
 
@@ -101,6 +118,7 @@ function ScanDetailsDrawer(props: Props) {
                </div>
             }
             placement="bottom"
+            destroyOnClose
             height="100%"
             classNames={{
                footer: "p-layout",
@@ -172,7 +190,11 @@ function ScanDetailsDrawer(props: Props) {
                                  Mô tả
                               </div>
                            ),
-                           children: props.device?.description,
+                           children: (
+                              <Typography.Paragraph ellipsis={{ symbol: "Xem nữa", expandable: true, rows: 3 }}>
+                                 {props.device?.description}
+                              </Typography.Paragraph>
+                           ),
                         },
                      ]}
                   />

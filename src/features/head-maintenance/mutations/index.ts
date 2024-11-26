@@ -20,6 +20,7 @@ import useIssue_DetatchAndRecreateTaskWarranty from "@/features/head-maintenance
 import useRequest_ApproveToRenew from "./Request_ApproveToRenew.mutation"
 import useRequest_WarrantyFailed from "@/features/head-maintenance/mutations/Request_WarrantyFailed.mutation"
 import useRequest_UpdateWarrantyReturnDate from "@/features/head-maintenance/mutations/Request_UpdateWarrantyReturnDate.mutation"
+import useTask_CreateExportWarehouse from "@/features/head-maintenance/mutations/Task_CreateExportWarehouse.mutation"
 
 const head_maintenance_mutations = {
    request: {
@@ -50,6 +51,7 @@ const head_maintenance_mutations = {
       assignFixer: useTask_AssignFixer,
       update: useTaskUpdate,
       close: useTask_Close,
+      createExportWarehouse: useTask_CreateExportWarehouse,
    },
    notifications: {
       seen: useNotifications_Seen,

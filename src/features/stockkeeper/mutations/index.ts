@@ -5,6 +5,7 @@ import useIssueFailMany from "@/features/stockkeeper/mutations/Issue_FailMany.mu
 import useExportWarehouse_Accept from "@/features/stockkeeper/mutations/ExportWarehouse_Accept.mutation"
 import useExportWarehouse_Delay from "@/features/stockkeeper/mutations/ExportWarehouse_Delay.mutation"
 import useDevice_ReturnRemovedDevice from "./Device_ReturnRemovedDevice.mutation"
+import useSparePart_UpdateQuantity from "@/features/stockkeeper/mutations/SparePart_UpdateQuantity.mutation"
 
 const stockkeeper_mutations = {
    task: {
@@ -20,8 +21,11 @@ const stockkeeper_mutations = {
       delay: useExportWarehouse_Delay,
    },
    device: {
-      returnRemovedDevice: useDevice_ReturnRemovedDevice
-   }
+      returnRemovedDevice: useDevice_ReturnRemovedDevice,
+   },
+   sparePart: {
+      updateQuantity: useSparePart_UpdateQuantity,
+   },
 }
 
 export default stockkeeper_mutations

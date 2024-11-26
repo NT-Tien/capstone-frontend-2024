@@ -402,7 +402,7 @@ function Task_CreateDrawer(props: Props) {
                <Card
                   size="small"
                   onClick={() => setTaskNameGenerationType("auto")}
-                  className={cn("cursor-pointer", taskNameGenerationType === "auto" && "r-primary-500 bg-primary-50")}
+                  className={cn("cursor-pointer", taskNameGenerationType === "auto" && "border-[1px] border-red-500 text-red-900 bg-red-50")}
                >
                   <div className="flex items-start justify-start gap-0">
                      <Radio value="auto"></Radio>
@@ -422,7 +422,7 @@ function Task_CreateDrawer(props: Props) {
                   onClick={() => setTaskNameGenerationType("manual")}
                   className={cn(
                      "cursor-pointer",
-                     taskNameGenerationType === "manual" && "border-primary-500 bg-primary-50",
+                     taskNameGenerationType === "manual" && "border-[1px] border-red-500 text-red-900 bg-red-50",
                   )}
                >
                   <div className="flex items-start justify-start gap-0">
@@ -450,7 +450,7 @@ function Task_CreateDrawer(props: Props) {
 
 export function generateTaskName(data: RequestDto, selectedIssues: string[]) {
    const requestDate = dayjs(data.createdAt).format("DDMMYY")
-   const area = data.device.area.name
+   const area = data.device.area?.name ?? "N/A"
    const machine = data.device.machineModel.name.split(" ").join("-")
 
    return `${requestDate}_${selectedIssues.length}_${area}_${machine}_${generateRandomText(6)}`

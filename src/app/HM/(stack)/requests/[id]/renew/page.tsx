@@ -35,6 +35,8 @@ import hm_uris from "@/features/head-maintenance/uri"
 import { InfoCircleFilled } from "@ant-design/icons"
 import { NewDeviceInstallation, RemoveOldDeviceTypeErrorId } from "@/lib/constants/Renew"
 import TabbedLayout from "./Tabs.component"
+import qk from "@/old/querykeys"
+import HeadStaff_Task_OneById from "@/features/head-maintenance/api/task/one-byId.api"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
@@ -53,6 +55,12 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
             }
             return res
          }),
+   })
+
+   const api_task = useQuery({
+      queryKey: headstaff_qk.task.byId(api_request.data?.tasks[0].id ?? ""),
+      queryFn: () => HeadStaff_Task_OneById({ id: api_request.data?.tasks[0].id ?? "" }),
+      enabled: api_request.isSuccess
    })
 
    const api_device = useQuery({
@@ -350,6 +358,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                         api_deviceHistory={api_deviceHistory}
                         api_request={api_request}
                         requestId={params.id}
+                        api_task={api_task}
                      />
                   </Suspense>
                </>

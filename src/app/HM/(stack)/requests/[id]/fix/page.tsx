@@ -17,6 +17,7 @@ import Request_RejectDrawer, {
 import Task_ViewDetailsDrawer, {
    TaskDetailsDrawerRefType,
 } from "@/features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
+import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import headstaff_qk from "@/features/head-maintenance/qk"
 import hm_uris from "@/features/head-maintenance/uri"
 import { ReceiveWarrantyTypeErrorId } from "@/lib/constants/Warranty"
@@ -44,6 +45,8 @@ function Page({ params }: { params: { id: string } }) {
    const control_rejectRequestDrawer = useRef<RefType<Request_RejectDrawerProps> | null>(null)
    const taskDetailsRef = useRef<TaskDetailsDrawerRefType | null>(null)
    const control = useRef<RefType<ViewDetailsDrawerProps>>(null)
+
+   const mutate_closeRequest = head_maintenance_mutations.request.finish()
 
    const api_request = useQuery({
       queryKey: headstaff_qk.request.byId(params.id),
@@ -160,7 +163,32 @@ function Page({ params }: { params: { id: string } }) {
             nextButton={
                <Dropdown
                   menu={{
-                     items: [],
+                     items: [
+                        {
+                           key: "1-main",
+                           label: "Đóng yêu cầu",
+                           onClick: () => {
+                              modal.confirm({
+                                 title: "Lưu ý",
+                                 content: "Bạn có chắc muốn đóng yêu cầu này?",
+                                 centered: true,
+                                 maskClosable: true,
+                                 onOk: () => {
+                                    mutate_closeRequest.mutate(
+                                       {
+                                          id: params.id,
+                                       },
+                                       {
+                                          onSuccess: () => {
+                                             router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.CLOSED}`)
+                                          },
+                                       },
+                                    )
+                                 },
+                              })
+                           },
+                        },
+                     ],
                   }}
                >
                   <PageHeaderV2.InfoButton />

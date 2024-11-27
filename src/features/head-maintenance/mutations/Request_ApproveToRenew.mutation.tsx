@@ -7,6 +7,7 @@ import useCustomMutation from "@/lib/hooks/useCustomMutation"
 import { CustomMutationHookProps } from "@/lib/types/CustomMutationHookProps"
 import { useQueryClient } from "@tanstack/react-query"
 import HeadStaff_Request_ApproveRenew, { Request, Response } from "../api/request/approve.renew.api"
+import { Role } from "@/lib/domain/User/role.enum"
 
 type Props = CustomMutationHookProps<Response, unknown, Request, unknown>
 export default function useRequest_ApproveToRenew(props?: Props) {
@@ -20,6 +21,8 @@ export default function useRequest_ApproveToRenew(props?: Props) {
 
          const staffWithSmallest = allStaffWithTasks.reduce(
             (prev, curr) => {
+               if (curr.role !== Role.staff) return prev
+               
                if (curr.tasks.length < prev.count) {
                   prev.staff = [curr]
                   prev.count = curr.tasks.length

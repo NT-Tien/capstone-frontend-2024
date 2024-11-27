@@ -36,6 +36,7 @@ import { DownOutlined, InfoCircleFilled } from "@ant-design/icons"
 import { NewDeviceInstallation, RemoveOldDeviceTypeErrorId } from "@/lib/constants/Renew"
 import TabbedLayout from "./Tabs.component"
 import { Truck, Wrench } from "@phosphor-icons/react"
+import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
@@ -76,6 +77,8 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    const mutate_updateTaskStatus = useMutation({
       mutationFn: HeadStaff_Task_Update,
    })
+
+   const mutate_closeRequest = head_maintenance_mutations.request.finish()
 
    const isWarranty = useMemo(() => {
       return api_request.data?.issues.find(
@@ -248,17 +251,44 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                            icon={<DownOutlined />}
                            type="text"
                         >
-                           Yêu cầu: Sửa chữa
+                           Yêu cầu: Thay máy
                         </Button>
                      </Dropdown>
                   ) : (
-                     "Yêu cầu: Sửa chữa"
+                     "Yêu cầu: Thay máy"
                   )
                }
                nextButton={
                   <Dropdown
                      menu={{
-                        items: [],
+                        items: [
+                           {
+                              key: "1-main",
+                              label: "Đóng yêu cầu",
+                              onClick: () => {
+                                 modal.confirm({
+                                    title: "Lưu ý",
+                                    content: "Bạn có chắc muốn đóng yêu cầu này?",
+                                    centered: true,
+                                    maskClosable: true,
+                                    onOk: () => {
+                                       mutate_closeRequest.mutate(
+                                          {
+                                             id: params.id,
+                                          },
+                                          {
+                                             onSuccess: () => {
+                                                router.push(
+                                                   hm_uris.navbar.requests + `?status=${FixRequestStatus.CLOSED}`,
+                                                )
+                                             },
+                                          },
+                                       )
+                                    },
+                                 })
+                              },
+                           },
+                        ],
                      }}
                   >
                      <PageHeaderV2.InfoButton />

@@ -1,10 +1,11 @@
 "use client"
 
 import AlertCard from "@/components/AlertCard"
-import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import HeadStaff_Task_OneById from "@/features/head-maintenance/api/task/one-byId.api"
-import HeadStaff_Task_UpdateComplete from "@/features/head-maintenance/api/task/update-complete.api"
+import ExportWarehouse_DetailsBasicModal, {
+   ExportWarehouse_DetailsBasicModalProps,
+} from "@/features/head-maintenance/components/overlays/ExportWarehouse_DetailsBasic.modal"
 import IssueDetailsDrawer, {
    IssueDetailsDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Issue_Details.drawer"
@@ -32,10 +33,11 @@ import hm_uris from "@/features/head-maintenance/uri"
 import { ExportStatus, ExportStatusMapper } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
-import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { TaskDto, TaskType } from "@/lib/domain/Task/Task.dto"
 import TaskUtil from "@/lib/domain/Task/Task.util"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import useModalControls from "@/lib/hooks/useModalControls"
+import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
 import { cn } from "@/lib/utils/cn.util"
 import { EditOutlined, MoreOutlined, RightOutlined, UserOutlined } from "@ant-design/icons"
 import {
@@ -52,7 +54,7 @@ import {
    WashingMachine,
    XCircle,
 } from "@phosphor-icons/react"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { App, Button, Card, Drawer, Dropdown, Spin, Tag } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
@@ -60,7 +62,6 @@ import { forwardRef, ReactNode, useImperativeHandle, useRef, useState } from "re
 import Task_AssignFixerDrawer, { AssignFixerDrawerRefType } from "./Task_AssignFixer.drawer"
 import Task_CancelDrawer, { CancelTaskDrawerRefType } from "./Task_Cancel.drawer"
 import Task_UpdateFixDateDrawer, { UpdateTaskFixDateDrawerRefType } from "./Task_UpdateFixDate.drawer"
-import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
 
 export type TaskDetailsDrawerRefType = {
    handleOpen: (task: TaskDto, requestId: string) => void
@@ -132,6 +133,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
    const control_taskCreateDrawer = useRef<RefType<CreateTaskV2DrawerProps>>(null)
    const control_issueDetailsDrawer = useRef<RefType<IssueDetailsDrawerProps>>(null)
    const control_taskUpdateFixerAndFixerDateDrawer = useRef<Task_UpdateFixerAndFixerDateRefType | null>(null)
+   const control_exportWarehouse_DetailsBasicModal = useRef<RefType<ExportWarehouse_DetailsBasicModalProps>>(null)
 
    function handleOpenTaskVerifyComplete() {
       if (!api_task.isSuccess) return
@@ -142,8 +144,6 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
 
       control_taskVerifyCompleteDrawer.current?.handleOpen({ task: api_task.data, requestId: requestId })
    }
-
-   
 
    const mutate_assignFixer = head_maintenance_mutations.task.assignFixer()
    const mutate_closeTask = head_maintenance_mutations.task.close()
@@ -182,7 +182,11 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
    function Footer() {
       if (!task) return null
 
-      if (TaskUtil.hasSpareParts(task) && task.export_warehouse_ticket?.length === 0) {
+      if (
+         TaskUtil.hasSpareParts(task) &&
+         task.export_warehouse_ticket?.length === 0 &&
+         task.status === TaskStatus.AWAITING_FIXER
+      ) {
          return (
             <Button
                type="primary"
@@ -202,7 +206,7 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                }}
                icon={<Ticket size={24} weight="fill" />}
             >
-               Tạo đơn xuất kho
+               Yêu cầu xuất kho
             </Button>
          )
       }
@@ -406,22 +410,29 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                         {task.fixerDate ? dayjs(task.fixerDate).add(7, "hours").format("DD/MM/YYYY") : "Chưa có"}
                      </div>
                   </div>
-                  {TaskUtil.hasSpareParts(task) && (
+                  {(TaskUtil.hasSpareParts(task) || task.type === TaskType.RENEW) && (
                      <div
                         className={cn(
                            "mt-layout flex items-center gap-3",
                            api_task.data.export_warehouse_ticket?.length === 0 && "text-red-500",
                         )}
+                        onClick={() =>
+                           api_task.data.export_warehouse_ticket?.[0] &&
+                           control_exportWarehouse_DetailsBasicModal.current?.handleOpen({
+                              exportWarehouse: api_task.data.export_warehouse_ticket?.[0],
+                           })
+                        }
                      >
                         <Gear
                            size={18}
                            weight="fill"
                            color={api_task.data.export_warehouse_ticket?.length === 0 ? "rgb(224, 10, 10)" : "#737373"}
                         />
-                        <div>
+                        <div className="mr-auto">
                            Đơn xuất kho:{" "}
                            {ExportStatusMapper(api_task.data.export_warehouse_ticket[0]?.status)?.text ?? "Chưa có"}
                         </div>
+                        {api_task.data.export_warehouse_ticket?.[0] && <RightOutlined />}
                      </div>
                   )}
                   <div className="mt-layout flex items-center gap-3">
@@ -627,6 +638,9 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
                   props.refetchFn?.()
                }}
             />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_exportWarehouse_DetailsBasicModal}>
+            <ExportWarehouse_DetailsBasicModal />
          </OverlayControllerWithRef>
       </>
    )

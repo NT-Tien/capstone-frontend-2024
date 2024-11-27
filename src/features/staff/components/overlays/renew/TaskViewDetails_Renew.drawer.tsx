@@ -139,13 +139,15 @@ function TaskViewDetails_RenewDrawer(props: Props) {
    function Footer() {
       // exists another in progress task
       if (!api_task_inProgress.isSuccess) return
-      if(api_task_inProgress.data.length > 0) {
+      if (api_task_inProgress.data.length > 0) {
          return (
-            <AlertCard
-               text="Vui lòng hoàn thành tất cả các tác vụ đang thực hiện để bắt đầu tác vụ này"
-               type="info"
-            />
+            <AlertCard text="Vui lòng hoàn thành tất cả các tác vụ đang thực hiện để bắt đầu tác vụ này" type="info" />
          )
+      }
+
+      // if task has export warehouse that hasn't been accepted
+      if (api_task.data?.export_warehouse_ticket.find((e) => e.status === ExportStatus.WAITING)) {
+         return <AlertCard text="Tác vụ này đang chờ chủ kho xác nhận xuất kho" type="info" />
       }
 
       // task hasnt started and all issues failed

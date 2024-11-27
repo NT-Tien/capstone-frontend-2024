@@ -155,6 +155,14 @@ function Task_AssignFixerV2Drawer(props: Props) {
       }
    }, [props.defaults?.date, props.defaults?.fixer, props.defaults?.priority, props.disabledAssignProps?.defaultEnabled, props.open])
 
+   useEffect(() => {
+      const firstRecommendedFixerId = props.recommendedFixerIds?.[0]
+      const firstRecommendedFixer = api_users.data?.find((u) => u.id === firstRecommendedFixerId)
+      if (firstRecommendedFixer) {
+         setSelectedUser(firstRecommendedFixer)
+      }
+   }, [api_users.data, props.recommendedFixerIds])
+
    return (
       <>
          <Drawer

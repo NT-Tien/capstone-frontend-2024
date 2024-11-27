@@ -27,7 +27,9 @@ function Page({ searchParams }: { searchParams: { page?: string; status?: TaskSt
    const limit = 5
    const navDrawer = HeadMaintenanceNavigationDrawer.useDrawer()
    const [search, setSearch] = useState<string>("")
-   const [query, setQuery] = useState<FilterQuery>({})
+   const [query, setQuery] = useState<FilterQuery>({
+      status: TaskStatus.AWAITING_FIXER,
+   })
    const control_filterDrawer = useRef<RefType<FilterDrawerProps>>(null)
    const router = useRouter()
 
@@ -126,7 +128,6 @@ function Page({ searchParams }: { searchParams: { page?: string; status?: TaskSt
    useEffect(() => {
       let current = searchParams.status
       if (!current) current = TaskStatus.AWAITING_FIXER
-      if (current === TaskStatus.HEAD_STAFF_CONFIRM) current = TaskStatus.COMPLETED
       setStatus(current)
    }, [searchParams.status])
 
@@ -267,7 +268,11 @@ function Page({ searchParams }: { searchParams: { page?: string; status?: TaskSt
          </h2>
          <OverlayControllerWithRef ref={control_filterDrawer}>
             <FilterDrawer
-               onReset={() => setQuery({})}
+               onReset={() =>
+                  setQuery({
+                     status: TaskStatus.AWAITING_FIXER,
+                  })
+               }
                onSubmit={(query, status) => {
                   setQuery(query)
                   setTimeout(() => handleChangeTab(status), 200)

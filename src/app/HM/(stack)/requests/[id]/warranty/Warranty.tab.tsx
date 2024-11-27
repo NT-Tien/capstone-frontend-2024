@@ -140,8 +140,8 @@ function WarrantyTab(props: Props) {
          warrantyIssues.receive?.status === IssueStatusEnum.FAILED
       )
          return "Từ chối bảo hành"
-      
-      if(warrantyIssues.receive?.status === IssueStatusEnum.RESOLVED) return "Bảo hành thành công"
+
+      if (warrantyIssues.receive?.status === IssueStatusEnum.RESOLVED) return "Bảo hành thành công"
    }, [warrantyIssues])
 
    function handleFinishRequest(requestId: string) {
@@ -340,6 +340,7 @@ function WarrantyTab(props: Props) {
                         },
                         // ! RECEIVE FROM WARRANTY TASK
                         {
+                           className: cn(!isSendCompleted && "hidden"),
                            title: (
                               <div className={"flex w-full items-center"}>
                                  <div className={"flex-grow text-base font-bold"}>Nhận máy và lắp đặt</div>
@@ -562,8 +563,7 @@ function WarrantyTab(props: Props) {
             <Task_VerifyComplete_WarrantyDrawer onSubmit={() => props.api_request.refetch()} />
          </OverlayControllerWithRef>
          {sendWarrantyTask?.status === TaskStatus.COMPLETED &&
-            receiveWarrantyTask?.status === TaskStatus.AWAITING_FIXER &&
-            dayjs(props.api_request.data?.return_date_warranty).isSame(dayjs(), "day") && (
+            receiveWarrantyTask?.status === TaskStatus.AWAITING_FIXER && (
                <footer className="absolute bottom-0 left-0 z-50 w-full border-t-[1px] border-t-neutral-300 bg-white p-layout">
                   <Button
                      block

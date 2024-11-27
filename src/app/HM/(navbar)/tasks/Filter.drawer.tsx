@@ -12,7 +12,7 @@ import { DeleteOutlined } from "@ant-design/icons"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 
 type FilterQuery = {
-   status: boolean
+   status: TaskStatus
    areaId?: string
    fixerNote?: string
    machineModelId?: string

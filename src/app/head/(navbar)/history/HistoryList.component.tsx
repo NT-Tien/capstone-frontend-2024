@@ -7,7 +7,7 @@ import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import hd_uris from "@/features/head-department/uri"
 import generateAvatarData from "@/lib/utils/generateAvatarData.util"
-import { CalendarBlank, MapPinArea, Truck, User } from "@phosphor-icons/react"
+import { CalendarBlank, MapPinArea, Swap, Truck, User, Wrench } from "@phosphor-icons/react"
 import DataGrid from "@/components/DataGrid"
 import ClickableArea from "@/components/ClickableArea"
 
@@ -80,6 +80,18 @@ function HistoryList({ requests }: Props) {
                                  value: "Bảo hành",
                                  hidden: !item.is_warranty,
                                  className: "text-orange-500",
+                              },
+                              {
+                                 icon: <Swap size={16} weight="duotone" />,
+                                 value: "Thay máy",
+                                 hidden: !item.is_rennew,
+                                 className: "text-purple-500",
+                              },
+                              {
+                                 icon: <Wrench size={16} weight="duotone" />,
+                                 value: "Sửa chữa",
+                                 hidden: !item.is_fix,
+                                 className: "text-blue-500",
                               },
                            ]}
                            cols={2}

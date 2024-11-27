@@ -35,7 +35,7 @@ function RequestStatusTag(props: Props) {
                <svg className="h-1.5 w-1.5 fill-blue-500" viewBox="0 0 6 6" aria-hidden="true">
                   <circle cx={3} cy={3} r={3} />
                </svg>
-               Đang sửa chữa
+               Đang xử lý
             </span>
          )
       case FixRequestStatus.HEAD_CONFIRM:

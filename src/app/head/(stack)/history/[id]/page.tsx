@@ -1,5 +1,6 @@
 "use client"
 
+import AlertCard from "@/components/AlertCard"
 import ClickableArea from "@/components/ClickableArea"
 import DateViewSwitcher from "@/components/DateViewSwitcher"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
@@ -11,12 +12,22 @@ import RequestStatusTag from "@/features/head-department/components/RequestStatu
 import head_department_mutations from "@/features/head-department/mutations"
 import head_department_queries from "@/features/head-department/queries"
 import hd_uris from "@/features/head-department/uri"
+import IssueUtil from "@/lib/domain/Issue/Issue.util"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import { cn } from "@/lib/utils/cn.util"
-import { DeleteOutlined, DownOutlined, PlusOutlined, UpOutlined } from "@ant-design/icons"
+import {
+   CheckOutlined,
+   CloseOutlined,
+   DeleteOutlined,
+   DownOutlined,
+   MinusOutlined,
+   PlusOutlined,
+   UpOutlined,
+} from "@ant-design/icons"
 import { Headset } from "@phosphor-icons/react"
-import { App, Divider, Dropdown, Image } from "antd"
+import { App, Avatar, Divider, Dropdown, Image, List } from "antd"
 import { useRouter } from "next/navigation"
 import { useRef, useState } from "react"
 
@@ -40,7 +51,7 @@ function Page({ params }: { params: { id: string } }) {
    }
 
    return (
-      <div className="relative">
+      <div className="relative pb-layout">
          <PageHeaderV2
             type="light"
             prevButton={<PageHeaderV2.BackButton onClick={() => router.push(hd_uris.navbar.history)} />}
@@ -89,7 +100,6 @@ function Page({ params }: { params: { id: string } }) {
                   <PageHeaderV2.InfoButton />
                </Dropdown>
             }
-            className="sticky top-0 z-50 bg-inherit"
          />
          {api_request.data.status === FixRequestStatus.HEAD_CONFIRM && (
             <section className="relative z-10 mb-3 px-layout">
@@ -130,7 +140,7 @@ function Page({ params }: { params: { id: string } }) {
                <RequestStatusTag status={api_request.data.status} className="text-sm" />
             </div>
          </section>
-         <section className="mt-0 flex items-start gap-3 px-layout">
+         <section className="mt-1 flex items-start gap-3 px-layout">
             <h1 className="line-clamp-2 text-xl font-bold">{api_request.data.old_device.machineModel.name}</h1>
          </section>
          <section className="mt-layout-half flex px-layout">
@@ -167,7 +177,146 @@ function Page({ params }: { params: { id: string } }) {
                <p className="block text-red-500">{api_request.data.checker_note}</p>
             </section>
          )}
-         <section className="px-layout"></section>
+         <section className="mt-4 px-layout">
+            {api_request.data.is_warranty && (
+               <>
+                  <AlertCard text="Thiết bị đang được bảo hành" type="info" />
+                  <List
+                     dataSource={api_request.data.issues.filter((i) => IssueUtil.isWarrantyIssue(i))}
+                     size="small"
+                     bordered
+                     className="mt-3"
+                     renderItem={(item) => {
+                        return (
+                           <List.Item>
+                              <List.Item.Meta
+                                 avatar={
+                                    <Avatar
+                                       size={20}
+                                       className={cn(
+                                          item.status === IssueStatusEnum.PENDING && "bg-gray-500",
+                                          item.status === IssueStatusEnum.FAILED && "bg-red-500",
+                                          item.status === IssueStatusEnum.RESOLVED && "bg-green-500",
+                                          item.status === IssueStatusEnum.CANCELLED && "bg-gray-200",
+                                       )}
+                                       icon={(function () {
+                                          switch (item.status) {
+                                             case IssueStatusEnum.PENDING:
+                                                return <MinusOutlined />
+                                             case IssueStatusEnum.FAILED:
+                                                return <CloseOutlined />
+                                             case IssueStatusEnum.RESOLVED:
+                                                return <CheckOutlined />
+                                             case IssueStatusEnum.CANCELLED:
+                                                return <DeleteOutlined />
+                                             default:
+                                                return <MinusOutlined />
+                                          }
+                                       })()}
+                                    />
+                                 }
+                                 title={<div className="text-sm">{item.typeError.name}</div>}
+                                 description={<div className="text-xs">{item.typeError.description}</div>}
+                              />
+                           </List.Item>
+                        )
+                     }}
+                  />
+               </>
+            )}
+            {api_request.data.is_fix && (
+               <>
+                  <AlertCard text="Thiết bị đang được sửa chữa" type="info" />
+                  <List
+                     dataSource={api_request.data.issues.filter((i) => IssueUtil.isFixIssue(i))}
+                     size="small"
+                     bordered
+                     className="mt-3"
+                     renderItem={(item) => {
+                        return (
+                           <List.Item>
+                              <List.Item.Meta
+                                 avatar={
+                                    <Avatar
+                                       size={20}
+                                       className={cn(
+                                          item.status === IssueStatusEnum.PENDING && "bg-gray-500",
+                                          item.status === IssueStatusEnum.FAILED && "bg-red-500",
+                                          item.status === IssueStatusEnum.RESOLVED && "bg-green-500",
+                                          item.status === IssueStatusEnum.CANCELLED && "bg-gray-200",
+                                       )}
+                                       icon={(function () {
+                                          switch (item.status) {
+                                             case IssueStatusEnum.PENDING:
+                                                return <MinusOutlined />
+                                             case IssueStatusEnum.FAILED:
+                                                return <CloseOutlined />
+                                             case IssueStatusEnum.RESOLVED:
+                                                return <CheckOutlined />
+                                             case IssueStatusEnum.CANCELLED:
+                                                return <DeleteOutlined />
+                                             default:
+                                                return <MinusOutlined />
+                                          }
+                                       })()}
+                                    />
+                                 }
+                                 title={<div className="text-sm">{item.typeError.name}</div>}
+                                 description={<div className="text-xs">{item.typeError.description}</div>}
+                              />
+                           </List.Item>
+                        )
+                     }}
+                  />
+               </>
+            )}
+            {api_request.data.is_rennew && (
+               <>
+                  <AlertCard text="Thiết bị sẽ được thay mới" type="info" />
+                  <List
+                     dataSource={api_request.data.issues.filter((i) => IssueUtil.isRenewIssue(i))}
+                     size="small"
+                     bordered
+                     className="mt-3"
+                     renderItem={(item) => {
+                        return (
+                           <List.Item>
+                              <List.Item.Meta
+                                 avatar={
+                                    <Avatar
+                                       size={20}
+                                       className={cn(
+                                          item.status === IssueStatusEnum.PENDING && "bg-gray-500",
+                                          item.status === IssueStatusEnum.FAILED && "bg-red-500",
+                                          item.status === IssueStatusEnum.RESOLVED && "bg-green-500",
+                                          item.status === IssueStatusEnum.CANCELLED && "bg-gray-200",
+                                       )}
+                                       icon={(function () {
+                                          switch (item.status) {
+                                             case IssueStatusEnum.PENDING:
+                                                return <MinusOutlined />
+                                             case IssueStatusEnum.FAILED:
+                                                return <CloseOutlined />
+                                             case IssueStatusEnum.RESOLVED:
+                                                return <CheckOutlined />
+                                             case IssueStatusEnum.CANCELLED:
+                                                return <DeleteOutlined />
+                                             default:
+                                                return <MinusOutlined />
+                                          }
+                                       })()}
+                                    />
+                                 }
+                                 title={<div className="text-sm">{item.typeError.name}</div>}
+                                 description={<div className="text-xs">{item.typeError.description}</div>}
+                              />
+                           </List.Item>
+                        )
+                     }}
+                  />
+               </>
+            )}
+         </section>
          <OverlayControllerWithRef ref={control_feedbackDrawer}>
             <FeedbackDrawer
                onSuccess={() => router.push(`${hd_uris.navbar.history}?status=${"closed" as FixRequestStatuses}`)}

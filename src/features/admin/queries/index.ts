@@ -25,6 +25,12 @@ const admin_queries = {
       one: useRequest_One,
       manyByIds: useRequest_ManyByIdQuery,
    },
+   ticket: {
+      all: useRequest_AllQuery,
+      all_filterAndSort: useRequest_AllFilteredAndSortedQuery,
+      one: useRequest_One,
+      manyByIds: useRequest_ManyByIdQuery,
+   },
    machine_model: {
       all: useMachineModel_AllQuery,
       one: useMachineModel_OneQuery,

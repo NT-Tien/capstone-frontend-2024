@@ -93,6 +93,17 @@ body {
     }
 }
 
+.task-tabs {
+     .ant-tabs-nav-wrap {
+        display: flex;
+        justify-content: center;
+     }
+     .ant-tabs-nav-list {
+        gap: 3rem;
+     }
+     
+}
+
 .tabs-no-spacing {
     .ant-tabs-nav {
         margin-bottom: 0 !important;

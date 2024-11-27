@@ -86,7 +86,7 @@ export default function DetailsTab({ api, setTab }: Props) {
 
    return (
       <section>
-         <ProDescriptions
+         {/* <ProDescriptions
             className="mt-3"
             title="Chi tiết tác vụ"
             extra={
@@ -169,7 +169,7 @@ export default function DetailsTab({ api, setTab }: Props) {
                     ]
                   : []),
             ]}
-         />
+         /> */}
          {api.isSuccess && api.data.fixer && (
             <Card
                size="small"

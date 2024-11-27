@@ -1,25 +1,24 @@
 "use client"
 
+import PageHeaderV2 from "@/components/layout/PageHeaderV2"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import HeadStaff_Task_All from "@/features/head-maintenance/api/task/all.api"
-import TaskCard from "@/old/TaskCard"
+import HeadMaintenanceNavigationDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
+import head_maintenance_queries from "@/features/head-maintenance/queries"
+import hm_uris from "@/features/head-maintenance/uri"
+import { AreaDto } from "@/lib/domain/Area/Area.dto"
+import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import { UserDto } from "@/lib/domain/User/User.dto"
 import qk from "@/old/querykeys"
+import TaskCard from "@/old/TaskCard"
+import { FilterOutlined, SearchOutlined } from "@ant-design/icons"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { Badge, Button, Card, Divider, Empty, Input, List, Result, Select, Skeleton, Space } from "antd"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
-import PageHeader from "@/components/layout/PageHeader"
-import { FilterOutlined, SearchOutlined } from "@ant-design/icons"
-import HeadMaintenanceNavigationDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
-import hm_uris from "@/features/head-maintenance/uri"
-import { AreaDto } from "@/lib/domain/Area/Area.dto"
-import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
-import { UserDto } from "@/lib/domain/User/User.dto"
-import head_maintenance_queries from "@/features/head-maintenance/queries"
 import FilterDrawer, { FilterDrawerProps, FilterQuery } from "./Filter.drawer"
-import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 
 function Page({ searchParams }: { searchParams: { page?: string; status?: TaskStatus } }) {
    const [status, setStatus] = useState<TaskStatus>(searchParams?.status ?? TaskStatus.AWAITING_FIXER)
@@ -106,16 +105,10 @@ function Page({ searchParams }: { searchParams: { page?: string; status?: TaskSt
          return true
       })
 
-      if (status === TaskStatus.AWAITING_FIXER) {
-         // order list by created at (asc) if pending
-         list = list.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-      } else {
-         // order list by updated at (desc) if not pending
-         list = list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      }
+      list = list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
       return list
-   }, [api_tasks.isSuccess, api_tasks.data?.list, status, search, query])
+   }, [api_tasks.isSuccess, api_tasks.data?.list, search, query])
 
    function handleChangeTab(tab: TaskStatus) {
       setStatus(tab)

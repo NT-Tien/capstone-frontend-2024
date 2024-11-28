@@ -9,7 +9,6 @@ import useIssue_Cancel from "@/features/head-maintenance/mutations/Issue_Cancel.
 import useIssueSparePart_Create from "@/features/head-maintenance/mutations/IssueSparePart_Create.mutation"
 import useIssue_UpdateFull from "@/features/head-maintenance/mutations/Issue_UpdateFull.mutation"
 import useTaskCancel from "@/features/head-maintenance/mutations/Task_Cancel.mutation"
-import useNotifications_Seen from "@/features/head-maintenance/mutations/Notifications_Seen.mutation"
 import useRequest_ApproveToWarranty from "@/features/head-maintenance/mutations/Request_ApproveToWarranty.mutation"
 import useRequest_Finish from "@/features/head-maintenance/mutations/Request_Finish.mutation"
 import useTask_AssignFixer from "@/features/head-maintenance/mutations/Task_AssignFixer.mutation"
@@ -52,9 +51,6 @@ const head_maintenance_mutations = {
       update: useTaskUpdate,
       close: useTask_Close,
       createExportWarehouse: useTask_CreateExportWarehouse,
-   },
-   notifications: {
-      seen: useNotifications_Seen,
    },
 }
 

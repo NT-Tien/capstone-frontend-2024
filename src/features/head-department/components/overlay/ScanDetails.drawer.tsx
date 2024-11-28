@@ -1,5 +1,20 @@
 "use client"
 
+import AlertCard from "@/components/AlertCard"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import CreateRequestDrawer, {
+   CreateRequestDrawerProps,
+} from "@/features/head-department/components/overlay/CreateRequest.drawer"
+import head_department_queries from "@/features/head-department/queries"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
+import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
+import { FixRequest_StatusData } from "@/lib/domain/Request/RequestStatus.mapper"
+import { NotFoundError } from "@/lib/error/not-found.error"
+import { cn } from "@/lib/utils/cn.util"
+import { CalendarOutlined, CloseOutlined, MoreOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons"
+import UserOutlined from "@ant-design/icons/UserOutlined"
+import { Article, ClockCounterClockwise, Devices, Info, MapPinArea, VectorTwo } from "@phosphor-icons/react"
+import { UseQueryResult } from "@tanstack/react-query"
 import {
    Badge,
    Button,
@@ -15,36 +30,33 @@ import {
    Tabs,
    Typography,
 } from "antd"
-import { DeviceDto } from "@/lib/domain/Device/Device.dto"
-import { CalendarOutlined, CloseOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons"
-import head_department_queries from "@/features/head-department/queries"
-import CreateRequestDrawer, {
-   CreateRequestDrawerProps,
-} from "@/features/head-department/components/overlay/CreateRequest.drawer"
-import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { FixRequest_StatusData } from "@/lib/domain/Request/RequestStatus.mapper"
 import dayjs from "dayjs"
-import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import AlertCard from "@/components/AlertCard"
-import UserOutlined from "@ant-design/icons/UserOutlined"
-import { cn } from "@/lib/utils/cn.util"
-import { Article, ClockCounterClockwise, Devices, Info, MapPinArea, VectorTwo } from "@phosphor-icons/react"
-import { UseQueryResult } from "@tanstack/react-query"
-import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 type ScanDetailsDrawerProps = {
-   device?: DeviceDto
+   id?: string
 }
-type Props = Omit<DrawerProps, "children"> & ScanDetailsDrawerProps
+type Props = Omit<DrawerProps, "children"> &
+   ScanDetailsDrawerProps & {
+      handleClose?: () => void
+   }
 
 function ScanDetailsDrawer(props: Props) {
-   const api_deviceHistory = head_department_queries.device.oneById_withRequests(
+   const api_device = head_department_queries.device.oneById(
       {
-         id: props.device?.id ?? "",
+         id: props.id ?? "",
       },
       {
-         enabled: !!props.device,
+         enabled: !!props.id,
+      },
+   )
+
+   const api_deviceHistory = head_department_queries.device.oneById_withRequests(
+      {
+         id: props.id ?? "",
+      },
+      {
+         enabled: !!props.id,
          select: (data) => {
             return {
                ...data,
@@ -76,6 +88,7 @@ function ScanDetailsDrawer(props: Props) {
       <>
          <Drawer
             closeIcon={false}
+            loading={api_device.isPending}
             title={
                <div className="flex flex-col">
                   <header className="flex items-center justify-between gap-1">
@@ -125,28 +138,30 @@ function ScanDetailsDrawer(props: Props) {
                header: "pb-0 bg-head_department *:text-white",
             }}
             footer={
-               <div>
-                  {cannotCreateRequest && cannotCreateRequest?.length > 0 && (
-                     <AlertCard
-                        text="Thiết bị nãy đã có yêu cầu đang được xử lý. Vui lòng thử lại sau"
-                        type="warning"
-                        className="mb-3"
-                     />
-                  )}
-                  <Button
-                     type="primary"
-                     block
-                     icon={<PlusOutlined />}
-                     onClick={() => control_createRequestDrawer.current?.handleOpen({ device: props.device })}
-                     disabled={cannotCreateRequest && cannotCreateRequest?.length > 0}
-                  >
-                     Tạo yêu cầu mới
-                  </Button>
-               </div>
+               api_device.isSuccess && (
+                  <div>
+                     {cannotCreateRequest && cannotCreateRequest?.length > 0 && (
+                        <AlertCard
+                           text="Thiết bị nãy đã có yêu cầu đang được xử lý. Vui lòng thử lại sau"
+                           type="warning"
+                           className="mb-3"
+                        />
+                     )}
+                     <Button
+                        type="primary"
+                        block
+                        icon={<PlusOutlined />}
+                        onClick={() => control_createRequestDrawer.current?.handleOpen({ device: api_device.data })}
+                        disabled={cannotCreateRequest && cannotCreateRequest?.length > 0}
+                     >
+                        Tạo yêu cầu mới
+                     </Button>
+                  </div>
+               )
             }
             {...props}
          >
-            {tab === "device-details" && (
+            {tab === "device-details" && api_device.isSuccess && (
                <div>
                   <Descriptions
                      contentStyle={{
@@ -163,7 +178,7 @@ function ScanDetailsDrawer(props: Props) {
                                  Mẫu máy
                               </div>
                            ),
-                           children: props.device?.machineModel.name,
+                           children: api_device.data?.machineModel.name,
                         },
                         {
                            label: (
@@ -172,7 +187,7 @@ function ScanDetailsDrawer(props: Props) {
                                  Khu vực
                               </div>
                            ),
-                           children: props.device?.area?.name ?? "-",
+                           children: api_device.data?.area?.name ?? "-",
                         },
                         {
                            label: (
@@ -181,7 +196,7 @@ function ScanDetailsDrawer(props: Props) {
                                  Vị trí
                               </div>
                            ),
-                           children: `${props.device?.positionX ?? "-"} x ${props.device?.positionY ?? "-"}`,
+                           children: `${api_device.data?.positionX ?? "-"} x ${api_device.data?.positionY ?? "-"}`,
                         },
                         {
                            label: (
@@ -192,7 +207,7 @@ function ScanDetailsDrawer(props: Props) {
                            ),
                            children: (
                               <Typography.Paragraph ellipsis={{ symbol: "Xem nữa", expandable: true, rows: 3 }}>
-                                 {props.device?.description}
+                                 {api_device.data?.description}
                               </Typography.Paragraph>
                            ),
                         },
@@ -257,7 +272,19 @@ function ScanDetailsDrawer(props: Props) {
                   </section>
                </div>
             )}
-            {tab === "repair-history" && <RepairHistoryTab api_deviceHistory={api_deviceHistory} />}
+            {tab === "repair-history" && api_device.isSuccess && (
+               <RepairHistoryTab api_deviceHistory={api_deviceHistory} />
+            )}
+
+            {api_device.isError && api_device.error instanceof NotFoundError && (
+               <div className="grid h-full place-items-center">
+                  <Empty description="Không tìm thấy thiết bị">
+                     <Button type="primary" icon={<ReloadOutlined />} onClick={() => props.handleClose?.()}>
+                        Quét lại
+                     </Button>
+                  </Empty>
+               </div>
+            )}
          </Drawer>
          <OverlayControllerWithRef ref={control_createRequestDrawer}>
             <CreateRequestDrawer />

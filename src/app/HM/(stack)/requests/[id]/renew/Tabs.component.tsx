@@ -204,6 +204,7 @@ function TabbedLayout(props: Props) {
             )}
             {tab === "device" && (
                <Tabs
+                  className="task-tabs"
                   items={[
                      {
                         key: "1",
@@ -343,8 +344,8 @@ function TabbedLayout(props: Props) {
                                  },
                               ]}
                            />
-                        )
-                     }
+                        ),
+                     },
                   ]}
                />
                // <div className="mt-layout-half rounded-lg">

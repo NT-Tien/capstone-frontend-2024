@@ -4,13 +4,11 @@ import { PageContainer, ProTable } from "@ant-design/pro-components"
 import stockkeeper_queries from "@/features/stockkeeper/queries"
 import { ExportStatus } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
 import { useMemo, useRef, useState } from "react"
-import { Button, Table } from "antd"
+import { Button, DrawerProps, Table } from "antd"
 import dayjs, { Dayjs } from "dayjs"
 import { ExportType } from "@/lib/domain/ExportWarehouse/ExportType.enum"
 import { EyeOutlined } from "@ant-design/icons"
-import ExportWarehouse_ViewDetailsDrawer, {
-   ExportWarehouse_ViewDetailsDrawerProps,
-} from "@/features/stockkeeper/components/overlay/ExportWarehouse_ViewDetails.drawer"
+import ExportWarehouse_ViewDetailsDrawer from "@/features/stockkeeper/components/overlay/ExportWarehouse_ViewDetails.drawer"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 
 type Query = {
@@ -28,7 +26,17 @@ type Query = {
    }
 }
 
-function Page() {
+type ExportWarehouse_ViewDetailsDrawerProps = {
+   id?: string
+   refetchFn?: () => void
+}
+type Props = Omit<DrawerProps, "children"> &
+   ExportWarehouse_ViewDetailsDrawerProps & {
+      handleClose?: () => void
+   }
+
+
+function Page(props: Props) {
    const [tab, setTab] = useState<ExportStatus>(ExportStatus.WAITING)
    const [query, setQuery] = useState<Query>({
       page: 0,

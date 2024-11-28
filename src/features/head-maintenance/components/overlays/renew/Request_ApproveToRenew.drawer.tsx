@@ -1,3 +1,4 @@
+import head_department_mutations from "@/features/head-department/mutations"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
@@ -16,6 +17,7 @@ type Request_ApproveToRenewDrawerProps = {
    requestId?: string
    isMultiple?: boolean
    onSuccess?: () => void
+   machineModelId: string
 }
 type Props = Omit<DrawerProps, "children"> & Request_ApproveToRenewDrawerProps
 
@@ -39,6 +41,7 @@ function Request_ApproveToRenewDrawer(props: Props) {
       },
    )
    const mutate_createRenewRequest = head_maintenance_mutations.request.approveToRenew()
+   const mutate_createRenewEmptyDeviceRequest = head_maintenance_mutations.request.approveToRenewEmptyDevice()
 
    const renderList = useMemo(() => {
       if (!api_machineModels.isSuccess) return
@@ -69,13 +72,13 @@ function Request_ApproveToRenewDrawer(props: Props) {
             onOk: () => {
                if (!props.requestId || !api_request.isSuccess) return
                setSelectedMachineModel(selectedMachineModel)
-               mutate_createRenewRequest.mutate(
+               mutate_createRenewEmptyDeviceRequest.mutate(
                   {
                      id: props.requestId,
                      payload: {
-                        deviceId: selectedMachineModel?.devices[0]?.id,
                         note: api_request.data.requester_note,
                         isMultiple: props.isMultiple,
+                        machineModelId: api_request.data.device.machineModel.id,
                      },
                   },
                   {

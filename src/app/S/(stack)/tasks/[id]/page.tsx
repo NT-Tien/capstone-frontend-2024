@@ -66,6 +66,8 @@ function Page({ params }: { params: { id: string } }) {
    }
 
    console.log("issueSpareParts length:", issueSpareParts.length)
+   console.log("hasReturnedSparePart: ", hasReturnedSpareParts);
+   
 
    return (
       <ConfigProvider
@@ -296,7 +298,7 @@ function Page({ params }: { params: { id: string } }) {
                )}
             </section>
             <footer className={"absolute bottom-0 left-0 w-full bg-white p-layout shadow-fb"}>
-               {hasDoneAllIssues && (
+               {/* {hasDoneAllIssues && (
                   <Button
                      block
                      type={"primary"}
@@ -310,7 +312,7 @@ function Page({ params }: { params: { id: string } }) {
                   >
                      Hoàn thành tác vụ
                   </Button>
-               )}
+               )} */}
 
                {allIssuesResolved ||
                   (hasDoneAllIssues && hasReturnedSpareParts && hasFailedIssueWithoutSparePart && (

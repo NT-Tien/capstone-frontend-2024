@@ -7,7 +7,7 @@ import Cookies from "js-cookie"
 export type Request = {
    id: string
    payload: {
-      deviceId: string | null
+      deviceId: string
       note: string
       isMultiple?: boolean
    }

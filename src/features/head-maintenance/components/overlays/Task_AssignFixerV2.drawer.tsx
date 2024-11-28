@@ -126,8 +126,11 @@ function Task_AssignFixerV2Drawer(props: Props) {
    ) {
       let user = selectedUser
       if (autoAssign || !user) {
+         const recommendedUsers = renderList.filter((item) => item.isRecommended)
          // randomly select user with least pending tasks
-         const sortedUsers = renderList.sort((a, b) => a.normalTasks.pending.length - b.normalTasks.pending.length)
+         const sortedUsers = (recommendedUsers.length > 0 ? recommendedUsers : renderList).sort(
+            (a, b) => a.normalTasks.pending.length - b.normalTasks.pending.length,
+         )
          const firstUser = sortedUsers[0]
          const sameAsFirstUser = sortedUsers.filter(
             (u) => u.normalTasks.pending.length === firstUser.normalTasks.pending.length,
@@ -153,7 +156,13 @@ function Task_AssignFixerV2Drawer(props: Props) {
       } else {
          setDisabledAssign(props.disabledAssignProps?.defaultEnabled ?? false)
       }
-   }, [props.defaults?.date, props.defaults?.fixer, props.defaults?.priority, props.disabledAssignProps?.defaultEnabled, props.open])
+   }, [
+      props.defaults?.date,
+      props.defaults?.fixer,
+      props.defaults?.priority,
+      props.disabledAssignProps?.defaultEnabled,
+      props.open,
+   ])
 
    return (
       <>
@@ -170,8 +179,7 @@ function Task_AssignFixerV2Drawer(props: Props) {
                   icon={<EditOutlined />}
                   loading={api_users.isLoading}
                   onClick={() => {
-                     selectedDate &&
-                        renderList &&
+                     if (selectedDate && renderList) {
                         handleSubmit(
                            selectedDate,
                            selectedPriority,
@@ -179,7 +187,8 @@ function Task_AssignFixerV2Drawer(props: Props) {
                            props.taskId,
                            selectedUser,
                            disabledAssign,
-                        )
+                        );
+                     }
                   }}
                >
                   Cập nhật

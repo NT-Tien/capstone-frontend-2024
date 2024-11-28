@@ -13,6 +13,7 @@ const headstaff_qk = {
          props,
       ],
       byId: (id: string) => ["headstaff", "request", "byId", id],
+      renewStatus: (id: string) => ["headstaff", "request", "renewStatus", id]
    },
    task: {
       base: () => ["headstaff", "task"],

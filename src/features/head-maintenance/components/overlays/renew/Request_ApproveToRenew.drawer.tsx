@@ -70,6 +70,11 @@ function Request_ApproveToRenewDrawer(props: Props) {
             okText: "Đồng ý",
             cancelText: "Hủy",
             onOk: () => {
+               console.log("Request ID:", props.requestId);
+               console.log("Requester Note:", api_request.data?.requester_note);
+               console.log("Machine Model ID:", selectedMachineModel.id);
+               console.log("Is Multiple:", props.isMultiple);
+               console.log("Selected Machine Model:", selectedMachineModel);
                if (!props.requestId || !api_request.isSuccess) return
                setSelectedMachineModel(selectedMachineModel)
                mutate_createRenewEmptyDeviceRequest.mutate(
@@ -78,7 +83,7 @@ function Request_ApproveToRenewDrawer(props: Props) {
                      payload: {
                         note: api_request.data.requester_note,
                         isMultiple: props.isMultiple,
-                        machineModelId: api_request.data.device.machineModel.id,
+                        machineModelId: selectedMachineModel.id,
                      },
                   },
                   {

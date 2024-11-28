@@ -37,6 +37,7 @@ type Props = {
    api_device: UseQueryResult<DeviceDto, Error>
    api_deviceHistory: UseQueryResult<RequestDto[], Error>
    api_task: UseQueryResult<TaskDto, Error>
+   api_renewStatus: UseQueryResult<DeviceDto, Error>
 }
 
 function TabbedLayout(props: Props) {
@@ -282,7 +283,7 @@ function TabbedLayout(props: Props) {
                         children: (
                            <DataListView
                               bordered
-                              dataSource={props.api_task.data?.device_renew}
+                              dataSource={props.api_renewStatus.data}
                               itemClassName="py-2"
                               labelClassName="font-normal text-neutral-400 text-[14px]"
                               valueClassName="text-[14px] font-medium"

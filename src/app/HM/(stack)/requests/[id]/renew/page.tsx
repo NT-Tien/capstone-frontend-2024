@@ -37,6 +37,7 @@ import { NewDeviceInstallation, RemoveOldDeviceTypeErrorId } from "@/lib/constan
 import TabbedLayout from "./Tabs.component"
 import qk from "@/old/querykeys"
 import HeadStaff_Task_OneById from "@/features/head-maintenance/api/task/one-byId.api"
+import HeadStaff_Request_RenewStatus from "@/features/head-maintenance/api/request/renew-status.api"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
@@ -74,6 +75,12 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       queryFn: () => HeadStaff_Device_OneByIdWithHistory({ id: api_request.data?.device.id ?? "" }),
       select: (data) => data.requests.filter((req) => req.id !== params.id),
       enabled: api_request.isSuccess,
+   })
+
+   const api_device_renew = useQuery({
+      queryKey: headstaff_qk.request.renewStatus(api_request.data?.tasks[0].id ?? ""),
+      queryFn: () => HeadStaff_Request_RenewStatus({ id: api_request.data?.tasks[0].id ?? "" }),
+      enabled: api_request.isSuccess
    })
 
    const mutate_createTask = useMutation({
@@ -359,6 +366,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                         api_request={api_request}
                         requestId={params.id}
                         api_task={api_task}
+                        api_renewStatus={api_device_renew}
                      />
                   </Suspense>
                </>

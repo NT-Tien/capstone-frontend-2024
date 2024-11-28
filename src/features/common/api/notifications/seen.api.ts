@@ -9,10 +9,10 @@ export type Request = {
 } & AuthTokenWrapper
 export type Response = NotificationDto
 
-Staff_Notifications_Seen.URL = (req: Request) => `/staff/notifications/${req.id}/seen`
-export default async function Staff_Notifications_Seen(req: Request): Promise<Response> {
+Notifications_Seen.URL = (req: Request) => `/notifications/${req.id}/seen`
+export default async function Notifications_Seen(req: Request): Promise<Response> {
    return api
-      .put<Response>(Staff_Notifications_Seen.URL(req), undefined, {
+      .put<Response>(Notifications_Seen.URL(req), undefined, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,

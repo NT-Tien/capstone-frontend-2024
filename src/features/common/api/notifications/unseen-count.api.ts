@@ -9,15 +9,10 @@ export type Request = {
 } & AuthTokenWrapper
 export type Response = NotificationDto[]
 
-Staff_Notifications.URL = (req: Request) => {
-   const searchParams = new URLSearchParams()
-   if (req.hasSeen !== null && req.hasSeen !== undefined) searchParams.append("hasSeen", req.hasSeen.toString())
-
-   return `staff/notifications` + (searchParams.toString() ? `?${searchParams.toString()}` : ``)
-}
-export default async function Staff_Notifications(req: Request): Promise<Response> {
+Notifications_UnseenCount.URL = (req: Request) => "/notifications/unseen-count"
+export default async function Notifications_UnseenCount(req: Request): Promise<Response> {
    return api
-      .get<Response>(Staff_Notifications.URL(req), {
+      .get<Response>(Notifications_UnseenCount.URL(req), {
          transformResponse: (data) => parseApiResponse<any>(data),
          headers: {
             Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,

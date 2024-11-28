@@ -9,15 +9,15 @@ export type Request = {
 } & AuthTokenWrapper
 export type Response = NotificationDto[]
 
-HeadStaff_Notifications.URL = (req: Request) => {
+Notifications_All.URL = (req: Request) => {
    const searchParams = new URLSearchParams()
    if (req.hasSeen !== null && req.hasSeen !== undefined) searchParams.append("hasSeen", req.hasSeen.toString())
 
-   return `head-staff/notifications` + (searchParams.toString() ? `?${searchParams.toString()}` : ``)
+   return `notifications` + (searchParams.toString() ? `?${searchParams.toString()}` : ``)
 }
-export default async function HeadStaff_Notifications(req: Request): Promise<Response> {
+export default async function Notifications_All(req: Request): Promise<Response> {
    return api
-      .get<Response>(HeadStaff_Notifications.URL(req), {
+      .get<Response>(Notifications_All.URL(req), {
          transformResponse: (data) => parseApiResponse<any>(data),
          headers: {
             Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,

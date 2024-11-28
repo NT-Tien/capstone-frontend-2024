@@ -2,7 +2,6 @@
 
 import NavigationDrawer, { NavigationDrawerProps } from "@/components/layout/NavigationDrawer"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import staff_queries from "@/features/staff/queries"
 import staff_uri from "@/features/staff/uri"
 import {
    BellOutlined,
@@ -23,8 +22,6 @@ function StaffNavigationDrawer(props: PropsWithChildren) {
    const router = useRouter()
    const control_ref = useRef<RefType<NavigationDrawerProps>>(null)
 
-   const api_notifications = staff_queries.notifications.all({ hasSeen: false })
-
    function handleOpen() {
       control_ref.current?.handleOpen({})
    }
@@ -40,7 +37,7 @@ function StaffNavigationDrawer(props: PropsWithChildren) {
                }}
                type="staff"
                extraItems={[
-                  <Badge key={"notifications"} count={api_notifications.data?.length ?? 0} size={"small"}>
+                  <Badge key={"notifications"} count={0} size={"small"}>
                      <Button
                         icon={<BellOutlined className={"text-white"} />}
                         type={"text"}

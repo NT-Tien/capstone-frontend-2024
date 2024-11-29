@@ -1,5 +1,6 @@
 import api from "@/config/axios.config"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
+import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"

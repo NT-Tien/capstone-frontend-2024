@@ -366,7 +366,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                         api_request={api_request}
                         requestId={params.id}
                         api_task={api_task}
-                        api_renewStatus={api_device_renew}
                      />
                   </Suspense>
                </>

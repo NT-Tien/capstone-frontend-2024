@@ -30,6 +30,7 @@ import hm_uris from "@/features/head-maintenance/uri"
 import TasksTab from "./Tasks.tab"
 import IssuesTab from "./Issues.tab"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 
 type Props = {
    requestId: string
@@ -37,7 +38,6 @@ type Props = {
    api_device: UseQueryResult<DeviceDto, Error>
    api_deviceHistory: UseQueryResult<RequestDto[], Error>
    api_task: UseQueryResult<TaskDto, Error>
-   api_renewStatus: UseQueryResult<DeviceDto, Error>
 }
 
 function TabbedLayout(props: Props) {
@@ -283,33 +283,33 @@ function TabbedLayout(props: Props) {
                         children: (
                            <DataListView
                               bordered
-                              dataSource={props.api_renewStatus.data}
+                              dataSource={props.api_task.data?.device_renew}
                               itemClassName="py-2"
                               labelClassName="font-normal text-neutral-400 text-[14px]"
                               valueClassName="text-[14px] font-medium"
                               items={[
                                  {
                                     label: "Mẫu máy",
-                                    value: (s) => s.machineModel?.name,
+                                    value: (s) => s?.machineModel?.name,
                                  },
                                  {
                                     label: "Nhà sản xuất",
-                                    value: (s) => s.machineModel?.manufacturer,
+                                    value: (s) => s?.machineModel?.manufacturer,
                                  },
                                  {
                                     label: "Năm sản xuất",
-                                    value: (s) => s.machineModel?.yearOfProduction,
+                                    value: (s) => s?.machineModel?.yearOfProduction,
                                  },
                                  {
                                     label: "Thời hạn bảo hành",
                                     value: (s) =>
-                                       s.machineModel?.warrantyTerm === null ||
-                                       s.machineModel.warrantyTerm === undefined ? (
+                                       s?.machineModel?.warrantyTerm === null ||
+                                       s?.machineModel?.warrantyTerm === undefined ? (
                                           <span>Không có bảo hành</span>
                                        ) : (
                                           <span className="flex flex-col">
                                              <span className="text-right">
-                                                {dayjs(s.machineModel?.warrantyTerm)
+                                                {dayjs(s?.machineModel?.warrantyTerm)
                                                    .add(7, "days")
                                                    .format("DD/MM/YYYY")}
                                              </span>
@@ -323,26 +323,26 @@ function TabbedLayout(props: Props) {
                                  },
                                  {
                                     label: "Mô tả",
-                                    value: (s) => s.description,
+                                    value: (s) => s?.machineModel?.description,
                                  },
                                  {
                                     isDivider: true,
                                     label: "",
                                     value: () => null,
                                  },
-                                 {
-                                    label: "Khu vực",
-                                    value: (s) => s.area?.name,
-                                 },
-                                 {
-                                    label: "Vị trí (x, y)",
-                                    value: (s) => (
-                                       <a className="flex items-center gap-1">
-                                          {s.positionX} x {s.positionY}
-                                          <MapPin size={16} weight="fill" />
-                                       </a>
-                                    ),
-                                 },
+                                 // {
+                                 //    label: "Khu vực",
+                                 //    value: (s) => s.machineModel.area?.name,
+                                 // },
+                                 // {
+                                 //    label: "Vị trí (x, y)",
+                                 //    value: (s) => (
+                                 //       <a className="flex items-center gap-1">
+                                 //          {s.positionX} x {s.positionY}
+                                 //          <MapPin size={16} weight="fill" />
+                                 //       </a>
+                                 //    ),
+                                 // },
                               ]}
                            />
                         ),

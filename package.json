@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "dev:turbo": "next dev --turbo",
+    "dev": "next dev --turbopack",
+    "dev:turbo": "next dev --turbopack",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=13000 next build",
     "start": "next start",
     "lint": "next lint"
@@ -23,7 +23,7 @@
     "dayjs": "^1.11.11",
     "js-cookie": "^3.0.5",
     "leaflet": "^1.9.4",
-    "next": "^14.2.16",
+    "next": "^15.0.3",
     "qr-scanner": "^1.4.2",
     "rc-virtual-list": "^3.14.5",
     "react": "^18.2.0",

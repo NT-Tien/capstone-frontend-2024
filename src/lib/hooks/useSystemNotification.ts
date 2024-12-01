@@ -11,10 +11,10 @@ type Props = {
    tag?: string
 }
 
-function useSendNotification(props: Props) {
+function useSystemNotification() {
    const { message } = App.useApp()
 
-   async function send() {
+   async function send(props: Props) {
       try {
          if (!("Notification" in window)) {
             throw new Error("Trình duyệt không hỗ trợ thông báo.")
@@ -61,4 +61,4 @@ function useSendNotification(props: Props) {
    return send
 }
 
-export default useSendNotification
+export default useSystemNotification

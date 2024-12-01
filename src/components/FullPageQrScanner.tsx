@@ -56,10 +56,8 @@ function FullPageQrScanner(props: Props) {
       }
 
       return () => {
-         if (!videoRef) {
-            scanner.current?.stop()
-            setStatus("paused")
-         }
+         scanner.current?.stop()
+         setStatus("paused")
       }
    }, [props])
 

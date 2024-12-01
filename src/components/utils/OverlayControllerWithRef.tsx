@@ -34,9 +34,6 @@ const OverlayControllerWithRef = forwardRef<RefType<any>, Props<any>>(function C
          setComponentProps(props)
       },
       onClose: () => {
-         setTimeout(() => {
-            setComponentProps(undefined)
-         }, 100)
       },
    })
 
@@ -59,6 +56,10 @@ const OverlayControllerWithRef = forwardRef<RefType<any>, Props<any>>(function C
          }
       }
 
+      function afterOpenChange(open: boolean) {
+         if(!open) setComponentProps(undefined)
+      }
+
       return Children.map(props.children, (child) => {
          if (isValidElement(child)) {
             return cloneElement<any>(child, {
@@ -69,6 +70,7 @@ const OverlayControllerWithRef = forwardRef<RefType<any>, Props<any>>(function C
                onOpenChange,
                handleClose,
                instantClose: handleClose_base,
+               afterOpenChange,
                ...componentProps,
             })
          }

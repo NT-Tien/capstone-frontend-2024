@@ -6,9 +6,11 @@ import CreateRequestDrawer, {
    CreateRequestDrawerProps,
 } from "@/features/head-department/components/overlay/CreateRequest.drawer"
 import head_department_queries from "@/features/head-department/queries"
+import hd_uris from "@/features/head-department/uri"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { FixRequest_StatusData } from "@/lib/domain/Request/RequestStatus.mapper"
+import useCurrentUser from "@/lib/domain/User/useCurrentUser"
 import { NotFoundError } from "@/lib/error/not-found.error"
 import { cn } from "@/lib/utils/cn.util"
 import { CalendarOutlined, CloseOutlined, MoreOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons"
@@ -31,6 +33,7 @@ import {
    Typography,
 } from "antd"
 import dayjs from "dayjs"
+import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 
 type ScanDetailsDrawerProps = {
@@ -42,6 +45,8 @@ type Props = Omit<DrawerProps, "children"> &
    }
 
 function ScanDetailsDrawer(props: Props) {
+   const router = useRouter()
+   const currentUser = useCurrentUser()
    const api_device = head_department_queries.device.oneById(
       {
          id: props.id ?? "",
@@ -228,7 +233,13 @@ function ScanDetailsDrawer(props: Props) {
                               <List
                                  dataSource={api_deviceHistory.data?.requests.slice(0, 3)}
                                  renderItem={(item) => (
-                                    <List.Item className="items-start gap-2">
+                                    <List.Item
+                                       className="items-start gap-2"
+                                       onClick={() => {
+                                          if (currentUser.id === item.requester.id)
+                                             router.push(hd_uris.stack.history_id(item.id))
+                                       }}
+                                    >
                                        <List.Item.Meta
                                           title={<div className="truncate">{item.requester_note}</div>}
                                           description={
@@ -299,6 +310,8 @@ type RepairHistoryTabProps = {
 
 function RepairHistoryTab(props: RepairHistoryTabProps) {
    const [search, setSearch] = useState<string>("")
+   const router = useRouter()
+   const currentUser = useCurrentUser()
 
    const renderList = useMemo(() => {
       if (!props.api_deviceHistory.isSuccess) return []
@@ -330,7 +343,13 @@ function RepairHistoryTab(props: RepairHistoryTabProps) {
             dataSource={renderList}
             loading={props.api_deviceHistory.isPending}
             renderItem={(item, index) => (
-               <List.Item className={cn("items-start gap-2", index === 0 && "pt-0")}>
+               <List.Item
+                  className={cn("items-start gap-2", index === 0 && "pt-0")}
+                  onClick={() => {
+                     if (currentUser.id === item.requester.id)
+                        router.push(hd_uris.stack.history_id(item.id))
+                  }}
+               >
                   <List.Item.Meta
                      title={<div className="truncate">{item.requester_note}</div>}
                      description={

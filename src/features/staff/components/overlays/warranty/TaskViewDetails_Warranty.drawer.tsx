@@ -168,7 +168,7 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
                               id: api_task.data.id,
                            },
                            {
-                              onSuccess: () => {
+                              onSettled: () => {
                                  router.push(staff_uri.stack.tasks_id_warranty(api_task.data.id))
                               },
                            },
@@ -352,46 +352,6 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
                            },
                         ]}
                      />
-                     {/* <List
-                        dataSource={api_task.data.issues}
-                        renderItem={(issue, index) => (
-                           <List.Item className={cn(index === 0 && "pt-0")}>
-                              <List.Item.Meta
-                                 title={<div className={"text-base"}>{issue.typeError.name}</div>}
-                                 description={
-                                    <Space
-                                       className={"text-sm"}
-                                       split={<Divider type={"vertical"} className={"m-0"} />}
-                                    >
-                                       <div>{issue.typeError.description}</div>
-                                    </Space>
-                                 }
-                                 avatar={
-                                    <Avatar
-                                       size={"small"}
-                                       className={cn(
-                                          issue.status === IssueStatusEnum.PENDING && "bg-neutral-500",
-                                          issue.status === IssueStatusEnum.RESOLVED && "bg-green-500",
-                                          issue.status === IssueStatusEnum.FAILED && "bg-red-500",
-                                          issue.status === IssueStatusEnum.CANCELLED && "bg-gray-500",
-                                       )}
-                                       icon={
-                                          issue.status === IssueStatusEnum.PENDING ? (
-                                             <MinusOutlined />
-                                          ) : issue.status === IssueStatusEnum.RESOLVED ? (
-                                             <CheckOutlined />
-                                          ) : issue.status === IssueStatusEnum.FAILED ? (
-                                             <ExclamationOutlined />
-                                          ) : (
-                                             <CloseOutlined />
-                                          )
-                                       }
-                                    />
-                                 }
-                              />
-                           </List.Item>
-                        )}
-                     /> */}
                   </section>
                </>
             )}

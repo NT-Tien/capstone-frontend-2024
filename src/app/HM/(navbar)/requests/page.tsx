@@ -174,6 +174,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
                      { label: "Đã xác nhận lỗi", value: "APPROVED" },
                      { label: "Đang thực hiện", value: "IN_PROGRESS" },
                      { label: "Đã hoàn thành", value: "CLOSED" },
+                     { label: "Cần kiểm tra", value: "HM_VERIFY"},
                      { label: "Từ chối sửa", value: "REJECTED" },
                   ]}
                />

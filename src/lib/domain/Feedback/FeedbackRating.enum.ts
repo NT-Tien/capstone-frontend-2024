@@ -1,0 +1,4 @@
+export enum FeedbackRating {
+   PROBLEM_FIXED = "PROBLEM_FIXED",
+   PROBLEM_NOT_FIXED = "PROBLEM_NOT_FIXED",
+}

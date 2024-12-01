@@ -26,7 +26,7 @@ import { Clock, Note, QrCode, Swap, User, Wrench } from "@phosphor-icons/react"
 import { UseQueryResult } from "@tanstack/react-query"
 import { App, Button, Card, Divider, Dropdown, Spin, Typography } from "antd"
 import { useRouter } from "next/navigation"
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 import { DeleteFilled, MoreOutlined, TruckFilled } from "@ant-design/icons"
 import MachineModelUtil from "@/lib/domain/MachineModel/MachineModel.util"
 import { cn } from "@/lib/utils/cn.util"
@@ -51,6 +51,30 @@ function Page({ params }: { params: { id: string } }) {
          router.push(hm_uris.navbar.requests + "?status=" + api_request.data.status)
       }
    }
+
+   useEffect(() => {
+      if (
+         api_request.data?.status === FixRequestStatus.APPROVED ||
+         api_request.data?.status === FixRequestStatus.IN_PROGRESS ||
+         api_request.data?.status === FixRequestStatus.HEAD_CONFIRM ||
+         api_request.data?.status === FixRequestStatus.CLOSED
+      ) {
+         if (api_request.data.is_fix) {
+            router.push(hm_uris.stack.requests_id_fix(params.id))
+            return
+         }
+
+         if (api_request.data.is_rennew) {
+            router.push(hm_uris.stack.requests_id_renew(params.id))
+            return
+         }
+
+         if (api_request.data.is_warranty) {
+            router.push(hm_uris.stack.requests_id_warranty(params.id))
+            return
+         }
+      }
+   }, [api_request.data])
 
    if (api_request.isPending) {
       return <PageLoader />
@@ -195,7 +219,7 @@ function Page({ params }: { params: { id: string } }) {
                               },
                               {
                                  key: "reject",
-                                 label: "Từ chối yêu cầu",
+                                 label: "Đóng yêu cầu",
                                  icon: <DeleteFilled />,
                                  onClick: () =>
                                     api_request.isSuccess &&

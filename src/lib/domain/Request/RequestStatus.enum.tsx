@@ -9,6 +9,7 @@ export enum FixRequestStatus {
    REJECTED = "REJECTED", //
    HEAD_CONFIRM = "HEAD_CONFIRM",
    CLOSED = "CLOSED", // all tasks finished
+   HM_VERIFY = "HM_VERIFY",
 }
 
 export const FixRequestStatusTagMapper: {

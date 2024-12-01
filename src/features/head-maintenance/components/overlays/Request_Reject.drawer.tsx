@@ -1,17 +1,15 @@
+import AlertCard from "@/components/AlertCard"
+import head_maintenance_mutations from "@/features/head-maintenance/mutations"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import { SendOutlined } from "@ant-design/icons"
 import { DrawerProps } from "antd"
 import Button from "antd/es/button"
 import Drawer from "antd/es/drawer"
 import Form from "antd/es/form"
 import Input from "antd/es/input"
 import { TextAreaRef } from "antd/es/input/TextArea"
-import { SendOutlined } from "@ant-design/icons"
 import { useMemo, useRef } from "react"
-import { RequestDto } from "@/lib/domain/Request/Request.dto"
-import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
-import AlertCard from "@/components/AlertCard"
-import head_maintenance_mutations from "@/features/head-maintenance/mutations"
-import useCurrentUser from "@/lib/domain/User/useCurrentUser"
-import dayjs from "dayjs"
 
 type FieldType = {
    message: string
@@ -25,7 +23,6 @@ type Props = Omit<DrawerProps, "children"> & Request_RejectDrawerProps
 
 function Request_RejectDrawer(props: Props) {
    const [form] = Form.useForm<FieldType>()
-   const currentUser = useCurrentUser()
    const mutate_rejectRequest = head_maintenance_mutations.request.reject()
 
    const inputRef = useRef<TextAreaRef | null>(null)
@@ -43,8 +40,6 @@ function Request_RejectDrawer(props: Props) {
             id: props.request.id,
             payload: {
                checker_note: values.message,
-               checker: currentUser.id,
-               checker_date: dayjs().toISOString(),
             },
          },
          {
@@ -55,7 +50,7 @@ function Request_RejectDrawer(props: Props) {
 
    return (
       <Drawer
-         title="Từ chối yêu cầu"
+         title="Đóng yêu cầu"
          placement="bottom"
          height="max-content"
          classNames={{
@@ -90,7 +85,7 @@ function Request_RejectDrawer(props: Props) {
                   ref={inputRef}
                   showCount
                   maxLength={200}
-                  placeholder="Vui lòng nhập lý do hủy yêu cầu"
+                  placeholder="Vui lòng nhập lý do đóng yêu cầu"
                   allowClear
                   autoFocus
                   disabled={!canRejectRequest}

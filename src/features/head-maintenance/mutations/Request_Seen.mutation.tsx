@@ -1,24 +1,12 @@
 import useCustomMutation from "@/lib/hooks/useCustomMutation"
 import { CustomMutationHookProps } from "@/lib/types/CustomMutationHookProps"
-import HeadStaff_Request_UpdateStatus, {
-   type Request as UpdateRequest,
-   type Response,
-} from "@/features/head-maintenance/api/request/updateStatus.api"
-
-type Request = Omit<UpdateRequest, "payload">
+import HeadStaff_Request_Seen, { type Request, type Response } from "@/features/head-maintenance/api/request/seen.api"
 
 type Props = CustomMutationHookProps<Response, unknown, Request, unknown>
 export default function useRequest_Seen(props?: Props) {
    return useCustomMutation({
       options: props ?? null,
-      mutationFn: async (req: Request) => {
-         return HeadStaff_Request_UpdateStatus({
-            ...req,
-            payload: {
-               is_seen: true,
-            },
-         })
-      },
+      mutationFn: HeadStaff_Request_Seen,
       mutationKey: ["head-maintenance", "request", "seen"],
    })
 }

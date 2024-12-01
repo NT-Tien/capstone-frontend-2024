@@ -7,15 +7,17 @@ import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import PageError from "@/components/PageError"
 import PageLoader from "@/components/PageLoader"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import FeedbackDrawer, { FeedbackDrawerProps } from "@/features/head-department/components/overlay/Feedback.drawer"
+import Request_FeedbackDrawer, {
+   Request_FeedbackDrawerProps,
+} from "@/features/head-department/components/overlay/Request_Feedback.drawer"
 import RequestStatusTag from "@/features/head-department/components/RequestStatusTag"
 import head_department_mutations from "@/features/head-department/mutations"
 import head_department_queries from "@/features/head-department/queries"
 import hd_uris from "@/features/head-department/uri"
+import { FeedbackRating } from "@/lib/domain/Feedback/FeedbackRating.enum"
 import IssueUtil from "@/lib/domain/Issue/Issue.util"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { FixRequestStatuses } from "@/lib/domain/Request/RequestStatus.mapper"
 import { cn } from "@/lib/utils/cn.util"
 import {
    CheckOutlined,
@@ -36,7 +38,7 @@ function Page({ params }: { params: { id: string } }) {
    const { modal } = App.useApp()
 
    const [canViewDetails, setCanViewDetails] = useState(false)
-   const control_feedbackDrawer = useRef<RefType<FeedbackDrawerProps>>(null)
+   const control_feedbackDrawer = useRef<RefType<Request_FeedbackDrawerProps>>(null)
 
    const api_request = head_department_queries.request.oneById({ id: params.id })
 
@@ -118,7 +120,7 @@ function Page({ params }: { params: { id: string } }) {
             <section className="relative z-10 mb-3 px-layout">
                <div className="w-full bg-white p-3">
                   <h1 className="font-semibold">Đánh giá</h1>
-                  <p className="text-neutral-500">{api_request.data?.feedback?.content}</p>
+                  <p className="text-neutral-500">{api_request.data?.feedback?.[0]?.content}</p>
                </div>
             </section>
          )}
@@ -144,6 +146,10 @@ function Page({ params }: { params: { id: string } }) {
             <h1 className="line-clamp-2 text-xl font-bold">{api_request.data.old_device.machineModel.name}</h1>
          </section>
          <section className="mt-layout-half flex px-layout">
+            <h2 className="mr-auto inline font-medium">Mã yêu cầu: </h2>
+            <p className="inline text-neutral-500">{api_request.data.code}</p>
+         </section>
+         <section className="mt-1 flex px-layout">
             <h2 className="mr-auto inline font-medium">Ngày tạo: </h2>
             <p className="inline text-neutral-500">
                <DateViewSwitcher date={api_request.data.createdAt} />
@@ -318,8 +324,16 @@ function Page({ params }: { params: { id: string } }) {
             )}
          </section>
          <OverlayControllerWithRef ref={control_feedbackDrawer}>
-            <FeedbackDrawer
-               onSuccess={() => router.push(`${hd_uris.navbar.history}?status=${"closed" as FixRequestStatuses}`)}
+            <Request_FeedbackDrawer
+               onSuccess={(rating) => {
+                  if (rating === FeedbackRating.PROBLEM_FIXED) {
+                     router.push(hd_uris.navbar.history)
+                  } else if (rating === FeedbackRating.PROBLEM_NOT_FIXED) {
+                     router.push(hd_uris.navbar.history)
+                  } else {
+                     router.push(hd_uris.navbar.history)
+                  }
+               }}
             />
          </OverlayControllerWithRef>
       </div>

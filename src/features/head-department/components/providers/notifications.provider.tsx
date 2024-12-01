@@ -1,13 +1,14 @@
 "use client"
 
-import { createContext, PropsWithChildren, useEffect, useState } from "react"
-import getSocket from "@/socket"
+import { NotificationDto } from "@/lib/domain/Notification/Notification.dto"
+import { NotificationPriority } from "@/lib/domain/Notification/NotificationPriority.enum"
+import { decodeJwt } from "@/lib/domain/User/decodeJwt.util"
 import { Role } from "@/lib/domain/User/role.enum"
 import useCurrentToken from "@/lib/hooks/useCurrentToken"
-import { NotificationDto } from "@/lib/domain/Notification/Notification.dto"
+import useSystemNotification from "@/lib/hooks/useSystemNotification"
+import getSocket from "@/socket"
 import { useQueryClient } from "@tanstack/react-query"
-import { decodeJwt } from "@/lib/domain/User/decodeJwt.util"
-import head_department_queries from "@/features/head-department/queries"
+import { createContext, PropsWithChildren, useEffect, useState } from "react"
 
 type NotificationsContextType = {}
 const NotificationsContext = createContext<NotificationsContextType | null>(null)
@@ -16,6 +17,7 @@ function HeadDepartment_NotificationsProvider(props: PropsWithChildren) {
    const [isConnected, setIsConnected] = useState<boolean>(false)
    const currentToken = useCurrentToken()
    const queryClient = useQueryClient()
+   const send = useSystemNotification()
 
    useEffect(() => {
       function onConnect() {
@@ -32,6 +34,18 @@ function HeadDepartment_NotificationsProvider(props: PropsWithChildren) {
          console.log("DEV", value)
       }
 
+      function onReceive(data: NotificationDto) {
+         console.log("Notifications Ping")
+         send({
+            title: data.title,
+            body: data.body,
+            data: data.data,
+            silent: data.priority !== NotificationPriority.HIGH,
+         })
+         queryClient.invalidateQueries({
+            queryKey: ["global", "notifications"],
+         })
+      }
 
       if (!currentToken) {
          return
@@ -42,11 +56,13 @@ function HeadDepartment_NotificationsProvider(props: PropsWithChildren) {
       socket.on("connect", onConnect)
       socket.on("disconnect", onDisconnect)
       socket.on("dev", onDev)
+      socket.on(decodedToken.id, onReceive)
 
       return () => {
          socket.off("connect", onConnect)
          socket.off("disconnect", onDisconnect)
          socket.off("dev", onDev)
+         socket.off(decodedToken.id, onReceive)
          socket.disconnect()
       }
    }, [currentToken, queryClient])

@@ -1,6 +1,7 @@
 import BackendLocalImage from "@/components/BackendLocalImage"
 import ClickableArea from "@/components/ClickableArea"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
+import hm_uris from "@/features/head-maintenance/uri"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import RequestStatus_Mapper from "@/lib/domain/Request/RequestStatusMapperV2"
 import { cn } from "@/lib/utils/cn.util"
@@ -8,6 +9,7 @@ import { CalendarPlus, CaretRight, ClockCounterClockwise, MapPin, Truck } from "
 import { UseQueryResult } from "@tanstack/react-query"
 import { Button, Card, CardProps, Divider, Image, Space, Spin, Typography } from "antd"
 import dayjs from "dayjs"
+import { useRouter } from "next/navigation"
 import { HTMLAttributes } from "react"
 
 type Props = {
@@ -132,6 +134,8 @@ DeviceDetails.HistorySection = function DeviceDetailsHistorySection(
       api_requestHistory: UseQueryResult<DeviceDto, unknown>
    } & HTMLAttributes<HTMLDivElement>,
 ) {
+   const router = useRouter()
+
    if (props.api_requestHistory.isPending) {
       return <div>Loading...</div>
    }
@@ -148,7 +152,7 @@ DeviceDetails.HistorySection = function DeviceDetailsHistorySection(
       <div {...props} className={cn(props.className)}>
          <Space split={<Divider type="horizontal" className="my-1" />} direction="vertical" className="w-full">
             {props.api_requestHistory.data.requests.map((request) => (
-               <ClickableArea key={request.id} reset className="flex flex-col text-sm">
+               <ClickableArea key={request.id} reset className="flex flex-col text-sm" onClick={() => router.push(hm_uris.stack.requests_id(request.id))}>
                   <Space
                      split={<Divider type="vertical" className="m-0" />}
                      className="w-full text-xs text-neutral-600"

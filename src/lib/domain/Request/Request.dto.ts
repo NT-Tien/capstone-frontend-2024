@@ -8,6 +8,7 @@ import { FeedbackDto } from "@/lib/domain/Feedback/Feedback.dto"
 
 export type RequestDto = {
    id: string
+   code: string
    createdAt: string
    updatedAt: string
    deletedAt: string | null
@@ -27,6 +28,6 @@ export type RequestDto = {
    is_fix: boolean
    is_rennew: boolean
    return_date_warranty: string | null
-   feedback?: FeedbackDto
+   feedback?: FeedbackDto[]
    is_multiple_types?: boolean
 }

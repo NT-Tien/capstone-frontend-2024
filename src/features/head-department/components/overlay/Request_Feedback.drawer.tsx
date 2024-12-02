@@ -96,7 +96,7 @@ function Request_FeedbackDrawer(props: Props) {
                }}
             >
                <ThumbsUp size={40} />
-               <h1 className="whitespace-pre-wrap font-bold">Xử lý tốt</h1>
+               <h1 className="whitespace-pre-wrap font-bold">Máy chạy tốt</h1>
                <div className="whitespace-pre-wrap text-center text-xs">Vấn đề ban đầu đã được giải quyết</div>
             </ClickableArea>
             <ClickableArea
@@ -109,7 +109,7 @@ function Request_FeedbackDrawer(props: Props) {
                }}
             >
                <ThumbsDown size={40} />
-               <h1 className="whitespace-pre-wrap font-bold">Xử lý chưa tốt</h1>
+               <h1 className="whitespace-pre-wrap font-bold">Máy chưa hoạt động</h1>
                <div className="whitespace-pre-wrap text-center text-xs">Vấn đề ban đầu cần xử lý thêm</div>
             </ClickableArea>
          </section>

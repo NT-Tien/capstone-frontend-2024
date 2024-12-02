@@ -69,8 +69,8 @@ export default function TasksListTab(props: Props) {
 
    function handleFinishRequest(requestId: string) {
       modal.confirm({
-         title: "Đóng yêu cầu",
-         content: "Bạn có chắc chắn muốn đóng yêu cầu này?",
+         title: "Hoàn tất yêu cầu",
+         content: "Bạn có chắc chắn muốn Hoàn tất yêu cầu này?",
          onOk: () => {
             mutate_finishRequest.mutate(
                { id: requestId },
@@ -565,7 +565,7 @@ export default function TasksListTab(props: Props) {
                                              handleFinishRequest(props.api_request.data.id)
                                           }
                                        >
-                                          Đóng yêu cầu
+                                          Hoàn tất yêu cầu
                                        </Button>
                                     )}
                               </div>

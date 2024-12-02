@@ -140,7 +140,7 @@ function Task_VerifyComplete_WarrantyDrawer(props: Props) {
                      })
                }}
             >
-               Đóng yêu cầu
+               Hoàn tất yêu cầu
             </Button>
             <Dropdown
                menu={{

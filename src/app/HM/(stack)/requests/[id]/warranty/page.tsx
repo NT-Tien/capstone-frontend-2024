@@ -163,11 +163,11 @@ function Page({ params }: { params: { id: string } }) {
                      items: [
                         {
                            key: "1-main",
-                           label: "Đóng yêu cầu",
+                           label: "Hoàn tất yêu cầu",
                            onClick: () => {
                               modal.confirm({
                                  title: "Lưu ý",
-                                 content: "Bạn có chắc muốn đóng yêu cầu này?",
+                                 content: "Bạn có chắc muốn Hoàn tất yêu cầu này?",
                                  centered: true,
                                  maskClosable: true,
                                  onOk: () => {
@@ -288,7 +288,7 @@ function Page({ params }: { params: { id: string } }) {
             {api_request.isSuccess && new Set([FixRequestStatus.HEAD_CONFIRM]).has(api_request.data.status) && (
                <section className="std-layout">
                   <div className="flex w-full gap-4 rounded-b-lg bg-red-800 p-3 text-white">
-                     Yêu cầu này đã được hoàn thành và đang chờ xác nhận từ trưởng phòng
+                     Yêu cầu này đã được hoàn thành và đang chờ xác nhận từ trưởng phòng sản xuất
                   </div>
                </section>
             )}

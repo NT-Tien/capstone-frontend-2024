@@ -219,7 +219,7 @@ function Page({ params }: { params: { id: string } }) {
                               },
                               {
                                  key: "reject",
-                                 label: "Đóng yêu cầu",
+                                 label: "Hoàn tất yêu cầu",
                                  icon: <DeleteFilled />,
                                  onClick: () =>
                                     api_request.isSuccess &&

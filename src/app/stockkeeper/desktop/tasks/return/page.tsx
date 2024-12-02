@@ -184,68 +184,73 @@ function Page() {
                      Tải mẫu nhập linh kiện
                   </Button>
                }
-               tabList={[
-                  {
-                     tab: "Linh kiện được trả",
-                     key: "spare-part",
-                     children: (
-                        <>
-                           <Table
-                              dataSource={Object.values(spareParts)}
-                              pagination={false}
-                              columns={[
-                                 { key: "index", title: "STT", render: (_, __, index) => index + 1 },
-                                 { key: "name", title: "Tên linh kiện", dataIndex: ["sparePart", "name"] },
-                                 { key: "quantity", title: "Số lượng trả", dataIndex: "quantity" },
-                                 {
-                                    key: "actions",
-                                    align: "right",
-                                    render: (_, record) => (
-                                       <div>
-                                          <Button
-                                             disabled={updated.includes(record.sparePart.id)}
-                                             onClick={() =>
-                                                control_sparePartUpdateQuantityModal.current?.handleOpen({
-                                                   max: record.quantity,
-                                                   sparePartId: record.sparePart.id,
-                                                   onFinish: () => {
-                                                      setUpdated([...updated, record.sparePart.id])
-                                                   },
-                                                })
-                                             }
-                                          >
-                                             Cập nhật kho
-                                          </Button>
-                                       </div>
-                                    ),
-                                 },
-                              ]}
-                           />
-                           <OverlayControllerWithRef ref={control_sparePartUpdateQuantityModal}>
-                              <SparePart_UpdateQuantityModal />
-                           </OverlayControllerWithRef>
-                        </>
-                     ),
-                  },
-                  {
-                     tab: "Trả thiết bị",
-                     key: "device",
-                     children: (
-                        <Descriptions
-                           items={[
-                              {
-                                 label: "Tên tác vụ",
-                                 children: api.task.data?.name,
-                              },
-                              {
-                                 label: "Mẫu máy",
-                                 children: `${api.task.data?.device.machineModel.name} - ${api.task.data?.device.description}`,
-                              },
-                           ]}
-                        />
-                     ),
-                  },
-               ]}
+               tabList={
+                  api.task.data?.device_renew
+                     ? [
+                          {
+                             tab: "Trả thiết bị",
+                             key: "device",
+                             children: (
+                                <Descriptions
+                                   items={[
+                                      {
+                                         label: "Tên tác vụ",
+                                         children: api.task.data?.name,
+                                      },
+                                      {
+                                         label: "Mẫu máy",
+                                         children: `${api.task.data?.device.machineModel.name} - ${api.task.data?.device.description}`,
+                                      },
+                                   ]}
+                                />
+                             ),
+                          },
+                       ]
+                     : [
+                          {
+                             tab: "Linh kiện được trả",
+                             key: "spare-part",
+                             children: (
+                                <>
+                                   <Table
+                                      dataSource={Object.values(spareParts)}
+                                      pagination={false}
+                                      columns={[
+                                         { key: "index", title: "STT", render: (_, __, index) => index + 1 },
+                                         { key: "name", title: "Tên linh kiện", dataIndex: ["sparePart", "name"] },
+                                         { key: "quantity", title: "Số lượng trả", dataIndex: "quantity" },
+                                         {
+                                            key: "actions",
+                                            align: "right",
+                                            render: (_, record) => (
+                                               <div>
+                                                  <Button
+                                                     disabled={updated.includes(record.sparePart.id)}
+                                                     onClick={() =>
+                                                        control_sparePartUpdateQuantityModal.current?.handleOpen({
+                                                           max: record.quantity,
+                                                           sparePartId: record.sparePart.id,
+                                                           onFinish: () => {
+                                                              setUpdated([...updated, record.sparePart.id])
+                                                           },
+                                                        })
+                                                     }
+                                                  >
+                                                     Cập nhật kho
+                                                  </Button>
+                                               </div>
+                                            ),
+                                         },
+                                      ]}
+                                   />
+                                   <OverlayControllerWithRef ref={control_sparePartUpdateQuantityModal}>
+                                      <SparePart_UpdateQuantityModal />
+                                   </OverlayControllerWithRef>
+                                </>
+                             ),
+                          },
+                       ]
+               }
             >
                <OverlayControllerWithRef ref={control_dualSignatureDrawer}>
                   <DualSignatureDrawer

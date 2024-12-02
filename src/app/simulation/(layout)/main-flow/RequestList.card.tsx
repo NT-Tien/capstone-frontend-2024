@@ -265,7 +265,7 @@ function RequestListCard() {
                                    )
                                 }}
                              >
-                                4) Đóng yêu cầu
+                                4) Hoàn tất yêu cầu
                              </Button>,
                              <Button
                                 key="create-task"

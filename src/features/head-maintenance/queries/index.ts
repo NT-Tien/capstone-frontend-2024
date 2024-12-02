@@ -10,6 +10,7 @@ import useRequest_All from "@/features/head-maintenance/queries/Request_All.quer
 import useUser_AllStaff from "@/features/head-maintenance/queries/User_AllStaff.query"
 import useDevice_AllUnused from "@/features/head-maintenance/queries/Device_AllUnused.query"
 import useTask_All from "./Task_All.query"
+import useDevice_AllStatusFalse from "./Device_AllStatusFalse.query"
 
 const head_maintenance_queries = {
    device: {
@@ -17,6 +18,7 @@ const head_maintenance_queries = {
       one: useDevice_OneQuery,
       all_requestHistory: useDevice_AllRequestHistoryQuery,
       all_unused: useDevice_AllUnused,
+      all_statusFalse: useDevice_AllStatusFalse,
    },
    request: {
       all: useRequest_All,

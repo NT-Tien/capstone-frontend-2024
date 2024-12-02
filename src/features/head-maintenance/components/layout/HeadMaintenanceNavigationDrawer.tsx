@@ -3,7 +3,7 @@
 import NavigationDrawer, { NavigationDrawerProps } from "@/components/layout/NavigationDrawer"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import hm_uris from "@/features/head-maintenance/uri"
-import { BellOutlined, CheckSquareOutlined, HomeOutlined, InboxOutlined } from "@ant-design/icons"
+import { AuditOutlined, BellOutlined, CheckSquareOutlined, HomeOutlined, InboxOutlined } from "@ant-design/icons"
 import { Badge, Button } from "antd"
 import { usePathname, useRouter } from "next/navigation"
 import { createContext, PropsWithChildren, useContext, useRef } from "react"
@@ -64,6 +64,12 @@ function HeadMaintenanceNavigationDrawer(props: PropsWithChildren) {
                      icon: <CheckSquareOutlined />,
                      type: "item",
                      key: hm_uris.navbar.tasks,
+                  },
+                  {
+                     label: "Danh sách thiết bị",
+                     icon: <AuditOutlined />,
+                     type: "item",
+                     key: hm_uris.navbar.device,
                   },
                ]}
             />

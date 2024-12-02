@@ -64,6 +64,14 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
    const control_qrCodeDrawer = useRef<RefType<QrCodeDrawerProps>>(null)
 
    const api_task = staff_queries.task.one({ id: props.taskId ?? "" }, { enabled: !!props.taskId })
+   const api_task_inProgress = staff_queries.task.allInProgress(
+      {},
+      {
+         select: (data) => data.filter((i) => i.id !== props.taskId),
+         enabled: !!props.taskId,
+      },
+   )
+
    const mutate_beginTask = staff_mutations.task.begin({ showMessages: false })
    const mutate_closeTask = staff_mutations.task.close({ showMessages: false })
 
@@ -100,6 +108,17 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
    }
 
    function Footer() {
+      // exists another in progress task
+      if (!api_task_inProgress.isSuccess) return
+      if(api_task_inProgress.data.length > 0) {
+         return (
+            <AlertCard
+               text="Vui lòng hoàn thành tất cả các tác vụ đang thực hiện để bắt đầu tác vụ này"
+               type="info"
+            />
+         )
+      }
+
       // task hasnt started and all issues failed
       if (
          api_task.data?.status === TaskStatus.ASSIGNED &&
@@ -269,8 +288,8 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
                                        >
                                           {api_task.data.device.machineModel.manufacturer}
                                           <span>
-                                             Khu vực {api_task.data.device.area.name} ({api_task.data.device.positionX},{" "}
-                                             {api_task.data.device.positionY})
+                                             Khu vực {api_task.data.device?.area?.name ?? "-"} ({api_task.data.device?.positionX ?? "-"},{" "}
+                                             {api_task.data.device?.positionY ?? "-"})
                                           </span>
                                        </Space>
                                        <h3 className={"line-clamp-2 text-base font-semibold"}>

@@ -38,7 +38,7 @@ function HeadConfirmList({ requests }: Props) {
                <List.Item onClick={() => router.push(hd_uris.stack.history_id(item.id))}>
                   <List.Item.Meta
                      className="head_department_history_list mb-4"
-                     title={<div className="truncate text-sm">{item.device.machineModel.name}</div>}
+                     title={<div className="truncate text-sm">{item.old_device.machineModel.name}</div>}
                      description={<div className="truncate text-xs">{item.requester_note}</div>}
                   />
                   <div className="flex items-end">
@@ -52,9 +52,9 @@ function HeadConfirmList({ requests }: Props) {
                            {
                               value: (
                                  <>
-                                    {item.device.area?.name}{" "}
-                                    {item.device.positionX && item.device.positionY
-                                       ? `(${item.device.positionX}, ${item.device.positionY})`
+                                    {item.old_device.area?.name}{" "}
+                                    {item.old_device.positionX && item.old_device.positionY
+                                       ? `(${item.old_device.positionX}, ${item.old_device.positionY})`
                                        : ""}
                                  </>
                               ),

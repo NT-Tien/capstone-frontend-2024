@@ -1,13 +1,12 @@
 "use client"
 
-import { cn } from "@/lib/utils/cn.util"
 import { decodeJwt } from "@/lib/domain/User/decodeJwt.util"
-import { Avatar, Button, Col, Flex, Row, Skeleton, Typography } from "antd"
-import Cookies from "js-cookie"
-import { CSSProperties, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils/cn.util"
 import { MenuOutlined, UserOutlined } from "@ant-design/icons"
-import HeadMaintenanceNavigationDrawer from "@/features/head-maintenance/components/layout/HeadMaintenanceNavigationDrawer"
+import { Avatar, Button, Col, Row, Skeleton, Typography } from "antd"
+import Cookies from "js-cookie"
+import { useRouter } from "next/navigation"
+import { CSSProperties, useEffect, useState } from "react"
 
 type HeadStaffDashboardHeaderProps = {
    className?: string

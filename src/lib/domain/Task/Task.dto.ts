@@ -32,6 +32,15 @@ export type TaskDto = {
    return_spare_part_data: any
    cancelReason?: string
    export_warehouse_ticket: ExportWarehouseDto[]
+   device_static?: DeviceDto
+   type: TaskType
+}
+
+export enum TaskType {
+   FIX = "FIX",
+   WARRANTY_SEND = "WARRANTY_SEND",
+   WARRANTY_RECEIVE = "WARRANTY_RECEIVE",
+   RENEW = "RENEW",
 }
 
 export const PriorityTagMapper: {

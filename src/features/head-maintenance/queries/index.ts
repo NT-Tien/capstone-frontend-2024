@@ -7,7 +7,6 @@ import useRequest_Statistics from "@/features/head-maintenance/queries/Request_S
 import useTypeError_Common from "@/features/head-maintenance/queries/TypeError_Common.query"
 import useIssue_One from "@/features/head-maintenance/queries/Issue_One.query"
 import useRequest_All from "@/features/head-maintenance/queries/Request_All.query"
-import useNotifications_All from "@/features/head-maintenance/queries/Notifications_All.query"
 import useUser_AllStaff from "@/features/head-maintenance/queries/User_AllStaff.query"
 import useDevice_AllUnused from "@/features/head-maintenance/queries/Device_AllUnused.query"
 import useTask_All from "./Task_All.query"
@@ -33,15 +32,12 @@ const head_maintenance_queries = {
    issue: {
       one: useIssue_One,
    },
-   notifications: {
-      all: useNotifications_All,
-   },
    user: {
       allStaff: useUser_AllStaff,
    },
    task: {
-      all: useTask_All
-   }
+      all: useTask_All,
+   },
 }
 
 export default head_maintenance_queries

@@ -144,28 +144,31 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                   >
                      Hoàn thành
                   </Button>
-                  <Dropdown
-                     menu={{
-                        items: [
-                           {
-                              label: "Không hoàn thành được bước",
-                              key: "cancel-issue",
-                              danger: true,
-                              icon: <WarningOutlined />,
-                              disabled: props.isDisabled,
-                              onClick: () =>
-                                 props.issue &&
-                                 props.task &&
-                                 control_issueFailDrawer.current?.handleOpen({
-                                    issueDto: props.issue,
-                                    taskId: props.task.id,
-                                 }),
-                           },
-                        ],
-                     }}
-                  >
-                     <Button size={"large"} icon={<MoreOutlined />} className={"aspect-square"} />
-                  </Dropdown>
+                  {(props.issue.typeError.id === SendWarrantyTypeErrorId ||
+                     props.issue.typeError.id === ReceiveWarrantyTypeErrorId) && (
+                     <Dropdown
+                        menu={{
+                           items: [
+                              {
+                                 label: "Không hoàn thành được bước",
+                                 key: "cancel-issue",
+                                 danger: true,
+                                 icon: <WarningOutlined />,
+                                 disabled: props.isDisabled,
+                                 onClick: () =>
+                                    props.issue &&
+                                    props.task &&
+                                    control_issueFailDrawer.current?.handleOpen({
+                                       issueDto: props.issue,
+                                       taskId: props.task.id,
+                                    }),
+                              },
+                           ],
+                        }}
+                     >
+                        <Button size={"large"} icon={<MoreOutlined />} className={"aspect-square"} />
+                     </Dropdown>
+                  )}
                </div>
             </div>
          )
@@ -251,11 +254,11 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                         <Gavel size={16} weight="fill" />
                         Điều khoản bảo hành
                      </h3>
-                     <p className="ml-6 mt-1 line-clamp-2 text-neutral-700">
+                     <p className="mt-1 line-clamp-2 text-sm text-neutral-500">
                         {props.task?.device.machineModel.description}
                      </p>
                      <a
-                        className="ml-6 font-medium text-black underline underline-offset-2"
+                        className="mt-1 text-sm font-medium text-black underline underline-offset-2"
                         onClick={() => {
                            modal.info({
                               title: "Điều khoản bảo hành",
@@ -278,7 +281,7 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                         <XCircle size={16} weight="fill" />
                         Lý do thất bại
                      </h3>
-                     <p className='text-sm text-red-400'>{props.issue.failReason}</p>
+                     <p className="text-sm text-red-400">{props.issue.failReason}</p>
                   </section>
                   // <Card
                   //    size={"small"}

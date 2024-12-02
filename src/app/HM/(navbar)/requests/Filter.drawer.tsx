@@ -11,7 +11,7 @@ import { UserDto } from "@/lib/domain/User/User.dto"
 import { DeleteOutlined } from "@ant-design/icons"
 
 type FilterQuery = {
-   status: boolean
+   status: FixRequestStatus
    areaId?: string
    requester_note?: string
    machineModelId?: string

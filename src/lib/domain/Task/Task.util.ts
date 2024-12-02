@@ -21,6 +21,7 @@ class TaskUtil {
          TaskStatus.AWAITING_FIXER,
          TaskStatus.AWAITING_SPARE_SPART,
          TaskStatus.HEAD_STAFF_CONFIRM,
+         TaskStatus.COMPLETED,
       ])
       return set.has(task.status)
    }
@@ -44,8 +45,8 @@ class TaskUtil {
    static isTask_Warranty(task?: TaskDto, type?: "send" | "receive", isActive?: boolean): boolean | undefined {
       if (!task) return undefined
 
-      if(isActive && TaskUtil.isTask_Running(task)) { 
-         return false;
+      if (isActive && TaskUtil.isTask_Running(task)) {
+         return false
       }
 
       if (type === undefined) {
@@ -137,16 +138,14 @@ class TaskUtil {
    }
 
    static hasRenewDevice(task?: TaskDto): boolean | undefined {
-      if (!task) return undefined;
-   
+      if (!task) return undefined
+
       return !!task.issues.find((i) => {
-         const renewDevice = i.task?.device_renew;
+         const renewDevice = i.task?.device_renew
          // Check if device_renew is an array or a single object
-         return Array.isArray(renewDevice) ? renewDevice.length > 0 : !!renewDevice;
-      });
+         return Array.isArray(renewDevice) ? renewDevice.length > 0 : !!renewDevice
+      })
    }
-   
-    
 
    /**
     * Returns
@@ -221,6 +220,14 @@ class TaskUtil {
       })
 
       return returnValue
+   }
+
+   static getPercentageFinished(task?: TaskDto): number | undefined {
+      if (!task) return
+
+      const finishedIssues = task.issues.filter((i) => i.status !== IssueStatusEnum.PENDING)
+
+      return (finishedIssues.length / task.issues.length) * 100
    }
 }
 

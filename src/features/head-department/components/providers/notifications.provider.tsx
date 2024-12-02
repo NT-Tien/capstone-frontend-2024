@@ -32,11 +32,6 @@ function HeadDepartment_NotificationsProvider(props: PropsWithChildren) {
          console.log("DEV", value)
       }
 
-      async function onRequestCreate(res: NotificationDto) {
-         await queryClient.invalidateQueries({
-            queryKey: head_department_queries.notifications.all.qk({}),
-         })
-      }
 
       if (!currentToken) {
          return
@@ -47,13 +42,11 @@ function HeadDepartment_NotificationsProvider(props: PropsWithChildren) {
       socket.on("connect", onConnect)
       socket.on("disconnect", onDisconnect)
       socket.on("dev", onDev)
-      socket.on(decodedToken.id, onRequestCreate)
 
       return () => {
          socket.off("connect", onConnect)
          socket.off("disconnect", onDisconnect)
          socket.off("dev", onDev)
-         socket.off(decodedToken.id, onRequestCreate)
          socket.disconnect()
       }
    }, [currentToken, queryClient])

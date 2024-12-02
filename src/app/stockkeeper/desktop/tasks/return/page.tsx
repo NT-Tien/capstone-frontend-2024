@@ -1,30 +1,30 @@
 "use client"
 
-import { PageContainer } from "@ant-design/pro-layout"
 import DesktopScannerDrawer from "@/components/overlays/DesktopScanner.drawer"
-import Button from "antd/es/button"
-import { useQueries } from "@tanstack/react-query"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import { stockkeeper_qk } from "@/features/stockkeeper/api/qk"
 import Stockkeeper_Task_GetById from "@/features/stockkeeper/api/task/getById.api"
-import { useMemo, useRef, useState } from "react"
-import { TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
-import dayjs from "dayjs"
-import { App, Descriptions, Table } from "antd"
-import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
-import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
-import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import UpdateSparePartQuantityModal, {
-   UpdateSparePartQuantityModalRefType,
-} from "@/features/stockkeeper/components/overlay/UpdateSparePartQuantity.modal"
-import UpdateQuantityModal, {
-   UpdateQuantityModalProps,
-} from "@/features/stockkeeper/components/overlay/UpdateQuantity.modal"
 import DualSignatureDrawer, {
    DualSignatureDrawerProps,
 } from "@/features/stockkeeper/components/overlay/DualSignature.drawer"
+import SparePart_UpdateQuantityModal, {
+   SparePart_UpdateQuantityModalProps,
+} from "@/features/stockkeeper/components/overlay/SparePart_UpdateQuantity.modal"
+import UpdateQuantityModal, {
+   UpdateQuantityModalProps,
+} from "@/features/stockkeeper/components/overlay/UpdateQuantity.modal"
 import stockkeeper_mutations from "@/features/stockkeeper/mutations"
-import { CopyOutlined, DownloadOutlined } from "@ant-design/icons"
 import useDownloadImportSpareParts from "@/features/stockkeeper/useDownloadImportSpareParts"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import { TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import { DownloadOutlined } from "@ant-design/icons"
+import { PageContainer } from "@ant-design/pro-layout"
+import { useQueries } from "@tanstack/react-query"
+import { App, Descriptions, Table } from "antd"
+import Button from "antd/es/button"
+import dayjs from "dayjs"
+import { useMemo, useRef, useState } from "react"
 
 function Page() {
    const { message } = App.useApp()
@@ -33,8 +33,8 @@ function Page() {
 
    const { handleDownload } = useDownloadImportSpareParts()
 
-   const control_updateSparePartQuantityModal = useRef<RefType<UpdateQuantityModalProps>>(null)
    const control_dualSignatureDrawer = useRef<RefType<DualSignatureDrawerProps>>(null)
+   const control_sparePartUpdateQuantityModal = useRef<RefType<SparePart_UpdateQuantityModalProps>>(null)
 
    const api = useQueries({
       queries: [
@@ -51,15 +51,14 @@ function Page() {
 
    const handleScannedResult = async (scannedResult: string) => {
       try {
-        const taskData = await Stockkeeper_Task_GetById({ id: scannedResult });
-        const deviceId = taskData.device.id; // Extract deviceId from the task data
-        setScannedResult(deviceId); // Update scannedResult with deviceId
+         const taskData = await Stockkeeper_Task_GetById({ id: scannedResult })
+         const deviceId = taskData.device.id // Extract deviceId from the task data
+         setScannedResult(deviceId) // Update scannedResult with deviceId
       } catch (error) {
-        message.error("Failed to process scanned result.");
-        console.error(error);
+         message.error("Failed to process scanned result.")
+         console.error(error)
       }
-    };
-    
+   }
 
    const mutate_returnSpareParts = stockkeeper_mutations.task.returnSpareParts()
    const mutate_returnRemovedDevice = stockkeeper_mutations.device.returnRemovedDevice()
@@ -136,10 +135,6 @@ function Page() {
                                        span: 3,
                                     },
                                     {
-                                       label: "Trạng thái",
-                                       children: TaskStatusTagMapper[api.task.data?.status ?? ""]?.text,
-                                    },
-                                    {
                                        label: "Người sửa",
                                        children: api.task.data?.fixer?.username ?? "-",
                                     },
@@ -154,15 +149,11 @@ function Page() {
                                        children: api.task.data?.priority ? "Ưu tiên" : "Bình thường",
                                     },
                                     {
-                                       label: "Linh kiện",
-                                       children: api.task.data.confirmReceipt ? "Đã lấy" : "Chưa lấy",
-                                    },
-                                    {
                                        label: "Mẫu máy",
                                        children: api.task.data?.device.machineModel.name,
                                     },
                                     {
-                                       label: "Trả linh kiện",
+                                       label: "Trạng thái",
                                        children: api.task.data.return_spare_part_data ? "Đã trả" : "Chưa trả",
                                     },
                                  ]}
@@ -194,94 +185,125 @@ function Page() {
                   </Button>
                }
                tabList={[
-                  scannedResult === api.task.data?.return_spare_part_data
-                     ? {
-                          tab: "Linh kiện được trả",
-                          key: "spare-part",
-                          children: (
-                             <Table
-                                dataSource={Object.values(spareParts)}
-                                pagination={false}
-                                columns={[
-                                   { key: "index", title: "STT", render: (_, __, index) => index + 1 },
-                                   { key: "name", title: "Tên linh kiện", dataIndex: ["sparePart", "name"] },
-                                   { key: "quantity", title: "Số lượng trả", dataIndex: "quantity" },
-                                ]}
-                             />
-                          ),
-                       }
-                     : {
-                          tab: "Trả thiết bị",
-                          key: "device",
-                          children: (
-                             <Descriptions
-                                items={[
-                                   {
-                                      label: "Tên tác vụ",
-                                      children: api.task.data?.name,
-                                   },
-                                   {
-                                      label: "Mẫu máy",
-                                      children: `${api.task.data?.device.machineModel.name} - ${api.task.data?.device.description}`,
-                                   },
-                                ]}
-                             />
-                          ),
-                       },
+                  {
+                     tab: "Linh kiện được trả",
+                     key: "spare-part",
+                     children: (
+                        <>
+                           <Table
+                              dataSource={Object.values(spareParts)}
+                              pagination={false}
+                              columns={[
+                                 { key: "index", title: "STT", render: (_, __, index) => index + 1 },
+                                 { key: "name", title: "Tên linh kiện", dataIndex: ["sparePart", "name"] },
+                                 { key: "quantity", title: "Số lượng trả", dataIndex: "quantity" },
+                                 {
+                                    key: "actions",
+                                    align: "right",
+                                    render: (_, record) => (
+                                       <div>
+                                          <Button
+                                             disabled={updated.includes(record.sparePart.id)}
+                                             onClick={() =>
+                                                control_sparePartUpdateQuantityModal.current?.handleOpen({
+                                                   max: record.quantity,
+                                                   sparePartId: record.sparePart.id,
+                                                   onFinish: () => {
+                                                      setUpdated([...updated, record.sparePart.id])
+                                                   },
+                                                })
+                                             }
+                                          >
+                                             Cập nhật kho
+                                          </Button>
+                                       </div>
+                                    ),
+                                 },
+                              ]}
+                           />
+                           <OverlayControllerWithRef ref={control_sparePartUpdateQuantityModal}>
+                              <SparePart_UpdateQuantityModal />
+                           </OverlayControllerWithRef>
+                        </>
+                     ),
+                  },
+                  {
+                     tab: "Trả thiết bị",
+                     key: "device",
+                     children: (
+                        <Descriptions
+                           items={[
+                              {
+                                 label: "Tên tác vụ",
+                                 children: api.task.data?.name,
+                              },
+                              {
+                                 label: "Mẫu máy",
+                                 children: `${api.task.data?.device.machineModel.name} - ${api.task.data?.device.description}`,
+                              },
+                           ]}
+                        />
+                     ),
+                  },
                ]}
             >
-               <OverlayControllerWithRef ref={control_updateSparePartQuantityModal}>
-                  <UpdateQuantityModal
-                     refetchFn={async (sparePartId) => {
-                        control_updateSparePartQuantityModal.current?.handleClose()
-                        setUpdated((prev) => [...prev, sparePartId])
-                        await api.task.refetch()
-                     }}
-                  />
-               </OverlayControllerWithRef>
                <OverlayControllerWithRef ref={control_dualSignatureDrawer}>
                   <DualSignatureDrawer
-                         onSubmit={(staff, stockkeeper) => {
-                           if (!scannedResult) return;
-                     
-                           const isSparePartReturn = scannedResult === api.task.data?.return_spare_part_data;
-                     
-                           // Determine mutation and payload
-                           const mutationInstance = isSparePartReturn
-                             ? mutate_returnSpareParts
-                             : mutate_returnRemovedDevice;
-                     
-                           const payload = isSparePartReturn
-                             ? {
+                     onSubmit={(staff, stockkeeper) => {
+                        if (!scannedResult) return
+
+                        const isSparePartReturn = Object.keys(spareParts).length > 0
+
+                        if (isSparePartReturn) {
+                           mutate_returnSpareParts.mutate(
+                              {
                                  id: scannedResult,
                                  payload: {
-                                   staff_signature: staff,
-                                   stockkeeper_signature: stockkeeper,
+                                    staff_signature: staff,
+                                    stockkeeper_signature: stockkeeper,
                                  },
-                               }
-                             : {
-                                 id: api.task.data?.device.id || "", // Use the `device.id` for removed device
+                              },
+                              {
+                                 onSuccess: () => {
+                                    setScannedResult(null) // Reset scanned result
+                                    api.task.refetch() // Refresh task data
+                                    control_dualSignatureDrawer.current?.handleClose() // Close the drawer
+                                    setTimeout(() => {
+                                       handleOpen() // Reopen scanner drawer after success
+                                    }, 500)
+                                 },
+                                 onError: (error) => {
+                                    message.error("Action failed. Please try again.")
+                                    console.error(error)
+                                 },
+                              },
+                           )
+                        } else {
+                           mutate_returnRemovedDevice.mutate(
+                              {
+                                 id: api.task.data?.device.id || "",
                                  payload: {
-                                   staff_signature: staff,
-                                   stockkeeper_signature: stockkeeper,
+                                    staff_signature: staff,
+                                    stockkeeper_signature: stockkeeper,
                                  },
-                               };
-                     
-                           // Execute mutation
-                           mutationInstance.mutate(payload, {
-                             onSuccess: () => {
-                               api.task.refetch(); // Refresh task data
-                               control_dualSignatureDrawer.current?.handleClose(); // Close the drawer
-                               setTimeout(() => {
-                                 handleOpen(); // Reopen scanner drawer after success
-                               }, 500);
-                             },
-                             onError: (error) => {
-                               message.error("Action failed. Please try again.");
-                               console.error(error);
-                             },
-                           });
-                         }}
+                              },
+                              {
+                                 onSuccess: () => {
+                                    setScannedResult(null) // Reset scanned result
+                                    api.task.refetch() // Refresh task data
+                                    control_dualSignatureDrawer.current?.handleClose() // Close the drawer
+                                    setTimeout(() => {
+                                       handleOpen() // Reopen scanner drawer after success
+                                    }, 500)
+                                 },
+                                 onError: (error) => {
+                                    message.error("Action failed. Please try again.")
+                                    console.error(error)
+                                 },
+                              },
+                           )
+                        }
+                     }}
                   />
                </OverlayControllerWithRef>
             </PageContainer>

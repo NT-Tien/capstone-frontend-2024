@@ -21,7 +21,7 @@ import TaskUtil from "@/lib/domain/Task/Task.util"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
 import { CalendarOutlined, DownOutlined, LoadingOutlined } from "@ant-design/icons"
-import { Calendar, Check, Clock, Hourglass, Placeholder, SealWarning } from "@phosphor-icons/react"
+import { Calendar, Check, Clock, Hourglass, Placeholder, SealWarning, Swap, Truck } from "@phosphor-icons/react"
 import { App, Avatar, Button, ConfigProvider, Divider, List, Space, Spin, Tabs } from "antd"
 import dayjs from "dayjs"
 import { Suspense, useEffect, useMemo, useRef, useState } from "react"
@@ -309,15 +309,27 @@ function ListRendererCard(props: ListRendererProps) {
                                  <div className={TaskStatusTagMapper[item.status].className}>
                                     {TaskStatusTagMapper[item.status].text}
                                  </div>
-                              ) : (
+                              ) : TaskUtil.isTask_Fix(item) ? (
                                  <div className={"flex items-center gap-1"}>
                                     <Clock size={16} weight={"duotone"} />
                                     <span>{item.totalTime} Phút</span>
                                  </div>
+                              ) : TaskUtil.isTask_Warranty(item) ? (
+                                 <div className={"flex items-center gap-1"}>
+                                    <Truck size={16} weight={"duotone"} />
+                                    <span>Bảo Hành</span>
+                                 </div>
+                              ) : (
+                                 TaskUtil.isTask_Renew(item) && (
+                                    <div className={"flex items-center gap-1"}>
+                                       <Swap size={16} weight={"duotone"} />
+                                       <span>Thay máy</span>
+                                    </div>
+                                 )
                               )}
                               <div className={"flex items-center gap-1"}>
                                  <SealWarning size={16} weight={"duotone"} />
-                                 <span>{item.issues.length} Lỗi</span>
+                                 <span>{item.issues.length} {TaskUtil.isTask_Fix(item) ? "Lỗi" : "Bước"}</span>
                               </div>
                               <div className={"flex items-center gap-1"}>
                                  <Calendar size={16} weight={"duotone"} />

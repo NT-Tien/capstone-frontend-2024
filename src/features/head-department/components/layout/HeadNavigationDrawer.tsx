@@ -21,8 +21,6 @@ function HeadNavigationDrawer(props: PropsWithChildren) {
    const router = useRouter()
    const control_ref = useRef<RefType<NavigationDrawerProps>>(null)
 
-   const api_notifications = head_department_queries.notifications.all({ hasSeen: false })
-
    function handleOpen() {
       control_ref.current?.handleOpen({})
    }
@@ -38,7 +36,7 @@ function HeadNavigationDrawer(props: PropsWithChildren) {
                }}
                type="head_department"
                extraItems={[
-                  <Badge key={"notifications"} count={api_notifications.data?.length ?? 0} size={"small"}>
+                  <Badge key={"notifications"} count={0} size={"small"}>
                      <Button
                         icon={<BellOutlined className={"text-white"} />}
                         type={"text"}

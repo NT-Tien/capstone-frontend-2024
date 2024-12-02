@@ -105,10 +105,11 @@ function IssueViewDetails_RenewDrawer(props: Props) {
       console.log("renewDevice:", renewDevice)
 
       if (
-         (props.task.confirmReceiptStaffSignature === "false" && props.task.confirmReceiptStockkeeperSignature === "false") ||
-         props.task.export_warehouse_ticket?.some(
-            (ticket) => ticket.status === ExportStatus.ACCEPTED || ticket.status === ExportStatus.EXPORTED,
-         )
+         props.task.export_warehouse_ticket[0].status !== ExportStatus.EXPORTED
+         // (props.task.confirmReceiptStaffSignature === "false" && props.task.confirmReceiptStockkeeperSignature === "false") ||
+         // props.task.export_warehouse_ticket?.some(
+         //    (ticket) => ticket.status === ExportStatus.ACCEPTED || ticket.status === ExportStatus.EXPORTED,
+         // )
       ) {
          return (
             <div>

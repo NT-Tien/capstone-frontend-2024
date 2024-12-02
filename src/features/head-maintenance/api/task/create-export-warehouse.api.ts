@@ -1,18 +1,19 @@
 import api from "@/config/axios.config"
 import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import Cookies from "js-cookie"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
-import { NotificationDto } from "@/lib/domain/Notification/Notification.dto"
 
 export type Request = {
-   id: string
+   taskId: string
 } & AuthTokenWrapper
-export type Response = NotificationDto
+export type Response = TaskDto
 
-HeadStaff_Notifications_Seen.URL = (req: Request) => `/head-staff/notifications/${req.id}/seen`
-export default async function HeadStaff_Notifications_Seen(req: Request): Promise<Response> {
+HeadStaff_Task_CreateExportWarehouse.URL = (req: Request) =>
+   `/head-staff/task/${req.taskId}/create-export-warehouse/spare-part`
+export default async function HeadStaff_Task_CreateExportWarehouse(req: Request): Promise<Response> {
    return api
-      .put<Response>(HeadStaff_Notifications_Seen.URL(req), undefined, {
+      .put<Response>(HeadStaff_Task_CreateExportWarehouse.URL(req), undefined, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,

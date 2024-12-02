@@ -7,7 +7,7 @@ import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import hd_uris from "@/features/head-department/uri"
 import generateAvatarData from "@/lib/utils/generateAvatarData.util"
-import { CalendarBlank, MapPinArea, Truck, User } from "@phosphor-icons/react"
+import { CalendarBlank, MapPinArea, Swap, Truck, User, Wrench } from "@phosphor-icons/react"
 import DataGrid from "@/components/DataGrid"
 import ClickableArea from "@/components/ClickableArea"
 
@@ -38,7 +38,7 @@ function HistoryList({ requests }: Props) {
          dataSource={requests}
          itemLayout="vertical"
          renderItem={(item, index) => {
-            const avatarData = generateAvatarData(item.device.machineModel.name)
+            const avatarData = generateAvatarData(item.old_device.machineModel.name)
             return (
                <ClickableArea onClick={() => router.push(hd_uris.stack.history_id(item.id))} className='w-full rounded-none'>
                   <List.Item
@@ -47,7 +47,7 @@ function HistoryList({ requests }: Props) {
                      <List.Item.Meta
                         className="head_department_history_list mb-4"
                         avatar={<Avatar className={cn(avatarData.color)}>{avatarData.content}</Avatar>}
-                        title={<div className="truncate text-base">{item.device.machineModel.name}</div>}
+                        title={<div className="truncate text-base">{item.old_device.machineModel.name}</div>}
                         description={<div className="truncate text-sm">{item.requester_note}</div>}
                      ></List.Item.Meta>
                      <div className="flex items-end">
@@ -57,9 +57,9 @@ function HistoryList({ requests }: Props) {
                               {
                                  value: (
                                     <>
-                                       {item.device.area?.name}{" "}
-                                       {item.device.positionX && item.device.positionY
-                                          ? `(${item.device.positionX}, ${item.device.positionY})`
+                                       {item.old_device.area?.name}{" "}
+                                       {item.old_device.positionX && item.old_device.positionY
+                                          ? `(${item.old_device.positionX}, ${item.old_device.positionY})`
                                           : ""}
                                     </>
                                  ),
@@ -80,6 +80,18 @@ function HistoryList({ requests }: Props) {
                                  value: "Bảo hành",
                                  hidden: !item.is_warranty,
                                  className: "text-orange-500",
+                              },
+                              {
+                                 icon: <Swap size={16} weight="duotone" />,
+                                 value: "Thay máy",
+                                 hidden: !item.is_rennew,
+                                 className: "text-purple-500",
+                              },
+                              {
+                                 icon: <Wrench size={16} weight="duotone" />,
+                                 value: "Sửa chữa",
+                                 hidden: !item.is_fix,
+                                 className: "text-blue-500",
                               },
                            ]}
                            cols={2}

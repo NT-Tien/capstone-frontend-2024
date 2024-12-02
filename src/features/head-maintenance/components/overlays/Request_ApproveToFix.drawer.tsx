@@ -196,6 +196,7 @@ function Request_ApproveToFixDrawer(props: Props) {
                variant="borderless"
                size="large"
                placeholder="+ Thêm lỗi mới"
+               loading={api_commonIssues.isPending}
                value={selectedTypeErrorControl}
                onChange={(value) => {
                   setSelectedTypeErrorControl(value)

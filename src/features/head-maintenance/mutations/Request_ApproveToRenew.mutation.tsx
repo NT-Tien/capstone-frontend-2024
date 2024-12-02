@@ -1,13 +1,13 @@
-import useCustomMutation from "@/lib/hooks/useCustomMutation"
-import { CustomMutationHookProps } from "@/lib/types/CustomMutationHookProps"
-import HeadStaff_Request_ApproveRenew, { Request, Response } from "../api/request/approve.renew.api"
 import HeadStaff_Task_UpdateAssignFixer from "@/features/head-maintenance/api/task/update-assignFixer.api"
-import { useQueryClient } from "@tanstack/react-query"
-import HeadStaff_Users_AllStaff from "@/features/head-maintenance/api/users/all.api"
 import HeadStaff_Users_AllStaffAvailable from "@/features/head-maintenance/api/users/all-available.api"
-import { UserDto } from "@/lib/domain/User/User.dto"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 import { DismantleOldDeviceTypeErrorId, InstallNewDeviceTypeErrorId } from "@/lib/constants/Warranty"
+import { UserDto } from "@/lib/domain/User/User.dto"
+import useCustomMutation from "@/lib/hooks/useCustomMutation"
+import { CustomMutationHookProps } from "@/lib/types/CustomMutationHookProps"
+import { useQueryClient } from "@tanstack/react-query"
+import HeadStaff_Request_ApproveRenew, { Request, Response } from "../api/request/approve.renew.api"
+import { Role } from "@/lib/domain/User/role.enum"
 
 type Props = CustomMutationHookProps<Response, unknown, Request, unknown>
 export default function useRequest_ApproveToRenew(props?: Props) {
@@ -21,6 +21,8 @@ export default function useRequest_ApproveToRenew(props?: Props) {
 
          const staffWithSmallest = allStaffWithTasks.reduce(
             (prev, curr) => {
+               if (curr.role !== Role.staff) return prev
+               
                if (curr.tasks.length < prev.count) {
                   prev.staff = [curr]
                   prev.count = curr.tasks.length
@@ -48,7 +50,7 @@ export default function useRequest_ApproveToRenew(props?: Props) {
          )
 
          console.log(fullRequest)
-         
+
          const task = fullRequest.tasks.filter((t) =>
             t.issues.find(
                (i) =>
@@ -63,6 +65,7 @@ export default function useRequest_ApproveToRenew(props?: Props) {
                fixerDate: currentDate,
                priority: false,
             },
+            shouldCreateExport: true,
          })
 
          return approve

@@ -150,13 +150,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                      },
                      {
                         key: "scan",
-                        name: "Giao linh kiện",
+                        name: "Xuất kho",
                         icon: <SendOutlined />,
                         path: "/stockkeeper/desktop/tasks/scan",
                      },
                      {
                         key: "return",
-                        name: "Trả linh kiện",
+                        name: "Nhập kho",
                         icon: <ImportOutlined />,
                         path: "/stockkeeper/desktop/tasks/return",
                      },

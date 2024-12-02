@@ -1,185 +1,127 @@
 "use client"
 
-import { isUUID } from "@/lib/utils/isUUID.util"
-import { InfoCircleOutlined } from "@ant-design/icons"
-import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner"
-import { App, Button, Card, Form, Input, Spin } from "antd"
-import { useRef } from "react"
-import HeadNavigationDrawer from "@/features/head-department/components/layout/HeadNavigationDrawer"
-import PageHeader from "@/components/layout/PageHeader"
-import AlertCard from "@/components/AlertCard"
+import FullPageQrScanner from "@/components/FullPageQrScanner"
+import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import ScanDetailsDrawer, {
    ScanDetailsDrawerProps,
 } from "@/features/head-department/components/overlay/ScanDetails.drawer"
-import head_department_queries from "@/features/head-department/queries"
-import { useIsFetching, useQueryClient } from "@tanstack/react-query"
-import PageHeaderV2 from "@/components/layout/PageHeaderV2"
+import { cn } from "@/lib/utils/cn.util"
+import { isUUID } from "@/lib/utils/isUUID.util"
 import uuidNormalizer from "@/lib/utils/uuid-normalizer.util"
+import { EllipsisOutlined, IdcardOutlined, LeftOutlined, SendOutlined } from "@ant-design/icons"
+import { App, Button, Form, Input } from "antd"
+import { useRouter } from "next/navigation"
+import { useRef } from "react"
 
-export default function ScanPage() {
-   const navDrawer = HeadNavigationDrawer.useDrawer()
+type FieldType = {
+   deviceId: string
+}
+
+function Page() {
+   const router = useRouter()
    const { message } = App.useApp()
-   const timeoutRef = useRef<NodeJS.Timeout>()
-   const [form] = Form.useForm()
-   const queryClient = useQueryClient()
-   const isFetching = useIsFetching({
-      queryKey: head_department_queries.device.oneById
-         .qk({
-            id: "",
-         })
-         .slice(0, 2),
-   })
 
+   const [form] = Form.useForm<FieldType>()
    const control_scanDetailsDrawer = useRef<RefType<ScanDetailsDrawerProps>>(null)
 
-   async function handleScan(e: IDetectedBarcode[]) {
-      if (e.length === 0) return
-
-      const currentId = e[0].rawValue
-
-      // only continue if currentId exists
-      if (currentId) {
-         await finishHandler(currentId)
-      }
-   }
-
-   async function finishHandler(id: string, handleClose?: () => void) {
-      if (timeoutRef.current) {
-         clearTimeout(timeoutRef.current)
-      }
-
-      timeoutRef.current = setTimeout(() => {
-         message.destroy("messenger")
-      }, 3000)
-
-      if (!isUUID(id)) {
-         await message.open({
-            content: "ID thiết bị không hợp lệ",
-            duration: 0,
-            type: "error",
-            key: "messenger",
-         })
-
+   function handleSubmit(value: string) {
+      if (!isUUID(value)) {
+         message.error("Mã không hợp lệ")
          return
       }
 
-      handleClose?.()
-
-      try {
-         const device = await queryClient.fetchQuery(
-            head_department_queries.device.oneById.queryOptions({
-               id,
-            }),
-         )
-
-         console.log("test device:", device)
-
-         control_scanDetailsDrawer.current?.handleOpen({
-            device,
-         })
-      } catch (e) {
-         await message.error({
-            content: "Không tìm thấy thiết bị",
-            duration: 0,
-            key: "messenger",
-         })
-      }
-
-      return
-   }
-
-   async function handleManualSubmit() {
-      try {
-         const values = await form.validateFields()
-         await finishHandler(values.deviceId)
-      } catch (error) {
-         message.error("Vui lòng nhập ID hợp lệ.")
-      }
+      control_scanDetailsDrawer.current?.handleOpen({
+         id: value,
+      })
    }
 
    return (
-      <div className="h-full">
-         <PageHeaderV2
-            title={"Tạo yêu cầu"}
-            type={"dark"}
-            nextButton={<PageHeaderV2.InfoButton />}
-            prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}
-         />
-         <div className="px-layout py-3">
-            <AlertCard text="Vui lòng quét mã QR hoặc nhập ID của thiết bị" icon={<InfoCircleOutlined />} type="info" />
-         </div>
-         {isFetching > 0 && <Spin fullscreen />}
-         <section className={"aspect-square h-full w-full"}>
-            <Scanner
-               paused={false}
-               formats={["qr_code"]}
-               onScan={handleScan}
-               allowMultiple={true}
-               scanDelay={1000}
-               components={{}}
-               constraints={{
-                  aspectRatio: 1,
-               }}
-               styles={{
-                  video: {
-                     width: "100%",
-                     height: "100%",
-                  },
-               }}
-            />
-         </section>
-         <Form form={form} layout="horizontal" onFinish={handleManualSubmit} className="mt-4 px-layout">
-            <Card
-               size="small"
-               classNames={{
-                  actions: "p-2 *:m-0",
-               }}
-               actions={[
-                  <Button key={1} type="link" block size="large" onClick={() => form.resetFields()}>
-                     Xóa
-                  </Button>,
-                  <div key={2} className="ml-2">
-                     <Button type="primary" block htmlType="submit" size="large" loading={isFetching > 0}>
-                        Gửi
-                     </Button>
-                  </div>,
-               ]}
-            >
-               <Form.Item
-                  name="deviceId"
-                  label="Mã thiết bị"
-                  validateDebounce={1000}
-                  validateFirst
-                  validateTrigger={["onSubmit"]}
-                  rules={[
-                     { required: true, message: "Vui lòng nhập mã thiết bị", validateTrigger: "onSubmit" },
-                     {
-                        validator: (_, value) =>
-                           isUUID(value) ? Promise.resolve() : Promise.reject("Mã thiết bị không hợp lệ"),
-                     },
-                  ]}
-                  normalize={uuidNormalizer}
-               >
-                  <Input
-                     placeholder="e.g., e31d662e-05db-4bc4-8bfd-773f56618725"
-                     size="large"
-                     autoComplete="off"
-                     maxLength={36}
-                     allowClear
-                     enterKeyHint="send"
-                     onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                           handleManualSubmit().then()
+      <>
+         <FullPageQrScanner
+            infoSection={<FullPageQrScanner.InfoSection_1>Quét mã QR Thiết bị</FullPageQrScanner.InfoSection_1>}
+            onScan={(value) => {
+               handleSubmit(value)
+            }}
+         >
+            {(status) => {
+               console.log(status)
+               return (
+                  <>
+                     <PageHeaderV2
+                        title="Quét mã"
+                        prevButton={
+                           <PageHeaderV2.Button
+                              icon={
+                                 <LeftOutlined
+                                    className={cn("text-xl text-white", status !== "started" && "text-black")}
+                                 />
+                              }
+                              onClick={() => router.back()}
+                           />
                         }
-                     }}
-                  />
-               </Form.Item>
-            </Card>
-         </Form>
+                        nextButton={
+                           <PageHeaderV2.Button
+                              icon={
+                                 <EllipsisOutlined
+                                    className={cn("text-xl text-white", status !== "started" && "text-black")}
+                                 />
+                              }
+                           />
+                        }
+                        className={cn("absolute left-0 right-0 top-0 w-full bg-transparent")}
+                        classNames={{
+                           title: cn("text-xl text-white", status !== "started" && "text-black"),
+                        }}
+                     />
+
+                     <footer className="absolute bottom-0 left-0 w-full rounded-t-xl bg-white p-layout shadow-lg">
+                        <Form<FieldType>
+                           form={form}
+                           onFinish={(values) => handleSubmit(values.deviceId)}
+                           onFinishFailed={() => {
+                              message.destroy("deviceId")
+                              message.error({
+                                 key: "deviceId",
+                                 content: "Mã thiết bị không đúng định dạng",
+                              })
+                           }}
+                        >
+                           <Form.Item<FieldType>
+                              name={"deviceId"}
+                              noStyle
+                              rules={[
+                                 {
+                                    required: true,
+                                 },
+                                 {
+                                    validator: (_, value) =>
+                                       isUUID(value) ? Promise.resolve() : Promise.reject("Mã không hợp lệ"),
+                                    validateTrigger: ["onSubmit"],
+                                 },
+                              ]}
+                              normalize={uuidNormalizer}
+                           >
+                              <Input.Search
+                                 enterButton={<Button icon={<SendOutlined />} type={"primary"} />}
+                                 onSearch={form.submit}
+                                 placeholder="Nhập mã thiết bị..."
+                                 size="large"
+                                 prefix={<IdcardOutlined />}
+                                 allowClear
+                              />
+                           </Form.Item>
+                        </Form>
+                     </footer>
+                  </>
+               )
+            }}
+         </FullPageQrScanner>
          <OverlayControllerWithRef ref={control_scanDetailsDrawer}>
             <ScanDetailsDrawer />
          </OverlayControllerWithRef>
-      </div>
+      </>
    )
 }
+
+export default Page

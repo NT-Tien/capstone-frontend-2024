@@ -1,6 +1,6 @@
 import { Badge, Button, ButtonProps } from "antd"
 import { FilterOutlined, LeftOutlined, MenuOutlined, MoreOutlined } from "@ant-design/icons"
-import { createContext, ReactNode, useContext } from "react"
+import { createContext, PropsWithChildren, ReactNode, useContext } from "react"
 import { cn } from "@/lib/utils/cn.util"
 
 type Props = {
@@ -26,18 +26,25 @@ function PageHeaderV2(props: Props) {
                props.className,
             )}
          >
-            {props.prevButton ?? <div className='size-8'></div>}
+            {props.prevButton ?? <div className="size-8"></div>}
             <h1 className={cn("text-lg font-bold", props.classNames?.title)}>{props.title}</h1>
-            {props.nextButton ?? <div className='size-8'></div>}
+            {props.nextButton ?? <div className="size-8"></div>}
          </header>
       </PageHeaderV2Context.Provider>
    )
+}
+
+type PageHeaderV2Button = ButtonProps
+
+PageHeaderV2.Button = function PageHeaderV2Button(props: PageHeaderV2Button) {
+   return <Button type="text" {...props} />
 }
 
 type HeaderButtonProps = {
    onClick?: () => void
    buttonProps?: ButtonProps
 }
+
 PageHeaderV2.MenuButton = function PageHeaderV2MenuButton(props: HeaderButtonProps) {
    const context = useContext(PageHeaderV2Context)
 

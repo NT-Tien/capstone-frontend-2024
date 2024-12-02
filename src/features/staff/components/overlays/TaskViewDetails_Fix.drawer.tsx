@@ -1,3 +1,21 @@
+import AlertCard from "@/components/AlertCard"
+import QrCodeDrawer, { QrCodeDrawerProps } from "@/components/overlays/QrCode.drawer"
+import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import { clientEnv } from "@/env"
+import GetSparePartsDrawer, {
+   QrCodeDisplayModalRefType,
+} from "@/features/staff/components/overlays/GetSparePartsDrawer"
+import staff_mutations from "@/features/staff/mutations"
+import staff_queries from "@/features/staff/queries"
+import staff_uri from "@/features/staff/uri"
+import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
+import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import TaskUtil from "@/lib/domain/Task/Task.util"
+import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import { cn } from "@/lib/utils/cn.util"
+import { CheckOutlined, CloseOutlined, ExclamationOutlined, MinusOutlined, MoreOutlined } from "@ant-design/icons"
+import { Calendar, ChartDonut, Clock, Export, Gear, User, Wrench } from "@phosphor-icons/react"
 import {
    App,
    Avatar,
@@ -14,37 +32,10 @@ import {
    Tabs,
    Tag,
 } from "antd"
-import staff_queries from "@/features/staff/queries"
-import staff_mutations from "@/features/staff/mutations"
-import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
-import {
-   CalendarOutlined,
-   CheckOutlined,
-   CloseOutlined,
-   ExclamationOutlined,
-   MinusCircleOutlined,
-   MinusOutlined,
-   MoreOutlined,
-   RightOutlined,
-} from "@ant-design/icons"
-import AlertCard from "@/components/AlertCard"
 import dayjs from "dayjs"
-import TaskUtil from "@/lib/domain/Task/Task.util"
-import { cn } from "@/lib/utils/cn.util"
-import { Calendar, ChartDonut, Clock, Export, Gear, User, Wrench } from "@phosphor-icons/react"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
-import { FixTypeTagMapper } from "@/lib/domain/Issue/FixType.enum"
-import GetSparePartsDrawer, {
-   QrCodeDisplayModalRefType,
-} from "@/features/staff/components/overlays/GetSparePartsDrawer"
-import QrCodeDrawer, { QrCodeDrawerProps } from "@/components/overlays/QrCode.drawer"
-import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import { useRouter } from "next/navigation"
-import staff_uri from "@/features/staff/uri"
-import { clientEnv } from "@/env"
-import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
 import * as React from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 type TaskViewDetails_FixDrawerProps = {
    taskId?: string
@@ -62,6 +53,14 @@ function TaskViewDetails_FixDrawer(props: Props) {
    const control_scannerDrawerRef = useRef<ScannerV2DrawerRefType | null>(null)
 
    const api_task = staff_queries.task.one({ id: props.taskId ?? "" }, { enabled: !!props.taskId })
+   const api_task_inProgress = staff_queries.task.allInProgress(
+      {},
+      {
+         select: (data) => data.filter((i) => i.id !== props.taskId),
+         enabled: !!props.taskId,
+      },
+   )
+
    const mutate_beginTask = staff_mutations.task.begin({ showMessages: false })
    const mutate_closeTask = staff_mutations.task.close({ showMessages: false })
 
@@ -72,8 +71,6 @@ function TaskViewDetails_FixDrawer(props: Props) {
       if (!api_task.isSuccess) return
       return api_task.data.issues.flatMap((i) => i.issueSpareParts)
    }, [api_task.data?.issues, api_task.isSuccess])
-   console.log("hasSpareParts: ", hasSpareParts)
-   console.log("issueSpareParts: ", issueSpareParts)
 
    function onCloseWrapper(e: React.MouseEvent | React.KeyboardEvent) {
       props.onClose?.(e)
@@ -100,6 +97,17 @@ function TaskViewDetails_FixDrawer(props: Props) {
    }
 
    function Footer() {
+      // exists another in progress task
+      if (!api_task_inProgress.isSuccess) return
+      if(api_task_inProgress.data.length > 0) {
+         return (
+            <AlertCard
+               text="Vui lòng hoàn thành tất cả các tác vụ đang thực hiện để bắt đầu tác vụ này"
+               type="info"
+            />
+         )
+      }
+
       // task hasnt started and all issues failed
       if (
          api_task.data?.status === TaskStatus.ASSIGNED &&
@@ -312,7 +320,6 @@ function TaskViewDetails_FixDrawer(props: Props) {
                                        <h3 className={"line-clamp-2 text-base font-semibold"}>
                                           {api_task.data.device.machineModel.name}
                                        </h3>
-                                       {/*<div className={"text-sm"}>{api_task.data.device.description}</div>*/}
                                     </div>
                                     <div>
                                        <Gear size={32} weight={"fill"} />

@@ -32,12 +32,14 @@ import Task_ViewDetailsDrawer, {
 } from "@/features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import hm_uris from "@/features/head-maintenance/uri"
-import { InfoCircleFilled } from "@ant-design/icons"
+import { DownOutlined, InfoCircleFilled } from "@ant-design/icons"
 import { NewDeviceInstallation, RemoveOldDeviceTypeErrorId } from "@/lib/constants/Renew"
 import TabbedLayout from "./Tabs.component"
 import qk from "@/old/querykeys"
 import HeadStaff_Task_OneById from "@/features/head-maintenance/api/task/one-byId.api"
 import HeadStaff_Request_RenewStatus from "@/features/head-maintenance/api/request/renew-status.api"
+import { Truck, Wrench } from "@phosphor-icons/react"
+import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 
 function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
    const router = useRouter()
@@ -90,6 +92,8 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    const mutate_updateTaskStatus = useMutation({
       mutationFn: HeadStaff_Task_Update,
    })
+
+   const mutate_closeRequest = head_maintenance_mutations.request.finish()
 
    const isWarranty = useMemo(() => {
       return api_request.data?.issues.find(
@@ -232,11 +236,74 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                      }
                   />
                }
-               title={"Yêu cầu: Thay mới"}
+               title={
+                  api_request.isSuccess && api_request.data.is_multiple_types ? (
+                     <Dropdown
+                        menu={{
+                           items: [
+                              {
+                                 icon: <Wrench size={16} weight="fill" />,
+                                 label: "Sửa chữa",
+                                 key: "fix",
+                                 onClick: () => {
+                                    router.push(hm_uris.stack.requests_id_fix(params.id))
+                                 },
+                              },
+                              {
+                                 icon: <Truck size={16} weight="fill" />,
+                                 label: "Bảo hành",
+                                 key: "warranty",
+                                 onClick: () => {
+                                    router.push(hm_uris.stack.requests_id_warranty(params.id))
+                                 },
+                              },
+                           ],
+                        }}
+                     >
+                        <Button
+                           className="text-lg font-bold text-white"
+                           iconPosition="end"
+                           icon={<DownOutlined />}
+                           type="text"
+                        >
+                           Yêu cầu: Thay máy
+                        </Button>
+                     </Dropdown>
+                  ) : (
+                     "Yêu cầu: Thay máy"
+                  )
+               }
                nextButton={
                   <Dropdown
                      menu={{
-                        items: [],
+                        items: [
+                           {
+                              key: "1-main",
+                              label: "Đóng yêu cầu",
+                              onClick: () => {
+                                 modal.confirm({
+                                    title: "Lưu ý",
+                                    content: "Bạn có chắc muốn đóng yêu cầu này?",
+                                    centered: true,
+                                    maskClosable: true,
+                                    onOk: () => {
+                                       mutate_closeRequest.mutate(
+                                          {
+                                             id: params.id,
+                                          },
+                                          {
+                                             onSuccess: () => {
+                                                router.push(
+                                                   hm_uris.navbar.requests + `?status=${FixRequestStatus.CLOSED}`,
+                                                )
+                                             },
+                                          },
+                                       )
+                                    },
+                                 })
+                              },
+                           },
+                        ],
                      }}
                   >
                      <PageHeaderV2.InfoButton />
@@ -245,17 +312,6 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                className={"relative z-50"}
                type={"light"}
             />
-            {/*<Image*/}
-            {/*   className="absolute top-0 h-32 w-full object-cover opacity-40"*/}
-            {/*   src="/images/requests.jpg"*/}
-            {/*   alt="image"*/}
-            {/*   width={784}*/}
-            {/*   height={100}*/}
-            {/*   style={{*/}
-            {/*      WebkitMaskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",*/}
-            {/*      maskImage: "linear-gradient(to top, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1) 90%)",*/}
-            {/*   }}*/}
-            {/*/>*/}
             {api_request.isError ? (
                <>
                   {api_request.error instanceof NotFoundError ? (

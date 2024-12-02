@@ -1,13 +1,12 @@
 "use client"
 
-import { BellOutlined, CheckSquareOutlined, HomeOutlined, InboxOutlined } from "@ant-design/icons"
-import { usePathname, useRouter } from "next/navigation"
 import NavigationDrawer, { NavigationDrawerProps } from "@/components/layout/NavigationDrawer"
-import { createContext, PropsWithChildren, useContext, useRef } from "react"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import hm_uris from "@/features/head-maintenance/uri"
+import { BellOutlined, CheckSquareOutlined, HomeOutlined, InboxOutlined } from "@ant-design/icons"
 import { Badge, Button } from "antd"
-import head_maintenance_queries from "@/features/head-maintenance/queries"
+import { usePathname, useRouter } from "next/navigation"
+import { createContext, PropsWithChildren, useContext, useRef } from "react"
 
 type ContextType = {
    handleOpen: () => void
@@ -18,8 +17,6 @@ function HeadMaintenanceNavigationDrawer(props: PropsWithChildren) {
    const current = usePathname()
    const router = useRouter()
    const control_ref = useRef<RefType<NavigationDrawerProps>>(null)
-
-   const api_notifications = head_maintenance_queries.notifications.all({ hasSeen: false })
 
    function handleOpen() {
       control_ref.current?.handleOpen({})
@@ -36,7 +33,7 @@ function HeadMaintenanceNavigationDrawer(props: PropsWithChildren) {
                }}
                type="head_maintenance"
                extraItems={[
-                  <Badge key={"notifications"} count={api_notifications.data?.length ?? 0} size={"small"}>
+                  <Badge key={"notifications"} count={0} size={"small"}>
                      <Button
                         icon={<BellOutlined className={"text-white"} />}
                         type={"text"}

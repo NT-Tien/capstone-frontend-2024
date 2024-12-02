@@ -1,13 +1,13 @@
+import Notifications_All, { type Request, type Response } from "@/features/common/api/notifications/all.api"
 import { useQuery, UseQueryOptions } from "@tanstack/react-query"
-import Head_Notifications, { Request, Response } from "@/features/head-department/api/notifications.api"
 
 type Props = Request
 type QueryOptions = UseQueryOptions<Response, Error, Response, (string | Props)[]>
 
-useNotifications_All.qk = (props: Props) => ["head_department", "notifications", "all", props]
-useNotifications_All.queryOptions = (props: Props): QueryOptions => ({
-   queryKey: useNotifications_All.qk(props),
-   queryFn: () => Head_Notifications(props),
+useNotifications_All.qk = (req: Props) => ["global", "notifications", "all", req]
+useNotifications_All.queryOptions = (req: Props): QueryOptions => ({
+   queryKey: useNotifications_All.qk(req),
+   queryFn: () => Notifications_All(req),
 })
 
 function useNotifications_All(props: Props, queryOptions?: Omit<QueryOptions, "queryFn" | "queryKey">) {

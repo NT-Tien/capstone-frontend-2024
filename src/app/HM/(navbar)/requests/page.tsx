@@ -20,7 +20,9 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
    const navDrawer = HeadMaintenanceNavigationDrawer.useDrawer()
    const router = useRouter()
 
-   const [query, setQuery] = useState<FilterQuery>({})
+   const [query, setQuery] = useState<FilterQuery>({
+      status: FixRequestStatus.PENDING,
+   })
    const [tab, setTab] = useState<FixRequestStatus>(searchParams?.status ?? FixRequestStatus.PENDING)
    const [search, setSearch] = useState<string>("")
 
@@ -190,7 +192,11 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
 
             <OverlayControllerWithRef ref={control_filterDrawer}>
                <FilterDrawer
-                  onReset={() => setQuery({})}
+                  onReset={() =>
+                     setQuery({
+                        status: FixRequestStatus.PENDING,
+                     })
+                  }
                   onSubmit={(query, status) => {
                      setQuery(query)
                      setTimeout(() => handleChangeTab(status), 200)

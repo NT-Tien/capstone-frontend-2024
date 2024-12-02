@@ -18,6 +18,7 @@ import DateViewSwitcher from "@/components/DateViewSwitcher"
 import dayjs from "dayjs"
 import Link from "next/link"
 import { cn } from "@/lib/utils/cn.util"
+import TaskUtil from "@/lib/domain/Task/Task.util"
 
 export default function TaskDetails({ params }: { params: { id: string } }) {
    return (
@@ -102,6 +103,34 @@ function Component({ params }: { params: { id: string } }) {
                   }
                />
             }
+            nextButton={<Dropdown menu={{
+               items: [
+                  {
+                     key: "1",
+                     label: "Xem yêu cầu",
+                     icon: <LinkOutlined />,
+                     onClick: () => {
+                        if(!api.isSuccess) return
+                        if(TaskUtil.isTask_Fix(api.data)) {
+                           router.push(hm_uris.stack.requests_id_fix(api.data.request.id))
+                           return
+                        }
+
+                        if(TaskUtil.isTask_Warranty(api.data)) {
+                           router.push(hm_uris.stack.requests_id_warranty(api.data.request.id))
+                           return
+                        }
+
+                        if(TaskUtil.isTask_Renew(api.data)) {
+                           router.push(hm_uris.stack.requests_id_renew(api.data.request.id))
+                           return
+                        }
+                     },
+                  }
+               ]
+            }}>
+               <PageHeaderV2.InfoButton />
+            </Dropdown>}
             title="Chi tiết tác vụ"
             className={"relative z-50"}
             type={"light"}

@@ -12,6 +12,7 @@ import ExportWarehouse_DelayModal from "@/features/stockkeeper/components/overla
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import DeviceUtil from "@/lib/domain/Device/Device.util"
+import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 
 type ExportWarehouse_ViewDetailsDrawerProps = {
    id?: string
@@ -39,22 +40,45 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
       },
    )
 
+   const api_export_renew = stockkeeper_queries.exportWarehouse.exportRenew(
+      { id: api_export.data?.id ?? "" },
+      { enabled: !!api_export.data?.id },
+   )
+
    function acceptExport(id: string) {
       modal.confirm({
          title: "Xác nhận",
          content: "Bạn có chắc chắn muốn duyệt đơn xuất này?",
          onOk: () => {
-            mutate_accept.mutate(
-               {
-                  id,
-               },
-               {
-                  onSuccess: () => {
+            const exportType = api_export.data?.export_type
+            const taskStatus = api_export.data?.task?.status
+
+            if (exportType === ExportType.DEVICE && taskStatus === TaskStatus.AWAITING_FIXER) {
+               api_export_renew
+                  .refetch()
+                  .then(() => {
+                     modal.success({ content: "Đơn đã được duyệt thành công!" })
                      props.handleClose?.()
                      props.refetchFn?.()
+                  })
+                  .catch(() => {
+                     modal.error({ content: "Có lỗi xảy ra khi duyệt đơn!" })
+                  })
+            } else {
+               mutate_accept.mutate(
+                  { id },
+                  {
+                     onSuccess: () => {
+                        modal.success({ content: "Đơn đã được duyệt thành công!" })
+                        props.handleClose?.()
+                        props.refetchFn?.()
+                     },
+                     onError: () => {
+                        modal.error({ content: "Có lỗi xảy ra khi duyệt đơn!" })
+                     },
                   },
-               },
-            )
+               )
+            }
          },
          centered: true,
          maskClosable: true,
@@ -64,25 +88,22 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
    function delayExport() {}
 
    function isIssueDto(item: DeviceDto | IssueDto): item is IssueDto {
-      return (item as IssueDto).issueSpareParts !== undefined;
+      return (item as IssueDto).issueSpareParts !== undefined
    }
-   
+
    // function isDeviceDto(item: DeviceDto | IssueDto): item is IssueDto {
    //    return (item as IssueDto).task.device_renew !== undefined
    // }
 
    const uniqueSpareParts = useMemo(() => {
-      const details = Array.isArray(api_export.data?.detail) ? api_export.data?.detail : [];
-      return IssueSparePartUtil.mapToUniqueSpareParts(
-         details.flatMap((i) => (isIssueDto(i) ? i.issueSpareParts : []))
-      );
-   }, [api_export.data?.detail]);
+      const details = Array.isArray(api_export.data?.detail) ? api_export.data?.detail : []
+      return IssueSparePartUtil.mapToUniqueSpareParts(details.flatMap((i) => (isIssueDto(i) ? i.issueSpareParts : [])))
+   }, [api_export.data?.detail])
 
    // const uniqueDevice = useMemo(() => {
    //    const details = Array.isArray(api_export.data?.detail) ? api_export.data?.detail : []
    //    return DeviceUtil.mapToUniqueDevice(details.flatMap((i) => (isDeviceDto(i) ? i.task.device_renew : [])))
    // }, [api_export.data?.detail])
-   
 
    return (
       <Drawer
@@ -146,7 +167,7 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
                              <List
                                 dataSource={uniqueSpareParts}
                                 renderItem={(item, index) => {
-                                   const notEnoughInWarehouse = item.quantity > item.sparePart.quantity;
+                                   const notEnoughInWarehouse = item.quantity > item.sparePart.quantity
                                    return (
                                       <List.Item className={cn(index === 0 && "pt-0")}>
                                          <List.Item.Meta
@@ -161,7 +182,7 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
                                             }
                                          />
                                       </List.Item>
-                                   );
+                                   )
                                 }}
                              />
                           ),

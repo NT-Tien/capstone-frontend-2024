@@ -142,10 +142,16 @@ function RightNavbar({ children }: PropsWithChildren) {
                         path: "/admin/area",
                      },
                      {
-                        key: "devices",
+                        key: "machineModel",
                         name: "Mẫu máy",
                         icon: <LaptopOutlined />,
                         path: "/admin/machine-model",
+                     },
+                     {
+                        key: "devices",
+                        name: "Thiết bị",
+                        icon: <LaptopOutlined />,
+                        path: "/admin/device",
                      },
                      {
                         key: "request-ticket",

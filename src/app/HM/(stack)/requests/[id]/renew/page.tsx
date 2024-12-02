@@ -35,6 +35,9 @@ import hm_uris from "@/features/head-maintenance/uri"
 import { DownOutlined, InfoCircleFilled } from "@ant-design/icons"
 import { NewDeviceInstallation, RemoveOldDeviceTypeErrorId } from "@/lib/constants/Renew"
 import TabbedLayout from "./Tabs.component"
+import qk from "@/old/querykeys"
+import HeadStaff_Task_OneById from "@/features/head-maintenance/api/task/one-byId.api"
+import HeadStaff_Request_RenewStatus from "@/features/head-maintenance/api/request/renew-status.api"
 import { Truck, Wrench } from "@phosphor-icons/react"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 
@@ -57,6 +60,12 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
          }),
    })
 
+   const api_task = useQuery({
+      queryKey: headstaff_qk.task.byId(api_request.data?.tasks[0].id ?? ""),
+      queryFn: () => HeadStaff_Task_OneById({ id: api_request.data?.tasks[0].id ?? "" }),
+      enabled: api_request.isSuccess
+   })
+
    const api_device = useQuery({
       queryKey: headstaff_qk.device.byId(api_request.data?.device.id ?? ""),
       queryFn: () => HeadStaff_Device_OneById({ id: api_request.data?.device.id ?? "" }),
@@ -68,6 +77,12 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
       queryFn: () => HeadStaff_Device_OneByIdWithHistory({ id: api_request.data?.device.id ?? "" }),
       select: (data) => data.requests.filter((req) => req.id !== params.id),
       enabled: api_request.isSuccess,
+   })
+
+   const api_device_renew = useQuery({
+      queryKey: headstaff_qk.request.renewStatus(api_request.data?.tasks[0].id ?? ""),
+      queryFn: () => HeadStaff_Request_RenewStatus({ id: api_request.data?.tasks[0].id ?? "" }),
+      enabled: api_request.isSuccess
    })
 
    const mutate_createTask = useMutation({
@@ -406,6 +421,7 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
                         api_deviceHistory={api_deviceHistory}
                         api_request={api_request}
                         requestId={params.id}
+                        api_task={api_task}
                      />
                   </Suspense>
                </>

@@ -313,9 +313,8 @@ function TaskViewDetails_FixDrawer(props: Props) {
                                        >
                                           {api_task.data.device.machineModel.manufacturer}
                                           <span>
-                                             Khu vực {api_task.data.device?.area?.name ?? "-"} (
-                                             {api_task.data.device?.positionX ?? "-"},{" "}
-                                             {api_task.data.device?.positionY ?? "-"})
+                                             Khu vực {api_task?.data?.device?.area?.name} ({api_task?.data?.device?.positionX},{" "}
+                                             {api_task?.data?.device?.positionY})
                                           </span>
                                        </Space>
                                        <h3 className={"line-clamp-2 text-base font-semibold"}>

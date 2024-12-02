@@ -44,6 +44,9 @@ const nextConfig = {
    typescript: {
       ignoreBuildErrors: true,
    },
+   images: {
+      remotePatterns: [{ hostname: 'lh3.googleusercontent.com' }]
+   },
    i18n: {
       locales: ["vie", "eng"],
       defaultLocale: "vie",

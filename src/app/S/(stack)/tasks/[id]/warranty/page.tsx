@@ -3,24 +3,26 @@
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import FinishTaskDrawer, { FinishTaskDrawerProps } from "@/features/staff/components/overlays/FinishTask.drawer"
-import IssueViewDetails_WarrantyDrawer, {
-   IssueViewDetails_WarrantyDrawerProps,
-} from "@/features/staff/components/overlays/warranty/IssueViewDetails_Warranty.drawer"
 import ReturnSparePartDrawer, {
    ReturnSparePartDrawerProps,
 } from "@/features/staff/components/overlays/ReturnSparePart.drawer"
+import IssueViewDetails_WarrantyDrawer, {
+   IssueViewDetails_WarrantyDrawerProps,
+} from "@/features/staff/components/overlays/warranty/IssueViewDetails_Warranty.drawer"
+import staff_mutations from "@/features/staff/mutations"
 import staff_queries from "@/features/staff/queries"
 import staff_uri from "@/features/staff/uri"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import TaskUtil from "@/lib/domain/Task/Task.util"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import useRunOnceOnStart from "@/lib/hooks/useRunOnceOnStart"
 import { cn } from "@/lib/utils/cn.util"
 import { RightOutlined } from "@ant-design/icons"
 import { Calendar, ChartDonut, Clock, Gear, User } from "@phosphor-icons/react"
-import { Avatar, Button, Card, ConfigProvider, Descriptions, Divider, Segmented, Space, Steps, Tabs } from "antd"
+import { Avatar, Button, Card, ConfigProvider, Descriptions, Divider, Space, Steps } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef } from "react"
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -30,6 +32,8 @@ function Page({ params }: { params: { id: string } }) {
    const control_returnSparePartDrawer = useRef<RefType<ReturnSparePartDrawerProps>>(null)
 
    const api_task = staff_queries.task.one({ id: params.id })
+
+   const mutate_beginTask = staff_mutations.task.begin({ showMessages: false })
 
    const hasResolvedAllIssues = useMemo(() => {
       return api_task.data?.issues.every((i) => i.status !== IssueStatusEnum.PENDING)
@@ -42,6 +46,20 @@ function Page({ params }: { params: { id: string } }) {
    const secondIssue = useMemo(() => {
       return TaskUtil.getTask_Warranty_SecondIssue(api_task.data)
    }, [api_task.data])
+
+   useEffect(() => {
+      if (api_task.data?.status === TaskStatus.ASSIGNED) {
+         mutate_beginTask.mutate(
+            { id: params.id },
+            {
+               onSettled: () => {
+                  api_task.refetch()
+               },
+            },
+         )
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [api_task.isSuccess])
 
    return (
       <ConfigProvider
@@ -266,7 +284,10 @@ function Page({ params }: { params: { id: string } }) {
             )}
          </div>
          <OverlayControllerWithRef ref={control_issueViewDetails_WarrantyDrawer}>
-            <IssueViewDetails_WarrantyDrawer refetchFn={api_task.refetch} />
+            <IssueViewDetails_WarrantyDrawer
+               refetchFn={api_task.refetch}
+               autoOpenComplete={() => control_finishTaskDrawer.current?.handleOpen({ task: api_task.data })}
+            />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_finishTaskDrawer}>
             <FinishTaskDrawer

@@ -84,14 +84,14 @@ function RequestStatusTag(props: Props) {
          return (
             <span
                className={cn(
-                  "inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600",
+                  "inline-flex items-center gap-x-1.5 rounded-md bg-red-100 px-2 py-1 text-xs font-medium text-red-600",
                   props.className,
                )}
             >
-               <svg className="h-1.5 w-1.5 fill-gray-400" viewBox="0 0 6 6" aria-hidden="true">
+               <svg className="h-1.5 w-1.5 fill-red-400" viewBox="0 0 6 6" aria-hidden="true">
                   <circle cx={3} cy={3} r={3} />
                </svg>
-               Chưa xử lý
+               Chờ xác nhận
             </span>
          )
    }

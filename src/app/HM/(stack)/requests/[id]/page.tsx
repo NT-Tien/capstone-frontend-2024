@@ -279,6 +279,7 @@ Page.useQrScanner = function PageQrScanner(props: {
 
    return useScanQrCodeDrawer(
       {
+         closeOnScan: true,
          defaultScanned: props.api_request.data?.is_seen,
          validationFn: async (data) => {
             if (!props.api_request.isSuccess) throw new Error("no-comparable-data")

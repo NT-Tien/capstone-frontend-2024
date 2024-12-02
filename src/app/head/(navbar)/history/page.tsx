@@ -86,7 +86,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
             break
          }
          case "head_confirm": {
-            list = list.filter((i) => i.status === FixRequestStatus.HEAD_CONFIRM)
+            list = list.filter((i) => i.status === FixRequestStatus.HEAD_CONFIRM || i.status === FixRequestStatus.HM_VERIFY)
             break
          }
          case "closed": {
@@ -111,7 +111,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
          return true
       })
 
-      list = list.sort((a, b) => dayjs(a.updatedAt).diff(dayjs(b.updatedAt)))
+      list = list.sort((a, b) => dayjs(b.updatedAt).diff(dayjs(a.updatedAt)))
 
       return list
    }, [api_requests.data, api_requests.isSuccess, tab, search, query])
@@ -121,44 +121,6 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
       setTab(newTab)
       router.push(hd_uris.navbar.history + `?status=${newTab}`)
    }
-
-   useEffect(() => {
-      function scrollToItem(index: number) {
-         const currentItemRef = itemRefs.current[index]
-         if (containerRef.current && currentItemRef) {
-            const containerWidth = containerRef.current.offsetWidth
-            const itemOffsetLeft = currentItemRef.offsetLeft
-            const itemWidth = currentItemRef.offsetWidth
-
-            const scrollPosition = itemOffsetLeft - containerWidth / 2 + itemWidth / 2
-            containerRef.current.scrollTo({
-               left: scrollPosition,
-               behavior: "smooth",
-            })
-         }
-      }
-
-      switch (tab) {
-         case "pending":
-         case "all":
-            scrollToItem(0)
-            break
-         case "approved":
-         case "in_progress":
-            scrollToItem(1)
-            break
-         case "head_confirm":
-            scrollToItem(2)
-            break
-         case "closed":
-            scrollToItem(3)
-            break
-         case "rejected":
-         case "head_cancel":
-            scrollToItem(4)
-            break
-      }
-   }, [tab])
 
    return (
       <>
@@ -215,7 +177,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
                   options={[
                      { label: "Chưa xử lý", value: "pending" },
                      { label: "Đang thực hiện", value: "in_progress" },
-                     { label: "Chờ đánh giá", value: "head_confirm" },
+                     { label: "Đã hoàn thành", value: "head_confirm" },
                      { label: "Đã đóng", value: "closed" },
                      { label: "Đã hủy", value: "rejected" },
                      { label: "Tất cả ", value: "all" },

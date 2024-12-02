@@ -3,7 +3,15 @@ import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { DtoStatus } from "@/lib/types/DtoStatus"
 import { LoadingOutlined } from "@ant-design/icons"
 import { AntdIconProps } from "@ant-design/icons/lib/components/AntdIcon"
-import { CheckSquareOffset, Hourglass, IconProps, ThumbsUp, Wrench, XCircle } from "@phosphor-icons/react"
+import {
+   CheckSquareOffset,
+   ExclamationMark,
+   Hourglass,
+   IconProps,
+   ThumbsUp,
+   Wrench,
+   XCircle,
+} from "@phosphor-icons/react"
 
 export type FixRequestStatuses =
    | "pending"
@@ -14,6 +22,7 @@ export type FixRequestStatuses =
    | "in_progress"
    | "head_confirm"
    | "closed"
+   | "hm_verify"
 
 export function FixRequest_StatusData(
    key: FixRequestStatuses,
@@ -121,6 +130,20 @@ export function FixRequest_StatusData(
             className: "text-purple-500",
          }
       }
+      case "hm_verify": {
+         return {
+            index: 5,
+            name: "hm_verify",
+            text: "Cần kiểm tra",
+            description: "Yêu cầu cần được kiểm tra",
+            colorInverse: "red-inverse",
+            color: "red",
+            conditionFn: (dto) => dto.status === FixRequestStatus.HM_VERIFY,
+            icon: <ExclamationMark {...iconProps?.phosphor} />,
+            statusEnum: FixRequestStatus.HM_VERIFY,
+            className: "text-red-500",
+         }
+      }
    }
 }
 
@@ -169,6 +192,10 @@ export function FixRequest_StatusMapper(dto?: RequestDto): DtoStatus<FixRequestS
 
    if (FixRequest_StatusData("closed").conditionFn(dto)) {
       return FixRequest_StatusData("closed")
+   }
+
+   if (FixRequest_StatusData("hm_verify").conditionFn(dto)) {
+      return FixRequest_StatusData("hm_verify")
    }
 
    throw new Error(`Unknown status ${dto.status}`)

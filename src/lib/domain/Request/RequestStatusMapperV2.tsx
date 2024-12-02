@@ -38,6 +38,12 @@ function RequestStatus_Mapper(status?: FixRequestStatus) {
             className: "text-orange-500",
             text: "Chờ xác nhận",
          }
+      case FixRequestStatus.HM_VERIFY: {
+         return {
+            className: "text-red-500",
+            text: "Cần kiểm tra"
+         }
+      }
    }
 }
 

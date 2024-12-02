@@ -39,18 +39,10 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
          }
          return true
       },
+      closeOnScan: false,
       onSuccess() {
          if (!api_task.isSuccess) throw new Error("Task not fetched")
-         mutate_beginTask.mutate(
-            {
-               id: api_task.data.id,
-            },
-            {
-               onSuccess: () => {
-                  router.push(staff_uri.stack.tasks_id_warranty(api_task.data.id))
-               },
-            },
-         )
+         router.push(staff_uri.stack.tasks_id_warranty(api_task.data.id))
       },
       onError(error) {
          if (error instanceof Error && error.message === "Task not fetched") {
@@ -72,7 +64,6 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
       },
    )
 
-   const mutate_beginTask = staff_mutations.task.begin({ showMessages: false })
    const mutate_closeTask = staff_mutations.task.close({ showMessages: false })
 
    const firstIssue = useMemo(() => {
@@ -110,12 +101,9 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
    function Footer() {
       // exists another in progress task
       if (!api_task_inProgress.isSuccess) return
-      if(api_task_inProgress.data.length > 0) {
+      if (api_task_inProgress.data.length > 0) {
          return (
-            <AlertCard
-               text="Vui lòng hoàn thành tất cả các tác vụ đang thực hiện để bắt đầu tác vụ này"
-               type="info"
-            />
+            <AlertCard text="Vui lòng hoàn thành tất cả các tác vụ đang thực hiện để bắt đầu tác vụ này" type="info" />
          )
       }
 
@@ -162,17 +150,7 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
                   if (TaskUtil.isTask_Warranty(api_task.data, "send")) {
                      control_scannerDrawer.handleOpenScanner()
                   } else {
-                     api_task.isSuccess &&
-                        mutate_beginTask.mutate(
-                           {
-                              id: api_task.data.id,
-                           },
-                           {
-                              onSettled: () => {
-                                 router.push(staff_uri.stack.tasks_id_warranty(api_task.data.id))
-                              },
-                           },
-                        )
+                     api_task.isSuccess && router.push(staff_uri.stack.tasks_id_warranty(api_task.data.id))
                   }
                }}
             >
@@ -288,7 +266,8 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
                                        >
                                           {api_task.data.device.machineModel.manufacturer}
                                           <span>
-                                             Khu vực {api_task.data.device?.area?.name ?? "-"} ({api_task.data.device?.positionX ?? "-"},{" "}
+                                             Khu vực {api_task.data.device?.area?.name ?? "-"} (
+                                             {api_task.data.device?.positionX ?? "-"},{" "}
                                              {api_task.data.device?.positionY ?? "-"})
                                           </span>
                                        </Space>
@@ -308,8 +287,8 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
                   />
                   <Divider />
                   <section>
-                     <h3 className={"text-base font-semibold text-black mb-1"}>Chi tiết tác vụ</h3>
-                     <p className="font-base text-sm text-neutral-500 mb-4">
+                     <h3 className={"mb-1 text-base font-semibold text-black"}>Chi tiết tác vụ</h3>
+                     <p className="mb-4 font-base text-sm text-neutral-500">
                         Tác vụ có {api_task.data.issues.length ?? "-"} bước cần thực hiện
                      </p>
                      <Steps

@@ -1,7 +1,14 @@
 import { App, Button, Card, Drawer, DrawerProps, Dropdown, Form, Input, InputProps, Result } from "antd"
 import AlertCard from "@/components/AlertCard"
 import { Scanner } from "@yudiel/react-qr-scanner"
-import { CloseCircleFilled, IdcardOutlined, MoreOutlined, PhoneOutlined, ReloadOutlined, SendOutlined } from "@ant-design/icons"
+import {
+   CloseCircleFilled,
+   IdcardOutlined,
+   MoreOutlined,
+   PhoneOutlined,
+   ReloadOutlined,
+   SendOutlined,
+} from "@ant-design/icons"
 import { cn } from "@/lib/utils/cn.util"
 import { isUUID } from "@/lib/utils/isUUID.util"
 import uuidNormalizer from "@/lib/utils/uuid-normalizer.util"
@@ -15,6 +22,7 @@ type ScannerV3DrawerProps = {
    infoText?: string
    onScan?: (data: string) => void
    inputProps?: InputProps
+   closeOnScan?: boolean
 }
 type Props = Omit<DrawerProps, "children"> &
    ScannerV3DrawerProps & {
@@ -36,7 +44,9 @@ function ScannerV3Drawer(props: Props) {
 
    function handleFinish(value: string) {
       props.onScan?.(value)
-      props.handleClose?.()
+      if (props.closeOnScan === undefined || props.closeOnScan) {
+         props.handleClose?.()
+      }
    }
 
    function handleError(e: unknown) {
@@ -100,10 +110,10 @@ function ScannerV3Drawer(props: Props) {
                <Card className="h-full w-full" classNames={{ body: "grid place-items-center h-full" }}>
                   <Result
                      className="p-0"
-                     title={<h1 className='text-xl font-bold'>Đã xảy ra lỗi</h1>}
-                     icon={<CloseCircleFilled className='text-red-500 text-[60px]' />}
+                     title={<h1 className="text-xl font-bold">Đã xảy ra lỗi</h1>}
+                     icon={<CloseCircleFilled className="text-[60px] text-red-500" />}
                      status={"error"}
-                     subTitle={<p className='text-base'>{error}</p>}
+                     subTitle={<p className="text-base">{error}</p>}
                      extra={
                         <Button
                            type={"primary"}

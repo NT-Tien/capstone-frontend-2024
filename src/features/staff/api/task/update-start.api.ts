@@ -10,7 +10,7 @@ export type Request = {
 export type Response = TaskDto
 
 Staff_Task_UpdateStart.URL = (req: Request) => `/staff/task/in-progress/${req.id}`
-export default async function Staff_Task_UpdateStart(req: Request): Promise<Response> {
+export default async function                           Staff_Task_UpdateStart(req: Request): Promise<Response> {
    return api
       .post<Response>(Staff_Task_UpdateStart.URL(req), undefined, {
          transformResponse: (data) => parseApiResponse(data),

@@ -10,6 +10,7 @@ import Issue_ViewDetails_WarrantyDrawer, {
 import Task_VerifyComplete_WarrantyDrawer, {
    Task_VerifyComplete_WarrantyDrawerProps,
 } from "@/features/head-maintenance/components/overlays/warranty/Task_VerifyComplete_Warranty.drawer"
+import TaskCard from "@/features/head-maintenance/components/TaskCard"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import {
    AssembleDeviceTypeErrorId,
@@ -25,10 +26,19 @@ import TaskUtil from "@/lib/domain/Task/Task.util"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
 import { cn } from "@/lib/utils/cn.util"
-import { EditOutlined, LeftCircleFilled, MoreOutlined, RightOutlined, UserOutlined } from "@ant-design/icons"
-import { Calendar, User } from "@phosphor-icons/react"
+import {
+   CheckOutlined,
+   EditOutlined,
+   LeftCircleFilled,
+   LoadingOutlined,
+   MoreOutlined,
+   PlusOutlined,
+   RightOutlined,
+   UserOutlined,
+} from "@ant-design/icons"
+import { Calendar, Circle, Spinner, User } from "@phosphor-icons/react"
 import { UseQueryResult } from "@tanstack/react-query"
-import { App, Divider, Dropdown, Space, Steps } from "antd"
+import { App, Divider, Dropdown, Space, Spin, Steps } from "antd"
 import Button from "antd/es/button"
 import dayjs from "dayjs"
 import { useMemo, useRef } from "react"
@@ -49,6 +59,7 @@ function WarrantyTab(props: Props) {
    const control_issueViewDetailsWarrantyDrawer = useRef<RefType<Issue_ViewDetails_WarrantyDrawerProps>>(null),
       control_taskAssignFixerDrawer = useRef<RefType<Task_AssignFixerModalProps>>(null),
       control_taskVerifyComplete_warrantyDrawer = useRef<RefType<Task_VerifyComplete_WarrantyDrawerProps>>(null),
+      control_createReturnWarrantyTask = useRef<RefType<Task_AssignFixerModalProps>>(null),
       control_qrScanner = useScanQrCodeDrawer({
          validationFn: async (data) => {
             if (!props.api_request.isSuccess) throw new Error("Request not found")
@@ -80,7 +91,8 @@ function WarrantyTab(props: Props) {
       })
 
    const mutate_finishRequest = head_maintenance_mutations.request.finish(),
-      mutate_updateTask = head_maintenance_mutations.task.update()
+      mutate_updateTask = head_maintenance_mutations.task.update(),
+      mutate_createReturnWarranty = head_maintenance_mutations.request.createReturnWarranty()
 
    const sendWarrantyTask = useMemo(() => {
       if (!props.api_request.isSuccess) return
@@ -173,342 +185,30 @@ function WarrantyTab(props: Props) {
                   <h3 className="mr-auto font-semibold">Trạng thái bảo hành</h3>
                   <p>{warrantyStatus}</p>
                </div>
-               {sendWarrantyTask && receiveWarrantyTask && (
-                  <Steps
-                     size="small"
-                     current={(function () {
-                        if (
-                           sendWarrantyTask.status === TaskStatus.COMPLETED &&
-                           sendWarrantyTask.issues.every((i) => i.status === IssueStatusEnum.RESOLVED)
-                        )
-                           return 1
-                        return 0
-                     })()}
-                     status={(function () {
-                        if (sendWarrantyTask.issues.find((i) => i.status === IssueStatusEnum.FAILED)) return "error"
-                     })()}
-                     className="steps-title-w-full"
-                     items={[
-                        // ! SEND TO WARRANTY TASK
-                        {
-                           title: (
-                              <div className={"flex w-full items-center"}>
-                                 <div className={"flex-grow text-base font-bold"}>Gửi máy đi bảo hành</div>
-                                 <Dropdown
-                                    autoFocus
-                                    menu={{
-                                       items: [
-                                          {
-                                             label: "Cập nhật",
-                                             icon: <EditOutlined />,
-                                             key: "edit-send-warranty",
-                                             className: cn(
-                                                "hidden",
-                                                sendWarrantyTask.status === TaskStatus.ASSIGNED && "flex",
-                                             ),
-                                             onClick: () => {
-                                                control_taskAssignFixerDrawer.current?.handleOpen({
-                                                   taskId: sendWarrantyTask.id,
-                                                   defaults: {
-                                                      date: sendWarrantyTask?.fixerDate
-                                                         ? new Date(sendWarrantyTask.fixerDate)
-                                                         : undefined,
-                                                      priority: sendWarrantyTask?.priority ? "priority" : "normal",
-                                                      fixer: sendWarrantyTask?.fixer,
-                                                   },
-                                                   recommendedFixerIds: [sendWarrantyTask.fixer?.id],
-                                                })
-                                             },
-                                          },
-                                       ],
-                                    }}
-                                 >
-                                    <Button
-                                       className="translate-x-2"
-                                       size="small"
-                                       type="text"
-                                       icon={<MoreOutlined />}
-                                    />
-                                 </Dropdown>
-                              </div>
-                           ),
-                           description: (
-                              <div className={"flex flex-col text-xs"}>
-                                 <div className="flex flex-col">
-                                    <div>{sendWarrantyTask.name}</div>
-                                    {sendWarrantyTask.status !== TaskStatus.AWAITING_FIXER && (
-                                       <Space
-                                          split={<Divider type={"vertical"} className={"m-0"} />}
-                                          className={"mt-2 overflow-y-auto"}
-                                       >
-                                          <div
-                                             className={cn(
-                                                "flex items-center gap-1 whitespace-pre",
-                                                TaskStatusTagMapper[sendWarrantyTask.status].className,
-                                             )}
-                                          >
-                                             {TaskStatusTagMapper[sendWarrantyTask.status].icon}
-                                             {TaskStatusTagMapper[sendWarrantyTask.status].text}
-                                          </div>
-                                          {sendWarrantyTask.fixer && (
-                                             <div className={cn("flex items-center gap-1")}>
-                                                <User size={16} weight={"duotone"} />
-                                                {sendWarrantyTask.fixer.username}
-                                             </div>
-                                          )}
-                                          {sendWarrantyTask.fixerDate && (
-                                             <div className={cn("flex items-center gap-1")}>
-                                                <Calendar size={16} weight={"duotone"} />
-                                                {dayjs(sendWarrantyTask.fixerDate).format("DD/MM/YYYY")}
-                                             </div>
-                                          )}
-                                       </Space>
-                                    )}
-                                 </div>
-                                 <Steps
-                                    className="steps-title-w-full mt-4"
-                                    progressDot
-                                    prefixCls="steps-inner"
-                                    status="wait"
-                                    size="small"
-                                    items={[
-                                       {
-                                          title: (
-                                             <div className="flex justify-between">
-                                                <div className="text-sm font-semibold">
-                                                   {warrantyIssues.disassemble?.typeError.name}
-                                                </div>
-                                                <RightOutlined className="text-xs" />
-                                             </div>
-                                          ),
-                                          icon: <LeftCircleFilled />,
-                                          description: (
-                                             <div className="text-xs">
-                                                {warrantyIssues.disassemble?.typeError.description}
-                                             </div>
-                                          ),
-                                          status: (function () {
-                                             switch (warrantyIssues.disassemble?.status) {
-                                                case IssueStatusEnum.RESOLVED:
-                                                   return "finish"
-                                                case IssueStatusEnum.FAILED:
-                                                case IssueStatusEnum.CANCELLED:
-                                                   return "error"
-                                                default:
-                                                   return "wait"
-                                             }
-                                          })(),
-                                          onClick: () =>
-                                             control_issueViewDetailsWarrantyDrawer.current?.handleOpen({
-                                                issueId: warrantyIssues.disassemble?.id,
-                                                requestId: props.api_request.data?.id,
-                                             }),
-                                       },
-                                       {
-                                          title: (
-                                             <div className="flex justify-between">
-                                                <div className="text-sm font-semibold">
-                                                   {warrantyIssues.send?.typeError.name}
-                                                </div>
-                                                <RightOutlined className="text-xs" />
-                                             </div>
-                                          ),
-                                          description: (
-                                             <div className="text-xs">{warrantyIssues.send?.typeError.description}</div>
-                                          ),
-                                          status: (function () {
-                                             switch (warrantyIssues.send?.status) {
-                                                case IssueStatusEnum.RESOLVED:
-                                                   return "finish"
-                                                case IssueStatusEnum.FAILED:
-                                                case IssueStatusEnum.CANCELLED:
-                                                   return "error"
-                                                default:
-                                                   return "wait"
-                                             }
-                                          })(),
-                                          onClick: () =>
-                                             control_issueViewDetailsWarrantyDrawer.current?.handleOpen({
-                                                issueId: warrantyIssues.send?.id,
-                                                requestId: props.api_request.data?.id,
-                                             }),
-                                       },
-                                    ]}
-                                 />
-                              </div>
-                           ),
-                        },
-                        // ! RECEIVE FROM WARRANTY TASK
-                        {
-                           className: cn(!isSendCompleted && "hidden"),
-                           title: (
-                              <div className={"flex w-full items-center"}>
-                                 <div className={"flex-grow text-base font-bold"}>Nhận máy và lắp đặt</div>
-                                 {isSendCompleted && (
-                                    <Dropdown
-                                       autoFocus
-                                       menu={{
-                                          items: [
-                                             {
-                                                label: "Cập nhật",
-                                                icon: <EditOutlined />,
-                                                key: "edit-receive-warranty",
-                                                className: cn(
-                                                   "hidden",
-                                                   receiveWarrantyTask.status === TaskStatus.ASSIGNED && "flex",
-                                                ),
-                                                onClick: () => {
-                                                   control_taskAssignFixerDrawer.current?.handleOpen({
-                                                      taskId: receiveWarrantyTask.id,
-                                                      defaults: {
-                                                         date: receiveWarrantyTask?.fixerDate
-                                                            ? new Date(receiveWarrantyTask.fixerDate)
-                                                            : undefined,
-                                                         priority: receiveWarrantyTask?.priority
-                                                            ? "priority"
-                                                            : "normal",
-                                                         fixer: receiveWarrantyTask?.fixer,
-                                                      },
-                                                      recommendedFixerIds: [receiveWarrantyTask.fixer?.id],
-                                                   })
-                                                },
-                                             },
-                                          ],
-                                       }}
-                                    >
-                                       <Button
-                                          className="translate-x-2"
-                                          size="small"
-                                          type="text"
-                                          icon={<MoreOutlined />}
-                                       />
-                                    </Dropdown>
-                                 )}
-                              </div>
-                           ),
-                           description: (
-                              <div className={cn("hidden flex-col text-xs", isSendCompleted && "flex")}>
-                                 <div className="flex flex-col">
-                                    <div>{receiveWarrantyTask.name}</div>
-                                    {receiveWarrantyTask.status !== TaskStatus.AWAITING_FIXER && (
-                                       <Space
-                                          split={<Divider type={"vertical"} className={"m-0"} />}
-                                          className={"mt-2 overflow-y-auto"}
-                                       >
-                                          <div
-                                             className={cn(
-                                                "flex items-center gap-1 whitespace-pre",
-                                                TaskStatusTagMapper[receiveWarrantyTask.status].className,
-                                             )}
-                                          >
-                                             {TaskStatusTagMapper[receiveWarrantyTask.status].icon}
-                                             {TaskStatusTagMapper[receiveWarrantyTask.status].text}
-                                          </div>
-                                          {receiveWarrantyTask.fixer && (
-                                             <div className={cn("flex items-center gap-1")}>
-                                                <User size={16} weight={"duotone"} />
-                                                {receiveWarrantyTask.fixer.username}
-                                             </div>
-                                          )}
-                                          {receiveWarrantyTask.fixerDate && (
-                                             <div className={cn("flex items-center gap-1")}>
-                                                <Calendar size={16} weight={"duotone"} />
-                                                {dayjs(receiveWarrantyTask.fixerDate).format("DD/MM/YYYY")}
-                                             </div>
-                                          )}
-                                       </Space>
-                                    )}
-                                 </div>
-                                 <Steps
-                                    className="steps-title-w-full mt-4"
-                                    progressDot
-                                    prefixCls="steps-inner"
-                                    status="wait"
-                                    size="small"
-                                    items={[
-                                       {
-                                          title: (
-                                             <div className="flex justify-between">
-                                                <div className="text-sm font-semibold">
-                                                   {warrantyIssues.receive?.typeError.name}
-                                                </div>
-                                                <RightOutlined className="text-xs" />
-                                             </div>
-                                          ),
-                                          icon: <LeftCircleFilled />,
-                                          description: (
-                                             <div className="text-xs">
-                                                {warrantyIssues.receive?.typeError.description}
-                                             </div>
-                                          ),
-                                          status: (function () {
-                                             switch (warrantyIssues.receive?.status) {
-                                                case IssueStatusEnum.RESOLVED:
-                                                   return "finish"
-                                                case IssueStatusEnum.FAILED:
-                                                case IssueStatusEnum.CANCELLED:
-                                                   return "error"
-                                                default:
-                                                   return "wait"
-                                             }
-                                          })(),
-                                          onClick: () =>
-                                             control_issueViewDetailsWarrantyDrawer.current?.handleOpen({
-                                                issueId: warrantyIssues.receive?.id,
-                                                requestId: props.api_request.data?.id,
-                                             }),
-                                       },
-                                       {
-                                          title: (
-                                             <div className="flex justify-between">
-                                                <div className="text-sm font-semibold">
-                                                   {warrantyIssues.assemble?.typeError.name}
-                                                </div>
-                                                <RightOutlined className="text-xs" />
-                                             </div>
-                                          ),
-                                          description: (
-                                             <div className="text-xs">
-                                                {warrantyIssues.assemble?.typeError.description}
-                                             </div>
-                                          ),
-                                          status: (function () {
-                                             switch (warrantyIssues.assemble?.status) {
-                                                case IssueStatusEnum.RESOLVED:
-                                                   return "finish"
-                                                case IssueStatusEnum.FAILED:
-                                                case IssueStatusEnum.CANCELLED:
-                                                   return "error"
-                                                default:
-                                                   return "wait"
-                                             }
-                                          })(),
-                                          onClick: () =>
-                                             control_issueViewDetailsWarrantyDrawer.current?.handleOpen({
-                                                issueId: warrantyIssues.assemble?.id,
-                                                requestId: props.api_request.data?.id,
-                                             }),
-                                       },
-                                    ]}
-                                 />
-                                 {receiveWarrantyTask.status === TaskStatus.HEAD_STAFF_CONFIRM && (
-                                    <Button
-                                       block
-                                       type="primary"
-                                       className="mt-2"
-                                       onClick={() => {
-                                          control_qrScanner.handleOpenScanner()
-                                       }}
-                                    >
-                                       Kiểm tra tác vụ
-                                    </Button>
-                                 )}
-                              </div>
-                           ),
-                        },
-                     ]}
-                  />
-               )}
+               <div className="flex flex-col gap-2">
+                  {sendWarrantyTask && (
+                     <TaskCard.Warranty
+                        task={sendWarrantyTask}
+                        handleOpen_assignFixer={(props) => control_taskAssignFixerDrawer.current?.handleOpen(props)}
+                        handleOpen_issueViewDetailsWarranty={(props) =>
+                           control_issueViewDetailsWarrantyDrawer.current?.handleOpen(props)
+                        }
+                        requestId={props.api_request.data.id}
+                        title={TaskCard.Warranty.SendTitle}
+                     />
+                  )}
+                  {receiveWarrantyTask && (
+                     <TaskCard.Warranty
+                        task={receiveWarrantyTask}
+                        handleOpen_assignFixer={(props) => control_taskAssignFixerDrawer.current?.handleOpen(props)}
+                        handleOpen_issueViewDetailsWarranty={(props) =>
+                           control_issueViewDetailsWarrantyDrawer.current?.handleOpen(props)
+                        }
+                        requestId={props.api_request.data.id}
+                        title={TaskCard.Warranty.ReceiveTitle}
+                     />
+                  )}
+               </div>
                {props.api_request.data.status === FixRequestStatus.IN_PROGRESS &&
                   props.api_request.data.tasks.every(
                      (t) => t.status === TaskStatus.COMPLETED || t.status === TaskStatus.CANCELLED,
@@ -534,6 +234,26 @@ function WarrantyTab(props: Props) {
          {control_qrScanner.contextHolder()}
          <OverlayControllerWithRef ref={control_issueViewDetailsWarrantyDrawer}>
             <Issue_ViewDetails_WarrantyDrawer refetchFn={() => props.api_request.refetch()} />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_createReturnWarrantyTask}>
+            <Task_AssignFixerV2Drawer
+               onSubmit={(fixer, date, priority) => {
+                  if (!props.api_request.isSuccess) return
+                  mutate_createReturnWarranty.mutate(
+                     {
+                        id: props.api_request.data.id,
+                        payload: {
+                           fixer: fixer.id,
+                           fixerDate: date.toISOString(),
+                           priority,
+                        },
+                     },
+                     {
+                        onSettled: () => props.api_request.refetch(),
+                     },
+                  )
+               }}
+            />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_taskAssignFixerDrawer}>
             <Task_AssignFixerV2Drawer
@@ -562,30 +282,29 @@ function WarrantyTab(props: Props) {
          <OverlayControllerWithRef ref={control_taskVerifyComplete_warrantyDrawer}>
             <Task_VerifyComplete_WarrantyDrawer onSubmit={() => props.api_request.refetch()} />
          </OverlayControllerWithRef>
-         {sendWarrantyTask?.status === TaskStatus.COMPLETED &&
-            receiveWarrantyTask?.status === TaskStatus.AWAITING_FIXER && (
-               <footer className="absolute bottom-0 left-0 z-50 w-full border-t-[1px] border-t-neutral-300 bg-white p-layout">
-                  <Button
-                     block
-                     type="primary"
-                     onClick={() =>
-                        control_taskAssignFixerDrawer.current?.handleOpen({
-                           defaults: {
-                              date: props.api_request.data?.return_date_warranty
-                                 ? new Date(props.api_request.data.return_date_warranty)
-                                 : undefined,
-                              priority: "normal",
-                              fixer: sendWarrantyTask?.fixer ? sendWarrantyTask.fixer : undefined,
-                           },
-                           recommendedFixerIds: [sendWarrantyTask.fixer?.id],
-                           taskId: receiveWarrantyTask.id,
-                        })
-                     }
-                  >
-                     Nhận máy đã bảo hành
-                  </Button>
-               </footer>
-            )}
+         {sendWarrantyTask?.status === TaskStatus.COMPLETED && !!receiveWarrantyTask === false && (
+            <footer className="fixed bottom-0 left-0 z-50 w-full border-t-[1px] border-t-neutral-300 bg-white p-layout">
+               <Button
+                  block
+                  type="primary"
+                  onClick={() =>
+                     control_createReturnWarrantyTask.current?.handleOpen({
+                        defaults: {
+                           date: props.api_request.data?.return_date_warranty
+                              ? new Date(props.api_request.data.return_date_warranty)
+                              : undefined,
+                           priority: "normal",
+                           fixer: sendWarrantyTask?.fixer ? sendWarrantyTask.fixer : undefined,
+                        },
+                        recommendedFixerIds: [sendWarrantyTask.fixer?.id],
+                     })
+                  }
+                  icon={<PlusOutlined />}
+               >
+                  Tạo tác vụ nhận máy
+               </Button>
+            </footer>
+         )}
       </section>
    )
 }

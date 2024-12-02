@@ -70,6 +70,7 @@ type IssueViewDetails_WarrantyDrawerProps = {
    task?: TaskDto
    refetchFn?: () => void
    isDisabled?: boolean
+   autoOpenComplete?: () => void
 }
 type Props = Omit<DrawerProps, "children"> &
    IssueViewDetails_WarrantyDrawerProps & {
@@ -354,6 +355,7 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                onSuccess={() => {
                   props.refetchFn?.()
                   props.handleClose?.()
+                  setTimeout(() => props.autoOpenComplete?.(), 250)
                }}
             />
          </OverlayControllerWithRef>

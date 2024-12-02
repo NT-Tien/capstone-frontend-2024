@@ -29,6 +29,8 @@ function RequestList(props: Props) {
          case FixRequestStatus.REJECTED:
             router.push(hm_uris.stack.requests_id(request.id))
             break
+         case FixRequestStatus.HM_VERIFY:
+         case FixRequestStatus.CLOSED:
          case FixRequestStatus.APPROVED:
          case FixRequestStatus.IN_PROGRESS:
          case FixRequestStatus.HEAD_CONFIRM:
@@ -150,9 +152,9 @@ function RequestList(props: Props) {
                                  {
                                     value: (
                                        <div className={"w-32 truncate"}>
-                                          {item.status === FixRequestStatus.HEAD_CONFIRM
+                                          {item.status === FixRequestStatus.HEAD_CONFIRM && item.feedback?.length === 0
                                              ? "Chưa đánh giá"
-                                             : `Đánh giá: ${item.feedback?.content ?? "-"}`}
+                                             : "Đã đánh giá"}
                                        </div>
                                     ),
                                     icon: <Pen size={16} weight={"duotone"} />,

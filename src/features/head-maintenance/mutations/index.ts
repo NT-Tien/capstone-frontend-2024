@@ -20,6 +20,7 @@ import useRequest_ApproveToRenew from "./Request_ApproveToRenew.mutation"
 import useRequest_WarrantyFailed from "@/features/head-maintenance/mutations/Request_WarrantyFailed.mutation"
 import useRequest_UpdateWarrantyReturnDate from "@/features/head-maintenance/mutations/Request_UpdateWarrantyReturnDate.mutation"
 import useTask_CreateExportWarehouse from "@/features/head-maintenance/mutations/Task_CreateExportWarehouse.mutation"
+import useRequest_CreateReturnWarranty from "@/features/head-maintenance/mutations/Request_CreateReturnWarranty.mutation"
 
 const head_maintenance_mutations = {
    request: {
@@ -32,6 +33,7 @@ const head_maintenance_mutations = {
       finish: useRequest_Finish,
       warrantyFailed: useRequest_WarrantyFailed,
       updateWarrantyReturnDate: useRequest_UpdateWarrantyReturnDate,
+      createReturnWarranty: useRequest_CreateReturnWarranty
    },
    issue: {
       update: useIssue_Update,

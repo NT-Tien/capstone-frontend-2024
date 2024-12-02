@@ -16,6 +16,7 @@ type Props = {
       error?: string
    },
    infoText?: string
+   closeOnScan?: boolean
 }
 
 function useScanQrCodeDrawer<T>(props: Props, dependencies?: T[]) {
@@ -48,6 +49,7 @@ function useScanQrCodeDrawer<T>(props: Props, dependencies?: T[]) {
          props.showMessages && message.success(props.messages?.success ?? "Mã QR hợp lệ")
          props.onSuccess?.(data)
       } catch (error) {
+         console.error(error)
          props.onError?.(error)
       }
    }
@@ -55,7 +57,7 @@ function useScanQrCodeDrawer<T>(props: Props, dependencies?: T[]) {
    const contextHolder = function () {
       return (
          <OverlayControllerWithRef ref={control_scannerDrawer}>
-            <ScannerV3Drawer onScan={handleScan} infoText={props.infoText} />
+            <ScannerV3Drawer closeOnScan={props.closeOnScan} onScan={handleScan} infoText={props.infoText} />
          </OverlayControllerWithRef>
       )
    }

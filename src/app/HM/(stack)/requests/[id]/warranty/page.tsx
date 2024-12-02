@@ -10,32 +10,32 @@ import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayCon
 import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
 import HeadStaff_Device_OneByIdWithHistory from "@/features/head-maintenance/api/device/one-byIdWithHistory.api"
 import HeadStaff_Request_OneById from "@/features/head-maintenance/api/request/oneById.api"
+import Request_ApproveToRenewDrawer, {
+   Request_ApproveToRenewDrawerProps,
+} from "@/features/head-maintenance/components/overlays/renew/Request_ApproveToRenew.drawer"
+import Request_ApproveToFixDrawer, {
+   Request_ApproveToFixDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Request_ApproveToFix.drawer"
 import Request_RejectDrawer, {
    Request_RejectDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Request_Reject.drawer"
+import IssueFailed_ResolveOptions, {
+   IssueFailed_ResolveOptionsProps,
+} from "@/features/head-maintenance/components/overlays/warranty/IssueFailed_ResolveOptions.modal"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import headstaff_qk from "@/features/head-maintenance/qk"
 import hm_uris from "@/features/head-maintenance/uri"
-import {
-   AssembleDeviceTypeErrorId,
-   DisassembleDeviceTypeErrorId,
-   ReceiveWarrantyTypeErrorId,
-   SendWarrantyTypeErrorId,
-} from "@/lib/constants/Warranty"
-import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
-import TaskUtil from "@/lib/domain/Task/Task.util"
-import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import RequestStatus_Mapper from "@/lib/domain/Request/RequestStatusMapperV2"
 import { NotFoundError } from "@/lib/error/not-found.error"
+import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
 import { cn } from "@/lib/utils/cn.util"
-import { DownOutlined, EditOutlined, InfoCircleFilled } from "@ant-design/icons"
+import { DownOutlined, IdcardFilled } from "@ant-design/icons"
 import { Calendar, ChartDonut, Note, Swap, User, Wrench } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
 import { App, Descriptions, Dropdown, Typography } from "antd"
 import Button from "antd/es/button"
 import Spin from "antd/es/spin"
-import Tag from "antd/es/tag"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { Suspense, useMemo, useRef } from "react"
@@ -47,9 +47,27 @@ function Page({ params }: { params: { id: string } }) {
    const control_rejectRequestDrawer = useRef<RefType<Request_RejectDrawerProps>>(null)
    const control_datePickerDrawer = useRef<RefType<DatePickerDrawerProps>>(null)
    const control_viewDetailsDrawer = useRef<RefType<ViewDetailsDrawerProps>>(null)
+   const control_issueFailed_resolveOptionsDrawer = useRef<RefType<IssueFailed_ResolveOptionsProps>>(null)
+   const control_requestApproveToFixDrawer = useRef<RefType<Request_ApproveToFixDrawerProps>>(null)
+   const control_requestApproveToRenewDrawer = useRef<RefType<Request_ApproveToRenewDrawerProps>>(null)
+   const control_qrScanner = useScanQrCodeDrawer({
+      validationFn: async (data) => {
+         if (!api_request.isSuccess) throw new Error()
+         if (api_request.data?.device.id !== data) return false
+         return true
+      },
+      onSuccess: () => {
+         setTimeout(() => {
+            control_issueFailed_resolveOptionsDrawer.current?.handleOpen({
+               showButtons: ["fix", "renew"],
+            })
+         }, 250)
+      },
+      infoText: "Vui lòng quét mã QR trên thiết bị để kiểm tra",
+      closeOnScan: true,
+   })
 
    const mutate_closeRequest = head_maintenance_mutations.request.finish()
-   const mutate_updateWarrantyDate = head_maintenance_mutations.request.updateWarrantyReturnDate()
 
    const api_request = useQuery({
       queryKey: headstaff_qk.request.byId(params.id),
@@ -76,50 +94,11 @@ function Page({ params }: { params: { id: string } }) {
       enabled: api_request.isSuccess,
    })
 
-   const sendWarrantyTask = useMemo(() => {
-      if (!api_request.isSuccess) return
+   const latestFeedback = useMemo(() => {
+      if (!api_request.isSuccess) return null
 
-      return api_request.data.tasks
-         .filter((t) =>
-            t.issues.find(
-               (i) => i.typeError.id === SendWarrantyTypeErrorId || i.typeError.id === DisassembleDeviceTypeErrorId,
-            ),
-         )
-         .sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))[0]
-   }, [api_request.data?.tasks, api_request.isSuccess])
-
-   const receiveWarrantyTask = useMemo(() => {
-      if (!api_request.isSuccess) return
-
-      return api_request.data.tasks
-         .filter((t) =>
-            t.issues.find(
-               (i) => i.typeError.id === ReceiveWarrantyTypeErrorId || i.typeError.id === AssembleDeviceTypeErrorId,
-            ),
-         )
-         .sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))[0]
-   }, [api_request.data?.tasks, api_request.isSuccess])
-
-   const warrantyIssues = useMemo(() => {
-      const disassemble = TaskUtil.getTask_Warranty_FirstIssue(sendWarrantyTask)
-      const send = TaskUtil.getTask_Warranty_SecondIssue(sendWarrantyTask)
-      const receive = TaskUtil.getTask_Warranty_FirstIssue(receiveWarrantyTask)
-      const assemble = TaskUtil.getTask_Warranty_SecondIssue(receiveWarrantyTask)
-
-      return {
-         disassemble,
-         send,
-         receive,
-         assemble,
-      }
-   }, [receiveWarrantyTask, sendWarrantyTask])
-
-   const isSendCompleted = useMemo(() => {
-      return (
-         sendWarrantyTask?.status === TaskStatus.COMPLETED &&
-         sendWarrantyTask?.issues.every((i) => i.status === IssueStatusEnum.RESOLVED)
-      )
-   }, [sendWarrantyTask?.issues, sendWarrantyTask?.status])
+      return api_request.data.feedback?.sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))[0]
+   }, [api_request.data?.feedback, api_request.isSuccess])
 
    if (api_request.isPending) {
       return <PageLoader />
@@ -233,6 +212,15 @@ function Page({ params }: { params: { id: string } }) {
                      {
                         label: (
                            <div className="flex items-center gap-1">
+                              <IdcardFilled />
+                              <h2>Mã yêu cầu</h2>
+                           </div>
+                        ),
+                        children: api_request.data.code,
+                     },
+                     {
+                        label: (
+                           <div className="flex items-center gap-1">
                               <Calendar size={17} weight="duotone" />
                               <h2>Ngày tạo</h2>
                            </div>
@@ -256,9 +244,9 @@ function Page({ params }: { params: { id: string } }) {
                            </div>
                         ),
                         children: (
-                           <Tag className="m-0" color={FixRequest_StatusMapper(api_request.data).colorInverse}>
-                              {FixRequest_StatusMapper(api_request.data).text}
-                           </Tag>
+                           <div className={RequestStatus_Mapper(api_request.data.status)?.className}>
+                              {RequestStatus_Mapper(api_request.data.status)?.text}
+                           </div>
                         ),
                      },
                      {
@@ -288,6 +276,15 @@ function Page({ params }: { params: { id: string } }) {
                </OverlayControllerWithRef>
             </section>
 
+            {api_request.isSuccess && api_request.data.status === FixRequestStatus.HM_VERIFY && (
+               <section className="std-layout">
+                  <div className="flex w-full flex-col rounded-b-lg bg-red-800 p-3 text-white">
+                     <h1>
+                        Yêu cầu được đánh giá là <strong>Chưa hoàn thành</strong> với ghi chú: {latestFeedback?.content}
+                     </h1>
+                  </div>
+               </section>
+            )}
             {api_request.isSuccess && new Set([FixRequestStatus.HEAD_CONFIRM]).has(api_request.data.status) && (
                <section className="std-layout">
                   <div className="flex w-full gap-4 rounded-b-lg bg-red-800 p-3 text-white">
@@ -303,62 +300,15 @@ function Page({ params }: { params: { id: string } }) {
                   </div>
                </section>
             )}
-            {isSendCompleted &&
-               warrantyIssues.receive?.status === IssueStatusEnum.PENDING && (
-                  <div className="mt-2 flex w-full gap-3 rounded-lg bg-red-900 p-3 text-white shadow-lg">
-                     <div className="flex-shrink-0">
-                        <InfoCircleFilled />
-                     </div>
-                     <div>
-                        Thiết bị dự tính sẽ bảo hành xong vào{" "}
-                        <strong>{dayjs(api_request.data.return_date_warranty).format("DD/MM/YYYY")}</strong>
-                     </div>
-                     <Button
-                        className="self-center aspect-square text-white"
-                        type="text"
-                        icon={<EditOutlined />}
-                        size="small"
-                        onClick={() =>
-                           control_datePickerDrawer.current?.handleOpen({
-                              bounds: {
-                                 min: dayjs().startOf("day"),
-                                 max: dayjs().add(10, "years").endOf("year"),
-                              },
-                              value: dayjs().startOf("day"),
-                              onSubmit(date) {
-                                 mutate_updateWarrantyDate.mutate(
-                                    {
-                                       id: params.id,
-                                       payload: {
-                                          return_date_warranty: date.toISOString(),
-                                       },
-                                    },
-                                    {
-                                       onSuccess: () => {
-                                          api_request.refetch()
-                                       },
-                                    },
-                                 )
-                              },
-                           })
-                        }
-                     />
-                  </div>
-               )}
-            {sendWarrantyTask?.status === TaskStatus.COMPLETED &&
-               (warrantyIssues.receive?.status === IssueStatusEnum.RESOLVED ||
-                  warrantyIssues.receive?.status === IssueStatusEnum.FAILED) && (
-                  <div className="mt-2 flex w-full gap-3 rounded-lg bg-red-900 p-3 text-white shadow-lg">
-                     <div className="flex-shrink-0">
-                        <InfoCircleFilled />
-                     </div>
-                     <div>
-                        Thiết bị đã được nhận từ trung tâm bảo hành vào{" "}
-                        <strong>{dayjs(receiveWarrantyTask?.fixerDate).format("DD/MM/YYYY")}</strong>
-                     </div>
-                  </div>
-               )}
          </div>
+
+         {api_request.data.status === FixRequestStatus.HM_VERIFY && (
+            <footer className="fixed bottom-0 left-0 z-50 w-full border-t-[1px] border-t-neutral-500/50 bg-white p-layout shadow-fb">
+               <Button block type="primary" onClick={() => control_qrScanner.handleOpenScanner()}>
+                  Kiểm tra yêu cầu
+               </Button>
+            </footer>
+         )}
 
          <Suspense fallback={<Spin />}>
             <TabbedLayout
@@ -378,6 +328,33 @@ function Page({ params }: { params: { id: string } }) {
          <OverlayControllerWithRef ref={control_datePickerDrawer}>
             <DatePickerDrawer />
          </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_issueFailed_resolveOptionsDrawer}>
+            <IssueFailed_ResolveOptions
+               onChooseFix={() => {
+                  control_requestApproveToFixDrawer.current?.handleOpen({ requestId: params.id })
+               }}
+               onChooseRenew={() => {
+                  control_requestApproveToRenewDrawer.current?.handleOpen({ requestId: params.id })
+               }}
+            />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_requestApproveToFixDrawer}>
+            <Request_ApproveToFixDrawer
+               isMultiple
+               onSuccess={() => {
+                  router.push(hm_uris.stack.requests_id_fix(params.id))
+               }}
+            />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_requestApproveToRenewDrawer}>
+            <Request_ApproveToRenewDrawer
+               isMultiple
+               onSuccess={() => {
+                  router.push(hm_uris.stack.requests_id_renew(params.id))
+               }}
+            />
+         </OverlayControllerWithRef>
+         {control_qrScanner.contextHolder()}
       </div>
    )
 }

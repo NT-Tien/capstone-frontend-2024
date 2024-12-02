@@ -2,7 +2,7 @@ import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
 import { Avatar, Card, List, Result, Skeleton } from "antd"
-import { RightOutlined } from "@ant-design/icons"
+import { ExclamationCircleFilled, RightOutlined } from "@ant-design/icons"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import hd_uris from "@/features/head-department/uri"
@@ -40,7 +40,10 @@ function HistoryList({ requests }: Props) {
          renderItem={(item, index) => {
             const avatarData = generateAvatarData(item.old_device.machineModel.name)
             return (
-               <ClickableArea onClick={() => router.push(hd_uris.stack.history_id(item.id))} className='w-full rounded-none'>
+               <ClickableArea
+                  onClick={() => router.push(hd_uris.stack.history_id(item.id))}
+                  className="w-full rounded-none"
+               >
                   <List.Item
                      className={cn("w-full px-layout", index === 0 && "mt-0", index % 2 === 0 && "bg-neutral-100")}
                   >
@@ -71,11 +74,6 @@ function HistoryList({ requests }: Props) {
                                  className: "text-head_department",
                               },
                               {
-                                 icon: <User size={16} weight="duotone" />,
-                                 value: item.checker?.username,
-                                 hidden: item.status === FixRequestStatus.PENDING,
-                              },
-                              {
                                  icon: <Truck size={16} weight="duotone" />,
                                  value: "Bảo hành",
                                  hidden: !item.is_warranty,
@@ -93,6 +91,12 @@ function HistoryList({ requests }: Props) {
                                  hidden: !item.is_fix,
                                  className: "text-blue-500",
                               },
+                              {
+                                 icon: <ExclamationCircleFilled />,
+                                 value: "Chờ xác nhận",
+                                 hidden: item.status !== FixRequestStatus.HM_VERIFY,
+                                 className: "text-red-500"
+                              }
                            ]}
                            cols={2}
                         />

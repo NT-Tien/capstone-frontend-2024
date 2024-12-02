@@ -11,32 +11,39 @@ import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayCon
 import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
 import HeadStaff_Device_OneByIdWithHistory from "@/features/head-maintenance/api/device/one-byIdWithHistory.api"
 import HeadStaff_Request_OneById from "@/features/head-maintenance/api/request/oneById.api"
+import Request_ApproveToRenewDrawer, {
+   Request_ApproveToRenewDrawerProps,
+} from "@/features/head-maintenance/components/overlays/renew/Request_ApproveToRenew.drawer"
+import Request_ApproveToFixDrawer, {
+   Request_ApproveToFixDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Request_ApproveToFix.drawer"
 import Request_RejectDrawer, {
    Request_RejectDrawerProps,
 } from "@/features/head-maintenance/components/overlays/Request_Reject.drawer"
 import Task_ViewDetailsDrawer, {
    TaskDetailsDrawerRefType,
 } from "@/features/head-maintenance/components/overlays/Task_ViewDetails.drawer"
+import IssueFailed_ResolveOptions, {
+   IssueFailed_ResolveOptionsProps,
+} from "@/features/head-maintenance/components/overlays/warranty/IssueFailed_ResolveOptions.modal"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import headstaff_qk from "@/features/head-maintenance/qk"
 import hm_uris from "@/features/head-maintenance/uri"
-import { ReceiveWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import IssueUtil from "@/lib/domain/Issue/Issue.util"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
 import TaskUtil from "@/lib/domain/Task/Task.util"
-import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import { NotFoundError } from "@/lib/error/not-found.error"
+import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
 import { cn } from "@/lib/utils/cn.util"
-import { DownOutlined, InfoCircleFilled } from "@ant-design/icons"
+import { DownOutlined, IdcardFilled, InfoCircleFilled } from "@ant-design/icons"
 import { Calendar, ChartDonut, Note, Swap, Truck, User } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
 import { App, Button, Descriptions, Dropdown, Tag, Typography } from "antd"
-import Card from "antd/es/card"
 import Spin from "antd/es/spin"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import { Suspense, useEffect, useRef } from "react"
+import { Suspense, useMemo, useRef } from "react"
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -45,6 +52,25 @@ function Page({ params }: { params: { id: string } }) {
    const control_rejectRequestDrawer = useRef<RefType<Request_RejectDrawerProps> | null>(null)
    const taskDetailsRef = useRef<TaskDetailsDrawerRefType | null>(null)
    const control = useRef<RefType<ViewDetailsDrawerProps>>(null)
+   const control_issueFailed_resolveOptionsDrawer = useRef<RefType<IssueFailed_ResolveOptionsProps>>(null)
+   const control_requestApproveToFixDrawer = useRef<RefType<Request_ApproveToFixDrawerProps>>(null)
+   const control_requestApproveToRenewDrawer = useRef<RefType<Request_ApproveToRenewDrawerProps>>(null)
+   const control_qrScanner = useScanQrCodeDrawer({
+      validationFn: async (data) => {
+         if (!api_request.isSuccess) throw new Error()
+         if (api_request.data?.device.id !== data) return false
+         return true
+      },
+      onSuccess: () => {
+         setTimeout(() => {
+            control_issueFailed_resolveOptionsDrawer.current?.handleOpen({
+               showButtons: ["fix", "renew"],
+            })
+         }, 250)
+      },
+      infoText: "Vui lòng quét mã QR trên thiết bị để kiểm tra",
+      closeOnScan: true,
+   })
 
    const mutate_closeRequest = head_maintenance_mutations.request.finish()
 
@@ -80,28 +106,11 @@ function Page({ params }: { params: { id: string } }) {
       enabled: api_request.isSuccess,
    })
 
-   useEffect(() => {
-      if (!api_request.isSuccess) return
-      if (!api_request.data.return_date_warranty) return
+   const latestFeedback = useMemo(() => {
+      if (!api_request.isSuccess) return null
 
-      const now = dayjs()
-      const warrantyDate = dayjs(api_request.data.return_date_warranty).add(7, "hours")
-      const returnWarrantyTask = api_request.data.issues.find(
-         (issue) => issue.typeError.id === ReceiveWarrantyTypeErrorId,
-      )?.task
-
-      if (now.isAfter(warrantyDate) && returnWarrantyTask?.status === TaskStatus.AWAITING_FIXER) {
-         modal.info({
-            title: "Thông báo",
-            content: "Thiết bị đã bảo hành xong. Vui lòng tạo tác vụ để nhận và lắp đặt thiết bị",
-            okText: "Xem tác vụ",
-            onOk: () => {
-               taskDetailsRef.current?.handleOpen(returnWarrantyTask, params.id)
-            },
-            cancelText: "Đóng",
-         })
-      }
-   }, [api_request.data, api_request.isSuccess, modal, params.id])
+      return api_request.data.feedback?.sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))[0]
+   }, [api_request.data?.feedback, api_request.isSuccess])
 
    if (api_request.isPending) {
       return <PageLoader />
@@ -214,6 +223,15 @@ function Page({ params }: { params: { id: string } }) {
                      {
                         label: (
                            <div className="flex items-center gap-1">
+                              <IdcardFilled />
+                              <h2>Mã yêu cầu</h2>
+                           </div>
+                        ),
+                        children: api_request.data.code,
+                     },
+                     {
+                        label: (
+                           <div className="flex items-center gap-1">
                               <Calendar size={17} weight="duotone" />
                               <h2>Ngày tạo</h2>
                            </div>
@@ -268,6 +286,15 @@ function Page({ params }: { params: { id: string } }) {
                   <ViewDetailsDrawer getContainer={false} text={""} />
                </OverlayControllerWithRef>
             </section>
+            {api_request.isSuccess && api_request.data.status === FixRequestStatus.HM_VERIFY && (
+               <section className="std-layout">
+                  <div className="flex w-full flex-col rounded-b-lg bg-red-800 p-3 text-white">
+                     <h1>
+                        Yêu cầu được đánh giá là <strong>Chưa hoàn thành</strong> với ghi chú: {latestFeedback?.content}
+                     </h1>
+                  </div>
+               </section>
+            )}
             {api_request.data?.issues.find((i) => i.task === null) && (
                <section className="std-layout">
                   <div className="flex w-full gap-2 rounded-b-lg bg-red-800 p-3 text-white">
@@ -293,6 +320,14 @@ function Page({ params }: { params: { id: string } }) {
             )}
          </div>
 
+         {api_request.data.status === FixRequestStatus.HM_VERIFY && (
+            <footer className="fixed bottom-0 left-0 z-50 w-full border-t-[1px] border-t-neutral-500/50 bg-white p-layout shadow-fb">
+               <Button block type="primary" onClick={() => control_qrScanner.handleOpenScanner()}>
+                  Kiểm tra yêu cầu
+               </Button>
+            </footer>
+         )}
+
          <Suspense fallback={<Spin />}>
             <TabbedLayout
                api_device={api_device}
@@ -313,8 +348,35 @@ function Page({ params }: { params: { id: string } }) {
             refetchFn={async () => {
                await api_request.refetch()
             }}
-            autoCreateTaskFn={async (warrantyDate) => {}}
          />
+         <OverlayControllerWithRef ref={control_issueFailed_resolveOptionsDrawer}>
+            <IssueFailed_ResolveOptions
+               onChooseFix={() => {
+                  control_requestApproveToFixDrawer.current?.handleOpen({ requestId: params.id })
+               }}
+               onChooseRenew={() => {
+                  control_requestApproveToRenewDrawer.current?.handleOpen({ requestId: params.id })
+               }}
+            />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_requestApproveToFixDrawer}>
+            <Request_ApproveToFixDrawer
+               isMultiple
+               onSuccess={() => {
+                  control_requestApproveToFixDrawer.current?.handleClose()
+                  api_request.refetch()
+               }}
+            />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_requestApproveToRenewDrawer}>
+            <Request_ApproveToRenewDrawer
+               isMultiple
+               onSuccess={() => {
+                  router.push(hm_uris.stack.requests_id_renew(params.id))
+               }}
+            />
+         </OverlayControllerWithRef>
+         {control_qrScanner.contextHolder()}
       </div>
    )
 }

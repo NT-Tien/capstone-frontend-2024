@@ -19,6 +19,7 @@ import useIssue_DetatchAndRecreateTaskWarranty from "@/features/head-maintenance
 import useRequest_ApproveToRenew from "./Request_ApproveToRenew.mutation"
 import useRequest_WarrantyFailed from "@/features/head-maintenance/mutations/Request_WarrantyFailed.mutation"
 import useRequest_UpdateWarrantyReturnDate from "@/features/head-maintenance/mutations/Request_UpdateWarrantyReturnDate.mutation"
+import useRequest_ApproveToRenewEmptyDevice from "./Request_ApproveToRenewEmptyDevice.mutation"
 import useTask_CreateExportWarehouse from "@/features/head-maintenance/mutations/Task_CreateExportWarehouse.mutation"
 
 const head_maintenance_mutations = {
@@ -27,6 +28,7 @@ const head_maintenance_mutations = {
       approveToFix: useRequest_ApproveToFix,
       approveToWarranty: useRequest_ApproveToWarranty,
       approveToRenew: useRequest_ApproveToRenew,
+      approveToRenewEmptyDevice: useRequest_ApproveToRenewEmptyDevice,
       reject: useRequest_Reject,
       seen: useRequest_Seen,
       finish: useRequest_Finish,

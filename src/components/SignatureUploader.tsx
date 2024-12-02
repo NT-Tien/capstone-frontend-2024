@@ -14,6 +14,7 @@ type Props = {
    signature: string | undefined
    setSignature?: (signature: string | undefined) => void
    children?: ReactNode
+   disabled?: boolean
 }
 
 function SignatureUploader(props: Props) {
@@ -47,7 +48,7 @@ function SignatureUploader(props: Props) {
                />
             </Space.Compact>
          ) : (
-            <div className="flex h-12" onClick={() => showActions && control_signatureDrawer.current?.handleOpen({})}>
+            <div className={cn("flex h-12", props.disabled && "pointer-events-none opacity-50")} onClick={() => !props.disabled && showActions && control_signatureDrawer.current?.handleOpen({})}>
                <ClickableArea
                   className={cn("flex-grow rounded-lg bg-gray-100 text-gray-300", showActions && "rounded-r-none")}
                >
@@ -59,6 +60,7 @@ function SignatureUploader(props: Props) {
                      icon={<PlusOutlined />}
                      size="small"
                      className="aspect-square h-full w-12 rounded-lg rounded-l-none"
+                     disabled={props.disabled}
                   />
                )}
             </div>

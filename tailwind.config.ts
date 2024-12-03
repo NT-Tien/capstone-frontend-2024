@@ -39,7 +39,7 @@ const config: Config = {
                900: "var(--primary-900)",
             },
             customLightBlue: "#",
-            head_maintenance: "theme('colors.green.500')",
+            head_maintenance: "theme('colors.red.800')",
             head_department: "theme('colors.blue.500')",
             staff: "var(--staff)",
          },

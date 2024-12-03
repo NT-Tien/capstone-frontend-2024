@@ -7,7 +7,7 @@ import AlertCard from "@/components/AlertCard"
 import dayjs from "dayjs"
 import TaskUtil from "@/lib/domain/Task/Task.util"
 import { cn } from "@/lib/utils/cn.util"
-import { Calendar, ChartDonut, Clock, Export, Gear, User } from "@phosphor-icons/react"
+import { Calendar, ChartDonut, Clock, Export, Gear, Ticket, User } from "@phosphor-icons/react"
 import * as React from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
@@ -20,6 +20,10 @@ import { useRouter } from "next/navigation"
 import staff_uri from "@/features/staff/uri"
 import ScannerV2Drawer, { ScannerV2DrawerRefType } from "@/components/overlays/ScannerV2.drawer"
 import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
+import { ExportStatus, ExportStatusMapper } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
+import QrCodeDisplayForRenewModal, {
+   QrCodeDisplayForRenewModalRefType,
+} from "@/features/staff/components/overlays/renew/QrCodeDisplayForRenew.modal"
 
 type TaskViewDetails_WarrantyDrawerProps = {
    taskId?: string
@@ -51,9 +55,7 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
       },
       infoText: "Vui lòng đặt mã QR thiết bị vào ô bên dưới",
    })
-
-   const control_getSparePartsDrawer = useRef<QrCodeDisplayModalRefType | null>(null)
-   const control_qrCodeDrawer = useRef<RefType<QrCodeDrawerProps>>(null)
+   const control_qrCodeDisplayDrawer = useRef<QrCodeDisplayForRenewModalRefType>(null)
 
    const api_task = staff_queries.task.one({ id: props.taskId ?? "" }, { enabled: !!props.taskId })
    const api_task_inProgress = staff_queries.task.allInProgress(
@@ -66,12 +68,8 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
 
    const mutate_closeTask = staff_mutations.task.close({ showMessages: false })
 
-   const firstIssue = useMemo(() => {
-      return TaskUtil.getTask_Warranty_FirstIssue(api_task.data)
-   }, [api_task.data])
-
-   const secondIssue = useMemo(() => {
-      return TaskUtil.getTask_Warranty_SecondIssue(api_task.data)
+   const issues = useMemo(() => {
+      return TaskUtil.getTask_Warranty_IssuesOrdered(api_task.data)
    }, [api_task.data])
 
    function onCloseWrapper(e: React.MouseEvent | React.KeyboardEvent) {
@@ -100,11 +98,31 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
 
    function Footer() {
       // exists another in progress task
-      if (!api_task_inProgress.isSuccess) return
+      if (!api_task_inProgress.isSuccess || !api_task.isSuccess) return
       if (api_task_inProgress.data.length > 0) {
          return (
             <AlertCard text="Vui lòng hoàn thành tất cả các tác vụ đang thực hiện để bắt đầu tác vụ này" type="info" />
          )
+      }
+
+      // if task has export warehouse that is not exported
+      if (api_task.data.export_warehouse_ticket.length > 0) {
+         if (api_task.data.export_warehouse_ticket[0].status === ExportStatus.WAITING) {
+            return <AlertCard text="Tác vụ đang chờ đơn xuất kho" type="info" />
+         }
+         if (api_task.data.export_warehouse_ticket[0].status === ExportStatus.ACCEPTED) {
+            return (
+               <Button
+                  type="primary"
+                  block
+                  onClick={() =>
+                     control_qrCodeDisplayDrawer.current?.handleOpen(api_task.data.id, api_task.data.device_renew)
+                  }
+               >
+                  Lấy thiết bị từ kho
+               </Button>
+            )
+         }
       }
 
       // task hasnt started and all issues failed
@@ -115,7 +133,7 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
          return (
             <div>
                <AlertCard text="Tác vụ này không thể hoàn thiện được. Vui lòng đóng tác vụ." className="mb-layout" />
-               <Button block type={"primary"} size={"large"} onClick={() => props.handleClose?.()}>
+               <Button block type={"primary"} onClick={() => props.handleClose?.()}>
                   Đóng tác vụ
                </Button>
             </div>
@@ -128,7 +146,6 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
             <Button
                block
                type={"primary"}
-               size={"large"}
                onClick={() => api_task.isSuccess && router.push(staff_uri.stack.tasks_id_warranty(api_task.data.id))}
             >
                Tiếp tục tác vụ
@@ -145,7 +162,6 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
             <Button
                block
                type={"primary"}
-               size={"large"}
                onClick={() => {
                   if (TaskUtil.isTask_Warranty(api_task.data, "send")) {
                      control_scannerDrawer.handleOpenScanner()
@@ -247,6 +263,23 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
                               </div>
                            ),
                         },
+                        ...(api_task.data.export_warehouse_ticket.length > 0
+                           ? [
+                                {
+                                   label: (
+                                      <div className={"flex items-center gap-2"}>
+                                         <Ticket size={18} weight={"fill"} />
+                                         <span>Đơn xuất kho</span>
+                                      </div>
+                                   ),
+                                   children: (
+                                      <div className={"flex items-center gap-2"}>
+                                         {ExportStatusMapper(api_task.data.export_warehouse_ticket[0].status)?.text}
+                                      </div>
+                                   ),
+                                },
+                             ]
+                           : []),
                         {
                            label: (
                               <div className={"flex items-center gap-1"}>
@@ -292,59 +325,30 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
                         Tác vụ có {api_task.data.issues.length ?? "-"} bước cần thực hiện
                      </p>
                      <Steps
-                        items={[
-                           {
-                              title: <div className="text-base font-medium">{firstIssue?.typeError.name}</div>,
-                              description: <div className="text-sm">{firstIssue?.typeError.description}</div>,
-                              status: (function () {
-                                 switch (firstIssue?.status) {
-                                    case IssueStatusEnum.PENDING:
-                                       return "wait"
-                                    case IssueStatusEnum.RESOLVED:
-                                       return "finish"
-                                    case IssueStatusEnum.FAILED:
-                                       return "error"
-                                    case IssueStatusEnum.CANCELLED:
-                                       return "error"
-                                    default:
-                                       return "wait"
-                                 }
-                              })(),
-                           },
-                           {
-                              title: <div className="text-base font-medium">{secondIssue?.typeError.name}</div>,
-                              description: <div className="text-sm">{secondIssue?.typeError.description}</div>,
-                              status: (function () {
-                                 switch (secondIssue?.status) {
-                                    case IssueStatusEnum.PENDING:
-                                       return "wait"
-                                    case IssueStatusEnum.RESOLVED:
-                                       return "finish"
-                                    case IssueStatusEnum.FAILED:
-                                       return "error"
-                                    case IssueStatusEnum.CANCELLED:
-                                       return "error"
-                                    default:
-                                       return "wait"
-                                 }
-                              })(),
-                           },
-                        ]}
+                        items={issues?.map((i) => ({
+                           title: <div className="text-base font-medium">{i?.typeError.name}</div>,
+                           description: <div className="text-sm">{i?.typeError.description}</div>,
+                           status: (function () {
+                              switch (i?.status) {
+                                 case IssueStatusEnum.PENDING:
+                                    return "wait"
+                                 case IssueStatusEnum.RESOLVED:
+                                    return "finish"
+                                 case IssueStatusEnum.FAILED:
+                                    return "error"
+                                 case IssueStatusEnum.CANCELLED:
+                                    return "error"
+                                 default:
+                                    return "wait"
+                              }
+                           })(),
+                        }))}
                      />
                   </section>
                </>
             )}
          </Drawer>
-         <GetSparePartsDrawer
-            title="Lấy linh kiện"
-            description="Hãy xuống kho và đưa mã QR sau cho chủ kho."
-            refetch={() => api_task.refetch()}
-            ref={control_getSparePartsDrawer}
-            onComplete={() => {}}
-         />
-         <OverlayControllerWithRef ref={control_qrCodeDrawer}>
-            <QrCodeDrawer placement="bottom" height="50%" title={"Mã QR Tác vụ"} />
-         </OverlayControllerWithRef>
+         <QrCodeDisplayForRenewModal refetch={() => api_task.refetch()} ref={control_qrCodeDisplayDrawer} />
 
          {control_scannerDrawer.contextHolder()}
       </>

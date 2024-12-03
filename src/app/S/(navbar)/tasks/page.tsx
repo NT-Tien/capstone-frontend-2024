@@ -301,7 +301,7 @@ function ListRendererCard(props: ListRendererProps) {
                               )}
                            />
                         }
-                        title={item.name}
+                        title={<div className='truncate text-base'>{item.name}</div>}
                         description={
                            <Space wrap split={<Divider type={"vertical"} className={"m-0"} />} className="text-sm">
                               {item.priority && <div className={"text-red-500"}>Ưu tiên</div>}

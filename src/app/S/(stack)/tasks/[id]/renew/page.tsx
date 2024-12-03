@@ -27,7 +27,9 @@ import IssueViewDetails_RenewDrawer, {
 import ReturnRemovedDevice, {
    ReturnRemovedDeviceProps,
 } from "@/features/staff/components/overlays/renew/ReturnRemovedDevice.drawer"
-import FinishRenewTaskDrawer, { FinishRenewTaskDrawerProps } from "@/features/staff/components/overlays/renew/FinishRenewTask.drawer"
+import FinishRenewTaskDrawer, {
+   FinishRenewTaskDrawerProps,
+} from "@/features/staff/components/overlays/renew/FinishRenewTask.drawer"
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -55,13 +57,7 @@ function Page({ params }: { params: { id: string } }) {
    }, [api_task.data])
 
    return (
-      <ConfigProvider
-         theme={{
-            token: {
-               colorPrimary: "#FF6B00",
-            },
-         }}
-      >
+      <>
          <div className={"relative min-h-screen pb-32"}>
             <div className={"absolute left-0 top-0 h-36 w-full bg-staff"} />
             <PageHeaderV2
@@ -305,7 +301,7 @@ function Page({ params }: { params: { id: string } }) {
                }}
             />
          </OverlayControllerWithRef>
-      </ConfigProvider>
+      </>
    )
 }
 

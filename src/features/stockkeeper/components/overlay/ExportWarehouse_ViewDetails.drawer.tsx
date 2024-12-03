@@ -13,6 +13,7 @@ import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import DeviceUtil from "@/lib/domain/Device/Device.util"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
+import { ExportStatusMapper } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
 
 type ExportWarehouse_ViewDetailsDrawerProps = {
    id?: string
@@ -147,7 +148,7 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
                },
                {
                   label: "Trạng thái",
-                  children: api_export.data?.status,
+                  children: ExportStatusMapper(api_export.data?.status)?.text,
                },
                {
                   label: "Xuất",

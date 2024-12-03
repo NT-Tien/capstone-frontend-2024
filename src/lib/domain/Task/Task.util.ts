@@ -2,6 +2,8 @@ import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import {
    AssembleDeviceTypeErrorId,
    DisassembleDeviceTypeErrorId,
+   DismantleReplacementDeviceTypeErrorId,
+   InstallReplacementDeviceTypeErrorId,
    ReceiveWarrantyTypeErrorId,
    SendWarrantyTypeErrorId,
    SystemTypeErrorIds,
@@ -72,6 +74,32 @@ class TaskUtil {
       }
 
       return undefined
+   }
+
+   static getTask_Warranty_IssuesOrdered(task?: TaskDto): IssueDto[] | undefined {
+      if (!task) return undefined
+
+      const returnValue = []
+
+      const firstIssue = task.issues.find(
+         (i) => i.typeError.id === DisassembleDeviceTypeErrorId || i.typeError.id === ReceiveWarrantyTypeErrorId,
+      )
+      if (firstIssue) returnValue.push(firstIssue)
+
+      const optionalIssues = task.issues.find(
+         (i) =>
+            i.typeError.id === InstallReplacementDeviceTypeErrorId ||
+            i.typeError.id === DismantleReplacementDeviceTypeErrorId,
+      )
+
+      if (optionalIssues) returnValue.push(optionalIssues)
+
+      const lastIssue = task.issues.find(
+         (i) => i.typeError.id === SendWarrantyTypeErrorId || i.typeError.id === AssembleDeviceTypeErrorId,
+      )
+      if (lastIssue) returnValue.push(lastIssue)
+
+      return returnValue
    }
 
    static getTask_Warranty_FirstIssue(task?: TaskDto): IssueDto | undefined {

@@ -62,12 +62,8 @@ type QueryState = {
       orderBy?: string
    }
 }
-type Props = {
-   issues?: IssueDto[]
-   isLoading?: boolean
-}
 
-function Page({ params }: { params: { id: string } }, { issues, isLoading }: Props) {
+function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
 
    const [deviceHistory_page, setDeviceHistory_page] = useState(1)
@@ -93,70 +89,6 @@ function Page({ params }: { params: { id: string } }, { issues, isLoading }: Pro
          orderBy: "updatedAt",
       },
    })
-   const api_tasks = admin_queries.task.all_filterAndSort
-   // const api_tasks = admin_queries.task.all_filterAndSort({
-   //    page: query.page,
-   //    limit: query.limit,
-   //    search: {
-   //       status: query.search?.status === "none" ? undefined : query.search?.status,
-   //       priority: query.search?.priority,
-   //       name: query.search?.name,
-   //       fixerDate: query.search?.fixerDate,
-   //       is_warranty: query.search?.is_warranty,
-   //       fixerName: query.search.name,
-   //    },
-   //    order: {
-   //       order: query.order?.order,
-   //       orderBy: query.order?.orderBy as any,
-   //    },
-   // })
-
-   // const [requesterOptions, setRequesterOptions] = useState<{ label: string; value: string }[]>([])
-
-   // useEffect(() => {
-   //    if (api_tasks.data?.list) {
-   //       const uniqueFixers = Array.from(new Set(api_tasks.data.list.map((task) => task?.fixer?.username))).map(
-   //          (username) => ({
-   //             label: username,
-   //             value: username,
-   //          }),
-   //       )
-
-   //       setRequesterOptions(uniqueFixers)
-   //    }
-   // }, [api_tasks.data])
-
-   const spareParts = useMemo(() => {
-      if (!issues || issues.length === 0) return []
-
-      const returnValue: {
-         [sparePartId: string]: {
-            sparePart: SparePartDto
-            issueSpareParts: IssueSparePartDto[]
-            totalNeeded: number
-         }
-      } = {}
-
-      const issueSparePartsList = issues.map((issue) => issue.issueSpareParts).flat()
-
-      issueSparePartsList.forEach((issueSparePart) => {
-         if (!issueSparePart.sparePart) return {}
-         const currentSparePartId = issueSparePart.sparePart?.id
-         if (!returnValue[currentSparePartId]) {
-            returnValue[currentSparePartId] = {
-               sparePart: issueSparePart.sparePart,
-               issueSpareParts: [],
-               totalNeeded: 0,
-            }
-         }
-
-         const { sparePart, ...issueSparePart_ } = issueSparePart
-         returnValue[currentSparePartId].issueSpareParts.push(issueSparePart_ as any)
-         returnValue[currentSparePartId].totalNeeded += issueSparePart.quantity
-      })
-
-      return Object.values(returnValue)
-   }, [issues])
 
    const control_qrCode = useRef<RefType<QrCodeV2ModalProps> | null>(null)
    const control_issueDetails = useRef<RefType<IssueDetailsModalProps> | null>(null)
@@ -178,38 +110,6 @@ function Page({ params }: { params: { id: string } }, { issues, isLoading }: Pro
          percentPending,
       }
    }, [api_request.isSuccess, api_request.data])
-
-   // const spareParts = useMemo(() => {
-   //    if (!api_request.isSuccess || !api_request.data.issues || api_request.data.issues.length === 0) return {}
-   //
-   //    const returnValue: {
-   //       [sparePartId: string]: {
-   //          sparePart: SparePartDto
-   //          issueSpareParts: IssueSparePartDto[]
-   //          totalNeeded: number
-   //       }
-   //    } = {}
-   //
-   //    const issueSparePartsList = api_request.data.issues.map((issue) => issue.issueSpareParts).flat()
-   //
-   //    issueSparePartsList.forEach((issueSparePart) => {
-   //       if (!issueSparePart.sparePart) return {}
-   //       const currentSparePartId = issueSparePart.sparePart?.id
-   //       if (!returnValue[currentSparePartId]) {
-   //          returnValue[currentSparePartId] = {
-   //             sparePart: issueSparePart.sparePart,
-   //             issueSpareParts: [],
-   //             totalNeeded: 0,
-   //          }
-   //       }
-   //
-   //       const { sparePart, ...issueSparePart_ } = issueSparePart
-   //       returnValue[currentSparePartId].issueSpareParts.push(issueSparePart_ as any)
-   //       returnValue[currentSparePartId].totalNeeded += issueSparePart.quantity
-   //    })
-   //
-   //    return Object.values(returnValue)
-   // }, [api_request.isSuccess, api_request.data?.issues])
 
    const [drawerVisible, setDrawerVisible] = useState(false)
    const [selectedEntity, setSelectedEntity] = useState<RequestDto | null>(null)

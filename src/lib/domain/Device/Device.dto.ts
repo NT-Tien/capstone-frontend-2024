@@ -14,4 +14,5 @@ export type DeviceDto = {
    updatedAt: string
    deletedAt: null | string
    requests: RequestDto[]
+   status: boolean
 }

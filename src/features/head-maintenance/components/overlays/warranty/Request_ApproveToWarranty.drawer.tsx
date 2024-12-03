@@ -6,13 +6,22 @@ import PickMachineModelDrawer, {
 import { Task_AssignFixerModalProps } from "@/features/head-maintenance/components/overlays/Task_AssignFixerV2.drawer"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
-import { CloseOutlined, MoreOutlined, TruckOutlined } from "@ant-design/icons"
-import { Calendar, Factory, Gavel, Gear, Laptop, Truck } from "@phosphor-icons/react"
-import { App, Divider, Drawer, DrawerProps, Input } from "antd"
+import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
+import {
+   CloseOutlined,
+   DeleteFilled,
+   DeleteOutlined,
+   MoreOutlined,
+   RightOutlined,
+   TruckOutlined,
+} from "@ant-design/icons"
+import { Calendar, DeviceTablet, Factory, Gavel, Gear, Laptop, Truck } from "@phosphor-icons/react"
+import { App, Divider, Drawer, DrawerProps, Input, Space, Typography } from "antd"
 import Button from "antd/es/button"
 import Form from "antd/es/form"
 import dayjs, { Dayjs } from "dayjs"
-import { useEffect, useRef } from "react"
+import Image from "next/image"
+import { useEffect, useRef, useState } from "react"
 
 type FieldType = {
    note: string
@@ -30,6 +39,8 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
    const [form] = Form.useForm<FieldType>()
    const { modal } = App.useApp()
    const control_pickMachineModelDrawer = useRef<RefType<PickMachineModelDrawerProps>>(null)
+
+   const [selectedMachineModel, setSelectedMachineModel] = useState<MachineModelDto | null>(null)
 
    const api_request = head_maintenance_queries.request.one(
       {
@@ -49,6 +60,7 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
             payload: {
                note: values.note,
                isMultiple: props.isMultiple,
+               replacement_machineModel_id: selectedMachineModel?.id,
             },
          },
          {
@@ -75,7 +87,7 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
             }
             closeIcon={false}
             placement="bottom"
-            height="max-content"
+            height="100%"
             width="100%"
             classNames={{
                footer: "p-layout",
@@ -171,23 +183,86 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                   </Form>
                   <section>
                      <div className="mb-3">
-                        <h2 className={"flex items-center gap-2 text-lg font-medium"}>
+                        <h2 className={"mr-auto flex items-center gap-2 text-lg font-medium"}>
                            <Laptop size={18} weight="fill" />
                            Thiết bị thay thế
                         </h2>
                         <p className="text-sm text-neutral-500">Chọn thiết bị thay thế tạm thời cho nhân viên</p>
                      </div>
                      <div>
-                        <Button block className="py-2" type="dashed" onClick={() => control_pickMachineModelDrawer.current?.handleOpen({})}>
-                           Chọn thiết bị
-                        </Button>
+                        {selectedMachineModel ? (
+                           <div className="relative">
+                              <ClickableArea
+                                 block
+                                 className="block rounded-lg border-[1px] border-red-300 bg-red-100"
+                                 type="default"
+                                 reset
+                                 onClick={() => control_pickMachineModelDrawer.current?.handleOpen({})}
+                              >
+                                 <div className="flex gap-3 overflow-hidden">
+                                    <Image
+                                       src={selectedMachineModel.image}
+                                       width={80}
+                                       height={80}
+                                       alt="image"
+                                       className="rounded-l-lg"
+                                    />
+                                    <div className="w-full py-1">
+                                       <h1 className="text-base font-medium">{selectedMachineModel.name}</h1>
+                                       <Space
+                                          split={<Divider type="vertical" className="m-0" />}
+                                          wrap
+                                          className="mt-1 text-xs"
+                                       >
+                                          <div className="flex items-center gap-1">
+                                             <DeviceTablet size={16} weight="duotone" />
+                                             {selectedMachineModel.devices.length}
+                                          </div>
+                                          <div className="flex items-center gap-1">
+                                             <Factory size={16} weight="duotone" />
+                                             {selectedMachineModel.manufacturer}
+                                          </div>
+                                       </Space>
+                                       <div className="w-full truncate text-xs text-neutral-500">
+                                          {selectedMachineModel.description}
+                                       </div>
+                                    </div>
+                                 </div>
+                              </ClickableArea>
+                              <Button
+                                 type="default"
+                                 icon={<DeleteFilled />}
+                                 className="absolute right-1 top-1"
+                                 danger
+                                 onClick={() => setSelectedMachineModel(null)}
+                              />
+                           </div>
+                        ) : (
+                           <ClickableArea
+                              block
+                              className="border-[1px] border-neutral-500 bg-neutral-100 py-2"
+                              type="dashed"
+                              onClick={() => control_pickMachineModelDrawer.current?.handleOpen({})}
+                              icon={<RightOutlined />}
+                              iconPosition="end"
+                           >
+                              Chọn thiết bị
+                           </ClickableArea>
+                        )}
                      </div>
                   </section>
                </>
             )}
          </Drawer>
          <OverlayControllerWithRef ref={control_pickMachineModelDrawer}>
-            <PickMachineModelDrawer />
+            <PickMachineModelDrawer
+               onSubmit={(result) => {
+                  setSelectedMachineModel(result)
+                  setTimeout(() => {
+                     control_pickMachineModelDrawer.current?.handleClose()
+                  }, 250)
+               }}
+            />
          </OverlayControllerWithRef>
       </>
    )

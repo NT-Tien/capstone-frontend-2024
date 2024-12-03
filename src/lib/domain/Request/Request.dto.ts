@@ -30,4 +30,5 @@ export type RequestDto = {
    return_date_warranty: string | null
    feedback?: FeedbackDto[]
    is_multiple_types?: boolean
+   is_replacement_device?: boolean
 }

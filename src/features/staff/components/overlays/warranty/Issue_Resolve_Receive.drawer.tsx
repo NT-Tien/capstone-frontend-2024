@@ -39,7 +39,6 @@ function Issue_Resolve_ReceiveDrawer(props: Props) {
          {
             onSuccess: () => {
                props.onSuccess?.()
-               props.handleClose?.()
             },
          },
       )

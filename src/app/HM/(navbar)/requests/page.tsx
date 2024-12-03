@@ -80,7 +80,8 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
          return (
             i.requester_note.toLowerCase().includes(search.toLowerCase()) ||
             i.device.machineModel.name.toLowerCase().includes(search.toLowerCase()) ||
-            i.device?.area?.name.toLowerCase().includes(search.toLowerCase())
+            i.device?.area?.name.toLowerCase().includes(search.toLowerCase()) ||
+            i.code.toLowerCase().includes(search.toLowerCase())
          )
       })
 

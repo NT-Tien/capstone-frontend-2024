@@ -2,7 +2,9 @@ import {
    AssembleDeviceTypeErrorId,
    DisassembleDeviceTypeErrorId,
    DismantleOldDeviceTypeErrorId,
+   DismantleReplacementDeviceTypeErrorId,
    InstallNewDeviceTypeErrorId,
+   InstallReplacementDeviceTypeErrorId,
    ReceiveWarrantyTypeErrorId,
    SendWarrantyTypeErrorId,
    SystemTypeErrorIds,
@@ -11,7 +13,6 @@ import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import IssueSparePartUtil from "@/lib/domain/IssueSparePart/IssueSparePart.util"
 
 class IssueUtil {
-
    static isRenewIssue(issue?: IssueDto): undefined | boolean {
       if (!issue) return undefined
 
@@ -25,7 +26,9 @@ class IssueUtil {
          issue.typeError.id === ReceiveWarrantyTypeErrorId ||
          issue.typeError.id === SendWarrantyTypeErrorId ||
          issue.typeError.id === DisassembleDeviceTypeErrorId ||
-         issue.typeError.id === AssembleDeviceTypeErrorId
+         issue.typeError.id === AssembleDeviceTypeErrorId ||
+         issue.typeError.id === InstallReplacementDeviceTypeErrorId ||
+         issue.typeError.id === DismantleReplacementDeviceTypeErrorId
       )
    }
    static isFixIssue(issue?: IssueDto): undefined | boolean {

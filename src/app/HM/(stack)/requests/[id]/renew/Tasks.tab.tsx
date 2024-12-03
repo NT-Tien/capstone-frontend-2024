@@ -531,9 +531,11 @@ export default function TasksTab(props: Props) {
                               >
                                  Tạo tác vụ
                               </Button>
-                              {props.api_request.data?.tasks.every(
-                                 (task) => task.status === TaskStatus.COMPLETED || task.status === TaskStatus.CANCELLED,
-                              ) &&
+                              {props.api_request.data.status === FixRequestStatus.IN_PROGRESS &&
+                                 props.api_request.data?.tasks.every(
+                                    (task) =>
+                                       task.status === TaskStatus.COMPLETED || task.status === TaskStatus.CANCELLED,
+                                 ) &&
                                  props.api_request.data?.issues.every(
                                     (issue) =>
                                        issue.status === IssueStatusEnum.RESOLVED ||

@@ -102,7 +102,7 @@ function Page() {
       >
          {(handleOpen) => (
             <PageContainer
-               title="Trả linh kiện"
+               title="Nhập kho"
                extra={
                   scannedResult ? (
                      <div className="flex items-center gap-3">
@@ -112,7 +112,7 @@ function Page() {
                            disabled={!!api.task.data?.return_spare_part_data}
                            onClick={() => control_dualSignatureDrawer.current?.handleOpen({})}
                         >
-                           Xác nhận trả linh kiện
+                           Xác nhận nhập kho
                         </Button>
                      </div>
                   ) : undefined
@@ -179,11 +179,11 @@ function Page() {
                tabProps={{
                   className: !scannedResult ? "hidden" : "",
                }}
-               tabBarExtraContent={
-                  <Button icon={<DownloadOutlined />} onClick={handleDownload}>
-                     Tải mẫu nhập linh kiện
-                  </Button>
-               }
+               // tabBarExtraContent={
+               //    <Button icon={<DownloadOutlined />} onClick={handleDownload}>
+               //       Tải mẫu nhập linh kiện
+               //    </Button>
+               // }
                tabList={[
                   {
                      tab: "Linh kiện được trả",

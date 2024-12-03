@@ -50,7 +50,7 @@ function Request_RejectDrawer(props: Props) {
 
    return (
       <Drawer
-         title="Đóng yêu cầu"
+         title="Hoàn tất yêu cầu"
          placement="bottom"
          height="max-content"
          classNames={{
@@ -85,7 +85,7 @@ function Request_RejectDrawer(props: Props) {
                   ref={inputRef}
                   showCount
                   maxLength={200}
-                  placeholder="Vui lòng nhập lý do đóng yêu cầu"
+                  placeholder="Vui lòng nhập lý do Hoàn tất yêu cầu"
                   allowClear
                   autoFocus
                   disabled={!canRejectRequest}

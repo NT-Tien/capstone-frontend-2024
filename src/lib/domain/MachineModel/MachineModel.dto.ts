@@ -18,4 +18,14 @@ export type MachineModelDto = {
    devices: DeviceDto[]
    device_renew: DeviceDto
    image: string
+   needleType: string
+   speed: string
+   power: string
+   stitch: string
+   presser: string
+   lubrication: string
+   voltage: string
+   fabric: string
+   features: string
+   size: string
 }

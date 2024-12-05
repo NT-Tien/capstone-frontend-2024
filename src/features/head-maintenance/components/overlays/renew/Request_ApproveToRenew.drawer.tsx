@@ -5,7 +5,8 @@ import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import { cn } from "@/lib/utils/cn.util"
 import { CloseOutlined, MoreOutlined, SearchOutlined } from "@ant-design/icons"
 import { DeviceTablet, Factory, Swap } from "@phosphor-icons/react"
-import { App, Button, Card, Divider, Drawer, DrawerProps, Image, Input, Radio, Space, Spin, Tag } from "antd"
+import { App, Button, Card, Divider, Drawer, DrawerProps, Image, Input, Modal, Radio, Space, Spin, Tag } from "antd"
+import dayjs from "dayjs"
 import { useMemo, useState } from "react"
 
 type Query = {
@@ -99,179 +100,326 @@ function Request_ApproveToRenewDrawer(props: Props) {
       })
    }
 
+   const [isModalVisible, setIsModalVisible] = useState(false)
+
+   const handleOpenModal = (model: MachineModelDto) => {
+      setSelectedMachineModel(model)
+      setIsModalVisible(true)
+   }
+
+   const handleCloseModal = () => {
+      setIsModalVisible(false)
+   }
    return (
-      <Drawer
-         title={
-            <div className={"flex w-full items-center justify-between"}>
-               <Button className={"text-white"} icon={<CloseOutlined />} type={"text"} onClick={props.onClose} />
-               <h1 className={"text-lg font-semibold"}>Xác nhận thay máy</h1>
-               <Button className={"text-white"} icon={<MoreOutlined />} type={"text"} />
-            </div>
-         }
-         closeIcon={false}
-         placement="bottom"
-         height="80%"
-         width="100%"
-         classNames={{
-            footer: "p-layout",
-            header: "bg-head_maintenance text-white *:text-white",
-         }}
-         loading={api_request.isPending}
-         footer={
-            <Button
-               block
-               type={"primary"}
-               size={"large"}
-               icon={<Swap size={16} />}
-               onClick={handleSubmit}
-               disabled={!selectedMachineModel || !note}
-            >
-               Xác nhận
-            </Button>
-         }
-         {...props}
-      >
-         <section className="mb-10">
-            <header className="mb-3">
-               <h2 className="text-base font-semibold">Ghi chú</h2>
-               <p className="font-base text-sm text-neutral-500">Ghi chú cho quá trình thay máy</p>
-            </header>
-            <Input.TextArea
-               placeholder="Nhập ghi chú"
-               autoSize={{ minRows: 3, maxRows: 5 }}
-               showCount
-               maxLength={200}
-               value={note}
-               onChange={(e) => {
-                  setNote(e.target.value)
+      <>
+         <Drawer
+            title={
+               <div className={"flex w-full items-center justify-between"}>
+                  <Button className={"text-white"} icon={<CloseOutlined />} type={"text"} onClick={props.onClose} />
+                  <h1 className={"text-lg font-semibold"}>Xác nhận thay máy</h1>
+                  <Button className={"text-white"} icon={<MoreOutlined />} type={"text"} />
+               </div>
+            }
+            closeIcon={false}
+            placement="bottom"
+            height="80%"
+            width="100%"
+            classNames={{
+               footer: "p-layout",
+               header: "bg-head_maintenance text-white *:text-white",
+            }}
+            loading={api_request.isPending}
+            footer={
+               <Button
+                  block
+                  type={"primary"}
+                  size={"large"}
+                  icon={<Swap size={16} />}
+                  onClick={handleSubmit}
+                  disabled={!selectedMachineModel || !note}
+               >
+                  Xác nhận
+               </Button>
+            }
+            {...props}
+         >
+            <section className="mb-10">
+               <header className="mb-3">
+                  <h2 className="text-base font-semibold">Ghi chú</h2>
+                  <p className="font-base text-sm text-neutral-500">Ghi chú cho quá trình thay máy</p>
+               </header>
+               <Input.TextArea
+                  placeholder="Nhập ghi chú"
+                  autoSize={{ minRows: 3, maxRows: 5 }}
+                  showCount
+                  maxLength={200}
+                  value={note}
+                  onChange={(e) => {
+                     setNote(e.target.value)
+                  }}
+               />
+            </section>
+            <section>
+               <header className="mb-3">
+                  <h2 className="text-base font-semibold">Thiết bị mới</h2>
+                  <p className="font-base text-sm text-neutral-500">Chọn thiết bị mới trong số các thiết bị sau</p>
+               </header>
+               {api_machineModels.isSuccess ? (
+                  <>
+                     <Input
+                        addonBefore={<SearchOutlined />}
+                        placeholder="Tìm kiếm"
+                        className="mb-3"
+                        value={query.search}
+                        onChange={(e) => {
+                           setQuery((prev) => ({ ...prev, search: e.target.value }))
+                        }}
+                     />
+                     <main className="mb-3 grid grid-cols-2 gap-2">
+                        {renderList?.recommended.map((mm) => (
+                           <Card
+                              key={mm.id}
+                              cover={
+                                 <Image
+                                    src={mm.image}
+                                    alt={mm.name}
+                                    rootClassName="w-full h-32"
+                                    wrapperClassName="w-full h-32"
+                                    className="h-32 w-full rounded-t-lg object-cover"
+                                    preview={false}
+                                 />
+                              }
+                              className={cn(
+                                 "relative w-full rounded-lg border-2 border-green-500 bg-neutral-100",
+                                 selectedMachineModel?.id === mm.id && "bg-red-200",
+                              )}
+                              classNames={{
+                                 body: "px-2 py-4",
+                              }}
+                              onClick={() => {
+                                 setSelectedMachineModel(mm)
+                                 handleOpenModal(mm)
+                              }}
+                           >
+                              <Tag color="green" className="absolute left-2 top-2">
+                                 Đề xuất
+                              </Tag>
+                              <Radio
+                                 className="absolute right-2 top-2 z-50"
+                                 checked={selectedMachineModel?.id === mm.id}
+                              />
+                              <Card.Meta
+                                 title={<h3 className="truncate text-sm">{mm.name}</h3>}
+                                 description={
+                                    <Space split={<Divider type="vertical" className="m-0" />} wrap className="text-xs">
+                                       <div className="flex items-center gap-1">
+                                          <DeviceTablet size={16} weight="duotone" />
+                                          {mm.devices.length}
+                                       </div>
+                                       <div className="flex items-center gap-1">
+                                          <Factory size={16} weight="duotone" />
+                                          {mm.manufacturer}
+                                       </div>
+                                    </Space>
+                                 }
+                              />
+                           </Card>
+                        ))}
+                     </main>
+                     <main className="grid grid-cols-2 gap-2">
+                        {renderList?.normal.map((mm) => (
+                           <Card
+                              key={mm.id}
+                              cover={
+                                 <Image
+                                    src={mm.image}
+                                    alt={mm.name}
+                                    rootClassName="w-full h-32"
+                                    wrapperClassName="w-full h-32"
+                                    className="h-32 w-full rounded-t-lg object-cover"
+                                    preview={false}
+                                 />
+                              }
+                              className={cn(
+                                 "relative w-full rounded-lg bg-neutral-100",
+                                 selectedMachineModel?.id === mm.id && "bg-red-200",
+                              )}
+                              classNames={{
+                                 body: "px-2 py-4",
+                              }}
+                              onClick={() => {
+                                 setSelectedMachineModel(mm)
+                                 handleOpenModal(mm)
+                              }}
+                           >
+                              <Radio
+                                 className="absolute right-2 top-2 z-50"
+                                 checked={selectedMachineModel?.id === mm.id}
+                              />
+                              <Card.Meta
+                                 title={<h3 className="truncate text-sm">{mm.name}</h3>}
+                                 description={
+                                    <Space split={<Divider type="vertical" className="m-0" />} wrap className="text-xs">
+                                       <div className="flex items-center gap-1">
+                                          <DeviceTablet size={16} weight="duotone" />
+                                          {mm.devices.length}
+                                       </div>
+                                       <div className="flex items-center gap-1">
+                                          <Factory size={16} weight="duotone" />
+                                          {mm.manufacturer}
+                                       </div>
+                                    </Space>
+                                 }
+                              />
+                           </Card>
+                        ))}
+                     </main>
+                  </>
+               ) : (
+                  <>
+                     {api_machineModels.isPending && (
+                        <div className="grid h-full w-full place-items-center">
+                           <Spin />
+                        </div>
+                     )}
+                  </>
+               )}
+            </section>
+         </Drawer>
+         <Modal
+            visible={isModalVisible}
+            onCancel={handleCloseModal}
+            footer={null}
+            centered
+            width="100vw"
+            bodyStyle={{
+               height: "100vh",
+               padding: 0,
+               display: "flex",
+               flexDirection: "row",
+               overflow: "hidden",
+            }}
+            className="full-screen-modal"
+         >
+            <div
+               style={{
+                  flex: 2,
+                  padding: "20px",
+                  backgroundColor: "#ffffff",
+                  overflowY: "auto",
+                  borderRight: "1px solid #ddd",
+                  display: "grid",
+                  gridTemplateRows: "repeat(10, auto)",
                }}
-            />
-         </section>
-         <section>
-            <header className="mb-3">
-               <h2 className="text-base font-semibold">Thiết bị mới</h2>
-               <p className="font-base text-sm text-neutral-500">Chọn thiết bị mới trong số các thiết bị sau</p>
-            </header>
-            {api_machineModels.isSuccess ? (
-               <>
-                  <Input
-                     addonBefore={<SearchOutlined />}
-                     placeholder="Tìm kiếm"
-                     className="mb-3"
-                     value={query.search}
-                     onChange={(e) => {
-                        setQuery((prev) => ({ ...prev, search: e.target.value }))
-                     }}
-                  />
-                  <main className="grid grid-cols-2 gap-2 mb-3">
-                     {renderList?.recommended.map((mm) => (
-                        <Card
-                           key={mm.id}
-                           cover={
-                              <Image
-                                 src={mm.image}
-                                 alt={mm.name}
-                                 rootClassName="w-full h-32"
-                                 wrapperClassName="w-full h-32"
-                                 className="h-32 w-full rounded-t-lg object-cover"
-                                 preview={false}
-                              />
-                           }
-                           className={cn(
-                              "relative w-full rounded-lg border-2 border-green-500 bg-neutral-100",
-                              selectedMachineModel?.id === mm.id && "bg-red-200",
-                           )}
-                           classNames={{
-                              body: "px-2 py-4",
-                           }}
-                           onClick={() => {
-                              setSelectedMachineModel(mm)
-                           }}
-                        >
-                           <Tag color="green" className="absolute left-2 top-2">
-                              Đề xuất
-                           </Tag>
-                           <Radio
-                              className="absolute right-2 top-2 z-50"
-                              checked={selectedMachineModel?.id === mm.id}
-                           />
-                           <Card.Meta
-                              title={<h3 className="truncate text-sm">{mm.name}</h3>}
-                              description={
-                                 <Space split={<Divider type="vertical" className="m-0" />} wrap className="text-xs">
-                                    <div className="flex items-center gap-1">
-                                       <DeviceTablet size={16} weight="duotone" />
-                                       {mm.devices.length}
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                       <Factory size={16} weight="duotone" />
-                                       {mm.manufacturer}
-                                    </div>
-                                 </Space>
-                              }
-                           />
-                        </Card>
-                     ))}
-                  </main>
-                  <main className="grid grid-cols-2 gap-2">
-                     {renderList?.normal.map((mm) => (
-                        <Card
-                           key={mm.id}
-                           cover={
-                              <Image
-                                 src={mm.image}
-                                 alt={mm.name}
-                                 rootClassName="w-full h-32"
-                                 wrapperClassName="w-full h-32"
-                                 className="h-32 w-full rounded-t-lg object-cover"
-                                 preview={false}
-                              />
-                           }
-                           className={cn(
-                              "relative w-full rounded-lg bg-neutral-100",
-                              selectedMachineModel?.id === mm.id && "bg-red-200",
-                           )}
-                           classNames={{
-                              body: "px-2 py-4",
-                           }}
-                           onClick={() => {
-                              setSelectedMachineModel(mm)
-                           }}
-                        >
-                           <Radio
-                              className="absolute right-2 top-2 z-50"
-                              checked={selectedMachineModel?.id === mm.id}
-                           />
-                           <Card.Meta
-                              title={<h3 className="truncate text-sm">{mm.name}</h3>}
-                              description={
-                                 <Space split={<Divider type="vertical" className="m-0" />} wrap className="text-xs">
-                                    <div className="flex items-center gap-1">
-                                       <DeviceTablet size={16} weight="duotone" />
-                                       {mm.devices.length}
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                       <Factory size={16} weight="duotone" />
-                                       {mm.manufacturer}
-                                    </div>
-                                 </Space>
-                              }
-                           />
-                        </Card>
-                     ))}
-                  </main>
-               </>
-            ) : (
-               <>
-                  {api_machineModels.isPending && (
-                     <div className="grid h-full w-full place-items-center">
-                        <Spin />
-                     </div>
-                  )}
-               </>
+            >
+               <h2 className="text-lg font-bold">{api_request.data?.device.machineModel.name}</h2>
+               {api_request.data?.device.machineModel ? (
+                  <>
+                     <Image
+                        src={api_request.data.device.machineModel.image}
+                        alt={api_request.data.device.machineModel.name}
+                        rootClassName="w-full h-32"
+                        wrapperClassName="w-full h-32"
+                        className="h-32 w-full rounded-t-lg object-cover"
+                        preview={false}
+                     />
+                     <p>{api_request.data.device.machineModel.needleType}</p>
+                     <p>{api_request.data.device.machineModel.speed}</p>
+                     <p>{api_request.data.device.machineModel.power}</p>
+                     <p>{api_request.data.device.machineModel.stitch}</p>
+                     <p>{api_request.data.device.machineModel.presser}</p>
+                     <p>{api_request.data.device.machineModel.lubrication}</p>
+                     <p>{api_request.data.device.machineModel.voltage}</p>
+                     <p>{api_request.data.device.machineModel.fabric}</p>
+                     <p>{api_request.data.device.machineModel.features}</p>
+                     <p>{api_request.data.device.machineModel.size}</p>
+                  </>
+               ) : (
+                  <p>Loading device information...</p>
+               )}
+            </div>
+            <div
+               style={{
+                  flex: 3,
+                  padding: "20px",
+                  backgroundColor: "#ffffff",
+                  overflowY: "auto",
+                  display: "grid",
+                  gridTemplateRows: "repeat(10, auto)",
+               }}
+            >
+               <h2 className="text-lg font-bold">{selectedMachineModel?.name}</h2>
+               {selectedMachineModel ? (
+                  <>
+                     <Image
+                        src={selectedMachineModel.image}
+                        alt={selectedMachineModel.name}
+                        rootClassName="w-full h-32"
+                        wrapperClassName="w-full h-32"
+                        className="h-32 w-full rounded-t-lg object-cover"
+                        preview={false}
+                     />
+                     <p>{selectedMachineModel.needleType}</p>
+                     <p>{selectedMachineModel.speed}</p>
+                     <p>{selectedMachineModel.power}</p>
+                     <p>{selectedMachineModel.stitch}</p>
+                     <p>{selectedMachineModel.presser}</p>
+                     <p>{selectedMachineModel.lubrication}</p>
+                     <p>{selectedMachineModel.voltage}</p>
+                     <p>{selectedMachineModel.fabric}</p>
+                     <p>{selectedMachineModel.features}</p>
+                     <p>{selectedMachineModel.size}</p>
+                  </>
+               ) : (
+                  <p>No machine model selected.</p>
+               )}
+            </div>
+         </Modal>
+
+         {/* <Modal
+            visible={isModalVisible}
+            title={`Thông tin chi tiết ${selectedMachineModel?.name}`}
+            onCancel={handleCloseModal}
+            footer={null}
+            centered
+         >
+            {selectedMachineModel && (
+               <div className="space-y-4">
+                  <Image src={selectedMachineModel.image} alt={selectedMachineModel.name} className="h-auto w-full" />
+                  <p>
+                     <b>Loại máy: </b> {selectedMachineModel.needleType}
+                  </p>
+                  <p>
+                     <b>Tốc độ tối đa: </b> {selectedMachineModel.speed}
+                  </p>
+                  <p>
+                     <b>Công suất động cơ: </b> {selectedMachineModel.power}
+                  </p>
+                  <p>
+                     <b>Độ dài mũi may: </b> {selectedMachineModel.stitch}
+                  </p>
+                  <p>
+                     <b>Độ cao chân vịt: </b> {selectedMachineModel.presser}
+                  </p>
+                  <p>
+                     <b>Hệ thống bôi trơn: </b> {selectedMachineModel.lubrication}
+                  </p>
+                  <p>
+                     <b>Điện áp hoạt động: </b> {selectedMachineModel.voltage}
+                  </p>
+                  <p>
+                     <b>Loại vải hỗ trợ: </b> {selectedMachineModel.fabric}
+                  </p>
+                  <p>
+                     <b>Tính năng đặc biệt: </b> {selectedMachineModel.features}
+                  </p>
+                  <p>
+                     <b>Kích thước và trọng lượng:</b> {selectedMachineModel.size}
+                  </p>
+               </div>
             )}
-         </section>
-      </Drawer>
+         </Modal> */}
+      </>
    )
 }
 

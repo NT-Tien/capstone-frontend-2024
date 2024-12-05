@@ -331,6 +331,39 @@ function Page() {
                      suffix={<span className="text-sm">Tác vụ</span>}
                   />
                </Card>
+
+               <Card
+                  size="small"
+                  className="w-full bg-blue-200"
+                  onClick={() => {
+                     router.push("/admin/task?tab=ASSIGNED")
+                  }}
+               >
+                  <Statistic
+                     title="Đã tháo máy cũ"
+                     valueStyle={{
+                        color: "green",
+                     }}
+                     value={api_tasks.data?.["spare-part-fetched"]}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card><Card
+                  size="small"
+                  className="w-full bg-blue-200"
+                  onClick={() => {
+                     router.push("/admin/task?tab=ASSIGNED")
+                  }}
+               >
+                  <Statistic
+                     title="Đã lắp máy mới"
+                     valueStyle={{
+                        color: "yellow",
+                     }}
+                     value={api_tasks.data?.["spare-part-fetched"]}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+
                <Card
                   size="small"
                   className="w-full bg-purple-200"

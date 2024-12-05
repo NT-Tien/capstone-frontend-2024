@@ -59,7 +59,7 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
             id: requestId,
             payload: {
                note: values.note,
-               isMultiple: props.isMultiple,
+               // isMultiple: props.isMultiple,
                replacement_machineModel_id: selectedMachineModel?.id,
             },
          },

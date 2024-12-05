@@ -7,7 +7,7 @@ import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import hd_uris from "@/features/head-department/uri"
 import generateAvatarData from "@/lib/utils/generateAvatarData.util"
-import { CalendarBlank, MapPinArea, Swap, Truck, User, Wrench } from "@phosphor-icons/react"
+import { CalendarBlank, Laptop, MapPinArea, Phone, Swap, Truck, User, Wrench } from "@phosphor-icons/react"
 import DataGrid from "@/components/DataGrid"
 import ClickableArea from "@/components/ClickableArea"
 
@@ -50,13 +50,17 @@ function HistoryList({ requests }: Props) {
                      <List.Item.Meta
                         className="head_department_history_list mb-4"
                         avatar={<Avatar className={cn(avatarData.color)}>{avatarData.content}</Avatar>}
-                        title={<div className="truncate text-base">{item.old_device.machineModel.name}</div>}
+                        title={<div className="truncate text-base"># {item.code}</div>}
                         description={<div className="truncate text-sm">{item.requester_note}</div>}
                      ></List.Item.Meta>
                      <div className="flex items-end">
                         <DataGrid
                            className="flex-grow text-xs text-neutral-500"
                            items={[
+                              {
+                                 value: <div className='truncate w-[40vw]'>{item.old_device.machineModel.name}</div>,
+                                 icon: <Laptop size={16} weight="duotone" />,
+                              },
                               {
                                  value: (
                                     <>
@@ -95,8 +99,8 @@ function HistoryList({ requests }: Props) {
                                  icon: <ExclamationCircleFilled />,
                                  value: "Chờ xác nhận",
                                  hidden: item.status !== FixRequestStatus.HM_VERIFY,
-                                 className: "text-red-500"
-                              }
+                                 className: "text-red-500",
+                              },
                            ]}
                            cols={2}
                         />

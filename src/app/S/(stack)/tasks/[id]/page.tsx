@@ -91,8 +91,8 @@ function Page({ params }: { params: { id: string } }) {
    }
 
    console.log("issueSpareParts length:", issueSpareParts.length)
-   console.log("hasReturnedSparePart: ", hasReturnedSpareParts);
-   
+   console.log("hasReturnedSparePart: ", hasReturnedSpareParts)
+
    if (api_task.isError) {
       return <PageError />
    }
@@ -328,23 +328,23 @@ function Page({ params }: { params: { id: string } }) {
                )}
             </section>
             <footer className={"absolute bottom-0 left-0 w-full bg-white p-layout shadow-fb"}>
-               {allIssuesResolved ||
-                  (hasDoneAllIssues && hasReturnedSpareParts && hasFailedIssueWithoutSparePart && (
-                     <Button
-                        block
-                        type={"primary"}
-                        size={"large"}
-                        onClick={() =>
-                           api_task.isSuccess &&
-                           control_finishTaskDrawer.current?.handleOpen({
-                              task: api_task.data,
-                           })
-                        }
-                     >
-                        Hoàn thành tác vụ
-                     </Button>
-                  ))}
+               {(allIssuesResolved ||
+                  (hasDoneAllIssues && hasReturnedSpareParts && hasFailedIssueWithoutSparePart)) && (
+                  <Button
+                     block
+                     type={"primary"}
+                     size={"large"}
+                     onClick={() =>
+                        api_task.isSuccess &&
+                        control_finishTaskDrawer.current?.handleOpen({
+                           task: api_task.data,
+                        })
+                     }
+                  >
+                     Hoàn thành tác vụ
+                  </Button>
                )}
+
                {!hasReturnedSpareParts && hasFailedIssueWithSparePart && (
                   <Button
                      block

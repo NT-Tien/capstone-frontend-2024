@@ -84,14 +84,14 @@ function RequestList(props: Props) {
                         title={
                            <div className="truncate text-base">
                               {!item.is_seen && <Tag color={"green-inverse"}>Mới</Tag>}
-                              {item.device.machineModel.name}
+                              # {item.code}
                            </div>
                         }
                         description={
                            <div className="flex w-full items-center gap-2 text-sm">
                               <div>{item.requester.username}</div>
                               <Divider type="vertical" className="m-0" />
-                              <div className="truncate">{item.requester_note}</div>
+                              <div className="truncate">{item.device.machineModel.name}</div>
                            </div>
                         }
                      ></List.Item.Meta>

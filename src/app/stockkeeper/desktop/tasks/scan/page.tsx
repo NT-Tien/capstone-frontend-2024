@@ -185,7 +185,7 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
             >
                {(handleOpen1) => (
                   <PageContainer
-                     title={`Giao linh kiện`}
+                     title={`Xuất kho`}
                      extra={[
                         <Button key="back" onClick={() => handleOpen()} className={cn(!scannedResult && "hidden")}>
                            Quét lại
@@ -202,7 +202,7 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                            type="primary"
                            onClick={() => control_dualSignatureDrawer.current?.handleOpen({})}
                         >
-                           Hoàn tất lấy linh kiện
+                           Hoàn tất xuất kho
                         </Button>,
 
                         // <Button

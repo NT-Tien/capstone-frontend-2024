@@ -102,7 +102,7 @@ function Page() {
       >
          {(handleOpen) => (
             <PageContainer
-               title="Trả linh kiện"
+               title="Nhập kho"
                extra={
                   scannedResult ? (
                      <div className="flex items-center gap-3">
@@ -112,7 +112,7 @@ function Page() {
                            disabled={!!api.task.data?.return_spare_part_data}
                            onClick={() => control_dualSignatureDrawer.current?.handleOpen({})}
                         >
-                           Xác nhận trả linh kiện
+                           Xác nhận nhập kho
                         </Button>
                      </div>
                   ) : undefined
@@ -179,78 +179,73 @@ function Page() {
                tabProps={{
                   className: !scannedResult ? "hidden" : "",
                }}
-               tabBarExtraContent={
-                  <Button icon={<DownloadOutlined />} onClick={handleDownload}>
-                     Tải mẫu nhập linh kiện
-                  </Button>
-               }
-               tabList={
-                  api.task.data?.device_renew
-                     ? [
-                          {
-                             tab: "Trả thiết bị",
-                             key: "device",
-                             children: (
-                                <Descriptions
-                                   items={[
-                                      {
-                                         label: "Tên tác vụ",
-                                         children: api.task.data?.name,
-                                      },
-                                      {
-                                         label: "Mẫu máy",
-                                         children: `${api.task.data?.device.machineModel.name} - ${api.task.data?.device.description}`,
-                                      },
-                                   ]}
-                                />
-                             ),
-                          },
-                       ]
-                     : [
-                          {
-                             tab: "Linh kiện được trả",
-                             key: "spare-part",
-                             children: (
-                                <>
-                                   <Table
-                                      dataSource={Object.values(spareParts)}
-                                      pagination={false}
-                                      columns={[
-                                         { key: "index", title: "STT", render: (_, __, index) => index + 1 },
-                                         { key: "name", title: "Tên linh kiện", dataIndex: ["sparePart", "name"] },
-                                         { key: "quantity", title: "Số lượng trả", dataIndex: "quantity" },
-                                         {
-                                            key: "actions",
-                                            align: "right",
-                                            render: (_, record) => (
-                                               <div>
-                                                  <Button
-                                                     disabled={updated.includes(record.sparePart.id)}
-                                                     onClick={() =>
-                                                        control_sparePartUpdateQuantityModal.current?.handleOpen({
-                                                           max: record.quantity,
-                                                           sparePartId: record.sparePart.id,
-                                                           onFinish: () => {
-                                                              setUpdated([...updated, record.sparePart.id])
-                                                           },
-                                                        })
-                                                     }
-                                                  >
-                                                     Cập nhật kho
-                                                  </Button>
-                                               </div>
-                                            ),
-                                         },
-                                      ]}
-                                   />
-                                   <OverlayControllerWithRef ref={control_sparePartUpdateQuantityModal}>
-                                      <SparePart_UpdateQuantityModal />
-                                   </OverlayControllerWithRef>
-                                </>
-                             ),
-                          },
-                       ]
-               }
+               // tabBarExtraContent={
+               //    <Button icon={<DownloadOutlined />} onClick={handleDownload}>
+               //       Tải mẫu nhập linh kiện
+               //    </Button>
+               // }
+               tabList={[
+                  {
+                     tab: "Linh kiện được trả",
+                     key: "spare-part",
+                     children: (
+                        <>
+                           <Table
+                              dataSource={Object.values(spareParts)}
+                              pagination={false}
+                              columns={[
+                                 { key: "index", title: "STT", render: (_, __, index) => index + 1 },
+                                 { key: "name", title: "Tên linh kiện", dataIndex: ["sparePart", "name"] },
+                                 { key: "quantity", title: "Số lượng trả", dataIndex: "quantity" },
+                                 {
+                                    key: "actions",
+                                    align: "right",
+                                    render: (_, record) => (
+                                       <div>
+                                          <Button
+                                             disabled={updated.includes(record.sparePart.id)}
+                                             onClick={() =>
+                                                control_sparePartUpdateQuantityModal.current?.handleOpen({
+                                                   max: record.quantity,
+                                                   sparePartId: record.sparePart.id,
+                                                   onFinish: () => {
+                                                      setUpdated([...updated, record.sparePart.id])
+                                                   },
+                                                })
+                                             }
+                                          >
+                                             Cập nhật kho
+                                          </Button>
+                                       </div>
+                                    ),
+                                 },
+                              ]}
+                           />
+                           <OverlayControllerWithRef ref={control_sparePartUpdateQuantityModal}>
+                              <SparePart_UpdateQuantityModal />
+                           </OverlayControllerWithRef>
+                        </>
+                     ),
+                  },
+                  {
+                     tab: "Trả thiết bị",
+                     key: "device",
+                     children: (
+                        <Descriptions
+                           items={[
+                              {
+                                 label: "Tên tác vụ",
+                                 children: api.task.data?.name,
+                              },
+                              {
+                                 label: "Mẫu máy",
+                                 children: `${api.task.data?.device.machineModel.name} - ${api.task.data?.device.description}`,
+                              },
+                           ]}
+                        />
+                     ),
+                  },
+               ]}
             >
                <OverlayControllerWithRef ref={control_dualSignatureDrawer}>
                   <DualSignatureDrawer

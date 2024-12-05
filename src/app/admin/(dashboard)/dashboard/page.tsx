@@ -323,7 +323,7 @@ function Page() {
                   }}
                >
                   <Statistic
-                     title="Đã lấy linh kiện"
+                     title="Đã lấy linh kiện/Thiết bị"
                      valueStyle={{
                         color: "blue",
                      }}

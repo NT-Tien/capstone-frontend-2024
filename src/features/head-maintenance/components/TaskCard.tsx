@@ -16,6 +16,13 @@ import TaskUtil from "@/lib/domain/Task/Task.util"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { Issue_ViewDetails_WarrantyDrawerProps } from "@/features/head-maintenance/components/overlays/warranty/Issue_ViewDetails_Warranty.drawer"
 import { Task_AssignFixerModalProps } from "@/features/head-maintenance/components/overlays/Task_AssignFixerV2.drawer"
+import ClickableArea from "@/components/ClickableArea"
+import { ExportStatusMapper } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import ExportWarehouse_DetailsBasicModal, {
+   ExportWarehouse_DetailsBasicModalProps,
+} from "@/features/head-maintenance/components/overlays/ExportWarehouse_DetailsBasic.modal"
+import { useRef } from "react"
 
 function TaskCard() {
    return <div></div>
@@ -30,8 +37,9 @@ type TaskCardSendWarrantyProps = {
 }
 
 function TaskCardWarranty(props: TaskCardSendWarrantyProps) {
-   const firstIssue = TaskUtil.getTask_Warranty_FirstIssue(props.task)
-   const secondIssue = TaskUtil.getTask_Warranty_SecondIssue(props.task)
+   const issues = TaskUtil.getTask_Warranty_IssuesOrdered(props.task)
+
+   const control_exportWarehouseDetailsModal = useRef<RefType<ExportWarehouse_DetailsBasicModalProps>>(null)
 
    return (
       <div
@@ -128,7 +136,7 @@ function TaskCardWarranty(props: TaskCardSendWarrantyProps) {
             prefixCls="steps-inner"
             status="wait"
             size="small"
-            items={[firstIssue, secondIssue].map((i) => ({
+            items={issues?.map((i) => ({
                title: (
                   <div className="flex justify-between">
                      <div className="text-sm font-semibold">{i?.typeError.name}</div>
@@ -155,6 +163,26 @@ function TaskCardWarranty(props: TaskCardSendWarrantyProps) {
                   }),
             }))}
          />
+         {props.task.export_warehouse_ticket.length > 0 && (
+            <ClickableArea
+               reset
+               className="justify-start rounded-lg p-1 px-2 text-sm"
+               onClick={() => {
+                  control_exportWarehouseDetailsModal.current?.handleOpen({
+                     exportWarehouse: props.task.export_warehouse_ticket[0],
+                  })
+               }}
+            >
+               <h2 className="mr-auto">Đơn xuất kho:</h2>
+               <div className="flex items-center gap-3">
+                  {ExportStatusMapper(props.task.export_warehouse_ticket[0].status)?.text}
+                  <RightOutlined />
+               </div>
+            </ClickableArea>
+         )}
+         <OverlayControllerWithRef ref={control_exportWarehouseDetailsModal}>
+            <ExportWarehouse_DetailsBasicModal />
+         </OverlayControllerWithRef>
       </div>
    )
 }

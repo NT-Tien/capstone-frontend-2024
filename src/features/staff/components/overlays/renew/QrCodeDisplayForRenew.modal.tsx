@@ -9,7 +9,7 @@ import { forwardRef, ReactNode, useImperativeHandle, useRef, useState } from "re
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 
 type Props = {
-   children?: (handleOpen: (qrCode: string, renewDevice: DeviceDto) => void) => ReactNode
+   children?: (handleOpen: (qrCode: string, renewDevice?: DeviceDto) => void) => ReactNode
    title?: string
    description?: string
    refetch: () => void
@@ -17,7 +17,7 @@ type Props = {
 }
 
 export type QrCodeDisplayForRenewModalRefType = {
-   handleOpen: (qrCode: string, renewDevice: DeviceDto) => void
+   handleOpen: (qrCode: string, renewDevice?: DeviceDto) => void
 }
 
 const QrCodeDisplayForRenewModal = forwardRef<QrCodeDisplayForRenewModalRefType, Props>(function Component(
@@ -29,7 +29,7 @@ const QrCodeDisplayForRenewModal = forwardRef<QrCodeDisplayForRenewModalRefType,
    const [signed, setSigned] = useState<boolean>(false)
 
    const { open, handleOpen, handleClose } = useModalControls({
-      onOpen: (qrCode: string, renewDevice: DeviceDto) => {
+      onOpen: (qrCode: string, renewDevice?: DeviceDto) => {
          setQrCode(qrCode)
          setDevice(renewDevice)
       },
@@ -65,7 +65,7 @@ const QrCodeDisplayForRenewModal = forwardRef<QrCodeDisplayForRenewModalRefType,
             open={open}
             onClose={handleClose}
             placement="bottom"
-            height="max-content"
+            height="100%"
             classNames={{
                footer: "p-layout",
             }}
@@ -77,12 +77,7 @@ const QrCodeDisplayForRenewModal = forwardRef<QrCodeDisplayForRenewModalRefType,
                         Tôi đã ký xác nhận
                      </label>
                   </div>
-                  <Button
-                     className="w-full"
-                     size="large"
-                     type="primary"
-                     onClick={handleCompleteSpareParts}
-                  >
+                  <Button className="w-full" size="large" type="primary" onClick={handleCompleteSpareParts}>
                      Hoàn tất
                   </Button>
                </div>
@@ -100,9 +95,14 @@ const QrCodeDisplayForRenewModal = forwardRef<QrCodeDisplayForRenewModalRefType,
                   </div>
                </Card>
             )}
-            <QRCode value={qrCode ?? ""} className="aspect-square h-full w-full" />
-            <section className="mt-layout">
-               <h4 className="mb-layout text-lg font-medium">
+            <div className="aspect-square w-full" onClick={() => navigator.clipboard.writeText(qrCode ?? "")}>
+               <QRCode value={qrCode ?? ""} className="aspect-square h-full w-full" size={160} />
+            </div>
+            {device && (
+               <section className="mt-layout">
+               <h4 className="mb-layout text-lg font-medium" onClick={() => {
+                  navigator.clipboard.writeText(qrCode ?? "")
+               }}>
                   <Wrench size={24} weight="duotone" className="mr-1 inline" />
                   Thiết bị mới
                </h4>
@@ -117,6 +117,7 @@ const QrCodeDisplayForRenewModal = forwardRef<QrCodeDisplayForRenewModalRefType,
                   </div>
                </div>
             </section>
+            )}
          </Drawer>
          <CreateSignatureDrawer
             ref={createSignatureDrawerRef}

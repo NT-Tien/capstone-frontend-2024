@@ -12,6 +12,12 @@ import Issue_Resolve_AssembleDrawer, {
 import Issue_Resolve_DisassembleDrawer, {
    Issue_Resolve_DisassembleDrawerProps,
 } from "@/features/staff/components/overlays/warranty/Issue_Resolve_Disassemble.drawer"
+import Issue_Resolve_DisassembleReplacementDrawer, {
+   Issue_Resolve_DisassembleReplacementDrawerProps,
+} from "@/features/staff/components/overlays/warranty/Issue_Resolve_DisassembleReplacement.drawer"
+import Issue_Resolve_InstallReplacementDrawer, {
+   Issue_Resolve_InstallReplacementDrawerProps,
+} from "@/features/staff/components/overlays/warranty/Issue_Resolve_InstallReplacement.drawer"
 import Issue_Resolve_ReceiveDrawer, {
    Issue_Resolve_ReceiveDrawerProps,
 } from "@/features/staff/components/overlays/warranty/Issue_Resolve_Receive.drawer"
@@ -26,8 +32,10 @@ import staff_uri from "@/features/staff/uri"
 import {
    AssembleDeviceTypeErrorId,
    DisassembleDeviceTypeErrorId,
+   InstallReplacementDeviceTypeErrorId,
    ReceiveWarrantyTypeErrorId,
    SendWarrantyTypeErrorId,
+   DismantleReplacementDeviceTypeErrorId,
 } from "@/lib/constants/Warranty"
 import { WarrantyFailedReasonsList } from "@/lib/constants/WarrantyFailedReasons"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
@@ -85,8 +93,12 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
 
    const control_issueFailDrawer = useRef<RefType<Issue_WarrantyFailedModalProps>>(null)
    const control_issueResolveAssembleDrawer = useRef<RefType<Issue_Resolve_AssembleDrawerProps>>(null)
+   const control_issueResolveInstallReplacementDrawer =
+      useRef<RefType<Issue_Resolve_InstallReplacementDrawerProps>>(null)
    const control_issueResolveDisassembleDrawer = useRef<RefType<Issue_Resolve_DisassembleDrawerProps>>(null)
    const control_issueResolveSendDrawer = useRef<RefType<Issue_Resolve_SendDrawerProps>>(null)
+   const control_issueResolveDisassembleReplacementDrawer =
+      useRef<RefType<Issue_Resolve_DisassembleReplacementDrawerProps>>(null)
    const control_issueResolveReceiveDrawer = useRef<RefType<Issue_Resolve_ReceiveDrawerProps>>(null)
 
    const mutate_finishTaskWarrantySend = staff_mutations.task.finishWarrantySend()
@@ -119,6 +131,12 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                               })
                               return
                            }
+                           case InstallReplacementDeviceTypeErrorId: {
+                              control_issueResolveInstallReplacementDrawer.current?.handleOpen({
+                                 issue: props.issue,
+                              })
+                              return
+                           }
                            case SendWarrantyTypeErrorId: {
                               control_issueResolveSendDrawer.current?.handleOpen({
                                  issue: props.issue,
@@ -128,6 +146,12 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                            }
                            case ReceiveWarrantyTypeErrorId: {
                               control_issueResolveReceiveDrawer.current?.handleOpen({
+                                 issue: props.issue,
+                              })
+                              return
+                           }
+                           case DismantleReplacementDeviceTypeErrorId: {
+                              control_issueResolveDisassembleReplacementDrawer.current?.handleOpen({
                                  issue: props.issue,
                               })
                               return
@@ -314,9 +338,24 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                }}
             />
          </OverlayControllerWithRef>
+
          {/* Resolve issue for disassemble warranty issue */}
          <OverlayControllerWithRef ref={control_issueResolveDisassembleDrawer}>
             <Issue_Resolve_DisassembleDrawer
+               onSuccess={() => {
+                  if (props.request?.is_replacement_device) {
+                     props.refetchFn?.()
+                     control_issueResolveDisassembleDrawer.current?.handleClose()
+                     props.handleClose?.()
+                  } else {
+                     router.push(staff_uri.navbar.tasks)
+                  }
+               }}
+            />
+         </OverlayControllerWithRef>
+         {/* Resolve issue for install replacement device */}
+         <OverlayControllerWithRef ref={control_issueResolveInstallReplacementDrawer}>
+            <Issue_Resolve_InstallReplacementDrawer
                onSuccess={() => {
                   router.push(staff_uri.navbar.tasks)
                }}
@@ -344,7 +383,15 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
          <OverlayControllerWithRef ref={control_issueResolveReceiveDrawer}>
             <Issue_Resolve_ReceiveDrawer
                onSuccess={() => {
+                  router.push(staff_uri.navbar.tasks)
+               }}
+            />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_issueResolveDisassembleReplacementDrawer}>
+            <Issue_Resolve_DisassembleReplacementDrawer
+               onSuccess={() => {
                   props.refetchFn?.()
+                  control_issueResolveDisassembleDrawer.current?.handleClose()
                   props.handleClose?.()
                }}
             />

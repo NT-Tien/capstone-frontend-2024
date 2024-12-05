@@ -69,7 +69,8 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
          return (
             i.requester_note.toLowerCase().includes(search.toLowerCase()) ||
             i.device.machineModel.name.toLowerCase().includes(search.toLowerCase()) ||
-            i.device.area.name.toLowerCase().includes(search.toLowerCase())
+            i.device.area?.name.toLowerCase().includes(search.toLowerCase()) ||
+            i.code.toLowerCase().includes(search.toLowerCase())
          )
       })
 
@@ -86,7 +87,9 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
             break
          }
          case "head_confirm": {
-            list = list.filter((i) => i.status === FixRequestStatus.HEAD_CONFIRM || i.status === FixRequestStatus.HM_VERIFY)
+            list = list.filter(
+               (i) => i.status === FixRequestStatus.HEAD_CONFIRM || i.status === FixRequestStatus.HM_VERIFY,
+            )
             break
          }
          case "closed": {
@@ -142,7 +145,7 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatuses } 
             <PageHeaderV2
                prevButton={<PageHeaderV2.MenuButton onClick={navDrawer.handleOpen} />}
                title={"Lịch sử Yêu cầu"}
-               className='bg-head_department sticky top-0 left-0 z-50'
+               className="sticky left-0 top-0 z-50 bg-head_department"
                nextButton={
                   <Badge dot={Object.values(query).length > 0}>
                      <Button

@@ -9,6 +9,7 @@ export type Request = {
    id: string
    payload: {
       note: string
+      replacement_machineModel_id?: string
       isMultiple?: boolean
    }
 } & AuthTokenWrapper

@@ -375,50 +375,6 @@ function Request_ApproveToRenewDrawer(props: Props) {
                )}
             </div>
          </Modal>
-
-         {/* <Modal
-            visible={isModalVisible}
-            title={`Thông tin chi tiết ${selectedMachineModel?.name}`}
-            onCancel={handleCloseModal}
-            footer={null}
-            centered
-         >
-            {selectedMachineModel && (
-               <div className="space-y-4">
-                  <Image src={selectedMachineModel.image} alt={selectedMachineModel.name} className="h-auto w-full" />
-                  <p>
-                     <b>Loại máy: </b> {selectedMachineModel.needleType}
-                  </p>
-                  <p>
-                     <b>Tốc độ tối đa: </b> {selectedMachineModel.speed}
-                  </p>
-                  <p>
-                     <b>Công suất động cơ: </b> {selectedMachineModel.power}
-                  </p>
-                  <p>
-                     <b>Độ dài mũi may: </b> {selectedMachineModel.stitch}
-                  </p>
-                  <p>
-                     <b>Độ cao chân vịt: </b> {selectedMachineModel.presser}
-                  </p>
-                  <p>
-                     <b>Hệ thống bôi trơn: </b> {selectedMachineModel.lubrication}
-                  </p>
-                  <p>
-                     <b>Điện áp hoạt động: </b> {selectedMachineModel.voltage}
-                  </p>
-                  <p>
-                     <b>Loại vải hỗ trợ: </b> {selectedMachineModel.fabric}
-                  </p>
-                  <p>
-                     <b>Tính năng đặc biệt: </b> {selectedMachineModel.features}
-                  </p>
-                  <p>
-                     <b>Kích thước và trọng lượng:</b> {selectedMachineModel.size}
-                  </p>
-               </div>
-            )}
-         </Modal> */}
       </>
    )
 }

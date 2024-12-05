@@ -397,6 +397,84 @@ function Page() {
                      suffix={<span className="text-sm">Tác vụ</span>}
                   />
                </Card>
+               <Card
+                  size="small"
+                  className="w-full bg-green-200"
+               >
+                  <Statistic
+                     valueStyle={{
+                        color: "green",
+                     }}
+                     title="Thu hồi thiết bị cũ"
+                     value={api_tasks.data?.["uninstall-device-old-already-and-move-to-stock"]}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+               <Card
+                  size="small"
+                  className="w-full bg-green-200"
+               >
+                  <Statistic
+                     valueStyle={{
+                        color: "green",
+                     }}
+                     title="Gỡ thiết bị đi bảo hành"
+                     value={api_tasks.data?.["uninstall-device-already-and-move-to-warranty"]}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+               <Card
+                  size="small"
+                  className="w-full bg-green-200"
+               >
+                  <Statistic
+                     valueStyle={{
+                        color: "green",
+                     }}
+                     title="Gỡ thiết bị tạm vào kho"
+                     value={api_tasks.data?.["uninstall-device-waiter-already-and-move-to-stock"]}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+               <Card
+                  size="small"
+                  className="w-full bg-green-200"
+               >
+                  <Statistic
+                     valueStyle={{
+                        color: "green",
+                     }}
+                     title="Lắp thiết bị bảo hành"
+                     value={api_tasks.data?.["install-device-warranted-already"]}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+               <Card
+                  size="small"
+                  className="w-full bg-green-200"
+               >
+                  <Statistic
+                     valueStyle={{
+                        color: "green",
+                     }}
+                     title="Lắp thiết bị tạm"
+                     value={api_tasks.data?.["install-device-waiter-already"]}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
+               <Card
+                  size="small"
+                  className="w-full bg-green-200"
+               >
+                  <Statistic
+                     valueStyle={{
+                        color: "green",
+                     }}
+                     title="Lắp thiết bị đã có trong kho"
+                     value={api_tasks.data?.["install-device-already-from-stock"]}
+                     suffix={<span className="text-sm">Tác vụ</span>}
+                  />
+               </Card>
             </div>
          </section>
       </PageContainer>

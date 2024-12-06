@@ -331,7 +331,7 @@ function Page() {
                      suffix={<span className="text-sm">Tác vụ</span>}
                   />
                </Card>
-
+{/* 
                <Card
                   size="small"
                   className="w-full bg-blue-200"
@@ -362,7 +362,7 @@ function Page() {
                      value={api_tasks.data?.["spare-part-fetched"]}
                      suffix={<span className="text-sm">Tác vụ</span>}
                   />
-               </Card>
+               </Card> */}
 
                <Card
                   size="small"

@@ -4,15 +4,18 @@ import MachineModel_DetailsDrawer, {
 } from "@/features/head-maintenance/components/overlays/MachineModel_Details.drawer"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { cn } from "@/lib/utils/cn.util"
 import { LeftOutlined, SearchOutlined } from "@ant-design/icons"
 import { DeviceTablet, Factory } from "@phosphor-icons/react"
+import { UseQueryResult } from "@tanstack/react-query"
 import { Card, Divider, Drawer, DrawerProps, Empty, Input, Skeleton, Space } from "antd"
 import Image from "next/image"
 import { useMemo, useRef, useState } from "react"
 
 type PickMachineModelDrawerProps = {
    onSubmit?: (machineModel: MachineModelDto) => void
+   api_request: UseQueryResult<RequestDto, Error>
 }
 type Props = Omit<DrawerProps, "children"> & PickMachineModelDrawerProps
 
@@ -24,6 +27,8 @@ function PickMachineModelDrawer(props: Props) {
       },
    )
    const [search, setSearch] = useState<string>("")
+   const [selectedMachineModel, setSelectedMachineModel] = useState<MachineModelDto | null>(null)
+   const [isModalOpen, setModalOpen] = useState<boolean>(false)
 
    const control_machineModelDetailsDrawer = useRef<RefType<MachineModel_DetailsDrawerProps>>(null)
 
@@ -96,9 +101,12 @@ function PickMachineModelDrawer(props: Props) {
                            body: "px-2 py-4",
                         }}
                         onClick={() => {
-                           control_machineModelDetailsDrawer.current?.handleOpen({
-                              machineModel: mm,
-                           })
+                           // control_machineModelDetailsDrawer.current?.handleOpen({
+                           //    machineModel: mm,
+                           //    api_request: props.api_request,
+                           // })
+                           setSelectedMachineModel(mm)
+                           setModalOpen(true)
                         }}
                      >
                         <Card.Meta
@@ -119,16 +127,28 @@ function PickMachineModelDrawer(props: Props) {
                      </Card>
                   ))
                ) : (
-                  <Empty description="Không tìm thấy mẫu máy nào trong hệ thống. Vui lòng thử lại sau..." className='col-span-2 mt-4' />
+                  <Empty
+                     description="Không tìm thấy mẫu máy nào trong hệ thống. Vui lòng thử lại sau..."
+                     className="col-span-2 mt-4"
+                  />
                )}
             </div>
          </Drawer>
-         <OverlayControllerWithRef ref={control_machineModelDetailsDrawer}>
-            <MachineModel_DetailsDrawer onSubmit={(machineModel) => {
-               control_machineModelDetailsDrawer.current?.handleClose()
-               props.onSubmit?.(machineModel)
-            }} />
-         </OverlayControllerWithRef>
+         {/* <OverlayControllerWithRef ref={control_machineModelDetailsDrawer}> */}
+         {selectedMachineModel && (
+            <MachineModel_DetailsDrawer
+            open={isModalOpen}
+            onClose={() => setModalOpen(false)}
+               onSubmit={(machineModel) => {
+                  setModalOpen(false)
+                  // control_machineModelDetailsDrawer.current?.handleClose()
+                  props.onSubmit?.(machineModel)
+               }}
+               api_request={props.api_request}
+               machineModel={selectedMachineModel}
+            />
+         )}
+         {/* </OverlayControllerWithRef> */}
       </>
    )
 }

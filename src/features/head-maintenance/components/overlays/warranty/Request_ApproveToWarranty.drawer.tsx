@@ -197,7 +197,9 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                                  className="block rounded-lg border-[1px] border-red-300 bg-red-100"
                                  type="default"
                                  reset
-                                 onClick={() => control_pickMachineModelDrawer.current?.handleOpen({})}
+                                 onClick={() => control_pickMachineModelDrawer.current?.handleOpen({
+                                    api_request: api_request
+                                 })}
                               >
                                  <div className="flex gap-3 overflow-hidden">
                                     <Image
@@ -242,7 +244,9 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                               block
                               className="border-[1px] border-neutral-500 bg-neutral-100 py-2"
                               type="dashed"
-                              onClick={() => control_pickMachineModelDrawer.current?.handleOpen({})}
+                              onClick={() => control_pickMachineModelDrawer.current?.handleOpen({
+                                 api_request: api_request
+                              })}
                               icon={<RightOutlined />}
                               iconPosition="end"
                            >
@@ -262,6 +266,7 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                      control_pickMachineModelDrawer.current?.handleClose()
                   }, 250)
                }}
+               api_request={api_request}
             />
          </OverlayControllerWithRef>
       </>

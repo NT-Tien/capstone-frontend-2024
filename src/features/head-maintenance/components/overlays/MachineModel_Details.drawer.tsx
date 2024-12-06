@@ -1,66 +1,109 @@
 import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import { CalendarBlank, ComputerTower, Factory } from "@phosphor-icons/react"
-import { Button, Drawer, DrawerProps, Image, Space, Typography } from "antd"
+import { Button, Drawer, DrawerProps, Image, Modal, Space, Typography } from "antd"
 import { LeftOutlined } from "@ant-design/icons"
+import { UseQueryResult } from "@tanstack/react-query"
+import { RequestDto } from "@/lib/domain/Request/Request.dto"
 
 type MachineModel_DetailsDrawerProps = {
    machineModel?: MachineModelDto
    onSubmit?: (machineModel: MachineModelDto) => void
+   api_request: UseQueryResult<RequestDto, Error>
 }
 type Props = Omit<DrawerProps, "children"> & MachineModel_DetailsDrawerProps
 
 function MachineModel_DetailsDrawer(props: Props) {
    return (
-      <Drawer
+      <Modal
          title="Chi tiết mẫu máy"
-         loading={!props.machineModel}
-         closeIcon={<LeftOutlined />}
-         footer={
-            <Button block type="primary" onClick={() => props.machineModel && props.onSubmit?.(props.machineModel)}>
+         centered
+         visible={props.open}
+         onCancel={props.onClose}
+         // closeIcon={<LeftOutlined />}
+         footer={[
+            <Button key="submit" block type="primary" onClick={() => props.machineModel && props.onSubmit?.(props.machineModel) && props.onClose}>
                Chọn mẫu máy
-            </Button>
-         }
-         classNames={{
-            footer: "p-layout",
+            </Button>,
+         ]}
+         width="100vh"
+         bodyStyle={{
+            height: "100vh",
+            padding: 0,
+            display: "flex",
+            flexDirection: "row",
+            overflow: "hidden",
          }}
-         {...props}
+         className="full-screen-modal"
       >
-         {props.machineModel && (
-            <>
-               <div className="aspect-square w-full rounded-lg border-2 border-head_maintenance">
+         <div
+            style={{
+               flex: 2,
+               padding: "20px",
+               backgroundColor: "#ffffff",
+               overflowY: "auto",
+               borderRight: "1px solid #ddd",
+               display: "grid",
+               gridTemplateRows: "repeat(10, auto)",
+            }}
+         >
+            <h2 className="text-lg font-bold">{props.machineModel?.name}</h2>
+            <Image
+               src={props.machineModel?.image}
+               alt={props.machineModel?.name}
+               rootClassName="w-full h-32"
+               wrapperClassName="w-full h-32"
+               className="h-32 w-full rounded-t-lg object-cover"
+               preview={false}
+            />
+            <p>{props.machineModel?.needleType}</p>
+            <p>{props.machineModel?.speed}</p>
+            <p>{props.machineModel?.power}</p>
+            <p>{props.machineModel?.stitch}</p>
+            <p>{props.machineModel?.presser}</p>
+            <p>{props.machineModel?.lubrication}</p>
+            <p>{props.machineModel?.voltage}</p>
+            <p>{props.machineModel?.fabric}</p>
+            <p>{props.machineModel?.features}</p>
+            <p>{props.machineModel?.size}</p>
+         </div>
+
+         <div
+            style={{
+               flex: 2,
+               padding: "20px",
+               backgroundColor: "#ffffff",
+               overflowY: "auto",
+               display: "grid",
+               gridTemplateRows: "repeat(10, auto)",
+            }}
+         >
+            <h2 className="text-lg font-bold">{props.api_request.data?.device.machineModel?.name}</h2>
+            {props.api_request.data?.device.machineModel ? (
+               <>
                   <Image
-                     src={props.machineModel.image}
-                     alt="image"
-                     rootClassName="w-full"
-                     className="aspect-square w-full rounded-lg object-fill"
+                     src={props.api_request.data?.device.machineModel.image}
+                     alt={props.api_request.data?.device.machineModel.name}
+                     rootClassName="w-full h-32"
+                     wrapperClassName="w-full h-32"
+                     className="h-32 w-full rounded-t-lg object-cover"
+                     preview={false}
                   />
-               </div>
-               <main className="mt-4">
-                  <h1 className="text-lg font-bold">{props.machineModel.name}</h1>
-                  <div className="mt-1 flex gap-4 text-sm">
-                     <div className="flex items-center gap-1">
-                        <Factory size={16} weight="duotone" />
-                        {props.machineModel.manufacturer}
-                     </div>
-                     <div className="flex items-center gap-1">
-                        <CalendarBlank size={16} weight="duotone" />
-                        {props.machineModel.yearOfProduction}
-                     </div>
-                     <div className="ml-auto flex items-center gap-1 font-bold text-head_maintenance">
-                        <ComputerTower size={16} weight="duotone" />
-                        {props.machineModel.devices.length} thiết bị
-                     </div>
-                  </div>
-                  <Typography.Paragraph
-                     ellipsis={{ rows: 3, expandable: true, symbol: "Xem thêm" }}
-                     className="mb-0 mt-4 text-sm"
-                  >
-                     {props.machineModel.description}
-                  </Typography.Paragraph>
-               </main>
-            </>
-         )}
-      </Drawer>
+                  <p>{props.api_request.data?.device.machineModel.needleType}</p>
+                  <p>{props.api_request.data?.device.machineModel.speed}</p>
+                  <p>{props.api_request.data?.device.machineModel.power}</p>
+                  <p>{props.api_request.data?.device.machineModel.stitch}</p>
+                  <p>{props.api_request.data?.device.machineModel.presser}</p>
+                  <p>{props.api_request.data?.device.machineModel.lubrication}</p>
+                  <p>{props.api_request.data?.device.machineModel.voltage}</p>
+                  <p>{props.api_request.data?.device.machineModel.fabric}</p>
+                  <p>{props.api_request.data?.device.machineModel.features}</p>
+                  <p>{props.api_request.data?.device.machineModel.size}</p>
+               </>
+            ) : (
+               <p>Loading...</p>
+            )}
+         </div>
+      </Modal>
    )
 }
 

@@ -15,11 +15,11 @@ export default async function Stockkeeper_Task_GetById(req: Request): Promise<Re
    const response = await api
       .get<Response>(Stockkeeper_Task_GetById.URL(req), {
          transformResponse: (data) => {
-            console.log("HERE now")
-            console.log(data)
+             console.log("HERE now")
+             console.log(data)
             return parseApiResponse(data, (res) => {
-               console.log("res data")
-               console.log(res)
+                console.log("res data")
+                console.log(res)
                if (res.data === null) {
                   throw new NotFoundError("Device not found")
                }

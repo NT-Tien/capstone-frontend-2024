@@ -26,7 +26,7 @@ import { Clock, Note, QrCode, Swap, User, Wrench } from "@phosphor-icons/react"
 import { UseQueryResult } from "@tanstack/react-query"
 import { App, Button, Card, Divider, Dropdown, Spin, Typography } from "antd"
 import { useRouter } from "next/navigation"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { DeleteFilled, MoreOutlined, TruckFilled } from "@ant-design/icons"
 import MachineModelUtil from "@/lib/domain/MachineModel/MachineModel.util"
 import { cn } from "@/lib/utils/cn.util"
@@ -51,7 +51,6 @@ function Page({ params }: { params: { id: string } }) {
          router.push(hm_uris.navbar.requests + "?status=" + api_request.data.status)
       }
    }
-
    useEffect(() => {
       if (
          api_request.data?.status === FixRequestStatus.APPROVED ||

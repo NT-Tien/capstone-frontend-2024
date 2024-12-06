@@ -19,10 +19,11 @@ import { Calendar, DeviceTablet, Factory, Gavel, Gear, Laptop, Truck } from "@ph
 import { App, Divider, Drawer, DrawerProps, Input, Space, Typography } from "antd"
 import Button from "antd/es/button"
 import Form from "antd/es/form"
+import axios from "axios"
 import dayjs, { Dayjs } from "dayjs"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
-
+import Cookies from "js-cookie"
 type FieldType = {
    note: string
    fixerDate: Dayjs
@@ -68,11 +69,33 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
          },
       )
    }
-
-   useEffect(() => {
+   const [isPriority, setIsPriority] = useState<boolean>(true)
+   const [areaId, setAreaId] = useState<String>("")
+      useEffect(() => {
       if (!props.open) {
          form.resetFields()
       }
+      if (api_request.data?.device.area.id !== undefined) {
+         setAreaId(api_request.data.device.area.id);
+       }
+      console.log(api_request.data)
+      const fetchPriority = async () => {
+         axios
+            .get(`http://localhost:8080/api/head-staff/device/checkKey/${api_request.data?.device?.area?.id}/1/1`, {
+               headers: {
+                  Authorization: `Bearer ${Cookies.get("token")}`,
+               },
+            })
+            .then((response) => {
+               console.log("data trả về")
+               console.log(response.data.data)  // Output: true or false depending on the server's response.
+               setIsPriority(response.data.data)
+            })
+            .catch((error) => {
+               console.error("Error fetching priority:", error)
+            })
+      }      
+      fetchPriority()
    }, [form, props.open])
 
    return (
@@ -109,7 +132,7 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                            <Gear size={18} weight="fill" />
                            Mẫu máy
                         </h3>
-                        <p className="ml-auto text-neutral-700">{api_request.data.device.machineModel.name}</p>
+                        <p className="ml-auto text-neutral-700">{api_request.data.device.area.id}</p>
                      </section>
                      <Divider className="m-0" />
                      <section className="flex py-3">
@@ -181,6 +204,7 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                         </Form.Item>
                      </section>
                   </Form>
+                  {isPriority ? 
                   <section>
                      <div className="mb-3">
                         <h2 className={"mr-auto flex items-center gap-2 text-lg font-medium"}>
@@ -250,7 +274,9 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                            </ClickableArea>
                         )}
                      </div>
-                  </section>
+                  </section> 
+                  : null}
+                  
                </>
             )}
          </Drawer>

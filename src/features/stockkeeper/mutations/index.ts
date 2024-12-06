@@ -6,6 +6,7 @@ import useExportWarehouse_Accept from "@/features/stockkeeper/mutations/ExportWa
 import useExportWarehouse_Delay from "@/features/stockkeeper/mutations/ExportWarehouse_Delay.mutation"
 import useDevice_ReturnRemovedDevice from "./Device_ReturnRemovedDevice.mutation"
 import useSparePart_UpdateQuantity from "@/features/stockkeeper/mutations/SparePart_UpdateQuantity.mutation"
+import useSparePart_AddQuantity from "./SparePart_AddQuantity.mutation"
 
 const stockkeeper_mutations = {
    task: {
@@ -25,6 +26,7 @@ const stockkeeper_mutations = {
    },
    sparePart: {
       updateQuantity: useSparePart_UpdateQuantity,
+      addQuantity: useSparePart_AddQuantity,
    },
 }
 

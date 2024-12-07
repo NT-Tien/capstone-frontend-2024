@@ -12,15 +12,35 @@ import {
    FileTextOutlined,
 } from "@ant-design/icons"
 import { ProLayout } from "@ant-design/pro-layout"
-import { Dropdown } from "antd"
+import { Badge, Dropdown } from "antd"
+import axios from "axios"
 import Cookies from "js-cookie"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { ReactNode } from "react"
+import { ReactNode, useEffect, useState } from "react"
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
    const pathname = usePathname()
    const router = useRouter()
+   const [unread, setUnread] = useState()
+   const fetchNotification = async () => {
+      try {
+         const response = await axios.get("http://localhost:8080/api/stockkeeper/notification/search/1/10", {
+            headers: {
+               Authorization: `Bearer ${Cookies.get("token")}`,
+            },
+         })
+         console.log("response: ")
+         console.log(response.data.data[1])
+         setUnread(response.data.data[1])
+      } catch (error) {
+         console.log(error)
+      }
+   }
+
+   useEffect(() => {
+      fetchNotification()
+   }, [])
    return (
       <ProLayout
          location={{
@@ -98,7 +118,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         key: "notification",
                         path: "/stockkeeper/desktop/notifications",
                         name: "Thông báo",
-                        icon: <BellOutlined />,
+                        icon: (
+                           unread > 0 ? (
+                             <Badge count={unread} overflowCount={99} style={{ backgroundColor: "#f5222d", fontSize: "8px", width: "18px", height: "18px", lineHeight: "18px" }}>
+                               <BellOutlined />
+                             </Badge>
+                           ) : (
+                             <BellOutlined />
+                           )
+                         ),
                      },
                   ],
                },

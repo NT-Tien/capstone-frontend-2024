@@ -15,7 +15,7 @@ type Props = Omit<ModalProps, "children"> &
 function SparePart_UpdateQuantityModal(props: Props) {
    const [value, setValue] = useState(0)
 
-   const mutate_updateSparePartQuantity = stockkeeper_mutations.sparePart.updateQuantity({})
+   const mutate_updateSparePartQuantity = stockkeeper_mutations.sparePart.addQuantity({})
 
    function handleFinish() {
       if (!props.sparePartId) return

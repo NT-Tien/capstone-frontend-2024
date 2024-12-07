@@ -20,7 +20,7 @@ import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import TaskUtil from "@/lib/domain/Task/Task.util"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
-import { CalendarOutlined, DownOutlined, LoadingOutlined } from "@ant-design/icons"
+import { CalendarOutlined, DownOutlined, Loading3QuartersOutlined } from "@ant-design/icons"
 import { Calendar, Check, Clock, Hourglass, Placeholder, SealWarning, Swap, Truck } from "@phosphor-icons/react"
 import { App, Avatar, Button, ConfigProvider, Divider, List, Space, Spin, Tabs } from "antd"
 import dayjs from "dayjs"
@@ -88,14 +88,14 @@ function Page({ searchParams }: { searchParams: { completed?: string } }) {
       if (!api_tasks.isSuccess) return returnValue
 
       api_tasks.data.forEach((task) => {
-         // if (task.export_warehouse_ticket.length !== 0) {
-         //    if (
-         //       task?.export_warehouse_ticket[0]?.status !== ExportStatus.ACCEPTED &&
-         //       task?.export_warehouse_ticket[0]?.status !== ExportStatus.EXPORTED
-         //    ) {
-         //       return
-         //    }
-         // }
+         if (task.export_warehouse_ticket.length !== 0) {
+            if (
+               task?.export_warehouse_ticket[0]?.status !== ExportStatus.ACCEPTED &&
+               task?.export_warehouse_ticket[0]?.status !== ExportStatus.EXPORTED
+            ) {
+               return
+            }
+         }
 
          const fixerDate = dayjs(task.fixerDate)
          if (fixerDate.isSame(dayjs(selectedDate), "day"))
@@ -290,7 +290,7 @@ function ListRendererCard(props: ListRendererProps) {
                                  ) : item.status === TaskStatus.ASSIGNED ? (
                                     <Placeholder size={16} />
                                  ) : item.status === TaskStatus.IN_PROGRESS ? (
-                                    <LoadingOutlined />
+                                    <Loading3QuartersOutlined />
                                  ) : undefined
                               }
                               className={cn(
@@ -329,7 +329,9 @@ function ListRendererCard(props: ListRendererProps) {
                               )}
                               <div className={"flex items-center gap-1"}>
                                  <SealWarning size={16} weight={"duotone"} />
-                                 <span>{item.issues.length} {TaskUtil.isTask_Fix(item) ? "Lỗi" : "Bước"}</span>
+                                 <span>
+                                    {item.issues.length} {TaskUtil.isTask_Fix(item) ? "Lỗi" : "Bước"}
+                                 </span>
                               </div>
                               <div className={"flex items-center gap-1"}>
                                  <Calendar size={16} weight={"duotone"} />

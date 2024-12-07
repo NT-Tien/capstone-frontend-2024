@@ -23,14 +23,14 @@ function ReturnRemovedDevice(props: Props) {
          height="100%"
          footer={
             <div>
-               <div className="mb-3 flex items-start gap-3">
+               {/* <div className="mb-3 flex items-start gap-3">
                   <Checkbox id="sign" checked={signed} onChange={(e) => setSigned(e.target.checked)} />
                   <label htmlFor="sign" className={"font-bold"}>
                      Tôi đã ký xác nhận
                   </label>
-               </div>
-               <Button block disabled={!signed} type="primary" size="large" onClick={props.onFinish}>
-                  Hoàn tất
+               </div> */}
+               <Button block  type="primary" size="large" onClick={props.onFinish}>
+                  Đóng
                </Button>
             </div>
          }

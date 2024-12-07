@@ -10,7 +10,16 @@ type Request = {
    areaId?: string
 }
 type Response = {
-   [key in TaskStatus | "spare-part-fetched" | "spare-part-unfetched"]: number
+   [key in
+      | TaskStatus
+      | "spare-part-fetched"
+      | "spare-part-unfetched"
+      | "uninstall-device-old-already-and-move-to-stock"
+      | "uninstall-device-already-and-move-to-warranty"
+      | "uninstall-device-waiter-already-and-move-to-stock"
+      | "install-device-warranted-already"
+      | "install-device-waiter-already"
+      | "install-device-already-from-stock"]: number
 }
 
 async function Admin_Task_Dashboard(request: Request): Promise<Response> {

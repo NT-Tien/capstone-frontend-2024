@@ -3,13 +3,14 @@
 import { PageContainer, ProTable } from "@ant-design/pro-components"
 import stockkeeper_queries from "@/features/stockkeeper/queries"
 import { ExportStatus } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
-import { useMemo, useRef, useState } from "react"
-import { Button, DrawerProps, Table } from "antd"
+import { useMemo, useRef, useState, useEffect } from "react"
+import { Button, DrawerProps } from "antd"
 import dayjs, { Dayjs } from "dayjs"
 import { ExportType } from "@/lib/domain/ExportWarehouse/ExportType.enum"
 import { EyeOutlined } from "@ant-design/icons"
 import ExportWarehouse_ViewDetailsDrawer from "@/features/stockkeeper/components/overlay/ExportWarehouse_ViewDetails.drawer"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+
 
 type Query = {
    page: number
@@ -21,8 +22,8 @@ type Query = {
          fixer?: {
             username?: string
          }
-      }
-      export_type?: ExportType
+      };
+      export_type?: ExportType,
    }
 }
 
@@ -35,18 +36,35 @@ type Props = Omit<DrawerProps, "children"> &
       handleClose?: () => void
    }
 
-
 function Page(props: Props) {
    const [tab, setTab] = useState<ExportStatus>(ExportStatus.WAITING)
+   const [exportTypeParam, setExportTypeParam] = useState<ExportType | null>(null);
    const [query, setQuery] = useState<Query>({
       page: 0,
       pageSize: 10,
+      filters: exportTypeParam ? { export_type: exportTypeParam } : undefined, // Áp dụng filter export_type nếu có
    })
 
    const control_exportWarehouseViewDetailsDrawer = useRef<RefType<ExportWarehouse_ViewDetailsDrawerProps>>(null)
 
    const api_exports = stockkeeper_queries.exportWarehouse.all({})
 
+   useEffect(() => {
+      if (typeof window !== "undefined") {
+         const urlParams = new URLSearchParams(window.location.search);
+         const exportType = urlParams.get("export_type") as ExportType | null;
+         setExportTypeParam(exportType);
+      }     
+   }, [exportTypeParam])
+
+   useEffect(() => {
+      if (exportTypeParam) {
+         setQuery((prev) => ({
+            ...prev,
+            filters: { ...prev.filters, export_type: exportTypeParam },
+         }))
+      }
+   }, [exportTypeParam])
    const renderData = useMemo(() => {
       if (!api_exports.isSuccess) return
 
@@ -150,8 +168,6 @@ function Page(props: Props) {
                })
             }}
             onSubmit={(query) => {
-               console.log(query)
-
                setQuery({
                   page: 0,
                   pageSize: 10,
@@ -186,6 +202,9 @@ function Page(props: Props) {
                   valueEnum: {
                      [ExportType.SPARE_PART]: { text: "Linh kiện" },
                      [ExportType.DEVICE]: { text: "Thiết bị" },
+                  },
+                  fieldProps: {
+                     defaultValue: query.filters?.export_type,
                   },
                },
                {

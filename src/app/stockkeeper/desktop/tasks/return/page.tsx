@@ -54,6 +54,7 @@ function Page() {
          const taskData = await Stockkeeper_Task_GetById({ id: scannedResult })
          const deviceId = taskData.device.id // Extract deviceId from the task data
          setScannedResult(deviceId) // Update scannedResult with deviceId
+         
       } catch (error) {
          message.error("Failed to process scanned result.")
          console.error(error)
@@ -87,7 +88,9 @@ function Page() {
             }
          }
       })
-      return result
+      console.log("machineModel:")
+      console.log(api.task.data?.device_renew.machineModel)
+      return result      
    }, [api.task.data?.issues])
 
    return (
@@ -127,6 +130,7 @@ function Page() {
                      {api.task.isSuccess && scannedResult && (
                         <div>
                            {scannedResult === api.task.data.id ? (
+                              <div>
                               <Descriptions
                                  items={[
                                     {
@@ -158,6 +162,29 @@ function Page() {
                                     },
                                  ]}
                               />
+                              <p className="font-bold text-[16px] mt-6">Thông số máy mới</p>
+                              <Descriptions
+                                 items={[
+                                    {
+                                       label: "Mã máy",
+                                       children: api.task.data?.device_renew.machineModel.id,
+                                       span: 3,
+                                    },
+                                    {
+                                       label: "Mẫu máy",
+                                       children: api.task.data?.device_renew.machineModel.name,
+                                    },
+                                    {
+                                       label: "Nhà sản xuất",
+                                       children: api.task.data?.device_renew.machineModel.manufacturer,
+                                    },
+                                    {
+                                       label: "Thời hạn bảo hành",
+                                       children: api.task.data?.device_renew.machineModel.warrantyTerm ? dayjs(api.task.data?.device_renew.machineModel.warrantyTerm).format("DD/MM/YYYY") : "-",
+                                    },
+                                 ]}
+                              />
+                              </div>
                            ) : (
                               <Descriptions
                                  items={[

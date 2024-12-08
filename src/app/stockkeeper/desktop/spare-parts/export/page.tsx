@@ -210,7 +210,7 @@ function Page(props: Props) {
                {
                   title: "Tác vụ",
                   dataIndex: ["task", "name"],
-                  render: (_, e) => e.task.name,
+                  render: (_, e) => e.task?.name,
                   width: 400,
                },
                {

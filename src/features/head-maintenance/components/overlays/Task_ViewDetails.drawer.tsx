@@ -182,34 +182,34 @@ const Task_ViewDetailsDrawer = forwardRef<TaskDetailsDrawerRefType, Props>(funct
    function Footer() {
       if (!task) return null
 
-      if (
-         TaskUtil.hasSpareParts(task) &&
-         task.export_warehouse_ticket?.length === 0 &&
-         task.status === TaskStatus.AWAITING_FIXER
-      ) {
-         return (
-            <Button
-               type="primary"
-               className="w-full"
-               onClick={() => {
-                  mutate_taskCreateExportWarehouse.mutate(
-                     {
-                        taskId: task.id,
-                     },
-                     {
-                        onSuccess: () => {
-                           props.refetchFn?.()
-                           handleClose()
-                        },
-                     },
-                  )
-               }}
-               icon={<Ticket size={24} weight="fill" />}
-            >
-               Yêu cầu xuất kho
-            </Button>
-         )
-      }
+      // if (
+      //    TaskUtil.hasSpareParts(task) &&
+      //    task.export_warehouse_ticket?.length === 0 &&
+      //    task.status === TaskStatus.AWAITING_FIXER
+      // ) {
+      //    return (
+      //       <Button
+      //          type="primary"
+      //          className="w-full"
+      //          onClick={() => {
+      //             mutate_taskCreateExportWarehouse.mutate(
+      //                {
+      //                   taskId: task.id,
+      //                },
+      //                {
+      //                   onSuccess: () => {
+      //                      props.refetchFn?.()
+      //                      handleClose()
+      //                   },
+      //                },
+      //             )
+      //          }}
+      //          icon={<Ticket size={24} weight="fill" />}
+      //       >
+      //          Yêu cầu xuất kho
+      //       </Button>
+      //    )
+      // }
 
       if (
          TaskUtil.hasSpareParts(task) &&

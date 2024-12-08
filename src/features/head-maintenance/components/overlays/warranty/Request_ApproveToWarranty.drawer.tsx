@@ -348,22 +348,13 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
    }
    const [isPriority, setIsPriority] = useState<boolean>(true)
    const [areaId, setAreaId] = useState<String>("")
-<<<<<<< HEAD
-      useEffect(() => {
-=======
    useEffect(() => {
->>>>>>> 407da0c2b65677f2d74aa4c5df57af276cb0bc54
       if (!props.open) {
          form.resetFields()
       }
       if (api_request.data?.device.area.id !== undefined) {
-<<<<<<< HEAD
-         setAreaId(api_request.data.device.area.id);
-       }
-=======
          setAreaId(api_request.data.device.area.id)
       }
->>>>>>> 407da0c2b65677f2d74aa4c5df57af276cb0bc54
       console.log(api_request.data)
       const fetchPriority = async () => {
          axios
@@ -374,21 +365,13 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
             })
             .then((response) => {
                console.log("data trả về")
-<<<<<<< HEAD
-               console.log(response.data.data)  // Output: true or false depending on the server's response.
-=======
                console.log(response.data.data) // Output: true or false depending on the server's response.
->>>>>>> 407da0c2b65677f2d74aa4c5df57af276cb0bc54
                setIsPriority(response.data.data)
             })
             .catch((error) => {
                console.error("Error fetching priority:", error)
             })
-<<<<<<< HEAD
-      }      
-=======
       }
->>>>>>> 407da0c2b65677f2d74aa4c5df57af276cb0bc54
       fetchPriority()
    }, [form, props.open])
 
@@ -498,45 +481,6 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                         </Form.Item>
                      </section>
                   </Form>
-<<<<<<< HEAD
-                  {isPriority ? 
-                  <section>
-                     <div className="mb-3">
-                        <h2 className={"mr-auto flex items-center gap-2 text-lg font-medium"}>
-                           <Laptop size={18} weight="fill" />
-                           Thiết bị thay thế
-                        </h2>
-                        <p className="text-sm text-neutral-500">Chọn thiết bị thay thế tạm thời cho nhân viên</p>
-                     </div>
-                     <div>
-                        {selectedMachineModel ? (
-                           <div className="relative">
-                              <ClickableArea
-                                 block
-                                 className="block rounded-lg border-[1px] border-red-300 bg-red-100"
-                                 type="default"
-                                 reset
-                                 onClick={() => control_pickMachineModelDrawer.current?.handleOpen({})}
-                              >
-                                 <div className="flex gap-3 overflow-hidden">
-                                    <Image
-                                       src={selectedMachineModel.image}
-                                       width={80}
-                                       height={80}
-                                       alt="image"
-                                       className="rounded-l-lg"
-                                    />
-                                    <div className="w-full py-1">
-                                       <h1 className="text-base font-medium">{selectedMachineModel.name}</h1>
-                                       <Space
-                                          split={<Divider type="vertical" className="m-0" />}
-                                          wrap
-                                          className="mt-1 text-xs"
-                                       >
-                                          <div className="flex items-center gap-1">
-                                             <DeviceTablet size={16} weight="duotone" />
-                                             {selectedMachineModel.devices.length}
-=======
                   {isPriority ? (
                      <section>
                         <div className="mb-3">
@@ -586,7 +530,6 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                                           </Space>
                                           <div className="w-full truncate text-xs text-neutral-500">
                                              {selectedMachineModel.description}
->>>>>>> 407da0c2b65677f2d74aa4c5df57af276cb0bc54
                                           </div>
                                        </div>
                                     </div>
@@ -614,37 +557,10 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                               >
                                  Chọn thiết bị
                               </ClickableArea>
-<<<<<<< HEAD
-                              <Button
-                                 type="default"
-                                 icon={<DeleteFilled />}
-                                 className="absolute right-1 top-1"
-                                 danger
-                                 onClick={() => setSelectedMachineModel(null)}
-                              />
-                           </div>
-                        ) : (
-                           <ClickableArea
-                              block
-                              className="border-[1px] border-neutral-500 bg-neutral-100 py-2"
-                              type="dashed"
-                              onClick={() => control_pickMachineModelDrawer.current?.handleOpen({})}
-                              icon={<RightOutlined />}
-                              iconPosition="end"
-                           >
-                              Chọn thiết bị
-                           </ClickableArea>
-                        )}
-                     </div>
-                  </section> 
-                  : null}
-                  
-=======
                            )}
                         </div>
                      </section>
                   ) : null}
->>>>>>> 407da0c2b65677f2d74aa4c5df57af276cb0bc54
                </>
             )}
          </Drawer>

@@ -315,10 +315,10 @@ function Page() {
                         <DoubleRightOutlined className="text-[30px]" />
 
                         <div className="h-[85%] w-[80px]" onClick={() => {
-                     router.push("/admin/task?tab=CANCELLED")
+                     router.push("/admin/task?tab=COMPLETED")
                   }}>
                            <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#04a723] text-[40px] font-bold text-white">
-                              <p>{api_tasks.data?.CANCELLED}</p>
+                              <p>{api_tasks.data?.COMPLETED}</p>
                            </div>
                            <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
                               Đã đóng

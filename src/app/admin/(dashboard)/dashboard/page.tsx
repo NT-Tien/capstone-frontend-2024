@@ -2,7 +2,7 @@
 
 import { PageContainer } from "@ant-design/pro-components"
 import { Button, Card, DatePicker, Divider, Space, Statistic } from "antd"
-import { FilterOutlined, ReloadOutlined } from "@ant-design/icons"
+import { DoubleRightOutlined, FilterOutlined, ReloadOutlined } from "@ant-design/icons"
 import admin_queries from "@/features/admin/queries"
 import { useQuery } from "@tanstack/react-query"
 import Admin_Requests_Dashboard from "@/features/admin/api/request/dashboard.api"
@@ -115,399 +115,296 @@ function Page() {
          ]}
       >
          <section>
-            <Card>
-               <h2 className="text-lg font-semibold">Thống kê yêu cầu</h2>
-            </Card>
-            <div className="mt-3 grid grid-cols-4 gap-3">
-               <Card size="small" className="w-full" onClick={() => router.push("/admin/request")}>
-                  <Statistic
-                     title="Tổng cộng sửa chữa"
-                     value={[
-                        FixRequestStatus.PENDING,
-                        FixRequestStatus.CLOSED,
-                        FixRequestStatus.APPROVED,
-                        FixRequestStatus.IN_PROGRESS,
-                        FixRequestStatus.HEAD_CONFIRM,
-                     ].reduce((acc, status) => {
-                        return acc + (api_requests.data?.[status] ?? 0)
-                     }, 0)}
-                     suffix={<span className="text-sm">yêu cầu</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full"
-                  onClick={() => {
+            <div className="h-[180px] rounded-lg bg-white p-3">
+               <h2 className="mb-2 text-lg font-semibold">
+                  Yêu cầu:{" "}
+                  {[
+                     FixRequestStatus.PENDING,
+                     FixRequestStatus.CLOSED,
+                     FixRequestStatus.APPROVED,
+                     FixRequestStatus.IN_PROGRESS,
+                     FixRequestStatus.HEAD_CONFIRM,
+                  ].reduce((acc, status) => {
+                     return acc + (api_requests.data?.[status] ?? 0)
+                  }, 0)}
+               </h2>
+               <div className="flex h-full justify-between">
+                  <div className="relative flex h-[75%] w-[65%] justify-between rounded-lg border-2 border-dashed border-black px-6 pt-5">
+                     <div className="h-[85%] w-[90px]" onClick={() => {
                      router.push("/admin/request")
-                  }}
-               >
-                  <Statistic
-                     title="Chưa xử lý"
-                     value={api_requests.data?.PENDING}
-                     suffix={<span className="text-sm">yêu cầu</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-green-200"
-                  onClick={() => {
-                     router.push("/admin/request?tab=APPROVED")
-                  }}
-               >
-                  <Statistic
-                     title="Đã xác nhận lỗi"
-                     valueStyle={{
-                        color: "green",
-                     }}
-                     value={api_requests.data?.APPROVED}
-                     suffix={<span className="text-sm">yêu cầu</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-blue-200"
-                  onClick={() => {
-                     router.push("/admin/request?tab=IN_PROGRESS")
-                  }}
-               >
-                  <Statistic
-                     title="Đang sửa chữa"
-                     valueStyle={{
-                        color: "blue",
-                     }}
-                     value={api_requests.data?.IN_PROGRESS}
-                     suffix={<span className="text-sm">yêu cầu</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-yellow-200"
-                  onClick={() => {
-                     router.push("/admin/request?tab=HEAD_CONFIRM")
-                  }}
-               >
-                  <Statistic
-                     title="Chờ đánh giá"
-                     value={api_requests.data?.HEAD_CONFIRM}
-                     suffix={<span className="text-sm">yêu cầu</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-purple-200"
-                  onClick={() => {
-                     router.push("/admin/request?tab=CLOSED")
-                  }}
-               >
-                  <Statistic
-                     valueStyle={{
-                        color: "purple",
-                     }}
-                     title="Đã đóng"
-                     value={api_requests.data?.CLOSED}
-                     suffix={<span className="text-sm">yêu cầu</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-red-200"
-                  onClick={() => {
-                     router.push("/admin/request?tab=REJECTED")
-                  }}
-               >
-                  <Statistic
-                     valueStyle={{
-                        color: "red",
-                     }}
-                     title="Không xử lý"
-                     value={api_requests.data?.REJECTED}
-                     suffix={<span className="text-sm">yêu cầu</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-red-200"
-                  onClick={() => {
-                     router.push("/admin/request?tab=HEAD_CANCEL")
-                  }}
-               >
-                  <Statistic
-                     valueStyle={{
-                        color: "red",
-                     }}
-                     title="Trưởng phòng hủy"
-                     value={api_requests.data?.HEAD_CANCEL}
-                     suffix={<span className="text-sm">yêu cầu</span>}
-                  />
-               </Card>
-            </div>
-         </section>
-         <section className="mt-12">
-            <Card>
-               <h2 className="text-lg font-semibold">Thống kê tác vụ</h2>
-            </Card>
-            <div className="mt-3 grid grid-cols-4 gap-3">
-               <Card
-                  size="small"
-                  className="w-full"
-                  onClick={() => {
-                     router.push("/admin/task")
-                  }}
-               >
-                  <Statistic
-                     title="Tổng cộng sửa chữa"
-                     value={[
-                        TaskStatus.AWAITING_SPARE_SPART,
-                        TaskStatus.AWAITING_FIXER,
-                        TaskStatus.ASSIGNED,
-                        TaskStatus.IN_PROGRESS,
-                        TaskStatus.COMPLETED,
-                        // TaskStatus.CANCELLED,
-                        TaskStatus.HEAD_STAFF_CONFIRM,
-                     ].reduce((acc, status) => {
-                        return acc + (api_tasks.data?.[status] ?? 0)
-                     }, 0)}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-orange-200"
-                  onClick={() => {
-                     router.push("/admin/task?tab=AWAITING_SPARE_SPART")
-                  }}
-               >
-                  <Statistic
-                     valueStyle={{
-                        color: "orange",
-                     }}
-                     title="Chờ linh kiện"
-                     value={api_tasks.data?.AWAITING_SPARE_SPART}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full"
-                  onClick={() => {
-                     router.push("/admin/task?tab=AWAITING_FIXER")
-                  }}
-               >
-                  <Statistic
-                     title="Chưa phân công"
-                     value={api_tasks.data?.AWAITING_FIXER}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-blue-200"
-                  onClick={() => {
-                     router.push("/admin/task?tab=ASSIGNED")
-                  }}
-               >
-                  <Statistic
-                     title="Chưa bắt đầu"
-                     valueStyle={{
-                        color: "blue",
-                     }}
-                     value={api_tasks.data?.ASSIGNED}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-blue-200"
-                  onClick={() => {
-                     router.push("/admin/task?tab=ASSIGNED")
-                  }}
-               >
-                  <Statistic
-                     title="Đã lấy linh kiện/Thiết bị"
-                     valueStyle={{
-                        color: "blue",
-                     }}
-                     value={api_tasks.data?.["spare-part-fetched"]}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-{/* 
-               <Card
-                  size="small"
-                  className="w-full bg-blue-200"
-                  onClick={() => {
-                     router.push("/admin/task?tab=ASSIGNED")
-                  }}
-               >
-                  <Statistic
-                     title="Đã tháo máy cũ"
-                     valueStyle={{
-                        color: "green",
-                     }}
-                     value={api_tasks.data?.["spare-part-fetched"]}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card><Card
-                  size="small"
-                  className="w-full bg-blue-200"
-                  onClick={() => {
-                     router.push("/admin/task?tab=ASSIGNED")
-                  }}
-               >
-                  <Statistic
-                     title="Đã lắp máy mới"
-                     valueStyle={{
-                        color: "yellow",
-                     }}
-                     value={api_tasks.data?.["spare-part-fetched"]}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card> */}
+                  }}>
+                        <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#cc9470] text-[40px] font-bold text-white">
+                           <p>{api_requests.data?.PENDING}</p>
+                        </div>
+                        <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                           Chưa xử lí
+                        </div>
+                     </div>
+                     <DoubleRightOutlined className="text-[30px]" />
 
-               <Card
-                  size="small"
-                  className="w-full bg-purple-200"
-                  onClick={() => {
+                     <div className="h-[85%] w-[90px]" onClick={() => {
+                     router.push("/admin/request?tab=APPROVED")
+                  }}>
+                        <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#87a556] text-[40px] font-bold text-white">
+                           <p>{api_requests.data?.APPROVED}</p>
+                        </div>
+                        <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                           Đã xác nhận
+                        </div>
+                     </div>
+                     <DoubleRightOutlined className="text-[30px]" />
+
+                     <div className="h-[85%] w-[90px]" onClick={() => {
+                     router.push("/admin/request?tab=IN_PROGRESS")
+                  }}>
+                        <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#5eb090] text-[40px] font-bold text-white">
+                           <p>{api_requests.data?.IN_PROGRESS}</p>
+                        </div>
+                        <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                           Đang sửa chữa
+                        </div>
+                     </div>
+                     <DoubleRightOutlined className="text-[30px]" />
+
+                     <div className="h-[85%] w-[90px]"  onClick={() => {
+                     router.push("/admin/request?tab=HEAD_CONFIRM")
+                  }}>
+                        <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#17a56a] text-[40px] font-bold text-white">
+                           <p>{api_requests.data?.HEAD_CONFIRM}</p>
+                        </div>
+                        <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                           Chờ đánh giá
+                        </div>
+                     </div>
+                     <DoubleRightOutlined className="text-[30px]" />
+
+                     <div className="h-[85%] w-[90px]" onClick={() => {
+                     router.push("/admin/request?tab=CLOSED")
+                  }}>
+                        <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#069915] text-[40px] font-bold text-white">
+                           <p>{api_requests.data?.CLOSED}</p>
+                        </div>
+                        <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                           Đã đóng
+                        </div>
+                     </div>
+                     <div className="text-[15px] absolute bottom-[100px] left-1/2 w-[30%] -translate-x-1/2 transform rounded-3xl border-2 border-dashed border-black bg-[#F2DECC] text-center text-center flex flex-col justify-center h-[30px]">
+                        Trong quá trình xử lý
+                     </div>
+                  </div>
+
+                  <div className="relative flex h-[75%] w-[30%] justify-around rounded-lg border-2 border-dashed border-black pt-5">
+                     <div className="h-[85%] w-[90px]"  onClick={() => {
+                     router.push("/admin/request?tab=HEAD_CANCEL")
+                  }}>
+                        <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#bc9e03] text-[40px] font-bold text-white">
+                           <p>{api_requests.data?.HEAD_CANCEL}</p>
+                        </div>
+                        <div className="relative flex h-[30%] justify-center">
+                           <div className="absolute left-1/2 flex h-full w-[120%] -translate-x-1/2 transform items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Trưởng phòng sản xuất nhầm
+                           </div>
+                        </div>
+                     </div>
+
+                     <div className="h-[85%] w-[90px]"  onClick={() => {
+                     router.push("/admin/request?tab=REJECTED")
+                  }}>
+                        <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#eba66e] text-[40px] font-bold text-white">
+                           <p>{api_requests.data?.REJECTED}</p>
+                        </div>
+                        <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                           Đã xử lý được ngay
+                        </div>
+                     </div>
+
+                     <div className="text-[15px] absolute bottom-[100px] left-1/2 w-[60%] -translate-x-1/2 transform rounded-3xl border-2 border-dashed border-black bg-[#Ffe4c0] text-center flex flex-col justify-center h-[30px]">
+                        Có nhầm lẫn / sai sót
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div className="mt-2 h-[365px] rounded-lg bg-white p-3">
+               <h2 className="mb-4 text-lg font-semibold">
+                  Tác vụ:{" "}
+                  {[
+                     TaskStatus.AWAITING_SPARE_SPART,
+                     TaskStatus.AWAITING_FIXER,
+                     TaskStatus.ASSIGNED,
+                     TaskStatus.IN_PROGRESS,
+                     TaskStatus.COMPLETED,
+                     // TaskStatus.CANCELLED,
+                     TaskStatus.HEAD_STAFF_CONFIRM,
+                  ].reduce((acc, status) => {
+                     return acc + (api_tasks.data?.[status] ?? 0)
+                  }, 0)}
+               </h2>
+               <div className="flex h-full justify-between">
+                  <div className="h-[50%] w-[75%]">
+                     <div className="relative flex h-[75%] w-full justify-between rounded-lg border-2 border-dashed border-black px-4 pt-5">
+                        <div className="h-[85%] w-[80px]" onClick={() => {
+                     router.push("/admin/task?tab=AWAITING_SPARE_SPART")
+                  }}>
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#d0b83c] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.AWAITING_SPARE_SPART}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Chờ linh kiện
+                           </div>
+                        </div>
+                        <DoubleRightOutlined className="text-[30px]" />
+
+                        <div className="h-[85%] w-[80px]" onClick={() => {
+                     router.push("/admin/task?tab=AWAITING_FIXER")
+                  }}>
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#d7c668] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.AWAITING_FIXER}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[95%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Chưa phân công
+                           </div>
+                        </div>
+                        <DoubleRightOutlined className="text-[30px]" />
+
+                        <div className="h-[85%] w-[80px]" onClick={() => {
+                     router.push("/admin/task?tab=ASSIGNED")
+                  }}>
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#96c256] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.ASSIGNED}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Chưa bắt đầu
+                           </div>
+                        </div>
+                        <DoubleRightOutlined className="text-[30px]" />
+
+                        <div className="h-[85%] w-[80px]"  onClick={() => {
+                     router.push("/admin/task?tab=ASSIGNED")
+                  }}>
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#79be43] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.["spare-part-fetched"]}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Đã lấy linh kiện
+                           </div>
+                        </div>
+                        <DoubleRightOutlined className="text-[30px]" />
+
+                        <div className="h-[85%] w-[80px]"  onClick={() => {
                      router.push("/admin/task?tab=IN_PROGRESS")
-                  }}
-               >
-                  <Statistic
-                     valueStyle={{
-                        color: "purple",
-                     }}
-                     title="Đang thực hiện"
-                     value={api_tasks.data?.IN_PROGRESS}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-amber-200"
-                  onClick={() => {
+                  }}>
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#5ac535] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.IN_PROGRESS}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Đang thực hiện
+                           </div>
+                        </div>
+                        <DoubleRightOutlined className="text-[30px]" />
+
+                        <div className="h-[85%] w-[80px]" onClick={() => {
                      router.push("/admin/task?tab=HEAD_STAFF_CONFIRM")
-                  }}
-               >
-                  <Statistic
-                     valueStyle={
-                        {
-                           // color: "",
-                        }
-                     }
-                     title="Chờ kiểm tra"
-                     value={api_tasks.data?.HEAD_STAFF_CONFIRM}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-red-200"
-                  onClick={() => {
+                  }}>
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#48b55c] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.HEAD_STAFF_CONFIRM}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Chờ kiểm tra
+                           </div>
+                        </div>
+                        <DoubleRightOutlined className="text-[30px]" />
+
+                        <div className="h-[85%] w-[80px]" onClick={() => {
                      router.push("/admin/task?tab=CANCELLED")
-                  }}
-               >
-                  <Statistic
-                     valueStyle={{
-                        color: "red",
-                     }}
-                     title="Đã hủy"
-                     value={api_tasks.data?.CANCELLED}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-green-200"
-                  onClick={() => {
-                     router.push("/admin/task?tab=COMPLETED")
-                  }}
-               >
-                  <Statistic
-                     valueStyle={{
-                        color: "green",
-                     }}
-                     title="Đã Đóng"
-                     value={api_tasks.data?.COMPLETED}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-green-200"
-               >
-                  <Statistic
-                     valueStyle={{
-                        color: "green",
-                     }}
-                     title="Thu hồi thiết bị cũ"
-                     value={api_tasks.data?.["uninstall-device-old-already-and-move-to-stock"]}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-green-200"
-               >
-                  <Statistic
-                     valueStyle={{
-                        color: "green",
-                     }}
-                     title="Gỡ thiết bị đi bảo hành"
-                     value={api_tasks.data?.["uninstall-device-already-and-move-to-warranty"]}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-green-200"
-               >
-                  <Statistic
-                     valueStyle={{
-                        color: "green",
-                     }}
-                     title="Gỡ thiết bị tạm vào kho"
-                     value={api_tasks.data?.["uninstall-device-waiter-already-and-move-to-stock"]}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-green-200"
-               >
-                  <Statistic
-                     valueStyle={{
-                        color: "green",
-                     }}
-                     title="Lắp thiết bị bảo hành"
-                     value={api_tasks.data?.["install-device-warranted-already"]}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-green-200"
-               >
-                  <Statistic
-                     valueStyle={{
-                        color: "green",
-                     }}
-                     title="Lắp thiết bị tạm"
-                     value={api_tasks.data?.["install-device-waiter-already"]}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
-               <Card
-                  size="small"
-                  className="w-full bg-green-200"
-               >
-                  <Statistic
-                     valueStyle={{
-                        color: "green",
-                     }}
-                     title="Lắp thiết bị đã có trong kho"
-                     value={api_tasks.data?.["install-device-already-from-stock"]}
-                     suffix={<span className="text-sm">Tác vụ</span>}
-                  />
-               </Card>
+                  }}>
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#04a723] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.CANCELLED}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Đã đóng
+                           </div>
+                        </div>
+                        <div className="absolute bottom-[115px] left-1/2 w-[30%] -translate-x-1/2 transform rounded-3xl border-2 border-dashed border-black bg-[#F2DECC] text-center text-center flex flex-col justify-center h-[25px]">
+                           Trong quá trình xử lý
+                        </div>
+                     </div>
+
+
+                     <div className="mt-8 relative flex h-[75%] w-full justify-between rounded-lg border-2 border-dashed border-black px-4 pt-5">
+                        <div className="h-[85%] w-[80px]">
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#e9928e] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.["uninstall-device-old-already-and-move-to-stock"]}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Thu hồi thiết bị cũ
+                           </div>
+                        </div>
+
+                        <div className="h-[85%] w-[80px]">
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#e9928e] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.["uninstall-device-already-and-move-to-warranty"]}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[95%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Gỡ thiết bị đi bảo hành
+                           </div>
+                        </div>
+
+                        <div className="h-[85%] w-[80px]">
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#e9928e] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.["uninstall-device-waiter-already-and-move-to-stock"]}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Gỡ thiết bị tạm vào kho
+                           </div>
+                        </div>
+
+                        <div className="h-[85%] w-[80px]">                           
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#e9928e] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.["install-device-warranted-already"]}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Lắp thiết bị bảo hành
+                           </div>
+                        </div>
+
+                        <div className="h-[85%] w-[80px]">
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#e9928e] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.["install-device-waiter-already"]}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Lắp thiết bị tạm
+                           </div>
+                        </div>
+
+                        <div className="h-[85%] w-[80px]">
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#e9928e] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.["install-device-already-from-stock"]}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Sửa thiết bị trong kho
+                           </div>
+                        </div>                       
+                        <div className="absolute bottom-[115px] left-1/2 w-[30%] -translate-x-1/2 transform rounded-3xl bg-[#Ffe4c0] text-center flex flex-col justify-center h-[25px]">
+                           Ngoại lệ
+                        </div>
+                     </div>
+                  </div>
+                  <div className="relative flex h-[85%] w-[24%] justify-around rounded-lg border-2 border-dashed border-black pt-5">
+                     <div className="h-[85%] w-[90px] flex flex-col justify-center">
+                        <div className="flex h-[35%] w-[100%] items-center justify-center rounded-lg bg-[#bc9e03] text-[40px] font-bold text-white">
+                           <p>01</p>
+                        </div>
+                        <div className="relative flex h-[30%] justify-center">
+                           <div className="absolute left-1/2 flex h-[35%] w-[90%] -translate-x-1/2 transform items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Đã hủy
+                           </div>
+                        </div>
+                     </div>
+                     <div className="absolute bottom-[275px] left-1/2 w-[60%] -translate-x-1/2 transform rounded-3xl bg-[#F07c5d] text-center flex flex-col justify-center h-[30px]">
+                        Bị hủy
+                     </div>
+                  </div>
+               </div>
             </div>
          </section>
       </PageContainer>

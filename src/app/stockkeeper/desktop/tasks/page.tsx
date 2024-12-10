@@ -15,6 +15,7 @@ import { stockkeeper_qk } from "../../../../features/stockkeeper/api/qk"
 import { Tag } from "antd"
 import Stockkeeper_Task_AllSearch, { type Request } from "../../../../features/stockkeeper/api/task/all-search.api"
 import { TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
+import TaskDetailsDrawer from "@/features/stockkeeper/components/overlay/TaskDetails.drawer"
 
 const values = {
    nameSingle: "tác vụ",
@@ -28,6 +29,18 @@ const values = {
 
 export default function DevicesListPage() {
    const router = useRouter()
+   const [selectedTask, setSelectedTask] = useState<TaskDto | null>(null)
+   const [isDrawerVisible, setDrawerVisible] = useState(false)
+
+   const openDrawer = (task: TaskDto) => {
+      setSelectedTask(task)
+      setDrawerVisible(true)
+   }
+
+   const closeDrawer = () => {
+      setSelectedTask(null)
+      setDrawerVisible(false)
+   }
 
    const [query, setQuery] = useState<Request>({
       page: 1,
@@ -182,7 +195,7 @@ export default function DevicesListPage() {
                   render: (_, record) => (
                      <a
                         onClick={() => {
-                           router.push(`/stockkeeper/desktop/tasks/scan?taskid=${record.id}`)
+                           openDrawer(record)
                         }}
                      >
                         {record.name}
@@ -259,7 +272,7 @@ export default function DevicesListPage() {
                   dataIndex: "totalTime",
                   valueType: "text",
                   width: 150,
-                  render: (_, record) => record.totalTime + " phút" ?? "-",
+                  render: (_, record) => (record.totalTime ? " phút" : "-"),
                   sorter: true,
                },
                {
@@ -297,6 +310,7 @@ export default function DevicesListPage() {
                },
             ]}
          />
+         <TaskDetailsDrawer visible={isDrawerVisible} onClose={closeDrawer} task={selectedTask} />
       </PageContainer>
    )
 }

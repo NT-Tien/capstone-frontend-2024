@@ -4,16 +4,18 @@ import stockkeeper_mutations from "@/features/stockkeeper/mutations"
 import stockkeeper_queries from "@/features/stockkeeper/queries"
 import { ExportType } from "@/lib/domain/ExportWarehouse/ExportType.enum"
 import dayjs from "dayjs"
-import { useMemo, useRef } from "react"
+import { useMemo, useRef, useState } from "react"
 import IssueSparePartUtil from "@/lib/domain/IssueSparePart/IssueSparePart.util"
 import { cn } from "@/lib/utils/cn.util"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import ExportWarehouse_DelayModal from "@/features/stockkeeper/components/overlay/ExportWarehouse_DelayModal"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
-import DeviceUtil from "@/lib/domain/Device/Device.util"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import { ExportStatusMapper } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
+import { stockkeeper_qk } from "../../api/qk"
+import Stockkeeper_SparePart_All, { type Request } from "../../api/spare-part/all.api"
+import { useQuery } from "@tanstack/react-query"
 
 type ExportWarehouse_ViewDetailsDrawerProps = {
    id?: string
@@ -40,6 +42,13 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
          enabled: !!props.id,
       },
    )
+
+   const api_spareParts = useQuery({
+      queryKey: stockkeeper_qk.sparePart.all({ page: 1, limit: 100 }),
+      queryFn: () => Stockkeeper_SparePart_All({ page: 1, limit: 100 }),
+   })
+
+   const sparePartsData = api_spareParts.data?.list ?? [];
 
    const api_export_renew = stockkeeper_queries.exportWarehouse.exportRenew(
       { id: api_export.data?.id ?? "" },
@@ -168,22 +177,26 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
                              <List
                                 dataSource={uniqueSpareParts}
                                 renderItem={(item, index) => {
-                                   const notEnoughInWarehouse = item.quantity > item.sparePart.quantity
-                                   console.log(item.quantity);
-                                   console.log(item.sparePart.quantity);
-                                   
+                                 const matchingSparePart = sparePartsData.find(
+                                    (sparePart) => sparePart.id === item.sparePart.id
+                                 );
+                                   const notEnoughInWarehouse =
+                                   matchingSparePart && item.quantity > matchingSparePart.quantity;
+                                   console.log(item.quantity)
+                                   console.log(matchingSparePart && matchingSparePart.quantity)
+
                                    return (
                                       <List.Item className={cn(index === 0 && "pt-0")}>
                                          <List.Item.Meta
                                             title={item.sparePart.name}
-                                          //   description={
-                                          //      <div className={"flex items-center justify-between gap-2"}>
-                                          //         <div>x{item.quantity}</div>
-                                          //         {notEnoughInWarehouse && (
-                                          //            <Tag color={"red-inverse"}>Không đủ trong kho</Tag>
-                                          //         )}
-                                          //      </div>
-                                          //   }
+                                            description={
+                                               <div className={"flex items-center justify-between gap-2"}>
+                                                  <div>x{item.quantity}</div>
+                                                  {notEnoughInWarehouse && (
+                                                     <Tag color={"red-inverse"}>Không đủ trong kho</Tag>
+                                                  )}
+                                               </div>
+                                            }
                                          />
                                       </List.Item>
                                    )

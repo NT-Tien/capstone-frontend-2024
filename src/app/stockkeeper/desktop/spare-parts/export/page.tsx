@@ -256,9 +256,9 @@ function Page(props: Props) {
                            <Button
                               type={"text"}
                               icon={<EyeOutlined />}
-                              onClick={() => control_exportWarehouseViewDetailsDrawer.current?.handleOpen({ id: "69a43517-20de-46f9-9efc-2836de502183" })}
+                              onClick={() => control_exportWarehouseViewDetailsDrawer.current?.handleOpen({ id: e.id })}
                            >
-                              {e.id}
+                              Chi tiết
                            </Button>
                         </div>
                      )

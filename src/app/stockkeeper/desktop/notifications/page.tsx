@@ -52,8 +52,10 @@ function Page() {
    const handleClick = (item: any) => {
       if (item.title === "Nhập mới linh kiện") {
          window.location.href = "/stockkeeper/desktop/spare-parts/missing?current=1&pageSize=10";
-      } else if (item.title === "Tác vụ mới" || item.title === "Xác nhận xuất thiết bị/ linh kiện") {
+      } else if (item.title === "Xác nhận xuất thiết bị/ linh kiện") {
          window.location.href = "/stockkeeper/desktop/tasks/scan?taskid=" + item.data.taskId;
+      } else if (item.title === "Tác vụ mới") {
+         window.location.href = "/stockkeeper/desktop/spare-parts/export?ticketid=" + item.data.ticketId;
       }
    }
    return (

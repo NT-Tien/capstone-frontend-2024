@@ -76,7 +76,7 @@ function Issue_Resolve_InstallDrawer(props: Props) {
                type="primary"
                size="large"
                icon={<EditOutlined />}
-               disabled={!props.issue}
+               disabled={!props.issue || uploadImages.length === 0}
                onClick={() => props.issue && handleSubmit(uploadImages, uploadVideo.length > 0 ? uploadVideo[0] : undefined, props.issue.id)}
             >
                Cập nhật

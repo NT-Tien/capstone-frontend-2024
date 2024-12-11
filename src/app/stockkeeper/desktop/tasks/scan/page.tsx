@@ -8,9 +8,9 @@ import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.en
 import { cn } from "@/lib/utils/cn.util"
 import AlertCard from "@/components/AlertCard"
 import DesktopScannerDrawer from "@/components/overlays/DesktopScanner.drawer"
-import { PageContainer } from "@ant-design/pro-components"
+import { PageContainer, ProTable } from "@ant-design/pro-components"
 import { useMutation, useQueries } from "@tanstack/react-query"
-import { Button, Descriptions, message, App, Table, Dropdown, List, Tag } from "antd"
+import { Button, Descriptions, message, App, Table, Dropdown, List, Tag, Checkbox } from "antd"
 import dayjs from "dayjs"
 import { useState, useRef, useMemo } from "react"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
@@ -26,6 +26,7 @@ import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
 import stockkeeper_mutations from "@/features/stockkeeper/mutations"
+import Stockkeeper_MachineModel_GetById from "@/features/stockkeeper/api/machine-model/getById.api"
 
 function Page({ searchParams }: { searchParams: { taskid?: string } }) {
    const { message } = App.useApp()
@@ -59,6 +60,21 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
          },
       }),
    })
+
+   const api_machineModel = useQueries({
+      queries: [
+         {
+            queryKey: stockkeeper_qk.machineModel.one_byId(api.task.data?.device_renew.machineModel.id ?? ""),
+            queryFn: () => Stockkeeper_MachineModel_GetById({ id: api.task.data?.device_renew.machineModel.id ?? "" }),
+            enabled: !!api.task.data?.device_renew.machineModel.id,
+         },
+      ],
+   })
+   const [selectedDevices, setSelectedDevices] = useState<string[]>([])
+
+   const handleCheckboxChange = (deviceId: string, checked: boolean) => {
+      setSelectedDevices((prev) => (checked ? [...prev, deviceId] : prev.filter((id) => id !== deviceId)))
+   }
 
    const lazy_spareParts = useMemo(() => {
       const returnValue: {
@@ -151,6 +167,30 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
    const isNotRenew = useMemo(() => {
       return !api.task.data?.device_renew
    }, [api.task.data?.device_renew])
+
+   const data = [
+      ...(api.task.data?.device_renew
+         ? [
+              {
+                 id: api.task.data.device_renew.id,
+                 name: (
+                    <>
+                       {api.task.data.device_renew.deviceCode}{" "}
+                       <Tag color="green">Đề xuất</Tag>
+                    </>
+                 ),
+                 manufacturer: api.task.data.device_renew.operationStatus,
+              },
+           ]
+         : []),
+      ...(api_machineModel[0].data?.devices || [])
+         .filter((device) => device.positionX === null && device.positionY === null)
+         .map((device) => ({
+            id: device.id,
+            name: device.deviceCode,
+            manufacturer: device.operationStatus,
+         })),
+   ]
    console.log("taskStatus: ", api.task.data?.status)
 
    console.log("isNotRenew: ", isNotRenew)
@@ -463,29 +503,106 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                                    tab: "Thiết bị mới",
                                    key: "device-renew",
                                    children: (
-                                      <Descriptions
-                                         items={[
-                                            {
-                                               label: "Tên thiết bị",
-                                               children: (
-                                                  <div
-                                                     onClick={() => {
-                                                        api.task.data &&
-                                                           window.navigator.clipboard.writeText(
-                                                              api.task.data.device_renew.id,
-                                                           )
-                                                     }}
-                                                  >
-                                                     {api.task.data.device_renew.machineModel.name}
-                                                  </div>
-                                               ),
-                                            },
-                                            {
-                                               label: "Nhà sản xuất",
-                                               children: api.task.data.device_renew.machineModel.manufacturer,
-                                            },
-                                         ]}
-                                      />
+                                      <>
+                                         <Descriptions
+                                            items={[
+                                               {
+                                                  label: "Tên thiết bị",
+                                                  children: (
+                                                     <div
+                                                        onClick={() => {
+                                                           api.task.data &&
+                                                              window.navigator.clipboard.writeText(
+                                                                 api.task.data.device_renew.id,
+                                                              )
+                                                        }}
+                                                     >
+                                                        {api.task.data.device_renew.machineModel.name}
+                                                     </div>
+                                                  ),
+                                               },
+                                               {
+                                                  label: "Nhà sản xuất",
+                                                  children: api.task.data.device_renew.machineModel.manufacturer,
+                                               },
+                                               {
+                                                  label: "Số lượng mũi khâu",
+                                                  children: api.task.data.device_renew.machineModel.needleType,
+                                               },
+                                               {
+                                                  label: "Tốc độ mũi khâu (spm)",
+                                                  children: api.task.data.device_renew.machineModel.speed,
+                                               },
+                                               {
+                                                  label: "Công suất",
+                                                  children: api.task.data.device_renew.machineModel.power,
+                                               },
+                                               {
+                                                  label: "Độ rộng mũi kim",
+                                                  children: api.task.data.device_renew.machineModel.stitch,
+                                               },
+                                               {
+                                                  label: "Độ cao chân vịt",
+                                                  children: api.task.data.device_renew.machineModel.presser,
+                                               },
+                                               {
+                                                  label: "Cuốn suốt tự động",
+                                                  children: api.task.data.device_renew.machineModel.lubrication,
+                                               },
+                                               {
+                                                  label: "Điện áp",
+                                                  children: api.task.data.device_renew.machineModel.voltage,
+                                               },
+                                               {
+                                                  label: "Chất liệu vải may",
+                                                  children: api.task.data.device_renew.machineModel.fabric,
+                                               },
+                                               {
+                                                  label: "Kích thước",
+                                                  children: api.task.data.device_renew.machineModel.size,
+                                               },
+                                               {
+                                                  label: "Tính năng đặc biệt",
+                                                  children: api.task.data.device_renew.machineModel.features,
+                                               },
+                                               {
+                                                  label: "Mô tả",
+                                                  children: api.task.data.device_renew.machineModel.description,
+                                               },
+                                            ]}
+                                         />
+                                         <div className="mt-5">
+                                            <h2 className="mb-2 text-lg font-semibold">Chọn thiết bị mới</h2>
+                                            <ProTable
+                                               rowKey="id"
+                                               columns={[
+                                                  {
+                                                     //   title: "Chọn",
+                                                     dataIndex: "id",
+                                                     render: (id) => (
+                                                        <Checkbox
+                                                        //   checked={selectedDevices.includes(id)}
+                                                        //   onChange={(e) => handleCheckboxChange(id, e.target.checked)}
+                                                        />
+                                                     ),
+                                                  },
+                                                  {
+                                                     title: "Mã số thiết bị",
+                                                     dataIndex: "name",
+                                                  },
+                                                  {
+                                                     title: "Thông số kỹ thuật",
+                                                     dataIndex: "manufacturer",
+                                                     width: 100,
+                                                  },
+                                               ]}
+                                               dataSource={data}
+                                               pagination={false}
+                                               search={false}
+                                               options={false}
+                                            />
+                                         </div>
+                                      </>
                                    ),
                                 },
                              ]

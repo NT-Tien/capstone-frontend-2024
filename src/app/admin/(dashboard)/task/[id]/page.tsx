@@ -14,6 +14,8 @@ import Button from "antd/es/button"
 import { FixRequest_StatusMapper } from "@/lib/domain/Request/RequestStatus.mapper"
 import SparePartsListByIssuesSection from "@/features/admin/components/sections/SparePartsListByIssues.section"
 import { clientEnv } from "@/env"
+import { ExportStatus, ExportStatusMapper } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
+import { TaskDto } from "@/lib/domain/Task/Task.dto"
 
 function Page({ params }: { params: { id: string } }) {
    const api_task = admin_queries.task.one({ id: params.id })
@@ -86,6 +88,15 @@ function Page({ params }: { params: { id: string } }) {
                         dataIndex: "updatedAt",
                         valueType: "date",
                         render: (_, e) => dayjs(e.updatedAt).format("DD/MM/YYYY HH:mm"),
+                     },
+                     {
+                        title: "Đơn xuất kho",
+                        dataIndex: ["export_warehouse_ticket", "status"],
+                        render: (_, entity: TaskDto) => {
+                           const status = entity.export_warehouse_ticket?.[0]?.status
+                           const exportStatus = ExportStatusMapper(status)
+                           return exportStatus ? <Tag color={exportStatus.color}>{exportStatus.text}</Tag> : "-"
+                        },
                      },
                   ]}
                />

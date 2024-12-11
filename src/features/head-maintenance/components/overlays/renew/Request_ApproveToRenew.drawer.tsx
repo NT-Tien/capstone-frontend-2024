@@ -198,7 +198,6 @@ function Request_ApproveToRenewDrawer(props: Props) {
                               }}
                               onClick={() => {
                                  setSelectedMachineModel(mm)
-                                 handleOpenModal(mm)
                               }}
                            >
                               <Tag color="green" className="absolute left-2 top-2">

@@ -103,7 +103,7 @@ function FinishTaskDrawer(props: Props) {
                         disabled={!signatureVerification || !imagesVerification.length}
                      />
                      <label htmlFor="sign" className={"font-bold"}>
-                        Tối muốn hoàn thành tác vụ này
+                        Tôi muốn hoàn thành tác vụ này
                      </label>
                   </div>
                   <Button

@@ -55,7 +55,6 @@ function Page() {
          const taskData = await Stockkeeper_Task_GetById({ id: scannedResult })
          const deviceId = taskData.device.id // Extract deviceId from the task data
          setScannedResult(deviceId) // Update scannedResult with deviceId
-         
       } catch (error) {
          message.error("Failed to process scanned result.")
          console.error(error)

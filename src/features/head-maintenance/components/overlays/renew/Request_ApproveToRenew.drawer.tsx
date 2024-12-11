@@ -7,6 +7,8 @@ import { CloseOutlined, MoreOutlined, SearchOutlined } from "@ant-design/icons"
 import { DeviceTablet, Factory, Swap } from "@phosphor-icons/react"
 import { App, Button, Card, Divider, Drawer, DrawerProps, Image, Input, Modal, Radio, Space, Spin, Tag } from "antd"
 import dayjs from "dayjs"
+import { App, Button, Card, Divider, Drawer, DrawerProps, Image, Input, Modal, Radio, Space, Spin, Tag } from "antd"
+import dayjs from "dayjs"
 import { useMemo, useState } from "react"
 
 type Query = {
@@ -100,6 +102,16 @@ function Request_ApproveToRenewDrawer(props: Props) {
       })
    }
 
+   const [isModalVisible, setIsModalVisible] = useState(false)
+
+   const handleOpenModal = (model: MachineModelDto) => {
+      setSelectedMachineModel(model)
+      setIsModalVisible(true)
+   }
+
+   const handleCloseModal = () => {
+      setIsModalVisible(false)
+   }
    const [isModalVisible, setIsModalVisible] = useState(false)
 
    const handleOpenModal = (model: MachineModelDto) => {

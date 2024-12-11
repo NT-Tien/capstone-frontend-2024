@@ -16,5 +16,6 @@ export const stockkeeper_qk = {
    machineModel: {
       base: ["stockkeeper", "machine-model"],
       all: ["stockkeeper", "machine-model", "all"],
+      one_byId: (id: string) => ["stockkeeper", "machine-model", "one_byId", id,]
    },
 }

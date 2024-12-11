@@ -1,14 +1,12 @@
 "use client"
 
+import ClickableArea from "@/components/ClickableArea"
 import PageHeaderV2 from "@/components/layout/PageHeaderV2"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import FinishTaskDrawer, { FinishTaskDrawerProps } from "@/features/staff/components/overlays/FinishTask.drawer"
 import QrCodeDisplayForRenewModal, {
    QrCodeDisplayForRenewModalRefType,
 } from "@/features/staff/components/overlays/renew/QrCodeDisplayForRenew.modal"
-import ReturnSparePartDrawer, {
-   ReturnSparePartDrawerProps,
-} from "@/features/staff/components/overlays/ReturnSparePart.drawer"
 import IssueViewDetails_WarrantyDrawer, {
    IssueViewDetails_WarrantyDrawerProps,
 } from "@/features/staff/components/overlays/warranty/IssueViewDetails_Warranty.drawer"
@@ -20,11 +18,10 @@ import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { TaskType } from "@/lib/domain/Task/Task.dto"
 import TaskUtil from "@/lib/domain/Task/Task.util"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
-import useRunOnceOnStart from "@/lib/hooks/useRunOnceOnStart"
 import { cn } from "@/lib/utils/cn.util"
-import { RightOutlined } from "@ant-design/icons"
+import { CheckOutlined, CloseOutlined, RightOutlined } from "@ant-design/icons"
 import { Calendar, ChartDonut, Clock, Gear, User } from "@phosphor-icons/react"
-import { Avatar, Button, Card, ConfigProvider, Descriptions, Divider, Space, Steps } from "antd"
+import { Avatar, Button, Card, Descriptions, Divider, Space, Steps } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef } from "react"
@@ -46,31 +43,6 @@ function Page({ params }: { params: { id: string } }) {
 
    const issues = useMemo(() => {
       return TaskUtil.getTask_Warranty_IssuesOrdered(api_task.data)
-   }, [api_task.data])
-
-   const shouldReturnDevice = useMemo(() => {
-      return (
-         api_task.data?.request.is_replacement_device &&
-         !!issues?.find((i) => i.typeError.id === DismantleReplacementDeviceTypeErrorId)
-      )
-   }, [issues, api_task.data])
-
-   const renewDevice = useMemo(() => {
-      const warrantySendTask = api_task.data?.request.tasks.find(
-         (t) => t.type === TaskType.WARRANTY_RECEIVE && t.status === TaskStatus.COMPLETED,
-      )
-      return warrantySendTask?.device_renew
-   }, [api_task.data])
-
-   console.log("------------->", renewDevice)
-
-   const hasReturnedDevice = useMemo(() => {
-      const warrantySendTask = api_task.data?.request.tasks.find(
-         (t) => t.type === TaskType.WARRANTY_RECEIVE && t.status === TaskStatus.COMPLETED,
-      )
-      const device_renew = warrantySendTask?.device_renew
-
-      return device_renew?.status === false
    }, [api_task.data])
 
    useEffect(() => {
@@ -206,58 +178,76 @@ function Page({ params }: { params: { id: string } }) {
                   </p>
                </header>
                <div>
-                  <Steps
-                     // current={(function () {
-                     //    if (
-                     //       firstIssue?.status === IssueStatusEnum.PENDING ||
-                     //       firstIssue?.status === IssueStatusEnum.FAILED
-                     //    )
-                     //       return 0
-                     //    return 1
-                     // })()}
-                     // status={(function () {
-                     //    if (firstIssue?.status === IssueStatusEnum.PENDING) return "process"
-                     //    if (firstIssue?.status === IssueStatusEnum.FAILED) return "error"
-                     //    if (firstIssue?.status === IssueStatusEnum.CANCELLED) return "error"
+                  <div className="flex flex-col shadow-sm">
+                     {issues?.map((i, index, array) => {
+                        const isCurrentIssue =
+                           (array[index - 1]?.status === IssueStatusEnum.RESOLVED || array[index - 1] === undefined) &&
+                           (array[index + 1]?.status === IssueStatusEnum.PENDING || array[index + 1] === undefined) &&
+                           i.status === IssueStatusEnum.PENDING
 
-                     //    if (secondIssue?.status === IssueStatusEnum.PENDING) return "process"
-                     //    if (secondIssue?.status === IssueStatusEnum.FAILED) return "error"
-                     //    if (secondIssue?.status === IssueStatusEnum.CANCELLED) return "error"
+                        const isResolvedIssue = i.status === IssueStatusEnum.RESOLVED
+                        const isFailedIssue = i.status === IssueStatusEnum.FAILED
 
-                     //    return "finish"
-                     // })()}
-                     current={
-                        issues?.indexOf(issues?.find((i) => i.status === IssueStatusEnum.RESOLVED) ?? issues[0]) ?? 0
-                     }
-                     className="steps-title-w-full"
-                     items={issues?.map((i, index, array) => ({
-                        className: cn(i?.status !== IssueStatusEnum.PENDING && "opacity-50"),
-                        title: (
-                           <div className="flex w-full justify-between">
-                              <div
+                        const isUpcomingIssue = array[index - 1]?.status === IssueStatusEnum.PENDING && !isCurrentIssue
+
+                        return (
+                           <>
+                              <ClickableArea
+                                 reset
+                                 key={i.id}
                                  className={cn(
-                                    "text-base font-semibold",
-                                    i?.status !== IssueStatusEnum.PENDING && "line-through",
+                                    "flex items-start justify-start gap-3 px-3 py-3",
+                                    index === 0 && "rounded-t-lg",
+                                    index === array.length - 1 && "rounded-b-lg",
+                                    isUpcomingIssue && "opacity-30",
+                                    isResolvedIssue && "bg-green-100 opacity-70",
                                  )}
+                                 onClick={() =>
+                                    api_task.isSuccess &&
+                                    control_issueViewDetails_WarrantyDrawer.current?.handleOpen({
+                                       issue: i,
+                                       machineModel: api_task.data.device.machineModel,
+                                       request: api_task.data.request,
+                                       task: api_task.data,
+                                       isDisabled: isUpcomingIssue,
+                                    })
+                                 }
                               >
-                                 {i?.typeError.name}
-                              </div>
-                              <RightOutlined className="text-sm" />
-                           </div>
-                        ),
-                        description: <div className="text-sm">{i?.typeError.description}</div>,
-                        onClick: () => {
-                           api_task.isSuccess &&
-                              control_issueViewDetails_WarrantyDrawer.current?.handleOpen({
-                                 issue: i,
-                                 machineModel: api_task.data.device.machineModel,
-                                 request: api_task.data.request,
-                                 task: api_task.data,
-                                 isDisabled: array[index - 1]?.status === IssueStatusEnum.PENDING,
-                              })
-                        },
-                     }))}
-                  />
+                                 <div
+                                    className={cn(
+                                       "grid size-7 flex-shrink-0 place-items-center rounded-full bg-neutral-300 text-sm font-medium text-white",
+                                       isResolvedIssue && "bg-green-500",
+                                       isCurrentIssue && "bg-orange-500",
+                                    )}
+                                 >
+                                    {isResolvedIssue && <CheckOutlined />}
+                                    {isFailedIssue && <CloseOutlined />}
+                                    {(isUpcomingIssue || isCurrentIssue) && index + 1}
+                                 </div>
+                                 <main className="pt-0.5">
+                                    <header className="flex gap-3">
+                                       <h2
+                                          className={cn(
+                                             "mr-auto line-clamp-1 whitespace-pre-wrap text-base font-bold",
+                                             isResolvedIssue && "text-green-500 line-through",
+                                          )}
+                                       >
+                                          {i.typeError.name}
+                                       </h2>
+                                       <RightOutlined
+                                          className={cn("text-sm text-orange-500", isResolvedIssue && "text-green-500")}
+                                       />
+                                    </header>
+                                    <p className="mt-1 whitespace-pre-wrap text-sm text-neutral-400">
+                                       {i.typeError.description}
+                                    </p>
+                                 </main>
+                              </ClickableArea>
+                              {index !== array.length - 1 && <Divider className="m-0" />}
+                           </>
+                        )
+                     })}
+                  </div>
                </div>
             </section>
 

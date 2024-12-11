@@ -9,7 +9,9 @@ export type Request = {
    id: string
    payload: {
       note: string
-      replacement_machineModel_id?: string
+      initial_video: string
+      initial_images: string[];
+      replacement_device_id?: string
       isMultiple?: boolean
    }
 } & AuthTokenWrapper

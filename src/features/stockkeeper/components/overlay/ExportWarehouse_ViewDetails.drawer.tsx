@@ -169,18 +169,21 @@ function ExportWarehouse_ViewDetailsDrawer(props: Props) {
                                 dataSource={uniqueSpareParts}
                                 renderItem={(item, index) => {
                                    const notEnoughInWarehouse = item.quantity > item.sparePart.quantity
+                                   console.log(item.quantity);
+                                   console.log(item.sparePart.quantity);
+                                   
                                    return (
                                       <List.Item className={cn(index === 0 && "pt-0")}>
                                          <List.Item.Meta
                                             title={item.sparePart.name}
-                                            description={
-                                               <div className={"flex items-center justify-between gap-2"}>
-                                                  <div>x{item.quantity}</div>
-                                                  {notEnoughInWarehouse && (
-                                                     <Tag color={"red-inverse"}>Không đủ trong kho</Tag>
-                                                  )}
-                                               </div>
-                                            }
+                                          //   description={
+                                          //      <div className={"flex items-center justify-between gap-2"}>
+                                          //         <div>x{item.quantity}</div>
+                                          //         {notEnoughInWarehouse && (
+                                          //            <Tag color={"red-inverse"}>Không đủ trong kho</Tag>
+                                          //         )}
+                                          //      </div>
+                                          //   }
                                          />
                                       </List.Item>
                                    )

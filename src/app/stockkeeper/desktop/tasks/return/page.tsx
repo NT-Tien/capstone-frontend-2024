@@ -35,6 +35,7 @@ function Page() {
 
    const control_dualSignatureDrawer = useRef<RefType<DualSignatureDrawerProps>>(null)
    const control_sparePartUpdateQuantityModal = useRef<RefType<SparePart_UpdateQuantityModalProps>>(null)
+   const mutate_updateSparePartQuantity = stockkeeper_mutations.sparePart.addQuantity({})
 
    const api = useQueries({
       queries: [
@@ -89,8 +90,8 @@ function Page() {
          }
       })
       console.log("machineModel:")
-      console.log(api.task.data?.device_renew.machineModel)
-      return result      
+      console.log(api.task.data?.device_renew?.machineModel)
+      return result
    }, [api.task.data?.issues])
 
    return (
@@ -112,7 +113,11 @@ function Page() {
                         <Button onClick={handleOpen}>Quét lại</Button>
                         <Button
                            type="primary"
-                           disabled={!!api.task.data?.return_spare_part_data}
+                           disabled={
+                              // !!api.task.data?.return_spare_part_data &&
+                              Object.keys(spareParts).length > 0 &&
+                              updated.length !== Object.keys(spareParts).length
+                           }
                            onClick={() => control_dualSignatureDrawer.current?.handleOpen({})}
                         >
                            Xác nhận nhập kho
@@ -131,59 +136,63 @@ function Page() {
                         <div>
                            {scannedResult === api.task.data.id ? (
                               <div>
-                              <Descriptions
-                                 items={[
-                                    {
-                                       label: "Tên tác vụ",
-                                       children: api.task.data?.name,
-                                       span: 3,
-                                    },
-                                    {
-                                       label: "Người sửa",
-                                       children: api.task.data?.fixer?.username ?? "-",
-                                    },
-                                    {
-                                       label: "Ngày sửa",
-                                       children: api.task.data?.fixerDate
-                                          ? dayjs(api.task.data?.fixerDate).format("DD/MM/YYYY")
-                                          : "-",
-                                    },
-                                    {
-                                       label: "Mức độ ưu tiên",
-                                       children: api.task.data?.priority ? "Ưu tiên" : "Bình thường",
-                                    },
-                                    {
-                                       label: "Mẫu máy",
-                                       children: api.task.data?.device.machineModel.name,
-                                    },
-                                    {
-                                       label: "Trạng thái",
-                                       children: api.task.data.return_spare_part_data ? "Đã trả" : "Chưa trả",
-                                    },
-                                 ]}
-                              />
-                              <p className="font-bold text-[16px] mt-6">Thông số máy mới</p>
-                              <Descriptions
-                                 items={[
-                                    {
-                                       label: "Mã máy",
-                                       children: api.task.data?.device_renew.machineModel.id,
-                                       span: 3,
-                                    },
-                                    {
-                                       label: "Mẫu máy",
-                                       children: api.task.data?.device_renew.machineModel.name,
-                                    },
-                                    {
-                                       label: "Nhà sản xuất",
-                                       children: api.task.data?.device_renew.machineModel.manufacturer,
-                                    },
-                                    {
-                                       label: "Thời hạn bảo hành",
-                                       children: api.task.data?.device_renew.machineModel.warrantyTerm ? dayjs(api.task.data?.device_renew.machineModel.warrantyTerm).format("DD/MM/YYYY") : "-",
-                                    },
-                                 ]}
-                              />
+                                 <Descriptions
+                                    items={[
+                                       {
+                                          label: "Tên tác vụ",
+                                          children: api.task.data?.name,
+                                          span: 3,
+                                       },
+                                       {
+                                          label: "Người sửa",
+                                          children: api.task.data?.fixer?.username ?? "-",
+                                       },
+                                       {
+                                          label: "Ngày sửa",
+                                          children: api.task.data?.fixerDate
+                                             ? dayjs(api.task.data?.fixerDate).format("DD/MM/YYYY")
+                                             : "-",
+                                       },
+                                       {
+                                          label: "Mức độ ưu tiên",
+                                          children: api.task.data?.priority ? "Ưu tiên" : "Bình thường",
+                                       },
+                                       {
+                                          label: "Mẫu máy",
+                                          children: api.task.data?.device.machineModel.name,
+                                       },
+                                       {
+                                          label: "Trạng thái",
+                                          children: api.task.data.return_spare_part_data ? "Đã trả" : "Chưa trả",
+                                       },
+                                    ]}
+                                 />
+                                 <p className="mt-6 text-[16px] font-bold">Thông số máy mới</p>
+                                 <Descriptions
+                                    items={[
+                                       {
+                                          label: "Mã máy",
+                                          children: api.task.data?.device_renew?.machineModel.id,
+                                          span: 3,
+                                       },
+                                       {
+                                          label: "Mẫu máy",
+                                          children: api.task.data?.device_renew?.machineModel.name,
+                                       },
+                                       {
+                                          label: "Nhà sản xuất",
+                                          children: api.task.data?.device_renew?.machineModel.manufacturer,
+                                       },
+                                       {
+                                          label: "Thời hạn bảo hành",
+                                          children: api.task.data?.device_renew?.machineModel.warrantyTerm
+                                             ? dayjs(api.task.data?.device_renew.machineModel.warrantyTerm).format(
+                                                  "DD/MM/YYYY",
+                                               )
+                                             : "-",
+                                       },
+                                    ]}
+                                 />
                               </div>
                            ) : (
                               <Descriptions
@@ -229,20 +238,29 @@ function Page() {
                                     align: "right",
                                     render: (_, record) => (
                                        <div>
-                                          <Button
-                                             disabled={updated.includes(record.sparePart.id)}
-                                             onClick={() =>
-                                                control_sparePartUpdateQuantityModal.current?.handleOpen({
-                                                   max: record.quantity,
-                                                   sparePartId: record.sparePart.id,
-                                                   onFinish: () => {
-                                                      setUpdated([...updated, record.sparePart.id])
-                                                   },
-                                                })
-                                             }
-                                          >
-                                             Cập nhật kho
-                                          </Button>
+                                          {!updated.includes(record.sparePart.id) && (
+                                             <Button
+                                                onClick={() => {
+                                                   mutate_updateSparePartQuantity.mutate(
+                                                      {
+                                                         id: record.sparePart.id,
+                                                         payload: { quantity: record.quantity },
+                                                      },
+                                                      {
+                                                         onSuccess: () => {
+                                                            setUpdated((prev) => [...prev, record.sparePart.id])
+                                                            message.success("Cập nhật kho thành công!")
+                                                         },
+                                                         onError: () => {
+                                                            message.error("Cập nhật kho thất bại!")
+                                                         },
+                                                      },
+                                                   )
+                                                }}
+                                             >
+                                                Cập nhật kho
+                                             </Button>
+                                          )}
                                        </div>
                                     ),
                                  },

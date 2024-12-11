@@ -71,14 +71,14 @@ const QrCodeDisplayForRenewModal = forwardRef<QrCodeDisplayForRenewModalRefType,
             }}
             footer={
                <div>
-                  <div className="mb-3 flex items-start gap-3">
+                  {/* <div className="mb-3 flex items-start gap-3">
                      <Checkbox id="sign" checked={signed} onChange={(e) => setSigned(e.target.checked)} />
                      <label htmlFor="sign" className={"font-bold"}>
                         Tôi đã ký xác nhận
                      </label>
-                  </div>
+                  </div> */}
                   <Button className="w-full" size="large" type="primary" onClick={handleCompleteSpareParts}>
-                     Hoàn tất
+                     Đóng
                   </Button>
                </div>
             }

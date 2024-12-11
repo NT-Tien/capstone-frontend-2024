@@ -1,8 +1,6 @@
 import { RefType } from "@/components/utils/OverlayControllerWithRef"
 import DeviceDetails from "@/features/head-maintenance/components/DeviceDetails"
-import {
-   CreateTaskV2DrawerProps,
-} from "@/features/head-maintenance/components/overlays/Task_Create.drawer"
+import { CreateTaskV2DrawerProps } from "@/features/head-maintenance/components/overlays/Task_Create.drawer"
 import hm_uris from "@/features/head-maintenance/uri"
 import { SendWarrantyTypeErrorId } from "@/lib/constants/Warranty"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
@@ -11,12 +9,14 @@ import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import RequestUtil from "@/lib/domain/Request/Request.util"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
 import { cn } from "@/lib/utils/cn.util"
-import { CheckSquareOffset, Devices, Truck, WarningDiamond } from "@phosphor-icons/react"
+import { CheckSquare, CheckSquareOffset, Devices, Truck, WarningDiamond } from "@phosphor-icons/react"
 import { UseQueryResult } from "@tanstack/react-query"
 import { App } from "antd"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import WarrantyTab from "./Warranty.tab"
+import TasksTab from "@/app/HM/(stack)/requests/[id]/warranty/Tasks.tab"
+import DeviceTab from "@/app/HM/(stack)/requests/[id]/warranty/Device.tab"
 
 type Props = {
    requestId: string
@@ -98,13 +98,23 @@ function TabbedLayout(props: Props) {
    }
 
    useEffect(() => {
-      const currentTab = searchParams.get("tab") || "warranty"
+      const currentTab = searchParams.get("tab") || "tasks"
       setTab(currentTab)
    }, [searchParams])
 
    return (
       <>
-         <nav className={cn("mt-5 grid grid-cols-2 gap-0 *:pb-3")}>
+         <nav className={cn("mt-5 grid grid-cols-3 gap-0 *:pb-3")}>
+            <div
+               className={cn(
+                  "relative grid cursor-pointer place-items-center gap-2 text-white/30 transition-all before:absolute before:inset-x-0 before:bottom-0 before:left-1/2 before:h-1 before:w-1/2 before:-translate-x-1/2 before:rounded-t-lg before:bg-white before:opacity-0 before:transition-all before:content-['']",
+                  tab === "tasks" && "before:opacity-1 text-white",
+               )}
+               onClick={() => handleTabChange("tasks")}
+            >
+               <CheckSquare size={20} weight={"duotone"} />
+               <div className="text-center text-sm">Tác vụ</div>
+            </div>
             <div
                className={cn(
                   "relative grid cursor-pointer place-items-center gap-2 text-white/30 transition-all before:absolute before:inset-x-0 before:bottom-0 before:left-1/2 before:h-1 before:w-1/2 before:-translate-x-1/2 before:rounded-t-lg before:bg-white before:opacity-0 before:transition-all before:content-['']",
@@ -113,7 +123,7 @@ function TabbedLayout(props: Props) {
                onClick={() => handleTabChange("warranty")}
             >
                <Truck size={20} weight={"duotone"} />
-               <div className="text-center text-sm">Bảo hành</div>
+               <div className="text-center text-sm">Đơn Bảo hành</div>
             </div>
             <div
                className={cn(
@@ -127,8 +137,8 @@ function TabbedLayout(props: Props) {
             </div>
          </nav>
          <div className="flex h-full flex-1 flex-col rounded-t-2xl border-neutral-200 bg-white shadow-fb">
-            {tab === "warranty" && (
-               <WarrantyTab
+            {tab === "tasks" && (
+               <TasksTab
                   api_request={props.api_request}
                   className="flex-1"
                   highlightTaskId={highlightedId}
@@ -139,11 +149,9 @@ function TabbedLayout(props: Props) {
                   disabledCreateTask={createTaskBtnText}
                />
             )}
+            {tab === "warranty" && <WarrantyTab api_request={props.api_request} />}
             {tab === "device" && props.api_request.isSuccess && (
-               <DeviceDetails
-                  device={props.api_request.data.device}
-                  className='p-layout border-none'
-               />
+               <DeviceTab api_request={props.api_request} />
             )}
          </div>
       </>

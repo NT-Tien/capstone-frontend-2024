@@ -7,6 +7,8 @@ import useRequest_UpdateWarrantyDate from "@/features/staff/mutations/Request_Up
 import useIssue_ResolveSendWarranty from "@/features/staff/mutations/Issue_ResolveSendWarranty.mutation"
 import useTask_FinishWarrantySend from "@/features/staff/mutations/Task_Finish_WarrantySend.mutation"
 import useIssue_FailedWarranty from "@/features/staff/mutations/Issue_FailedWarranty.mutation"
+import useIssue_ResolveDisassembleWarranty from "@/features/staff/mutations/Issue_ResolveWarrantyDisassemble.mutation"
+import useIssue_ResolveInstallReplacementWarranty from "@/features/staff/mutations/Issue_ResolveWarrantyInstallReplacement.api"
 
 const staff_mutations = {
    issues: {
@@ -14,6 +16,8 @@ const staff_mutations = {
       failedWarranty: useIssue_FailedWarranty,
       resolve: useIssue_Resolve,
       resolveSendWarranty: useIssue_ResolveSendWarranty,
+      resolveDisassembleWarranty: useIssue_ResolveDisassembleWarranty,
+      resolveInstallReplacementWarranty: useIssue_ResolveInstallReplacementWarranty,
    },
    request: {
       updateWarrantyDate: useRequest_UpdateWarrantyDate,

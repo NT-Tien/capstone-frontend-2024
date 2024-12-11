@@ -103,7 +103,7 @@ function Issue_Resolve_ReceiveDrawer(props: Props) {
                <h3 className="text-base font-semibold">Hình ảnh biên nhận</h3>
                <p className="font-base text-sm text-neutral-500">Vui lòng tải hình ảnh biên nhận sau bảo hành</p>
             </header>
-            <ImageUploader imageUris={imageUris} setImageUris={setImageUris} />
+            <ImageUploader value={imageUris} onChange={setImageUris} />
          </section>
          <OverlayControllerWithRef ref={control_viewMapModal}>
             <ViewMapModal />

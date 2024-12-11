@@ -88,14 +88,14 @@ function Page({ searchParams }: { searchParams: { completed?: string } }) {
       if (!api_tasks.isSuccess) return returnValue
 
       api_tasks.data.forEach((task) => {
-         // if (task.export_warehouse_ticket.length !== 0) {
-         //    if (
-         //       task?.export_warehouse_ticket[0]?.status !== ExportStatus.ACCEPTED &&
-         //       task?.export_warehouse_ticket[0]?.status !== ExportStatus.EXPORTED
-         //    ) {
-         //       return
-         //    }
-         // }
+         if (task.export_warehouse_ticket.length !== 0) {
+            if (
+               task?.export_warehouse_ticket[0]?.status !== ExportStatus.ACCEPTED &&
+               task?.export_warehouse_ticket[0]?.status !== ExportStatus.EXPORTED
+            ) {
+               return
+            }
+         }
 
          const fixerDate = dayjs(task.fixerDate)
          if (fixerDate.isSame(dayjs(selectedDate), "day"))

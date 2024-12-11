@@ -11,8 +11,8 @@ import { CheckOutlined, CloseOutlined, DeleteOutlined, PlusOutlined } from "@ant
 const CaptureVideoDrawer = dynamic(() => import("@/components/CaptureVideo.drawer"), { ssr: false })
 
 type Props = {
-   videoUris: string[]
-   setVideoUris?: (videoUris: string[]) => void
+   value: string[]
+   onChange?: (videoUris: string[]) => void
    className?: string
    maxCount?: number
 }
@@ -24,26 +24,26 @@ function VideoUploader(props: Props) {
 
    const maxCount = props.maxCount ?? 1
 
-   const showActions = !!props.setVideoUris
+   const showActions = !!props.onChange
 
    return (
       <>
          <div className={cn("grid grid-cols-1 gap-2", props.className)}>
-            {props.videoUris.map((uri, index) => (
+            {props.value.map((uri, index) => (
                <VideoView
                   uri={uri}
                   key={uri + index + "_video"}
                   onDelete={(uri) => {
-                     props.setVideoUris?.(props.videoUris.filter((item) => item !== uri))
+                     props.onChange?.(props.value.filter((item) => item !== uri))
                   }}
                   showActions={showActions}
                />
             ))}
-            {new Array(maxCount - props.videoUris.length).fill(null).map((_, index) => (
+            {new Array(maxCount - props.value.length).fill(null).map((_, index) => (
                <div className="flex flex-col" key={index + "_empty_video"} onClick={() => showActions && setOpen(true)}>
                   <ClickableArea
                      className={cn(
-                        "grid h-36 w-full place-items-center rounded-lg bg-gray-100 text-gray-300",
+                        "grid h-28 w-full place-items-center rounded-lg bg-gray-100 text-gray-300",
                         showActions && "rounded-b-none",
                      )}
                   >
@@ -63,7 +63,7 @@ function VideoUploader(props: Props) {
                   { file },
                   {
                      onSuccess: (res) => {
-                        props.setVideoUris?.([...props.videoUris, res.path])
+                        props.onChange?.([...props.value, res.path])
                         setOpen(false)
                      },
                   },

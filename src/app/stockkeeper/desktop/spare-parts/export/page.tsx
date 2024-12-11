@@ -3,8 +3,8 @@
 import { PageContainer, ProTable } from "@ant-design/pro-components"
 import stockkeeper_queries from "@/features/stockkeeper/queries"
 import { ExportStatus } from "@/lib/domain/ExportWarehouse/ExportStatus.enum"
-import { useMemo, useRef, useState } from "react"
-import { Button, DrawerProps, Table } from "antd"
+import { useMemo, useRef, useState, useEffect } from "react"
+import { Button, DrawerProps } from "antd"
 import dayjs, { Dayjs } from "dayjs"
 import { ExportType } from "@/lib/domain/ExportWarehouse/ExportType.enum"
 import { EyeOutlined } from "@ant-design/icons"
@@ -21,8 +21,8 @@ type Query = {
          fixer?: {
             username?: string
          }
-      }
-      export_type?: ExportType
+      };
+      export_type?: ExportType,
    }
 }
 
@@ -35,9 +35,11 @@ type Props = Omit<DrawerProps, "children"> &
       handleClose?: () => void
    }
 
-
 function Page(props: Props) {
    const [tab, setTab] = useState<ExportStatus>(ExportStatus.WAITING)
+   const [exportTypeParam, setExportTypeParam] = useState<ExportType | null>(null)
+   const [exportTypeString, setExportTypeString] = useState("")
+   const [isNotFilter, setIsNotFilter] = useState<boolean>(false)
    const [query, setQuery] = useState<Query>({
       page: 0,
       pageSize: 10,
@@ -46,6 +48,35 @@ function Page(props: Props) {
    const control_exportWarehouseViewDetailsDrawer = useRef<RefType<ExportWarehouse_ViewDetailsDrawerProps>>(null)
 
    const api_exports = stockkeeper_queries.exportWarehouse.all({})
+   const [ticketId, setTicketId] = useState<string>();
+   useEffect(() => {
+      if (typeof window !== "undefined") {
+         const urlParams = new URLSearchParams(window.location.search)
+         const exportType = urlParams.get("export_type") as ExportType | null
+         if (!exportType) {setIsNotFilter(true)}
+         setExportTypeParam(exportType)
+         setExportTypeString(urlParams.get("export_type") as string)
+         const ticketid = urlParams.get("ticketid")
+         if (ticketid) {
+            setTicketId(ticketid)
+         }
+      }
+   }, [])
+
+   useEffect(() => {
+      if (exportTypeParam) {
+         setQuery((prev) => ({
+            ...prev,
+            filters: { ...prev.filters, export_type: exportTypeParam },
+         }))
+      }
+   }, [exportTypeParam])
+
+   useEffect(() => {
+      if (ticketId) {
+         control_exportWarehouseViewDetailsDrawer.current?.handleOpen({ id: ticketId })
+      }
+   }, [ticketId])
 
    const renderData = useMemo(() => {
       if (!api_exports.isSuccess) return
@@ -97,7 +128,7 @@ function Page(props: Props) {
       )
    }, [api_exports.data, api_exports.isSuccess])
 
-   return (
+   if (isNotFilter) {return ( 
       <PageContainer
          title={"Đơn xuất kho"}
          tabActiveKey={tab}
@@ -150,8 +181,6 @@ function Page(props: Props) {
                })
             }}
             onSubmit={(query) => {
-               console.log(query)
-
                setQuery({
                   page: 0,
                   pageSize: 10,
@@ -191,7 +220,7 @@ function Page(props: Props) {
                {
                   title: "Tác vụ",
                   dataIndex: ["task", "name"],
-                  render: (_, e) => e.task.name,
+                  render: (_, e) => e.task?.name,
                   width: 400,
                },
                {
@@ -236,6 +265,159 @@ function Page(props: Props) {
                   },
                },
             ]}
+         />
+         <OverlayControllerWithRef ref={control_exportWarehouseViewDetailsDrawer}>
+            <ExportWarehouse_ViewDetailsDrawer refetchFn={api_exports.refetch} />
+         </OverlayControllerWithRef>
+      </PageContainer>
+   )}
+
+   if (!exportTypeString) {
+      return <div>Đang tải dữ liệu...</div>
+   }
+
+   return ( 
+      <PageContainer
+         title={"Đơn xuất kho"}
+         tabActiveKey={tab}
+         onTabChange={(key) => {
+            setTab(key as ExportStatus)
+            setQuery({
+               page: 0,
+               pageSize: 10,
+            })
+         }}
+         tabList={[
+            {
+               key: ExportStatus.WAITING,
+               tab: `Chưa xử lý (${statusCounts?.WAITING ?? "-"})`,
+            },
+            {
+               key: ExportStatus.DELAY,
+               tab: `Trì hoãn (${statusCounts?.DELAY ?? "-"})`,
+            },
+            {
+               key: ExportStatus.ACCEPTED,
+               tab: `Đã duyệt (${statusCounts?.ACCEPTED ?? "-"})`,
+            },
+            {
+               key: ExportStatus.EXPORTED,
+               tab: `Đã xuất (${statusCounts?.EXPORTED ?? "-"})`,
+            },
+            {
+               key: ExportStatus.CANCEL,
+               tab: `Đã hủy (${statusCounts?.CANCEL ?? "-"})`,
+            },
+         ]}
+      >
+         <ProTable
+            dataSource={renderData?.list}
+            pagination={{
+               pageSize: 10,
+               onChange: (page, pageSize) => {
+                  setQuery({ page, pageSize })
+               },
+               total: renderData?.total,
+            }}
+            search={{
+               layout: "vertical",
+            }}
+            onReset={() => {
+               setQuery({
+                  page: 0,
+                  pageSize: 10,
+               })
+            }}
+            onSubmit={(query) => {
+               setQuery({
+                  page: 0,
+                  pageSize: 10,
+                  filters: {
+                     ...query,
+                  },
+               })
+            }}
+            loading={api_exports.isPending}
+            columns={[
+               {
+                  title: "STT",
+                  width: 40,
+                  align: "center",
+                  fixed: "left",
+                  render: (value, record, index) => index + 1,
+                  hideInSearch: true,
+               },
+               {
+                  title: "Ngày sửa chữa",
+                  dataIndex: ["task", "fixerDate"],
+                  render: (_, e) => (dayjs(e.fixerDate).isValid() ? dayjs(e.fixerDate).format("DD/MM/YYYY") : "-"),
+                  width: 150,
+                  valueType: "date",
+               },
+               {
+                  title: "Loại xuất",
+                  dataIndex: "export_type",
+                  align: "center",
+                  width: 150,
+                  valueType: "select",
+                  valueEnum: {
+                     [ExportType.SPARE_PART]: { text: "Linh kiện" },
+                     [ExportType.DEVICE]: { text: "Thiết bị" },
+                  },
+               },
+               {
+                  title: "Tác vụ",
+                  dataIndex: ["task", "name"],
+                  render: (_, e) => e.task?.name,
+                  width: 400,
+               },
+               {
+                  title: "Nhân viên",
+                  dataIndex: ["task", "fixer", "username"],
+               },
+               {
+                  title: "Số lượng xuất",
+                  render: (_, e) => {
+                     if (e.export_type === ExportType.SPARE_PART) {
+                        return e.detail.reduce((count: any, item: any) => {
+                           if ("issueSpareParts" in item && item.issueSpareParts) {
+                              count += item.issueSpareParts.length
+                           }
+                           return count
+                        }, 0)
+                     } else if (e.export_type === ExportType.DEVICE) {
+                        return 1
+                     }
+                     return 0
+                  },
+                  width: 150,
+                  hideInSearch: true,
+               },
+               {
+                  title: "",
+                  hideInSearch: true,
+                  fixed: "right",
+                  align: "right",
+                  render: (_, e) => {
+                     return (
+                        <div className={"flex items-center justify-end gap-2"}>
+                           <Button
+                              type={"text"}
+                              icon={<EyeOutlined />}
+                              onClick={() => control_exportWarehouseViewDetailsDrawer.current?.handleOpen({ id: e.id })}
+                           >
+                              Chi tiết
+                           </Button>
+                        </div>
+                     )
+                  },
+               },
+            ]}
+            form={{
+               initialValues: {
+                  export_type: exportTypeString ? exportTypeString : ExportType.DEVICE, 
+               },
+            }}
          />
          <OverlayControllerWithRef ref={control_exportWarehouseViewDetailsDrawer}>
             <ExportWarehouse_ViewDetailsDrawer refetchFn={api_exports.refetch} />

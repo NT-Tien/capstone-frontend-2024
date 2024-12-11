@@ -91,14 +91,14 @@ function Issue_Resolve_InstallDrawer(props: Props) {
                   Vui lòng tải hình ảnh lỗi đã sửa lên hê thống (nếu có)
                </p>
             </header>
-            <ImageUploader imageUris={uploadImages} setImageUris={setUploadImages} />
+            <ImageUploader value={uploadImages} onChange={setUploadImages} />
          </section>
          <section className="mt-layout">
             <header className="mb-2">
                <h1 className="text-base font-bold">Video xác nhận</h1>
                <p className="font-base text-sm text-neutral-500">Vui lòng tải video lỗi đã sửa lên hê thống (nếu có)</p>
             </header>
-            <VideoUploader videoUris={uploadVideo} setVideoUris={setUploadVideo} />
+            <VideoUploader value={uploadVideo} onChange={setUploadVideo} />
          </section>
          <OverlayControllerWithRef ref={control_viewMapModal}>
             <ViewMapModal />

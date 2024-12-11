@@ -24,9 +24,12 @@ import IssueFailed_ResolveOptions, {
 } from "@/features/head-maintenance/components/overlays/warranty/IssueFailed_ResolveOptions.modal"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import headstaff_qk from "@/features/head-maintenance/qk"
+import head_maintenance_queries from "@/features/head-maintenance/queries"
 import hm_uris from "@/features/head-maintenance/uri"
+import IssueUtil from "@/lib/domain/Issue/Issue.util"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import RequestStatus_Mapper from "@/lib/domain/Request/RequestStatusMapperV2"
+import TaskUtil from "@/lib/domain/Task/Task.util"
 import { NotFoundError } from "@/lib/error/not-found.error"
 import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
 import { cn } from "@/lib/utils/cn.util"
@@ -69,23 +72,29 @@ function Page({ params }: { params: { id: string } }) {
 
    const mutate_closeRequest = head_maintenance_mutations.request.finish()
 
-   const api_request = useQuery({
-      queryKey: headstaff_qk.request.byId(params.id),
-      queryFn: () =>
-         HeadStaff_Request_OneById({ id: params.id }).then((res) => {
-            console.log(res, res === null)
-            if (res === null) {
-               throw new NotFoundError("Request")
+   const api_request = head_maintenance_queries.request.one(
+      {
+         id: params.id,
+      },
+      {
+         select: (data) => {
+            return {
+               ...data,
+               tasks: data.tasks.filter((task) => TaskUtil.isTask_Warranty(task)),
+               issues: data.issues.filter((issue) => IssueUtil.isWarrantyIssue(issue)),
             }
-            return res
-         }),
-   })
+         },
+      },
+   )
 
-   const api_device = useQuery({
-      queryKey: headstaff_qk.device.byId(api_request.data?.device.id ?? ""),
-      queryFn: () => HeadStaff_Device_OneById({ id: api_request.data?.device.id ?? "" }),
-      enabled: api_request.isSuccess,
-   })
+   const api_device = head_maintenance_queries.device.one(
+      {
+         id: api_request.data?.device.id ?? "",
+      },
+      {
+         enabled: api_request.isSuccess,
+      },
+   )
 
    const api_deviceHistory = useQuery({
       queryKey: headstaff_qk.device.byIdWithHistory(api_request.data?.device.id ?? ""),

@@ -30,6 +30,8 @@ function DeviceDetails(props: Props) {
                requests = requests.filter((request) => request.id !== props.requestId)
             }
 
+            requests = requests.sort((a, b) => dayjs(b.createdAt).unix() - dayjs(a.createdAt).unix())
+
             return {
                ...data,
                requests,
@@ -69,11 +71,15 @@ function DeviceDetails(props: Props) {
                   <MapPin size={14} weight="fill" className="mr-1.5 inline" />
                   Vị trí
                </h3>
-               <p className="ml-auto text-neutral-600">
-                  Khu vực {props.device?.area?.name ?? "-"} ({props.device?.positionX ?? "-"},
-                  {props.device?.positionY ?? "-"})
-                  <CaretRight size={14} weight="regular" className="ml-1 inline" />
-               </p>
+               {props.device.isWarranty ? (
+                  <p className="ml-auto text-neutral-600">Đang bảo hành</p>
+               ) : (
+                  <p className="ml-auto text-neutral-600">
+                     Khu vực {props.device?.area?.name ?? "-"} ({props.device?.positionX ?? "-"},
+                     {props.device?.positionY ?? "-"})
+                     <CaretRight size={14} weight="regular" className="ml-1 inline" />
+                  </p>
+               )}
             </ClickableArea>
             <Divider className="m-0" />
             <div className="flex py-3">
@@ -152,7 +158,12 @@ DeviceDetails.HistorySection = function DeviceDetailsHistorySection(
       <div {...props} className={cn(props.className)}>
          <Space split={<Divider type="horizontal" className="my-1" />} direction="vertical" className="w-full">
             {props.api_requestHistory.data.requests.map((request) => (
-               <ClickableArea key={request.id} reset className="flex flex-col text-sm" onClick={() => router.push(hm_uris.stack.requests_id(request.id))}>
+               <ClickableArea
+                  key={request.id}
+                  reset
+                  className="flex flex-col text-sm"
+                  onClick={() => router.push(hm_uris.stack.requests_id(request.id))}
+               >
                   <Space
                      split={<Divider type="vertical" className="m-0" />}
                      className="w-full text-xs text-neutral-600"

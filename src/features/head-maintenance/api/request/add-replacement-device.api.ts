@@ -8,28 +8,16 @@ import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 export type Request = {
    id: string
    payload: {
-      note: string
-      initial_video: string
-      initial_images: string[];
-      replacement_device_id?: string
-      isMultiple?: boolean
+      deviceId: string
    }
 } & AuthTokenWrapper
 export type Response = RequestDto
 
-HeadStaff_Request_ApproveWarranty.URL = (req: Request) => {
-   const urlSearchParams = new URLSearchParams()
-   if (req.payload.isMultiple) {
-      urlSearchParams.append("isMultiple", "true")
-   }
+HeadStaff_Request_AddReplacementDevice.URL = (req: Request) => `/head-staff/request/warranty/add-replacement-device/${req.id}`
 
-   return (
-      `/head-staff/request/approve-warranty/${req.id}` + (urlSearchParams.toString() ? `?${urlSearchParams.toString()}` : "")
-   )
-}
-export default async function HeadStaff_Request_ApproveWarranty(req: Request): Promise<Response> {
+export default async function HeadStaff_Request_AddReplacementDevice(req: Request): Promise<Response> {
    return api
-      .put<Response>(HeadStaff_Request_ApproveWarranty.URL(req), req.payload, {
+      .post<Response>(HeadStaff_Request_AddReplacementDevice.URL(req), req.payload, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,

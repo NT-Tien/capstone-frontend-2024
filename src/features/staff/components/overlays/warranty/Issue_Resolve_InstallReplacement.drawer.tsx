@@ -20,7 +20,7 @@ function Issue_Resolve_InstallReplacementDrawer(props: Props) {
    const [imageUris, setImageUris] = useState<string[]>([])
    const [signature, setSignature] = useState<string | undefined>()
 
-   const mutate_resolveIssue = staff_mutations.issues.resolve()
+   const mutate_resolveIssue = staff_mutations.issues.resolveInstallReplacementWarranty()
 
    function handleSubmit(id: string, signature: string, imageUris: string[]) {
       mutate_resolveIssue.mutate(
@@ -46,10 +46,9 @@ function Issue_Resolve_InstallReplacementDrawer(props: Props) {
 
    useEffect(() => {
       if (imageUris.length === 0) {
-         setSignature(undefined);
+         setSignature(undefined)
       }
-   }, [imageUris]);
-   
+   }, [imageUris])
 
    return (
       <Drawer
@@ -87,7 +86,7 @@ function Issue_Resolve_InstallReplacementDrawer(props: Props) {
                <h3 className="text-base font-semibold">Hình ảnh thiết bị</h3>
                <p className="font-base text-sm text-neutral-500">Vui lòng tải hình ảnh thiết bị đã lắp đặt</p>
             </header>
-            <ImageUploader imageUris={imageUris} setImageUris={setImageUris} />
+            <ImageUploader value={imageUris} onChange={setImageUris} />
          </section>
          <section className="mt-8">
             <header className="mb-2">

@@ -168,7 +168,7 @@ function FinishRenewTaskDrawer(props: Props) {
                   <h3 className="text-base font-semibold">Hình ảnh xác nhận</h3>
                   <p className="font-base text-sm text-neutral-500">Vui lòng chụp hình thủ kho</p>
                </header>
-               <ImageUploader imageUris={imagesVerification} setImageUris={setImagesVerification} maxCount={1} />
+               <ImageUploader value={imagesVerification} onChange={setImagesVerification} maxCount={1} />
             </section>
          </Drawer>
       </>

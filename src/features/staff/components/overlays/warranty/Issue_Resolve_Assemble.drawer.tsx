@@ -75,14 +75,14 @@ function Issue_Resolve_AssembleDrawer(props: Props) {
                <h3 className="text-base font-semibold">Hình ảnh thiết bị</h3>
                <p className="font-base text-sm text-neutral-500">Vui lòng tải hình ảnh thiết bị sau khi lắp đặt</p>
             </header>
-            <ImageUploader imageUris={imageUris} setImageUris={setImageUris} />
+            <ImageUploader value={imageUris} onChange={setImageUris} />
          </section>
          <section className="mt-layout">
             <header className="mb-2">
                <h3 className="text-base font-semibold">Video thiết bị (nếu có)</h3>
                <p className="font-base text-sm text-neutral-500">Vui lòng tải video thiết bị sau khi lắp đặt</p>
             </header>
-            <VideoUploader videoUris={videoUris} setVideoUris={setVideoUris} />
+            <VideoUploader value={videoUris} onChange={setVideoUris} />
          </section>
       </Drawer>
    )

@@ -11,6 +11,7 @@ import useUser_AllStaff from "@/features/head-maintenance/queries/User_AllStaff.
 import useDevice_AllUnused from "@/features/head-maintenance/queries/Device_AllUnused.query"
 import useTask_All from "./Task_All.query"
 import useDevice_AllStatusFalse from "./Device_AllStatusFalse.query"
+import useDevice_CheckKey from "@/features/head-maintenance/queries/Device_CheckKey.query"
 
 const head_maintenance_queries = {
    device: {
@@ -19,6 +20,7 @@ const head_maintenance_queries = {
       all_requestHistory: useDevice_AllRequestHistoryQuery,
       all_unused: useDevice_AllUnused,
       all_statusFalse: useDevice_AllStatusFalse,
+      checkKey: useDevice_CheckKey,
    },
    request: {
       all: useRequest_All,

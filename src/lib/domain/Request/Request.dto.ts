@@ -5,6 +5,7 @@ import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import { RequestTypeEnum } from "@/lib/domain/Request/RequestType.enum"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { FeedbackDto } from "@/lib/domain/Feedback/Feedback.dto"
+import { DeviceWarrantyCardDto } from "@/lib/domain/DeviceWarrantyCard/DeviceWarrantyCard.dto"
 
 export type RequestDto = {
    id: string
@@ -31,4 +32,6 @@ export type RequestDto = {
    feedback?: FeedbackDto[]
    is_multiple_types?: boolean
    is_replacement_device?: boolean
+   temporary_replacement_device?: DeviceDto
+   deviceWarrantyCards?: DeviceWarrantyCardDto[];
 }

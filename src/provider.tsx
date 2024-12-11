@@ -138,7 +138,7 @@ export default function IndexProvider({ children }: Readonly<{ children: ReactNo
          </AntdRegistry>
 
          {/* React Query Devtools */}
-         <ReactQueryDevtools buttonPosition={"bottom-left"} />
+         <ReactQueryDevtools buttonPosition={"top-right"} />
       </QueryClientProvider>
    )
 }

@@ -16,4 +16,5 @@ export type DeviceDto = {
    requests: RequestDto[]
    status: boolean
    deviceCode: string
+   isWarranty: boolean
 }

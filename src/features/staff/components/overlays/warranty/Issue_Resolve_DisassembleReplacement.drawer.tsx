@@ -87,7 +87,7 @@ function Issue_Resolve_DisassembleReplacementDrawer(props: Props) {
                <h3 className="text-base font-semibold">Hình ảnh thiết bị</h3>
                <p className="font-base text-sm text-neutral-500">Vui lòng tải hình ảnh thiết bị đã tháo gỡ</p>
             </header>
-            <ImageUploader imageUris={imageUris} setImageUris={setImageUris} />
+            <ImageUploader value={imageUris} onChange={setImageUris} />
          </section>
          <section className="mt-8">
             <header className="mb-2">

@@ -22,6 +22,7 @@ import useRequest_UpdateWarrantyReturnDate from "@/features/head-maintenance/mut
 import useRequest_ApproveToRenewEmptyDevice from "./Request_ApproveToRenewEmptyDevice.mutation"
 import useTask_CreateExportWarehouse from "@/features/head-maintenance/mutations/Task_CreateExportWarehouse.mutation"
 import useRequest_CreateReturnWarranty from "@/features/head-maintenance/mutations/Request_CreateReturnWarranty.mutation"
+import useRequest_AddReplacementDevice from "@/features/head-maintenance/mutations/Request_AddReplacementDevice.mutation"
 
 const head_maintenance_mutations = {
    request: {
@@ -35,7 +36,8 @@ const head_maintenance_mutations = {
       finish: useRequest_Finish,
       warrantyFailed: useRequest_WarrantyFailed,
       updateWarrantyReturnDate: useRequest_UpdateWarrantyReturnDate,
-      createReturnWarranty: useRequest_CreateReturnWarranty
+      createReturnWarranty: useRequest_CreateReturnWarranty,
+      addReplacementDevice: useRequest_AddReplacementDevice,
    },
    issue: {
       update: useIssue_Update,

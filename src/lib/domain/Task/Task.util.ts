@@ -1,4 +1,4 @@
-import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { NewDeviceInstallation, RemoveOldDeviceTypeErrorId } from "@/lib/constants/Renew"
 import {
    AssembleDeviceTypeErrorId,
    DisassembleDeviceTypeErrorId,
@@ -6,13 +6,12 @@ import {
    InstallReplacementDeviceTypeErrorId,
    ReceiveWarrantyTypeErrorId,
    SendWarrantyTypeErrorId,
-   SystemTypeErrorIds,
 } from "@/lib/constants/Warranty"
+import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { IssueSparePartDto } from "@/lib/domain/IssueSparePart/IssueSparePart.dto"
-import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
+import { TaskDto, TaskType } from "@/lib/domain/Task/Task.dto"
 import { TaskStatus } from "@/lib/domain/Task/TaskStatus.enum"
-import { NewDeviceInstallation, RemoveOldDeviceTypeErrorId } from "@/lib/constants/Renew"
 
 class TaskUtil {
    static isTask_Running(task?: TaskDto): boolean | undefined {
@@ -44,7 +43,11 @@ class TaskUtil {
       // })
    }
 
-   static isTask_Warranty(task?: TaskDto, type?: "send" | "receive", isActive?: boolean): boolean | undefined {
+   static isTask_Warranty(
+      task?: TaskDto,
+      type?: "send" | "receive" | "install-replacement",
+      isActive?: boolean,
+   ): boolean | undefined {
       if (!task) return undefined
 
       if (isActive && TaskUtil.isTask_Running(task)) {
@@ -57,20 +60,21 @@ class TaskUtil {
                i.typeError.id === SendWarrantyTypeErrorId ||
                i.typeError.id === DisassembleDeviceTypeErrorId ||
                i.typeError.id === ReceiveWarrantyTypeErrorId ||
-               i.typeError.id === AssembleDeviceTypeErrorId,
+               i.typeError.id === AssembleDeviceTypeErrorId ||
+               i.typeError.id === InstallReplacementDeviceTypeErrorId,
          )
       }
 
       if (type === "send") {
-         return !!task.issues.find(
-            (i) => i.typeError.id === SendWarrantyTypeErrorId || i.typeError.id === DisassembleDeviceTypeErrorId,
-         )
+         return task.type === TaskType.WARRANTY_SEND
       }
 
       if (type === "receive") {
-         return !!task.issues.find(
-            (i) => i.typeError.id === ReceiveWarrantyTypeErrorId || i.typeError.id === AssembleDeviceTypeErrorId,
-         )
+         return task.type === TaskType.WARRANTY_RECEIVE
+      }
+
+      if (type === "install-replacement") {
+         return task.type === TaskType.INSTALL_REPLACEMENT
       }
 
       return undefined

@@ -68,6 +68,7 @@ import {
    XCircle,
 } from "@phosphor-icons/react"
 import { App, Button, Card, Descriptions, Divider, Drawer, DrawerProps, Dropdown, Image, Segmented } from "antd"
+import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 
@@ -110,91 +111,88 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
    }, [props.open])
 
    function Footer() {
+      if (props.isDisabled) {
+         return <AlertCard text={"Vui lòng hoàn thành bước trước đó"} type={"info"} />
+      }
       if (props.issue?.status === IssueStatusEnum.PENDING) {
          return (
-            <div className={"flex flex-col"}>
-               {props.isDisabled && (
-                  <AlertCard text={"Vui lòng hoàn thành bước trước đó"} type={"info"} className={"mb-4"} />
-               )}
-               <div className={"flex items-center gap-2"}>
-                  <Button
-                     block
-                     type={"primary"}
-                     size={"large"}
-                     onClick={() => {
-                        if (!props.issue) return
+            <div className={"flex items-center gap-2"}>
+               <Button
+                  block
+                  type={"primary"}
+                  onClick={() => {
+                     if (!props.issue) return
 
-                        switch (props.issue.typeError.id) {
-                           case DisassembleDeviceTypeErrorId: {
-                              control_issueResolveDisassembleDrawer.current?.handleOpen({
-                                 issue: props.issue,
-                              })
-                              return
-                           }
-                           case InstallReplacementDeviceTypeErrorId: {
-                              control_issueResolveInstallReplacementDrawer.current?.handleOpen({
-                                 issue: props.issue,
-                              })
-                              return
-                           }
-                           case SendWarrantyTypeErrorId: {
-                              control_issueResolveSendDrawer.current?.handleOpen({
-                                 issue: props.issue,
-                                 requestId: props.request?.id,
-                              })
-                              return
-                           }
-                           case ReceiveWarrantyTypeErrorId: {
-                              control_issueResolveReceiveDrawer.current?.handleOpen({
-                                 issue: props.issue,
-                              })
-                              return
-                           }
-                           case DismantleReplacementDeviceTypeErrorId: {
-                              control_issueResolveDisassembleReplacementDrawer.current?.handleOpen({
-                                 issue: props.issue,
-                              })
-                              return
-                           }
-                           case AssembleDeviceTypeErrorId: {
-                              control_issueResolveAssembleDrawer.current?.handleOpen({
-                                 issue: props.issue,
-                              })
-                              return
-                           }
+                     switch (props.issue.typeError.id) {
+                        case DisassembleDeviceTypeErrorId: {
+                           control_issueResolveDisassembleDrawer.current?.handleOpen({
+                              issue: props.issue,
+                           })
+                           return
                         }
+                        case InstallReplacementDeviceTypeErrorId: {
+                           control_issueResolveInstallReplacementDrawer.current?.handleOpen({
+                              issue: props.issue,
+                           })
+                           return
+                        }
+                        case SendWarrantyTypeErrorId: {
+                           control_issueResolveSendDrawer.current?.handleOpen({
+                              issue: props.issue,
+                              requestId: props.request?.id,
+                           })
+                           return
+                        }
+                        case ReceiveWarrantyTypeErrorId: {
+                           control_issueResolveReceiveDrawer.current?.handleOpen({
+                              issue: props.issue,
+                           })
+                           return
+                        }
+                        case DismantleReplacementDeviceTypeErrorId: {
+                           control_issueResolveDisassembleReplacementDrawer.current?.handleOpen({
+                              issue: props.issue,
+                           })
+                           return
+                        }
+                        case AssembleDeviceTypeErrorId: {
+                           control_issueResolveAssembleDrawer.current?.handleOpen({
+                              issue: props.issue,
+                           })
+                           return
+                        }
+                     }
+                  }}
+                  icon={<CheckOutlined />}
+                  disabled={props.isDisabled}
+               >
+                  Hoàn thành
+               </Button>
+               {(props.issue.typeError.id === SendWarrantyTypeErrorId ||
+                  props.issue.typeError.id === ReceiveWarrantyTypeErrorId) && (
+                  <Dropdown
+                     menu={{
+                        items: [
+                           {
+                              label: "Không hoàn thành được bước",
+                              key: "cancel-issue",
+                              danger: true,
+                              icon: <WarningOutlined />,
+                              disabled: props.isDisabled,
+                              onClick: () =>
+                                 props.issue &&
+                                 props.task &&
+                                 control_issueFailDrawer.current?.handleOpen({
+                                    issueDto: props.issue,
+                                    taskId: props.task.id,
+                                 }),
+                           },
+                        ],
                      }}
-                     icon={<CheckOutlined />}
-                     disabled={props.isDisabled}
                   >
-                     Hoàn thành
-                  </Button>
-                  {(props.issue.typeError.id === SendWarrantyTypeErrorId ||
-                     props.issue.typeError.id === ReceiveWarrantyTypeErrorId) && (
-                     <Dropdown
-                        menu={{
-                           items: [
-                              {
-                                 label: "Không hoàn thành được bước",
-                                 key: "cancel-issue",
-                                 danger: true,
-                                 icon: <WarningOutlined />,
-                                 disabled: props.isDisabled,
-                                 onClick: () =>
-                                    props.issue &&
-                                    props.task &&
-                                    control_issueFailDrawer.current?.handleOpen({
-                                       issueDto: props.issue,
-                                       taskId: props.task.id,
-                                    }),
-                              },
-                           ],
-                        }}
-                     >
-                        <Button size={"large"} icon={<MoreOutlined />} className={"aspect-square"} />
-                     </Dropdown>
-                  )}
-               </div>
+                     <Button icon={<MoreOutlined />} className={"aspect-square"} />
+                  </Dropdown>
+               )}
             </div>
          )
       }
@@ -364,11 +362,25 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
          {/* Resolve issue for send warranty issue */}
          <OverlayControllerWithRef ref={control_issueResolveSendDrawer}>
             <Issue_Resolve_SendDrawer
-               onSuccess={() => {
+               onSuccess={(values) => {
                   // finish tsk after sending warranty
                   mutate_finishTaskWarrantySend.mutate(
                      {
                         id: props.task?.id ?? "",
+                        payload: {
+                           code: values.warrantyCenter_id,
+                           receive_date: values.warrantyCenter_expectedReturn!.toISOString(),
+                           send_date: dayjs().toISOString(),
+                           wc_receiverName: values.warrantyCenter_receiverName,
+                           wc_receiverPhone: values.warrantyCenter_receiverPhone,
+                           wc_address_1: values.street1,
+                           wc_address_2: values.street2,
+                           wc_address_city: values.city,
+                           wc_address_district: values.district,
+                           wc_address_ward: values.ward,
+                           wc_name: values.name,
+                           send_note: values.warrantyCenter_note,
+                        },
                      },
                      {
                         onSuccess: () => {

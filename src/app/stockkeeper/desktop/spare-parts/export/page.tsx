@@ -89,11 +89,11 @@ function Page(props: Props) {
          let result = true
 
          if (query.filters?.task?.fixerDate) {
-            result = result && dayjs(item.task.fixerDate).isSame(query.filters.task.fixerDate, "day")
+            result = result && dayjs(item.task?.fixerDate).isSame(query.filters.task?.fixerDate, "day")
          }
 
          if (query.filters?.task?.name) {
-            result = result && item.task.name.includes(query.filters.task.name)
+            result = result && item.task?.name.includes(query.filters.task?.name)
          }
 
          if (query.filters?.export_type) {
@@ -101,7 +101,7 @@ function Page(props: Props) {
          }
 
          if (query.filters?.task?.fixer?.username) {
-            result = result && item.task.fixer.username.includes(query.filters.task.fixer.username)
+            result = result && item.task?.fixer?.username.includes(query.filters.task?.fixer?.username)
          }
 
          return result

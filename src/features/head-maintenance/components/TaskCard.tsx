@@ -343,14 +343,20 @@ function TaskCardWarranty(props: TaskCardSendWarrantyProps) {
             />
          )}
          {props.task.status === TaskStatus.HEAD_STAFF_CONFIRM && (
-            <Button block type="primary" className="mt-2 bg-yellow-600" onClick={() => {
-               // programmatically click on the failed issue
-               const failedIssue = issues?.find(i => i.status === IssueStatusEnum.FAILED)
-               failedIssue && props.handleOpen_issueViewDetailsWarranty({
-                  issueId: failedIssue.id,
-                  requestId: props.requestId,
-               })
-            }}>
+            <Button
+               block
+               type="primary"
+               className="mt-2 bg-yellow-600"
+               onClick={() => {
+                  // programmatically click on the failed issue
+                  const failedIssue = issues?.find((i) => i.status === IssueStatusEnum.FAILED)
+                  failedIssue &&
+                     props.handleOpen_issueViewDetailsWarranty({
+                        issueId: failedIssue.id,
+                        requestId: props.requestId,
+                     })
+               }}
+            >
                Kiểm tra tác vụ
             </Button>
          )}

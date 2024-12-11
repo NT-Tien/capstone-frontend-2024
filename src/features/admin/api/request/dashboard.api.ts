@@ -1,4 +1,3 @@
-import { RequestDto } from "@/lib/domain/Request/Request.dto"
 import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
 import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
 import api from "@/config/axios.config"

@@ -486,79 +486,64 @@ function Page({ params }: { params: { id: string } }) {
                      </>
                   ),
                },
-               // {
-               //    tab: `Danh sách Lỗi máy (${api_request.data?.issues.length ?? 0})`,
-               //    children: (
-               //       <>
-               //          <IssuesListSection issues={api_request.data?.issues} isLoading={api_request.isPending} />
-               //       </>
-               //    ),
-               // },
+               {
+                  tab: `Danh sách Lỗi máy (${api_request.data?.issues.length ?? 0})`,
+                  children: (
+                     <>
+                        <IssuesListSection issues={api_request.data?.issues} isLoading={api_request.isPending} />
+                     </>
+                  ),
+               },
                {
                   tab: `Danh sách Tác vụ (${api_request.data?.tasks.length ?? 0})`,
                   children: (
-                     <Collapse defaultActiveKey={api_request.data?.tasks.map((task) => task.id)}>
-                        {api_request.data?.tasks.map((task) => (
-                           <Panel
-                              key={task.id}
-                              header={
-                                 <div className="flex items-center justify-between">
-                                    <span>{task.name}</span>
-                                    <Tag color={TaskStatusTagMapper[task.status]?.colorInverse}>
-                                       {TaskStatusTagMapper[task.status]?.text}
+                     <Card>
+                        <ProList
+                           className="list-no-padding"
+                           headerTitle={
+                              <div className="mb-3 flex w-full items-center justify-between font-bold">
+                                 <span>Danh sách tác vụ ({api_request.data?.tasks.length ?? 0})</span>
+                                 {/*<Link href={`/admin/device/${api_request.data?.device.id}`}>*/}
+                                 {/*   <Button>Xem chi tiết</Button>*/}
+                                 {/*</Link>*/}
+                              </div>
+                           }
+                           showExtra="always"
+                           dataSource={api_request.data?.tasks}
+                           loading={api_request.isPending}
+                           // onItem={(e) => router.push(`/admin/task/${e.id}`)}
+                           metas={{
+                              title: {
+                                 dataIndex: "name",
+                                 render: (_, entity) => (
+                                    <a onClick={() => router.push(`/admin/task/${entity.id}`)}>{entity.name}</a>
+                                 ),
+                              },
+                              description: {
+                                 render: (_, entity) => (
+                                    <div className="flex gap-3">
+                                       <span>
+                                          {entity.fixerDate ? dayjs(entity.fixerDate).format("DD/MM/YYYY") : "-"}
+                                       </span>
+                                       <span>{entity.fixer?.username ?? "-"}</span>
+                                       <span>{entity.priority ? "Ưu tiên" : ""}</span>
+                                    </div>
+                                 ),
+                              },
+                              avatar: {
+                                 render: (_, entity) => <RobotOutlined />,
+                              },
+                              subTitle: {
+                                 dataIndex: ["status"],
+                                 render: (_, entity) => (
+                                    <Tag color={TaskStatusTagMapper[entity.status].colorInverse}>
+                                       {TaskStatusTagMapper[entity.status].text}
                                     </Tag>
-                                 </div>
-                              }
-                           >
-                              <Card>
-                                 <ProList
-                                    className="list-no-padding"
-                                    dataSource={task.issues}
-                                    metas={{
-                                       title: {
-                                          dataIndex: ["typeError", "name"],
-                                          render: (_, issue) => (
-                                             <a onClick={() => console.log("View issue details", issue)}>
-                                                {api_request.data.issues[0].typeError.name}
-                                             </a>
-                                          ),
-                                       },
-                                       subtitle: {
-                                          dataIndex: "fixType",
-                                          render: (_: any, issue: { fixType: string }) => (
-                                             <Tag color={issue.fixType === "REPAIR" ? "red" : "blue"}>
-                                                {issue.fixType === "REPAIR" ? "Sửa chữa" : "Bảo dưỡng"}
-                                             </Tag>
-                                          ),
-                                       },
-                                       description: {
-                                          dataIndex: "description",
-                                       },
-                                       actions: {
-                                          render: (_, issue) => (
-                                             <Steps
-                                                type="inline"
-                                                current={
-                                                   issue.status === IssueStatusEnum.PENDING
-                                                      ? 0
-                                                      : issue.status === IssueStatusEnum.RESOLVED
-                                                        ? 1
-                                                        : 2
-                                                }
-                                                items={[
-                                                   { title: "Chưa xử lý", description: "Lỗi chưa được xử lý" },
-                                                   { title: "Thành công", description: "Xử lý lỗi thành công" },
-                                                   { title: "Thất bại", description: "Xử lý lỗi thất bại" },
-                                                ]}
-                                             />
-                                          ),
-                                       },
-                                    }}
-                                 />
-                              </Card>
-                           </Panel>
-                        ))}
-                     </Collapse>
+                                 ),
+                              },
+                           }}
+                        />
+                     </Card>
                   ),
                },
                // {

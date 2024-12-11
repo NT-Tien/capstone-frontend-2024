@@ -2,14 +2,11 @@
 
 import NavigationDrawer, { NavigationDrawerProps } from "@/components/layout/NavigationDrawer"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import global_queries from "@/features/common/queries"
 import hm_uris from "@/features/head-maintenance/uri"
-import { NotificationDto } from "@/lib/domain/Notification/Notification.dto"
 import { AuditOutlined, BellOutlined, CheckSquareOutlined, HomeOutlined, InboxOutlined } from "@ant-design/icons"
 import { Badge, Button } from "antd"
-import dayjs from "dayjs"
 import { usePathname, useRouter } from "next/navigation"
-import { createContext, PropsWithChildren, useContext, useMemo, useRef } from "react"
+import { createContext, PropsWithChildren, useContext, useRef } from "react"
 
 type ContextType = {
    handleOpen: () => void
@@ -20,37 +17,6 @@ function HeadMaintenanceNavigationDrawer(props: PropsWithChildren) {
    const current = usePathname()
    const router = useRouter()
    const control_ref = useRef<RefType<NavigationDrawerProps>>(null)
-
-   function getUnreadNotificationCount(notifications: NotificationDto[]) {
-      const today = dayjs().startOf("day")
-      const yesterday = today.subtract(1, "day")
-
-      let todayUnread = 0
-      let yesterdayUnread = 0
-
-      notifications.forEach((notification) => {
-         const notificationDate = dayjs(notification.createdAt).startOf("day")
-         if (!notification.seenDate) {
-            if (notificationDate.isSame(today, "day")) {
-               todayUnread++
-            } else if (notificationDate.isSame(yesterday, "day")) {
-               yesterdayUnread++
-            }
-         }
-      })
-
-      if (todayUnread > 0) return todayUnread
-      if (yesterdayUnread > 0) return yesterdayUnread
-      return 0
-   }
-   const api_notifications = global_queries.notifications.all({ hasSeen: false })
-
-   const unreadCount = useMemo(() => {
-      if (api_notifications.data) {
-         return getUnreadNotificationCount(api_notifications.data)
-      }
-      return 0
-   }, [api_notifications.data])
 
    function handleOpen() {
       control_ref.current?.handleOpen({})
@@ -67,7 +33,7 @@ function HeadMaintenanceNavigationDrawer(props: PropsWithChildren) {
                }}
                type="head_maintenance"
                extraItems={[
-                  <Badge key={"notifications"} count={unreadCount > 0 ? unreadCount : undefined} size={"small"}>
+                  <Badge key={"notifications"} count={0} size={"small"}>
                      <Button
                         icon={<BellOutlined className={"text-white"} />}
                         type={"text"}

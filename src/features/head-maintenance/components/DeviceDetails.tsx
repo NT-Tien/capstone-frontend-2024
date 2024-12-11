@@ -30,6 +30,8 @@ function DeviceDetails(props: Props) {
                requests = requests.filter((request) => request.id !== props.requestId)
             }
 
+            requests = requests.sort((a, b) => dayjs(b.createdAt).unix() - dayjs(a.createdAt).unix())
+
             return {
                ...data,
                requests,

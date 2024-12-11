@@ -14,8 +14,8 @@ import { useRef, useState } from "react"
 const CaptureImageDrawer = dynamic(() => import("@/components/CaptureImage.drawer"), { ssr: false })
 
 type Props = {
-   imageUris: string[]
-   setImageUris?: (imageUris: string[]) => void
+   value: string[]
+   onChange?: (imageUris: string[]) => void
    className?: string
    maxCount?: number
 }
@@ -27,22 +27,22 @@ function ImageUploader(props: Props) {
 
    const maxCount = props.maxCount ?? 4
 
-   const showActions = !!props.setImageUris
+   const showActions = !!props.onChange
 
    return (
       <>
          <div className={cn("grid grid-cols-4 gap-2", props.className)}>
-            {props.imageUris.map((uri, index) => (
+            {props.value.map((uri, index) => (
                <ImageView
                   uri={uri}
                   key={uri + index + "_image"}
                   onDelete={(uri) => {
-                     props.setImageUris?.(props.imageUris.filter((item) => item !== uri))
+                     props.onChange?.(props.value.filter((item) => item !== uri))
                   }}
                   showActions={showActions}
                />
             ))}
-            {new Array(maxCount - props.imageUris.length).fill(null).map((_, index) => (
+            {new Array(maxCount - props.value.length).fill(null).map((_, index) => (
                <div className="flex flex-col" key={index + "_empty_image"} onClick={() => showActions && setOpen(true)}>
                   <ClickableArea
                      className={cn(
@@ -66,7 +66,7 @@ function ImageUploader(props: Props) {
                   { file },
                   {
                      onSuccess: (res) => {
-                        props.setImageUris?.([...props.imageUris, res.path])
+                        props.onChange?.([...props.value, res.path])
                         setOpen(false)
                      },
                   },

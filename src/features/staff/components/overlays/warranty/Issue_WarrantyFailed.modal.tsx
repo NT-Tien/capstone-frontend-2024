@@ -149,7 +149,7 @@ function Issue_WarrantyFailedModal(props: Props) {
                            <h2 className="text-base font-medium">Hình ảnh đính kèm</h2>
                            <p className="font-base text-sm text-neutral-500">Vui lòng tải hình ảnh đính kèm (nếu có)</p>
                         </header>
-                        <ImageUploader imageUris={images} setImageUris={setImages} />
+                        <ImageUploader value={images} onChange={setImages} />
                      </section>
                   </>
                )}
@@ -168,7 +168,7 @@ function Issue_WarrantyFailedModal(props: Props) {
                            <h2 className="text-base font-medium">Hình ảnh đính kèm</h2>
                            <p className="font-base text-sm text-neutral-500">Vui lòng tải hình ảnh đính kèm (nếu có)</p>
                         </header>
-                        <ImageUploader imageUris={images} setImageUris={setImages} />
+                        <ImageUploader value={images} onChange={setImages} />
                      </section>
                   </>
                )}
@@ -207,7 +207,7 @@ function Issue_WarrantyFailedModal(props: Props) {
                            <h2 className="text-base font-medium">Hình ảnh đính kèm</h2>
                            <p className="font-base text-sm text-neutral-500">Vui lòng tải hình ảnh đính kèm (nếu có)</p>
                         </header>
-                        <ImageUploader imageUris={images} setImageUris={setImages} />
+                        <ImageUploader value={images} onChange={setImages} />
                      </section>
                   </>
                )}
@@ -226,7 +226,7 @@ function Issue_WarrantyFailedModal(props: Props) {
                            <h2 className="text-base font-medium">Biên nhận bảo hành</h2>
                            <p className="font-base text-sm text-neutral-500">Vui lòng tải biên nhận bảo hành</p>
                         </header>
-                        <ImageUploader imageUris={images} setImageUris={setImages} />
+                        <ImageUploader value={images} onChange={setImages} />
                      </section>
                   </>
                )}

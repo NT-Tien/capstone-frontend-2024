@@ -41,6 +41,7 @@ export enum TaskType {
    WARRANTY_SEND = "WARRANTY_SEND",
    WARRANTY_RECEIVE = "WARRANTY_RECEIVE",
    RENEW = "RENEW",
+   INSTALL_REPLACEMENT = 'INSTALL_REPLACEMENT',
 }
 
 export const PriorityTagMapper: {

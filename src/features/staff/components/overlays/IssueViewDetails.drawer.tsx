@@ -256,13 +256,13 @@ function IssueViewDetailsDrawer(props: Props) {
                                  <header className="mb-2">
                                     <h1 className="text-base font-bold">Hình ảnh xác nhận</h1>
                                  </header>
-                                 <ImageUploader imageUris={props.issue.imagesVerify} />
+                                 <ImageUploader value={props.issue.imagesVerify} />
                               </section>
                               <section className="mt-layout">
                                  <header className="mb-2">
                                     <h1 className="text-base font-bold">Video xác nhận</h1>
                                  </header>
-                                 <VideoUploader videoUris={[props.issue.videosVerify]} />
+                                 <VideoUploader value={[props.issue.videosVerify]} />
                               </section>
                            </>
                         )}

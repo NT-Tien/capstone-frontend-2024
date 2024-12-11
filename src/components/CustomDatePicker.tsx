@@ -17,6 +17,7 @@ type Props = {
       max: Dayjs
       min: Dayjs
    }
+   className?: string
 }
 
 function CustomDatePicker(props: Props) {

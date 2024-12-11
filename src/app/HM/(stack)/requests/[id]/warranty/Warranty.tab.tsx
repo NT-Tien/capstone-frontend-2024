@@ -1,311 +1,140 @@
 "use client"
 
-import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import Task_AssignFixerV2Drawer, {
-   Task_AssignFixerModalProps,
-} from "@/features/head-maintenance/components/overlays/Task_AssignFixerV2.drawer"
-import Issue_ViewDetails_WarrantyDrawer, {
-   Issue_ViewDetails_WarrantyDrawerProps,
-} from "@/features/head-maintenance/components/overlays/warranty/Issue_ViewDetails_Warranty.drawer"
-import Task_VerifyComplete_WarrantyDrawer, {
-   Task_VerifyComplete_WarrantyDrawerProps,
-} from "@/features/head-maintenance/components/overlays/warranty/Task_VerifyComplete_Warranty.drawer"
-import TaskCard from "@/features/head-maintenance/components/TaskCard"
-import head_maintenance_mutations from "@/features/head-maintenance/mutations"
-import {
-   AssembleDeviceTypeErrorId,
-   DisassembleDeviceTypeErrorId,
-   ReceiveWarrantyTypeErrorId,
-   SendWarrantyTypeErrorId,
-} from "@/lib/constants/Warranty"
-import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
-import { FixRequestStatus } from "@/lib/domain/Request/RequestStatus.enum"
-import { TaskDto } from "@/lib/domain/Task/Task.dto"
-import TaskUtil from "@/lib/domain/Task/Task.util"
-import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
-import useScanQrCodeDrawer from "@/lib/hooks/useScanQrCodeDrawer"
-import { cn } from "@/lib/utils/cn.util"
-import {
-   CheckOutlined,
-   EditOutlined,
-   LeftCircleFilled,
-   LoadingOutlined,
-   MoreOutlined,
-   PlusOutlined,
-   RightOutlined,
-   UserOutlined,
-} from "@ant-design/icons"
-import { Calendar, Circle, Spinner, User } from "@phosphor-icons/react"
+import { Factory } from "@phosphor-icons/react"
 import { UseQueryResult } from "@tanstack/react-query"
-import { App, Divider, Dropdown, Space, Spin, Steps } from "antd"
-import Button from "antd/es/button"
+import { Space, Divider, Button } from "antd"
+import Image from "next/image"
+import { EyeOutlined, EditOutlined } from "@ant-design/icons"
+import { useMemo } from "react"
+import { DeviceWarrantyCardStatus } from "@/lib/domain/DeviceWarrantyCard/DeviceWarrantyCardStatus.enum"
+import ImageUploader from "@/components/ImageUploader"
+import VideoUploader from "@/components/VideoUploader"
 import dayjs from "dayjs"
-import { useMemo, useRef } from "react"
 
 type Props = {
    api_request: UseQueryResult<RequestDto, Error>
-   className?: string
-   highlightTaskId?: Set<String>
-   handleOpenCreateTask?: () => void
-   disabledCreateTask?: boolean
-
-   onSuccess_FinishRequest?: () => void
 }
 
 function WarrantyTab(props: Props) {
-   const { modal, message } = App.useApp()
-
-   const control_issueViewDetailsWarrantyDrawer = useRef<RefType<Issue_ViewDetails_WarrantyDrawerProps>>(null),
-      control_taskAssignFixerDrawer = useRef<RefType<Task_AssignFixerModalProps>>(null),
-      control_taskVerifyComplete_warrantyDrawer = useRef<RefType<Task_VerifyComplete_WarrantyDrawerProps>>(null),
-      control_createReturnWarrantyTask = useRef<RefType<Task_AssignFixerModalProps>>(null),
-      control_qrScanner = useScanQrCodeDrawer({
-         validationFn: async (data) => {
-            if (!props.api_request.isSuccess) throw new Error("Request not found")
-
-            if (data !== props.api_request.data.device.id) {
-               return false
-            }
-
-            return true
-         },
-         onError(error) {
-            if (error instanceof Error && error.message === "Request not found") {
-               message.error("Đã xảy ra lỗi, vui lòng thử lại sau")
-               return
-            }
-
-            console.error(error)
-            message.error("Đã xảy ra lỗi, vui lòng thử lại sau")
-         },
-         infoText: "Quét mã QR trên thiết bị để xác nhận",
-         onSuccess() {
-            setTimeout(() => {
-               control_taskVerifyComplete_warrantyDrawer.current?.handleOpen({
-                  task: receiveWarrantyTask,
-                  request: props.api_request.data,
-               })
-            }, 150)
-         },
-      })
-
-   const mutate_finishRequest = head_maintenance_mutations.request.finish(),
-      mutate_updateTask = head_maintenance_mutations.task.update(),
-      mutate_createReturnWarranty = head_maintenance_mutations.request.createReturnWarranty()
-
-   const sendWarrantyTask = useMemo(() => {
+   const activeWarrantyCard = useMemo(() => {
       if (!props.api_request.isSuccess) return
 
-      return props.api_request.data.tasks
-         .filter((t) =>
-            t.issues.find(
-               (i) => i.typeError.id === SendWarrantyTypeErrorId || i.typeError.id === DisassembleDeviceTypeErrorId,
-            ),
-         )
-         .sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))[0]
-   }, [props.api_request.data?.tasks, props.api_request.isSuccess])
-
-   const receiveWarrantyTask = useMemo(() => {
-      if (!props.api_request.isSuccess) return
-
-      return props.api_request.data.tasks
-         .filter((t) =>
-            t.issues.find(
-               (i) => i.typeError.id === ReceiveWarrantyTypeErrorId || i.typeError.id === AssembleDeviceTypeErrorId,
-            ),
-         )
-         .sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))[0]
-   }, [props.api_request.data?.tasks, props.api_request.isSuccess])
-
-   const warrantyIssues = useMemo(() => {
-      const disassemble = TaskUtil.getTask_Warranty_FirstIssue(sendWarrantyTask)
-      const send = TaskUtil.getTask_Warranty_SecondIssue(sendWarrantyTask)
-      const receive = TaskUtil.getTask_Warranty_FirstIssue(receiveWarrantyTask)
-      const assemble = TaskUtil.getTask_Warranty_SecondIssue(receiveWarrantyTask)
-
-      return {
-         disassemble,
-         send,
-         receive,
-         assemble,
-      }
-   }, [receiveWarrantyTask, sendWarrantyTask])
-
-   const isSendCompleted = useMemo(() => {
-      return (
-         sendWarrantyTask?.status === TaskStatus.COMPLETED &&
-         sendWarrantyTask?.issues.every((i) => i.status === IssueStatusEnum.RESOLVED)
+      return props.api_request.data.deviceWarrantyCards?.find(
+         (card) => card.status !== DeviceWarrantyCardStatus.SUCCESS && card.status !== DeviceWarrantyCardStatus.FAIL,
       )
-   }, [sendWarrantyTask?.issues, sendWarrantyTask?.status])
-
-   const warrantyStatus = useMemo(() => {
-      if (warrantyIssues.disassemble?.status !== IssueStatusEnum.RESOLVED) return "Chưa gửi"
-      if (warrantyIssues.send?.status === IssueStatusEnum.PENDING) return "Đang gửi"
-      if (
-         warrantyIssues.send?.status === IssueStatusEnum.RESOLVED &&
-         warrantyIssues.receive?.status !== IssueStatusEnum.RESOLVED
-      )
-         return "Đang bảo hành"
-      if (
-         warrantyIssues.send?.status === IssueStatusEnum.FAILED ||
-         warrantyIssues.receive?.status === IssueStatusEnum.FAILED
-      )
-         return "Từ chối bảo hành"
-
-      if (warrantyIssues.receive?.status === IssueStatusEnum.RESOLVED) return "Bảo hành thành công"
-   }, [warrantyIssues])
-
-   function handleFinishRequest(requestId: string) {
-      modal.confirm({
-         title: "Hoàn tất yêu cầu",
-         content: "Bạn có chắc chắn muốn Hoàn tất yêu cầu này?",
-         onOk: () => {
-            mutate_finishRequest.mutate(
-               { id: requestId },
-               {
-                  onSettled: () => props.api_request.refetch(),
-                  onSuccess: props.onSuccess_FinishRequest,
-               },
-            )
-         },
-         cancelText: "Hủy",
-         okText: "Hoàn tất",
-         closable: true,
-         centered: true,
-         maskClosable: true,
-      })
-   }
+   }, [props.api_request.data?.deviceWarrantyCards, props.api_request.isSuccess])
 
    return (
-      <section className={cn("relative flex-1 pb-[80px]", props.className)}>
-         {props.api_request.isSuccess && (
-            <div className={"p-layout"}>
-               <div className="mb-layout flex w-full rounded-lg bg-red-800 p-2 text-white">
-                  <h3 className="mr-auto font-semibold">Trạng thái bảo hành</h3>
-                  <p>{warrantyStatus}</p>
+      <div className="p-layout pb-[80px]">
+         {props.api_request.data?.temporary_replacement_device && (
+            <div className="mb-layout">
+               <div className="w-max rounded-t-lg border-2 border-b-0 border-red-800 bg-neutral-100 px-8 font-semibold text-red-800">
+                  Thiết bị thay thế tạm thời
                </div>
-               <div className="flex flex-col gap-2">
-                  {sendWarrantyTask && (
-                     <TaskCard.Warranty
-                        task={sendWarrantyTask}
-                        handleOpen_assignFixer={(props) => control_taskAssignFixerDrawer.current?.handleOpen(props)}
-                        handleOpen_issueViewDetailsWarranty={(props) =>
-                           control_issueViewDetailsWarrantyDrawer.current?.handleOpen(props)
-                        }
-                        requestId={props.api_request.data.id}
-                        title={TaskCard.Warranty.SendTitle}
-                     />
-                  )}
-                  {receiveWarrantyTask && (
-                     <TaskCard.Warranty
-                        task={receiveWarrantyTask}
-                        handleOpen_assignFixer={(props) => control_taskAssignFixerDrawer.current?.handleOpen(props)}
-                        handleOpen_issueViewDetailsWarranty={(props) =>
-                           control_issueViewDetailsWarrantyDrawer.current?.handleOpen(props)
-                        }
-                        requestId={props.api_request.data.id}
-                        title={TaskCard.Warranty.ReceiveTitle}
-                     />
-                  )}
+               <div className="flex h-[76px]">
+                  <div className="flex w-full flex-grow items-start justify-start gap-3 rounded-bl-lg bg-red-800 p-2">
+                     <div className="flex-shrink-0">
+                        <Image
+                           src={props.api_request.data.temporary_replacement_device.machineModel.image}
+                           alt="device-image"
+                           width={60}
+                           height={60}
+                           className="rounded-md"
+                        />
+                     </div>
+                     <div className="flex flex-col text-white">
+                        <h3 className="line-clamp-1 whitespace-pre-wrap text-base font-bold">
+                           {props.api_request.data.temporary_replacement_device.machineModel.name}
+                        </h3>
+                        <Space split={<Divider type="vertical" className="m-0" />} className="mt-auto">
+                           <div className="text-xs">
+                              <Factory size={14} weight="fill" className="mr-1.5 inline" />
+                              {props.api_request.data.temporary_replacement_device.machineModel.manufacturer}
+                           </div>
+                        </Space>
+                     </div>
+                  </div>
+                  <div className="flex h-full flex-shrink-0 flex-col">
+                     <Button
+                        icon={<EyeOutlined />}
+                        className="h-full rounded-l-none rounded-br-none border-red-800"
+                     ></Button>
+                     <Button
+                        icon={<EditOutlined />}
+                        className="h-full rounded-l-none rounded-tr-none border-red-800"
+                     ></Button>
+                  </div>
                </div>
-               {props.api_request.data.status === FixRequestStatus.IN_PROGRESS &&
-                  props.api_request.data.tasks.every(
-                     (t) => t.status === TaskStatus.COMPLETED || t.status === TaskStatus.CANCELLED,
-                  ) &&
-                  props.api_request.data.issues.every(
-                     (t) => t.status === IssueStatusEnum.RESOLVED || t.status === IssueStatusEnum.CANCELLED,
-                  ) && (
-                     <section className={"fixed bottom-0 left-0 z-50 w-full bg-white p-layout"}>
-                        <Button
-                           block
-                           type={"primary"}
-                           size={"large"}
-                           onClick={() => {
-                              props.api_request.isSuccess && handleFinishRequest(props.api_request.data.id)
-                           }}
-                        >
-                           Hoàn tất yêu cầu
-                        </Button>
-                     </section>
-                  )}
             </div>
          )}
-         {control_qrScanner.contextHolder()}
-         <OverlayControllerWithRef ref={control_issueViewDetailsWarrantyDrawer}>
-            <Issue_ViewDetails_WarrantyDrawer refetchFn={() => props.api_request.refetch()} />
-         </OverlayControllerWithRef>
-         <OverlayControllerWithRef ref={control_createReturnWarrantyTask}>
-            <Task_AssignFixerV2Drawer
-               onSubmit={(fixer, date, priority) => {
-                  if (!props.api_request.isSuccess) return
-                  mutate_createReturnWarranty.mutate(
-                     {
-                        id: props.api_request.data.id,
-                        payload: {
-                           fixer: fixer.id,
-                           fixerDate: date.toISOString(),
-                           priority,
-                        },
-                     },
-                     {
-                        onSettled: () => props.api_request.refetch(),
-                     },
-                  )
-               }}
-            />
-         </OverlayControllerWithRef>
-         <OverlayControllerWithRef ref={control_taskAssignFixerDrawer}>
-            <Task_AssignFixerV2Drawer
-               onSubmit={(fixer, date, priority, taskId) => {
-                  if (!taskId) {
-                     console.error("Dev error: Missing task ID")
-                     return
-                  }
-                  mutate_updateTask.mutate(
-                     {
-                        id: taskId,
-                        payload: {
-                           fixer: fixer.id,
-                           fixerDate: date.toISOString(),
-                           priority,
-                           status: TaskStatus.ASSIGNED,
-                        },
-                     },
-                     {
-                        onSettled: () => props.api_request.refetch(),
-                     },
-                  )
-               }}
-            />
-         </OverlayControllerWithRef>
-         <OverlayControllerWithRef ref={control_taskVerifyComplete_warrantyDrawer}>
-            <Task_VerifyComplete_WarrantyDrawer onSubmit={() => props.api_request.refetch()} />
-         </OverlayControllerWithRef>
-         {sendWarrantyTask?.status === TaskStatus.COMPLETED && !!receiveWarrantyTask === false && (
-            <footer className="fixed bottom-0 left-0 z-50 w-full border-t-[1px] border-t-neutral-300 bg-white p-layout">
-               <Button
-                  block
-                  type="primary"
-                  onClick={() =>
-                     control_createReturnWarrantyTask.current?.handleOpen({
-                        defaults: {
-                           date: props.api_request.data?.return_date_warranty
-                              ? new Date(props.api_request.data.return_date_warranty)
-                              : undefined,
-                           priority: "normal",
-                           fixer: sendWarrantyTask?.fixer ? sendWarrantyTask.fixer : undefined,
-                        },
-                        recommendedFixerIds: [sendWarrantyTask.fixer?.id],
-                     })
-                  }
-                  icon={<PlusOutlined />}
-               >
-                  Tạo tác vụ nhận máy
-               </Button>
-            </footer>
+
+         <article className="mb-3">
+            <header>
+               <h2 className="text-lg font-bold">Thông tin lỗi máy</h2>
+            </header>
+            <main className="space-y-3">
+               <section>
+                  <h3 className="mb-0.5 text-base font-semibold text-neutral-800">Ghi chú</h3>
+                  <p>{activeWarrantyCard?.initial_note}</p>
+               </section>
+               {activeWarrantyCard?.initial_images && (
+                  <section>
+                     <h3 className="mb-0.5 text-base font-semibold text-neutral-800">Hình ảnh lỗi</h3>
+                     <ImageUploader value={activeWarrantyCard.initial_images} />
+                  </section>
+               )}
+               {activeWarrantyCard?.initial_video && (
+                  <section>
+                     <h3 className="mb-0.5 text-base font-semibold text-neutral-800">Video lỗi</h3>
+                     <VideoUploader value={[activeWarrantyCard.initial_video]} />
+                  </section>
+               )}
+            </main>
+         </article>
+         {activeWarrantyCard?.status === DeviceWarrantyCardStatus.WC_PROCESSING && (
+            <article className="mb-3">
+               <header>
+                  <h2 className="text-lg font-bold">Đơn gửi bảo hành</h2>
+               </header>
+               <main className="space-y-3">
+                  <section>
+                     <h3 className="mb-0.5 text-base font-semibold text-neutral-800">Mã đơn bảo hành</h3>
+                     <p>{activeWarrantyCard.code}</p>
+                  </section>
+                  <section>
+                     <h3 className="mb-0.5 text-base font-semibold text-neutral-800">Ngày gửi</h3>
+                     <p>{dayjs(activeWarrantyCard.send_date).format("DD/MM/YYYY HH:mm")}</p>
+                  </section>
+                  <section>
+                     <h3 className="mb-0.5 text-base font-semibold text-neutral-800">Ngày nhận (dự tính)</h3>
+                     <p>{dayjs(activeWarrantyCard.receive_date).format("DD/MM/YYYY")}</p>
+                  </section>
+                  <section>
+                     <h3 className="mb-0.5 text-base font-semibold text-neutral-800">Nhân viện nhận máy</h3>
+                     <p>{activeWarrantyCard.wc_receiverName}</p>
+                  </section>
+                  <section>
+                     <h3 className="mb-0.5 text-base font-semibold text-neutral-800">Số điện thoại liên lạc</h3>
+                     <p>{activeWarrantyCard.wc_receiverPhone}</p>
+                  </section>
+                  <section>
+                     <h3 className="mb-0.5 text-base font-semibold text-neutral-800">Vị trí trung tâm bảo hành</h3>
+                     <p>
+                        {activeWarrantyCard.wc_name} -{" "}
+                        {[
+                           activeWarrantyCard.wc_address_1,
+                           activeWarrantyCard.wc_address_2,
+                           "Phường " + activeWarrantyCard.wc_address_ward,
+                           "Quận " + activeWarrantyCard.wc_address_district,
+                           activeWarrantyCard.wc_address_city,
+                        ].join(", ")}
+                     </p>
+                  </section>
+               </main>
+            </article>
          )}
-      </section>
+      </div>
    )
 }
 

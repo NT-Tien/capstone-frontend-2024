@@ -280,7 +280,7 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
                                  <h3 className="text-base font-semibold">Hình ảnh thiết bị</h3>
                                  <p className="font-base text-sm text-neutral-500">Hình ảnh thiết bị sau khi tháo gỡ</p>
                               </header>
-                              <ImageUploader imageUris={api_issue.data.imagesVerify.slice(1)} />
+                              <ImageUploader value={api_issue.data.imagesVerify.slice(1)} />
                            </section>
                         </>
                      )}
@@ -297,7 +297,7 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
                               <header className="mb-2">
                                  <h3 className="text-base font-semibold">Hình ảnh đính kèm</h3>
                               </header>
-                              <ImageUploader imageUris={api_issue.data.imagesVerifyFail} />
+                              <ImageUploader value={api_issue.data.imagesVerifyFail} />
                            </section>
                         </>
                      )}
@@ -313,7 +313,7 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
                                  <h3 className="text-base font-semibold">Hình ảnh thiết bị</h3>
                                  <p className="font-base text-sm text-neutral-500">Hình ảnh thiết bị sau khi lắp đặt</p>
                               </header>
-                              <ImageUploader imageUris={api_issue.data.imagesVerify} />
+                              <ImageUploader value={api_issue.data.imagesVerify} />
                            </section>
                         </>
                      )}
@@ -353,7 +353,7 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
                                     Vui lòng tải hình ảnh biên nhận bảo hành
                                  </p>
                               </header>
-                              <ImageUploader imageUris={api_issue.data?.imagesVerify} />
+                              <ImageUploader value={api_issue.data?.imagesVerify} />
                            </section>
                         </>
                      )}
@@ -370,7 +370,7 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
                               <header className="mb-2">
                                  <h3 className="text-base font-semibold">Hình ảnh đính kèm</h3>
                               </header>
-                              <ImageUploader imageUris={api_issue.data.imagesVerifyFail} />
+                              <ImageUploader value={api_issue.data.imagesVerifyFail} />
                            </section>
                         </>
                      )}

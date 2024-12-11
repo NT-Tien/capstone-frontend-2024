@@ -60,7 +60,7 @@ export const TaskStatusTagMapper: {
       index: 3,
    },
    [TaskStatus.HEAD_STAFF_CONFIRM]: {
-      text: "Chờ kiểm tra",
+      text: "Cần kiểm tra",
       colorInverse: "processing",
       color: "processing",
       icon: <Note size={16} />,

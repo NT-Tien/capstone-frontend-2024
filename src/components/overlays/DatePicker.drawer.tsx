@@ -14,6 +14,8 @@ type DatePickerDrawerProps = {
       min: Dayjs
    }
    onSubmit?: (date: Dayjs) => void
+   title?: string
+   subtitle?: string
 }
 type Props = Omit<DrawerProps, "children"> &
    DatePickerDrawerProps & {
@@ -80,24 +82,25 @@ function DatePickerDrawer(props: Props) {
    useEffect(() => {
       setDays(getDayArray(pickerValue.month as string, pickerValue.year as string, props.bounds))
       setMonths(getMonthArray(pickerValue.year as string, props.bounds))
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [props.bounds])
 
    return (
       <Drawer
          closeIcon={false}
-         title={false}
          placement="bottom"
          height="max-content"
          classNames={{
             body: "p-0",
          }}
          {...props}
+         title={false}
       >
          <header className="my-3 flex flex-col items-center justify-center px-layout">
             <div className="h-2 w-1/4 rounded-full bg-neutral-300" onClick={props.onClose} />
-            <h1 className="mt-3 text-center text-lg font-semibold">Chọn ngày, tháng, năm</h1>
+            <h1 className="mt-3 text-center text-lg font-semibold">{props.title ?? "Chọn ngày, tháng, năm"}</h1>
             <p className="text-center font-base text-sm text-neutral-500">
-               Vui lòng chọn ngày, tháng, năm trong danh sách sau
+               {props.subtitle ?? "Vui lòng chọn ngày, tháng, năm trong danh sách sau"}
             </p>
          </header>
          <Picker value={pickerValue} onChange={handleChangePickerValue}>

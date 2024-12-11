@@ -327,29 +327,9 @@ function TasksTab(props: Props) {
          <OverlayControllerWithRef ref={control_taskVerifyComplete_warrantyDrawer}>
             <Task_VerifyComplete_WarrantyDrawer onSubmit={() => props.api_request.refetch()} />
          </OverlayControllerWithRef>
-         {sendWarrantyTask?.status === TaskStatus.COMPLETED && !!receiveWarrantyTask === false && (
-            <footer className="fixed bottom-0 left-0 z-50 w-full border-t-[1px] border-t-neutral-300 bg-white p-layout">
-               <Button
-                  block
-                  type="primary"
-                  onClick={() =>
-                     control_createReturnWarrantyTask.current?.handleOpen({
-                        defaults: {
-                           date: props.api_request.data?.return_date_warranty
-                              ? new Date(props.api_request.data.return_date_warranty)
-                              : undefined,
-                           priority: "normal",
-                           fixer: sendWarrantyTask?.fixer ? sendWarrantyTask.fixer : undefined,
-                        },
-                        recommendedFixerIds: [sendWarrantyTask.fixer?.id],
-                     })
-                  }
-                  icon={<PlusOutlined />}
-               >
-                  Tạo tác vụ nhận máy
-               </Button>
-            </footer>
-         )}
+         <footer>
+            
+         </footer>
       </section>
    )
 }

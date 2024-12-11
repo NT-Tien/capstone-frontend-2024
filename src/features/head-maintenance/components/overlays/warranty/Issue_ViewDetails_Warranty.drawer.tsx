@@ -106,7 +106,7 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
                         })
                      }}
                   >
-                     Cập nhật
+                     Xử lý lỗi
                   </Button>
                )
             case ReceiveWarrantyTypeErrorId:

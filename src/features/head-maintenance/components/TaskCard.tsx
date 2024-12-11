@@ -8,6 +8,7 @@ import {
    MoreOutlined,
    RightOutlined,
    LeftCircleFilled,
+   ExclamationOutlined,
 } from "@ant-design/icons"
 import { Button, Dropdown, Steps } from "antd"
 import { cn } from "@/lib/utils/cn.util"
@@ -46,6 +47,7 @@ function TaskCardWarranty_ReplacementDevice(props: TaskCardWarranty_ReplacementD
             props.task.status === TaskStatus.ASSIGNED && "bg-neutral-100",
             props.task.status === TaskStatus.IN_PROGRESS && "bg-blue-100",
             props.task.status === TaskStatus.COMPLETED && "bg-green-100",
+            props.task.status === TaskStatus.HEAD_STAFF_CONFIRM && "bg-yellow-100",
          )}
       >
          <div className="flex gap-3">
@@ -61,6 +63,11 @@ function TaskCardWarranty_ReplacementDevice(props: TaskCardWarranty_ReplacementD
                {props.task.status === TaskStatus.COMPLETED && (
                   <div className="grid size-[38px] place-items-center rounded-full bg-green-500 text-xl text-white">
                      <CheckOutlined />
+                  </div>
+               )}
+               {props.task.status === TaskStatus.HEAD_STAFF_CONFIRM && (
+                  <div className="grid size-[38px] place-items-center rounded-full bg-yellow-500 text-xl text-white">
+                     <ExclamationOutlined />
                   </div>
                )}
             </div>
@@ -212,6 +219,7 @@ function TaskCardWarranty(props: TaskCardSendWarrantyProps) {
             props.task.status === TaskStatus.ASSIGNED && "bg-neutral-100",
             props.task.status === TaskStatus.IN_PROGRESS && "bg-blue-100",
             props.task.status === TaskStatus.COMPLETED && "bg-green-100",
+            props.task.status === TaskStatus.HEAD_STAFF_CONFIRM && "bg-yellow-100",
          )}
       >
          <div className="flex gap-3">
@@ -227,6 +235,11 @@ function TaskCardWarranty(props: TaskCardSendWarrantyProps) {
                {props.task.status === TaskStatus.COMPLETED && (
                   <div className="grid size-[38px] place-items-center rounded-full bg-green-500 text-xl text-white">
                      <CheckOutlined />
+                  </div>
+               )}
+               {props.task.status === TaskStatus.HEAD_STAFF_CONFIRM && (
+                  <div className="grid size-[38px] place-items-center rounded-full bg-yellow-500 text-xl text-white">
+                     <ExclamationOutlined />
                   </div>
                )}
             </div>
@@ -328,6 +341,18 @@ function TaskCardWarranty(props: TaskCardSendWarrantyProps) {
                      }),
                }))}
             />
+         )}
+         {props.task.status === TaskStatus.HEAD_STAFF_CONFIRM && (
+            <Button block type="primary" className="mt-2 bg-yellow-600" onClick={() => {
+               // programmatically click on the failed issue
+               const failedIssue = issues?.find(i => i.status === IssueStatusEnum.FAILED)
+               failedIssue && props.handleOpen_issueViewDetailsWarranty({
+                  issueId: failedIssue.id,
+                  requestId: props.requestId,
+               })
+            }}>
+               Kiểm tra tác vụ
+            </Button>
          )}
       </div>
    )

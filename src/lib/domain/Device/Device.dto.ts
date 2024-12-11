@@ -15,4 +15,5 @@ export type DeviceDto = {
    deletedAt: null | string
    requests: RequestDto[]
    status: boolean
+   isWarranty: boolean
 }

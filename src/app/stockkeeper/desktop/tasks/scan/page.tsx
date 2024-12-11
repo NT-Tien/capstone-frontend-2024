@@ -175,7 +175,8 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                  id: api.task.data.device_renew.id,
                  name: (
                     <>
-                       {api.task.data.device_renew.description} <Tag color="green">Đề xuất</Tag>
+                       {api.task.data.device_renew.deviceCode}{" "}
+                       <Tag color="green">Đề xuất</Tag>
                     </>
                  ),
                  manufacturer: api.task.data.device_renew.operationStatus,
@@ -186,7 +187,7 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
          .filter((device) => device.positionX === null && device.positionY === null)
          .map((device) => ({
             id: device.id,
-            name: device.description,
+            name: device.deviceCode,
             manufacturer: device.operationStatus,
          })),
    ]
@@ -571,7 +572,7 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                                             ]}
                                          />
                                          <div className="mt-5">
-                                          <h2 className="mb-2 text-lg font-semibold">Chọn thiết bị mới</h2>
+                                            <h2 className="mb-2 text-lg font-semibold">Chọn thiết bị mới</h2>
                                             <ProTable
                                                rowKey="id"
                                                columns={[

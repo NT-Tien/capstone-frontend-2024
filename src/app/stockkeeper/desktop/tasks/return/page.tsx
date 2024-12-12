@@ -124,7 +124,9 @@ function Page() {
                            type="primary"
                            disabled={
                               // !!api.task.data?.return_spare_part_data &&
-                              Object.keys(spareParts).length > 0 && updated.length !== Object.keys(spareParts).length
+                              Object.keys(spareParts).length > 0 &&
+                              updated.length !== Object.keys(spareParts).length ||
+                              api.task.data?.renewed === true
                            }
                            onClick={() => control_dualSignatureDrawer.current?.handleOpen({})}
                         >
@@ -169,10 +171,10 @@ function Page() {
                                           label: "Mẫu máy",
                                           children: api.task.data?.device.machineModel.name,
                                        },
-                                       {
-                                          label: "Trạng thái",
-                                          children: api.task.data.return_spare_part_data ? "Đã trả" : "Chưa trả",
-                                       },
+                                       // {
+                                       //    label: "Trạng thái",
+                                       //    children: api.task.data.return_spare_part_data ? "Đã trả" : "Chưa trả",
+                                       // },
                                     ]}
                                  />
                                  {!check_taskIsWarranty && (
@@ -241,7 +243,7 @@ function Page() {
                              children: (
                                 <>
                                    <Table
-                                      dataSource={Object.values(spareParts)}
+                                      dataSource={api.task.data?.return_spare_part_data as any}
                                       pagination={false}
                                       columns={[
                                          { key: "index", title: "STT", render: (_, __, index) => index + 1 },
@@ -250,14 +252,15 @@ function Page() {
                                          {
                                             key: "actions",
                                             align: "right",
-                                            render: (_, record) => (
+                                            render: (_, record: any) => (
                                                <div>
-                                                  {!updated.includes(record.sparePart.id) && (
+                                                  {!updated.includes(record.sparePart.id) && record.returned != true ? (
                                                      <Button
                                                         onClick={() => {
                                                            mutate_updateSparePartQuantity.mutate(
                                                               {
-                                                                 id: record.sparePart.id,
+                                                                 sparePartId: record.sparePart.id,
+                                                                 issueId: record.issue.id,
                                                                  payload: { quantity: record.quantity },
                                                               },
                                                               {
@@ -274,6 +277,8 @@ function Page() {
                                                      >
                                                         Cập nhật kho
                                                      </Button>
+                                                  ) : (
+                                                     <Button disabled={true}>Đã trả</Button>
                                                   )}
                                                </div>
                                             ),
@@ -299,6 +304,12 @@ function Page() {
                                          children: check_taskIsWarranty
                                             ? check_taskIsWarranty.task.device_static?.machineModel.name
                                             : api.task.data?.device.machineModel.name,
+                                      },
+                                      {
+                                         label: "Mã thiết bị",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.id
+                                            : api.task.data.device.id,
                                       },
                                       {
                                          label: "Nhà sản xuất",
@@ -435,6 +446,7 @@ function Page() {
                            mutate_returnRemovedDevice.mutate(
                               {
                                  id: api.task.data?.device.id || "",
+                                 taskId: api.task.data?.id || "",
                                  payload: {
                                     staff_signature: staff,
                                     stockkeeper_signature: stockkeeper,

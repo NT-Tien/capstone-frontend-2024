@@ -4,14 +4,15 @@ import Cookies from "js-cookie"
 import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
 
 export type Request = {
-   id: string
+   sparePartId: string
+   issueId: string
    payload: {
       quantity: number
    }
 }
 export type Response = SparePartDto
 
-Stockkeeper_SparePart_Update_Quantity.URL = (req: Request) => `/stockkeeper/spare-part/addQuantity/${req.id}`
+Stockkeeper_SparePart_Update_Quantity.URL = (req: Request) => `/stockkeeper/spare-part/addQuantity/${req.sparePartId}/${req.issueId}`
 export default async function Stockkeeper_SparePart_Update_Quantity(req: Request): Promise<Response> {
     return api
        .put<Response>(Stockkeeper_SparePart_Update_Quantity.URL(req), req.payload, {

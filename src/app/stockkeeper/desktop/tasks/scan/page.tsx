@@ -65,9 +65,9 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
    const api_machineModel = useQueries({
       queries: [
          {
-            queryKey: stockkeeper_qk.machineModel.one_byId(api.task.data?.device_renew.machineModel.id ?? ""),
-            queryFn: () => Stockkeeper_MachineModel_GetById({ id: api.task.data?.device_renew.machineModel.id ?? "" }),
-            enabled: !!api.task.data?.device_renew.machineModel.id,
+            queryKey: stockkeeper_qk.machineModel.one_byId(api.task.data?.device_renew?.machineModel?.id ?? ""),
+            queryFn: () => Stockkeeper_MachineModel_GetById({ id: api.task.data?.device_renew?.machineModel?.id ?? "" }),
+            enabled: !!api.task.data?.device_renew?.machineModel?.id,
          },
       ],
    })

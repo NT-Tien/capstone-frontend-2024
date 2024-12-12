@@ -123,9 +123,9 @@ function MachineModel_UpsertDrawer(props: Props) {
             <Form.Item<FormFieldType>
                name="description"
                label="Mô tả"
-               rules={[{ required: true }, { type: "string", max: 300 }]}
+               rules={[{ required: true }, { type: "string", max: 2000 }]}
             >
-               <Input.TextArea placeholder="Nhập mô tả" autoSize={{ minRows: 3 }} maxLength={300} showCount />
+               <Input.TextArea placeholder="Nhập mô tả" autoSize={{ minRows: 3 }} maxLength={2000} showCount />
             </Form.Item>
             <Form.Item<FormFieldType>
                name="manufacturer"

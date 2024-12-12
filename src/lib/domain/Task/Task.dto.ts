@@ -34,6 +34,7 @@ export type TaskDto = {
    export_warehouse_ticket: ExportWarehouseDto[]
    device_static?: DeviceDto
    type: TaskType
+   renewed: boolean
 }
 
 export enum TaskType {

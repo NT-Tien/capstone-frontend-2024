@@ -24,6 +24,8 @@ import ReturnSparePartDrawer, {
 import TaskUtil from "@/lib/domain/Task/Task.util"
 import PageLoader from "@/components/PageLoader"
 import PageError from "@/components/PageError"
+import staff_mutations from "@/features/staff/mutations"
+import { id } from "react-day-picker/locale"
 
 function Page({ params }: { params: { id: string } }) {
    const router = useRouter()
@@ -34,6 +36,7 @@ function Page({ params }: { params: { id: string } }) {
    const control_returnSparePartDrawer = useRef<RefType<ReturnSparePartDrawerProps>>(null)
 
    const api_task = staff_queries.task.one({ id: params.id })
+   const mutate_finishTask = staff_mutations.task.finish()
 
    const issueSpareParts = useMemo(() => {
       return api_task.data?.issues?.flatMap((issue) => issue.issueSpareParts) || []
@@ -88,6 +91,23 @@ function Page({ params }: { params: { id: string } }) {
 
    if (api_task.isPending) {
       return <PageLoader />
+   }
+
+   function handleFinish(taskId: string, imageVerify: string, signVerify: string, note: string) {
+      mutate_finishTask.mutate(
+         {
+            id: taskId,
+            // autoClose: isWarranty_Special,
+            payload: {
+               imagesVerify: [signVerify, imageVerify],
+               fixerNote: note,
+               videosVerify: "",
+            },
+         },
+         // {
+         //    onSuccess: props.onSuccess,
+         // },
+      )
    }
 
    console.log("issueSpareParts length:", issueSpareParts.length)
@@ -344,6 +364,13 @@ function Page({ params }: { params: { id: string } }) {
                      Hoàn thành tác vụ
                   </Button>
                )}
+               {(api_task.data.issues[0].status === IssueStatusEnum.RESOLVED ||
+                  api_task.data.issues[0].status === IssueStatusEnum.FAILED) &&
+                  hasReturnedSpareParts && (
+                     <Button block type={"primary"} onClick={() => handleFinish(params.id, "", "", "")}>
+                        Cập nhật tác vụ
+                     </Button>
+                  )}
 
                {!hasReturnedSpareParts && hasFailedIssueWithSparePart && (
                   <Button

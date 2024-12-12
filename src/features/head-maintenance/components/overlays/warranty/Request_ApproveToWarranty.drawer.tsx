@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils/cn.util"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import ImageUploader from "@/components/ImageUploader"
 import VideoUploader from "@/components/VideoUploader"
+import RequiredStar from "@/components/RequiredStar"
 type FieldType = {
    note: string
    fixerDate: Dayjs
@@ -226,7 +227,9 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                      <section className={"mb-6 mt-2 space-y-4"}>
                         <section>
                            <header className="mb-2">
-                              <h3 className="text-base font-medium text-neutral-800">Hình ảnh lỗi máy</h3>
+                              <h3 className="text-base font-medium text-neutral-800">
+                                 Hình ảnh lỗi máy <RequiredStar />
+                              </h3>
                            </header>
                            <Form.Item name="images" initialValue={[]}>
                               <ImageUploader value={[]} />
@@ -242,7 +245,9 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                         </section>
                         <section>
                            <header className="mb-2">
-                              <h3 className="text-base font-medium text-neutral-800">Ghi chú</h3>
+                              <h3 className="text-base font-medium text-neutral-800">
+                                 Ghi chú <RequiredStar />
+                              </h3>
                            </header>
                            <Form.Item<FieldType> name={"note"} rules={[{ required: true }]} noStyle>
                               <Input.TextArea

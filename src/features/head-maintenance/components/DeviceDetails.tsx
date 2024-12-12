@@ -5,12 +5,17 @@ import hm_uris from "@/features/head-maintenance/uri"
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import RequestStatus_Mapper from "@/lib/domain/Request/RequestStatusMapperV2"
 import { cn } from "@/lib/utils/cn.util"
-import { CalendarPlus, CaretRight, ClockCounterClockwise, MapPin, Truck } from "@phosphor-icons/react"
+import { CalendarPlus, CaretRight, ChartDonut, ClockCounterClockwise, MapPin, Truck } from "@phosphor-icons/react"
 import { UseQueryResult } from "@tanstack/react-query"
 import { Button, Card, CardProps, Divider, Image, Space, Spin, Typography } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import { HTMLAttributes } from "react"
+import { HTMLAttributes, useRef } from "react"
+import { RightOutlined } from "@ant-design/icons"
+import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import Device_SpecsDrawer, {
+   Device_SpecsDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Device_Specs.drawer"
 
 type Props = {
    device: DeviceDto
@@ -18,6 +23,8 @@ type Props = {
 } & CardProps
 
 function DeviceDetails(props: Props) {
+   const control_deviceSpecsDrawer = useRef<RefType<Device_SpecsDrawerProps>>(null)
+
    const api_requestHistory = head_maintenance_queries.device.all_requestHistory(
       {
          id: props.device.id,
@@ -106,6 +113,22 @@ function DeviceDetails(props: Props) {
                </p>
             </div>
             <Divider className="m-0" />
+            <ClickableArea
+               reset
+               className="flex py-3"
+               onClick={() =>
+                  control_deviceSpecsDrawer.current?.handleOpen({
+                     data: props.device.machineModel,
+                  })
+               }
+            >
+               <h3 className="font-medium">
+                  <ChartDonut size={14} weight="fill" className="mr-1.5 inline" />
+                  Thông số
+               </h3>
+               <CaretRight size={14} weight="regular" className="ml-auto" />
+            </ClickableArea>
+            <Divider className="m-0" />
             <ClickableArea reset className="flex py-3">
                <h3 className="font-medium">
                   <ClockCounterClockwise size={14} weight="fill" className="mr-1.5 inline" />
@@ -131,6 +154,9 @@ function DeviceDetails(props: Props) {
             </ClickableArea>
             {api_requestHistory.isSuccess && <DeviceDetails.HistorySection api_requestHistory={api_requestHistory} />}
          </section>
+         <OverlayControllerWithRef ref={control_deviceSpecsDrawer}>
+            <Device_SpecsDrawer />
+         </OverlayControllerWithRef>
       </Card>
    )
 }

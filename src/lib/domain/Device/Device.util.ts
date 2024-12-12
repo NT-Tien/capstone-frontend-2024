@@ -1,4 +1,5 @@
 import { DeviceDto } from "@/lib/domain/Device/Device.dto"
+import { FE_DeviceStatus } from "@/lib/domain/Device/FE_DeviceStatus.enum"
 import dayjs from "dayjs"
 
 class DeviceUtil {
@@ -32,6 +33,22 @@ class DeviceUtil {
          }
       })
       return Object.values(returnValue)
+   }
+
+   static getDeviceStatus(device?: DeviceDto) {
+      if (!device) return
+
+      if (device.isWarranty) return FE_DeviceStatus.WARRANTY_CENTER_PROCESSING
+
+      if (device.area === null && device.positionX === null && device.positionY === null) {
+         return FE_DeviceStatus.IN_WAREHOUSE
+      }
+
+      if (device.area !== null && device.positionX !== null && device.positionY !== null) {
+         return FE_DeviceStatus.IN_PRODUCTION
+      }
+
+      if (!device.status) return FE_DeviceStatus.ON_HOLD
    }
 }
 

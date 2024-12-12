@@ -1,31 +1,41 @@
 "use client"
 
-import { PageContainer } from "@ant-design/pro-layout"
-import { useMemo, useRef, useState } from "react"
-import admin_queries from "@/features/admin/queries"
-import dayjs from "dayjs"
-import { ProTable } from "@ant-design/pro-components"
-import { CaretDown, CaretUp } from "@phosphor-icons/react"
-import Link from "next/link"
-import { Role } from "@/lib/domain/User/role.enum"
-import Button from "antd/es/button"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import MachineModel_UpsertDrawer, {
-   MachineModel_UpsertDrawerProps,
-} from "@/features/admin/components/overlays/MachineModel_Upsert.drawer"
 import Device_UpsertDrawer, {
    Device_UpsertDrawerProps,
 } from "@/features/admin/components/overlays/Device_Upsert.drawer"
+import admin_queries from "@/features/admin/queries"
+import DeviceUtil from "@/lib/domain/Device/Device.util"
+import { FE_DeviceStatus } from "@/lib/domain/Device/FE_DeviceStatus.enum"
+import { ProTable } from "@ant-design/pro-components"
+import { PageContainer } from "@ant-design/pro-layout"
+import { CaretDown, CaretUp } from "@phosphor-icons/react"
+import Button from "antd/es/button"
+import dayjs from "dayjs"
+import Link from "next/link"
+import { useMemo, useRef, useState } from "react"
+
+enum WarrantyStatus {
+   HAS_WARRANTY = "Còn bảo hành",
+   NO_WARRANTY = "Hết bảo hành",
+}
 
 type QueryState = {
    page: number
    limit: number
    search?: {
+      deviceCode?: string
       name?: string
       createdAt?: string
       updatedAt?: string
       positionX?: number
       positionY?: number
+      machineModel?: {
+         warrantyTerm?: WarrantyStatus
+      }
+      area?: {
+         name?: string
+      }
    }
    sort?: {
       orderBy?: string
@@ -54,6 +64,9 @@ function Page() {
          }
 
       const filtered = api_devices.data.filter((item) => {
+         const matchCode = query.search?.deviceCode
+            ? item.deviceCode.toLowerCase().includes(query.search.deviceCode.toLowerCase())
+            : true
          const matchName = query.search?.name
             ? item.machineModel.name.toLowerCase().includes(query.search.name.toLowerCase())
             : true
@@ -66,7 +79,40 @@ function Page() {
          const matchPositionX = query.search?.positionX !== undefined ? item.positionX === query.search.positionX : true
          const matchPositionY = query.search?.positionY !== undefined ? item.positionY === query.search.positionY : true
 
-         return matchName && matchCreatedAt && matchUpdatedAt && matchPositionX && matchPositionY
+         let matchArea = true
+
+         if (query.search?.area?.name) {
+            if (item.area?.name && item.positionX && item.positionY) {
+               matchArea = item.area.name.toLowerCase().includes(query.search.area.name.toLowerCase())
+            } else {
+               matchArea = false
+            }
+         }
+
+         let matchWarranty = true
+
+         if (query.search?.machineModel?.warrantyTerm) {
+            if (query.search.machineModel.warrantyTerm as any === "HAS_WARRANTY") {
+               matchWarranty = item.machineModel.warrantyTerm
+                  ? dayjs().isBefore(dayjs(item.machineModel.warrantyTerm))
+                  : false
+            } else {
+               matchWarranty = item.machineModel.warrantyTerm
+                  ? dayjs().isAfter(dayjs(item.machineModel.warrantyTerm)) || !item.machineModel.warrantyTerm
+                  : true
+            }
+         }
+
+         return (
+            matchCode &&
+            matchName &&
+            matchCreatedAt &&
+            matchUpdatedAt &&
+            matchPositionX &&
+            matchPositionY &&
+            matchArea &&
+            matchWarranty
+         )
       })
 
       if (query.sort) {
@@ -151,6 +197,7 @@ function Page() {
                   resetText: "Làm mới",
                }}
                onSubmit={(props: QueryState["search"]) => {
+                  console.log(props)
                   setQuery((prev) => ({
                      ...prev,
                      page: 1,
@@ -185,6 +232,7 @@ function Page() {
                   total: filtered_api_devices?.total ?? 0,
                   showQuickJumper: true,
                   showLessItems: true,
+                  className: "px-layout pb-layout",
                   onChange: (page, pageSize) => {
                      setQuery((prev) => ({
                         ...prev,
@@ -211,31 +259,34 @@ function Page() {
                      render: (value, record, index) => index + 1 + (query.page - 1) * query.limit,
                   },
                   {
+                     title: "Mã máy",
+                     dataIndex: ["deviceCode"],
+                     width: 100,
+                     render: (val, entity) => <Link href={`/admin/device/${entity.id}`}>{val}</Link>,
+                  },
+                  {
                      title: "Tên mẫu máy",
-                     dataIndex: "name",
+                     dataIndex: ["machineModel", "name"],
                      width: 200,
-                     render: (_, entity) => <Link href={`/admin/device/${entity.id}`}>{entity.machineModel.name}</Link>,
                      ellipsis: true,
                   },
                   {
-                     title: "Mô tả",
-                     dataIndex: "description",
+                     title: "Bảo hành",
+                     dataIndex: ["machineModel", "warrantyTerm"],
                      width: 200,
                      ellipsis: true,
-                     render: (_, entity) => (
-                        <div
-                           style={{
-                              overflow: "hidden",
-                              whiteSpace: "nowrap",
-                              textOverflow: "ellipsis",
-                              maxWidth: "100%",
-                           }}
-                           title={entity.description}
-                        >
-                           {entity.description}
-                        </div>
-                     ),
+                     hideInTable: true,
+                     valueType: "select",
+                     valueEnum: WarrantyStatus,
+                  },
+                  {
+                     title: "Bảo hành",
+                     dataIndex: ["machineModel", "warrantyTerm"],
+                     width: 100,
+                     ellipsis: true,
                      hideInSearch: true,
+                     render: (_, e) =>
+                        e.machineModel.warrantyTerm ? dayjs(e.machineModel.warrantyTerm).format("DD/MM/YYYY") : "-",
                   },
                   {
                      title: "Vị trí (X)",
@@ -248,14 +299,34 @@ function Page() {
                      hideInTable: true,
                   },
                   {
+                     title: "Khu vực",
+                     dataIndex: ["area", "name"],
+                     hideInTable: true,
+                  },
+                  {
                      title: "Vị trí",
                      dataIndex: ["position"],
-                     render: (_, entity) =>
-                        !entity.positionX || !entity.positionY
-                           ? `Chưa xác định`
-                           : `${entity.positionX} x ${entity.positionY}`,
-                     width: 100,
-                     sorter: true,
+                     render: (_, e) => {
+                        const status = DeviceUtil.getDeviceStatus(e as any)
+                        switch (status) {
+                           case FE_DeviceStatus.IN_PRODUCTION: {
+                              return `${e.area.name} (${e.positionX}, ${e.positionY})`
+                           }
+                           case FE_DeviceStatus.IN_WAREHOUSE: {
+                              return `Trong kho`
+                           }
+                           case FE_DeviceStatus.ON_HOLD: {
+                              return `Trong kho (chờ tác vụ)`
+                           }
+                           case FE_DeviceStatus.WARRANTY_CENTER_PROCESSING: {
+                              return `Trong quá trình bảo hành`
+                           }
+                           default: {
+                              return `Chưa xác định`
+                           }
+                        }
+                     },
+                     width: 150,
                      hideInSearch: true,
                   },
                   {

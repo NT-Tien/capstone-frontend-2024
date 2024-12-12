@@ -124,6 +124,8 @@ function Page() {
                      FixRequestStatus.APPROVED,
                      FixRequestStatus.IN_PROGRESS,
                      FixRequestStatus.HEAD_CONFIRM,
+                     FixRequestStatus.HEAD_CANCEL,
+                     FixRequestStatus.REJECTED,
                   ].reduce((acc, status) => {
                      return acc + (api_requests.data?.[status] ?? 0)
                   }, 0)}
@@ -324,7 +326,7 @@ function Page() {
                               Đã đóng
                            </div>
                         </div>
-                        <div className="absolute bottom-[115px] left-1/2 w-[30%] -translate-x-1/2 transform rounded-3xl border-2 border-dashed border-black bg-[#F2DECC] text-center text-center flex flex-col justify-center h-[25px]">
+                        <div className="absolute bottom-[115px] left-1/2 w-[30%] -translate-x-1/2 transform rounded-3xl border-2 border-dashed border-black bg-[#F2DECC] text-center flex flex-col justify-center h-[25px]">
                            Trong quá trình xử lý
                         </div>
                      </div>

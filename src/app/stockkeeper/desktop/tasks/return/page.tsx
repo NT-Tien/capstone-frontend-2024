@@ -286,7 +286,7 @@ function Page() {
                                       ]}
                                    />
                                    <OverlayControllerWithRef ref={control_sparePartUpdateQuantityModal}>
-                                      <SparePart_UpdateQuantityModal />
+                                      <SparePart_UpdateQuantityModal issueId={api.task.data?.return_spare_part_data.sparePart.id} />
                                    </OverlayControllerWithRef>
                                 </>
                              ),

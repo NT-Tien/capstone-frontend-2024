@@ -85,10 +85,6 @@ function Page() {
                                  key: "deviceId",
                                  content: "Mã thiết bị không đúng định dạng",
                               })
-                              message.error({
-                                 key: "deviceArea",
-                                 content: "Mã thiết bị không tồn tại"
-                              })
                            }}
                         >
                            <Form.Item<FieldType>

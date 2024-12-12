@@ -6,7 +6,7 @@ import { DeviceDto } from "@/lib/domain/Device/Device.dto"
 import RequestErrors from "@/lib/domain/Request/RequestErrors"
 import { CloseOutlined, SendOutlined } from "@ant-design/icons"
 import { Clipboard } from "@phosphor-icons/react"
-import { Button, Drawer, DrawerProps, Input, Select } from "antd"
+import { App, Button, Drawer, DrawerProps, Input, Select } from "antd"
 import Form from "antd/es/form"
 import { useRouter } from "next/navigation"
 
@@ -21,6 +21,7 @@ type CreateRequestDrawerProps = {
 type Props = Omit<DrawerProps, "children"> & CreateRequestDrawerProps
 
 function CreateRequestDrawer(props: Props) {
+   const { message } = App.useApp()
    const [form] = Form.useForm<FieldType>()
    const router = useRouter()
    const mutate_createRequest = head_department_mutations.request.createRequest({})
@@ -37,6 +38,16 @@ function CreateRequestDrawer(props: Props) {
                setTimeout(() => {
                   router.push(hd_uris.stack.history_id(result.id))
                }, 300)
+            },
+            onError: (error: any) => {
+               if (
+                  error.response?.status === 400 &&
+                  error.response?.data?.message === "Device area is not valid"
+               ) {
+                  message.error("Mã thiết bị không hợp lệ");
+               } else {
+                  message.error("Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại.");
+               }
             },
          },
       )

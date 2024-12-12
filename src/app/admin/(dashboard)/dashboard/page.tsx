@@ -132,9 +132,12 @@ function Page() {
                </h2>
                <div className="flex h-full justify-between">
                   <div className="relative flex h-[75%] w-[65%] justify-between rounded-lg border-2 border-dashed border-black px-6 pt-5">
-                     <div className="h-[85%] w-[90px]" onClick={() => {
-                     router.push("/admin/request")
-                  }}>
+                     <div
+                        className="h-[85%] w-[90px]"
+                        onClick={() => {
+                           router.push("/admin/request")
+                        }}
+                     >
                         <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#cc9470] text-[40px] font-bold text-white">
                            <p>{api_requests.data?.PENDING}</p>
                         </div>
@@ -144,9 +147,12 @@ function Page() {
                      </div>
                      <DoubleRightOutlined className="text-[30px]" />
 
-                     <div className="h-[85%] w-[90px]" onClick={() => {
-                     router.push("/admin/request?tab=APPROVED")
-                  }}>
+                     <div
+                        className="h-[85%] w-[90px]"
+                        onClick={() => {
+                           router.push("/admin/request?tab=APPROVED")
+                        }}
+                     >
                         <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#87a556] text-[40px] font-bold text-white">
                            <p>{api_requests.data?.APPROVED}</p>
                         </div>
@@ -156,9 +162,12 @@ function Page() {
                      </div>
                      <DoubleRightOutlined className="text-[30px]" />
 
-                     <div className="h-[85%] w-[90px]" onClick={() => {
-                     router.push("/admin/request?tab=IN_PROGRESS")
-                  }}>
+                     <div
+                        className="h-[85%] w-[90px]"
+                        onClick={() => {
+                           router.push("/admin/request?tab=IN_PROGRESS")
+                        }}
+                     >
                         <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#5eb090] text-[40px] font-bold text-white">
                            <p>{api_requests.data?.IN_PROGRESS}</p>
                         </div>
@@ -168,9 +177,12 @@ function Page() {
                      </div>
                      <DoubleRightOutlined className="text-[30px]" />
 
-                     <div className="h-[85%] w-[90px]"  onClick={() => {
-                     router.push("/admin/request?tab=HEAD_CONFIRM")
-                  }}>
+                     <div
+                        className="h-[85%] w-[90px]"
+                        onClick={() => {
+                           router.push("/admin/request?tab=HEAD_CONFIRM")
+                        }}
+                     >
                         <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#17a56a] text-[40px] font-bold text-white">
                            <p>{api_requests.data?.HEAD_CONFIRM}</p>
                         </div>
@@ -180,9 +192,12 @@ function Page() {
                      </div>
                      <DoubleRightOutlined className="text-[30px]" />
 
-                     <div className="h-[85%] w-[90px]" onClick={() => {
-                     router.push("/admin/request?tab=CLOSED")
-                  }}>
+                     <div
+                        className="h-[85%] w-[90px]"
+                        onClick={() => {
+                           router.push("/admin/request?tab=CLOSED")
+                        }}
+                     >
                         <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#069915] text-[40px] font-bold text-white">
                            <p>{api_requests.data?.CLOSED}</p>
                         </div>
@@ -190,15 +205,18 @@ function Page() {
                            Đã đóng
                         </div>
                      </div>
-                     <div className="text-[15px] absolute bottom-[100px] left-1/2 w-[30%] -translate-x-1/2 transform rounded-3xl border-2 border-dashed border-black bg-[#F2DECC] text-center text-center flex flex-col justify-center h-[30px]">
+                     <div className="absolute bottom-[100px] left-1/2 flex h-[30px] w-[30%] -translate-x-1/2 transform flex-col justify-center rounded-3xl border-2 border-dashed border-black bg-[#F2DECC] text-center text-[15px]">
                         Trong quá trình xử lý
                      </div>
                   </div>
 
                   <div className="relative flex h-[75%] w-[30%] justify-around rounded-lg border-2 border-dashed border-black pt-5">
-                     <div className="h-[85%] w-[90px]"  onClick={() => {
-                     router.push("/admin/request?tab=HEAD_CANCEL")
-                  }}>
+                     <div
+                        className="h-[85%] w-[90px]"
+                        onClick={() => {
+                           router.push("/admin/request?tab=HEAD_CANCEL")
+                        }}
+                     >
                         <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#bc9e03] text-[40px] font-bold text-white">
                            <p>{api_requests.data?.HEAD_CANCEL}</p>
                         </div>
@@ -208,10 +226,28 @@ function Page() {
                            </div>
                         </div>
                      </div>
+                     <div
+                        className="h-[85%] w-[90px]"
+                        onClick={() => {
+                           router.push("/admin/request?tab=HEAD_CANCEL")
+                        }}
+                     >
+                        <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#bc9e03] text-[40px] font-bold text-white">
+                           <p>{api_requests.data?.HM_VERIFY}</p>
+                        </div>
+                        <div className="relative flex h-[30%] justify-center">
+                           <div className="absolute left-1/2 flex h-full w-[120%] -translate-x-1/2 transform items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Cần kiểm tra lại
+                           </div>
+                        </div>
+                     </div>
 
-                     <div className="h-[85%] w-[90px]"  onClick={() => {
-                     router.push("/admin/request?tab=REJECTED")
-                  }}>
+                     <div
+                        className="h-[85%] w-[90px]"
+                        onClick={() => {
+                           router.push("/admin/request?tab=REJECTED")
+                        }}
+                     >
                         <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#eba66e] text-[40px] font-bold text-white">
                            <p>{api_requests.data?.REJECTED}</p>
                         </div>
@@ -220,7 +256,7 @@ function Page() {
                         </div>
                      </div>
 
-                     <div className="text-[15px] absolute bottom-[100px] left-1/2 w-[60%] -translate-x-1/2 transform rounded-3xl border-2 border-dashed border-black bg-[#Ffe4c0] text-center flex flex-col justify-center h-[30px]">
+                     <div className="absolute bottom-[100px] left-1/2 flex h-[30px] w-[60%] -translate-x-1/2 transform flex-col justify-center rounded-3xl border-2 border-dashed border-black bg-[#Ffe4c0] text-center text-[15px]">
                         Có nhầm lẫn / sai sót
                      </div>
                   </div>
@@ -244,9 +280,12 @@ function Page() {
                <div className="flex h-full justify-between">
                   <div className="h-[50%] w-[75%]">
                      <div className="relative flex h-[75%] w-full justify-between rounded-lg border-2 border-dashed border-black px-4 pt-5">
-                        <div className="h-[85%] w-[80px]" onClick={() => {
-                     router.push("/admin/task?tab=AWAITING_SPARE_SPART")
-                  }}>
+                        <div
+                           className="h-[85%] w-[80px]"
+                           onClick={() => {
+                              router.push("/admin/task?tab=AWAITING_SPARE_SPART")
+                           }}
+                        >
                            <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#d0b83c] text-[40px] font-bold text-white">
                               <p>{api_tasks.data?.AWAITING_SPARE_SPART}</p>
                            </div>
@@ -256,9 +295,12 @@ function Page() {
                         </div>
                         <DoubleRightOutlined className="text-[30px]" />
 
-                        <div className="h-[85%] w-[80px]" onClick={() => {
-                     router.push("/admin/task?tab=AWAITING_FIXER")
-                  }}>
+                        <div
+                           className="h-[85%] w-[80px]"
+                           onClick={() => {
+                              router.push("/admin/task?tab=AWAITING_FIXER")
+                           }}
+                        >
                            <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#d7c668] text-[40px] font-bold text-white">
                               <p>{api_tasks.data?.AWAITING_FIXER}</p>
                            </div>
@@ -268,9 +310,12 @@ function Page() {
                         </div>
                         <DoubleRightOutlined className="text-[30px]" />
 
-                        <div className="h-[85%] w-[80px]" onClick={() => {
-                     router.push("/admin/task?tab=ASSIGNED")
-                  }}>
+                        <div
+                           className="h-[85%] w-[80px]"
+                           onClick={() => {
+                              router.push("/admin/task?tab=ASSIGNED")
+                           }}
+                        >
                            <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#96c256] text-[40px] font-bold text-white">
                               <p>{api_tasks.data?.ASSIGNED}</p>
                            </div>
@@ -280,9 +325,12 @@ function Page() {
                         </div>
                         <DoubleRightOutlined className="text-[30px]" />
 
-                        <div className="h-[85%] w-[80px]"  onClick={() => {
-                     router.push("/admin/task?tab=ASSIGNED")
-                  }}>
+                        {/* <div
+                           className="h-[85%] w-[80px]"
+                           onClick={() => {
+                              router.push("/admin/task?tab=ASSIGNED")
+                           }}
+                        >
                            <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#79be43] text-[40px] font-bold text-white">
                               <p>{api_tasks.data?.["spare-part-fetched"]}</p>
                            </div>
@@ -290,11 +338,14 @@ function Page() {
                               Đã lấy linh kiện
                            </div>
                         </div>
-                        <DoubleRightOutlined className="text-[30px]" />
+                        <DoubleRightOutlined className="text-[30px]" /> */}
 
-                        <div className="h-[85%] w-[80px]"  onClick={() => {
-                     router.push("/admin/task?tab=IN_PROGRESS")
-                  }}>
+                        <div
+                           className="h-[85%] w-[80px]"
+                           onClick={() => {
+                              router.push("/admin/task?tab=IN_PROGRESS")
+                           }}
+                        >
                            <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#5ac535] text-[40px] font-bold text-white">
                               <p>{api_tasks.data?.IN_PROGRESS}</p>
                            </div>
@@ -304,9 +355,12 @@ function Page() {
                         </div>
                         <DoubleRightOutlined className="text-[30px]" />
 
-                        <div className="h-[85%] w-[80px]" onClick={() => {
-                     router.push("/admin/task?tab=HEAD_STAFF_CONFIRM")
-                  }}>
+                        <div
+                           className="h-[85%] w-[80px]"
+                           onClick={() => {
+                              router.push("/admin/task?tab=HEAD_STAFF_CONFIRM")
+                           }}
+                        >
                            <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#48b55c] text-[40px] font-bold text-white">
                               <p>{api_tasks.data?.HEAD_STAFF_CONFIRM}</p>
                            </div>
@@ -316,9 +370,12 @@ function Page() {
                         </div>
                         <DoubleRightOutlined className="text-[30px]" />
 
-                        <div className="h-[85%] w-[80px]" onClick={() => {
-                     router.push("/admin/task?tab=COMPLETED")
-                  }}>
+                        <div
+                           className="h-[85%] w-[80px]"
+                           onClick={() => {
+                              router.push("/admin/task?tab=COMPLETED")
+                           }}
+                        >
                            <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#04a723] text-[40px] font-bold text-white">
                               <p>{api_tasks.data?.COMPLETED}</p>
                            </div>
@@ -326,13 +383,12 @@ function Page() {
                               Đã đóng
                            </div>
                         </div>
-                        <div className="absolute bottom-[115px] left-1/2 w-[30%] -translate-x-1/2 transform rounded-3xl border-2 border-dashed border-black bg-[#F2DECC] text-center flex flex-col justify-center h-[25px]">
+                        <div className="absolute bottom-[115px] left-1/2 flex h-[25px] w-[30%] -translate-x-1/2 transform flex-col justify-center rounded-3xl border-2 border-dashed border-black bg-[#F2DECC] text-center">
                            Trong quá trình xử lý
                         </div>
                      </div>
 
-
-                     <div className="mt-8 relative flex h-[75%] w-full justify-between rounded-lg border-2 border-dashed border-black px-4 pt-5">
+                     <div className="relative mt-8 flex h-[75%] w-full justify-between rounded-lg border-2 border-dashed border-black px-4 pt-5">
                         <div className="h-[85%] w-[80px]">
                            <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#e9928e] text-[40px] font-bold text-white">
                               <p>{api_tasks.data?.["uninstall-device-old-already-and-move-to-stock"]}</p>
@@ -359,8 +415,15 @@ function Page() {
                               Gỡ thiết bị tạm vào kho
                            </div>
                         </div>
-
-                        <div className="h-[85%] w-[80px]">                           
+                        <div className="h-[85%] w-[80px]">
+                           <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#e9928e] text-[40px] font-bold text-white">
+                              <p>{api_tasks.data?.["spare-part-fetched"]}</p>
+                           </div>
+                           <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
+                              Đã lấy linh kiện
+                           </div>
+                        </div>
+                        <div className="h-[85%] w-[80px]">
                            <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#e9928e] text-[40px] font-bold text-white">
                               <p>{api_tasks.data?.["install-device-warranted-already"]}</p>
                            </div>
@@ -385,14 +448,14 @@ function Page() {
                            <div className="mx-auto flex h-[30%] w-[90%] items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">
                               Sửa thiết bị trong kho
                            </div>
-                        </div>                       
-                        <div className="absolute bottom-[115px] left-1/2 w-[30%] -translate-x-1/2 transform rounded-3xl bg-[#Ffe4c0] text-center flex flex-col justify-center h-[25px]">
+                        </div>
+                        <div className="absolute bottom-[115px] left-1/2 flex h-[25px] w-[30%] -translate-x-1/2 transform flex-col justify-center rounded-3xl bg-[#Ffe4c0] text-center">
                            Ngoại lệ
                         </div>
                      </div>
                   </div>
                   <div className="relative flex h-[85%] w-[24%] justify-around rounded-lg border-2 border-dashed border-black pt-5">
-                     <div className="h-[85%] w-[90px] flex flex-col justify-center">
+                     <div className="flex h-[85%] w-[90px] flex-col justify-center">
                         <div className="flex h-[35%] w-[100%] items-center justify-center rounded-lg bg-[#bc9e03] text-[40px] font-bold text-white">
                            <p>01</p>
                         </div>
@@ -402,7 +465,7 @@ function Page() {
                            </div>
                         </div>
                      </div>
-                     <div className="absolute bottom-[275px] left-1/2 w-[60%] -translate-x-1/2 transform rounded-3xl bg-[#F07c5d] text-center flex flex-col justify-center h-[30px]">
+                     <div className="absolute bottom-[275px] left-1/2 flex h-[30px] w-[60%] -translate-x-1/2 transform flex-col justify-center rounded-3xl bg-[#F07c5d] text-center">
                         Bị hủy
                      </div>
                   </div>

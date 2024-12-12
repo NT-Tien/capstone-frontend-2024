@@ -64,7 +64,7 @@ export default function DesktopScannerDrawer({ children, ...props }: Props) {
                   <Form<FieldType> form={form} layout="horizontal">
                      <Form.Item<FieldType>
                         name="deviceId"
-                        label="ID của thiết bị"
+                        label="ID của tác vụ"
                         labelAlign="left"
                         labelCol={{ span: 24 }}
                         rules={[

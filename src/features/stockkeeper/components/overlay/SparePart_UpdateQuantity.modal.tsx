@@ -6,6 +6,7 @@ type SparePart_UpdateQuantityModalProps = {
    max?: number
    sparePartId?: string
    onFinish?: () => void
+   issueId: string
 }
 type Props = Omit<ModalProps, "children"> &
    SparePart_UpdateQuantityModalProps & {
@@ -22,10 +23,11 @@ function SparePart_UpdateQuantityModal(props: Props) {
 
       mutate_updateSparePartQuantity.mutate(
          {
-            id: props.sparePartId,
+            sparePartId: props.sparePartId,
             payload: {
                quantity: value,
             },
+            issueId: props.issueId,
          },
          {
             onSuccess: () => {

@@ -7,6 +7,7 @@ import Cookies from "js-cookie"
 
 export type Request = {
    id: string
+   taskId: string
    payload: {
       stockkeeper_signature: string
       staff_signature: string
@@ -14,7 +15,7 @@ export type Request = {
 } & AuthTokenWrapper
 export type Response = TaskDto
 
-Stockkeeper_Device_ReturnRemovedDevice.URL = (req: Request) => `/stockkeeper/device/${req.id}/dismantle`
+Stockkeeper_Device_ReturnRemovedDevice.URL = (req: Request) => `/stockkeeper/device/${req.id}/dismantle/${req.taskId}`
 export default async function Stockkeeper_Device_ReturnRemovedDevice(req: Request): Promise<Response> {
    return api
       .post<Response>(Stockkeeper_Device_ReturnRemovedDevice.URL(req), req.payload, {

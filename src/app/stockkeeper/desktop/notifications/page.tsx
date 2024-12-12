@@ -55,7 +55,7 @@ function Page() {
       } else if (item.title === "Xác nhận xuất thiết bị/ linh kiện") {
          window.location.href = "/stockkeeper/desktop/tasks/scan?taskid=" + item.data.taskId;
       } else if (item.title === "Tác vụ mới") {
-         window.location.href = "/stockkeeper/desktop/spare-parts/export?ticketid=" + item.data.ticketId;
+         window.location.href = "/stockkeeper/desktop/spare-parts/export?ticketid=" + item.data.ticketId.id;
       }
    }
    return (

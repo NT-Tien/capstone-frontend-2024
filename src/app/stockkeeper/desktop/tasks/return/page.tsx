@@ -124,7 +124,9 @@ function Page() {
                            type="primary"
                            disabled={
                               // !!api.task.data?.return_spare_part_data &&
-                              Object.keys(spareParts).length > 0 && updated.length !== Object.keys(spareParts).length
+                              Object.keys(spareParts).length > 0 &&
+                              updated.length !== Object.keys(spareParts).length ||
+                              api.task.data?.renewed === true
                            }
                            onClick={() => control_dualSignatureDrawer.current?.handleOpen({})}
                         >
@@ -169,10 +171,10 @@ function Page() {
                                           label: "Mẫu máy",
                                           children: api.task.data?.device.machineModel.name,
                                        },
-                                       {
-                                          label: "Trạng thái",
-                                          children: api.task.data.return_spare_part_data ? "Đã trả" : "Chưa trả",
-                                       },
+                                       // {
+                                       //    label: "Trạng thái",
+                                       //    children: api.task.data.return_spare_part_data ? "Đã trả" : "Chưa trả",
+                                       // },
                                     ]}
                                  />
                                  {!check_taskIsWarranty && (
@@ -232,81 +234,161 @@ function Page() {
                //       Tải mẫu nhập linh kiện
                //    </Button>
                // }
-               tabList={[
-                  {
-                     tab: "Linh kiện được trả",
-                     key: "spare-part",
-                     children: (
-                        <>
-                           <Table
-                              dataSource={Object.values(spareParts)}
-                              pagination={false}
-                              columns={[
-                                 { key: "index", title: "STT", render: (_, __, index) => index + 1 },
-                                 { key: "name", title: "Tên linh kiện", dataIndex: ["sparePart", "name"] },
-                                 { key: "quantity", title: "Số lượng trả", dataIndex: "quantity" },
-                                 {
-                                    key: "actions",
-                                    align: "right",
-                                    render: (_, record) => (
-                                       <div>
-                                          {!updated.includes(record.sparePart.id) && (
-                                             <Button
-                                                onClick={() => {
-                                                   mutate_updateSparePartQuantity.mutate(
-                                                      {
-                                                         id: record.sparePart.id,
-                                                         payload: { quantity: record.quantity },
-                                                      },
-                                                      {
-                                                         onSuccess: () => {
-                                                            setUpdated((prev) => [...prev, record.sparePart.id])
-                                                            message.success("Cập nhật kho thành công!")
-                                                         },
-                                                         onError: () => {
-                                                            message.error("Cập nhật kho thất bại!")
-                                                         },
-                                                      },
-                                                   )
-                                                }}
-                                             >
-                                                Cập nhật kho
-                                             </Button>
-                                          )}
-                                       </div>
-                                    ),
-                                 },
-                              ]}
-                           />
-                           <OverlayControllerWithRef ref={control_sparePartUpdateQuantityModal}>
-                              <SparePart_UpdateQuantityModal />
-                           </OverlayControllerWithRef>
-                        </>
-                     ),
-                  },
-                  {
-                     tab: "Trả thiết bị",
-                     key: "device",
-                     children: (
-                        <Descriptions
-                           items={[
-                              {
-                                 label: "Tên mẫu máy",
-                                 children: check_taskIsWarranty
-                                    ? check_taskIsWarranty.task.device_static?.machineModel.name
-                                    : api.task.data?.device.machineModel.name,
-                              },
-                              {
-                                 label: "Mô tả",
-                                 children: check_taskIsWarranty
-                                    ? check_taskIsWarranty.task.device_static?.description
-                                    : api.task.data?.device.description,
-                              },
-                           ]}
-                        />
-                     ),
-                  },
-               ]}
+               tabList={
+                  api.task.data?.return_spare_part_data !== null
+                     ? [
+                          {
+                             tab: "Linh kiện được trả",
+                             key: "spare-part",
+                             children: (
+                                <>
+                                   <Table
+                                      dataSource={api.task.data?.return_spare_part_data as any}
+                                      pagination={false}
+                                      columns={[
+                                         { key: "index", title: "STT", render: (_, __, index) => index + 1 },
+                                         { key: "name", title: "Tên linh kiện", dataIndex: ["sparePart", "name"] },
+                                         { key: "quantity", title: "Số lượng trả", dataIndex: "quantity" },
+                                         {
+                                            key: "actions",
+                                            align: "right",
+                                            render: (_, record: any) => (
+                                               <div>
+                                                  {!updated.includes(record.sparePart.id) && record.returned != true ? (
+                                                     <Button
+                                                        onClick={() => {
+                                                           mutate_updateSparePartQuantity.mutate(
+                                                              {
+                                                                 sparePartId: record.sparePart.id,
+                                                                 issueId: record.issue.id,
+                                                                 payload: { quantity: record.quantity },
+                                                              },
+                                                              {
+                                                                 onSuccess: () => {
+                                                                    setUpdated((prev) => [...prev, record.sparePart.id])
+                                                                    message.success("Cập nhật kho thành công!")
+                                                                 },
+                                                                 onError: () => {
+                                                                    message.error("Cập nhật kho thất bại!")
+                                                                 },
+                                                              },
+                                                           )
+                                                        }}
+                                                     >
+                                                        Cập nhật kho
+                                                     </Button>
+                                                  ) : (
+                                                     <Button disabled={true}>Đã trả</Button>
+                                                  )}
+                                               </div>
+                                            ),
+                                         },
+                                      ]}
+                                   />
+                                   <OverlayControllerWithRef ref={control_sparePartUpdateQuantityModal}>
+                                      <SparePart_UpdateQuantityModal issueId={api.task.data?.return_spare_part_data.sparePart.id} />
+                                   </OverlayControllerWithRef>
+                                </>
+                             ),
+                          },
+                       ]
+                     : [
+                          {
+                             tab: "Trả thiết bị",
+                             key: "device",
+                             children: (
+                                <Descriptions
+                                   items={[
+                                      {
+                                         label: "Tên mẫu máy",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.machineModel.name
+                                            : api.task.data?.device.machineModel.name,
+                                      },
+                                      {
+                                         label: "Mã thiết bị",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.id
+                                            : api.task.data.device.id,
+                                      },
+                                      {
+                                         label: "Nhà sản xuất",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.machineModel.manufacturer
+                                            : api.task.data?.device.machineModel.manufacturer,
+                                      },
+                                      {
+                                         label: "Số lượng mũi khâu",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.machineModel.needleType
+                                            : api.task.data?.device.machineModel.needleType,
+                                      },
+                                      {
+                                         label: "Tốc độ mũi khâu (spm)",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.machineModel.speed
+                                            : api.task.data?.device.machineModel.speed,
+                                      },
+                                      {
+                                         label: "Công suất",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.machineModel.power
+                                            : api.task.data?.device.machineModel.power,
+                                      },
+                                      {
+                                         label: "Động rộng mũi kim",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.machineModel.stitch
+                                            : api.task.data?.device.machineModel.stitch,
+                                      },
+                                      {
+                                         label: "Độ cao chân vịt",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.machineModel.presser
+                                            : api.task.data?.device.machineModel.presser,
+                                      },
+                                      {
+                                         label: "Cuốn suốt tự động",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.machineModel.lubrication
+                                            : api.task.data?.device.machineModel.lubrication,
+                                      },
+                                      {
+                                         label: "Điện áp",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.machineModel.voltage
+                                            : api.task.data?.device.machineModel.voltage,
+                                      },
+                                      {
+                                         label: "Chất liệu vải may",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.machineModel.fabric
+                                            : api.task.data?.device.machineModel.fabric,
+                                      },
+                                      {
+                                         label: "Kích thước",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.machineModel.size
+                                            : api.task.data?.device.machineModel.size,
+                                      },
+                                      {
+                                         label: "Tính năng đặc biệt",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.machineModel.features
+                                            : api.task.data?.device.machineModel.features,
+                                      },
+                                      {
+                                         label: "Mô tả",
+                                         children: check_taskIsWarranty
+                                            ? check_taskIsWarranty.task.device_static?.description
+                                            : api.task.data?.device.description,
+                                      },
+                                   ]}
+                                />
+                             ),
+                          },
+                       ]
+               }
             >
                <OverlayControllerWithRef ref={control_dualSignatureDrawer}>
                   <DualSignatureDrawer
@@ -364,6 +446,7 @@ function Page() {
                            mutate_returnRemovedDevice.mutate(
                               {
                                  id: api.task.data?.device.id || "",
+                                 taskId: api.task.data?.id || "",
                                  payload: {
                                     staff_signature: staff,
                                     stockkeeper_signature: stockkeeper,

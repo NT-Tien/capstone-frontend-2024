@@ -11,7 +11,6 @@ import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayCon
 import HeadStaff_Device_OneById from "@/features/head-maintenance/api/device/one-byId.api"
 import HeadStaff_Device_OneByIdWithHistory from "@/features/head-maintenance/api/device/one-byIdWithHistory.api"
 import HeadStaff_Request_OneById from "@/features/head-maintenance/api/request/oneById.api"
-import HeadStaff_Request_RenewStatus from "@/features/head-maintenance/api/request/renew-status.api"
 import Request_ApproveToRenewDrawer, {
    Request_ApproveToRenewDrawerProps,
 } from "@/features/head-maintenance/components/overlays/renew/Request_ApproveToRenew.drawer"
@@ -46,7 +45,7 @@ import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { Suspense, useMemo, useRef } from "react"
 
-function Page({ params }: { params: { id: string } }) {
+function Page({ params, searchParams }: { params: { id: string }; searchParams: { "prev-request": string } }) {
    const router = useRouter()
    const { modal } = App.useApp()
 
@@ -121,18 +120,18 @@ function Page({ params }: { params: { id: string } }) {
       return <PageError />
    }
 
+   function handleBack() {
+      if (searchParams["prev-request"]) {
+         router.push(hm_uris.stack.requests_id(searchParams["prev-request"]))
+      } else {
+         router.push(hm_uris.navbar.requests_query({ status: api_request.data?.status }))
+      }
+   }
+
    return (
       <div className="relative flex min-h-screen flex-col bg-head_maintenance">
          <PageHeaderV2
-            prevButton={
-               <PageHeaderV2.BackButton
-                  onClick={() =>
-                     api_request.isSuccess
-                        ? router.push(hm_uris.navbar.requests + `?status=${api_request.data.status}`)
-                        : router.back()
-                  }
-               />
-            }
+            prevButton={<PageHeaderV2.BackButton onClick={handleBack} />}
             title={
                api_request.isSuccess && api_request.data.is_multiple_types ? (
                   <Dropdown

@@ -308,8 +308,8 @@ function Page() {
                                       {
                                          label: "Mã thiết bị",
                                          children: check_taskIsWarranty
-                                            ? check_taskIsWarranty.task.device_static?.id
-                                            : api.task.data.device.id,
+                                            ? check_taskIsWarranty.task.device_static?.deviceCode
+                                            : api.task.data.device.deviceCode,
                                       },
                                       {
                                          label: "Nhà sản xuất",

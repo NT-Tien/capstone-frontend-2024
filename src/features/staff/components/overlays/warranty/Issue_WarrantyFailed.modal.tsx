@@ -1,18 +1,18 @@
 "use client"
 
+import CustomDatePicker from "@/components/CustomDatePicker"
+import ImageUploader from "@/components/ImageUploader"
+import staff_mutations from "@/features/staff/mutations"
+import staff_queries from "@/features/staff/queries"
 import WarrantyFailedReasons, {
    WarrantyFailedGenerator,
    WarrantyFailedReasonsList,
 } from "@/lib/constants/WarrantyFailedReasons"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
-import { App, Card, DatePicker, Divider, Form, Input, Modal, ModalProps, Select } from "antd"
 import { SendOutlined } from "@ant-design/icons"
-import staff_mutations from "@/features/staff/mutations"
-import { useEffect, useState } from "react"
-import ImageUploader from "@/components/ImageUploader"
+import { App, Card, Divider, Form, Input, Modal, ModalProps, Select } from "antd"
 import dayjs, { Dayjs } from "dayjs"
-import staff_queries from "@/features/staff/queries"
-import CustomDatePicker from "@/components/CustomDatePicker"
+import { useEffect, useState } from "react"
 
 type FieldType = {
    selectedReason: string
@@ -156,10 +156,10 @@ function Issue_WarrantyFailedModal(props: Props) {
                   <>
                      <section>
                         <header className="mb-2">
-                           <h2 className="text-base font-medium">Lý do từ chối bảo hành</h2>
+                           <h2 className="text-base font-medium">Lý do từ chối nhận thiết bị</h2>
                         </header>
                         <Form.Item<FieldType> name="note" rules={[{ required: true }]}>
-                           <Input.TextArea rows={3} maxLength={300} showCount placeholder="Nhập lý do" />
+                           <Input.TextArea rows={3} maxLength={1000} showCount placeholder="Vui lòng đọc hướng dẫn trước khi bật thiết bị..." />
                         </Form.Item>
                      </section>
                      <section className="mt-layout">
@@ -237,3 +237,4 @@ function Issue_WarrantyFailedModal(props: Props) {
 
 export default Issue_WarrantyFailedModal
 export type { Issue_WarrantyFailedModalProps }
+

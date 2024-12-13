@@ -46,7 +46,7 @@ import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { Suspense, useMemo, useRef } from "react"
 
-function Page({ params }: { params: { id: string } }) {
+function Page({ params, searchParams }: { params: { id: string }; searchParams: { "prev-request": string } }) {
    const router = useRouter()
    const { modal } = App.useApp()
 
@@ -113,6 +113,14 @@ function Page({ params }: { params: { id: string } }) {
       return api_request.data.feedback?.sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))[0]
    }, [api_request.data?.feedback, api_request.isSuccess])
 
+   function handleBack() {
+      if (searchParams["prev-request"]) {
+         router.push(hm_uris.stack.requests_id(searchParams["prev-request"]))
+      } else {
+         router.push(hm_uris.navbar.requests_query({ status: api_request.data?.status }))
+      }
+   }
+
    if (api_request.isPending) {
       return <PageLoader />
    }
@@ -124,15 +132,7 @@ function Page({ params }: { params: { id: string } }) {
    return (
       <div className="relative flex min-h-screen flex-col bg-head_maintenance">
          <PageHeaderV2
-            prevButton={
-               <PageHeaderV2.BackButton
-                  onClick={() =>
-                     api_request.isSuccess
-                        ? router.push(hm_uris.navbar.requests + `?status=${api_request.data.status}`)
-                        : router.back()
-                  }
-               />
-            }
+            prevButton={<PageHeaderV2.BackButton onClick={handleBack} />}
             title={
                api_request.isSuccess && api_request.data.is_multiple_types ? (
                   <Dropdown

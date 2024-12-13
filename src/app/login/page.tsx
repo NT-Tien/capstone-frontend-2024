@@ -18,13 +18,15 @@ import EnvEditorProvider from "@/providers/EnvEditor.provider"
 import useLoginMutation from "@/features/common/mutations/Login.mutation"
 import staff_uri from "@/features/staff/uri"
 import { Checkbox, Image } from "antd"
+import hm_uris from "@/features/head-maintenance/uri"
+import hd_uris from "@/features/head-department/uri"
 
 type FieldType = {
    username: string
    password: string
 }
 
-function Page({ searchParams }: { searchParams: { error: string } }) {
+function Page({ searchParams }: { searchParams: { error?: string, path?: string } }) {
    const { message } = App.useApp()
    const router = useRouter()
    const [form] = Form.useForm<FieldType>()
@@ -36,26 +38,44 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
       loginCredentials: useLoginMutation(),
    }
 
+   
    function handleFinish(values: FieldType) {
       mutations.loginCredentials.mutate(values, {
          onSuccess: async (token: string) => {
+            const uri = searchParams.path && decodeURIComponent(searchParams.path.trim()).split("/")
             Cookies.set("token", token)
             const payload = decodeJwt(token)
             switch (payload.role) {
                case Role.admin: {
+                  if(uri && uri[1] === 'admin') {
+                     router.push(searchParams.path!)
+                     return
+                  }
                   router.push("/admin/dashboard")
                   break
                }
                case Role.staff: {
+                  if(uri && uri[1] === 'S') {
+                     router.push(searchParams.path!)
+                     return
+                  }
                   router.push(staff_uri.navbar.dashboard)
                   break
                }
                case Role.headstaff: {
-                  router.push("/HM/dashboard")
+                  if(uri && uri[1] === 'HM') {
+                     router.push(searchParams.path!)
+                     return
+                  }
+                  router.push(hm_uris.navbar.dashboard)
                   break
                }
                case Role.head: {
-                  router.push("/head/dashboard")
+                  if(uri && uri[1] === 'head') {
+                     router.push(searchParams.path!)
+                     return
+                  }
+                  router.push(hd_uris.navbar.dashboard)
                   break
                }
                case Role.manager: {
@@ -63,6 +83,10 @@ function Page({ searchParams }: { searchParams: { error: string } }) {
                   break
                }
                case Role.stockkeeper: {
+                  if(uri && uri[1] === 'stockkeeper') {
+                     router.push(searchParams.path!)
+                     return
+                  }
                   router.push("/stockkeeper")
                   break
                }

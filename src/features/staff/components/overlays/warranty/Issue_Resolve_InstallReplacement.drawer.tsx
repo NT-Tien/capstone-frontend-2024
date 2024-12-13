@@ -22,6 +22,11 @@ function Issue_Resolve_InstallReplacementDrawer(props: Props) {
 
    const mutate_resolveIssue = staff_mutations.issues.resolveInstallReplacementWarranty()
 
+   function handleChange(callback: () => void) {
+      setSignature(undefined)
+      callback()
+   }
+
    function handleSubmit(id: string, signature: string, imageUris: string[]) {
       mutate_resolveIssue.mutate(
          {
@@ -43,12 +48,6 @@ function Issue_Resolve_InstallReplacementDrawer(props: Props) {
          setSignature(undefined)
       }
    }, [props.open])
-
-   useEffect(() => {
-      if (imageUris.length === 0) {
-         setSignature(undefined)
-      }
-   }, [imageUris])
 
    return (
       <Drawer
@@ -86,7 +85,7 @@ function Issue_Resolve_InstallReplacementDrawer(props: Props) {
                <h3 className="text-base font-semibold">Hình ảnh thiết bị</h3>
                <p className="font-base text-sm text-neutral-500">Vui lòng tải hình ảnh thiết bị đã lắp đặt</p>
             </header>
-            <ImageUploader value={imageUris} onChange={setImageUris} />
+            <ImageUploader value={imageUris} onChange={(img) => handleChange(() => setImageUris(img))} />
          </section>
          <section className="mt-8">
             <header className="mb-2">

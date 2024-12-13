@@ -7,6 +7,7 @@ import {
    EditOutlined,
    MoreOutlined,
    RightOutlined,
+   CloseOutlined,
    LeftCircleFilled,
    ExclamationOutlined,
 } from "@ant-design/icons"
@@ -74,6 +75,7 @@ function TaskCardWarranty_ReplacementDevice(props: TaskCardWarranty_ReplacementD
                      <ExclamationOutlined />
                   </div>
                )}
+
             </div>
             <div className="w-full pr-2">
                <div className={"flex w-full items-center"}>
@@ -161,7 +163,7 @@ function TaskCardWarranty_ReplacementDevice(props: TaskCardWarranty_ReplacementD
                )}
             </>
          )}
-         {props.task.status !== TaskStatus.COMPLETED && (
+         {props.task.status !== TaskStatus.COMPLETED && props.task.status !== TaskStatus.CANCELLED && (
             <Steps
                className="steps-title-w-full mt-3 px-2"
                progressDot
@@ -224,6 +226,7 @@ function TaskCardWarranty(props: TaskCardSendWarrantyProps) {
             props.task.status === TaskStatus.IN_PROGRESS && "bg-blue-100",
             props.task.status === TaskStatus.COMPLETED && "bg-green-100",
             props.task.status === TaskStatus.HEAD_STAFF_CONFIRM && "bg-yellow-100",
+            props.task.status === TaskStatus.CANCELLED && "bg-neutral-200 opacity-50"
          )}
       >
          <div className="flex gap-3">
@@ -244,6 +247,11 @@ function TaskCardWarranty(props: TaskCardSendWarrantyProps) {
                {props.task.status === TaskStatus.HEAD_STAFF_CONFIRM && (
                   <div className="grid size-[38px] place-items-center rounded-full bg-yellow-500 text-xl text-white">
                      <ExclamationOutlined />
+                  </div>
+               )}
+               {props.task.status === TaskStatus.CANCELLED && (
+                  <div className="grid size-[38px] place-items-center rounded-full bg-neutral-400 text-xl text-white">
+                     <CloseOutlined />
                   </div>
                )}
             </div>
@@ -311,7 +319,7 @@ function TaskCardWarranty(props: TaskCardSendWarrantyProps) {
                )}
             </div>
          )}
-         {props.task.status !== TaskStatus.COMPLETED && (
+         {props.task.status !== TaskStatus.COMPLETED && props.task.status !== TaskStatus.CANCELLED && (
             <Steps
                className="steps-title-w-full mt-3 px-2"
                progressDot

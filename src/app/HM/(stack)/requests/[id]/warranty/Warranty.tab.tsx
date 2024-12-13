@@ -88,6 +88,7 @@ function WarrantyTab(props: Props) {
                         onClick={() =>
                            control_deviceDetailsDrawer.current?.handleOpen({
                               device: props.api_request.data?.temporary_replacement_device,
+                              requestId: props.api_request.data?.id,
                            })
                         }
                      ></Button>
@@ -144,52 +145,27 @@ function WarrantyTab(props: Props) {
                )}
             </main>
          </article>
-         {activeWarrantyCard && activeWarrantyCard?.status !== DeviceWarrantyCardStatus.UNSENT && (
+         {activeWarrantyCard && activeWarrantyCard?.status === DeviceWarrantyCardStatus.WC_REJECTED_ON_ARRIVAL && (
             <article className="mb-8">
                <header className="mb-1 flex items-center gap-3">
                   <h2 className="whitespace-nowrap text-lg font-bold">
-                     <FileFilled className="mr-1" /> Đơn gửi thiết bị
+                     <FileFilled className="mr-1" /> Lỗi trên đơn gửi
                   </h2>
                   <div className="h-0.5 w-full bg-neutral-300" />
                </header>
                <main className="space-y-3">
                   <section>
-                     <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Mã đơn bảo hành</h3>
-                     <p className="text-sm">{activeWarrantyCard.code}</p>
+                     <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Trạng thái bảo hành</h3>
+                     <p className="text-sm">Trung tâm từ chối nhận thiết bị</p>
                   </section>
                   <section>
-                     <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Vị trí trung tâm bảo hành</h3>
-                     <p className="text-sm">
-                        {activeWarrantyCard.wc_name} -{" "}
-                        {[
-                           activeWarrantyCard.wc_address_1,
-                           activeWarrantyCard.wc_address_2,
-                           "Phường " + activeWarrantyCard.wc_address_ward,
-                           "Quận " + activeWarrantyCard.wc_address_district,
-                           activeWarrantyCard.wc_address_city,
-                        ].join(", ")}
-                     </p>
+                     <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Lý do từ chối</h3>
+                     <p className="text-sm">{activeWarrantyCard.send_note?.split(":")[1]}</p>
                   </section>
-                  <div className="flex justify-between gap-3">
-                     <section>
-                        <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Ngày gửi</h3>
-                        <p className="text-sm">{dayjs(activeWarrantyCard.send_date).format("DD/MM/YYYY HH:mm")}</p>
-                     </section>
-                     <section>
-                        <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Ngày nhận (dự tính)</h3>
-                        <p className="text-sm">{dayjs(activeWarrantyCard.receive_date).format("DD/MM/YYYY")}</p>
-                     </section>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                     <section>
-                        <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Nhân viện nhận máy</h3>
-                        <p className="text-sm">{activeWarrantyCard.wc_receiverName}</p>
-                     </section>
-                     <section>
-                        <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Số điện thoại liên lạc</h3>
-                        <p className="text-sm">{activeWarrantyCard.wc_receiverPhone}</p>
-                     </section>
-                  </div>
+                  <section>
+                     <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Ngày thực hiện</h3>
+                     <p className="text-sm">{dayjs(activeWarrantyCard.send_date).format("DD/MM/YYYY HH:mm")}</p>
+                  </section>
                   <section>
                      <h3 className="mb-1 text-sm font-semibold text-neutral-800">Hình ảnh đơn</h3>
                      <ImageUploader value={activeWarrantyCard.send_bill_image} />
@@ -197,6 +173,61 @@ function WarrantyTab(props: Props) {
                </main>
             </article>
          )}
+         {activeWarrantyCard &&
+            activeWarrantyCard?.status !== DeviceWarrantyCardStatus.UNSENT &&
+            activeWarrantyCard.status !== DeviceWarrantyCardStatus.WC_REJECTED_ON_ARRIVAL && (
+               <article className="mb-8">
+                  <header className="mb-1 flex items-center gap-3">
+                     <h2 className="whitespace-nowrap text-lg font-bold">
+                        <FileFilled className="mr-1" /> Đơn gửi thiết bị
+                     </h2>
+                     <div className="h-0.5 w-full bg-neutral-300" />
+                  </header>
+                  <main className="space-y-3">
+                     <section>
+                        <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Mã đơn bảo hành</h3>
+                        <p className="text-sm">{activeWarrantyCard.code}</p>
+                     </section>
+                     <section>
+                        <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Vị trí trung tâm bảo hành</h3>
+                        <p className="text-sm">
+                           {activeWarrantyCard.wc_name} -{" "}
+                           {[
+                              activeWarrantyCard.wc_address_1,
+                              activeWarrantyCard.wc_address_2,
+                              "Phường " + activeWarrantyCard.wc_address_ward,
+                              "Quận " + activeWarrantyCard.wc_address_district,
+                              activeWarrantyCard.wc_address_city,
+                           ].join(", ")}
+                        </p>
+                     </section>
+                     <div className="flex justify-between gap-3">
+                        <section>
+                           <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Ngày gửi</h3>
+                           <p className="text-sm">{dayjs(activeWarrantyCard.send_date).format("DD/MM/YYYY HH:mm")}</p>
+                        </section>
+                        <section>
+                           <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Ngày nhận (dự tính)</h3>
+                           <p className="text-sm">{dayjs(activeWarrantyCard.receive_date).format("DD/MM/YYYY")}</p>
+                        </section>
+                     </div>
+                     <div className="flex justify-between gap-3">
+                        <section>
+                           <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Nhân viện nhận máy</h3>
+                           <p className="text-sm">{activeWarrantyCard.wc_receiverName}</p>
+                        </section>
+                        <section>
+                           <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Số điện thoại liên lạc</h3>
+                           <p className="text-sm">{activeWarrantyCard.wc_receiverPhone}</p>
+                        </section>
+                     </div>
+                     <section>
+                        <h3 className="mb-1 text-sm font-semibold text-neutral-800">Hình ảnh đơn</h3>
+                        <ImageUploader value={activeWarrantyCard.send_bill_image} />
+                     </section>
+                  </main>
+               </article>
+            )}
          {activeWarrantyCard &&
             (activeWarrantyCard.status === DeviceWarrantyCardStatus.SUCCESS ||
                activeWarrantyCard.status === DeviceWarrantyCardStatus.FAIL) && (
@@ -233,7 +264,7 @@ function WarrantyTab(props: Props) {
             )}
 
          {/* Only show if device has been sent AND hasn't created RECEIVE WARRANTY task */}
-         {!props.api_request.data?.tasks.find((i) => TaskUtil.isTask_Warranty(i, "receive")) &&
+         {!props.api_request.data?.tasks.find((i) => TaskUtil.isTask_Warranty(i, "receive") && i.status !== TaskStatus.CANCELLED) &&
             activeWarrantyCard?.status === DeviceWarrantyCardStatus.WC_PROCESSING && (
                <footer className="fixed bottom-0 left-0 z-50 flex w-full gap-3 border-t-[1px] border-t-neutral-300 bg-white p-layout">
                   {/* Only enable if hasn't created RECEIVE warranty task AND is 1 DAY before expected return warranty date */}

@@ -56,6 +56,8 @@ function Page() {
 
    const api_devices = admin_queries.device.all()
 
+   console.log(query)
+
    const filtered_api_devices = useMemo(() => {
       if (!api_devices.data)
          return {
@@ -305,7 +307,6 @@ function Page() {
                   },
                   {
                      title: "Vị trí",
-                     dataIndex: ["position"],
                      render: (_, e) => {
                         const status = DeviceUtil.getDeviceStatus(e as any)
                         switch (status) {

@@ -34,8 +34,7 @@ import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/Is
 import { cn } from "@/lib/utils/cn.util"
 import { CloseOutlined, EditOutlined, MoreOutlined, RightOutlined } from "@ant-design/icons"
 import { ChartDonut, IdentificationCard, MapPin, Note } from "@phosphor-icons/react"
-import { Button, ConfigProvider, Descriptions, Divider, Drawer, DrawerProps, Typography } from "antd"
-import dayjs from "dayjs"
+import { Button, ConfigProvider, Descriptions, Divider, Drawer, DrawerProps, App } from "antd"
 import { useRouter } from "next/navigation"
 import { useRef } from "react"
 
@@ -51,6 +50,7 @@ type Props = Omit<DrawerProps, "children"> &
 
 function Issue_ViewDetails_WarrantyDrawer(props: Props) {
    const router = useRouter()
+   const { modal } = App.useApp()
    const api_issue = head_maintenance_queries.issue.one(
       {
          id: props.issueId ?? "",
@@ -62,6 +62,7 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
 
    const mutate_detatchIssueAndRecreateTask = head_maintenance_mutations.issue.detatchAndRecreateTaskWarranty()
    const mutate_requestWarrantyFailed = head_maintenance_mutations.request.warrantyFailed()
+   const mutate_completeTask = head_maintenance_mutations.task.complete()
 
    const control_taskAssignFixerDrawer = useRef<RefType<Task_AssignFixerModalProps>>(null)
    const control_viewMapModal = useRef<RefType<ViewMapModalProps>>(null)
@@ -92,27 +93,63 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
                   </Button>
                )
             case SendWarrantyTypeErrorId:
-               const errorType = api_issue.data.failReason?.split(":")[0]
-
-               const showButtons: any = ["renew", "fix", "close"]
-               if (errorType === WarrantyFailedReasonsList.SERVICE_CENTER_CLOSED) {
-                  showButtons.push("warranty")
-               }
-
                return (
                   <Button
                      block
                      type="primary"
                      icon={<EditOutlined />}
                      onClick={() => {
-                        control_issueFailedResolveOptionsModal.current?.handleOpen({
-                           showButtons,
+                        const taskId = api_issue.data?.task.id
+                        if (!taskId) return
+
+                        modal.confirm({
+                           title: "Xác nhận đóng tác vụ",
+                           content: "Bạn có chắc muốn đóng tác vụ này không?",
+                           centered: true,
+                           maskClosable: true,
+                           closable: true,
+                           okText: "Có",
+                           cancelText: "Không",
+                           onOk: () => {
+                              mutate_completeTask.mutate(
+                                 {
+                                    id: taskId,
+                                 },
+                                 {
+                                    onSuccess: () => {
+                                       props.handleClose?.()
+                                       props.refetchFn?.()
+                                    },
+                                 },
+                              )
+                           },
                         })
                      }}
                   >
-                     Xử lý lỗi
+                     Đóng tác vụ
                   </Button>
                )
+            // const errorType = api_issue.data.failReason?.split(":")[0]
+
+            // const showButtons: any = ["renew", "fix", "close"]
+            // if (errorType === WarrantyFailedReasonsList.SERVICE_CENTER_CLOSED) {
+            //    showButtons.push("warranty")
+            // }
+
+            // return (
+            //    <Button
+            //       block
+            //       type="primary"
+            //       icon={<EditOutlined />}
+            //       onClick={() => {
+            //          control_issueFailedResolveOptionsModal.current?.handleOpen({
+            //             showButtons,
+            //          })
+            //       }}
+            //    >
+            //       Xử lý lỗi
+            //    </Button>
+            // )
             case ReceiveWarrantyTypeErrorId:
                if (api_issue.data.failReason?.includes(WarrantyFailedReasonsList.CHANGE_RECEIVE_DATE)) {
                   return (

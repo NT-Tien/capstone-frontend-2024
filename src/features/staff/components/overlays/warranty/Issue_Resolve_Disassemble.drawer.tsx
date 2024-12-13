@@ -49,13 +49,6 @@ function Issue_Resolve_DisassembleDrawer(props: Props) {
       }
    }, [props.open])
 
-   useEffect(() => {
-      if (imageUris.length === 0) {
-         setSignature(undefined);
-      }
-   }, [imageUris]);
-   
-
    return (
       <Drawer
          title={

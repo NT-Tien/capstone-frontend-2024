@@ -47,9 +47,7 @@ const QrCodeDisplayForRenewModal = forwardRef<QrCodeDisplayForRenewModalRefType,
       // createSignatureDrawerRef.current?.handleClose()
       handleClose()
       props.onComplete?.()
-      setTimeout(() => {
-         props.refetch?.()
-      }, 500)
+      props.refetch?.()
    }
 
    useImperativeHandle(ref, () => ({
@@ -100,23 +98,30 @@ const QrCodeDisplayForRenewModal = forwardRef<QrCodeDisplayForRenewModalRefType,
             </div>
             {device && (
                <section className="mt-layout">
-               <h4 className="mb-layout text-lg font-medium" onClick={() => {
-                  navigator.clipboard.writeText(qrCode ?? "")
-               }}>
-                  <Wrench size={24} weight="duotone" className="mr-1 inline" />
-                  Thiết bị mới
-               </h4>
-               <div className="flex flex-col gap-2">
-                  <div className="flex items-start justify-between">
-                     <h5 className="font-medium text-gray-500">Tên thiết bị</h5>
-                     <p className="mt-1">{device?.machineModel.name}</p>
+                  <h4
+                     className="mb-layout text-lg font-medium"
+                     onClick={() => {
+                        navigator.clipboard.writeText(qrCode ?? "")
+                     }}
+                  >
+                     <Wrench size={24} weight="duotone" className="mr-1 inline" />
+                     Thiết bị mới
+                  </h4>
+                  <div className="flex flex-col gap-2">
+                     <div className="flex items-start justify-between">
+                        <h5 className="font-medium text-gray-500">Mã thiết bị</h5>
+                        <p className="mt-1">{device?.deviceCode}</p>
+                     </div>
+                     <div className="flex items-start justify-between">
+                        <h5 className="font-medium text-gray-500">Tên thiết bị</h5>
+                        <p className="mt-1">{device?.machineModel.name}</p>
+                     </div>
+                     <div className="flex items-start justify-between">
+                        <h5 className="font-medium text-gray-500">Nhà sản xuất</h5>
+                        <p className="mt-1">{device?.machineModel.manufacturer}</p>
+                     </div>
                   </div>
-                  <div className="flex items-start justify-between">
-                     <h5 className="font-medium text-gray-500">Nhà sản xuất</h5>
-                     <p className="mt-1">{device?.machineModel.manufacturer}</p>
-                  </div>
-               </div>
-            </section>
+               </section>
             )}
          </Drawer>
          <CreateSignatureDrawer

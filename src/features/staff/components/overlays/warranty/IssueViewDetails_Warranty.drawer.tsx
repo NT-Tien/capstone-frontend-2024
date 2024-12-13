@@ -2,10 +2,9 @@
 
 import AlertCard from "@/components/AlertCard"
 import BackendImage from "@/components/BackendImage"
+import ImageUploader from "@/components/ImageUploader"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
-import { clientEnv } from "@/env"
-import IssueFailDrawer, { IssueFailDrawerProps } from "@/features/staff/components/overlays/Issue_Fail.drawer"
-import ResolveIssueDrawer, { ResolveIssueDrawerProps } from "@/features/staff/components/overlays/ResolveIssue.drawer"
+import VideoUploader from "@/components/VideoUploader"
 import Issue_Resolve_AssembleDrawer, {
    Issue_Resolve_AssembleDrawerProps,
 } from "@/features/staff/components/overlays/warranty/Issue_Resolve_Assemble.drawer"
@@ -35,43 +34,38 @@ import staff_uri from "@/features/staff/uri"
 import {
    AssembleDeviceTypeErrorId,
    DisassembleDeviceTypeErrorId,
+   DismantleReplacementDeviceTypeErrorId,
    InstallReplacementDeviceTypeErrorId,
    ReceiveWarrantyTypeErrorId,
-   SendWarrantyTypeErrorId,
-   DismantleReplacementDeviceTypeErrorId,
    ReturnToWarehouseTypeErrorId,
+   SendWarrantyTypeErrorId,
 } from "@/lib/constants/Warranty"
 import { WarrantyFailedReasonsList } from "@/lib/constants/WarrantyFailedReasons"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { IssueStatusEnum, IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
 import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
+import RequestUtil from "@/lib/domain/Request/Request.util"
 import { TaskDto } from "@/lib/domain/Task/Task.dto"
 import TaskUtil from "@/lib/domain/Task/Task.util"
 import { cn } from "@/lib/utils/cn.util"
+import { CheckOutlined, CloseOutlined, MoreOutlined, RightOutlined, WarningOutlined } from "@ant-design/icons"
 import {
-   BookOutlined,
-   CheckOutlined,
-   CloseOutlined,
-   DownOutlined,
-   MoreOutlined,
-   UpOutlined,
-   WarningOutlined,
-} from "@ant-design/icons"
-import {
-   ChartDonut,
    Factory,
+   File,
    FileDoc,
-   FileText,
    Gavel,
+   Gear,
+   House,
+   IdentificationCard,
    ImageBroken,
+   Laptop,
    MapPin,
-   Note,
+   Phone,
    SealWarning,
-   Truck,
    XCircle,
 } from "@phosphor-icons/react"
-import { App, Button, Card, Descriptions, Divider, Drawer, DrawerProps, Dropdown, Image, Segmented } from "antd"
+import { App, Button, Card, Divider, Drawer, DrawerProps, Dropdown, QRCode, Space } from "antd"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -110,6 +104,10 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
    const mutate_finishTaskWarrantySend = staff_mutations.task.finishWarrantySend()
    const mutate_resolveWarrantyReceive = staff_mutations.issues.resolveReceiveWarranty()
 
+   const warrantyCard = useMemo(() => {
+      return RequestUtil.getCurrentWarrantyCard(props.request)
+   }, [props.request])
+
    useEffect(() => {
       if (!props.open) {
          setShowTypeErrorDescription(false)
@@ -125,7 +123,7 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
             <div className={"flex items-center gap-2"}>
                <Button
                   block
-                  type={"primary"}
+                  type={props.issue.typeError.id === ReturnToWarehouseTypeErrorId ? "default" : "primary"}
                   onClick={() => {
                      if (!props.issue) return
 
@@ -168,17 +166,15 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                            return
                         }
                         case ReturnToWarehouseTypeErrorId: {
-                           control_issueResolveRetunWarehouse.current?.handleOpen({
-                              taskId: props.task?.id,
-                           })
-                           return
+                           props.refetchFn?.()
+                           props.handleClose?.()
                         }
                      }
                   }}
-                  icon={<CheckOutlined />}
+                  icon={props.issue.typeError.id === ReturnToWarehouseTypeErrorId ? undefined : <CheckOutlined />}
                   disabled={props.isDisabled}
                >
-                  Hoàn thành
+                  {props.issue.typeError.id === ReturnToWarehouseTypeErrorId ? "Đóng" : "Hoàn thành bước"}
                </Button>
                {(props.issue.typeError.id === SendWarrantyTypeErrorId ||
                   props.issue.typeError.id === ReceiveWarrantyTypeErrorId) && (
@@ -213,15 +209,19 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
    return (
       <Drawer
          title={
-            <div className={"flex items-center justify-between"}>
-               <Button icon={<CloseOutlined className={"text-white"} />} type={"text"} onClick={props.onClose} />
-               <h1>Thông tin bước</h1>
-               <Button icon={<MoreOutlined className={"text-white"} />} type={"text"} />
+            <div className="flex flex-col items-center rounded-full">
+               <div className="h-1 w-1/2 bg-neutral-300" />
+               <section className="mt-3 text-center">
+                  <h1 className="text-lg font-bold">{props.issue?.typeError.name ?? "-"}</h1>
+                  <p className="text-sm font-light text-neutral-500">{props.issue?.typeError.description ?? "-"}</p>
+               </section>
             </div>
          }
          classNames={{
-            header: "bg-staff text-white",
+            header: "border-none pb-2",
             footer: "p-layout",
+            body: "pt-0",
+            wrapper: "rounded-t-xl",
          }}
          closeIcon={false}
          placement={"bottom"}
@@ -234,90 +234,373 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
          {props.issue && (
             <>
                <div className="text-base">
-                  <section className="pb-3">
-                     <div className="flex">
-                        <h2 className="mr-auto flex items-center gap-1.5 font-medium">
-                           <SealWarning size={16} weight={"fill"} />
-                           {props.issue.typeError.name}
-                        </h2>
-                        <div className={cn(IssueStatusEnumTagMapper[props.issue.status].className, "text-sm")}>
-                           {IssueStatusEnumTagMapper[props.issue.status].text}
-                        </div>
-                     </div>
-                     <p className="text-sm text-neutral-500">{props.issue.typeError.description}</p>
-                  </section>
-                  <Divider className="m-0" />
-                  <section className="flex py-3">
-                     <h2 className="mr-auto flex items-center gap-1.5 font-medium">
-                        <Factory size={16} weight={"fill"} />
-                        Nhà sản xuất
-                     </h2>
-                     <p className="text-sm text-neutral-500">{props.machineModel?.manufacturer}</p>
-                  </section>
-                  {props.issue.typeError.id === AssembleDeviceTypeErrorId && (
-                     <>
-                        <Divider className="m-0" />
-                        <section className="flex py-3">
-                           <h2 className="mr-auto flex items-center gap-1.5 font-medium">
-                              <MapPin size={16} weight={"fill"} />
-                              Vị trí lắp đặt
-                           </h2>
-                           <p className="text-sm text-neutral-500">
-                              {props.task?.device?.area?.name}{" "}
-                              {props.task?.device.positionX && props.task?.device.positionY
-                                 ? `(${props.task?.device.positionX}, ${props.task?.device.positionY})`
-                                 : ""}
-                           </p>
-                        </section>
-                     </>
-                  )}
-                  {props.issue.description && (
-                     <>
-                        <Divider className="m-0" />
-                        <section className="py-3">
-                           <h2 className="mr-auto flex items-center gap-1.5 font-medium">
-                              <Note size={16} weight={"fill"} />
-                              Thông tin đính kèm
-                           </h2>
-                           <p className="text-sm text-neutral-500">{props.issue.description}</p>
-                        </section>
-                     </>
-                  )}
-                  {/* {props.issue.typeError.id === SendWarrantyTypeErrorId && (
-                     <section className="py-3">
-                     <h2 className="mr-auto flex items-center gap-1.5 font-medium">
-                        <Note size={16} weight={"fill"} />
-                        Thông tin đính kèm
-                     </h2>
-                     <p className="text-sm text-neutral-500">{props.issue.description}</p>
-                  </section>
-                  )} */}
-                  <Divider className="m-0" />
-                  <section className="flex flex-col py-3">
-                     <h3 className="flex items-center gap-1.5 font-medium">
-                        <Gavel size={16} weight="fill" />
-                        Điều khoản bảo hành
-                     </h3>
-                     <p className="mt-1 line-clamp-2 text-sm text-neutral-500">
-                        {props.task?.device.machineModel.description}
-                     </p>
-                     <a
-                        className="mt-1 text-sm font-medium text-black underline underline-offset-2"
-                        onClick={() => {
-                           modal.info({
-                              title: "Điều khoản bảo hành",
-                              content: <div>{props.task?.device.machineModel.description}</div>,
-                              centered: true,
-                              maskClosable: true,
-                              closable: true,
-                              footer: false,
-                              height: "90%",
-                           })
-                        }}
-                     >
-                        Xem thêm
-                     </a>
-                  </section>
+                  <div className="flex w-full flex-col gap-0">
+                     {props.issue.typeError.id === DisassembleDeviceTypeErrorId && (
+                        <>
+                           <section className="flex py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <MapPin size={16} weight={"fill"} />
+                                 Vị trí thiết bị
+                              </h2>
+                              <p className="text-sm text-neutral-500">
+                                 {props.request?.area.name} ({props.request?.old_device.positionX},{" "}
+                                 {props.request?.old_device.positionY})
+                              </p>
+                           </section>
+                           <section className="flex flex-col py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <Laptop size={16} weight={"fill"} />
+                                 Thiết bị cần tháo
+                              </h2>
+                              <Card size={"small"} className="mt-3 w-full bg-[#FF6B00] text-white">
+                                 <div className={"flex items-center gap-2"}>
+                                    <div className={"flex-grow"}>
+                                       <Space
+                                          className={"text-xs"}
+                                          split={<Divider type={"vertical"} className={"m-0"} />}
+                                       >
+                                          <span>{warrantyCard?.device?.deviceCode}</span>
+                                          <span>
+                                             {warrantyCard?.device?.machineModel.manufacturer}{" "}
+                                             {warrantyCard?.device?.machineModel.yearOfProduction}
+                                          </span>
+                                       </Space>
+                                       <h3 className={"line-clamp-2 text-base font-semibold"}>
+                                          {warrantyCard?.device?.machineModel.name}
+                                       </h3>
+                                    </div>
+                                    <div>
+                                       <Gear size={32} weight={"fill"} />
+                                    </div>
+                                 </div>
+                              </Card>
+                           </section>
+                           <section className="flex py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <File size={16} weight={"fill"} />
+                                 Hướng dẫn tháo rời
+                              </h2>
+                              <p className="text-sm text-neutral-500">Không có</p>
+                           </section>
+                           <section className="flex flex-col py-2">
+                              <h3 className="flex items-center gap-1.5 font-medium">
+                                 <Gavel size={16} weight="fill" />
+                                 Điều khoản bảo hành
+                              </h3>
+                              <p className="mt-1 line-clamp-2 text-sm text-neutral-500">
+                                 {props.task?.device.machineModel.description}
+                              </p>
+                              <a
+                                 className="mt-1 text-sm font-medium text-black underline underline-offset-2"
+                                 onClick={() => {
+                                    modal.info({
+                                       title: "Điều khoản bảo hành",
+                                       content: <div>{props.task?.device.machineModel.description}</div>,
+                                       centered: true,
+                                       maskClosable: true,
+                                       closable: true,
+                                       footer: false,
+                                       height: "90%",
+                                    })
+                                 }}
+                              >
+                                 Xem thêm
+                              </a>
+                           </section>
+                        </>
+                     )}
+                     {props.issue.typeError.id === SendWarrantyTypeErrorId && (
+                        <>
+                           <section className="flex py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <Factory size={16} weight={"fill"} />
+                                 Nhà sản xuất
+                              </h2>
+                              <p className="text-sm text-neutral-500">{props.machineModel?.manufacturer}</p>
+                           </section>
+                           <section className="flex flex-col py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <MapPin size={16} weight={"fill"} />
+                                 Lỗi thiết bị được báo cáo
+                              </h2>
+                              <div className="mt-2">
+                                 <section className="mb-1 text-sm text-neutral-500">
+                                    Mô tả: {warrantyCard?.initial_note}
+                                 </section>
+                                 {warrantyCard?.initial_images && (
+                                    <section className="mb-1 text-sm text-neutral-500">
+                                       <h3 className="mb-1">Hình ảnh:</h3>
+                                       <ImageUploader value={warrantyCard.initial_images} />
+                                    </section>
+                                 )}
+                                 {warrantyCard?.initial_video && (
+                                    <section className="mb-1 text-sm text-neutral-500">
+                                       <h3 className="mb-1">Video:</h3>
+                                       <VideoUploader value={[warrantyCard.initial_video]} />
+                                    </section>
+                                 )}
+                              </div>
+                           </section>
+                           <section className="flex flex-col py-2">
+                              <h3 className="flex items-center gap-1.5 font-medium">
+                                 <Gavel size={16} weight="fill" />
+                                 Điều khoản bảo hành
+                              </h3>
+                              <p className="mt-1 line-clamp-2 text-sm text-neutral-500">
+                                 {props.task?.device.machineModel.description}
+                              </p>
+                              <a
+                                 className="mt-1 text-sm font-medium text-black underline underline-offset-2"
+                                 onClick={() => {
+                                    modal.info({
+                                       title: "Điều khoản bảo hành",
+                                       content: <div>{props.task?.device.machineModel.description}</div>,
+                                       centered: true,
+                                       maskClosable: true,
+                                       closable: true,
+                                       footer: false,
+                                       height: "90%",
+                                    })
+                                 }}
+                              >
+                                 Xem thêm
+                              </a>
+                           </section>
+                        </>
+                     )}
+                     {props.issue.typeError.id === ReceiveWarrantyTypeErrorId && (
+                        <>
+                           <section className="flex py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <IdentificationCard size={16} weight={"fill"} />
+                                 Mã đơn bảo hành
+                              </h2>
+                              <p className="text-sm text-neutral-500">{warrantyCard?.code}</p>
+                           </section>
+                           <section className="flex flex-col py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <House size={16} weight={"fill"} />
+                                 Tên trung tâm bảo hành
+                              </h2>
+                              <p className="text-sm text-neutral-500">{warrantyCard?.wc_name}</p>
+                           </section>
+                           <section className="flex flex-col py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <MapPin size={16} weight={"fill"} />
+                                 Địa chỉ trung tâm bảo hành
+                              </h2>
+                              <p className="text-sm text-neutral-500">
+                                 {warrantyCard?.wc_address_1}, {warrantyCard?.wc_address_2}, Phường{" "}
+                                 {warrantyCard?.wc_address_ward}, Quận {warrantyCard?.wc_address_district},{" "}
+                                 {warrantyCard?.wc_address_city}
+                              </p>
+                           </section>
+                           <section className="flex py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <Phone size={16} weight={"fill"} />
+                                 Số điện thoại
+                              </h2>
+                              <p className="text-sm text-neutral-500">{warrantyCard?.wc_receiverPhone}</p>
+                           </section>
+                           <section className="flex flex-col py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <Laptop size={16} weight={"fill"} />
+                                 Thiết bị cần nhận
+                              </h2>
+                              <Card size={"small"} className="mt-3 w-full bg-[#FF6B00] text-white">
+                                 <div className={"flex items-center gap-2"}>
+                                    <div className={"flex-grow"}>
+                                       <Space
+                                          className={"text-xs"}
+                                          split={<Divider type={"vertical"} className={"m-0"} />}
+                                       >
+                                          <span>{warrantyCard?.device.deviceCode}</span>
+                                          <span>
+                                             {warrantyCard?.device.machineModel.manufacturer}{" "}
+                                             {warrantyCard?.device.machineModel.yearOfProduction}
+                                          </span>
+                                       </Space>
+                                       <h3 className={"line-clamp-2 text-base font-semibold"}>
+                                          {warrantyCard?.device.machineModel.name}
+                                       </h3>
+                                    </div>
+                                    <div>
+                                       <Gear size={32} weight={"fill"} />
+                                    </div>
+                                 </div>
+                              </Card>
+                           </section>
+                        </>
+                     )}
+                     {props.issue.typeError.id === DismantleReplacementDeviceTypeErrorId && (
+                        <>
+                           <section className="flex w-full justify-between py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <MapPin size={16} weight={"fill"} />
+                                 Vị trí thiết bị
+                              </h2>
+                              <p className="text-sm text-neutral-500">
+                                 {props.request?.area?.name} ({props.request?.old_device.positionX},{" "}
+                                 {props.request?.old_device.positionY})
+                              </p>
+                           </section>
+                           <section className="flex py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <File size={16} weight={"fill"} />
+                                 Hướng dẫn tháo rời
+                              </h2>
+                              <p className="text-sm text-neutral-500">Không có</p>
+                           </section>
+                           <section className="flex flex-col py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <Laptop size={16} weight={"fill"} />
+                                 Thiết bị cần lắp đặt
+                              </h2>
+                              <Card size={"small"} className="mt-3 w-full bg-[#FF6B00] text-white">
+                                 <div className={"flex items-center gap-2"}>
+                                    <div className={"flex-grow"}>
+                                       <Space
+                                          className={"text-xs"}
+                                          split={<Divider type={"vertical"} className={"m-0"} />}
+                                       >
+                                          <span>{props.request?.temporary_replacement_device?.deviceCode}</span>
+                                          <span>
+                                             {props.request?.temporary_replacement_device?.machineModel.manufacturer}{" "}
+                                             {
+                                                props.request?.temporary_replacement_device?.machineModel
+                                                   .yearOfProduction
+                                             }
+                                          </span>
+                                       </Space>
+                                       <h3 className={"line-clamp-2 text-base font-semibold"}>
+                                          {props.request?.temporary_replacement_device?.machineModel.name}
+                                       </h3>
+                                    </div>
+                                    <div>
+                                       <Gear size={32} weight={"fill"} />
+                                    </div>
+                                 </div>
+                              </Card>
+                           </section>
+                        </>
+                     )}
+                     {props.issue.typeError.id === AssembleDeviceTypeErrorId && (
+                        <>
+                           <section className="flex w-full justify-between py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <MapPin size={16} weight={"fill"} />
+                                 Vị trí lắp đặt
+                              </h2>
+                              <p className="text-sm text-neutral-500">
+                                 {props.request?.area?.name} ({props.request?.old_device.positionX},{" "}
+                                 {props.request?.old_device.positionY})
+                              </p>
+                           </section>
+                           <section className="flex py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <File size={16} weight={"fill"} />
+                                 Hướng dẫn lắp đặt
+                              </h2>
+                              <p className="text-sm text-neutral-500">Không có</p>
+                           </section>
+                           <section className="flex flex-col py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <Laptop size={16} weight={"fill"} />
+                                 Thiết bị cần lắp
+                              </h2>
+                              <Card size={"small"} className="mt-3 w-full bg-[#FF6B00] text-white">
+                                 <div className={"flex items-center gap-2"}>
+                                    <div className={"flex-grow"}>
+                                       <Space
+                                          className={"text-xs"}
+                                          split={<Divider type={"vertical"} className={"m-0"} />}
+                                       >
+                                          <span>{warrantyCard?.device.deviceCode}</span>
+                                          <span>
+                                             {warrantyCard?.device.machineModel.manufacturer}{" "}
+                                             {warrantyCard?.device.machineModel.yearOfProduction}
+                                          </span>
+                                       </Space>
+                                       <h3 className={"line-clamp-2 text-base font-semibold"}>
+                                          {warrantyCard?.device.machineModel.name}
+                                       </h3>
+                                    </div>
+                                    <div>
+                                       <Gear size={32} weight={"fill"} />
+                                    </div>
+                                 </div>
+                              </Card>
+                           </section>
+                        </>
+                     )}
+                     {props.issue.typeError.id === InstallReplacementDeviceTypeErrorId && (
+                        <>
+                           <section className="flex w-full justify-between py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <MapPin size={16} weight={"fill"} />
+                                 Vị trí lắp đặt
+                              </h2>
+                              <p className="text-sm text-neutral-500">
+                                 {props.request?.area?.name} ({props.request?.old_device.positionX},{" "}
+                                 {props.request?.old_device.positionY})
+                              </p>
+                           </section>
+                           <section className="flex py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <File size={16} weight={"fill"} />
+                                 Hướng dẫn lắp đặt
+                              </h2>
+                              <p className="text-sm text-neutral-500">Không có</p>
+                           </section>
+                           <section className="flex flex-col py-2">
+                              <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                                 <Laptop size={16} weight={"fill"} />
+                                 Thiết bị cần lắp đặt
+                              </h2>
+                              <Card size={"small"} className="mt-3 w-full bg-[#FF6B00] text-white">
+                                 <div className={"flex items-center gap-2"}>
+                                    <div className={"flex-grow"}>
+                                       <Space
+                                          className={"text-xs"}
+                                          split={<Divider type={"vertical"} className={"m-0"} />}
+                                       >
+                                          <span>{props.request?.temporary_replacement_device?.deviceCode}</span>
+                                          <span>
+                                             {props.request?.temporary_replacement_device?.machineModel.manufacturer}{" "}
+                                             {
+                                                props.request?.temporary_replacement_device?.machineModel
+                                                   .yearOfProduction
+                                             }
+                                          </span>
+                                       </Space>
+                                       <h3 className={"line-clamp-2 text-base font-semibold"}>
+                                          {props.request?.temporary_replacement_device?.machineModel.name}
+                                       </h3>
+                                    </div>
+                                    <div>
+                                       <Gear size={32} weight={"fill"} />
+                                    </div>
+                                 </div>
+                              </Card>
+                           </section>
+                        </>
+                     )}
+                  </div>
+                  {props.issue.typeError.id === ReturnToWarehouseTypeErrorId &&
+                     props.issue.status === IssueStatusEnum.PENDING && (
+                        <>
+                           <AlertCard text={"Vui lòng đưa mã QR cho thủ kho"} type={"info"} className="mb-1 p-3" />
+                           <div className="aspect-square h-full w-full">
+                              <QRCode
+                                 value={props.task?.id ?? ""}
+                                 className="h-full w-full"
+                                 onClick={() => {
+                                    navigator.clipboard.writeText(props.task?.id ?? "")
+                                 }}
+                              />
+                           </div>
+                        </>
+                     )}
                </div>
                {props.issue.status === IssueStatusEnum.FAILED && (
                   <section>
@@ -339,7 +622,7 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                {props.issue.typeError.id === ReceiveWarrantyTypeErrorId && props.request && (
                   <>
                      <Divider className="m-0" />
-                     <SendWarrantyReceipt className="py-3" request={props.request} />
+                     <SendWarrantyReceipt className="py-2" request={props.request} />
                   </>
                )}
             </>
@@ -348,6 +631,22 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
          <OverlayControllerWithRef ref={control_issueFailDrawer}>
             <Issue_WarrantyFailedModal
                onSuccess={(values) => {
+                  if (values.selectedReason === WarrantyFailedReasonsList.WARRANTY_REJECTED_ON_ARRIVAL) {
+                     modal.info({
+                        closable: false,
+                        maskClosable: false,
+                        title: "Thông báo",
+                        content: `Vui lòng về nhà kho của xưởng để tiếp tục tác vụ`,
+                        onOk: () => {
+                           router.push(staff_uri.navbar.dashboard)
+                        },
+                        centered: true,
+                        okText: "Quay về trang chủ",
+                        okButtonProps: {
+                           icon: <RightOutlined />,
+                        },
+                     })
+                  }
                   if (values.selectedReason === WarrantyFailedReasonsList.WARRANTY_REJECTED_AFTER_PROCESS) {
                      props.refetchFn?.()
                      router.push(staff_uri.navbar.tasks)
@@ -362,13 +661,21 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
          <OverlayControllerWithRef ref={control_issueResolveDisassembleDrawer}>
             <Issue_Resolve_DisassembleDrawer
                onSuccess={() => {
-                  if (props.request?.is_replacement_device) {
-                     props.refetchFn?.()
-                     control_issueResolveDisassembleDrawer.current?.handleClose()
-                     props.handleClose?.()
-                  } else {
-                     router.push(staff_uri.navbar.tasks)
-                  }
+                  modal.info({
+                     closable: false,
+                     maskClosable: false,
+                     title: "Thông báo",
+                     type: "success",
+                     content: `Vui lòng đi đến một trung tâm bảo hành ${props.machineModel?.manufacturer} để tiếp tục tác vụ.`,
+                     onOk: () => {
+                        router.push(staff_uri.navbar.dashboard)
+                     },
+                     centered: true,
+                     okText: "Quay về trang chủ",
+                     okButtonProps: {
+                        icon: <RightOutlined />,
+                     },
+                  })
                }}
             />
          </OverlayControllerWithRef>

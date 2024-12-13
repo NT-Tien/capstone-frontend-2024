@@ -6,6 +6,7 @@ import { RequestTypeEnum } from "@/lib/domain/Request/RequestType.enum"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { FeedbackDto } from "@/lib/domain/Feedback/Feedback.dto"
 import { DeviceWarrantyCardDto } from "@/lib/domain/DeviceWarrantyCard/DeviceWarrantyCard.dto"
+import { AreaDto } from "@/lib/domain/Area/Area.dto"
 
 export type RequestDto = {
    id: string
@@ -34,4 +35,5 @@ export type RequestDto = {
    is_replacement_device?: boolean
    temporary_replacement_device?: DeviceDto
    deviceWarrantyCards?: DeviceWarrantyCardDto[];
+   area: AreaDto
 }

@@ -1,5 +1,5 @@
 function uuidNormalizer(original: string) {
-   let value = original.replace(/-/g, "")
+   let value = original.replace(/-/g, "").trim()
    if (value.length > 8) {
       value = `${value.slice(0, 8)}-${value.slice(8)}`
    }

@@ -1,34 +1,29 @@
 import ClickableArea from "@/components/ClickableArea"
+import ImageUploader from "@/components/ImageUploader"
+import RequiredStar from "@/components/RequiredStar"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
+import VideoUploader from "@/components/VideoUploader"
 import PickMachineModelDrawer, {
    PickMachineModelDrawerProps,
 } from "@/features/head-maintenance/components/overlays/PickMachineModel.drawer"
-import { Task_AssignFixerModalProps } from "@/features/head-maintenance/components/overlays/Task_AssignFixerV2.drawer"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
-import { MachineModelDto } from "@/lib/domain/MachineModel/MachineModel.dto"
+import { DeviceDto } from "@/lib/domain/Device/Device.dto"
+import { cn } from "@/lib/utils/cn.util"
 import {
    CloseOutlined,
-   DeleteFilled,
    DeleteOutlined,
    MoreOutlined,
    RightOutlined,
-   TruckOutlined,
+   TruckOutlined
 } from "@ant-design/icons"
-import { Calendar, DeviceTablet, Factory, Gavel, Gear, Laptop, Truck } from "@phosphor-icons/react"
-import { App, Divider, Drawer, DrawerProps, Input, Space, Tooltip, Typography } from "antd"
+import { Calendar, Factory, Gavel, Gear, Laptop, Truck } from "@phosphor-icons/react"
+import { App, Divider, Drawer, DrawerProps, Input, Tooltip } from "antd"
 import Button from "antd/es/button"
 import Form from "antd/es/form"
-import axios from "axios"
 import dayjs, { Dayjs } from "dayjs"
 import Image from "next/image"
-import { useEffect, useRef, useState } from "react"
-import Cookies from "js-cookie"
-import { cn } from "@/lib/utils/cn.util"
-import { DeviceDto } from "@/lib/domain/Device/Device.dto"
-import ImageUploader from "@/components/ImageUploader"
-import VideoUploader from "@/components/VideoUploader"
-import RequiredStar from "@/components/RequiredStar"
+import { useRef, useState } from "react"
 type FieldType = {
    note: string
    fixerDate: Dayjs
@@ -237,7 +232,9 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                         </section>
                         <section>
                            <header className="mb-2">
-                              <h3 className="text-base font-medium text-neutral-800">Video lỗi máy</h3>
+                              <h3 className="text-base font-medium text-neutral-800">
+                                 Video lỗi máy
+                              </h3>
                            </header>
                            <Form.Item name="videos" initialValue={[]}>
                               <VideoUploader value={[]} />
@@ -351,3 +348,4 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
 
 export default Request_ApproveToWarrantyDrawer
 export type { Request_ApproveToWarrantyDrawerProps }
+

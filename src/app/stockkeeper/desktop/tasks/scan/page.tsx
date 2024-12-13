@@ -66,7 +66,8 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
       queries: [
          {
             queryKey: stockkeeper_qk.machineModel.one_byId(api.task.data?.device_renew?.machineModel?.id ?? ""),
-            queryFn: () => Stockkeeper_MachineModel_GetById({ id: api.task.data?.device_renew?.machineModel?.id ?? "" }),
+            queryFn: () =>
+               Stockkeeper_MachineModel_GetById({ id: api.task.data?.device_renew?.machineModel?.id ?? "" }),
             enabled: !!api.task.data?.device_renew?.machineModel?.id,
          },
       ],
@@ -507,6 +508,10 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                                       <>
                                          <Descriptions
                                             items={[
+                                               {
+                                                  label: "Mã thiết bị",
+                                                  children: api.task.data.device_renew.deviceCode,
+                                               },
                                                {
                                                   label: "Tên thiết bị",
                                                   children: (

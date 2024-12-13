@@ -3,4 +3,5 @@ export enum DeviceWarrantyCardStatus {
    WC_PROCESSING = "WC_PROCESSING",
    SUCCESS = "SUCCESS",
    FAIL = "FAIL",
+   WC_REJECTED_ON_ARRIVAL = "WC_REJECTED_ON_ARRIVAL",
 }

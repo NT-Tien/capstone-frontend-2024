@@ -56,7 +56,7 @@ function Page() {
    }, [api_tasks.data])
 
    const todayTasks = useMemo(() => {
-      return api_tasks.data?.filter((t) => dayjs(t.fixerDate).isSame(dayjs(), "day"))
+      return api_tasks.data?.filter((t) => dayjs(t.fixerDate).isSame(dayjs(), "day") && t.status === TaskStatus.ASSIGNED)
    }, [api_tasks.data])
 
    function handleTaskClick(task: TaskDto) {
@@ -110,7 +110,7 @@ function Page() {
                         percent={TaskUtil.getPercentageFinished(currentTask)}
                         size={52}
                         className="text-white"
-                        format={(percent) => <span className="text-xs font-medium text-white">{percent}%</span>}
+                        format={(percent) => <span className="text-xs font-medium text-white">{Math.round(percent ?? 0)}%</span>}
                         strokeWidth={10}
                         strokeColor={"#92400e"}
                      />

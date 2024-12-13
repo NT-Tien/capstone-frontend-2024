@@ -19,7 +19,12 @@ export function middleware(request: NextRequest) {
 
    const token = request.cookies.get("token")
    if (!token) {
-      return NextResponse.redirect(new URL("/login?error=unauthenticated", request.url))
+      return NextResponse.redirect(
+         new URL(
+            `/login?error=unauthenticated&path=${new URLSearchParams(request.nextUrl.pathname).toString()}`,
+            request.url,
+         ),
+      )
    }
    const payload = decodeJwt(token.value)
    const pathname = request.nextUrl.pathname.split("/")[1]
@@ -35,7 +40,9 @@ export function middleware(request: NextRequest) {
       (pathname === "manager" && payload.role !== Role.manager) ||
       (pathname === "stockkeeper" && payload.role !== Role.stockkeeper)
    ) {
-      const response = NextResponse.redirect(new URL("/login?error=unauthenticated", request.url))
+      const response = NextResponse.redirect(
+         new URL(`/login?error=unauthenticated&path=${encodeURIComponent(request.nextUrl.pathname)}`, request.url),
+      )
       response.cookies.delete("token")
       return response
    }

@@ -17,4 +17,5 @@ export type DeviceDto = {
    status: boolean
    deviceCode: string
    isWarranty: boolean
+   isHeld: boolean
 }

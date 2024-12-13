@@ -126,6 +126,7 @@ function Page() {
                      FixRequestStatus.HEAD_CONFIRM,
                      FixRequestStatus.HEAD_CANCEL,
                      FixRequestStatus.REJECTED,
+                     FixRequestStatus.HM_VERIFY,
                   ].reduce((acc, status) => {
                      return acc + (api_requests.data?.[status] ?? 0)
                   }, 0)}
@@ -271,7 +272,7 @@ function Page() {
                      TaskStatus.ASSIGNED,
                      TaskStatus.IN_PROGRESS,
                      TaskStatus.COMPLETED,
-                     // TaskStatus.CANCELLED,
+                     TaskStatus.CANCELLED,
                      TaskStatus.HEAD_STAFF_CONFIRM,
                   ].reduce((acc, status) => {
                      return acc + (api_tasks.data?.[status] ?? 0)
@@ -388,7 +389,7 @@ function Page() {
                         </div>
                      </div>
 
-                     <div className="relative mt-8 flex h-[75%] w-full justify-between rounded-lg border-2 border-dashed border-black px-4 pt-5">
+                     {/* <div className="relative mt-8 flex h-[75%] w-full justify-between rounded-lg border-2 border-dashed border-black px-4 pt-5">
                         <div className="h-[85%] w-[80px]">
                            <div className="flex h-[70%] w-[100%] items-center justify-center rounded-lg bg-[#e9928e] text-[40px] font-bold text-white">
                               <p>{api_tasks.data?.["uninstall-device-old-already-and-move-to-stock"]}</p>
@@ -452,12 +453,12 @@ function Page() {
                         <div className="absolute bottom-[115px] left-1/2 flex h-[25px] w-[30%] -translate-x-1/2 transform flex-col justify-center rounded-3xl bg-[#Ffe4c0] text-center">
                            Ngoại lệ
                         </div>
-                     </div>
+                     </div> */}
                   </div>
                   <div className="relative flex h-[85%] w-[24%] justify-around rounded-lg border-2 border-dashed border-black pt-5">
                      <div className="flex h-[85%] w-[90px] flex-col justify-center">
                         <div className="flex h-[35%] w-[100%] items-center justify-center rounded-lg bg-[#bc9e03] text-[40px] font-bold text-white">
-                           <p>01</p>
+                           <p>{api_tasks.data?.CANCELLED ?? 0}</p>
                         </div>
                         <div className="relative flex h-[30%] justify-center">
                            <div className="absolute left-1/2 flex h-[35%] w-[90%] -translate-x-1/2 transform items-center justify-center rounded-bl-lg rounded-br-lg bg-[#EDEDED] text-center text-[12px] leading-tight">

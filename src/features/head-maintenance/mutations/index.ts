@@ -25,6 +25,7 @@ import useRequest_CreateReturnWarranty from "@/features/head-maintenance/mutatio
 import useRequest_AddReplacementDevice from "@/features/head-maintenance/mutations/Request_AddReplacementDevice.mutation"
 import useRequest_WarrantyUpdateReceivalDate from "@/features/head-maintenance/mutations/Request_UpdateReceivalDate.mutation"
 import useRequest_Close from "@/features/head-maintenance/mutations/Request_Close.mutation"
+import useTask_Complete from "@/features/head-maintenance/mutations/Task_Complete.mutation"
 
 const head_maintenance_mutations = {
    request: {
@@ -61,6 +62,7 @@ const head_maintenance_mutations = {
       update: useTaskUpdate,
       close: useTask_Close,
       createExportWarehouse: useTask_CreateExportWarehouse,
+      complete: useTask_Complete,
    },
 }
 

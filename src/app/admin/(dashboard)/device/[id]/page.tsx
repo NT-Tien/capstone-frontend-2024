@@ -9,7 +9,7 @@ import Button from "antd/es/button"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import QrCodeV2Modal, { QrCodeV2ModalProps } from "@/features/admin/components/QrCodeV2.modal"
 import { useRef } from "react"
-import { Dropdown } from "antd"
+import { Dropdown, Typography } from "antd"
 import { CopyToClipboard } from "@/components/utils/CopyToClipboard"
 import Device_UpsertDrawer, {
    Device_UpsertDrawerProps,
@@ -67,6 +67,10 @@ function Page({ params }: { params: { id: string } }) {
                      loading={api_device.isPending}
                      columns={[
                         {
+                           title: "Mã máy",
+                           dataIndex: ["deviceCode"],
+                        },
+                        {
                            title: "Tên Mẫu máy",
                            dataIndex: ["machineModel", "name"],
                         },
@@ -86,6 +90,7 @@ function Page({ params }: { params: { id: string } }) {
                            title: "Mô tả",
                            dataIndex: "description",
                            span: 3,
+                           render: (data) => data
                         },
                      ]}
                   />

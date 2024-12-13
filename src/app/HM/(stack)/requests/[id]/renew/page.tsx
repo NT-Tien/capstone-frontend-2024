@@ -41,7 +41,7 @@ import HeadStaff_Request_RenewStatus from "@/features/head-maintenance/api/reque
 import { Truck, Wrench } from "@phosphor-icons/react"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 
-function Page({ params, searchParams }: { params: { id: string }; searchParams: { viewingHistory?: string } }) {
+function Page({ params, searchParams }: { params: { id: string }; searchParams: { "prev-request"?: string } }) {
    const router = useRouter()
    const { modal, notification, message } = App.useApp()
 
@@ -108,10 +108,10 @@ function Page({ params, searchParams }: { params: { id: string }; searchParams: 
    }, [api_request.data])
 
    function handleBack() {
-      if (searchParams.viewingHistory === "true") {
-         router.back()
+      if (searchParams["prev-request"]) {
+         router.push(hm_uris.stack.requests_id(searchParams["prev-request"]))
       } else {
-         router.push(`/HM/requests?status=${api_request.data?.status}`)
+         router.push(hm_uris.navbar.requests_query({ status: api_request.data?.status }))
       }
    }
 

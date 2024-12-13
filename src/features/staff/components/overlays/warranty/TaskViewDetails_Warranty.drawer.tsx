@@ -24,6 +24,7 @@ import { ExportStatus, ExportStatusMapper } from "@/lib/domain/ExportWarehouse/E
 import QrCodeDisplayForRenewModal, {
    QrCodeDisplayForRenewModalRefType,
 } from "@/features/staff/components/overlays/renew/QrCodeDisplayForRenew.modal"
+import { useQueryClient } from "@tanstack/react-query"
 
 type TaskViewDetails_WarrantyDrawerProps = {
    taskId?: string
@@ -33,6 +34,7 @@ type Props = Omit<DrawerProps, "children"> & TaskViewDetails_WarrantyDrawerProps
 
 function TaskViewDetails_WarrantyDrawer(props: Props) {
    const router = useRouter()
+   const queryClient = useQueryClient()
    const { message, notification } = App.useApp()
    const control_scannerDrawer = useScanQrCodeDrawer({
       validationFn: async (result) => {
@@ -363,7 +365,16 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
                </>
             )}
          </Drawer>
-         <QrCodeDisplayForRenewModal refetch={() => api_task.refetch()} ref={control_qrCodeDisplayDrawer} />
+         <QrCodeDisplayForRenewModal
+            refetch={() => api_task.refetch()}
+            ref={control_qrCodeDisplayDrawer}
+            onComplete={() => {
+               props.handleClose?.()
+               queryClient.invalidateQueries({
+                  queryKey: ["staff", "task", "all-by-date"],
+               })
+            }}
+         />
 
          {control_scannerDrawer.contextHolder()}
       </>

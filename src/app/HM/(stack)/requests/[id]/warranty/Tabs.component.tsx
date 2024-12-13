@@ -113,7 +113,7 @@ function TabbedLayout(props: Props) {
                onClick={() => handleTabChange("tasks")}
             >
                <CheckSquare size={20} weight={"duotone"} />
-               <div className="text-center text-sm">Tác vụ</div>
+               <div className="text-center text-sm">Tác vụ ({props.api_request.data?.tasks.length ?? '-'})</div>
             </div>
             <div
                className={cn(
@@ -150,9 +150,7 @@ function TabbedLayout(props: Props) {
                />
             )}
             {tab === "warranty" && <WarrantyTab api_request={props.api_request} />}
-            {tab === "device" && props.api_request.isSuccess && (
-               <DeviceTab api_request={props.api_request} />
-            )}
+            {tab === "device" && props.api_request.isSuccess && <DeviceTab api_request={props.api_request} />}
          </div>
       </>
    )

@@ -18,6 +18,14 @@ class RequestUtil {
             return i.status === IssueStatusEnum.RESOLVED || i.status === IssueStatusEnum.CANCELLED
          })
    }
+
+   static getCurrentWarrantyCard(request?: RequestDto) {
+      if (!request) return undefined
+
+      const deviceWarrantyCards = request.deviceWarrantyCards
+      deviceWarrantyCards?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      return deviceWarrantyCards?.[0]
+   }
 }
 
 export default RequestUtil

@@ -186,7 +186,10 @@ function PickMachineModelDrawer(props: Props) {
                                                       className="aspect-square flex-shrink-0"
                                                       icon={<RightOutlined />}
                                                       onClick={() =>
-                                                         control_deviceDetailsDrawer.current?.handleOpen({ device })
+                                                         control_deviceDetailsDrawer.current?.handleOpen({
+                                                            device,
+                                                            requestId: props.api_request?.data?.id,
+                                                         })
                                                       }
                                                    />
                                                 </div>

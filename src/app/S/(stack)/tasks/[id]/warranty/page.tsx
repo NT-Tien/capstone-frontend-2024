@@ -15,6 +15,7 @@ import staff_queries from "@/features/staff/queries"
 import staff_uri from "@/features/staff/uri"
 import { DismantleReplacementDeviceTypeErrorId } from "@/lib/constants/Warranty"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
+import RequestUtil from "@/lib/domain/Request/Request.util"
 import { TaskType } from "@/lib/domain/Task/Task.dto"
 import TaskUtil from "@/lib/domain/Task/Task.util"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
@@ -44,6 +45,10 @@ function Page({ params }: { params: { id: string } }) {
    const issues = useMemo(() => {
       return TaskUtil.getTask_Warranty_IssuesOrdered(api_task.data)
    }, [api_task.data])
+
+   const warrantyCard = useMemo(() => {
+      return RequestUtil.getCurrentWarrantyCard(api_task.data?.request)
+   }, [api_task.data?.request])
 
    useEffect(() => {
       if (api_task.data?.status === TaskStatus.ASSIGNED) {
@@ -122,10 +127,10 @@ function Page({ params }: { params: { id: string } }) {
                                  label: (
                                     <div className={"flex items-center gap-1"}>
                                        <Clock size={18} weight={"fill"} />
-                                       <span>Thời gian dự tính</span>
+                                       <span>Vị trí</span>
                                     </div>
                                  ),
-                                 children: `${api_task.data.totalTime} phút`,
+                                 children: `Khu vực ${api_task.data.request?.area?.name} (${api_task.data.request.old_device.positionX}, ${api_task.data.request.old_device.positionY})`,
                               },
                               {
                                  label: (
@@ -146,37 +151,28 @@ function Page({ params }: { params: { id: string } }) {
                            ]}
                         />
                      </Card>
-                     <Card size={"small"} className="mt-3 w-full bg-[#FF6B00] text-white">
-                        <div className={"flex items-center gap-2"}>
-                           <div className={"flex-grow"}>
-                              <Space className={"text-xs"} split={<Divider type={"vertical"} className={"m-0"} />}>
-                                 {api_task.data.device.machineModel.manufacturer}
-                                 <span>
-                                    Khu vực{" "}
-                                    {api_task.data.device?.area?.name ??
-                                       api_task.data.request.old_device.area.name ??
-                                       "-"}{" "}
-                                    (
-                                    {api_task.data.device?.positionX ??
-                                       api_task.data.request.old_device.positionX ??
-                                       "-"}
-                                    ,{" "}
-                                    {api_task.data.device?.positionY ??
-                                       api_task.data.request.old_device.positionY ??
-                                       "-"}
-                                    )
-                                 </span>
-                              </Space>
-                              <h3 className={"line-clamp-2 text-base font-semibold"}>
-                                 {api_task.data.device.machineModel.name}
-                              </h3>
-                              {/*<div className={"text-sm"}>{api_task.data.device.description}</div>*/}
+                     {warrantyCard && (
+                        <Card size={"small"} className="mt-3 w-full bg-[#FF6B00] text-white">
+                           <div className={"flex items-center gap-2"}>
+                              <div className={"flex-grow"}>
+                                 <Space className={"text-xs"} split={<Divider type={"vertical"} className={"m-0"} />}>
+                                    <span>{warrantyCard?.device.deviceCode}</span>
+                                    <span>
+                                       {warrantyCard?.device.machineModel.manufacturer}{" "}
+                                       {warrantyCard?.device.machineModel.yearOfProduction}
+                                    </span>
+                                 </Space>
+                                 <h3 className={"line-clamp-2 text-base font-semibold"}>
+                                    {api_task.data.device.machineModel.name}
+                                 </h3>
+                                 {/*<div className={"text-sm"}>{api_task.data.device.description}</div>*/}
+                              </div>
+                              <div>
+                                 <Gear size={32} weight={"fill"} />
+                              </div>
                            </div>
-                           <div>
-                              <Gear size={32} weight={"fill"} />
-                           </div>
-                        </div>
-                     </Card>
+                        </Card>
+                     )}
                   </>
                )}
             </section>
@@ -240,7 +236,7 @@ function Page({ params }: { params: { id: string } }) {
                                     {isCancelledIssue && <CloseOutlined />}
                                     {(isUpcomingIssue || isCurrentIssue) && index + 1}
                                  </div>
-                                 <main className="pt-0.5">
+                                 <main className="w-full pt-0.5">
                                     <header className="flex gap-3">
                                        <h2
                                           className={cn(

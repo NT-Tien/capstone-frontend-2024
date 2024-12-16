@@ -27,6 +27,7 @@ import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
 import { IssueStatusEnumTagMapper } from "@/lib/domain/Issue/IssueStatus.enum"
 import stockkeeper_mutations from "@/features/stockkeeper/mutations"
 import Stockkeeper_MachineModel_GetById from "@/features/stockkeeper/api/machine-model/getById.api"
+import { TaskType } from "@/lib/domain/Task/Task.dto"
 
 function Page({ searchParams }: { searchParams: { taskid?: string } }) {
    const { message } = App.useApp()
@@ -175,8 +176,7 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                  id: api.task.data.device_renew.id,
                  name: (
                     <>
-                       {api.task.data.device_renew.deviceCode}{" "}
-                       <Tag color="green">Đề xuất</Tag>
+                       {api.task.data.device_renew.deviceCode} <Tag color="green">Đề xuất</Tag>
                     </>
                  ),
                  manufacturer: api.task.data.device_renew.operationStatus,
@@ -572,37 +572,39 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                                                },
                                             ]}
                                          />
-                                         <div className="mt-5">
-                                            <h2 className="mb-2 text-lg font-semibold">Chọn thiết bị mới</h2>
-                                            <ProTable
-                                               rowKey="id"
-                                               columns={[
-                                                  {
-                                                     //   title: "Chọn",
-                                                     dataIndex: "id",
-                                                     render: (id) => (
-                                                        <Checkbox
-                                                        //   checked={selectedDevices.includes(id)}
-                                                        //   onChange={(e) => handleCheckboxChange(id, e.target.checked)}
-                                                        />
-                                                     ),
-                                                  },
-                                                  {
-                                                     title: "Mã số thiết bị",
-                                                     dataIndex: "name",
-                                                  },
-                                                  {
-                                                     title: "Thông số kỹ thuật",
-                                                     dataIndex: "manufacturer",
-                                                     width: 100,
-                                                  },
-                                               ]}
-                                               dataSource={data}
-                                               pagination={false}
-                                               search={false}
-                                               options={false}
-                                            />
-                                         </div>
+                                         {api.task.data.type !== TaskType.INSTALL_REPLACEMENT && (
+                                            <div className="mt-5">
+                                               <h2 className="mb-2 text-lg font-semibold">Chọn thiết bị mới</h2>
+                                               <ProTable
+                                                  rowKey="id"
+                                                  columns={[
+                                                     {
+                                                        //   title: "Chọn",
+                                                        dataIndex: "id",
+                                                        render: (id) => (
+                                                           <Checkbox
+                                                           //   checked={selectedDevices.includes(id)}
+                                                           //   onChange={(e) => handleCheckboxChange(id, e.target.checked)}
+                                                           />
+                                                        ),
+                                                     },
+                                                     {
+                                                        title: "Mã số thiết bị",
+                                                        dataIndex: "name",
+                                                     },
+                                                     {
+                                                        title: "Thông số kỹ thuật",
+                                                        dataIndex: "manufacturer",
+                                                        width: 100,
+                                                     },
+                                                  ]}
+                                                  dataSource={data}
+                                                  pagination={false}
+                                                  search={false}
+                                                  options={false}
+                                               />
+                                            </div>
+                                         )}
                                       </>
                                    ),
                                 },

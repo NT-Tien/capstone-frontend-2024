@@ -436,7 +436,12 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
             />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_issueResolveRetunWarehouse}>
-            <Issue_Resolve_ReturnWarehouseDrawer />
+            <Issue_Resolve_ReturnWarehouseDrawer
+               onSubmit={() => {
+                  props.refetchFn?.()
+                  props.handleClose?.()
+               }}
+            />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_issueResolveDisassembleReplacementDrawer}>
             <Issue_Resolve_DisassembleReplacementDrawer

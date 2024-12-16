@@ -6,8 +6,9 @@ import { CreateSignatureDrawerRefType } from "@/components/overlays/CreateSignat
 import SignatureUploader from "@/components/SignatureUploader"
 import { File_Image_Upload } from "@/features/common/api/file/upload_image.api"
 import staff_mutations from "@/features/staff/mutations"
+import { ReturnToWarehouseTypeErrorId } from "@/lib/constants/Warranty"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
-import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { TaskDto, TaskType } from "@/lib/domain/Task/Task.dto"
 import { CloseOutlined, MoreOutlined } from "@ant-design/icons"
 import { useMutation } from "@tanstack/react-query"
 import { Button, Checkbox, Descriptions, Divider, Drawer, DrawerProps, Input } from "antd"
@@ -28,10 +29,19 @@ function FinishTaskDrawer(props: Props) {
 
    const mutate_finishTask = staff_mutations.task.finish()
 
+   const isWarranty_Special = useMemo(() => {
+      if (!props.task) return false
+      return (
+         props.task.type === TaskType.WARRANTY_RECEIVE &&
+         props.task.issues.some((i) => i.typeError.id === ReturnToWarehouseTypeErrorId)
+      )
+   }, [props.task])
+
    function handleFinish(taskId: string, imageVerify: string, signVerify: string, note: string) {
       mutate_finishTask.mutate(
          {
             id: taskId,
+            autoClose: isWarranty_Special,
             payload: {
                imagesVerify: [signVerify, imageVerify],
                fixerNote: note,

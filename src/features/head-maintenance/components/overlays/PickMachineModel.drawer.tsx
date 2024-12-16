@@ -114,7 +114,10 @@ function PickMachineModelDrawer(props: Props) {
                                  index === 0 && "rounded-t-lg",
                                  index === array.length - 1 && "rounded-b-lg",
                               )}
-                              onClick={() => setSelectedMachineModel((prev) => (isSelected ? null : mm))}
+                              onClick={() => {
+                                 setSelectedMachineModel((prev) => (isSelected ? null : mm))
+                                 setSelectedDevice(null)
+                              }}
                            >
                               <div className="aspect-square h-full flex-shrink-0">
                                  <Image
@@ -192,7 +195,9 @@ function PickMachineModelDrawer(props: Props) {
                                        })}
                                     </ul>
                                  </main>
-                                 {props.default_selectedDevice?.id === selectedDevice?.id ? (
+                                 {!!props.default_selectedDevice &&
+                                 !!selectedDevice &&
+                                 props.default_selectedDevice.id === selectedDevice.id ? (
                                     <div className="mb-4 flex items-center">
                                        <Button block type="primary" disabled className="rounded-r-none rounded-t-none">
                                           Đã chọn

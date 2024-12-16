@@ -77,11 +77,13 @@ function Page({ searchParams }: { searchParams: { status?: FixRequestStatus } })
       }
 
       list = list.filter((i) => {
+         const warrantyCodes = i.deviceWarrantyCards?.map((i) => i.code).join(",|,") ?? ""
          return (
             i.requester_note.toLowerCase().includes(search.toLowerCase()) ||
             i.device.machineModel.name.toLowerCase().includes(search.toLowerCase()) ||
             i.device?.area?.name.toLowerCase().includes(search.toLowerCase()) ||
-            i.code.toLowerCase().includes(search.toLowerCase())
+            i.code.toLowerCase().includes(search.toLowerCase()) || 
+            warrantyCodes.toLowerCase().includes(search.toLowerCase())
          )
       })
 

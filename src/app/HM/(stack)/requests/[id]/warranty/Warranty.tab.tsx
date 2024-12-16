@@ -45,9 +45,10 @@ function WarrantyTab(props: Props) {
    const activeWarrantyCard = useMemo(() => {
       if (!props.api_request.isSuccess) return
 
-      return props.api_request.data.deviceWarrantyCards?.find(
-         (card) => card.status !== DeviceWarrantyCardStatus.SUCCESS && card.status !== DeviceWarrantyCardStatus.FAIL,
-      )
+      const deviceWarrantyCards = props.api_request.data.deviceWarrantyCards
+      const sortedByCreatedDate = deviceWarrantyCards?.sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))
+
+      return sortedByCreatedDate?.[0]
    }, [props.api_request.data?.deviceWarrantyCards, props.api_request.isSuccess])
 
    return (
@@ -143,11 +144,11 @@ function WarrantyTab(props: Props) {
                )}
             </main>
          </article>
-         {activeWarrantyCard?.status === DeviceWarrantyCardStatus.WC_PROCESSING && (
-            <article className="mb-3">
+         {activeWarrantyCard && activeWarrantyCard?.status !== DeviceWarrantyCardStatus.UNSENT && (
+            <article className="mb-8">
                <header className="mb-1 flex items-center gap-3">
                   <h2 className="whitespace-nowrap text-lg font-bold">
-                     <FileFilled className="mr-1" /> Đơn gửi bảo hành
+                     <FileFilled className="mr-1" /> Đơn gửi thiết bị
                   </h2>
                   <div className="h-0.5 w-full bg-neutral-300" />
                </header>
@@ -190,12 +191,46 @@ function WarrantyTab(props: Props) {
                      </section>
                   </div>
                   <section>
-                     <h3 className="mb-1 text-sm font-semibold text-neutral-800">Hình ảnh</h3>
+                     <h3 className="mb-1 text-sm font-semibold text-neutral-800">Hình ảnh đơn</h3>
                      <ImageUploader value={activeWarrantyCard.send_bill_image} />
                   </section>
                </main>
             </article>
          )}
+         {activeWarrantyCard &&
+            (activeWarrantyCard.status === DeviceWarrantyCardStatus.SUCCESS ||
+               activeWarrantyCard.status === DeviceWarrantyCardStatus.FAIL) && (
+               <article>
+                  <header className="mb-1 flex items-center gap-3">
+                     <h2 className="whitespace-nowrap text-lg font-bold">
+                        <FileFilled className="mr-1" /> Đơn nhận thiết bị
+                     </h2>
+                     <div className="h-0.5 w-full bg-neutral-300" />
+                  </header>
+                  <main className="space-y-3">
+                     <section>
+                        <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Ngày nhận máy</h3>
+                        <p className="text-sm">{dayjs(activeWarrantyCard.receive_date).format("DD/MM/YYYY HH:mm")}</p>
+                     </section>
+                     <section>
+                        <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Ghi chú</h3>
+                        <p className="text-sm">{activeWarrantyCard.receive_note}</p>
+                     </section>
+                     <section>
+                        <h3 className="mb-0.5 text-sm font-semibold text-neutral-800">Trạng thái bảo hành</h3>
+                        <p className="text-sm">
+                           {activeWarrantyCard.status === DeviceWarrantyCardStatus.SUCCESS
+                              ? "Bảo hành thành công"
+                              : "Từ chối bảo hành"}
+                        </p>
+                     </section>
+                     <section>
+                        <h3 className="mb-1 text-sm font-semibold text-neutral-800">Hình ảnh đơn</h3>
+                        <ImageUploader value={activeWarrantyCard.receive_bill_image} />
+                     </section>
+                  </main>
+               </article>
+            )}
 
          {/* Only show if device has been sent AND hasn't created RECEIVE WARRANTY task */}
          {!props.api_request.data?.tasks.find((i) => TaskUtil.isTask_Warranty(i, "receive")) &&

@@ -177,16 +177,16 @@ function Page({ params }: { params: { id: string } }) {
                <p className="inline text-neutral-500">{api_request.data.checker.username}</p>
             </section>
          )}
-         {api_request.data.status === FixRequestStatus.REJECTED && (
+         {api_request.data.checker_note && (
             <section className="mt-1 px-layout text-red-500">
-               <h2 className="mr-auto inline font-medium">Lý do từ chối: </h2>
+               <h2 className="mr-auto inline font-medium">Ghi chú từ nhân viên: </h2>
                <p className="block text-red-500">{api_request.data.checker_note}</p>
             </section>
          )}
          <section className="mt-4 px-layout">
             {api_request.data.is_warranty && (
                <>
-                  <AlertCard text="Thiết bị đang được bảo hành" type="info" />
+                  <AlertCard text="Thiết bị được bảo hành" type="info" />
                   <List
                      dataSource={api_request.data.issues.filter((i) => IssueUtil.isWarrantyIssue(i))}
                      size="small"
@@ -232,7 +232,7 @@ function Page({ params }: { params: { id: string } }) {
             )}
             {api_request.data.is_fix && (
                <>
-                  <AlertCard text="Thiết bị đang được sửa chữa" type="info" />
+                  <AlertCard text="Thiết bị được sửa chữa" type="info" />
                   <List
                      dataSource={api_request.data.issues.filter((i) => IssueUtil.isFixIssue(i))}
                      size="small"
@@ -278,7 +278,7 @@ function Page({ params }: { params: { id: string } }) {
             )}
             {api_request.data.is_rennew && (
                <>
-                  <AlertCard text="Thiết bị sẽ được thay mới" type="info" />
+                  <AlertCard text="Thiết bị được thay mới" type="info" />
                   <List
                      dataSource={api_request.data.issues.filter((i) => IssueUtil.isRenewIssue(i))}
                      size="small"

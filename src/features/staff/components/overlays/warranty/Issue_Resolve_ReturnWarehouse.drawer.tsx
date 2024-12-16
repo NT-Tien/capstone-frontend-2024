@@ -5,6 +5,7 @@ import { Button, Drawer, DrawerProps, QRCode } from "antd"
 
 type Issue_Resolve_ReturnWarehouseDrawerProps = {
    taskId?: string
+   onSubmit?: () => void
 }
 type Props = Omit<DrawerProps, "children"> & Issue_Resolve_ReturnWarehouseDrawerProps
 
@@ -19,7 +20,13 @@ function Issue_Resolve_ReturnWarehouseDrawer(props: Props) {
          }}
          loading={!props.taskId}
          footer={
-            <Button onClick={props.onClose} block>
+            <Button
+               onClick={(e) => {
+                  props.onClose?.(e)
+                  props.onSubmit?.()
+               }}
+               block
+            >
                Đóng
             </Button>
          }

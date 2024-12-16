@@ -3,6 +3,8 @@ import { DeviceWarrantyCardStatus } from "@/lib/domain/DeviceWarrantyCard/Device
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
 
 export type DeviceWarrantyCardDto = {
+   id: string
+   createdAt: string
    code?: string
    status: DeviceWarrantyCardStatus
    device: DeviceDto

@@ -1,4 +1,4 @@
-import { TaskDto } from "@/lib/domain/Task/Task.dto"
+import { TaskDto, TaskType } from "@/lib/domain/Task/Task.dto"
 import { TaskStatus, TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { Calendar, Circle, Export, User } from "@phosphor-icons/react"
 import {
@@ -24,6 +24,10 @@ import ExportWarehouse_DetailsBasicModal, {
    ExportWarehouse_DetailsBasicModalProps,
 } from "@/features/head-maintenance/components/overlays/ExportWarehouse_DetailsBasic.modal"
 import { useRef } from "react"
+import { ReturnToWarehouseTypeErrorId } from "@/lib/constants/Warranty"
+import Task_WarrantyReceive_ResolveWarrantyFailedDrawer, {
+   Task_WarrantyReceive_ResolveWarrantyFailedDrawerProps,
+} from "@/features/head-maintenance/components/overlays/warranty/Task_WarrantyReceive_ResolveWarrantyFailed.drawer"
 
 function TaskCard() {
    return <div></div>
@@ -343,22 +347,26 @@ function TaskCardWarranty(props: TaskCardSendWarrantyProps) {
             />
          )}
          {props.task.status === TaskStatus.HEAD_STAFF_CONFIRM && (
-            <Button
-               block
-               type="primary"
-               className="mt-2 bg-yellow-600"
-               onClick={() => {
-                  // programmatically click on the failed issue
-                  const failedIssue = issues?.find((i) => i.status === IssueStatusEnum.FAILED)
-                  failedIssue &&
-                     props.handleOpen_issueViewDetailsWarranty({
-                        issueId: failedIssue.id,
-                        requestId: props.requestId,
-                     })
-               }}
-            >
-               Kiểm tra tác vụ
-            </Button>
+            <>
+               {props.task.issues.find((i) => i.status === IssueStatusEnum.FAILED) && (
+                  <Button
+                     block
+                     type="primary"
+                     className="mt-2 bg-yellow-600"
+                     onClick={() => {
+                        // programmatically click on the failed issue
+                        const failedIssue = issues?.find((i) => i.status === IssueStatusEnum.FAILED)
+                        failedIssue &&
+                           props.handleOpen_issueViewDetailsWarranty({
+                              issueId: failedIssue.id,
+                              requestId: props.requestId,
+                           })
+                     }}
+                  >
+                     Kiểm tra tác vụ
+                  </Button>
+               )}
+            </>
          )}
       </div>
    )

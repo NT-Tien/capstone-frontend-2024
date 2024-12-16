@@ -73,8 +73,7 @@ function Issue_WarrantyFailedModal(props: Props) {
                imagesVerify: images,
                failReason: generateFailReason(),
                taskId,
-               shouldSkipUpdateTask:
-                  values.selectedReason === WarrantyFailedReasonsList.WARRANTY_REJECTED_AFTER_PROCESS,
+               shouldSkipUpdateTask: true
             },
          },
          {

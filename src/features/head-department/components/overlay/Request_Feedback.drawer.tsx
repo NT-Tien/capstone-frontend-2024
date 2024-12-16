@@ -109,8 +109,8 @@ function Request_FeedbackDrawer(props: Props) {
                }}
             >
                <ThumbsDown size={40} />
-               <h1 className="whitespace-pre-wrap font-bold">Máy chưa hoạt động</h1>
-               <div className="whitespace-pre-wrap text-center text-xs">Vấn đề ban đầu cần xử lý thêm</div>
+               <h1 className="whitespace-pre-wrap font-bold text-center">Máy chưa hoạt động</h1>
+               <div className="whitespace-pre-wrap text-center text-xs">Vấn đề cần xử lý thêm</div>
             </ClickableArea>
          </section>
 

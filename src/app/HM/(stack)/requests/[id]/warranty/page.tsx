@@ -22,6 +22,9 @@ import Request_RejectDrawer, {
 import IssueFailed_ResolveOptions, {
    IssueFailed_ResolveOptionsProps,
 } from "@/features/head-maintenance/components/overlays/warranty/IssueFailed_ResolveOptions.modal"
+import Request_CloseDrawer, {
+   Request_CloseDrawerProps,
+} from "@/features/head-maintenance/components/overlays/warranty/Request_Close.drawer"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import headstaff_qk from "@/features/head-maintenance/qk"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
@@ -53,6 +56,7 @@ function Page({ params }: { params: { id: string } }) {
    const control_issueFailed_resolveOptionsDrawer = useRef<RefType<IssueFailed_ResolveOptionsProps>>(null)
    const control_requestApproveToFixDrawer = useRef<RefType<Request_ApproveToFixDrawerProps>>(null)
    const control_requestApproveToRenewDrawer = useRef<RefType<Request_ApproveToRenewDrawerProps>>(null)
+   const control_requestCloseDrawer = useRef<RefType<Request_CloseDrawerProps>>(null)
    const control_qrScanner = useScanQrCodeDrawer({
       validationFn: async (data) => {
          if (!api_request.isSuccess) throw new Error()
@@ -62,7 +66,7 @@ function Page({ params }: { params: { id: string } }) {
       onSuccess: () => {
          setTimeout(() => {
             control_issueFailed_resolveOptionsDrawer.current?.handleOpen({
-               showButtons: ["fix", "renew"],
+               showButtons: ["fix", "renew", "close"],
             })
          }, 250)
       },
@@ -345,6 +349,9 @@ function Page({ params }: { params: { id: string } }) {
                onChooseRenew={() => {
                   control_requestApproveToRenewDrawer.current?.handleOpen({ requestId: params.id })
                }}
+               onChooseClose={() => {
+                  control_requestCloseDrawer.current?.handleOpen({ requestId: params.id })
+               }}
             />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_requestApproveToFixDrawer}>
@@ -352,6 +359,13 @@ function Page({ params }: { params: { id: string } }) {
                isMultiple
                onSuccess={() => {
                   router.push(hm_uris.stack.requests_id_fix(params.id))
+               }}
+            />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_requestCloseDrawer}>
+            <Request_CloseDrawer
+               onSuccess={() => {
+                  router.push(hm_uris.navbar.requests + `?status=${FixRequestStatus.CLOSED}`)
                }}
             />
          </OverlayControllerWithRef>

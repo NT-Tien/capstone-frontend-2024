@@ -17,6 +17,9 @@ import Task_AssignFixerV2Drawer, {
 import IssueFailed_ResolveOptions, {
    IssueFailed_ResolveOptionsProps,
 } from "@/features/head-maintenance/components/overlays/warranty/IssueFailed_ResolveOptions.modal"
+import Request_CloseDrawer, {
+   Request_CloseDrawerProps,
+} from "@/features/head-maintenance/components/overlays/warranty/Request_Close.drawer"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import head_maintenance_queries from "@/features/head-maintenance/queries"
 import hm_uris from "@/features/head-maintenance/uri"
@@ -65,6 +68,7 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
    const control_issueFailedResolveOptionsModal = useRef<RefType<IssueFailed_ResolveOptionsProps>>(null)
    const control_requestApproveFixDrawer = useRef<RefType<Request_ApproveToFixDrawerProps>>(null)
    const control_requestApproveRenewDrawer = useRef<RefType<Request_ApproveToRenewDrawerProps>>(null)
+   const control_requestCloseDrawer = useRef<RefType<Request_CloseDrawerProps>>(null)
 
    function Footer() {
       // failure states
@@ -90,7 +94,7 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
             case SendWarrantyTypeErrorId:
                const errorType = api_issue.data.failReason?.split(":")[0]
 
-               const showButtons: any = ["renew", "fix"]
+               const showButtons: any = ["renew", "fix", "close"]
                if (errorType === WarrantyFailedReasonsList.SERVICE_CENTER_CLOSED) {
                   showButtons.push("warranty")
                }
@@ -415,6 +419,9 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
                   props.requestId &&
                      control_requestApproveRenewDrawer.current?.handleOpen({ requestId: props.requestId })
                }}
+               onChooseClose={() => {
+                  props.requestId && control_requestCloseDrawer.current?.handleOpen({ requestId: props.requestId })
+               }}
             />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_requestApproveFixDrawer}>
@@ -450,6 +457,13 @@ function Issue_ViewDetails_WarrantyDrawer(props: Props) {
                         },
                      },
                   )
+               }}
+            />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_requestCloseDrawer}>
+            <Request_CloseDrawer
+               onSuccess={() => {
+                  router.push(hm_uris.navbar.requests)
                }}
             />
          </OverlayControllerWithRef>

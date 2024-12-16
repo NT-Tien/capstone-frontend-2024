@@ -5,9 +5,15 @@ import ImageUploader from "@/components/ImageUploader"
 import DatePickerDrawer, { DatePickerDrawerProps } from "@/components/overlays/DatePicker.drawer"
 import OverlayControllerWithRef, { RefType } from "@/components/utils/OverlayControllerWithRef"
 import VideoUploader from "@/components/VideoUploader"
+import DeviceDetailsDrawer, {
+   DeviceDetailsDrawerProps,
+} from "@/features/head-maintenance/components/overlays/Device_Details.drawer"
 import PickMachineModelDrawer, {
    PickMachineModelDrawerProps,
 } from "@/features/head-maintenance/components/overlays/PickMachineModel.drawer"
+import Request_WarrantyCreateReceiveTask, {
+   Request_WarrantyCreateReceiveTaskProps,
+} from "@/features/head-maintenance/components/overlays/warranty/Request_WarrantyCreateReceiveTask.drawer"
 import head_maintenance_mutations from "@/features/head-maintenance/mutations"
 import { DeviceWarrantyCardStatus } from "@/lib/domain/DeviceWarrantyCard/DeviceWarrantyCardStatus.enum"
 import { RequestDto } from "@/lib/domain/Request/Request.dto"
@@ -28,10 +34,13 @@ type Props = {
 function WarrantyTab(props: Props) {
    const { modal } = App.useApp()
 
-   const control_datePickerDrawer = useRef<RefType<DatePickerDrawerProps>>(null)
+   const control_updateWarrantyReceiveDate = useRef<RefType<DatePickerDrawerProps>>(null)
    const control_pickMachineModelDrawer = useRef<RefType<PickMachineModelDrawerProps>>(null)
+   const control_warrantyCreateReceiveTask = useRef<RefType<Request_WarrantyCreateReceiveTaskProps>>(null)
+   const control_deviceDetailsDrawer = useRef<RefType<DeviceDetailsDrawerProps>>(null)
 
    const mutate_addReplacementDevice = head_maintenance_mutations.request.addReplacementDevice()
+   const mutate_updateWarrantyReceivalDate = head_maintenance_mutations.request.updateWarrantyReceivalDate()
 
    const activeWarrantyCard = useMemo(() => {
       if (!props.api_request.isSuccess) return
@@ -41,14 +50,12 @@ function WarrantyTab(props: Props) {
       )
    }, [props.api_request.data?.deviceWarrantyCards, props.api_request.isSuccess])
 
-   console.log("diff", dayjs(activeWarrantyCard?.receive_date).diff(dayjs(), "day"))
-
    return (
       <div className="p-layout pb-[80px]">
          {props.api_request.data?.temporary_replacement_device ? (
             <div className="mb-layout">
                <div className="w-max rounded-t-lg border-2 border-b-0 border-red-800 bg-neutral-100 px-3 text-left font-semibold text-red-800">
-                  Thiết bị thay thế tạm thời
+                  Thiết bị thay thế
                </div>
                <div className="flex h-[76px]">
                   <div className="flex w-full flex-grow items-start justify-start gap-3 rounded-bl-lg bg-red-800 p-2">
@@ -77,6 +84,11 @@ function WarrantyTab(props: Props) {
                      <Button
                         icon={<EyeOutlined />}
                         className="h-full rounded-l-none rounded-br-none border-red-800"
+                        onClick={() =>
+                           control_deviceDetailsDrawer.current?.handleOpen({
+                              device: props.api_request.data?.temporary_replacement_device,
+                           })
+                        }
                      ></Button>
                      <Button
                         icon={<EditOutlined />}
@@ -177,18 +189,20 @@ function WarrantyTab(props: Props) {
                         <p className="text-sm">{activeWarrantyCard.wc_receiverPhone}</p>
                      </section>
                   </div>
+                  <section>
+                     <h3 className="mb-1 text-sm font-semibold text-neutral-800">Hình ảnh</h3>
+                     <ImageUploader value={activeWarrantyCard.send_bill_image} />
+                  </section>
                </main>
             </article>
          )}
 
          {/* Only show if device has been sent AND hasn't created RECEIVE WARRANTY task */}
-         {props.api_request.data?.tasks.find(
-            (i) => TaskUtil.isTask_Warranty(i, "receive") && i.status === TaskStatus.ASSIGNED,
-         ) === undefined &&
+         {!props.api_request.data?.tasks.find((i) => TaskUtil.isTask_Warranty(i, "receive")) &&
             activeWarrantyCard?.status === DeviceWarrantyCardStatus.WC_PROCESSING && (
                <footer className="fixed bottom-0 left-0 z-50 flex w-full gap-3 border-t-[1px] border-t-neutral-300 bg-white p-layout">
                   {/* Only enable if hasn't created RECEIVE warranty task AND is 1 DAY before expected return warranty date */}
-                  {dayjs(activeWarrantyCard?.receive_date).diff(dayjs(), "day") !== 1 ? (
+                  {dayjs(activeWarrantyCard?.receive_date).diff(dayjs(), "day") > 1 ? (
                      <Button block type="primary" disabled className="text-sm">
                         Còn {dayjs(activeWarrantyCard?.receive_date).diff(dayjs(), "day")} ngày tới ngày nhận máy
                      </Button>
@@ -196,19 +210,12 @@ function WarrantyTab(props: Props) {
                      <Button
                         block
                         type="primary"
-                        onClick={
-                           () => {}
-                           // control_createReturnWarrantyTask.current?.handleOpen({
-                           //    defaults: {
-                           //       date: props.api_request.data?.return_date_warranty
-                           //          ? new Date(props.api_request.data.return_date_warranty)
-                           //          : undefined,
-                           //       priority: "normal",
-                           //       fixer: sendWarrantyTask?.fixer ? sendWarrantyTask.fixer : undefined,
-                           //    },
-                           //    recommendedFixerIds: [sendWarrantyTask.fixer?.id],
-                           // })
-                        }
+                        onClick={() => {
+                           control_warrantyCreateReceiveTask.current?.handleOpen({
+                              request: props.api_request.data,
+                              expectedReceiveDate: dayjs(activeWarrantyCard?.receive_date),
+                           })
+                        }}
                         icon={<PlusOutlined />}
                      >
                         Tạo tác vụ nhận máy
@@ -222,7 +229,12 @@ function WarrantyTab(props: Props) {
                               key: "1",
                               label: "Thay đổi ngày nhận máy",
                               icon: <Swap size={16} />,
-                              onClick: () => control_datePickerDrawer.current?.handleOpen({}),
+                              onClick: () =>
+                                 control_updateWarrantyReceiveDate.current?.handleOpen({
+                                    value: activeWarrantyCard?.receive_date
+                                       ? dayjs(activeWarrantyCard?.receive_date)
+                                       : undefined,
+                                 }),
                            },
                         ],
                      }}
@@ -231,13 +243,29 @@ function WarrantyTab(props: Props) {
                   </Dropdown>
                </footer>
             )}
-         <OverlayControllerWithRef ref={control_datePickerDrawer}>
+         <OverlayControllerWithRef ref={control_updateWarrantyReceiveDate}>
             <DatePickerDrawer
                bounds={{
                   min: dayjs().startOf("day"),
                   max: dayjs().add(10, "years").endOf("year"),
                }}
                title="Cập nhật ngày nhận máy (dự tính)"
+               onSubmit={(date) => {
+                  props.api_request.isSuccess &&
+                     mutate_updateWarrantyReceivalDate.mutate(
+                        {
+                           id: props.api_request.data.id,
+                           payload: {
+                              receivalDate: date.toISOString(),
+                           },
+                        },
+                        {
+                           onSuccess: () => {
+                              props.api_request.refetch()
+                           },
+                        },
+                     )
+               }}
             />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_pickMachineModelDrawer}>
@@ -277,6 +305,17 @@ function WarrantyTab(props: Props) {
                   })
                }}
             />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_warrantyCreateReceiveTask}>
+            <Request_WarrantyCreateReceiveTask
+               onSuccess={() => {
+                  props.api_request.refetch()
+                  control_warrantyCreateReceiveTask.current?.handleClose()
+               }}
+            />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_deviceDetailsDrawer}>
+            <DeviceDetailsDrawer />
          </OverlayControllerWithRef>
       </div>
    )

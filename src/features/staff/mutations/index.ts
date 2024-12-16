@@ -9,6 +9,7 @@ import useTask_FinishWarrantySend from "@/features/staff/mutations/Task_Finish_W
 import useIssue_FailedWarranty from "@/features/staff/mutations/Issue_FailedWarranty.mutation"
 import useIssue_ResolveDisassembleWarranty from "@/features/staff/mutations/Issue_ResolveWarrantyDisassemble.mutation"
 import useIssue_ResolveInstallReplacementWarranty from "@/features/staff/mutations/Issue_ResolveWarrantyInstallReplacement.api"
+import useIssue_ResolveReceiveWarranty from "@/features/staff/mutations/Issue_ResolveWarrantyReceive.mutation"
 
 const staff_mutations = {
    issues: {
@@ -18,6 +19,7 @@ const staff_mutations = {
       resolveSendWarranty: useIssue_ResolveSendWarranty,
       resolveDisassembleWarranty: useIssue_ResolveDisassembleWarranty,
       resolveInstallReplacementWarranty: useIssue_ResolveInstallReplacementWarranty,
+      resolveReceiveWarranty: useIssue_ResolveReceiveWarranty,
    },
    request: {
       updateWarrantyDate: useRequest_UpdateWarrantyDate,

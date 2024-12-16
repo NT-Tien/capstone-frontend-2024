@@ -19,6 +19,7 @@ export type Request = {
       wc_address_ward: string
       wc_address_district: string
       wc_address_city: string
+      send_bill_image: string[]
    }
 } & AuthTokenWrapper
 export type Response = TaskDto

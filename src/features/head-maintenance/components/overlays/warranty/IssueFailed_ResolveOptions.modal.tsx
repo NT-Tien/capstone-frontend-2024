@@ -8,7 +8,8 @@ type IssueFailed_ResolveOptionsProps = {
    onChooseWarranty?: () => void
    onChooseFix?: () => void
    onChooseRenew?: () => void
-   showButtons?: ("warranty" | "fix" | "renew")[]
+   onChooseClose?: () => void
+   showButtons?: ("warranty" | "fix" | "renew" | "close")[]
 }
 type Props = Omit<ModalProps, "children"> &
    IssueFailed_ResolveOptionsProps & {
@@ -79,11 +80,19 @@ function IssueFailed_ResolveOptions(props: Props) {
             </ClickableArea>
             <ClickableArea
                className="flex aspect-square w-full flex-col items-center justify-center gap-1 bg-green-500 p-2 text-white disabled:cursor-not-allowed disabled:bg-gray-400 disabled:opacity-50"
-               disabled={true}
+               onClick={() => {
+                  props.handleClose?.()
+                  setTimeout(() => {
+                     props.onChooseClose?.()
+                  }, 150)
+               }}
+               disabled={props.showButtons?.includes("close") === false}
             >
                <Empty size={40} />
-               <h1 className="whitespace-pre-wrap font-bold">Chưa có</h1>
-               <div className="whitespace-pre-wrap text-center text-xs"></div>
+               <h1 className="whitespace-pre-wrap font-bold">Đóng yêu cầu</h1>
+               <div className="whitespace-pre-wrap text-center text-xs">
+                  Đóng yêu cầu và thông báo cho trưởng sản xuất
+               </div>
             </ClickableArea>
          </div>
       </Modal>

@@ -21,6 +21,9 @@ import Issue_Resolve_InstallReplacementDrawer, {
 import Issue_Resolve_ReceiveDrawer, {
    Issue_Resolve_ReceiveDrawerProps,
 } from "@/features/staff/components/overlays/warranty/Issue_Resolve_Receive.drawer"
+import Issue_Resolve_ReturnWarehouseDrawer, {
+   Issue_Resolve_ReturnWarehouseDrawerProps,
+} from "@/features/staff/components/overlays/warranty/Issue_Resolve_ReturnWarehouse.drawer"
 import Issue_Resolve_SendDrawer, {
    Issue_Resolve_SendDrawerProps,
 } from "@/features/staff/components/overlays/warranty/Issue_Resolve_Send.drawer"
@@ -36,6 +39,7 @@ import {
    ReceiveWarrantyTypeErrorId,
    SendWarrantyTypeErrorId,
    DismantleReplacementDeviceTypeErrorId,
+   ReturnToWarehouseTypeErrorId,
 } from "@/lib/constants/Warranty"
 import { WarrantyFailedReasonsList } from "@/lib/constants/WarrantyFailedReasons"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
@@ -101,8 +105,10 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
    const control_issueResolveDisassembleReplacementDrawer =
       useRef<RefType<Issue_Resolve_DisassembleReplacementDrawerProps>>(null)
    const control_issueResolveReceiveDrawer = useRef<RefType<Issue_Resolve_ReceiveDrawerProps>>(null)
+   const control_issueResolveRetunWarehouse = useRef<RefType<Issue_Resolve_ReturnWarehouseDrawerProps>>(null)
 
    const mutate_finishTaskWarrantySend = staff_mutations.task.finishWarrantySend()
+   const mutate_resolveWarrantyReceive = staff_mutations.issues.resolveReceiveWarranty()
 
    useEffect(() => {
       if (!props.open) {
@@ -158,6 +164,12 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                         case AssembleDeviceTypeErrorId: {
                            control_issueResolveAssembleDrawer.current?.handleOpen({
                               issue: props.issue,
+                           })
+                           return
+                        }
+                        case ReturnToWarehouseTypeErrorId: {
+                           control_issueResolveRetunWarehouse.current?.handleOpen({
+                              taskId: props.task?.id,
                            })
                            return
                         }
@@ -271,6 +283,15 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                         </section>
                      </>
                   )}
+                  {/* {props.issue.typeError.id === SendWarrantyTypeErrorId && (
+                     <section className="py-3">
+                     <h2 className="mr-auto flex items-center gap-1.5 font-medium">
+                        <Note size={16} weight={"fill"} />
+                        Thông tin đính kèm
+                     </h2>
+                     <p className="text-sm text-neutral-500">{props.issue.description}</p>
+                  </section>
+                  )} */}
                   <Divider className="m-0" />
                   <section className="flex flex-col py-3">
                      <h3 className="flex items-center gap-1.5 font-medium">
@@ -380,6 +401,7 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
                            wc_address_ward: values.ward,
                            wc_name: values.name,
                            send_note: values.warrantyCenter_note,
+                           send_bill_image: values.receipt_images,
                         },
                      },
                      {
@@ -394,10 +416,27 @@ function IssueViewDetails_WarrantyDrawer(props: Props) {
          {/* Resolve issue for receive warranty issue */}
          <OverlayControllerWithRef ref={control_issueResolveReceiveDrawer}>
             <Issue_Resolve_ReceiveDrawer
-               onSuccess={() => {
-                  router.push(staff_uri.navbar.tasks)
+               onSuccess={(values) => {
+                  mutate_resolveWarrantyReceive.mutate(
+                     {
+                        id: props.issue?.id ?? "",
+                        payload: {
+                           note: values.receive_note,
+                           warranty_status: values.warranty_status ?? "success",
+                           receive_bill_images: values.receipt_images,
+                        },
+                     },
+                     {
+                        onSuccess: () => {
+                           router.push(staff_uri.navbar.dashboard)
+                        },
+                     },
+                  )
                }}
             />
+         </OverlayControllerWithRef>
+         <OverlayControllerWithRef ref={control_issueResolveRetunWarehouse}>
+            <Issue_Resolve_ReturnWarehouseDrawer />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_issueResolveDisassembleReplacementDrawer}>
             <Issue_Resolve_DisassembleReplacementDrawer

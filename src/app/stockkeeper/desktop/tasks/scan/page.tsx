@@ -193,11 +193,12 @@ function Page({ searchParams }: { searchParams: { taskid?: string } }) {
                         <Button
                            key="complete"
                            className={cn(
-                              !scannedResult ||
-                                 hasSparePartsAndCollected ||
-                                 hasNoSpareParts ||
-                                 isRenewAndCollected ||
-                                 api.task.data?.status !== TaskStatus.ASSIGNED,
+                              // !scannedResult ||
+                              //    hasSparePartsAndCollected ||
+                              //    hasNoSpareParts ||
+                              //    isRenewAndCollected ||
+                              //    (api.task.data?.status !== TaskStatus.ASSIGNED && "hidden"),
+                              !scannedResult && "hidden",
                            )}
                            type="primary"
                            onClick={() => control_dualSignatureDrawer.current?.handleOpen({})}

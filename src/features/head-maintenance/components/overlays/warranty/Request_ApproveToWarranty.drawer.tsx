@@ -136,7 +136,8 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                         const disabled =
                            !fieldValues.note ||
                            (fieldValues.images.length === 0 && fieldValues.videos.length === 0) ||
-                           !api_request.isSuccess
+                           !api_request.isSuccess ||
+                           selectedDevice === null
 
                         return (
                            <Button
@@ -254,79 +255,77 @@ function Request_ApproveToWarrantyDrawer(props: Props) {
                            </Form.Item>
                         </section>
                      </section>
-                     {api_priority.data ? (
-                        <section>
-                           <div className="mb-3">
-                              <h2 className={"mr-auto flex items-center gap-2 text-lg font-medium"}>
-                                 <Laptop size={18} weight="fill" />
-                                 Thiết bị thay thế
-                              </h2>
-                              <p className="text-sm text-neutral-500">Chọn thiết bị thay thế tạm thời cho nhân viên</p>
-                           </div>
-                           <div>
-                              {selectedDevice ? (
-                                 <div className="relative">
-                                    <ClickableArea
-                                       reset
-                                       key={selectedDevice.id}
-                                       className={cn("flex h-20 items-start justify-start gap-3 bg-neutral-100 p-2.5")}
-                                       onClick={() =>
-                                          control_pickMachineModelDrawer.current?.handleOpen({
-                                             api_request: api_request,
-                                             default_selectedDevice: selectedDevice,
-                                          })
-                                       }
-                                    >
-                                       <div className="aspect-square h-full flex-shrink-0">
-                                          <Image
-                                             src={selectedDevice.machineModel.image}
-                                             alt={selectedDevice.machineModel.name}
-                                             className="aspect-square h-full flex-shrink-0 rounded-lg object-cover"
-                                             width={200}
-                                             height={200}
-                                          />
-                                       </div>
-                                       <main>
-                                          <header className="flex items-center">
-                                             <h1 className="mr-auto line-clamp-1 whitespace-pre-wrap text-sm font-bold">
-                                                {selectedDevice.machineModel.name}
-                                             </h1>
-                                          </header>
-                                          <p className="line-clamp-1 whitespace-pre-wrap text-xs font-light text-neutral-500">
-                                             {selectedDevice.machineModel.description}
-                                          </p>
-                                       </main>
-                                    </ClickableArea>
-                                    <div className="absolute bottom-0 right-0">
-                                       <Button
-                                          icon={<DeleteOutlined />}
-                                          size="small"
-                                          type="primary"
-                                          danger
-                                          onClick={() => setSelectedDevice(null)}
-                                       />
-                                    </div>
-                                 </div>
-                              ) : (
+                     <section>
+                        <div className="mb-3">
+                           <h2 className={"mr-auto flex items-center gap-2 text-lg font-medium"}>
+                              <Laptop size={18} weight="fill" />
+                              Thiết bị thay thế
+                           </h2>
+                           <p className="text-sm text-neutral-500">Chọn thiết bị thay thế tạm thời cho nhân viên</p>
+                        </div>
+                        <div>
+                           {selectedDevice ? (
+                              <div className="relative">
                                  <ClickableArea
-                                    block
-                                    className="border-[1px] border-neutral-500 bg-neutral-100 py-2"
-                                    type="dashed"
+                                    reset
+                                    key={selectedDevice.id}
+                                    className={cn("flex h-20 items-start justify-start gap-3 bg-neutral-100 p-2.5")}
                                     onClick={() =>
                                        control_pickMachineModelDrawer.current?.handleOpen({
                                           api_request: api_request,
-                                          default_selectedDevice: selectedDevice ?? undefined,
+                                          default_selectedDevice: selectedDevice,
                                        })
                                     }
-                                    icon={<RightOutlined />}
-                                    iconPosition="end"
                                  >
-                                    Chọn thiết bị
+                                    <div className="aspect-square h-full flex-shrink-0">
+                                       <Image
+                                          src={selectedDevice.machineModel.image}
+                                          alt={selectedDevice.machineModel.name}
+                                          className="aspect-square h-full flex-shrink-0 rounded-lg object-cover"
+                                          width={200}
+                                          height={200}
+                                       />
+                                    </div>
+                                    <main>
+                                       <header className="flex items-center">
+                                          <h1 className="mr-auto line-clamp-1 whitespace-pre-wrap text-sm font-bold">
+                                             {selectedDevice.machineModel.name}
+                                          </h1>
+                                       </header>
+                                       <p className="line-clamp-1 whitespace-pre-wrap text-xs font-light text-neutral-500">
+                                          {selectedDevice.machineModel.description}
+                                       </p>
+                                    </main>
                                  </ClickableArea>
-                              )}
-                           </div>
-                        </section>
-                     ) : null}
+                                 <div className="absolute bottom-0 right-0">
+                                    <Button
+                                       icon={<DeleteOutlined />}
+                                       size="small"
+                                       type="primary"
+                                       danger
+                                       onClick={() => setSelectedDevice(null)}
+                                    />
+                                 </div>
+                              </div>
+                           ) : (
+                              <ClickableArea
+                                 block
+                                 className="border-[1px] border-neutral-500 bg-neutral-100 py-2"
+                                 type="dashed"
+                                 onClick={() =>
+                                    control_pickMachineModelDrawer.current?.handleOpen({
+                                       api_request: api_request,
+                                       default_selectedDevice: selectedDevice ?? undefined,
+                                    })
+                                 }
+                                 icon={<RightOutlined />}
+                                 iconPosition="end"
+                              >
+                                 Chọn thiết bị
+                              </ClickableArea>
+                           )}
+                        </div>
+                     </section>
                   </>
                )}
             </Drawer>

@@ -5,6 +5,7 @@ import {
    DismantleReplacementDeviceTypeErrorId,
    InstallReplacementDeviceTypeErrorId,
    ReceiveWarrantyTypeErrorId,
+   ReturnToWarehouseTypeErrorId,
    SendWarrantyTypeErrorId,
 } from "@/lib/constants/Warranty"
 import { IssueDto } from "@/lib/domain/Issue/Issue.dto"
@@ -61,7 +62,8 @@ class TaskUtil {
                i.typeError.id === DisassembleDeviceTypeErrorId ||
                i.typeError.id === ReceiveWarrantyTypeErrorId ||
                i.typeError.id === AssembleDeviceTypeErrorId ||
-               i.typeError.id === InstallReplacementDeviceTypeErrorId,
+               i.typeError.id === InstallReplacementDeviceTypeErrorId ||
+               i.typeError.id === ReturnToWarehouseTypeErrorId,
          )
       }
 
@@ -102,6 +104,9 @@ class TaskUtil {
          (i) => i.typeError.id === SendWarrantyTypeErrorId || i.typeError.id === AssembleDeviceTypeErrorId,
       )
       if (lastIssue) returnValue.push(lastIssue)
+
+      const returnIssue = task.issues.find((i) => i.typeError.id === ReturnToWarehouseTypeErrorId)
+      if (returnIssue) returnValue.push(returnIssue)
 
       return returnValue
    }

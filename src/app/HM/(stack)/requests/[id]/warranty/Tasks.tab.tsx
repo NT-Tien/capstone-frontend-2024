@@ -51,7 +51,6 @@ function TasksTab(props: Props) {
    const control_issueViewDetailsWarrantyDrawer = useRef<RefType<Issue_ViewDetails_WarrantyDrawerProps>>(null),
       control_taskAssignFixerDrawer = useRef<RefType<Task_AssignFixerModalProps>>(null),
       control_taskVerifyComplete_warrantyDrawer = useRef<RefType<Task_VerifyComplete_WarrantyDrawerProps>>(null),
-      control_createReturnWarrantyTask = useRef<RefType<Task_AssignFixerModalProps>>(null),
       control_qrScanner = useScanQrCodeDrawer({
          validationFn: async (data) => {
             if (!props.api_request.isSuccess) throw new Error("Request not found")
@@ -254,7 +253,7 @@ function TasksTab(props: Props) {
                      })}
                   </ul>
                </section>
-               {props.api_request.data.status === FixRequestStatus.IN_PROGRESS &&
+               {/* {props.api_request.data.status === FixRequestStatus.IN_PROGRESS &&
                   props.api_request.data.tasks.every(
                      (t) => t.status === TaskStatus.COMPLETED || t.status === TaskStatus.CANCELLED,
                   ) &&
@@ -273,32 +272,12 @@ function TasksTab(props: Props) {
                            Hoàn tất yêu cầu
                         </Button>
                      </section>
-                  )}
+                  )} */}
             </div>
          )}
          {control_qrScanner.contextHolder()}
          <OverlayControllerWithRef ref={control_issueViewDetailsWarrantyDrawer}>
             <Issue_ViewDetails_WarrantyDrawer refetchFn={() => props.api_request.refetch()} />
-         </OverlayControllerWithRef>
-         <OverlayControllerWithRef ref={control_createReturnWarrantyTask}>
-            <Task_AssignFixerV2Drawer
-               onSubmit={(fixer, date, priority) => {
-                  if (!props.api_request.isSuccess) return
-                  mutate_createReturnWarranty.mutate(
-                     {
-                        id: props.api_request.data.id,
-                        payload: {
-                           fixer: fixer.id,
-                           fixerDate: date.toISOString(),
-                           priority,
-                        },
-                     },
-                     {
-                        onSettled: () => props.api_request.refetch(),
-                     },
-                  )
-               }}
-            />
          </OverlayControllerWithRef>
          <OverlayControllerWithRef ref={control_taskAssignFixerDrawer}>
             <Task_AssignFixerV2Drawer

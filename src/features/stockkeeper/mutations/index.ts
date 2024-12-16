@@ -7,6 +7,7 @@ import useExportWarehouse_Delay from "@/features/stockkeeper/mutations/ExportWar
 import useDevice_ReturnRemovedDevice from "./Device_ReturnRemovedDevice.mutation"
 import useSparePart_UpdateQuantity from "@/features/stockkeeper/mutations/SparePart_UpdateQuantity.mutation"
 import useSparePart_AddQuantity from "./SparePart_AddQuantity.mutation"
+import useIssue_CompleteReturnDevice from "@/features/stockkeeper/mutations/Issue_CompleteReturnDevice.mutation"
 
 const stockkeeper_mutations = {
    task: {
@@ -16,6 +17,7 @@ const stockkeeper_mutations = {
    issue: {
       fail: useIssueFail,
       failMany: useIssueFailMany,
+      warranty_completeReturnDevice: useIssue_CompleteReturnDevice
    },
    exportWarehouse: {
       accept: useExportWarehouse_Accept,

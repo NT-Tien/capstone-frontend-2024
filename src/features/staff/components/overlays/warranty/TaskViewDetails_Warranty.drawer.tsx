@@ -105,6 +105,11 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
          )
       }
 
+      // disable if in future
+      if (dayjs().isBefore(dayjs(api_task.data.fixerDate))) {
+         return <AlertCard text="Tác vụ này chưa đến ngày thực hiện" type="info" />
+      }
+
       // if task has export warehouse that is not exported
       if (api_task.data.export_warehouse_ticket.length > 0) {
          if (api_task.data.export_warehouse_ticket[0].status === ExportStatus.WAITING) {
@@ -299,9 +304,19 @@ function TaskViewDetails_WarrantyDrawer(props: Props) {
                                        >
                                           {api_task.data.device.machineModel.manufacturer}
                                           <span>
-                                             Khu vực {api_task.data.device?.area?.name ?? "-"} (
-                                             {api_task.data.device?.positionX ?? "-"},{" "}
-                                             {api_task.data.device?.positionY ?? "-"})
+                                             Khu vực{" "}
+                                             {api_task.data.device?.area?.name ??
+                                                api_task.data.request.old_device.area.name ??
+                                                "-"}{" "}
+                                             (
+                                             {api_task.data.device?.positionX ??
+                                                api_task.data.request.old_device.positionX ??
+                                                "-"}
+                                             ,{" "}
+                                             {api_task.data.device?.positionY ??
+                                                api_task.data.request.old_device.positionY ??
+                                                "-"}
+                                             )
                                           </span>
                                        </Space>
                                        <h3 className={"line-clamp-2 text-base font-semibold"}>

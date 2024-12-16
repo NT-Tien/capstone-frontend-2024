@@ -15,8 +15,11 @@ import UpdateQuantityModal, {
 } from "@/features/stockkeeper/components/overlay/UpdateQuantity.modal"
 import stockkeeper_mutations from "@/features/stockkeeper/mutations"
 import useDownloadImportSpareParts from "@/features/stockkeeper/useDownloadImportSpareParts"
+import { ReturnToWarehouseTypeErrorId } from "@/lib/constants/Warranty"
 import { IssueStatusEnum } from "@/lib/domain/Issue/IssueStatus.enum"
 import { SparePartDto } from "@/lib/domain/SparePart/SparePart.dto"
+import { TaskType } from "@/lib/domain/Task/Task.dto"
+import TaskUtil from "@/lib/domain/Task/Task.util"
 import { TaskStatusTagMapper } from "@/lib/domain/Task/TaskStatus.enum"
 import { DownloadOutlined } from "@ant-design/icons"
 import { PageContainer } from "@ant-design/pro-layout"
@@ -50,20 +53,26 @@ function Page() {
       }),
    })
 
-   const handleScannedResult = async (scannedResult: string) => {
-      try {
-         const taskData = await Stockkeeper_Task_GetById({ id: scannedResult })
-         const deviceId = taskData.device.id // Extract deviceId from the task data
-         setScannedResult(deviceId) // Update scannedResult with deviceId
-         
-      } catch (error) {
-         message.error("Failed to process scanned result.")
-         console.error(error)
+   const check_taskIsWarranty = useMemo(() => {
+      if (!api.task.isSuccess) return
+
+      if (
+         TaskUtil.isTask_Warranty(api.task.data) &&
+         api.task.data.issues.find((i) => i.typeError.id === ReturnToWarehouseTypeErrorId)
+      ) {
+         // do special shit
+         return {
+            task: api.task.data,
+            returnToWarehouseIssue: api.task.data.issues.find((i) => i.typeError.id === ReturnToWarehouseTypeErrorId),
+         }
       }
-   }
+
+      return
+   }, [api.task.data, api.task.isSuccess])
 
    const mutate_returnSpareParts = stockkeeper_mutations.task.returnSpareParts()
    const mutate_returnRemovedDevice = stockkeeper_mutations.device.returnRemovedDevice()
+   const mutate_warrantyResolve = stockkeeper_mutations.issue.warranty_completeReturnDevice()
 
    const spareParts = useMemo(() => {
       const failedIssues = api.task.data?.issues.filter(
@@ -115,8 +124,7 @@ function Page() {
                            type="primary"
                            disabled={
                               // !!api.task.data?.return_spare_part_data &&
-                              Object.keys(spareParts).length > 0 &&
-                              updated.length !== Object.keys(spareParts).length
+                              Object.keys(spareParts).length > 0 && updated.length !== Object.keys(spareParts).length
                            }
                            onClick={() => control_dualSignatureDrawer.current?.handleOpen({})}
                         >
@@ -167,32 +175,36 @@ function Page() {
                                        },
                                     ]}
                                  />
-                                 <p className="mt-6 text-[16px] font-bold">Thông số máy mới</p>
-                                 <Descriptions
-                                    items={[
-                                       {
-                                          label: "Mã máy",
-                                          children: api.task.data?.device_renew?.machineModel.id,
-                                          span: 3,
-                                       },
-                                       {
-                                          label: "Mẫu máy",
-                                          children: api.task.data?.device_renew?.machineModel.name,
-                                       },
-                                       {
-                                          label: "Nhà sản xuất",
-                                          children: api.task.data?.device_renew?.machineModel.manufacturer,
-                                       },
-                                       {
-                                          label: "Thời hạn bảo hành",
-                                          children: api.task.data?.device_renew?.machineModel.warrantyTerm
-                                             ? dayjs(api.task.data?.device_renew.machineModel.warrantyTerm).format(
-                                                  "DD/MM/YYYY",
-                                               )
-                                             : "-",
-                                       },
-                                    ]}
-                                 />
+                                 {!check_taskIsWarranty && (
+                                    <>
+                                       <p className="mt-6 text-[16px] font-bold">Thông số máy mới</p>
+                                       <Descriptions
+                                          items={[
+                                             {
+                                                label: "Mã máy",
+                                                children: api.task.data?.device_renew?.machineModel.id,
+                                                span: 3,
+                                             },
+                                             {
+                                                label: "Mẫu máy",
+                                                children: api.task.data?.device_renew?.machineModel.name,
+                                             },
+                                             {
+                                                label: "Nhà sản xuất",
+                                                children: api.task.data?.device_renew?.machineModel.manufacturer,
+                                             },
+                                             {
+                                                label: "Thời hạn bảo hành",
+                                                children: api.task.data?.device_renew?.machineModel.warrantyTerm
+                                                   ? dayjs(
+                                                        api.task.data?.device_renew.machineModel.warrantyTerm,
+                                                     ).format("DD/MM/YYYY")
+                                                   : "-",
+                                             },
+                                          ]}
+                                       />
+                                    </>
+                                 )}
                               </div>
                            ) : (
                               <Descriptions
@@ -279,12 +291,16 @@ function Page() {
                         <Descriptions
                            items={[
                               {
-                                 label: "Tên tác vụ",
-                                 children: api.task.data?.name,
+                                 label: "Tên mẫu máy",
+                                 children: check_taskIsWarranty
+                                    ? check_taskIsWarranty.task.device_static?.machineModel.name
+                                    : api.task.data?.device.machineModel.name,
                               },
                               {
-                                 label: "Mẫu máy",
-                                 children: `${api.task.data?.device.machineModel.name} - ${api.task.data?.device.description}`,
+                                 label: "Mô tả",
+                                 children: check_taskIsWarranty
+                                    ? check_taskIsWarranty.task.device_static?.description
+                                    : api.task.data?.device.description,
                               },
                            ]}
                         />
@@ -296,6 +312,27 @@ function Page() {
                   <DualSignatureDrawer
                      onSubmit={(staff, stockkeeper) => {
                         if (!scannedResult) return
+
+                        // WARRANTY START
+                        if (check_taskIsWarranty && check_taskIsWarranty.returnToWarehouseIssue) {
+                           mutate_warrantyResolve.mutate(
+                              {
+                                 id: check_taskIsWarranty.returnToWarehouseIssue.id,
+                              },
+                              {
+                                 onSuccess: () => {
+                                    setScannedResult(null) // Reset scanned result
+                                    api.task.refetch() // Refresh task data
+                                    control_dualSignatureDrawer.current?.handleClose() // Close the drawer
+                                    setTimeout(() => {
+                                       handleOpen() // Reopen scanner drawer after success
+                                    }, 500)
+                                 },
+                              },
+                           )
+                           return
+                        }
+                        // WARRANTY END
 
                         const isSparePartReturn = Object.keys(spareParts).length > 0
 

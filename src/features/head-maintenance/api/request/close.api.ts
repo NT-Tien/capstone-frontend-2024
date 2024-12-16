@@ -8,18 +8,15 @@ import { AuthTokenWrapper } from "@/lib/types/AuthTokenWrapper"
 export type Request = {
    id: string
    payload: {
-      taskName?: string
-      fixerDate: string
-      priority: boolean
+      note: string
    }
 } & AuthTokenWrapper
 export type Response = RequestDto
 
-HeadStaff_Request_CreateReturnWarranty.URL = (req: Request) => `/head-staff/request/create-return-warranty/${req.id}`
-
-export default async function HeadStaff_Request_CreateReturnWarranty(req: Request): Promise<Response> {
+HeadStaff_Request_Close.URL = (req: Request) => `/head-staff/request/close/${req.id}`
+export default async function HeadStaff_Request_Close(req: Request): Promise<Response> {
    return api
-      .post<Response>(HeadStaff_Request_CreateReturnWarranty.URL(req), req.payload, {
+      .put<Response>(HeadStaff_Request_Close.URL(req), req.payload, {
          transformResponse: (data) => parseApiResponse(data),
          headers: {
             Authorization: `Bearer ${req.token ?? Cookies.get("token")}`,

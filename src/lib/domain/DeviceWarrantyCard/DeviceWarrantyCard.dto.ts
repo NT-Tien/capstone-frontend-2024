@@ -22,4 +22,6 @@ export type DeviceWarrantyCardDto = {
    wc_address_ward?: string
    wc_address_district?: string
    wc_address_city?: string
+   send_bill_image: string[]
+   receive_bill_image: string[]
 }

@@ -65,8 +65,6 @@ type Props = Omit<DrawerProps, "children"> &
    }
 
 function Issue_Resolve_SendDrawer(props: Props) {
-   const control_viewMapModal = useRef<RefType<ViewMapModalProps>>(null)
-
    const [step, setStep] = useState(0)
 
    const [step1Values, setStep1Values] = useState<Step1_ValuesType>({
@@ -87,8 +85,6 @@ function Issue_Resolve_SendDrawer(props: Props) {
    const [step3Values, setStep3Values] = useState<Step3_ValuesType>({
       receipt_images: [],
    })
-
-   const mutate_resolveIssue = staff_mutations.issues.resolveSendWarranty()
 
    function Footer() {
       if (step === 0) {
@@ -396,45 +392,6 @@ function Issue_Resolve_SendDrawer(props: Props) {
                </main>
             </section>
          )}
-         {/* <section>
-            <ClickableArea
-               className="items-center justify-start p-3"
-               block
-               onClick={() => control_viewMapModal.current?.handleOpen({ coordinates: location?.coords })}
-            >
-               <MapPin size={32} />
-               <div className="flex flex-grow flex-col items-start justify-start">
-                  <h1 className="text-base font-bold">Vị trí hiện tại</h1>
-                  <p className="font-base text-sm text-neutral-500">Xác minh vị trí trung tâm bảo hành</p>
-               </div>
-               <RightOutlined />
-            </ClickableArea>
-         </section>
-         <section className="mt-8">
-            <header className="mb-2">
-               <h3 className="text-base font-semibold">Hình ảnh biên nhận</h3>
-               <p className="font-base text-sm text-neutral-500">Vui lòng tải hình ảnh biên nhận bảo hành</p>
-            </header>
-            <ImageUploader imageUris={imageUris} setImageUris={setImageUris} />
-         </section>
-         <section className="mt-8">
-            <header className="mb-2">
-               <h3 className="text-base font-semibold">Ngày bảo hành xong</h3>
-               <p className="font-base text-sm text-neutral-500">Nhập ngày dự tính bảo hành xong</p>
-            </header>
-            <DatePicker
-               format={"dddd DD/MM/YYYY"}
-               placeholder="Chọn ngày"
-               className="w-full"
-               minDate={dayjs().startOf("day")}
-               allowClear={false}
-               value={date}
-               onChange={(date) => setDate(date)}
-            />
-         </section> */}
-         <OverlayControllerWithRef ref={control_viewMapModal}>
-            <ViewMapModal />
-         </OverlayControllerWithRef>
       </Drawer>
    )
 }

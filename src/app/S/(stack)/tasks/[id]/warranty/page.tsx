@@ -152,8 +152,19 @@ function Page({ params }: { params: { id: string } }) {
                               <Space className={"text-xs"} split={<Divider type={"vertical"} className={"m-0"} />}>
                                  {api_task.data.device.machineModel.manufacturer}
                                  <span>
-                                    Khu vực {api_task.data.device?.area?.name ?? "-"} (
-                                    {api_task.data.device?.positionX ?? "-"}, {api_task.data.device?.positionY ?? "-"})
+                                    Khu vực{" "}
+                                    {api_task.data.device?.area?.name ??
+                                       api_task.data.request.old_device.area.name ??
+                                       "-"}{" "}
+                                    (
+                                    {api_task.data.device?.positionX ??
+                                       api_task.data.request.old_device.positionX ??
+                                       "-"}
+                                    ,{" "}
+                                    {api_task.data.device?.positionY ??
+                                       api_task.data.request.old_device.positionY ??
+                                       "-"}
+                                    )
                                  </span>
                               </Space>
                               <h3 className={"line-clamp-2 text-base font-semibold"}>
@@ -187,6 +198,7 @@ function Page({ params }: { params: { id: string } }) {
 
                         const isResolvedIssue = i.status === IssueStatusEnum.RESOLVED
                         const isFailedIssue = i.status === IssueStatusEnum.FAILED
+                        const isCancelledIssue = i.status === IssueStatusEnum.CANCELLED
 
                         const isUpcomingIssue = array[index - 1]?.status === IssueStatusEnum.PENDING && !isCurrentIssue
 
@@ -201,6 +213,8 @@ function Page({ params }: { params: { id: string } }) {
                                     index === array.length - 1 && "rounded-b-lg",
                                     isUpcomingIssue && "opacity-30",
                                     isResolvedIssue && "bg-green-100 opacity-70",
+                                    isFailedIssue && "bg-red-100 opacity-70",
+                                    isCancelledIssue && "bg-neutral-100 opacity-40",
                                  )}
                                  onClick={() =>
                                     api_task.isSuccess &&
@@ -218,10 +232,12 @@ function Page({ params }: { params: { id: string } }) {
                                        "grid size-7 flex-shrink-0 place-items-center rounded-full bg-neutral-300 text-sm font-medium text-white",
                                        isResolvedIssue && "bg-green-500",
                                        isCurrentIssue && "bg-orange-500",
+                                       isFailedIssue && "bg-red-500",
                                     )}
                                  >
                                     {isResolvedIssue && <CheckOutlined />}
                                     {isFailedIssue && <CloseOutlined />}
+                                    {isCancelledIssue && <CloseOutlined />}
                                     {(isUpcomingIssue || isCurrentIssue) && index + 1}
                                  </div>
                                  <main className="pt-0.5">

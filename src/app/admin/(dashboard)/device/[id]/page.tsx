@@ -73,13 +73,14 @@ function Page({ params }: { params: { id: string } }) {
                         {
                            title: "Khu vực",
                            dataIndex: ["area", "name"],
-                           render: (_, e) => <Link href={`/admin/area/${e.area.id}`}>{e.area.name}</Link>,
+                           render: (_, e) =>
+                              e.area ? <Link href={`/admin/area/${e.area?.id}`}>{e.area?.name}</Link> : "Trong kho",
                         },
                         {
                            title: "Vị trí",
                            dataIndex: "position",
                            render: (_, e) =>
-                              !e.positionX || !e.positionY ? "Chưa xác định" : `${e.positionX} - ${e.positionY}`,
+                              !e.positionX || !e.positionY ? "-" : `${e.positionX} - ${e.positionY}`,
                         },
                         {
                            title: "Mô tả",

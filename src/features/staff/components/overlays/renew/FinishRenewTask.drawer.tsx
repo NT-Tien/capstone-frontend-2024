@@ -23,7 +23,11 @@ type Props = Omit<DrawerProps, "children"> & FinishRenewTaskDrawerProps
 function FinishRenewTaskDrawer(props: Props) {
    const [imagesVerification, setImagesVerification] = useState<string[]>([])
    const [note, setNote] = useState<string>("")
+   const [isChecked, setIsChecked] = useState(false)
 
+   const handleCheckboxChange = (e: any) => {
+      setIsChecked(e.target.checked)
+   }
    const mutate_finishTask = staff_mutations.task.finish()
 
    function handleFinish(taskId: string, imageVerify: string, note: string) {
@@ -86,15 +90,8 @@ function FinishRenewTaskDrawer(props: Props) {
             footer={
                <div>
                   <div className="mb-3 flex items-start gap-3">
-                     <Checkbox
-                        // id="sign"
-                        // checked={imagesVerification}
-                        // onChange={(e) => setNote(e.target.checked)}
-                        disabled={!imagesVerification.length}
-                     />
-                     <label className={"font-bold"}>
-                        Tối muốn hoàn thành tác vụ này
-                     </label>
+                     <Checkbox disabled={!imagesVerification.length} onChange={handleCheckboxChange} />
+                     <label className={"font-bold"}>Tôi muốn hoàn thành tác vụ này</label>
                   </div>
                   <Button
                      block
@@ -106,7 +103,7 @@ function FinishRenewTaskDrawer(props: Props) {
                         imagesVerification.length &&
                         handleFinish(props.task?.id, imagesVerification[0], note)
                      }
-                    //  disabled={!signed}
+                     disabled={!isChecked}
                   >
                      Hoàn thành
                   </Button>
@@ -134,7 +131,11 @@ function FinishRenewTaskDrawer(props: Props) {
                   },
                   { label: "Thời gian hoàn thành", children: dayjs().format("HH:mm DD/MM/YYYY") },
                   {
-                     label: "Ghi chú:",
+                     label: (
+                        <span>
+                           Ghi chú:<span style={{ color: "red" }}>*</span>
+                        </span>
+                     ),
                      className: "*:flex-col",
                      children: (
                         <Input.TextArea
@@ -145,12 +146,13 @@ function FinishRenewTaskDrawer(props: Props) {
                            className="mt-2 w-full"
                            maxLength={300}
                            showCount
+                           required
                         />
                      ),
                   },
                ]}
             />
-            <Divider className='mt-layout' />
+            <Divider className="mt-layout" />
             {/* <section>
                <header className="mb-2">
                   <h3 className="text-base font-semibold">Chữ ký xác nhận</h3>

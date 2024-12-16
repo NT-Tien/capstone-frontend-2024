@@ -80,7 +80,7 @@ function Request_RejectDrawer(props: Props) {
                   className="mb-layout"
                />
             )}
-            <Form.Item<FieldType> name="message" label="Lý do hủy yêu cầu" rules={[{ required: true }]}>
+            <Form.Item<FieldType> name="message" label="Lý do hoàn tất yêu cầu" rules={[{ required: true }]}>
                <Input.TextArea
                   ref={inputRef}
                   showCount

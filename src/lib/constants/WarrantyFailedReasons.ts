@@ -31,43 +31,22 @@ export const WarrantyFailedGenerator = {
 }
 
 const WarrantyFailedReasons = {
-   [DisassembleDeviceTypeErrorId]: [
-      {
-         label: WarrantyFailedReasonsList.CANNOT_DISASSEMBLE,
-         value: WarrantyFailedReasonsList.CANNOT_DISASSEMBLE,
-      },
-      {
-         label: WarrantyFailedReasonsList.OTHER,
-         value: WarrantyFailedReasonsList.OTHER,
-      },
-   ],
+   [DisassembleDeviceTypeErrorId]: [],
    [SendWarrantyTypeErrorId]: [
-      {
-         label: WarrantyFailedReasonsList.SERVICE_CENTER_CLOSED,
-         value: WarrantyFailedReasonsList.SERVICE_CENTER_CLOSED,
-      },
-      {
-         label: WarrantyFailedReasonsList.WARRANTY_REJECTED_ON_ARRIVAL,
-         value: WarrantyFailedReasonsList.WARRANTY_REJECTED_ON_ARRIVAL,
-      },
-      {
-         label: WarrantyFailedReasonsList.OTHER,
-         value: WarrantyFailedReasonsList.OTHER,
-      },
+      // {
+      //    label: WarrantyFailedReasonsList.SERVICE_CENTER_CLOSED,
+      //    value: WarrantyFailedReasonsList.SERVICE_CENTER_CLOSED,
+      // },
+      // {
+      //    label: WarrantyFailedReasonsList.WARRANTY_REJECTED_ON_ARRIVAL,
+      //    value: WarrantyFailedReasonsList.WARRANTY_REJECTED_ON_ARRIVAL,
+      // },
    ],
    [ReceiveWarrantyTypeErrorId]: [
-      {
-         label: WarrantyFailedReasonsList.WARRANTY_REJECTED_AFTER_PROCESS,
-         value: WarrantyFailedReasonsList.WARRANTY_REJECTED_AFTER_PROCESS,
-      },
-      {
-         label: WarrantyFailedReasonsList.CHANGE_RECEIVE_DATE,
-         value: WarrantyFailedReasonsList.CHANGE_RECEIVE_DATE,
-      },
-      {
-         label: WarrantyFailedReasonsList.OTHER,
-         value: WarrantyFailedReasonsList.OTHER,
-      },
+      // {
+      //    label: WarrantyFailedReasonsList.CHANGE_RECEIVE_DATE,
+      //    value: WarrantyFailedReasonsList.CHANGE_RECEIVE_DATE,
+      // },
    ],
 }
 
